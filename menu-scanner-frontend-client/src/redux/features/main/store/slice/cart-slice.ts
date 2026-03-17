@@ -232,24 +232,56 @@ const cartSlice = createSlice({
         optimisticTimestamp?: number;
       }>
     ) => {
+      const { productId, productSizeId, quantity, optimisticTimestamp } = action.payload;
+
+      // Find existing item
       const item = state.items.find(
-        (i) =>
-          i.productId === action.payload.productId &&
-          i.productSizeId === action.payload.productSizeId
+        (i) => i.productId === productId && i.productSizeId === (productSizeId || null)
       );
+
       if (item) {
-        if (action.payload.quantity <= 0) {
-          // Remove item
+        // Item exists: update or remove
+        if (quantity <= 0) {
           state.items = state.items.filter((i) => i.id !== item.id);
         } else {
-          item.quantity = action.payload.quantity;
-          item.totalPrice = item.finalPrice * action.payload.quantity;
-          if (action.payload.optimisticTimestamp) {
-            item.lastOptimisticTimestamp = action.payload.optimisticTimestamp;
+          item.quantity = quantity;
+          item.totalPrice = item.finalPrice * quantity;
+          if (optimisticTimestamp) {
+            item.lastOptimisticTimestamp = optimisticTimestamp;
           }
         }
-        recalculateTotals(state);
+      } else {
+        // Item doesn't exist: create it with default values
+        // This handles the case where user clicks +/- before adding to cart
+        if (quantity > 0) {
+          const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          state.items.push({
+            id: tempId,
+            productId,
+            productName: "Product", // Placeholder - will be updated by API response
+            productImageUrl: "",
+            productSizeId: productSizeId || null,
+            sizeName: null,
+            quantity,
+            currentPrice: 0, // Placeholder - will be updated by API response
+            finalPrice: 0, // Placeholder - will be updated by API response
+            totalPrice: 0,
+            hasPromotion: false,
+            isAvailable: true,
+            promotionType: null,
+            promotionValue: null,
+            promotionFromDate: null,
+            promotionToDate: null,
+            promotionEndDate: null,
+            totalBeforeDiscount: 0,
+            discountAmount: 0,
+            lastOptimisticTimestamp: optimisticTimestamp,
+          });
+        }
       }
+
+      // Always recalculate totals after any update
+      recalculateTotals(state);
     },
   },
   extraReducers: (builder) => {

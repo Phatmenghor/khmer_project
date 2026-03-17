@@ -163,14 +163,36 @@ export function ProductCard({ product, className }: ProductCardProps) {
         return;
       }
 
-      // For non-sized products, increment the quantity directly
-      // Use max of current quantity and what the product shows in case of out-of-sync state
+      // Safety check: if item should be in cart but isn't in Redux, something is out of sync
+      // Add it to Redux state first with full product details
+      if (!cartItem && quantity > 0) {
+        cartDispatch(
+          addLocalCartItem({
+            productId: product.id,
+            productSizeId: null,
+            quantity: quantity, // This is the quantity from API or product field
+            productName: product.name,
+            productImageUrl: product.mainImageUrl,
+            sizeName: null,
+            finalPrice: product.displayPrice,
+            currentPrice: product.displayOriginPrice || product.displayPrice,
+            hasPromotion: product.hasActivePromotion,
+            promotionType: product.displayPromotionType || null,
+            promotionValue: product.displayPromotionValue || null,
+            promotionFromDate: product.displayPromotionFromDate || null,
+            promotionToDate: product.displayPromotionToDate || null,
+            optimisticTimestamp: Date.now(),
+          })
+        );
+      }
+
+      // Now increment the quantity
       const currentQty = quantity;
       const newQty = currentQty + 1;
       const key = cartItemKey(product.id, null);
       const ts = Date.now();
 
-      // Always dispatch optimistic update (adds to cart if not present)
+      // Dispatch optimistic update
       cartDispatch(
         updateLocalCartItem({
           productId: product.id,
@@ -180,10 +202,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
         })
       );
 
-      // Always debounce the API call
+      // Debounce the API call
       debouncedUpdate(key, product.id, null, newQty, ts);
     },
-    [product, quantity, cartDispatch, debouncedUpdate, setShowSizeModal]
+    [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]
   );
 
   const handleDecrement = useCallback(
@@ -197,7 +219,30 @@ export function ProductCard({ product, className }: ProductCardProps) {
         return;
       }
 
-      // For non-sized products, decrement the quantity
+      // Safety check: if item should be in cart but isn't in Redux, something is out of sync
+      // Add it to Redux state first with full product details
+      if (!cartItem && quantity > 0) {
+        cartDispatch(
+          addLocalCartItem({
+            productId: product.id,
+            productSizeId: null,
+            quantity: quantity, // This is the quantity from API or product field
+            productName: product.name,
+            productImageUrl: product.mainImageUrl,
+            sizeName: null,
+            finalPrice: product.displayPrice,
+            currentPrice: product.displayOriginPrice || product.displayPrice,
+            hasPromotion: product.hasActivePromotion,
+            promotionType: product.displayPromotionType || null,
+            promotionValue: product.displayPromotionValue || null,
+            promotionFromDate: product.displayPromotionFromDate || null,
+            promotionToDate: product.displayPromotionToDate || null,
+            optimisticTimestamp: Date.now(),
+          })
+        );
+      }
+
+      // Now decrement the quantity
       const currentQty = quantity;
       const newQty = Math.max(0, currentQty - 1);
       const key = cartItemKey(product.id, null);
@@ -208,7 +253,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         showToast.success("Removed from cart");
       }
 
-      // Always dispatch optimistic update
+      // Dispatch optimistic update
       cartDispatch(
         updateLocalCartItem({
           productId: product.id,
@@ -218,10 +263,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
         })
       );
 
-      // Always debounce the API call
+      // Debounce the API call
       debouncedUpdate(key, product.id, null, newQty, ts);
     },
-    [product, quantity, cartDispatch, debouncedUpdate, setShowSizeModal]
+    [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]
   );
 
   // Favorite toggle with optimistic UI update (fixes the bug)
