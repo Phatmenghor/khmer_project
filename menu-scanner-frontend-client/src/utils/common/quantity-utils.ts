@@ -15,23 +15,19 @@
 
 /**
  * Extract quantity from product API response
- * Handles both 'quantity' and 'quantityInCart' for backward compatibility
- * (frontend is ready for backend update, but also works with current API)
+ * Backend now consistently returns 'quantity' field
  */
 export function getProductQuantity(product: any): number {
-  // Try new field first, fallback to old field for backward compatibility
-  return product?.quantity ?? product?.quantityInCart ?? 0;
+  return product?.quantity ?? 0;
 }
 
 /**
  * Extract quantity from product size
- * Backend now returns quantity as string in ProductSizeDto
- * Handles both 'quantity' and 'quantityInCart' for backward compatibility
+ * Backend returns quantity as string in ProductSizeDto, parse to number
  */
 export function getSizeQuantity(size: any): number {
   if (!size) return 0;
-  // Try new field first, fallback to old field
-  const qty = size?.quantity ?? size?.quantityInCart;
+  const qty = size?.quantity;
   if (typeof qty === 'string') {
     return parseInt(qty, 10) || 0;
   }

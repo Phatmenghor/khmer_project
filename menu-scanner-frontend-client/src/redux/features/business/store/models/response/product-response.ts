@@ -25,8 +25,7 @@ export interface ProductDetailResponseModel {
   displayPromotionFromDate: string;
   displayPromotionToDate: string;
   hasSizes: boolean;
-  quantity?: number;
-  quantityInCart?: number;  // For backward compatibility until backend is updated
+  quantity: number;
   hasActivePromotion: boolean;
   mainImageUrl: string;
   viewCount: number;
@@ -59,7 +58,6 @@ export interface ProductSize {
   promotionToDate: string;
   finalPrice: number;
   hasPromotion: boolean;
-  quantity?: string;
-  quantityInCart?: string;  // For backward compatibility until backend is updated
+  quantity: string;
   createdAt: string;
 }
