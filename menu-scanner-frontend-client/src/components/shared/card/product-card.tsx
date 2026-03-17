@@ -97,6 +97,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
     if (product.hasSizes) { setShowSizeModal(true); return; }
 
     const timestamp = Date.now();
+    const newQuantity = quantity + 1; // Calculate total quantity to send to API
+
     cartDispatch(addLocalCartItem({
       productId: product.id,
       productSizeId: null,
@@ -116,7 +118,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
     setIsAddingToCart(true);
     try {
-      await cartDispatch(addToCart({ productId: product.id, quantity: 1, optimisticTimestamp: timestamp })).unwrap();
+      // Send the total quantity to the API
+      await cartDispatch(addToCart({ productId: product.id, quantity: newQuantity, optimisticTimestamp: timestamp })).unwrap();
       showToast.success("Added to cart");
     } catch (error: any) {
       showToast.error(error?.message || "Failed to add to cart");

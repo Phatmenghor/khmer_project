@@ -49,70 +49,62 @@ const updateCartFromResponse = (
   optimisticTimestamp?: number
 ) => {
   // If we have an optimistic timestamp from the request, we can check for conflicts
-  // If undefined (e.g. fetchCart), we treat it as 0 (older than any active optimistic update) or check differently
-  const checkTimestamp = optimisticTimestamp || 0;
+  // If undefined (e.g. fetchCart), we treat all server items as authoritative
+  const checkTimestamp = optimisticTimestamp ?? -1; // -1 means trust server entirely
 
-  // Create a map of existing items for preserving optimistic state
-  const currentItemsMap = new Map(state.items.map((i) => [i.id, i]));
-  // Also map by product+size for matching incoming items
+  // Create a map of existing items by product+size key for merging
   const currentItemsByKey = new Map(
     state.items.map((i) => [`${i.productId}_${i.productSizeId}`, i])
   );
 
   const newItems = response.items || [];
   const processedItems: CartItemModel[] = [];
+  const processedKeys = new Set<string>();
 
+  // Process all items from server response
   for (const newItem of newItems) {
     const key = `${newItem.productId}_${newItem.productSizeId}`;
+    processedKeys.add(key);
     const localItem = currentItemsByKey.get(key);
 
-    if (localItem && (localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
-      // Local item is newer than this response/request.
-      // Keep local quantity, but update pricing/metadata from server if desired.
-      // For safety, let's keep the entire local item to avoid inconsistencies,
-      // OR just preserve the quantity and recalculate totals.
-      // Let's preserve the local item entirely to be safe, but maybe update price?
-      // If we update price but keep quantity, we need to recalc totalPrice.
-
-      // We'll trust the LOCAL state for this item entirely since it's newer.
-      processedItems.push(localItem);
+    // If we have a local optimistic item and it's newer, preserve its quantity
+    // Otherwise, use the server item (which is authoritative)
+    if (
+      localItem &&
+      checkTimestamp !== -1 && // Only consider timestamp if this was from a specific request
+      (localItem.lastOptimisticTimestamp || 0) > checkTimestamp
+    ) {
+      // Local item is newer - keep local but merge server metadata
+      processedItems.push({
+        ...newItem, // Get the real ID and server data
+        quantity: localItem.quantity, // But keep the local quantity
+        totalPrice: newItem.finalPrice * localItem.quantity,
+        lastOptimisticTimestamp: localItem.lastOptimisticTimestamp,
+      });
     } else {
-      // Server is newer or equal, or no local conflict. Accept server item.
+      // Server item is newer or equal - use it as-is
       processedItems.push(newItem);
     }
   }
 
-  // Handle items that might be in local state but not in server response?
-  // If server returns full cart, missing items means they were removed?
-  // But if we optimistically added an item (T_new) and server (T_old) doesn't have it yet?
-  // Then we should KEEP the local item if its timestamp is newer.
-
-  // Find local items that are NOT in the newItems list
-  const newItemKeys = new Set(
-    newItems.map((i) => `${i.productId}_${i.productSizeId}`)
-  );
-
-  state.items.forEach(localItem => {
+  // Handle local items that are NOT in the server response
+  // This handles the case where we optimistically added an item before the API call
+  state.items.forEach((localItem) => {
     const key = `${localItem.productId}_${localItem.productSizeId}`;
-    if (!newItemKeys.has(key)) {
-      // Item exists locally but not in response.
-      // If local, is it a temp item? or a real item that was removed?
-      // If it has a newer timestamp than the request, it might be a new add that hasn't synced yet.
-      if ((localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
+    if (!processedKeys.has(key)) {
+      // Item exists locally but not in response
+      // Only keep it if it's a fresh optimistic add (newer timestamp)
+      if (checkTimestamp !== -1 && (localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
         processedItems.push(localItem);
       }
+      // Otherwise, if checkTimestamp === -1 (full fetch), trust the server and discard
     }
   });
 
   state.items = processedItems;
 
-  // We need to recalculate totals because we mixed local and server items
+  // Recalculate totals from the merged items
   recalculateTotals(state);
-
-  // Update other global fields if we didn't override everything?
-  // If we respected ANY local override, we must rely on recalculateTotals
-  // If we purely took server response, we could typically trust server totals.
-  // But recalculateTotals is safer mixed.
 };
 
 // Helper to recalculate local totals from items
