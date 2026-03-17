@@ -95,38 +95,55 @@ export function ProductCard({ product, className }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isAuthenticated) { setShowLoginModal(true); return; }
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
 
-    if (product.hasSizes) { setShowSizeModal(true); return; }
+    // For sized products, open the size selection modal
+    if (product.hasSizes) {
+      setShowSizeModal(true);
+      return;
+    }
 
+    // For non-sized products, add directly to cart
     const timestamp = Date.now();
-    // Calculate total quantity: use max of Redux qty and API qty to handle both sources
-    const reduxQuantity = cartItem?.quantity || 0;
-    const apiQuantity = getProductQuantity(product) || 0;
-    const currentTotal = Math.max(reduxQuantity, apiQuantity);
-    const newQuantity = currentTotal + 1;
 
-    cartDispatch(addLocalCartItem({
-      productId: product.id,
-      productSizeId: null,
-      quantity: 1,
-      productName: product.name,
-      productImageUrl: product.mainImageUrl,
-      sizeName: null,
-      finalPrice: product.displayPrice,
-      currentPrice: product.displayOriginPrice || product.displayPrice,
-      hasPromotion: product.hasActivePromotion,
-      promotionType: product.displayPromotionType || null,
-      promotionValue: product.displayPromotionValue || null,
-      promotionFromDate: product.displayPromotionFromDate || null,
-      promotionToDate: product.displayPromotionToDate || null,
-      optimisticTimestamp: timestamp,
-    }));
+    // Get the current quantity from Redux state or API fallback
+    const currentQty = quantity; // This already handles Redux and fallback
+    const newQty = currentQty + 1;
+
+    // Dispatch optimistic update first for instant UI feedback
+    cartDispatch(
+      addLocalCartItem({
+        productId: product.id,
+        productSizeId: null,
+        quantity: 1, // Add 1 item optimistically
+        productName: product.name,
+        productImageUrl: product.mainImageUrl,
+        sizeName: null,
+        finalPrice: product.displayPrice,
+        currentPrice: product.displayOriginPrice || product.displayPrice,
+        hasPromotion: product.hasActivePromotion,
+        promotionType: product.displayPromotionType || null,
+        promotionValue: product.displayPromotionValue || null,
+        promotionFromDate: product.displayPromotionFromDate || null,
+        promotionToDate: product.displayPromotionToDate || null,
+        optimisticTimestamp: timestamp,
+      })
+    );
 
     setIsAddingToCart(true);
     try {
       // Send the total quantity to the API
-      await cartDispatch(addToCart({ productId: product.id, quantity: newQuantity, optimisticTimestamp: timestamp })).unwrap();
+      // Backend expects absolute quantity, not delta
+      await cartDispatch(
+        addToCart({
+          productId: product.id,
+          quantity: newQty,
+          optimisticTimestamp: timestamp,
+        })
+      ).unwrap();
       showToast.success("Added to cart");
     } catch (error: any) {
       showToast.error(error?.message || "Failed to add to cart");
@@ -139,31 +156,72 @@ export function ProductCard({ product, className }: ProductCardProps) {
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      if (product.hasSizes) { setShowSizeModal(true); return; }
-      if (!cartItem) return;
-      const newQty = quantity + 1;
+
+      // For sized products, open the size modal to select size
+      if (product.hasSizes) {
+        setShowSizeModal(true);
+        return;
+      }
+
+      // For non-sized products, increment the quantity directly
+      // Use max of current quantity and what the product shows in case of out-of-sync state
+      const currentQty = quantity;
+      const newQty = currentQty + 1;
       const key = cartItemKey(product.id, null);
       const ts = Date.now();
-      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+
+      // Always dispatch optimistic update (adds to cart if not present)
+      cartDispatch(
+        updateLocalCartItem({
+          productId: product.id,
+          productSizeId: null,
+          quantity: newQty,
+          optimisticTimestamp: ts,
+        })
+      );
+
+      // Always debounce the API call
       debouncedUpdate(key, product.id, null, newQty, ts);
     },
-    [product, cartItem, quantity, cartDispatch, debouncedUpdate],
+    [product, quantity, cartDispatch, debouncedUpdate, setShowSizeModal]
   );
 
   const handleDecrement = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      if (product.hasSizes) { setShowSizeModal(true); return; }
-      if (!cartItem) return;
-      const newQty = quantity - 1;
+
+      // For sized products, open the size modal to select size
+      if (product.hasSizes) {
+        setShowSizeModal(true);
+        return;
+      }
+
+      // For non-sized products, decrement the quantity
+      const currentQty = quantity;
+      const newQty = Math.max(0, currentQty - 1);
       const key = cartItemKey(product.id, null);
       const ts = Date.now();
-      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-      if (quantity === 1) showToast.success("Removed from cart");
+
+      // Show removal toast BEFORE state update
+      if (currentQty === 1) {
+        showToast.success("Removed from cart");
+      }
+
+      // Always dispatch optimistic update
+      cartDispatch(
+        updateLocalCartItem({
+          productId: product.id,
+          productSizeId: null,
+          quantity: newQty,
+          optimisticTimestamp: ts,
+        })
+      );
+
+      // Always debounce the API call
       debouncedUpdate(key, product.id, null, newQty, ts);
     },
-    [product, cartItem, quantity, cartDispatch, debouncedUpdate],
+    [product, quantity, cartDispatch, debouncedUpdate, setShowSizeModal]
   );
 
   // Favorite toggle with optimistic UI update (fixes the bug)
