@@ -107,6 +107,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
       finalPrice: product.displayPrice,
       currentPrice: product.displayOriginPrice || product.displayPrice,
       hasPromotion: product.hasActivePromotion,
+      promotionType: product.displayPromotionType || null,
+      promotionValue: product.displayPromotionValue || null,
+      promotionFromDate: product.displayPromotionFromDate || null,
+      promotionToDate: product.displayPromotionToDate || null,
       optimisticTimestamp: timestamp,
     }));
 

@@ -207,8 +207,8 @@ export default function CartPage() {
                   <Link href={`/products/${item.productId}`} className="flex-shrink-0">
                     <div className="relative w-[72px] h-[72px] rounded-xl overflow-hidden bg-muted border">
                       <Image
-                        src={item.productImageUrl || `https://picsum.photos/200/200?random=${item.productId}`}
-                        alt={item.productName}
+                        src={item.productImageUrl}
+                        alt={item.productName || "Product image"}
                         fill
                         className="object-cover"
                       />
@@ -228,17 +228,24 @@ export default function CartPage() {
                       </span>
                     )}
 
-                    <div className="flex items-center gap-1.5 mb-2.5">
-                      <span className="font-bold text-sm text-primary">{formatCurrency(item.finalPrice)}</span>
-                      {item.hasPromotion && item.currentPrice > item.finalPrice && (
-                        <>
-                          <span className="text-xs text-muted-foreground line-through">{formatCurrency(item.currentPrice)}</span>
-                          <Badge variant="destructive" className="text-[10px] px-1.5 py-0 leading-none">
-                            {item.promotionType === "PERCENTAGE"
-                              ? `-${item.promotionValue}%`
-                              : `-${formatCurrency(item.promotionValue || 0)}`}
-                          </Badge>
-                        </>
+                    <div className="flex flex-col gap-1.5 mb-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-sm text-primary">{formatCurrency(item.finalPrice)}</span>
+                        {item.hasPromotion && item.currentPrice > item.finalPrice && (
+                          <>
+                            <span className="text-xs text-muted-foreground line-through">{formatCurrency(item.currentPrice)}</span>
+                            <Badge variant="destructive" className="text-[10px] px-1.5 py-0 leading-none">
+                              {item.promotionType === "PERCENTAGE"
+                                ? `-${item.promotionValue}%`
+                                : `-${formatCurrency(item.promotionValue || 0)}`}
+                            </Badge>
+                          </>
+                        )}
+                      </div>
+                      {item.hasPromotion && item.promotionFromDate && item.promotionToDate && (
+                        <span className="text-[10px] text-muted-foreground">
+                          Sale: {new Date(item.promotionFromDate).toLocaleDateString()} - {new Date(item.promotionToDate).toLocaleDateString()}
+                        </span>
                       )}
                     </div>
 

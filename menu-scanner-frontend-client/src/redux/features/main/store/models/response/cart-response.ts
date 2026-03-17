@@ -22,6 +22,10 @@ export interface CartItemModel {
   promotionType: string | null;
   promotionValue: number | null;
   promotionEndDate: string | null;
+  promotionFromDate: string | null;
+  promotionToDate: string | null;
+  totalBeforeDiscount?: number;
+  discountAmount?: number;
   lastOptimisticTimestamp?: number;
 }
 

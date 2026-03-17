@@ -285,6 +285,10 @@ export function SizeSelectionModal({
               finalPrice: itemFinalPrice,
               currentPrice: itemCurrentPrice,
               hasPromotion: hasDiscount,
+              promotionType: size?.promotionType ?? displayProduct.displayPromotionType ?? null,
+              promotionValue: size?.promotionValue ?? displayProduct.displayPromotionValue ?? null,
+              promotionFromDate: size?.promotionFromDate ?? displayProduct.displayPromotionFromDate ?? null,
+              promotionToDate: size?.promotionToDate ?? displayProduct.displayPromotionToDate ?? null,
             }),
           );
         } else {

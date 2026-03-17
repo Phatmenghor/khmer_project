@@ -259,12 +259,17 @@ export default function ProductDetailPage() {
         if (originalQty === 0 && newQty > 0) {
           const size = product.sizes?.find((s) => s.id === sizeId);
           const finalPrice = size?.finalPrice ?? product.displayPrice ?? 0;
+          const isPromo = size ? size.hasPromotion : (product.hasPromotion ?? false);
           cartDispatch(addLocalCartItem({
             productId: product.id, productSizeId: sizeId, quantity: newQty,
             productName: product.name, productImageUrl: product.mainImageUrl,
             sizeName: size?.name ?? null, finalPrice,
             currentPrice: size?.hasPromotion ? size.price : (product.displayOriginPrice ?? finalPrice),
-            hasPromotion: size ? size.hasPromotion : (product.hasPromotion ?? false),
+            hasPromotion: isPromo,
+            promotionType: size?.promotionType ?? product.displayPromotionType ?? null,
+            promotionValue: size?.promotionValue ?? product.displayPromotionValue ?? null,
+            promotionFromDate: size?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
+            promotionToDate: size?.promotionToDate ?? product.displayPromotionToDate ?? null,
           }));
           promises.push(cartDispatch(addToCart({ productId: product.id, productSizeId: sizeId, quantity: newQty })).unwrap());
         } else {

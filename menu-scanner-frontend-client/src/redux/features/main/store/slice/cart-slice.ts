@@ -152,6 +152,10 @@ const cartSlice = createSlice({
         finalPrice: number;
         currentPrice: number;
         hasPromotion?: boolean;
+        promotionType?: string | null;
+        promotionValue?: number | null;
+        promotionFromDate?: string | null;
+        promotionToDate?: string | null;
         optimisticTimestamp?: number;
       }>
     ) => {
@@ -165,6 +169,10 @@ const cartSlice = createSlice({
         finalPrice,
         currentPrice,
         hasPromotion,
+        promotionType,
+        promotionValue,
+        promotionFromDate,
+        promotionToDate,
         optimisticTimestamp
       } = action.payload;
 
@@ -185,6 +193,9 @@ const cartSlice = createSlice({
       } else {
         // Add new item with temporary ID
         const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const totalBeforeDiscount = currentPrice * quantity;
+        const discountAmount = totalBeforeDiscount - (finalPrice * quantity);
+
         state.items.push({
           id: tempId,
           productId,
@@ -198,9 +209,13 @@ const cartSlice = createSlice({
           totalPrice: finalPrice * quantity,
           hasPromotion: hasPromotion || false,
           isAvailable: true,
-          promotionType: null,
-          promotionValue: null,
-          promotionEndDate: null,
+          promotionType: promotionType || null,
+          promotionValue: promotionValue || null,
+          promotionFromDate: promotionFromDate || null,
+          promotionToDate: promotionToDate || null,
+          promotionEndDate: promotionToDate || null,
+          totalBeforeDiscount,
+          discountAmount,
           lastOptimisticTimestamp: optimisticTimestamp
         });
       }
