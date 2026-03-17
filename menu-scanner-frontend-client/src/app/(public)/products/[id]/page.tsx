@@ -100,7 +100,18 @@ export default function ProductDetailPage() {
       const cartItem = cartItems.find(
         (item) => item.productId === product.id && item.productSizeId === sizeId
       );
-      return cartItem?.quantity || 0;
+      // Use Redux cart state if available, otherwise use quantityInCart from product API
+      if (cartItem) return cartItem.quantity;
+
+      // Fallback to API response quantityInCart
+      if (sizeId) {
+        const size = product.sizes?.find((s) => s.id === sizeId);
+        if (size) return parseInt(size.quantityInCart, 10) || 0;
+      } else {
+        // For unsized products, use quantityInCart from product
+        return product.quantityInCart || 0;
+      }
+      return 0;
     },
     [cartItems, product]
   );

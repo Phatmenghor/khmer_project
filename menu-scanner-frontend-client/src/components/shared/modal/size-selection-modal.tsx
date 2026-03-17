@@ -74,7 +74,18 @@ export function SizeSelectionModal({
           item.productId === displayProduct.id &&
           item.productSizeId === sizeId,
       );
-      return cartItem?.quantity || 0;
+      // Use Redux cart state if available
+      if (cartItem) return cartItem.quantity;
+
+      // Fallback to API response quantityInCart
+      if (sizeId) {
+        const size = displayProduct.sizes?.find((s) => s.id === sizeId);
+        if (size) return parseInt(size.quantityInCart, 10) || 0;
+      } else {
+        // For unsized products, use quantityInCart from product
+        return displayProduct.quantityInCart || 0;
+      }
+      return 0;
     },
     [cartItems, displayProduct],
   );

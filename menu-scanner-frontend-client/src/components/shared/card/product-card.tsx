@@ -61,12 +61,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const cartItem = cartItems.find(
     (item) => item.productId === product.id && !item.productSizeId,
   );
-  const quantity = cartItem?.quantity || 0;
+  // Use Redux cart state if available, otherwise use quantityInCart from product API
+  const quantity = cartItem?.quantity ?? product.quantityInCart ?? 0;
 
   // Total in cart including sized items
-  const totalInCart = cartItems
+  const cartItemsTotal = cartItems
     .filter((item) => item.productId === product.id)
     .reduce((sum, item) => sum + item.quantity, 0);
+  const totalInCart = cartItemsTotal > 0 ? cartItemsTotal : (product.quantityInCart ?? 0);
 
   const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.NoImage);
 
