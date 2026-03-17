@@ -212,12 +212,14 @@ export function SizeSelectionModal({
         return;
       }
 
-      // Optimistic local update
+      // Optimistic local update with timestamp
+      const ts = Date.now();
       dispatch(
         updateLocalCartItem({
           productId: displayProduct.id,
           productSizeId: sizeId,
           quantity: 0,
+          optimisticTimestamp: ts,
         }),
       );
 
@@ -241,6 +243,7 @@ export function SizeSelectionModal({
             productId: displayProduct.id,
             productSizeId: sizeId,
             quantity: 0,
+            optimisticTimestamp: ts,
           }),
         ).unwrap();
         showToast.success("Removed from cart");
@@ -268,6 +271,7 @@ export function SizeSelectionModal({
 
     try {
       const promises: Promise<any>[] = [];
+      const ts = Date.now(); // Single timestamp for conflict resolution
 
       for (const key of modifiedSizes) {
         const sizeId = key === "no_size" ? null : key;
@@ -303,6 +307,7 @@ export function SizeSelectionModal({
               promotionValue: size?.promotionValue ?? displayProduct.displayPromotionValue ?? null,
               promotionFromDate: size?.promotionFromDate ?? displayProduct.displayPromotionFromDate ?? null,
               promotionToDate: size?.promotionToDate ?? displayProduct.displayPromotionToDate ?? null,
+              optimisticTimestamp: ts,
             }),
           );
         } else {
@@ -311,6 +316,7 @@ export function SizeSelectionModal({
               productId: displayProduct.id,
               productSizeId: sizeId,
               quantity: newQty,
+              optimisticTimestamp: ts,
             }),
           );
         }
@@ -323,6 +329,7 @@ export function SizeSelectionModal({
                 productId: displayProduct.id,
                 productSizeId: sizeId,
                 quantity: newQty,
+                optimisticTimestamp: ts,
               }),
             ).unwrap(),
           );
@@ -333,6 +340,7 @@ export function SizeSelectionModal({
                 productId: displayProduct.id,
                 productSizeId: sizeId,
                 quantity: 0,
+                optimisticTimestamp: ts,
               }),
             ).unwrap(),
           );

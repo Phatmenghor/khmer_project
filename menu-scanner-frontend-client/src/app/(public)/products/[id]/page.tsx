@@ -266,6 +266,7 @@ export default function ProductDetailPage() {
     setIsSaving(true);
     try {
       const promises: Promise<any>[] = [];
+      const ts = Date.now(); // Single timestamp for conflict resolution
       for (const key of modifiedSizes) {
         const sizeId = key === "no_size" ? null : key;
         const newQty = pendingQuantities.get(key) ?? getQuantityForSize(sizeId);
@@ -285,11 +286,12 @@ export default function ProductDetailPage() {
             promotionValue: size?.promotionValue ?? product.displayPromotionValue ?? null,
             promotionFromDate: size?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
             promotionToDate: size?.promotionToDate ?? product.displayPromotionToDate ?? null,
+            optimisticTimestamp: ts,
           }));
-          promises.push(cartDispatch(addToCart({ productId: product.id, productSizeId: sizeId, quantity: newQty })).unwrap());
+          promises.push(cartDispatch(addToCart({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts })).unwrap());
         } else {
-          cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty }));
-          promises.push(cartDispatch(updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty })).unwrap());
+          cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts }));
+          promises.push(cartDispatch(updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts })).unwrap());
         }
       }
       await Promise.all(promises);

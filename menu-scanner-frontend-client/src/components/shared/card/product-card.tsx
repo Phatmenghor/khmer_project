@@ -219,11 +219,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    // Show removal toast BEFORE state update if removing
-    if (quantity === 1) {
-      showToast.success("Removed from cart");
-    }
-
     // Dispatch optimistic update to Redux immediately
     cartDispatch(
       updateLocalCartItem({
@@ -233,6 +228,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
         optimisticTimestamp: ts,
       })
     );
+
+    // Show removal toast AFTER state update
+    if (quantity === 1) {
+      showToast.success("Removed from cart");
+    }
 
     // Debounce the API call (send after 500ms)
     debouncedUpdate(key, product.id, null, newQty, ts);
