@@ -25,6 +25,7 @@ import {
 } from "@/redux/features/main/store/slice/cart-slice";
 import { SizeSelectionModal } from "../modal/size-selection-modal";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
+import { getProductQuantity } from "@/utils/common/quantity-utils";
 
 interface ProductCardProps {
   product: ProductDetailResponseModel;
@@ -61,14 +62,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const cartItem = cartItems.find(
     (item) => item.productId === product.id && !item.productSizeId,
   );
-  // Use Redux cart state if available, otherwise use quantityInCart from product API
-  const quantity = cartItem?.quantity ?? product.quantityInCart ?? 0;
+  // Standard naming: quantity from Redux, fallback to API quantityInCart
+  const quantity = cartItem?.quantity ?? getProductQuantity(product);
 
-  // Total in cart including sized items
+  // Total quantity in cart including all sizes for this product
   const cartItemsTotal = cartItems
     .filter((item) => item.productId === product.id)
     .reduce((sum, item) => sum + item.quantity, 0);
-  const totalInCart = cartItemsTotal > 0 ? cartItemsTotal : (product.quantityInCart ?? 0);
+  const totalQuantity = cartItemsTotal > 0 ? cartItemsTotal : getProductQuantity(product);
 
   const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.NoImage);
 
@@ -181,8 +182,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
   };
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";
-  const isInCart = product.hasSizes ? totalInCart > 0 : quantity > 0;
-  const displayQuantity = product.hasSizes ? totalInCart : quantity;
+  const isInCart = product.hasSizes ? totalQuantity > 0 : quantity > 0;
+  const displayQuantity = product.hasSizes ? totalQuantity : quantity;
 
   return (
     <>

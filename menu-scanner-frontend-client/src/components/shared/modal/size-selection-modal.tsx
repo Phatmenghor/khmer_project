@@ -31,6 +31,7 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { fetchPublicProductById } from "@/redux/features/main/store/thunks/public-product-thunks";
 import { usePublicProductState } from "@/redux/features/main/store/state/public-product-state";
+import { getSizeQuantity } from "@/utils/common/quantity-utils";
 
 interface SizeSelectionModalProps {
   open: boolean;
@@ -65,8 +66,9 @@ export function SizeSelectionModal({
   // The product to display
   const displayProduct = fullProduct || product;
 
-  // Get cart quantity for a specific size from actual cart state
-  const getCartQuantityForSize = useCallback(
+  // Get quantity for a specific size - standardized naming
+  // Returns: quantity from Redux cart if available, otherwise from API quantityInCart
+  const getQuantityForSize = useCallback(
     (sizeId: string | null) => {
       if (!displayProduct) return 0;
       const cartItem = cartItems.find(
@@ -74,32 +76,33 @@ export function SizeSelectionModal({
           item.productId === displayProduct.id &&
           item.productSizeId === sizeId,
       );
-      // Use Redux cart state if available
+      // Use Redux cart state if available (this is the authoritative source during session)
       if (cartItem) return cartItem.quantity;
 
       // Fallback to API response quantityInCart
       if (sizeId) {
         const size = displayProduct.sizes?.find((s) => s.id === sizeId);
-        if (size) return parseInt(size.quantityInCart, 10) || 0;
-      } else {
-        // For unsized products, use quantityInCart from product
-        return displayProduct.quantityInCart || 0;
+        return getSizeQuantity(size);
       }
-      return 0;
+      // For unsized products, use quantityInCart from product
+      return displayProduct.quantityInCart || 0;
     },
     [cartItems, displayProduct],
   );
 
-  // Get the display quantity (pending if modified, otherwise cart)
+  // Get display quantity - shows pending edits if any, otherwise actual quantity
+  // Standard naming: displayQuantity = UI quantity (includes pending edits)
   const getDisplayQuantity = useCallback(
     (sizeId: string | null) => {
       const key = sizeId || "no_size";
+      // If user made unsaved edits, show those (pendingQuantity)
       if (pendingQuantities.has(key)) {
         return pendingQuantities.get(key)!;
       }
-      return getCartQuantityForSize(sizeId);
+      // Otherwise show actual quantity from cart/API
+      return getQuantityForSize(sizeId);
     },
-    [pendingQuantities, getCartQuantityForSize],
+    [pendingQuantities, getQuantityForSize],
   );
 
   // Check if there are any unsaved changes
@@ -164,7 +167,7 @@ export function SizeSelectionModal({
 
       const sizeId = selectedSize?.id || null;
       const key = sizeId || "no_size";
-      const originalQty = getCartQuantityForSize(sizeId);
+      const currentQuantity = getQuantityForSize(sizeId);
 
       setPendingQuantities((prev) => {
         const next = new Map(prev);
@@ -175,7 +178,7 @@ export function SizeSelectionModal({
       // Track if this is actually different from cart
       setModifiedSizes((prev) => {
         const next = new Set(prev);
-        if (newQuantity === originalQty) {
+        if (newQuantity === currentQuantity) {
           next.delete(key);
         } else {
           next.add(key);
@@ -183,7 +186,7 @@ export function SizeSelectionModal({
         return next;
       });
     },
-    [displayProduct, selectedSize, getCartQuantityForSize],
+    [displayProduct, selectedSize, getQuantityForSize],
   );
 
   // Clear a specific size from cart - calls API immediately
@@ -192,7 +195,7 @@ export function SizeSelectionModal({
       if (!displayProduct) return;
 
       const key = sizeId || "no_size";
-      const currentQty = getCartQuantityForSize(sizeId);
+      const currentQty = getQuantityForSize(sizeId);
 
       // If already 0 in cart and just pending, just reset the pending state
       if (currentQty === 0) {
@@ -247,7 +250,7 @@ export function SizeSelectionModal({
         setClearingSize(null);
       }
     },
-    [displayProduct, dispatch, getCartQuantityForSize],
+    [displayProduct, dispatch, getQuantityForSize],
   );
 
   // Discard all pending changes
@@ -268,13 +271,13 @@ export function SizeSelectionModal({
 
       for (const key of modifiedSizes) {
         const sizeId = key === "no_size" ? null : key;
-        const newQty = pendingQuantities.get(key) ?? getCartQuantityForSize(sizeId);
-        const originalQty = getCartQuantityForSize(sizeId);
+        const newQty = pendingQuantities.get(key) ?? getQuantityForSize(sizeId);
+        const currentQuantity = getQuantityForSize(sizeId);
 
-        if (newQty === originalQty) continue;
+        if (newQty === currentQuantity) continue;
 
         // Optimistic local update
-        if (originalQty === 0 && newQty > 0) {
+        if (currentQuantity === 0 && newQty > 0) {
           const size = displayProduct.sizes?.find((s) => s.id === sizeId);
           const itemFinalPrice =
             size?.finalPrice || displayProduct.displayPrice || 0;
@@ -352,7 +355,7 @@ export function SizeSelectionModal({
     modifiedSizes,
     pendingQuantities,
     dispatch,
-    getCartQuantityForSize,
+    getQuantityForSize,
     onOpenChange,
     onSuccess,
   ]);
@@ -440,7 +443,7 @@ export function SizeSelectionModal({
                     <div className="flex flex-wrap gap-2">
                       {displayProduct.sizes.map((size) => {
                         const sizeDisplayQty = getDisplayQuantity(size.id);
-                        const sizeCartQty = getCartQuantityForSize(size.id);
+                        const sizeCartQty = getQuantityForSize(size.id);
                         const isModified =
                           modifiedSizes.has(size.id) &&
                           sizeDisplayQty !== sizeCartQty;
@@ -501,7 +504,7 @@ export function SizeSelectionModal({
                     size="sm"
                   />
                   {/* Clear button for selected size - calls API immediately */}
-                  {(currentQuantity > 0 || getCartQuantityForSize(selectedSize?.id || null) > 0) && (
+                  {(currentQuantity > 0 || getQuantityForSize(selectedSize?.id || null) > 0) && (
                     <CustomButton
                       variant="outline"
                       size="sm"

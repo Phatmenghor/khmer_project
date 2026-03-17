@@ -55,6 +55,7 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { cn } from "@/lib/utils";
 import { useScrollToTop } from "@/hooks/use-scroll-restoration";
+import { getSizeQuantity } from "@/utils/common/quantity-utils";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -94,36 +95,39 @@ export default function ProductDetailPage() {
   const [isFavorited, setIsFavorited] = useState(false);
   useEffect(() => { setIsFavorited(isFavoritedFromStore); }, [isFavoritedFromStore]);
 
-  const getCartQuantityForSize = useCallback(
+  // Get quantity for a size - standardized naming
+  // Returns: quantity from Redux cart if available, otherwise from API quantityInCart
+  const getQuantityForSize = useCallback(
     (sizeId: string | null) => {
       if (!product) return 0;
       const cartItem = cartItems.find(
         (item) => item.productId === product.id && item.productSizeId === sizeId
       );
-      // Use Redux cart state if available, otherwise use quantityInCart from product API
+      // Use Redux cart state if available (authoritative during session)
       if (cartItem) return cartItem.quantity;
 
       // Fallback to API response quantityInCart
       if (sizeId) {
         const size = product.sizes?.find((s) => s.id === sizeId);
-        if (size) return parseInt(size.quantityInCart, 10) || 0;
-      } else {
-        // For unsized products, use quantityInCart from product
-        return product.quantityInCart || 0;
+        return getSizeQuantity(size);
       }
-      return 0;
+      // For unsized products
+      return product.quantityInCart || 0;
     },
     [cartItems, product]
   );
 
-  // Returns pending qty if modified, else cart qty
+  // Get display quantity - shows pending edits if any, otherwise actual quantity
+  // Standard naming: displayQuantity = UI quantity (includes pending/unsaved edits)
   const getDisplayQuantity = useCallback(
     (sizeId: string | null) => {
       const key = sizeId || "no_size";
+      // If user made unsaved edits, show those (pendingQuantity)
       if (pendingQuantities.has(key)) return pendingQuantities.get(key)!;
-      return getCartQuantityForSize(sizeId);
+      // Otherwise show actual quantity from cart/API
+      return getQuantityForSize(sizeId);
     },
-    [pendingQuantities, getCartQuantityForSize]
+    [pendingQuantities, getQuantityForSize]
   );
 
   // Reset pending state when product changes
@@ -214,22 +218,22 @@ export default function ProductDetailPage() {
     (sizeId: string | null, newQty: number) => {
       if (!isAuthenticated) { setShowLoginModal(true); return; }
       const key = sizeId || "no_size";
-      const originalQty = getCartQuantityForSize(sizeId);
+      const currentQuantity = getQuantityForSize(sizeId);
       setPendingQuantities((prev) => { const n = new Map(prev); n.set(key, newQty); return n; });
       setModifiedSizes((prev) => {
         const n = new Set(prev);
-        if (newQty === originalQty) n.delete(key); else n.add(key);
+        if (newQty === currentQuantity) n.delete(key); else n.add(key);
         return n;
       });
     },
-    [isAuthenticated, getCartQuantityForSize]
+    [isAuthenticated, getQuantityForSize]
   );
 
   const handleClearSize = useCallback(
     async (sizeId: string | null) => {
       if (!product) return;
       const key = sizeId || "no_size";
-      const currentQty = getCartQuantityForSize(sizeId);
+      const currentQty = getQuantityForSize(sizeId);
       if (currentQty === 0) {
         setPendingQuantities((prev) => { const n = new Map(prev); n.delete(key); return n; });
         setModifiedSizes((prev) => { const n = new Set(prev); n.delete(key); return n; });
@@ -248,7 +252,7 @@ export default function ProductDetailPage() {
         setClearingSize(null);
       }
     },
-    [product, cartDispatch, getCartQuantityForSize]
+    [product, cartDispatch, getQuantityForSize]
   );
 
   const handleDiscard = useCallback(() => {
@@ -264,10 +268,10 @@ export default function ProductDetailPage() {
       const promises: Promise<any>[] = [];
       for (const key of modifiedSizes) {
         const sizeId = key === "no_size" ? null : key;
-        const newQty = pendingQuantities.get(key) ?? getCartQuantityForSize(sizeId);
-        const originalQty = getCartQuantityForSize(sizeId);
-        if (newQty === originalQty) continue;
-        if (originalQty === 0 && newQty > 0) {
+        const newQty = pendingQuantities.get(key) ?? getQuantityForSize(sizeId);
+        const currentQuantity = getQuantityForSize(sizeId);
+        if (newQty === currentQuantity) continue;
+        if (currentQuantity === 0 && newQty > 0) {
           const size = product.sizes?.find((s) => s.id === sizeId);
           const finalPrice = size?.finalPrice ?? product.displayPrice ?? 0;
           const isPromo = size ? size.hasPromotion : (product.hasPromotion ?? false);
@@ -297,7 +301,7 @@ export default function ProductDetailPage() {
     } finally {
       setIsSaving(false);
     }
-  }, [product, isAuthenticated, modifiedSizes, pendingQuantities, cartDispatch, getCartQuantityForSize]);
+  }, [product, isAuthenticated, modifiedSizes, pendingQuantities, cartDispatch, getQuantityForSize]);
 
   const handleToggleFavorite = async () => {
     if (!product) return;
@@ -483,18 +487,18 @@ export default function ProductDetailPage() {
             {(() => {
               const sizeId: string | null = product.hasSizes ? (selectedSize?.id ?? null) : null;
               const displayQty = getDisplayQuantity(sizeId);
-              const cartQty = getCartQuantityForSize(sizeId);
+              const cartQty = getQuantityForSize(sizeId);
               const unitPrice = (product.hasSizes ? selectedSize?.finalPrice : null) ?? product.displayPrice ?? 0;
               const clearKey = sizeId || "no_size";
               const showQtySection = !product.hasSizes || !!selectedSize;
 
               // Totals across ALL sizes (or just the single non-sized item)
               const totalCartQtyAllSizes = product.hasSizes
-                ? (product.sizes?.reduce((sum, s) => sum + getCartQuantityForSize(s.id), 0) ?? 0)
-                : getCartQuantityForSize(null);
+                ? (product.sizes?.reduce((sum, s) => sum + getQuantityForSize(s.id), 0) ?? 0)
+                : getQuantityForSize(null);
               const totalCartValueAllSizes = product.hasSizes
-                ? (product.sizes?.reduce((sum, s) => sum + s.finalPrice * getCartQuantityForSize(s.id), 0) ?? 0)
-                : unitPrice * getCartQuantityForSize(null);
+                ? (product.sizes?.reduce((sum, s) => sum + s.finalPrice * getQuantityForSize(s.id), 0) ?? 0)
+                : unitPrice * getQuantityForSize(null);
               const totalDisplayValueAllSizes = product.hasSizes
                 ? (product.sizes?.reduce((sum, s) => sum + s.finalPrice * getDisplayQuantity(s.id), 0) ?? 0)
                 : unitPrice * displayQty;
@@ -517,7 +521,7 @@ export default function ProductDetailPage() {
                       <div className="flex flex-wrap gap-2">
                         {product.sizes.map((size) => {
                           const szQty = getDisplayQuantity(size.id);
-                          const isModified = modifiedSizes.has(size.id) && szQty !== getCartQuantityForSize(size.id);
+                          const isModified = modifiedSizes.has(size.id) && szQty !== getQuantityForSize(size.id);
                           const isActive = selectedSize?.id === size.id;
                           return (
                             <button
