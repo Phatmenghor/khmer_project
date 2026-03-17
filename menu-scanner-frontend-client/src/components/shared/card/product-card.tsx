@@ -59,22 +59,31 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const { debouncedUpdate } = useCartDebounce(cartDispatch);
 
   // Get current cart item for this product (without size)
-  // ONLY use Redux state - never fall back to product.quantity as that causes rollbacks!
   const cartItem = cartItems.find(
     (item) => item.productId === product.id && !item.productSizeId,
   );
 
-  // Quantity should come ONLY from Redux cartItem, not from product API response
-  // Using product.quantity as fallback causes optimistic updates to rollback
-  const quantity = cartItem?.quantity ?? 0;
+  // Quantity logic: Trust Redux if it has the item, otherwise use API data
+  // Once Redux has the item, always use Redux (never revert to API)
+  // This prevents rollbacks while showing correct initial state
+  const quantity = React.useMemo(() => {
+    if (cartItem) {
+      // Redux has the item - trust Redux completely (optimistic updates)
+      return cartItem.quantity;
+    }
+    // Redux doesn't have item yet - use API value for initial display
+    return getProductQuantity(product);
+  }, [cartItem, product.id]);
 
   // Total quantity in cart including all sizes for this product
-  const cartItemsTotal = cartItems
-    .filter((item) => item.productId === product.id)
-    .reduce((sum, item) => sum + item.quantity, 0);
+  const cartItemsTotal = React.useMemo(() => {
+    return cartItems
+      .filter((item) => item.productId === product.id)
+      .reduce((sum, item) => sum + item.quantity, 0);
+  }, [cartItems, product.id]);
 
-  // Only use totalQuantity from cart items in Redux, not API fallback
-  const totalQuantity = cartItemsTotal;
+  // Total: Use Redux if available, API as fallback for initial load
+  const totalQuantity = cartItemsTotal > 0 ? cartItemsTotal : getProductQuantity(product);
 
   const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.NoImage);
 
