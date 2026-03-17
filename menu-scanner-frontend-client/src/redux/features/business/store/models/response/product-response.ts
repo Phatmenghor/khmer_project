@@ -25,7 +25,7 @@ export interface ProductDetailResponseModel {
   displayPromotionFromDate: string;
   displayPromotionToDate: string;
   hasSizes: boolean;
-  quantityInCart: number;
+  quantity: number;
   hasActivePromotion: boolean;
   mainImageUrl: string;
   viewCount: number;
@@ -58,6 +58,6 @@ export interface ProductSize {
   promotionToDate: string;
   finalPrice: number;
   hasPromotion: boolean;
-  quantityInCart: string;
+  quantity: string;
   createdAt: string;
 }

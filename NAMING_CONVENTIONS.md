@@ -25,12 +25,12 @@ This document standardizes quantity-related field names across the frontend code
   - Used in: Modal dialogs, detail pages
   - Not committed to cart until user saves
 
-### API Response Fields
-- **`quantityInCart`** - From backend API responses
-  - Product API returns `product.quantityInCart`
-  - Size API returns `size.quantityInCart`
-  - Maps to internal `quantity` field
-  - Used as fallback when Redux cart not yet loaded
+### API Response Fields (Backend & Frontend Aligned)
+- **`quantity`** - From backend API responses (standardized)
+  - Product API returns `product.quantity`
+  - Size API returns `size.quantity`
+  - Cart API returns `cartItem.quantity`
+  - Consistent across all endpoints
 
 ## Variable Naming Pattern
 
@@ -47,13 +47,21 @@ const displayQuantity = pendingEdit ? pending : quantity;  // ✓ What to show
 const currentQuantity = getQuantityForSize(sizeId);  // ✓ For comparisons
 ```
 
-## API Mapping
+## API Mapping (Frontend & Backend Aligned)
 
 | Backend Field | Frontend Model | Component Variable |
 |---------------|----------------|--------------------|
-| `quantityInCart` | `quantity` | `quantity` |
+| `quantity` | `quantity` | `quantity` |
 | N/A | `totalItems` | `totalQuantity` |
 | N/A | (pending state) | `displayQuantity` |
+
+### Backend Standardization (Java DTOs)
+- ✅ `CartItemResponse.quantity`
+- ✅ `ProductDetailDto.quantity`
+- ✅ `ProductListDto.quantity`
+- ✅ `ProductSizeDto.quantity`
+
+All backend endpoints now use `quantity` consistently.
 
 ## Utility Functions
 
@@ -77,9 +85,17 @@ Components updated to use standard naming:
 - ✅ `SizeSelectionModal` - uses `getQuantityForSize`, `displayQuantity`
 - ✅ `ProductDetailPage` - uses `getQuantityForSize`, `displayQuantity`
 
-## Future Improvements
+## Completion Status ✅
 
-If backend is updated, consider:
-1. Rename `quantityInCart` to `quantity` at API boundary
-2. Use this unified naming from API down to components
-3. Remove need for mapping utilities
+✅ **Backend Updated** - All DTOs use `quantity` consistently
+- ProductDetailDto.quantity
+- ProductListDto.quantity
+- ProductSizeDto.quantity
+- CartItemResponse.quantity
+
+✅ **Frontend Updated** - All models and utilities reflect backend changes
+- ProductDetailResponseModel.quantity
+- ProductSize.quantity
+- Utility functions simplified (no more mapping needed)
+
+✅ **Documentation** - NAMING_CONVENTIONS.md maintains standards for future development

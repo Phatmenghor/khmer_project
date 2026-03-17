@@ -37,7 +37,7 @@ public class ProductDetailDto extends BaseAuditResponse {
     private Long favoriteCount;
     private Boolean isFavorited;
 
-    private Integer quantityInCart;
+    private Integer quantity;
 
     private UUID businessId;
     private String businessName;

@@ -1,28 +1,33 @@
 /**
  * Quantity naming standardization utilities
  *
- * Standard names throughout the codebase:
- * - `quantity`: The actual quantity of an item in the cart (CartItemModel.quantity)
+ * Standard names throughout the codebase (frontend & backend aligned):
+ * - `quantity`: The actual quantity of an item in the cart (CartItemModel.quantity, ProductDetailDto.quantity)
  * - `totalQuantity`: Sum of all item quantities in cart (CartState.totalItems)
  * - `displayQuantity`: Quantity shown in UI (includes pending/unsaved edits)
- * - `quantityInCart`: From API responses (maps to `quantity` internally)
+ *
+ * Backend DTOs now use 'quantity' consistently:
+ * - CartItemResponse.quantity
+ * - ProductDetailDto.quantity
+ * - ProductListDto.quantity
+ * - ProductSizeDto.quantity
  */
 
 /**
  * Extract quantity from product API response
- * API may return 'quantityInCart' field - standardize to 'quantity'
+ * Backend now consistently returns 'quantity' field
  */
 export function getProductQuantity(product: any): number {
-  return product?.quantityInCart ?? product?.quantity ?? 0;
+  return product?.quantity ?? 0;
 }
 
 /**
  * Extract quantity from product size
- * Size.quantityInCart is string, needs to be parsed to number
+ * Backend now returns quantity as string in ProductSizeDto
  */
 export function getSizeQuantity(size: any): number {
   if (!size) return 0;
-  const qty = size.quantityInCart ?? size.quantity;
+  const qty = size?.quantity;
   if (typeof qty === 'string') {
     return parseInt(qty, 10) || 0;
   }
