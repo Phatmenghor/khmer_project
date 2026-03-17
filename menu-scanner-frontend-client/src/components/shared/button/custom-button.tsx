@@ -13,10 +13,6 @@ export const CustomButton = React.forwardRef<
   CustomButtonProps
 >(({ onClick, className, children, ...props }, ref) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
-
     if (onClick) {
       onClick(e);
     }

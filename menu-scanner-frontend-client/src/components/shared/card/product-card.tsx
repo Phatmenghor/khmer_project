@@ -167,9 +167,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
   };
 
   const handleIncrement = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+    (e?: React.MouseEvent) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
 
       // For sized products, open the size modal to select size
       if (product.hasSizes) {
@@ -198,13 +200,15 @@ export function ProductCard({ product, className }: ProductCardProps) {
       // Debounce the API call (send after 500ms)
       debouncedUpdate(key, product.id, null, newQty, ts);
     },
-    [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]
+    [product, quantity, cartItem, cartDispatch, debouncedUpdate]
   );
 
   const handleDecrement = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+    (e?: React.MouseEvent) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
 
       // For sized products, open the size modal to select size
       if (product.hasSizes) {
@@ -238,7 +242,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       // Debounce the API call (send after 500ms)
       debouncedUpdate(key, product.id, null, newQty, ts);
     },
-    [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]
+    [product, quantity, cartItem, cartDispatch, debouncedUpdate]
   );
 
   // Favorite toggle with optimistic UI update (fixes the bug)
@@ -354,12 +358,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
               </div>
 
               {isInCart ? (
-                <div className="flex items-center gap-1.5 w-full" onClick={(e) => e.preventDefault()}>
+                <div className="flex items-center gap-1.5 w-full" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
                   <CustomButton
                     size="icon"
                     variant="outline"
                     className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={handleDecrement}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDecrement(e); }}
                   >
                     <Minus className="h-3 w-3" />
                   </CustomButton>
@@ -370,7 +374,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                     size="icon"
                     variant="outline"
                     className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
-                    onClick={handleIncrement}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleIncrement(e); }}
                   >
                     <Plus className="h-3 w-3" />
                   </CustomButton>
