@@ -234,54 +234,27 @@ const cartSlice = createSlice({
     ) => {
       const { productId, productSizeId, quantity, optimisticTimestamp } = action.payload;
 
-      // Find existing item
+      // Find existing item - should always exist because caller ensures it
       const item = state.items.find(
         (i) => i.productId === productId && i.productSizeId === (productSizeId || null)
       );
 
       if (item) {
-        // Item exists: update or remove
         if (quantity <= 0) {
+          // Remove item from cart
           state.items = state.items.filter((i) => i.id !== item.id);
         } else {
+          // Update quantity and recalculate derived fields
           item.quantity = quantity;
           item.totalPrice = item.finalPrice * quantity;
           if (optimisticTimestamp) {
             item.lastOptimisticTimestamp = optimisticTimestamp;
           }
         }
-      } else {
-        // Item doesn't exist: create it with default values
-        // This handles the case where user clicks +/- before adding to cart
-        if (quantity > 0) {
-          const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          state.items.push({
-            id: tempId,
-            productId,
-            productName: "Product", // Placeholder - will be updated by API response
-            productImageUrl: "",
-            productSizeId: productSizeId || null,
-            sizeName: null,
-            quantity,
-            currentPrice: 0, // Placeholder - will be updated by API response
-            finalPrice: 0, // Placeholder - will be updated by API response
-            totalPrice: 0,
-            hasPromotion: false,
-            isAvailable: true,
-            promotionType: null,
-            promotionValue: null,
-            promotionFromDate: null,
-            promotionToDate: null,
-            promotionEndDate: null,
-            totalBeforeDiscount: 0,
-            discountAmount: 0,
-            lastOptimisticTimestamp: optimisticTimestamp,
-          });
-        }
+        // Always recalculate cart totals
+        recalculateTotals(state);
       }
-
-      // Always recalculate totals after any update
-      recalculateTotals(state);
+      // If item not found, this is a bug - silently ignore to avoid crashes
     },
   },
   extraReducers: (builder) => {

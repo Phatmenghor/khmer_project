@@ -59,17 +59,22 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const { debouncedUpdate } = useCartDebounce(cartDispatch);
 
   // Get current cart item for this product (without size)
+  // ONLY use Redux state - never fall back to product.quantity as that causes rollbacks!
   const cartItem = cartItems.find(
     (item) => item.productId === product.id && !item.productSizeId,
   );
-  // Standard naming: quantity from Redux, fallback to API quantityInCart
-  const quantity = cartItem?.quantity ?? getProductQuantity(product);
+
+  // Quantity should come ONLY from Redux cartItem, not from product API response
+  // Using product.quantity as fallback causes optimistic updates to rollback
+  const quantity = cartItem?.quantity ?? 0;
 
   // Total quantity in cart including all sizes for this product
   const cartItemsTotal = cartItems
     .filter((item) => item.productId === product.id)
     .reduce((sum, item) => sum + item.quantity, 0);
-  const totalQuantity = cartItemsTotal > 0 ? cartItemsTotal : getProductQuantity(product);
+
+  // Only use totalQuantity from cart items in Redux, not API fallback
+  const totalQuantity = cartItemsTotal;
 
   const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.NoImage);
 
@@ -163,36 +168,15 @@ export function ProductCard({ product, className }: ProductCardProps) {
         return;
       }
 
-      // Safety check: if item should be in cart but isn't in Redux, something is out of sync
-      // Add it to Redux state first with full product details
-      if (!cartItem && quantity > 0) {
-        cartDispatch(
-          addLocalCartItem({
-            productId: product.id,
-            productSizeId: null,
-            quantity: quantity, // This is the quantity from API or product field
-            productName: product.name,
-            productImageUrl: product.mainImageUrl,
-            sizeName: null,
-            finalPrice: product.displayPrice,
-            currentPrice: product.displayOriginPrice || product.displayPrice,
-            hasPromotion: product.hasActivePromotion,
-            promotionType: product.displayPromotionType || null,
-            promotionValue: product.displayPromotionValue || null,
-            promotionFromDate: product.displayPromotionFromDate || null,
-            promotionToDate: product.displayPromotionToDate || null,
-            optimisticTimestamp: Date.now(),
-          })
-        );
-      }
+      // Only allow increment if item is already in cart (isInCart button shown)
+      if (!cartItem) return;
 
-      // Now increment the quantity
-      const currentQty = quantity;
-      const newQty = currentQty + 1;
+      // Increment the quantity
+      const newQty = quantity + 1;
       const key = cartItemKey(product.id, null);
       const ts = Date.now();
 
-      // Dispatch optimistic update
+      // Dispatch optimistic update to Redux immediately
       cartDispatch(
         updateLocalCartItem({
           productId: product.id,
@@ -202,7 +186,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         })
       );
 
-      // Debounce the API call
+      // Debounce the API call (send after 500ms)
       debouncedUpdate(key, product.id, null, newQty, ts);
     },
     [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]
@@ -219,41 +203,20 @@ export function ProductCard({ product, className }: ProductCardProps) {
         return;
       }
 
-      // Safety check: if item should be in cart but isn't in Redux, something is out of sync
-      // Add it to Redux state first with full product details
-      if (!cartItem && quantity > 0) {
-        cartDispatch(
-          addLocalCartItem({
-            productId: product.id,
-            productSizeId: null,
-            quantity: quantity, // This is the quantity from API or product field
-            productName: product.name,
-            productImageUrl: product.mainImageUrl,
-            sizeName: null,
-            finalPrice: product.displayPrice,
-            currentPrice: product.displayOriginPrice || product.displayPrice,
-            hasPromotion: product.hasActivePromotion,
-            promotionType: product.displayPromotionType || null,
-            promotionValue: product.displayPromotionValue || null,
-            promotionFromDate: product.displayPromotionFromDate || null,
-            promotionToDate: product.displayPromotionToDate || null,
-            optimisticTimestamp: Date.now(),
-          })
-        );
-      }
+      // Only allow decrement if item is already in cart (isInCart button shown)
+      if (!cartItem) return;
 
-      // Now decrement the quantity
-      const currentQty = quantity;
-      const newQty = Math.max(0, currentQty - 1);
+      // Decrement the quantity
+      const newQty = Math.max(0, quantity - 1);
       const key = cartItemKey(product.id, null);
       const ts = Date.now();
 
-      // Show removal toast BEFORE state update
-      if (currentQty === 1) {
+      // Show removal toast BEFORE state update if removing
+      if (quantity === 1) {
         showToast.success("Removed from cart");
       }
 
-      // Dispatch optimistic update
+      // Dispatch optimistic update to Redux immediately
       cartDispatch(
         updateLocalCartItem({
           productId: product.id,
@@ -263,7 +226,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         })
       );
 
-      // Debounce the API call
+      // Debounce the API call (send after 500ms)
       debouncedUpdate(key, product.id, null, newQty, ts);
     },
     [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]
