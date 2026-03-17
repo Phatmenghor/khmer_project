@@ -182,7 +182,6 @@ const cartSlice = createSlice({
 
       if (existingItem) {
         // Update existing item quantity
-        console.log("[CartSlice] addLocalCartItem: updating existing item", { productId, oldQty: existingItem.quantity, addQty: quantity });
         existingItem.quantity += quantity;
         existingItem.totalPrice = existingItem.finalPrice * existingItem.quantity;
         if (optimisticTimestamp) {
@@ -190,7 +189,6 @@ const cartSlice = createSlice({
         }
       } else {
         // Add new item with temporary ID
-        console.log("[CartSlice] addLocalCartItem: creating new item", { productId, quantity });
         const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const totalBeforeDiscount = currentPrice * quantity;
         const discountAmount = totalBeforeDiscount - (finalPrice * quantity);
@@ -217,11 +215,9 @@ const cartSlice = createSlice({
           discountAmount,
           lastOptimisticTimestamp: optimisticTimestamp
         });
-        console.log("[CartSlice] Item added to cart, total items now:", state.items.length);
       }
 
       recalculateTotals(state);
-      console.log("[CartSlice] Cart totals recalculated, finalTotal:", state.finalTotal);
     },
     updateLocalCartItem: (
       state,
@@ -242,11 +238,9 @@ const cartSlice = createSlice({
       if (item) {
         if (quantity <= 0) {
           // Remove item from cart
-          console.log("[CartSlice] updateLocalCartItem: removing item", { productId });
           state.items = state.items.filter((i) => i.id !== item.id);
         } else {
           // Update quantity and recalculate derived fields
-          console.log("[CartSlice] updateLocalCartItem: updating quantity", { productId, oldQty: item.quantity, newQty: quantity });
           item.quantity = quantity;
           item.totalPrice = item.finalPrice * quantity;
           if (optimisticTimestamp) {
@@ -255,9 +249,6 @@ const cartSlice = createSlice({
         }
         // Always recalculate cart totals
         recalculateTotals(state);
-        console.log("[CartSlice] Cart updated, finalTotal:", state.finalTotal);
-      } else {
-        console.log("[CartSlice] updateLocalCartItem: item not found!", { productId, productSizeId });
       }
       // If item not found, this is a bug - silently ignore to avoid crashes
     },

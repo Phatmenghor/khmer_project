@@ -105,36 +105,27 @@ export function ProductCard({ product, className }: ProductCardProps) {
   };
 
   // Add to cart (opens size modal if product has sizes)
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log("[ProductCard] handleAddToCart called");
-
     if (!isAuthenticated) {
-      console.log("[ProductCard] Not authenticated, showing login modal");
       setShowLoginModal(true);
       return;
     }
 
     // For sized products, open the size selection modal
     if (product.hasSizes) {
-      console.log("[ProductCard] Product has sizes, opening modal");
       setShowSizeModal(true);
       return;
     }
 
     // For non-sized products, add directly to cart
     const timestamp = Date.now();
-
-    // Get the current quantity from Redux state or API fallback
-    const currentQty = quantity; // This already handles Redux and fallback
+    const currentQty = quantity; // Current quantity from Redux or API fallback
     const newQty = currentQty + 1;
 
-    console.log("[ProductCard] Adding to cart", { productId: product.id, currentQty, newQty, timestamp });
-
-    // Dispatch optimistic update first for instant UI feedback
-    console.log("[ProductCard] Dispatching addLocalCartItem");
+    // Dispatch optimistic update FIRST for instant UI feedback
     cartDispatch(
       addLocalCartItem({
         productId: product.id,
@@ -155,32 +146,28 @@ export function ProductCard({ product, className }: ProductCardProps) {
     );
 
     setIsAddingToCart(true);
-    try {
-      // Send the total quantity to the API
-      // Backend expects absolute quantity, not delta
-      console.log("[ProductCard] Dispatching addToCart API call", { quantity: newQty });
-      await cartDispatch(
-        addToCart({
-          productId: product.id,
-          quantity: newQty,
-          optimisticTimestamp: timestamp,
-        })
-      ).unwrap();
-      console.log("[ProductCard] addToCart API successful");
-      showToast.success("Added to cart");
-    } catch (error: any) {
-      console.error("[ProductCard] addToCart API error:", error);
-      showToast.error(error?.message || "Failed to add to cart");
-    } finally {
-      setIsAddingToCart(false);
-    }
+    // Dispatch API call (async)
+    cartDispatch(
+      addToCart({
+        productId: product.id,
+        quantity: newQty,
+        optimisticTimestamp: timestamp,
+      })
+    )
+      .unwrap()
+      .then(() => {
+        showToast.success("Added to cart");
+        setIsAddingToCart(false);
+      })
+      .catch((error: any) => {
+        showToast.error(error?.message || "Failed to add to cart");
+        setIsAddingToCart(false);
+      });
   };
 
   const handleIncrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
-    console.log("[ProductCard] handleIncrement called");
 
     // For sized products, open the size modal to select size
     if (product.hasSizes) {
@@ -190,7 +177,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
     // Only allow increment if item is already in cart (isInCart button shown)
     if (!cartItem) {
-      console.log("[ProductCard] Item not in cart");
       return;
     }
 
@@ -198,8 +184,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
     const newQty = quantity + 1;
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
-
-    console.log("[ProductCard] Dispatching updateLocalCartItem", { newQty });
 
     // Dispatch optimistic update to Redux immediately
     cartDispatch(
@@ -219,8 +203,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log("[ProductCard] handleDecrement called");
-
     // For sized products, open the size modal to select size
     if (product.hasSizes) {
       setShowSizeModal(true);
@@ -229,7 +211,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
     // Only allow decrement if item is already in cart (isInCart button shown)
     if (!cartItem) {
-      console.log("[ProductCard] Item not in cart");
       return;
     }
 
@@ -237,8 +218,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
     const newQty = Math.max(0, quantity - 1);
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
-
-    console.log("[ProductCard] Dispatching updateLocalCartItem", { newQty });
 
     // Show removal toast BEFORE state update if removing
     if (quantity === 1) {
