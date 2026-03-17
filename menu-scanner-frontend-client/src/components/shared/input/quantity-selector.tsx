@@ -58,11 +58,7 @@ export function QuantitySelector({
     [min, max, onChange],
   );
 
-  const handleDecrement = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+  const handleDecrement = () => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     isTypingRef.current = false;
     const current = latestCommittedRef.current;
@@ -70,11 +66,7 @@ export function QuantitySelector({
     commitValue(current - 1);
   };
 
-  const handleIncrement = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+  const handleIncrement = () => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     isTypingRef.current = false;
     const current = latestCommittedRef.current;
@@ -125,7 +117,7 @@ export function QuantitySelector({
       <CustomButton
         variant="outline"
         size="icon"
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDecrement(e); }}
+        onClick={handleDecrement}
         className={cn(
           isSmall ? "h-8 w-8" : "h-10 w-10",
           displayValue <= min && "opacity-40",
@@ -154,7 +146,7 @@ export function QuantitySelector({
       <CustomButton
         variant="outline"
         size="icon"
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleIncrement(e); }}
+        onClick={handleIncrement}
         className={cn(isSmall ? "h-8 w-8" : "h-10 w-10")}
       >
         <Plus className={cn(isSmall ? "h-3 w-3" : "h-4 w-4")} />

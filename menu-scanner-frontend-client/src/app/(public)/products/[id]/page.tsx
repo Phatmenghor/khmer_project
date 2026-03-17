@@ -215,10 +215,7 @@ export default function ProductDetailPage() {
 
   // ── Pending qty handlers (sized products) ──────────────────────────────
   const handlePendingQtyChange = useCallback(
-    (sizeId: string | null, newQty: number, e?: React.ChangeEvent | React.MouseEvent) => {
-      if (e && 'preventDefault' in e) {
-        e.preventDefault?.();
-      }
+    (sizeId: string | null, newQty: number) => {
       if (!isAuthenticated) { setShowLoginModal(true); return; }
       const key = sizeId || "no_size";
       const currentQuantity = getQuantityForSize(sizeId);
