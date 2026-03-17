@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingCart, Plus, Minus, Ruler } from "lucide-react";
@@ -66,7 +66,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
   // Quantity logic: Trust Redux if it has the item, otherwise use API data
   // Once Redux has the item, always use Redux (never revert to API)
   // This prevents rollbacks while showing correct initial state
-  const quantity = React.useMemo(() => {
+  const quantity = useMemo(() => {
     if (cartItem) {
       // Redux has the item - trust Redux completely (optimistic updates)
       return cartItem.quantity;
@@ -76,7 +76,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
   }, [cartItem, product.id]);
 
   // Total quantity in cart including all sizes for this product
-  const cartItemsTotal = React.useMemo(() => {
+  const cartItemsTotal = useMemo(() => {
     return cartItems
       .filter((item) => item.productId === product.id)
       .reduce((sum, item) => sum + item.quantity, 0);
