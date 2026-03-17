@@ -112,12 +112,12 @@ public class ProductServiceImpl implements ProductService {
 
             dtoList.forEach(dto -> {
                 dto.setIsFavorited(favoriteSet.contains(dto.getId()));
-                dto.setQuantityInCart(cartQuantities.getOrDefault(dto.getId(), 0));
+                dto.setQuantity(cartQuantities.getOrDefault(dto.getId(), 0));
             });
         } else {
             dtoList.forEach(dto -> {
                 dto.setIsFavorited(false);
-                dto.setQuantityInCart(0);
+                dto.setQuantity(0);
             });
         }
 
@@ -176,12 +176,12 @@ public class ProductServiceImpl implements ProductService {
 
             dtoList.forEach(dto -> {
                 dto.setIsFavorited(favoriteSet.contains(dto.getId()));
-                dto.setQuantityInCart(cartQuantities.getOrDefault(dto.getId(), 0));
+                dto.setQuantity(cartQuantities.getOrDefault(dto.getId(), 0));
             });
         } else {
             dtoList.forEach(dto -> {
                 dto.setIsFavorited(false);
-                dto.setQuantityInCart(0);
+                dto.setQuantity(0);
             });
         }
 
@@ -278,20 +278,20 @@ public class ProductServiceImpl implements ProductService {
                     product.getBusinessId(),
                     List.of(product.getId())
             );
-            dto.setQuantityInCart(cartQuantities.getOrDefault(product.getId(), 0));
+            dto.setQuantity(cartQuantities.getOrDefault(product.getId(), 0));
 
             // Get per-size quantities in cart
             if (dto.getSizes() != null && !dto.getSizes().isEmpty()) {
                 Map<UUID, Integer> sizeQuantities = cartQueryHelper.getSizeQuantitiesInCart(userId, product.getId());
                 dto.getSizes().forEach(size ->
-                        size.setQuantityInCart(sizeQuantities.getOrDefault(size.getId(), 0))
+                        size.setQuantity(sizeQuantities.getOrDefault(size.getId(), 0))
                 );
             }
         } else {
             dto.setIsFavorited(false);
-            dto.setQuantityInCart(0);
+            dto.setQuantity(0);
             if (dto.getSizes() != null) {
-                dto.getSizes().forEach(size -> size.setQuantityInCart(0));
+                dto.getSizes().forEach(size -> size.setQuantity(0));
             }
         }
     }

@@ -110,12 +110,21 @@ const updateCartFromResponse = (
 // Helper to recalculate local totals from items
 const recalculateTotals = (state: CartState) => {
   state.totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0);
-  state.subtotal = state.items.reduce(
-    (sum, i) => sum + i.currentPrice * i.quantity,
+
+  // Calculate subtotal before discount (at original prices)
+  const subtotalBeforeDiscount = state.items.reduce(
+    (sum, i) => sum + (i.currentPrice * i.quantity),
     0
   );
+
+  // Calculate final total (at discounted prices)
   state.finalTotal = state.items.reduce((sum, i) => sum + i.totalPrice, 0);
-  state.totalDiscount = state.subtotal - state.finalTotal;
+
+  // Subtotal is the same as finalTotal (no shipping/fees at this stage)
+  state.subtotal = state.finalTotal;
+
+  // Discount is the difference between original price and final price
+  state.totalDiscount = subtotalBeforeDiscount - state.finalTotal;
 };
 
 const cartSlice = createSlice({

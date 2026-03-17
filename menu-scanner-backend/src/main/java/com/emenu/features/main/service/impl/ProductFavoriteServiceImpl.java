@@ -120,7 +120,7 @@ public class ProductFavoriteServiceImpl implements ProductFavoriteService {
 
             response.getContent().forEach(product -> {
                 product.setIsFavorited(true);
-                product.setQuantityInCart(cartQuantities.getOrDefault(product.getId(), 0));
+                product.setQuantity(cartQuantities.getOrDefault(product.getId(), 0));
             });
         }
 
