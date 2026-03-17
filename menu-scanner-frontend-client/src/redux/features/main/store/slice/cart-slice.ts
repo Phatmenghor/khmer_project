@@ -49,8 +49,8 @@ const updateCartFromResponse = (
   optimisticTimestamp?: number
 ) => {
   // If we have an optimistic timestamp from the request, we can check for conflicts
-  // If undefined (e.g. fetchCart), we treat all server items as authoritative
-  const checkTimestamp = optimisticTimestamp ?? -1; // -1 means trust server entirely
+  // If undefined (e.g. fetchCart), we treat it as 0 (older than any active optimistic update)
+  const checkTimestamp = optimisticTimestamp || 0;
 
   // Create a map of existing items by product+size key for merging
   const currentItemsByKey = new Map(
@@ -67,15 +67,10 @@ const updateCartFromResponse = (
     processedKeys.add(key);
     const localItem = currentItemsByKey.get(key);
 
-    // If we have a local optimistic item and it's newer or equal, preserve its quantity
-    // Use >= instead of > because optimistic timestamp equals request timestamp by design
+    // If we have a local optimistic item and it's newer, preserve its quantity
     // Otherwise, use the server item (which is authoritative)
-    if (
-      localItem &&
-      checkTimestamp !== -1 && // Only consider timestamp if this was from a specific request
-      (localItem.lastOptimisticTimestamp || 0) >= checkTimestamp
-    ) {
-      // Local item is newer or equal - keep local (user's optimistic update is fresh)
+    if (localItem && (localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
+      // Local item is newer - keep local but merge server metadata
       processedItems.push({
         ...newItem, // Get the real ID and server data
         quantity: localItem.quantity, // But keep the local quantity
@@ -83,7 +78,7 @@ const updateCartFromResponse = (
         lastOptimisticTimestamp: localItem.lastOptimisticTimestamp,
       });
     } else {
-      // Server item is older - use it as-is
+      // Server item is newer or equal - use it as-is
       processedItems.push(newItem);
     }
   }
@@ -94,11 +89,11 @@ const updateCartFromResponse = (
     const key = `${localItem.productId}_${localItem.productSizeId}`;
     if (!processedKeys.has(key)) {
       // Item exists locally but not in response
-      // Only keep it if it's a fresh optimistic add (newer or equal timestamp)
-      if (checkTimestamp !== -1 && (localItem.lastOptimisticTimestamp || 0) >= checkTimestamp) {
+      // Only keep it if it's a fresh optimistic add (newer timestamp)
+      if ((localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
         processedItems.push(localItem);
       }
-      // Otherwise, if checkTimestamp === -1 (full fetch), trust the server and discard
+      // Otherwise, trust the server and discard
     }
   });
 
