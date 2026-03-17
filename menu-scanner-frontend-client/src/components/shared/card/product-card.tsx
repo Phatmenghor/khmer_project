@@ -100,7 +100,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
     if (product.hasSizes) { setShowSizeModal(true); return; }
 
     const timestamp = Date.now();
-    const newQuantity = quantity + 1; // Calculate total quantity to send to API
+    // Calculate total quantity: use max of Redux qty and API qty to handle both sources
+    const reduxQuantity = cartItem?.quantity || 0;
+    const apiQuantity = getProductQuantity(product) || 0;
+    const currentTotal = Math.max(reduxQuantity, apiQuantity);
+    const newQuantity = currentTotal + 1;
 
     cartDispatch(addLocalCartItem({
       productId: product.id,
