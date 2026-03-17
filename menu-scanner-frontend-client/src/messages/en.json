@@ -1,0 +1,62 @@
+{
+  "common": {
+    "language": "Language",
+    "selectLanguage": "Select Language",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search...",
+    "filter": "Filter",
+    "export": "Export",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "users": "Users"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to your dashboard",
+    "overview": "Overview"
+  },
+  "user": {
+    "title": "Users",
+    "search": "Search users...",
+    "table-header": {
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "emailAddress": "Email Address",
+    "password": "Password",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "welcome": "Welcome",
+    "welcomeBack": "Welcome Back",
+    "loginTitle": "Welcome Back",
+    "loginSubtitle": "Sign in to your admin account to continue",
+    "emailPlaceholder": "admin@example.com",
+    "passwordPlaceholder": "Enter your password",
+    "loginSuccess": "Login successful!",
+    "loginError": "Login failed. Please try again.",
+    "invalidCredentials": "Invalid email or password",
+    "demoCredentials": "Demo credentials are pre-filled for testing",
+    "adminLogin": "Admin Login",
+    "copyright": "© 2024 Menu Scanner. All rights reserved.",
+    "messages": {
+      "login-success": "Successfully logged in!",
+      "login-error": "Login failed. Please check your credentials."
+    }
+  }
+}

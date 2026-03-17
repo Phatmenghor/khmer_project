@@ -1,0 +1,395 @@
+﻿/**
+ * Auth Feature - Redux Slice
+ * Manages auth state: user, profile, loading, errors
+ */
+
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { UserAuthResponseModel } from "../models/response/auth-resposne";
+import {
+  loginService,
+  getProfileService,
+  updateProfileService,
+  changePasswordService,
+  deleteAccountService,
+} from "../thunks/auth-thunks";
+import {
+  telegramAuthenticateService,
+  socialAuthenticateService,
+  getSocialSyncService,
+  syncTelegramAccountService,
+  unsyncSocialAccountService,
+  logoutService,
+} from "../thunks/social-auth-thunks";
+import { AuthState } from "../models/type/auth-types";
+import {
+  storeTokens,
+  clearAllTokens,
+  storeAdminTokens,
+  clearAdminTokens,
+} from "@/utils/local-storage/token";
+import {
+  storeUserInfo,
+  clearUserInfo,
+  storeAdminUserInfo,
+  clearAdminUserInfo,
+} from "@/utils/local-storage/userInfo";
+import { SocialSyncResponse } from "../models/response/social-auth-response";
+
+const isAdmin = (userType?: string) => userType === "BUSINESS_USER";
+
+/**
+ * Extended auth state with social sync info
+ */
+interface ExtendedAuthState extends AuthState {
+  socialSync: SocialSyncResponse | null;
+  isSocialLoading: boolean;
+  isNewUser: boolean;
+}
+
+/**
+ * Initial auth state
+ */
+const initialState: ExtendedAuthState = {
+  isAuthenticated: false,
+  authReady: false,
+  user: null,
+  profile: null,
+  isLoading: false,
+  isProfileLoading: false,
+  error: null,
+  socialSync: null,
+  isSocialLoading: false,
+  isNewUser: false,
+};
+
+/**
+ * Auth slice
+ */
+const authSlice = createSlice({
+  name: "auth",
+  initialState,
+  reducers: {
+    /**
+     * Set user directly (useful after checking local storage)
+     */
+    setUser: (state, action: PayloadAction<UserAuthResponseModel>) => {
+      state.user = action.payload;
+      state.isAuthenticated = !!action.payload.accessToken;
+      state.authReady = true;
+    },
+
+    /**
+     * Mark auth initialization as complete (even when no token found)
+     */
+    setAuthReady: (state) => {
+      state.authReady = true;
+    },
+
+    /**
+     * Clear authentication state
+     */
+    logout: (state) => {
+      state.isAuthenticated = false;
+      state.user = null;
+      state.profile = null;
+      state.error = null;
+      state.socialSync = null;
+      state.isNewUser = false;
+      clearAllTokens();
+      clearUserInfo();
+      clearAdminTokens();
+      clearAdminUserInfo();
+    },
+
+    /**
+     * Clear any errors
+     */
+    clearError: (state) => {
+      state.error = null;
+    },
+
+    /**
+     * Set social sync info
+     */
+    setSocialSync: (state, action: PayloadAction<SocialSyncResponse | null>) => {
+      state.socialSync = action.payload;
+    },
+
+    /**
+     * Clear new user flag
+     */
+    clearNewUserFlag: (state) => {
+      state.isNewUser = false;
+    },
+
+    /**
+     * Reset auth state
+     */
+    resetAuthState: () => initialState,
+  },
+
+  extraReducers: (builder) => {
+    // Login thunk handlers
+    builder
+      .addCase(loginService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginService.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+        state.isAuthenticated = !!action.payload.accessToken;
+        state.authReady = true;
+
+        // Store tokens in admin or customer cookies based on userType
+        if (action.payload.accessToken) {
+          if (isAdmin(action.payload.userType)) {
+            storeAdminTokens(action.payload.accessToken, action.payload.refreshToken);
+            storeAdminUserInfo(action.payload);
+          } else {
+            storeTokens(action.payload.accessToken, action.payload.refreshToken);
+            storeUserInfo(action.payload);
+          }
+        }
+      })
+      .addCase(loginService.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+        state.isAuthenticated = false;
+      });
+
+    // Get profile thunk handlers
+    builder
+      .addCase(getProfileService.pending, (state) => {
+        state.isProfileLoading = true;
+        state.error = null;
+      })
+      .addCase(getProfileService.fulfilled, (state, action) => {
+        state.isProfileLoading = false;
+        state.profile = action.payload;
+      })
+      .addCase(getProfileService.rejected, (state, action) => {
+        state.isProfileLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Update profile thunk handlers
+    builder
+      .addCase(updateProfileService.pending, (state) => {
+        state.isProfileLoading = true;
+        state.error = null;
+      })
+      .addCase(updateProfileService.fulfilled, (state, action) => {
+        state.isProfileLoading = false;
+        state.profile = action.payload;
+        // Update user info in state if needed
+        if (state.user) {
+          state.user.fullName = action.payload.fullName || state.user.fullName;
+          state.user.profileImageUrl =
+            action.payload.profileImageUrl || state.user.profileImageUrl;
+        }
+      })
+      .addCase(updateProfileService.rejected, (state, action) => {
+        state.isProfileLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Change password thunk handlers
+    builder
+      .addCase(changePasswordService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(changePasswordService.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(changePasswordService.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Delete account thunk handlers
+    builder
+      .addCase(deleteAccountService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteAccountService.fulfilled, (state) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.profile = null;
+      })
+      .addCase(deleteAccountService.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Telegram authenticate thunk handlers
+    builder
+      .addCase(telegramAuthenticateService.pending, (state) => {
+        state.isSocialLoading = true;
+        state.error = null;
+      })
+      .addCase(telegramAuthenticateService.fulfilled, (state, action) => {
+        state.isSocialLoading = false;
+        state.isAuthenticated = true;
+        state.isNewUser = action.payload.isNewUser;
+
+        // Create user object from social auth response
+        const socialResponse = action.payload;
+        state.user = {
+          accessToken: socialResponse.accessToken,
+          refreshToken: socialResponse.refreshToken,
+          tokenType: "Bearer",
+          userId: socialResponse.userId,
+          userIdentifier: socialResponse.userIdentifier,
+          email: socialResponse.userIdentifier,
+          fullName: socialResponse.socialUsername || socialResponse.userIdentifier,
+          profileImageUrl: null,
+          userType: socialResponse.userType,
+          roles: [socialResponse.userType],
+          businessId: "",
+          businessName: "",
+          businessStatus: "",
+          isSubscriptionActive: "",
+        };
+
+        // Store tokens in admin or customer cookies based on userType
+        if (isAdmin(socialResponse.userType)) {
+          storeAdminTokens(socialResponse.accessToken, socialResponse.refreshToken);
+          storeAdminUserInfo(state.user);
+        } else {
+          storeTokens(socialResponse.accessToken, socialResponse.refreshToken);
+          storeUserInfo(state.user);
+        }
+      })
+      .addCase(telegramAuthenticateService.rejected, (state, action) => {
+        state.isSocialLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Social authenticate thunk handlers (generic)
+    builder
+      .addCase(socialAuthenticateService.pending, (state) => {
+        state.isSocialLoading = true;
+        state.error = null;
+      })
+      .addCase(socialAuthenticateService.fulfilled, (state, action) => {
+        state.isSocialLoading = false;
+        state.isAuthenticated = true;
+        state.isNewUser = action.payload.isNewUser;
+
+        const socialResponse = action.payload;
+        state.user = {
+          accessToken: socialResponse.accessToken,
+          refreshToken: socialResponse.refreshToken,
+          tokenType: "Bearer",
+          userId: socialResponse.userId,
+          userIdentifier: socialResponse.userIdentifier,
+          email: socialResponse.userIdentifier,
+          fullName: socialResponse.socialUsername || socialResponse.userIdentifier,
+          profileImageUrl: null,
+          userType: socialResponse.userType,
+          roles: [socialResponse.userType],
+          businessId: "",
+          businessName: "",
+          businessStatus: "",
+          isSubscriptionActive: "",
+        };
+
+        if (isAdmin(socialResponse.userType)) {
+          storeAdminTokens(socialResponse.accessToken, socialResponse.refreshToken);
+          storeAdminUserInfo(state.user);
+        } else {
+          storeTokens(socialResponse.accessToken, socialResponse.refreshToken);
+          storeUserInfo(state.user);
+        }
+      })
+      .addCase(socialAuthenticateService.rejected, (state, action) => {
+        state.isSocialLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Get social sync status thunk handlers (used when backend endpoint is available)
+    builder
+      .addCase(getSocialSyncService.fulfilled, (state, action) => {
+        state.socialSync = action.payload;
+      })
+      .addCase(getSocialSyncService.rejected, () => {
+        // Silently ignore — endpoint may not be available yet
+      });
+
+    // Sync Telegram account thunk handlers
+    builder
+      .addCase(syncTelegramAccountService.pending, (state) => {
+        state.isSocialLoading = true;
+        state.error = null;
+      })
+      .addCase(syncTelegramAccountService.fulfilled, (state, action) => {
+        state.isSocialLoading = false;
+        state.socialSync = action.payload;
+      })
+      .addCase(syncTelegramAccountService.rejected, (state, action) => {
+        state.isSocialLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Unsync social account thunk handlers
+    builder
+      .addCase(unsyncSocialAccountService.pending, (state) => {
+        state.isSocialLoading = true;
+        state.error = null;
+      })
+      .addCase(unsyncSocialAccountService.fulfilled, (state, action) => {
+        state.isSocialLoading = false;
+        state.socialSync = action.payload;
+      })
+      .addCase(unsyncSocialAccountService.rejected, (state, action) => {
+        state.isSocialLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Logout service thunk handlers
+    builder
+      .addCase(logoutService.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(logoutService.fulfilled, (state) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.profile = null;
+        state.socialSync = null;
+        state.isNewUser = false;
+        clearAllTokens();
+        clearUserInfo();
+        clearAdminTokens();
+        clearAdminUserInfo();
+      })
+      .addCase(logoutService.rejected, (state) => {
+        // Even if server logout fails, clear local state
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.profile = null;
+        state.socialSync = null;
+        state.isNewUser = false;
+        clearAllTokens();
+        clearUserInfo();
+        clearAdminTokens();
+        clearAdminUserInfo();
+      });
+  },
+});
+
+export const {
+  setUser,
+  setAuthReady,
+  logout,
+  clearError,
+  setSocialSync,
+  clearNewUserFlag,
+  resetAuthState,
+} = authSlice.actions;
+export default authSlice.reducer;

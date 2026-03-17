@@ -1,0 +1,534 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Shimmer animation for loading skeletons */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+}
+
+.grid-header {
+  display: grid;
+  gap: 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  grid-template-columns: repeat(var(--cols), minmax(200px, 1fr));
+}
+
+.grid-row {
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+  grid-template-columns: repeat(var(--cols), minmax(200px, 1fr));
+}
+
+@layer base {
+  /* 25% smaller = 75% of original size */
+  html {
+    font-size: 75%;
+  }
+
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 97 36% 37%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 97 36% 32%;
+    --primary-active: 97 36% 27%;
+
+    --secondary: 220 13% 95%;
+    --secondary-foreground: 240 5.9% 10%;
+    --secondary-hover: 220 13% 91%;
+
+    --muted: 220 13% 95%;
+    --muted-foreground: 220 8.5% 46%;
+    --muted-hover: 220 13% 91%;
+
+    --accent: 97 36% 95%;
+    --accent-foreground: 97 36% 25%;
+    --accent-hover: 97 36% 91%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --destructive-hover: 0 84% 55%;
+
+    --border: 220 13% 91%;
+    --border-strong: 220 13% 75%;
+    --border-subtle: 220 13% 96%;
+    --input: 220 13% 91%;
+    --input-focus: 97 36% 37%;
+    --ring: 97 36% 37%;
+
+    --success: 146 79% 41%;
+    --success-foreground: 0 0% 98%;
+    --success-50: 146 79% 96%;
+    --success-100: 146 79% 91%;
+    --success-hover: 146 79% 36%;
+
+    --warning: 39 85% 55%;
+    --warning-foreground: 0 0% 98%;
+    --warning-50: 39 85% 96%;
+    --warning-100: 39 85% 91%;
+    --warning-hover: 39 85% 50%;
+
+    --error: 2 85% 55%;
+    --error-foreground: 0 0% 98%;
+    --error-50: 2 85% 96%;
+    --error-100: 2 85% 91%;
+    --error-hover: 2 85% 50%;
+
+    --info: 215 79% 55%;
+    --info-foreground: 0 0% 98%;
+    --info-50: 215 79% 96%;
+    --info-100: 215 79% 91%;
+    --info-hover: 215 79% 50%;
+
+    --chart-1: 97 36% 37%;
+    --chart-2: 39 85% 55%;
+    --chart-3: 215 79% 55%;
+    --chart-4: 146 79% 41%;
+    --chart-5: 2 85% 55%;
+
+    --radius: 0.5rem;
+    --card-radius: 0.75rem;
+    --button-radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 97 36% 37%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 97 36% 95%;
+    --sidebar-accent-foreground: 97 36% 25%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 97 36% 37%;
+
+    --surface-1: 0 0% 100%;
+    --surface-2: 220 13% 98%;
+    --surface-3: 220 13% 95%;
+
+    --transition-fast: 150ms;
+    --transition-normal: 250ms;
+    --transition-slow: 350ms;
+
+    --nprogress-color: var(--primary);
+    --nprogress-height: 2px;
+    --nprogress-active-height: 2px;
+    --nprogress-shadow:
+      0 0 5px hsl(var(--primary) / 0.3), 0 0 8px hsl(var(--primary) / 0.15);
+    --nprogress-active-shadow:
+      0 0 8px hsl(var(--primary) / 0.4), 0 0 12px hsl(var(--primary) / 0.2);
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md:
+      0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg:
+      0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl:
+      0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family:
+      var(--font-geist-sans), "Noto Sans Khmer", ui-sans-serif, system-ui,
+      sans-serif;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    line-height: 1.5;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border-strong));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
+
+  dialog {
+    @apply bg-card text-card-foreground shadow-xl p-0;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--card-radius);
+    backdrop-filter: blur(8px);
+  }
+
+  dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+  }
+}
+
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: #57823d !important;
+  position: fixed;
+  z-index: 1031;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 0;
+  box-shadow:
+    0 0 5px rgba(87, 130, 61, 0.3),
+    0 0 8px rgba(87, 130, 61, 0.15);
+  transition: all 0.2s ease-in-out;
+}
+
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: 80px;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(87, 130, 61, 0.6),
+    #57823d
+  ) !important;
+  box-shadow:
+    0 0 8px rgba(87, 130, 61, 0.8),
+    0 0 4px #57823d;
+  transform: rotate(2deg) translate(0px, -2px);
+  border-radius: 0;
+}
+
+body.route-changing #nprogress .bar {
+  background: #57823d !important;
+  height: 2px;
+  box-shadow:
+    0 0 8px rgba(87, 130, 61, 0.4),
+    0 0 12px rgba(87, 130, 61, 0.2);
+}
+
+body.route-changing #nprogress .peg {
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(87, 130, 61, 0.8),
+    #57823d
+  ) !important;
+  box-shadow:
+    0 0 10px rgba(87, 130, 61, 0.9),
+    0 0 5px #57823d;
+}
+
+#nprogress .peg {
+  animation: none;
+}
+
+#nprogress .spinner {
+  display: none !important;
+}
+
+@layer components {
+  table {
+    @apply w-full text-sm;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table-container {
+    @apply w-full overflow-hidden rounded-lg border border-border bg-card shadow-sm;
+  }
+
+  thead {
+    @apply bg-muted/50;
+  }
+
+  th {
+    @apply px-4 py-3 text-left font-semibold text-sm text-muted-foreground;
+    @apply border-b border-border;
+    @apply first:rounded-tl-lg last:rounded-tr-lg;
+    white-space: nowrap;
+    background: hsl(var(--muted) / 0.5);
+  }
+
+  td {
+    @apply px-4 py-3 text-sm;
+    @apply border-b border-border/50;
+    background: hsl(var(--card));
+    transition: background-color var(--transition-fast) ease-in-out;
+  }
+
+  tbody tr {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  tbody tr:hover {
+    @apply bg-muted/30;
+  }
+
+  tbody tr:hover td {
+    background-color: transparent;
+  }
+
+  tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  tbody tr:last-child td:first-child {
+    @apply rounded-bl-lg;
+  }
+
+  tbody tr:last-child td:last-child {
+    @apply rounded-br-lg;
+  }
+
+  .pagination {
+    @apply flex items-center justify-between mt-6 px-4 py-3 bg-card rounded-lg;
+    @apply border border-border shadow-sm;
+  }
+
+  .bg-success {
+    background-color: hsl(var(--success));
+  }
+
+  .bg-success\/10 {
+    background-color: hsl(var(--success) / 0.1);
+  }
+
+  .text-success {
+    color: hsl(var(--success));
+  }
+
+  .bg-warning {
+    background-color: hsl(var(--warning));
+  }
+
+  .bg-warning\/10 {
+    background-color: hsl(var(--warning) / 0.1);
+  }
+
+  .text-warning {
+    color: hsl(var(--warning));
+  }
+
+  .bg-info {
+    background-color: hsl(var(--info));
+  }
+
+  .bg-info\/10 {
+    background-color: hsl(var(--info) / 0.1);
+  }
+
+  .text-info {
+    color: hsl(var(--info));
+  }
+
+  .bg-error {
+    background-color: hsl(var(--error));
+  }
+
+  .bg-error\/10 {
+    background-color: hsl(var(--error) / 0.1);
+  }
+
+  .text-error {
+    color: hsl(var(--error));
+  }
+
+  .bg-primary\/5 {
+    background-color: hsl(var(--primary) / 0.05);
+  }
+
+  .bg-primary\/10 {
+    background-color: hsl(var(--primary) / 0.1);
+  }
+
+  .bg-primary\/20 {
+    background-color: hsl(var(--primary) / 0.2);
+  }
+
+  .hover\:bg-primary\/5:hover {
+    background-color: hsl(var(--primary) / 0.05);
+  }
+
+  .hover\:bg-primary\/10:hover {
+    background-color: hsl(var(--primary) / 0.1);
+  }
+
+  .hover\:bg-muted\/30:hover {
+    background-color: hsl(var(--muted-hover));
+  }
+
+  .border-strong {
+    border-color: hsl(var(--border-strong));
+  }
+
+  .border-subtle {
+    border-color: hsl(var(--border-subtle));
+  }
+}
+
+.cell-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+@media (min-width: 768px) {
+  .cell-truncate {
+    max-width: 120px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cell-truncate {
+    max-width: 150px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .cell-truncate {
+    max-width: 200px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .cell-truncate {
+    max-width: 250px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .cell-truncate {
+    max-width: 300px;
+  }
+}
+
+/* React-Toastify: White background with primary color progress bar only */
+.Toastify__toast {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border-radius: var(--radius) !important;
+}
+
+.Toastify__toast--success .Toastify__progress-bar {
+  background: hsl(var(--primary)) !important;
+}
+
+.Toastify__toast--error .Toastify__progress-bar {
+  background: hsl(var(--error)) !important;
+}
+
+.Toastify__toast--warning .Toastify__progress-bar {
+  background: hsl(var(--warning)) !important;
+}
+
+.Toastify__toast--info .Toastify__progress-bar {
+  background: hsl(var(--info)) !important;
+}
+
+.Toastify__close-button {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.6 !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
+.Toastify__toast-icon {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Google Places Autocomplete dropdown - ensure it appears above dialogs/modals */
+.pac-container {
+  z-index: 10000 !important;
+  pointer-events: auto !important;
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-lg) !important;
+  font-family: inherit !important;
+}
+
+/* Ensure the dialog overlay doesn't block the autocomplete dropdown */
+[data-radix-popper-content-wrapper] {
+  z-index: 10001 !important;
+}
+
+/* Allow pointer events on pac-container even when dialog is open */
+body:has([data-state="open"]) .pac-container {
+  pointer-events: auto !important;
+}
+
+.pac-item {
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+  border-top: 1px solid hsl(var(--border) / 0.5) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.pac-item:first-child {
+  border-top: none !important;
+}
+
+.pac-item:hover {
+  background-color: hsl(var(--muted)) !important;
+}
+
+.pac-item-selected,
+.pac-item-selected:hover {
+  background-color: hsl(var(--accent)) !important;
+}
+
+.pac-icon {
+  margin-right: 8px !important;
+}
+
+.pac-item-query {
+  color: hsl(var(--foreground)) !important;
+  font-weight: 500 !important;
+}
+
+.pac-matched {
+  font-weight: 600 !important;
+}

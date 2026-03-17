@@ -1,0 +1,51 @@
+{
+  "common": {
+    "language": "ភាសា",
+    "selectLanguage": "ជ្រើសរើសភាសា",
+    "loading": "កំពុងផ្ទុក...",
+    "save": "រក្សាទុក",
+    "cancel": "បោះបង់",
+    "delete": "លុប",
+    "edit": "កែសម្រួល",
+    "view": "មើល",
+    "search": "ស្វែងរក...",
+    "filter": "តម្រង",
+    "export": "នាំចេញ",
+    "settings": "ការកំណត់",
+    "profile": "ប្រវត្តិរូប",
+    "logout": "ចាកចេញ",
+    "home": "ទំព័រដើម",
+    "dashboard": "ផ្ទាំងគ្រប់គ្រង",
+    "users": "អ្នកប្រើប្រាស់"
+  },
+  "dashboard": {
+    "title": "ផ្ទាំងគ្រប់គ្រង",
+    "welcome": "សូមស្វាគមន៍មកកាន់ផ្ទាំងគ្រប់គ្រង",
+    "overview": "ទិដ្ឋភាពទូទៅ"
+  },
+  "user": {
+    "title": "អ្នកប្រើប្រាស់",
+    "search": "ស្វែងរកអ្នកប្រើប្រាស់...",
+    "table-header": {
+      "email": "អ៊ីមែល",
+      "role": "តួនាទី",
+      "status": "ស្ថានភាព",
+      "createdAt": "កាលបរិច្ឆេទបង្កើត",
+      "actions": "សកម្មភាព"
+    }
+  },
+  "auth": {
+    "emailAddress": "អាសយដ្ឋានអ៊ីមែល",
+    "password": "ពាក្យសម្ងាត់",
+    "signIn": "ចូល",
+    "signingIn": "កំពុងចូល...",
+    "loginTitle": "សូមស្វាគមន៍ការវិលត្រឡប់",
+    "loginSubtitle": "ចូលទៅក្នុងគណនីអ្នកគ្រប់គ្រងរបស់អ្នកដើម្បីបន្ត",
+    "emailPlaceholder": "admin@example.com",
+    "passwordPlaceholder": "បញ្ចូលពាក្យសម្ងាត់របស់អ្នក",
+    "loginSuccess": "ចូលដោយជោគជ័យ!",
+    "loginError": "ចូលបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+    "demoCredentials": "ព័ត៌មានសម្រាប់សាកល្បងត្រូវបានបំពេញជាមុន",
+    "copyright": "© ២០២៤ Menu Scanner។ រក្សាសិទ្ធិគ្រប់យ៉ាង។"
+  }
+}

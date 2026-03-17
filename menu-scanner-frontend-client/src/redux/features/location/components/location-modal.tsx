@@ -1,0 +1,786 @@
+"use client";
+
+import React, {
+  useEffect,
+  useCallback,
+  useRef,
+  useState,
+  useMemo,
+} from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TextField } from "@/components/shared/form-field/text-field";
+import { TextareaField } from "@/components/shared/form-field/text-area-field";
+import { CancelButton } from "@/components/shared/form-field/cancel-button";
+import { SubmitButton } from "@/components/shared/form-field/submid-button";
+import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { showToast } from "@/components/shared/common/show-toast";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import {
+  Map,
+  ListFilter,
+  Star,
+  Upload,
+  X,
+  ImageIcon,
+  Search,
+  LocateFixed,
+  Maximize2,
+  Minimize2,
+  MapPin,
+  Loader2,
+  AlertTriangle,
+  CheckCircle2,
+} from "lucide-react";
+
+import { useLocationState } from "../store/state/location-state";
+import { usePublicLocationState } from "../store/state/public-location-state";
+import {
+  createLocationSchema,
+  LocationFormData,
+} from "../store/models/schema/location-schema";
+import {
+  LocationResponseModel,
+  ProvinceResponseModel,
+  DistrictResponseModel,
+  CommuneResponseModel,
+  VillageResponseModel,
+} from "../store/models/response/location-response";
+import { LocationSelectTab } from "./location-select-tab";
+
+// ---------------------------------------------------------------------------
+// Google Maps script loader
+// ---------------------------------------------------------------------------
+let gmapLoadPromise: Promise<void> | null = null;
+
+export function loadGoogleMapsScript(): Promise<void> {
+  if (gmapLoadPromise) return gmapLoadPromise;
+  gmapLoadPromise = new Promise<void>((resolve, reject) => {
+    if (window.google?.maps?.Map) { resolve(); return; }
+    const existing = document.querySelector('script[src*="maps.googleapis.com"]') as HTMLScriptElement | null;
+    if (existing) {
+      const id = setInterval(() => { if (window.google?.maps?.Map) { clearInterval(id); resolve(); } }, 100);
+      setTimeout(() => { clearInterval(id); if (window.google?.maps?.Map) resolve(); else reject(new Error("Timeout")); }, 10000);
+      return;
+    }
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) { reject(new Error("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not configured")); return; }
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true; script.defer = true;
+    script.onload = () => {
+      const id = setInterval(() => { if (window.google?.maps?.Map) { clearInterval(id); resolve(); } }, 100);
+      setTimeout(() => { clearInterval(id); if (window.google?.maps?.Map) resolve(); else reject(new Error("Map unavailable")); }, 10000);
+    };
+    script.onerror = () => { gmapLoadPromise = null; reject(new Error("Failed to load Google Maps")); };
+    document.head.appendChild(script);
+  });
+  gmapLoadPromise.catch(() => { gmapLoadPromise = null; });
+  return gmapLoadPromise;
+}
+
+// ---------------------------------------------------------------------------
+type SelectionMode = "map" | "select";
+
+interface LocationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  editData?: LocationResponseModel | null;
+  initialCoords?: { lat: number; lng: number } | null;
+}
+
+// ---------------------------------------------------------------------------
+// Center pin
+// ---------------------------------------------------------------------------
+function CenterPin({ size = "h-9 w-9", isDragging }: { size?: string; isDragging: boolean }) {
+  return (
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full pointer-events-none z-10">
+      <div className={`transition-transform duration-150 ${isDragging ? "-translate-y-3 scale-110" : ""}`}>
+        <MapPin className={`${size} text-red-500 drop-shadow-lg`} fill="currentColor" strokeWidth={1.5} />
+      </div>
+      <div className={`h-1 bg-black/30 rounded-full mx-auto transition-all duration-150 ${isDragging ? "w-3 opacity-40" : "w-2 opacity-60"}`} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Multi-image upload
+// ---------------------------------------------------------------------------
+interface MultiImageUploadProps {
+  images: { imageUrl: string }[];
+  onAdd: (url: string) => void;
+  onRemove: (idx: number) => void;
+  disabled?: boolean;
+}
+
+function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploadProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [lightbox, setLightbox] = useState<string | null>(null);
+
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    Array.from(e.target.files ?? []).forEach((file) => {
+      if (!file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = () => { if (typeof reader.result === "string") onAdd(reader.result); };
+      reader.readAsDataURL(file);
+    });
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  return (
+    <div className="space-y-2.5">
+      {lightbox && (
+        <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center" onClick={() => setLightbox(null)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={lightbox} alt="Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+          <button type="button" onClick={() => setLightbox(null)} className="absolute top-4 right-4 rounded-full bg-white/20 text-white p-2 hover:bg-white/40 transition-colors">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+
+      <Label className="text-sm font-medium flex items-center gap-2">
+        <ImageIcon className="h-4 w-4 text-muted-foreground" />
+        Location Images
+        <span className="text-muted-foreground text-xs font-normal">(optional)</span>
+      </Label>
+
+      <div className="grid grid-cols-5 gap-2">
+        {images.map((img, idx) => (
+          <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border bg-muted cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setLightbox(img.imageUrl)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={img.imageUrl} alt={`Location ${idx + 1}`} className="w-full h-full object-cover" />
+            {!disabled && (
+              <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(idx); }} className="absolute top-1 right-1 rounded-full bg-destructive/90 text-white p-0.5 hover:bg-destructive transition-colors">
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+        ))}
+        {!disabled && (
+          <button type="button" onClick={() => inputRef.current?.click()} className="aspect-square rounded-xl border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center gap-1.5 transition-colors text-muted-foreground hover:text-primary">
+            <Upload className="h-4 w-4" />
+            <span className="text-xs font-medium">Add</span>
+          </button>
+        )}
+      </div>
+      <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+export default function LocationModal({ isOpen, onClose, editData, initialCoords }: LocationModalProps) {
+  const isCreate = !editData;
+  const { create, update, operations, error: reduxError, clearError } = useLocationState();
+  const {
+    selectedProvince, selectedDistrict, selectedCommune,
+    selectProvince, selectDistrict, selectCommune,
+    reset: resetPublicLocation,
+  } = usePublicLocationState();
+
+  const { isCreating, isUpdating } = operations;
+  const isSubmitting = isCreate ? isCreating : isUpdating;
+
+  const [selectionMode, setSelectionMode] = useState<SelectionMode>("map");
+
+  // Map refs
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const googleMapRef = useRef<google.maps.Map | null>(null);
+  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
+  const fullscreenSearchRef = useRef<HTMLInputElement>(null);
+  const fullscreenAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setValueRef = useRef<typeof setValue>(null!);
+
+  const [isMapReady, setIsMapReady] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
+
+  const [selectedVillage, setSelectedVillage] = useState<VillageResponseModel | null>(null);
+  const [isGeocodingAddress, setIsGeocodingAddress] = useState(false);
+  const [geocodedCoords, setGeocodedCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geocodeSuccess, setGeocodeSuccess] = useState(false);
+
+  const { control, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<LocationFormData>({
+    resolver: zodResolver(createLocationSchema) as any,
+    defaultValues: {
+      label: "", latitude: 0, longitude: 0,
+      houseNumber: "", streetNumber: "", village: "", commune: "",
+      district: "", province: "", country: "", note: "",
+      isPrimary: false, locationImages: [],
+    },
+    mode: "onChange",
+  });
+
+  const { fields: imageFields, append: appendImage, remove: removeImage } = useFieldArray({ control, name: "locationImages" });
+  setValueRef.current = setValue;
+  const latitude = watch("latitude");
+  const longitude = watch("longitude");
+  const isPrimaryValue = watch("isPrimary");
+  const hasCoords = latitude !== 0 || longitude !== 0;
+
+  const addressPreview = useMemo(() => {
+    const parts = [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")].filter(Boolean);
+    return parts.length > 0 ? parts.join(", ") : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")]);
+
+  // Reset on open
+  useEffect(() => {
+    if (!isOpen) return;
+    if (editData) {
+      reset({
+        label: editData.label ?? "", latitude: editData.latitude ?? 0, longitude: editData.longitude ?? 0,
+        houseNumber: editData.houseNumber ?? "", streetNumber: editData.streetNumber ?? "",
+        village: editData.village ?? "", commune: editData.commune ?? "",
+        district: editData.district ?? "", province: editData.province ?? "",
+        country: editData.country ?? "", note: editData.note ?? "",
+        isPrimary: editData.isPrimary || editData.isDefault || false,
+        locationImages: editData.locationImages ?? [],
+      });
+    } else {
+      reset({ label: "", latitude: 0, longitude: 0, houseNumber: "", streetNumber: "", village: "", commune: "", district: "", province: "", country: "", note: "", isPrimary: false, locationImages: [] });
+    }
+    clearError();
+  }, [isOpen, editData, reset, clearError]);
+
+  // Load Google Maps as soon as modal opens
+  useEffect(() => {
+    if (!isOpen) { setIsMapReady(false); setIsFullScreen(false); setMapError(null); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        await loadGoogleMapsScript();
+        if (!cancelled) setIsMapReady(true);
+      } catch (err: any) {
+        if (!cancelled) setMapError(err?.message ?? "Failed to load map");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isOpen]);
+
+  const reverseGeocode = useCallback((lat: number, lng: number) => {
+    if (!geocoderRef.current) return;
+    setIsReverseGeocoding(true);
+    geocoderRef.current.geocode({ location: { lat, lng } }, (results: any, status: any) => {
+      setIsReverseGeocoding(false);
+      if (status !== "OK" || !results?.length) return;
+      const comps = results[0].address_components || [];
+      let streetNumber = "", village = "", commune = "", district = "", province = "", country = "";
+      for (const comp of comps) {
+        const t = comp.types;
+        if (t.includes("street_number")) streetNumber = comp.long_name;
+        else if (t.includes("route")) streetNumber = streetNumber ? `${streetNumber} ${comp.long_name}` : comp.long_name;
+        else if (t.includes("sublocality_level_1") || t.includes("sublocality")) village = comp.long_name;
+        else if (t.includes("locality")) commune = comp.long_name;
+        else if (t.includes("administrative_area_level_2")) district = comp.long_name;
+        else if (t.includes("administrative_area_level_1")) province = comp.long_name;
+        else if (t.includes("country")) country = comp.long_name;
+      }
+      const sv = setValueRef.current;
+      sv("streetNumber", streetNumber, { shouldDirty: true });
+      sv("village", village, { shouldDirty: true });
+      sv("commune", commune, { shouldDirty: true });
+      sv("district", district, { shouldDirty: true });
+      sv("province", province, { shouldDirty: true });
+      sv("country", country, { shouldDirty: true });
+    });
+  }, []);
+
+  const setupAutocomplete = useCallback((input: HTMLInputElement, ref: React.MutableRefObject<google.maps.places.Autocomplete | null>) => {
+    const map = googleMapRef.current;
+    if (!map || !google.maps.places) return;
+    if (ref.current) google.maps.event.clearInstanceListeners(ref.current);
+    const ac = new google.maps.places.Autocomplete(input, { types: ["geocode", "establishment"] });
+    ac.bindTo("bounds", map);
+    ac.addListener("place_changed", () => {
+      const place = ac.getPlace();
+      if (place.geometry?.location) {
+        map.setCenter(place.geometry.location);
+        map.setZoom(17);
+        // Update coords and reverse-geocode after autocomplete selection
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setValueRef.current("latitude", lat, { shouldDirty: true });
+        setValueRef.current("longitude", lng, { shouldDirty: true });
+        if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+        geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 200);
+      }
+    });
+    ref.current = ac;
+  }, [reverseGeocode]);
+
+  const initMap = useCallback((container: HTMLDivElement, lat: number, lng: number) => {
+    const map = new google.maps.Map(container, {
+      center: { lat, lng }, zoom: 15,
+      mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+      zoomControl: false,
+      gestureHandling: "none",
+    });
+    googleMapRef.current = map;
+    geocoderRef.current = new google.maps.Geocoder();
+
+    // dragstart / dragend — only trigger geocoding on explicit drag
+    map.addListener("dragstart", () => setIsDragging(true));
+    map.addListener("dragend", () => {
+      const center = map.getCenter();
+      if (!center) return;
+      const lat = center.lat(); const lng = center.lng();
+      setValueRef.current("latitude", lat, { shouldDirty: true });
+      setValueRef.current("longitude", lng, { shouldDirty: true });
+      setIsDragging(false);
+      if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+      geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 400);
+    });
+
+    setValueRef.current("latitude", lat, { shouldDirty: true });
+    setValueRef.current("longitude", lng, { shouldDirty: true });
+    // Reverse-geocode on initial load to populate address fields
+    reverseGeocode(lat, lng);
+  }, [reverseGeocode]);
+
+  // Init map once when ready
+  useEffect(() => {
+    if (!isMapReady || !mapContainerRef.current) return;
+    if (googleMapRef.current) return;
+    const lat = editData?.latitude || initialCoords?.lat || 11.5564;
+    const lng = editData?.longitude || initialCoords?.lng || 104.9282;
+    initMap(mapContainerRef.current, lat, lng);
+    return () => {
+      if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+      googleMapRef.current = null; geocoderRef.current = null;
+      fullscreenAutocompleteRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMapReady]);
+
+  // Toggle gesture handling & zoom control when entering/leaving fullscreen
+  useEffect(() => {
+    const map = googleMapRef.current;
+    if (!map || !isMapReady) return;
+    map.setOptions({
+      gestureHandling: isFullScreen ? "greedy" : "none",
+      zoomControl: isFullScreen,
+    });
+    const t = setTimeout(() => {
+      google.maps.event.trigger(map, "resize");
+      const c = map.getCenter();
+      if (c) map.setCenter(c);
+      if (isFullScreen && fullscreenSearchRef.current && google.maps.places) {
+        setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
+      }
+    }, 100);
+    return () => clearTimeout(t);
+  }, [isFullScreen, selectionMode, isMapReady, setupAutocomplete]);
+
+  const handleMyLocation = useCallback(() => {
+    if (!navigator.geolocation) { showToast.error("Geolocation not supported"); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const map = googleMapRef.current;
+        if (map) {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          map.panTo({ lat, lng });
+          map.setZoom(17);
+          setValueRef.current("latitude", lat, { shouldDirty: true });
+          setValueRef.current("longitude", lng, { shouldDirty: true });
+          if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+          geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 200);
+        }
+      },
+      () => showToast.error("Unable to get your location")
+    );
+  }, [reverseGeocode]);
+
+  const handleProvinceChange = useCallback((province: ProvinceResponseModel | null) => {
+    if (!province) return;
+    selectProvince(province); selectDistrict(null); selectCommune(null);
+    setSelectedVillage(null); setGeocodeSuccess(false); setGeocodedCoords(null);
+    setValue("province", province.provinceEn, { shouldDirty: true });
+    setValue("district", "", { shouldDirty: true }); setValue("commune", "", { shouldDirty: true });
+    setValue("village", "", { shouldDirty: true }); setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
+  }, [selectProvince, selectDistrict, selectCommune, setValue]);
+
+  const handleDistrictChange = useCallback((district: DistrictResponseModel | null) => {
+    if (!district) return;
+    selectDistrict(district); selectCommune(null);
+    setSelectedVillage(null); setGeocodeSuccess(false); setGeocodedCoords(null);
+    setValue("district", district.districtEn, { shouldDirty: true });
+    setValue("commune", "", { shouldDirty: true }); setValue("village", "", { shouldDirty: true });
+    setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
+  }, [selectDistrict, selectCommune, setValue]);
+
+  const handleCommuneChange = useCallback((commune: CommuneResponseModel | null) => {
+    if (!commune) return;
+    selectCommune(commune); setSelectedVillage(null); setGeocodeSuccess(false); setGeocodedCoords(null);
+    setValue("commune", commune.communeEn, { shouldDirty: true });
+    setValue("village", "", { shouldDirty: true }); setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
+  }, [selectCommune, setValue]);
+
+  const handleVillageChange = useCallback((village: VillageResponseModel | null) => {
+    setSelectedVillage(village); setGeocodeSuccess(false); setGeocodedCoords(null);
+    setValue("village", village?.villageEn ?? "", { shouldDirty: true });
+    setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
+  }, [setValue]);
+
+  const handleGetCoordinates = useCallback(async () => {
+    const parts = [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")].filter(Boolean);
+    if (!parts.length) { showToast.error("Please select at least a province"); return; }
+    setIsGeocodingAddress(true); setGeocodeSuccess(false);
+    try {
+      await loadGoogleMapsScript();
+      new google.maps.Geocoder().geocode({ address: parts.join(", ") }, (results: any, status: any) => {
+        setIsGeocodingAddress(false);
+        if (status === "OK" && results?.length) {
+          const loc = results[0].geometry.location;
+          const lat = loc.lat(); const lng = loc.lng();
+          setValue("latitude", lat, { shouldDirty: true }); setValue("longitude", lng, { shouldDirty: true });
+          setGeocodedCoords({ lat, lng }); setGeocodeSuccess(true);
+          showToast.success("Coordinates found");
+        } else { showToast.error("Could not resolve coordinates"); }
+      });
+    } catch (err: any) { setIsGeocodingAddress(false); showToast.error(err?.message ?? "Failed to geocode"); }
+  }, [watch, setValue]);
+
+  const onSubmit = async (data: LocationFormData) => {
+    try {
+      const payload = {
+        label: data.label, latitude: data.latitude, longitude: data.longitude,
+        houseNumber: data.houseNumber || "", streetNumber: data.streetNumber || "",
+        village: data.village || "", commune: data.commune || "",
+        district: data.district || "", province: data.province || "",
+        country: data.country || "", note: data.note || "",
+        isPrimary: data.isPrimary, locationImages: data.locationImages ?? [],
+      };
+      if (isCreate) { await create(payload).unwrap(); showToast.success("Location created"); }
+      else { await update({ locationId: editData!.id, locationData: payload }).unwrap(); showToast.success("Location updated"); }
+      handleClose();
+    } catch (error: any) { showToast.error(error?.message ?? `Failed to ${isCreate ? "create" : "update"} location`); }
+  };
+
+  const handleClose = useCallback(() => {
+    setIsFullScreen(false); setSelectionMode("map"); setSelectedVillage(null);
+    setGeocodedCoords(null); setGeocodeSuccess(false);
+    resetPublicLocation(); reset(); clearError(); onClose();
+  }, [reset, clearError, onClose, resetPublicLocation]);
+
+  const handleModeChange = (mode: SelectionMode) => {
+    setSelectionMode(mode);
+    if (mode === "select") {
+      setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
+      setGeocodeSuccess(false); setGeocodedCoords(null);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      {/* ── Fullscreen map overlay (fixed, on top of dialog) ── */}
+      {isFullScreen && (
+        <div className="fixed inset-0 z-[201] flex flex-col pointer-events-none">
+          {/* Toolbar */}
+          <div className="flex items-center justify-between px-4 py-3.5 border-b bg-background shrink-0 gap-3 shadow-sm pointer-events-auto">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2 rounded-xl bg-primary/10 shrink-0">
+                <MapPin className="h-4 w-4 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-sm font-semibold block">Select on Map</span>
+                {hasCoords && (
+                  <span className="text-xs font-mono text-muted-foreground">
+                    {latitude.toFixed(5)}, {longitude.toFixed(5)}
+                    {isReverseGeocoding && <Loader2 className="inline-block h-3 w-3 ml-1 animate-spin" />}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button type="button" variant="outline" size="sm" onClick={handleMyLocation} className="gap-1.5 rounded-xl">
+                <LocateFixed className="h-4 w-4" />
+                <span className="hidden sm:inline">My Location</span>
+              </Button>
+              <Button type="button" variant="default" size="sm" onClick={() => setIsFullScreen(false)} className="gap-1.5 rounded-xl">
+                <Minimize2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Done</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Search bar */}
+          <div className="px-4 py-2.5 border-b bg-background/95 backdrop-blur shrink-0 pointer-events-auto">
+            <div className="relative max-w-lg mx-auto">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input ref={fullscreenSearchRef} type="text" placeholder="Search for a place, address…" className="pl-10 h-10 rounded-xl bg-muted/50" autoComplete="off" />
+            </div>
+          </div>
+
+          {/* Center of map: pin + coords badge */}
+          <div className="flex-1 relative">
+            <CenterPin isDragging={isDragging} size="h-10 w-10" />
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 shadow-lg pointer-events-auto flex items-center gap-2 text-xs">
+              <MapPin className="h-3 w-3 text-red-500 shrink-0" />
+              <span className="font-mono">
+                {latitude.toFixed(6)}, {longitude.toFixed(6)}
+              </span>
+              {isReverseGeocoding && <Loader2 className="h-3 w-3 animate-spin shrink-0" />}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <DialogContent
+        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-2xl lg:max-w-3xl max-h-[95dvh] rounded-t-2xl sm:rounded-2xl"
+        onInteractOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
+        onPointerDownOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
+      >
+        <DialogTitle className="sr-only">
+          {isCreate ? "Add New Location" : "Edit Location"}
+        </DialogTitle>
+
+        {/* ── Header with tabs ── */}
+        <div className="shrink-0">
+          {/* Gradient accent bar */}
+          <div className={cn("h-1 w-full", isCreate
+            ? "bg-gradient-to-r from-primary/70 via-primary to-primary/50"
+            : "bg-gradient-to-r from-amber-400 via-amber-500 to-amber-300"
+          )} />
+
+          {/* Title row */}
+          <div className="px-5 pt-4 pb-0 flex items-center gap-3">
+            <div className={cn("p-2.5 rounded-xl shrink-0", isCreate ? "bg-primary/10" : "bg-amber-100 dark:bg-amber-900/30")}>
+              <MapPin className={cn("h-5 w-5", isCreate ? "text-primary" : "text-amber-600 dark:text-amber-400")} />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-base font-bold leading-none">
+                {isCreate ? "Add New Location" : "Edit Location"}
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isCreate ? "Pin on map or pick from address list" : "Update your location details"}
+              </p>
+            </div>
+          </div>
+
+          {/* Tab navigation */}
+          <div className="flex mt-3 border-b px-2">
+            {(["map", "select"] as SelectionMode[]).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => handleModeChange(mode)}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px rounded-t-lg",
+                  selectionMode === mode
+                    ? "border-primary text-primary bg-primary/5"
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                {mode === "map"
+                  ? <><Map className="h-4 w-4" /> Map</>
+                  : <><ListFilter className="h-4 w-4" /> Location Selector</>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Form with full-body scroll ── */}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+          {/* Scrollable body — map preview + all form fields scroll together */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+            {/* Error banner */}
+            {reduxError && (
+              <div className="p-3.5 bg-destructive/10 border border-destructive/30 rounded-xl">
+                <p className="text-sm text-destructive font-medium">{reduxError}</p>
+              </div>
+            )}
+
+            {/* ── Map section ── */}
+            {selectionMode === "map" && (
+              <div className="space-y-2.5">
+                {/* Map canvas — fixed inset-0 z-[200] when fullscreen, h-[220px] in flow otherwise */}
+                <div
+                  className={cn(
+                    isFullScreen
+                      ? "fixed inset-0 z-[200]"
+                      : "relative h-[220px] rounded-xl overflow-hidden border"
+                  )}
+                >
+                  <div ref={mapContainerRef} className="w-full h-full" />
+
+                  {/* Normal-mode overlays (hidden when fullscreen because map is fixed) */}
+                  {!isFullScreen && (
+                    <>
+                      {/* Click overlay → open fullscreen */}
+                      <div
+                        className="absolute inset-0 group cursor-pointer flex items-end justify-center pb-3"
+                        onClick={() => setIsFullScreen(true)}
+                      >
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.06] transition-colors duration-150" />
+                        <div className="relative z-10 bg-background/95 backdrop-blur-sm border shadow-lg rounded-xl px-4 py-2 flex items-center gap-2 group-hover:shadow-xl transition-all group-hover:scale-105 duration-200">
+                          <Maximize2 className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-medium text-foreground">Click to open full-screen map</span>
+                        </div>
+                      </div>
+
+                      <CenterPin isDragging={isDragging} size="h-8 w-8" />
+
+                      {/* Loading skeleton */}
+                      {!isMapReady && !mapError && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-muted/80 pointer-events-none">
+                          <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="h-7 w-7 animate-spin text-primary" />
+                            <span className="text-sm text-muted-foreground">Loading map…</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Error state */}
+                      {mapError && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-yellow-50/90 pointer-events-none">
+                          <div className="text-center px-4">
+                            <AlertTriangle className="h-6 w-6 text-yellow-600 mx-auto mb-1.5" />
+                            <p className="text-sm font-medium text-yellow-800">Map unavailable</p>
+                            <p className="text-xs text-yellow-700 mt-0.5">Check your API key configuration</p>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Coordinates badge */}
+                {hasCoords && (
+                  <div className="flex items-center justify-between bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl px-3.5 py-2.5">
+                    <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400">
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
+                      <span className="font-mono text-xs">{latitude.toFixed(6)}, {longitude.toFixed(6)}</span>
+                      {isReverseGeocoding && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    </div>
+                    <Badge variant="secondary" className="text-xs">Pin set</Badge>
+                  </div>
+                )}
+
+                {/* Hint when no coords */}
+                {!hasCoords && (
+                  <button
+                    type="button"
+                    onClick={() => setIsFullScreen(true)}
+                    className="w-full flex items-center gap-2 justify-center py-2.5 text-sm text-muted-foreground border-2 border-dashed rounded-xl hover:border-primary hover:text-primary hover:bg-primary/5 transition-all"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                    Open full-screen map to drop a pin
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* ── Location Selector tab ── */}
+            {selectionMode === "select" && (
+              <LocationSelectTab
+                selectedProvince={selectedProvince}
+                selectedDistrict={selectedDistrict}
+                selectedCommune={selectedCommune}
+                selectedVillage={selectedVillage}
+                isGeocodingAddress={isGeocodingAddress}
+                geocodedCoords={geocodedCoords}
+                geocodeSuccess={geocodeSuccess}
+                addressPreview={addressPreview}
+                onProvinceChange={handleProvinceChange}
+                onDistrictChange={handleDistrictChange}
+                onCommuneChange={handleCommuneChange}
+                onVillageChange={handleVillageChange}
+                onGetCoordinates={handleGetCoordinates}
+              />
+            )}
+
+            {/* ── Address Details ── */}
+            <div className="pt-1 border-t space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-muted shrink-0">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold leading-none">Address Details</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {selectionMode === "map"
+                      ? "Auto-filled from map pin — edit if needed"
+                      : "Add house / street number for precise delivery"}
+                  </p>
+                </div>
+              </div>
+
+              <TextField control={control} name="label" label="Label" placeholder="e.g., Home, Office, Shop" required disabled={isSubmitting} error={errors.label} />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <TextField control={control} name="houseNumber" label="House Number" placeholder="Enter house number" disabled={isSubmitting} error={errors.houseNumber} />
+                <TextField control={control} name="streetNumber" label="Street" placeholder="Enter street" disabled={isSubmitting} error={errors.streetNumber} />
+                {selectionMode === "map" && (
+                  <>
+                    <TextField control={control} name="village" label="Village / Sangkat" placeholder="Auto-filled" disabled={isSubmitting} error={errors.village} />
+                    <TextField control={control} name="commune" label="Commune / City" placeholder="Auto-filled" required disabled={isSubmitting} error={errors.commune} />
+                    <TextField control={control} name="district" label="District / Khan" placeholder="Auto-filled" disabled={isSubmitting} error={errors.district} />
+                    <TextField control={control} name="province" label="Province" placeholder="Auto-filled" disabled={isSubmitting} error={errors.province} />
+                    <TextField control={control} name="country" label="Country" placeholder="Auto-filled" disabled={isSubmitting} error={errors.country} />
+                  </>
+                )}
+              </div>
+
+              <TextareaField control={control} name="note" label="Note" placeholder="Delivery instructions or extra details" rows={3} disabled={isSubmitting} error={errors.note} />
+
+              {/* isPrimary star toggle */}
+              <button
+                type="button"
+                onClick={() => setValue("isPrimary", !isPrimaryValue, { shouldDirty: true })}
+                disabled={isSubmitting}
+                className={cn(
+                  "w-full flex items-center gap-4 rounded-2xl border-2 p-4 text-left transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  isPrimaryValue
+                    ? "border-amber-300 bg-amber-50/70 dark:bg-amber-950/20 dark:border-amber-700"
+                    : "border-border bg-muted/20 hover:border-primary/30 hover:bg-muted/40"
+                )}
+              >
+                <div className={cn("p-2.5 rounded-xl transition-colors shrink-0", isPrimaryValue ? "bg-amber-100 dark:bg-amber-900/40" : "bg-muted")}>
+                  <Star className={cn("h-5 w-5 transition-all duration-200", isPrimaryValue ? "text-amber-500 fill-amber-500 scale-110" : "text-muted-foreground")} />
+                </div>
+                <div className="flex-1">
+                  <p className={cn("text-sm font-semibold", isPrimaryValue ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>
+                    {isPrimaryValue ? "Primary Location" : "Set as Primary"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {isPrimaryValue ? "This is your default delivery address" : "Mark as your default delivery address"}
+                  </p>
+                </div>
+                {isPrimaryValue && <CheckCircle2 className="h-5 w-5 text-amber-500 shrink-0" />}
+              </button>
+
+              {/* Location images */}
+              <MultiImageUpload
+                images={imageFields.map((f) => ({ imageUrl: (f as any).imageUrl }))}
+                onAdd={(url) => appendImage({ imageUrl: url })}
+                onRemove={(idx) => removeImage(idx)}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+
+          <FormFooter isSubmitting={isSubmitting} isDirty={isDirty} isCreate={isCreate} createMessage="Creating location..." updateMessage="Updating location...">
+            <CancelButton onClick={handleClose} disabled={isSubmitting} />
+            <SubmitButton isSubmitting={isSubmitting} isDirty={isDirty} isCreate={isCreate} createText="Add Location" updateText="Update Location" submittingCreateText="Creating..." submittingUpdateText="Updating..." />
+          </FormFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
