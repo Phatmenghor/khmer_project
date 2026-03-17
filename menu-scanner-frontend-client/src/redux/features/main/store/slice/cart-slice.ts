@@ -67,14 +67,15 @@ const updateCartFromResponse = (
     processedKeys.add(key);
     const localItem = currentItemsByKey.get(key);
 
-    // If we have a local optimistic item and it's newer, preserve its quantity
+    // If we have a local optimistic item and it's newer or equal, preserve its quantity
+    // Use >= instead of > because optimistic timestamp equals request timestamp by design
     // Otherwise, use the server item (which is authoritative)
     if (
       localItem &&
       checkTimestamp !== -1 && // Only consider timestamp if this was from a specific request
-      (localItem.lastOptimisticTimestamp || 0) > checkTimestamp
+      (localItem.lastOptimisticTimestamp || 0) >= checkTimestamp
     ) {
-      // Local item is newer - keep local but merge server metadata
+      // Local item is newer or equal - keep local (user's optimistic update is fresh)
       processedItems.push({
         ...newItem, // Get the real ID and server data
         quantity: localItem.quantity, // But keep the local quantity
@@ -82,7 +83,7 @@ const updateCartFromResponse = (
         lastOptimisticTimestamp: localItem.lastOptimisticTimestamp,
       });
     } else {
-      // Server item is newer or equal - use it as-is
+      // Server item is older - use it as-is
       processedItems.push(newItem);
     }
   }
@@ -93,8 +94,8 @@ const updateCartFromResponse = (
     const key = `${localItem.productId}_${localItem.productSizeId}`;
     if (!processedKeys.has(key)) {
       // Item exists locally but not in response
-      // Only keep it if it's a fresh optimistic add (newer timestamp)
-      if (checkTimestamp !== -1 && (localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
+      // Only keep it if it's a fresh optimistic add (newer or equal timestamp)
+      if (checkTimestamp !== -1 && (localItem.lastOptimisticTimestamp || 0) >= checkTimestamp) {
         processedItems.push(localItem);
       }
       // Otherwise, if checkTimestamp === -1 (full fetch), trust the server and discard
