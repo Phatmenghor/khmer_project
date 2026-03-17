@@ -109,13 +109,17 @@ export function ProductCard({ product, className }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
+    console.log("[ProductCard] handleAddToCart called");
+
     if (!isAuthenticated) {
+      console.log("[ProductCard] Not authenticated, showing login modal");
       setShowLoginModal(true);
       return;
     }
 
     // For sized products, open the size selection modal
     if (product.hasSizes) {
+      console.log("[ProductCard] Product has sizes, opening modal");
       setShowSizeModal(true);
       return;
     }
@@ -127,7 +131,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
     const currentQty = quantity; // This already handles Redux and fallback
     const newQty = currentQty + 1;
 
+    console.log("[ProductCard] Adding to cart", { productId: product.id, currentQty, newQty, timestamp });
+
     // Dispatch optimistic update first for instant UI feedback
+    console.log("[ProductCard] Dispatching addLocalCartItem");
     cartDispatch(
       addLocalCartItem({
         productId: product.id,
@@ -151,6 +158,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     try {
       // Send the total quantity to the API
       // Backend expects absolute quantity, not delta
+      console.log("[ProductCard] Dispatching addToCart API call", { quantity: newQty });
       await cartDispatch(
         addToCart({
           productId: product.id,
@@ -158,8 +166,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
           optimisticTimestamp: timestamp,
         })
       ).unwrap();
+      console.log("[ProductCard] addToCart API successful");
       showToast.success("Added to cart");
     } catch (error: any) {
+      console.error("[ProductCard] addToCart API error:", error);
       showToast.error(error?.message || "Failed to add to cart");
     } finally {
       setIsAddingToCart(false);
