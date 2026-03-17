@@ -33,6 +33,7 @@ import { isBase64Image, uploadImage } from "@/utils/common/upload-image";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { Loading } from "@/components/shared/common/loading";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
+import { cacheManager, CACHE_TTL } from "@/utils/cache/cache-manager";
 
 // Profile update schema
 const profileSchema = z.object({
@@ -81,14 +82,26 @@ export default function UserProfilePage() {
     mode: "onChange",
   });
 
-  // Load profile on mount
+  // Load profile on mount with caching
   useEffect(() => {
+    // Check if cached profile exists and is fresh (1 hour TTL)
+    const cachedProfile = cacheManager.get("userProfile");
+
+    if (cachedProfile) {
+      // Profile is cached and fresh, skip API call
+      return;
+    }
+
+    // Profile not cached or expired, fetch from API
     dispatch(getProfileService());
   }, [dispatch]);
 
-  // Update form when profile loads
+  // Update form when profile loads and cache it
   useEffect(() => {
     if (userProfile) {
+      // Cache profile for 1 hour
+      cacheManager.set("userProfile", userProfile, CACHE_TTL.LONG);
+
       reset({
         profileImageUrl: userProfile.profileImageUrl || "",
         firstName: userProfile.firstName || "",
@@ -136,6 +149,8 @@ export default function UserProfilePage() {
       await dispatch(updateProfileService(payload)).unwrap();
       showToast.success("Profile updated successfully");
       setIsEditing(false);
+      // Invalidate cache when profile is updated
+      cacheManager.clear("userProfile");
     } catch (error: any) {
       console.error("Error updating profile:", error);
       showToast.error(error || "Failed to update profile");
