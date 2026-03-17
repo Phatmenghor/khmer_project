@@ -166,7 +166,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
     }
   };
 
-  const handleIncrement = useCallback(() => {
+  const handleIncrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log("[ProductCard] handleIncrement called");
+
     // For sized products, open the size modal to select size
     if (product.hasSizes) {
       setShowSizeModal(true);
@@ -174,12 +179,17 @@ export function ProductCard({ product, className }: ProductCardProps) {
     }
 
     // Only allow increment if item is already in cart (isInCart button shown)
-    if (!cartItem) return;
+    if (!cartItem) {
+      console.log("[ProductCard] Item not in cart");
+      return;
+    }
 
     // Increment the quantity
     const newQty = quantity + 1;
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
+
+    console.log("[ProductCard] Dispatching updateLocalCartItem", { newQty });
 
     // Dispatch optimistic update to Redux immediately
     cartDispatch(
@@ -195,7 +205,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
     debouncedUpdate(key, product.id, null, newQty, ts);
   }, [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]);
 
-  const handleDecrement = useCallback(() => {
+  const handleDecrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log("[ProductCard] handleDecrement called");
+
     // For sized products, open the size modal to select size
     if (product.hasSizes) {
       setShowSizeModal(true);
@@ -203,12 +218,17 @@ export function ProductCard({ product, className }: ProductCardProps) {
     }
 
     // Only allow decrement if item is already in cart (isInCart button shown)
-    if (!cartItem) return;
+    if (!cartItem) {
+      console.log("[ProductCard] Item not in cart");
+      return;
+    }
 
     // Decrement the quantity
     const newQty = Math.max(0, quantity - 1);
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
+
+    console.log("[ProductCard] Dispatching updateLocalCartItem", { newQty });
 
     // Show removal toast BEFORE state update if removing
     if (quantity === 1) {
@@ -347,7 +367,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                     size="icon"
                     variant="outline"
                     className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDecrement(); }}
+                    onClick={handleDecrement}
                   >
                     <Minus className="h-3 w-3" />
                   </CustomButton>
@@ -358,7 +378,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                     size="icon"
                     variant="outline"
                     className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleIncrement(); }}
+                    onClick={handleIncrement}
                   >
                     <Plus className="h-3 w-3" />
                   </CustomButton>
