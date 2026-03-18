@@ -62,15 +62,16 @@ const updateCartFromResponse = (
   const processedKeys = new Set<string>();
 
   // Process all items from server response
+  // Items that are IN the server response are authoritative and should always be kept
   for (const newItem of newItems) {
     const key = `${newItem.productId}_${newItem.productSizeId}`;
     processedKeys.add(key);
     const localItem = currentItemsByKey.get(key);
 
-    // If we have a local optimistic item and it's newer or equal, preserve its quantity
-    // Otherwise, use the server item (which is authoritative)
-    if (localItem && (localItem.lastOptimisticTimestamp || 0) >= checkTimestamp) {
-      // Local item is newer or same timestamp - keep local but merge server metadata
+    // If we have a local optimistic item, preserve its quantity if it's newer
+    // But ALWAYS keep the item from server response
+    if (localItem && (localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
+      // Local item is strictly newer - keep local quantity but merge server metadata
       processedItems.push({
         ...newItem, // Get the real ID and server data
         quantity: localItem.quantity, // But keep the local quantity
@@ -78,22 +79,24 @@ const updateCartFromResponse = (
         lastOptimisticTimestamp: localItem.lastOptimisticTimestamp,
       });
     } else {
-      // Server item is newer or equal - use it as-is
+      // Server item is newer or equal - use it as-is (but it's in the response, so always keep)
       processedItems.push(newItem);
     }
   }
 
   // Handle local items that are NOT in the server response
   // This handles the case where we optimistically added an item before the API call
+  // IMPORTANT: Only discard items that are missing from the response AND have old timestamps
   state.items.forEach((localItem) => {
     const key = `${localItem.productId}_${localItem.productSizeId}`;
     if (!processedKeys.has(key)) {
       // Item exists locally but not in response
-      // Only keep it if it's a fresh optimistic add (newer or equal timestamp)
-      if ((localItem.lastOptimisticTimestamp || 0) >= checkTimestamp) {
+      // Only keep it if it's a fresh optimistic add (strictly newer timestamp)
+      // This ensures we don't discard items from previous requests
+      if ((localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
         processedItems.push(localItem);
       }
-      // Otherwise, trust the server and discard
+      // Otherwise, trust the server and discard (it explicitly doesn't have this item)
     }
   });
 
