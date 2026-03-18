@@ -148,8 +148,8 @@ export const ProductsSection = ({
       <div ref={containerRef}>
         {/* Product Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-          {products.map((product, index) => (
-            <ProductCard key={product.id + "-" + index} product={product} />
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
 
           {/* Show skeleton cards while loading more - smooth inline loading (like YouTube) */}

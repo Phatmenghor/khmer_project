@@ -82,7 +82,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
       .reduce((sum, item) => sum + item.quantity, 0);
   }, [cartItems, product.id]);
 
-  // Total: Use Redux if available, API as fallback for initial load
+  // Total: ALWAYS use Redux if we have items, NEVER fallback to stale API data
+  // This ensures the UI stays in sync with cart state
   const totalQuantity = cartItemsTotal > 0 ? cartItemsTotal : getProductQuantity(product);
 
   const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.NoImage);
