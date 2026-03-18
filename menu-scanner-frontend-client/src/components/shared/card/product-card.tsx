@@ -149,6 +149,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
     // Dispatch optimistic update FIRST for instant UI feedback
     // This updates Redux immediately while API call happens in background
+    console.log("%c## OPTIMISTIC UPDATE (ADD TO CART)", "background:#17a2b8;color:white;padding:5px;border-radius:3px;font-weight:bold", {
+      productId: product.id,
+      quantity: 1,
+      timestamp: timestamp,
+      time: new Date().toLocaleTimeString()
+    });
+
     cartDispatch(
       addLocalCartItem({
         productId: product.id,
@@ -171,6 +178,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
     // Queue API call with debounce (500ms delay)
     // If user clicks +/- in next 500ms, debounce resets
     // After delay, exactly 1 API call fires with latest quantity
+    console.log("%c## DEBOUNCE QUEUED", "background:#ff9800;color:white;padding:5px;border-radius:3px;font-weight:bold", {
+      key: key,
+      quantity: newQty,
+      delayMs: 500,
+      time: new Date().toLocaleTimeString()
+    });
+
     debouncedUpdate(key, product.id, null, newQty, timestamp);
   };
 
