@@ -239,23 +239,32 @@ export function ProductCard({ product, className }: ProductCardProps) {
     debouncedUpdate(key, product.id, null, newQty, ts);
   }, [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]);
 
-  // Favorite toggle with optimistic UI update (fixes the bug)
-  const handleToggleFavorite = async (e: React.MouseEvent) => {
+  // Favorite toggle with optimistic UI update (like Facebook)
+  // Updates UI instantly, syncs with API in background
+  const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!isAuthenticated) { setShowLoginModal(true); return; }
 
-    setIsFavorited((prev) => !prev); // optimistic
+    // Update UI instantly (optimistic) - no await!
+    const newFavState = !isFavorited;
+    setIsFavorited(newFavState);
     setIsTogglingFavorite(true);
-    try {
-      await favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited })).unwrap();
-    } catch (error: any) {
-      setIsFavorited((prev) => !prev); // rollback
-      showToast.error(error?.message || "Failed to update favorites");
-    } finally {
-      setIsTogglingFavorite(false);
-    }
+
+    // Fire API in background - don't block UI
+    favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited }))
+      .unwrap()
+      .then(() => {
+        // Success - state already updated optimistically
+        setIsTogglingFavorite(false);
+      })
+      .catch((error: any) => {
+        // Rollback on failure
+        setIsFavorited((prev) => !prev);
+        setIsTogglingFavorite(false);
+        showToast.error(error?.message || "Failed to update favorites");
+      });
   };
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";

@@ -305,19 +305,25 @@ export default function ProductDetailPage() {
     }
   }, [product, isAuthenticated, modifiedSizes, pendingQuantities, cartDispatch, getQuantityForSize]);
 
-  const handleToggleFavorite = async () => {
+  const handleToggleFavorite = () => {
     if (!product) return;
     if (!isAuthenticated) { setShowLoginModal(true); return; }
+    // Update UI instantly (optimistic) - no await!
     setIsFavorited((prev) => !prev);
     setIsTogglingFavorite(true);
-    try {
-      await favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited })).unwrap();
-    } catch (err: any) {
-      setIsFavorited((prev) => !prev);
-      showToast.error(err?.message || "Failed to update favorites");
-    } finally {
-      setIsTogglingFavorite(false);
-    }
+    // Fire API in background - don't block UI
+    favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited }))
+      .unwrap()
+      .then(() => {
+        // Success - state already updated optimistically
+        setIsTogglingFavorite(false);
+      })
+      .catch((err: any) => {
+        // Rollback on failure
+        setIsFavorited((prev) => !prev);
+        setIsTogglingFavorite(false);
+        showToast.error(err?.message || "Failed to update favorites");
+      });
   };
 
   const handleShare = async () => {

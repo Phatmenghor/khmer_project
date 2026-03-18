@@ -39,29 +39,46 @@ export default function FavoritesPage() {
     }
   }, [authReady, isAuthenticated, loaded, dispatch]);
 
-  const handleRemoveOne = async (productId: string) => {
-    try {
-      await dispatch(toggleFavorite({ productId, isFavorited: true })).unwrap();
-      showToast.success("Removed from favorites");
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to remove from favorites");
-    }
+
+  const handleRemoveOne = (productId: string) => {
+    // Remove from UI immediately (optimistic) - no await!
+    dispatch(toggleFavorite({ productId, isFavorited: true }))
+      .unwrap()
+      .then(() => {
+        showToast.success("Removed from favorites");
+      })
+      .catch((error: any) => {
+        showToast.error(error?.message || "Failed to remove from favorites");
+      });
   };
 
-  const handleClearAll = async () => {
-    await dispatch(clearAllFavorites()).unwrap();
-    showToast.success("All favorites cleared");
+  const handleClearAll = () => {
+    // Clear from UI immediately (optimistic) - no await!
+    dispatch(clearAllFavorites())
+      .unwrap()
+      .then(() => {
+        showToast.success("All favorites cleared");
+      })
+      .catch((error: any) => {
+        showToast.error(error?.message || "Failed to clear favorites");
+      });
   };
 
-  const handleMoveToCart = async (productId: string) => {
-    try {
-      await cartDispatch(addToCart({ productId, quantity: 1 })).unwrap();
-      await dispatch(toggleFavorite({ productId, isFavorited: true })).unwrap();
-      showToast.success("Moved to cart");
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to move to cart");
-    }
+  const handleMoveToCart = (productId: string) => {
+    // Move to cart and remove from favorites immediately (optimistic) - no await!
+    cartDispatch(addToCart({ productId, quantity: 1 }))
+      .unwrap()
+      .then(() => {
+        return dispatch(toggleFavorite({ productId, isFavorited: true })).unwrap();
+      })
+      .then(() => {
+        showToast.success("Moved to cart");
+      })
+      .catch((error: any) => {
+        showToast.error(error?.message || "Failed to move to cart");
+      });
   };
+
 
   // Loading skeleton (also shown on server to prevent hydration mismatch)
   if (!mounted || !authReady || (loading.fetch && !loaded)) {
