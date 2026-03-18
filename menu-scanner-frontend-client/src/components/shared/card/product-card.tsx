@@ -40,7 +40,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const { dispatch: favoriteDispatch, items: favoriteItems, loaded: favLoaded } = useFavoriteState();
   const { isAuthenticated } = useAuthState();
 
-  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
 
@@ -232,22 +231,16 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
     if (!isAuthenticated) { setShowLoginModal(true); return; }
 
-    // Update UI instantly (optimistic) - no await!
+    // Update UI instantly - no delay, no disabled state!
     const newFavState = !isFavorited;
     setIsFavorited(newFavState);
-    setIsTogglingFavorite(true);
 
-    // Fire API in background - don't block UI
+    // Fire API in background - don't block or disable button
     favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited }))
       .unwrap()
-      .then(() => {
-        // Success - state already updated optimistically
-        setIsTogglingFavorite(false);
-      })
       .catch((error: any) => {
-        // Rollback on failure
+        // Rollback on failure only
         setIsFavorited((prev) => !prev);
-        setIsTogglingFavorite(false);
         showToast.error(error?.message || "Failed to update favorites");
       });
   };
@@ -310,15 +303,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 size="icon"
                 variant="secondary"
                 className={cn(
-                  "h-8 w-8 rounded-full shadow-md",
+                  "h-8 w-8 rounded-full shadow-md transition-all duration-150",
                   isFavorited
                     ? "bg-red-500 text-white hover:bg-red-600"
                     : "bg-white/90 hover:bg-red-50 hover:text-red-500",
                 )}
                 onClick={handleToggleFavorite}
-                disabled={isTogglingFavorite}
               >
-                <Heart className={cn("h-4 w-4", isFavorited && "fill-current")} />
+                <Heart className={cn("h-4 w-4 transition-all duration-150", isFavorited && "fill-current")} />
               </CustomButton>
             </div>
 
