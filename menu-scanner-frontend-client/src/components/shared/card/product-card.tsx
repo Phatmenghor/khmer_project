@@ -120,9 +120,15 @@ export function ProductCard({ product, className }: ProductCardProps) {
     }
 
     // For non-sized products, add directly to cart
+    // If already in cart, this should be an increment (handled by handleIncrement)
+    if (cartItem) {
+      handleIncrement(e as any);
+      return;
+    }
+
+    // First time adding to cart - always start from 0
     const timestamp = Date.now();
-    const currentQty = quantity; // Current quantity from Redux or API fallback
-    const newQty = currentQty + 1;
+    const newQty = 1; // Add 1 item (not currentQty + 1)
     const key = cartItemKey(product.id, null);
 
     // Dispatch optimistic update FIRST for instant UI feedback (no await!)
@@ -130,7 +136,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       addLocalCartItem({
         productId: product.id,
         productSizeId: null,
-        quantity: 1, // Add 1 item optimistically
+        quantity: 1,
         productName: product.name,
         productImageUrl: product.mainImageUrl,
         sizeName: null,

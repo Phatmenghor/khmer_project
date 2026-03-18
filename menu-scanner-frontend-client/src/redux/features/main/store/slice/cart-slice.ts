@@ -216,7 +216,7 @@ const cartSlice = createSlice({
           promotionEndDate: promotionToDate || null,
           totalBeforeDiscount,
           discountAmount,
-          lastOptimisticTimestamp: optimisticTimestamp
+          lastOptimisticTimestamp: optimisticTimestamp || Date.now()
         });
       }
 

@@ -153,6 +153,12 @@ export function useCartDebounce(dispatch: AppDispatch) {
       quantity: number,
       optimisticTimestamp?: number
     ) => {
+      // Validate inputs
+      if (!productId) {
+        console.warn("[Cart Debounce] Missing productId in debouncedUpdate");
+        return;
+      }
+
       // Update the pending state to the LATEST values
       pendingUpdatesRef.current.set(key, {
         productId,
