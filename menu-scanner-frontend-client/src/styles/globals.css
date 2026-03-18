@@ -197,12 +197,13 @@
 
   /* ========== SCROLL BEHAVIOR ========== */
 
-  /* Smooth scroll for entire page */
+  /* Smooth scroll disabled - causes performance issues */
+  /* Use instant scroll instead for better responsiveness */
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
 
-  /* Smooth scroll on list containers */
+  /* Smooth scroll on list containers - optional only */
   .scroll-smooth {
     scroll-behavior: smooth;
   }
