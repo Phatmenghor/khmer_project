@@ -40,7 +40,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const { dispatch: favoriteDispatch, items: favoriteItems, loaded: favLoaded } = useFavoriteState();
   const { isAuthenticated } = useAuthState();
 
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
@@ -125,8 +124,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
     const timestamp = Date.now();
     const currentQty = quantity; // Current quantity from Redux or API fallback
     const newQty = currentQty + 1;
+    const key = cartItemKey(product.id, null);
 
-    // Dispatch optimistic update FIRST for instant UI feedback
+    // Dispatch optimistic update FIRST for instant UI feedback (no await!)
     cartDispatch(
       addLocalCartItem({
         productId: product.id,
@@ -146,24 +146,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
       })
     );
 
-    setIsAddingToCart(true);
-    // Dispatch API call (async)
-    cartDispatch(
-      addToCart({
-        productId: product.id,
-        quantity: newQty,
-        optimisticTimestamp: timestamp,
-      })
-    )
-      .unwrap()
-      .then(() => {
-        showToast.success("Added to cart");
-        setIsAddingToCart(false);
-      })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to add to cart");
-        setIsAddingToCart(false);
-      });
+    // API call in background with debounce (like +/- buttons)
+    // Button shows +/- immediately, no loading state
+    debouncedUpdate(key, product.id, null, newQty, timestamp);
   };
 
   const handleIncrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -386,20 +371,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 <CustomButton
                   className="w-full gap-1.5 h-8 text-xs font-semibold"
                   onClick={handleAddToCart}
-                  disabled={isAddingToCart || isOutOfStock}
+                  disabled={isOutOfStock}
                   size="sm"
                 >
-                  {isAddingToCart ? (
-                    <>
-                      <div className="h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Adding...
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="h-3.5 w-3.5" />
-                      Add to Cart
-                    </>
-                  )}
+                  <ShoppingCart className="h-3.5 w-3.5" />
+                  Add to Cart
                 </CustomButton>
               )}
             </div>
