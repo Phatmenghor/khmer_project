@@ -88,14 +88,14 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center",
+        "flex flex-col items-center justify-center text-center animate-fade-in-up",
         styles.container,
         className
       )}
     >
       {/* Icon */}
       {customIcon || (Icon && (
-        <div className="mb-4 text-muted-foreground/50">
+        <div className="mb-4 text-muted-foreground/50 animate-scale-in">
           <Icon className={styles.icon} strokeWidth={1.5} />
         </div>
       ))}

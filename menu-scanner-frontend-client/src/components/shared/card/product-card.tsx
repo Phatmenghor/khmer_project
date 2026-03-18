@@ -261,7 +261,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       <Link href={`/products/${product.id}`}>
         <div
           className={cn(
-            "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-md overflow-hidden transition-all duration-200 flex flex-col",
+            "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover:scale-102 hover:lift animate-fade-in-up",
             isOutOfStock && "opacity-70",
             product?.hasActivePromotion && "ring-1 ring-amber-500/20",
             className,

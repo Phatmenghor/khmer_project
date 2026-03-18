@@ -9,6 +9,8 @@
     text-wrap: balance;
   }
 
+  /* ========== LOADING ANIMATIONS ========== */
+
   /* Shimmer animation for loading skeletons */
   @keyframes shimmer {
     0% {
@@ -20,7 +22,207 @@
   }
 
   .animate-shimmer {
-    animation: shimmer 2s infinite;
+    animation: shimmer 2.5s infinite;
+  }
+
+  /* Pulse animation for loading states */
+  @keyframes pulse-soft {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* ========== ENTRANCE ANIMATIONS ========== */
+
+  /* Fade In animation */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
+  /* Fade In with delay for staggered lists */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out;
+  }
+
+  /* Slide in from left */
+  @keyframes slide-in-from-left {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-from-left {
+    animation: slide-in-from-left 0.4s ease-out;
+  }
+
+  /* Slide in from right */
+  @keyframes slide-in-from-right {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-from-right {
+    animation: slide-in-from-right 0.4s ease-out;
+  }
+
+  /* Scale in (grow) */
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out;
+  }
+
+  /* Spring bounce effect */
+  @keyframes spring-bounce {
+    0% {
+      transform: scale(0.8) translateY(20px);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-spring-bounce {
+    animation: spring-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* ========== HOVER & INTERACTION ANIMATIONS ========== */
+
+  /* Scale hover effect (used on cards) */
+  @keyframes hover-scale {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.02);
+    }
+  }
+
+  .hover:scale-102 {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hover:scale-102:hover {
+    transform: scale(1.02);
+  }
+
+  /* Lift effect on hover */
+  .hover:lift {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hover:lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* ========== STAGGER ANIMATION FOR LISTS ========== */
+
+  /* Stagger delay for list items (use nth-child selectors in components) */
+  .animate-fade-in-up-stagger > :nth-child(1) {
+    animation: fade-in-up 0.5s ease-out;
+    animation-delay: 50ms;
+    animation-fill-mode: both;
+  }
+
+  .animate-fade-in-up-stagger > :nth-child(2) {
+    animation: fade-in-up 0.5s ease-out;
+    animation-delay: 100ms;
+    animation-fill-mode: both;
+  }
+
+  .animate-fade-in-up-stagger > :nth-child(3) {
+    animation: fade-in-up 0.5s ease-out;
+    animation-delay: 150ms;
+    animation-fill-mode: both;
+  }
+
+  .animate-fade-in-up-stagger > :nth-child(n + 4) {
+    animation: fade-in-up 0.5s ease-out;
+    animation-delay: 200ms;
+    animation-fill-mode: both;
+  }
+
+  /* ========== SCROLL BEHAVIOR ========== */
+
+  /* Smooth scroll for entire page */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Smooth scroll on list containers */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  /* ========== TRANSITION UTILITIES ========== */
+
+  /* Smooth color transition */
+  .transition-colors-smooth {
+    transition: background-color 0.3s ease-out, color 0.3s ease-out,
+                border-color 0.3s ease-out;
+  }
+
+  /* Smooth transform transition */
+  .transition-transform-smooth {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Smooth all transition */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
