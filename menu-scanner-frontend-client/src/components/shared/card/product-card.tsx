@@ -103,7 +103,21 @@ export function ProductCard({ product, className }: ProductCardProps) {
     }
   };
 
-  // Add to cart (opens size modal if product has sizes)
+  /**
+   * Add to cart handler
+   *
+   * For sized products: Opens size modal where user selects size + quantity
+   * For unsized products: Immediately adds 1 unit with optimistic update
+   *
+   * IMPORTANT: When adding for first time, we always use quantity = 1
+   * (never use product.quantity from listing, as that's stale/unrelated data)
+   *
+   * Flow:
+   * 1. Optimistic update to Redux (instant UI feedback)
+   * 2. Debounced API call fires 500ms after last +/- click
+   * 3. Backend returns fresh cart state
+   * 4. Frontend conflict resolution protects optimistic updates from being overwritten
+   */
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -120,18 +134,21 @@ export function ProductCard({ product, className }: ProductCardProps) {
     }
 
     // For non-sized products, add directly to cart
-    // If already in cart, this should be an increment (handled by handleIncrement)
+    // If already in cart, this button shouldn't show (+/- buttons show instead)
+    // But if it does, treat as increment
     if (cartItem) {
       handleIncrement(e as any);
       return;
     }
 
-    // First time adding to cart - always start from 0
+    // First time adding to cart - always start from 0 → 1
+    // (Never use product.quantity from listing, it's from a different API)
     const timestamp = Date.now();
-    const newQty = 1; // Add 1 item (not currentQty + 1)
+    const newQty = 1;
     const key = cartItemKey(product.id, null);
 
-    // Dispatch optimistic update FIRST for instant UI feedback (no await!)
+    // Dispatch optimistic update FIRST for instant UI feedback
+    // This updates Redux immediately while API call happens in background
     cartDispatch(
       addLocalCartItem({
         productId: product.id,
@@ -151,11 +168,20 @@ export function ProductCard({ product, className }: ProductCardProps) {
       })
     );
 
-    // API call in background with debounce (like +/- buttons)
-    // Button shows +/- immediately, no loading state
+    // Queue API call with debounce (500ms delay)
+    // If user clicks +/- in next 500ms, debounce resets
+    // After delay, exactly 1 API call fires with latest quantity
     debouncedUpdate(key, product.id, null, newQty, timestamp);
   };
 
+  /**
+   * Increment quantity by 1
+   *
+   * Optimistic update pattern:
+   * 1. Update Redux immediately (UI reflects change instantly)
+   * 2. Debounced API call (batches rapid clicks)
+   * 3. Conflict resolution protects against stale responses
+   */
   const handleIncrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -171,12 +197,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
       return;
     }
 
-    // Increment the quantity
+    // Increment the quantity (source of truth: Redux)
     const newQty = quantity + 1;
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
     // Dispatch optimistic update to Redux immediately
+    // User sees +1 instantly, no loading state
     cartDispatch(
       updateLocalCartItem({
         productId: product.id,
@@ -186,10 +213,20 @@ export function ProductCard({ product, className }: ProductCardProps) {
       })
     );
 
-    // Debounce the API call (send after 500ms)
+    // Queue API call with debounce (500ms)
+    // Multiple rapid clicks get batched into single API call
     debouncedUpdate(key, product.id, null, newQty, ts);
   }, [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]);
 
+  /**
+   * Decrement quantity by 1, remove if reaches 0
+   *
+   * When quantity reaches 0:
+   * - Redux removes item immediately
+   * - Toast notification shown
+   * - Debounced API call sends quantity=0 to backend
+   * - Backend deletes cart item
+   */
   const handleDecrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -205,12 +242,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
       return;
     }
 
-    // Decrement the quantity
+    // Decrement the quantity (min 0, which triggers removal)
     const newQty = Math.max(0, quantity - 1);
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
     // Dispatch optimistic update to Redux immediately
+    // If quantity = 0, item is removed from cart state
     cartDispatch(
       updateLocalCartItem({
         productId: product.id,
@@ -220,12 +258,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
       })
     );
 
-    // Show removal toast AFTER state update
+    // Show removal notification when reaching 0
     if (quantity === 1) {
       showToast.success("Removed from cart");
     }
 
-    // Debounce the API call (send after 500ms)
+    // Queue API call with debounce
+    // Backend receives quantity=0 and deletes the cart item
     debouncedUpdate(key, product.id, null, newQty, ts);
   }, [product, quantity, cartItem, cartDispatch, debouncedUpdate, setShowSizeModal]);
 

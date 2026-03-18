@@ -27,12 +27,27 @@ function isAbortError(error: any): boolean {
 /**
  * Hook that manages debounced cart API calls per item key.
  *
- * REFACTOR v2: Serial Queue Approach
- * - Instead of aborting previous requests (which can cause server race conditions if not handled strictly),
- *   we now strictly serialize requests for the same item.
- * - If a request is active, the next update waits in a "pending" slot.
- * - When the active request finishes, we check if there's a pending update and fire it.
- * - This ensures 1 active request per item at a time, but still debounces rapid clicks.
+ * DESIGN: Serial Queue with Debounce
+ *
+ * Flow:
+ * 1. User clicks +/- rapidly (e.g., 5 times in 400ms)
+ * 2. Debounce timer resets on each click (500ms delay)
+ * 3. After 500ms of inactivity, processQueue fires ONE API call with the LATEST quantity
+ * 4. While that request is in-flight, subsequent clicks queue a new update
+ * 5. When request completes, checks for pending updates and processes next
+ *
+ * Benefits:
+ * - Prevents API spam from rapid clicks
+ * - Serializes updates per item (no concurrent requests for same product)
+ * - Always sends latest state (new clicks overwrite old pending clicks)
+ * - Avoids aborting requests (ensures server consistency)
+ *
+ * Conflict Resolution:
+ * - Frontend: optimisticTimestamp in Redux for conflict detection
+ * - Backend: Pessimistic lock per product+size
+ * - Fallback: OptimisticLockException retry
+ *
+ * Note: optimisticTimestamp is NOT sent to backend - purely frontend conflict resolution
  */
 export function useCartDebounce(dispatch: AppDispatch) {
   // Debounce timers per item key (for the initial wait)
