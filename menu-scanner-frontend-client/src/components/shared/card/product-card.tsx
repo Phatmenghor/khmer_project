@@ -73,7 +73,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     }
     // Redux doesn't have item yet - use API value for initial display
     return getProductQuantity(product);
-  }, [cartItem, product.id]);
+  }, [cartItem, product]);
 
   // Total quantity in cart including all sizes for this product
   const cartItemsTotal = useMemo(() => {
@@ -325,7 +325,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 size="icon"
                 variant="secondary"
                 className={cn(
-                  "h-8 w-8 rounded-full shadow-md transition-all duration-200",
+                  "h-8 w-8 rounded-full shadow-md",
                   isFavorited
                     ? "bg-red-500 text-white hover:bg-red-600"
                     : "bg-white/90 hover:bg-red-50 hover:text-red-500",
@@ -333,7 +333,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 onClick={handleToggleFavorite}
                 disabled={isTogglingFavorite}
               >
-                <Heart className={cn("h-4 w-4 transition-transform duration-200", isFavorited && "fill-current scale-110")} />
+                <Heart className={cn("h-4 w-4", isFavorited && "fill-current")} />
               </CustomButton>
             </div>
 
