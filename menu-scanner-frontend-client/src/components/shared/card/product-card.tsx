@@ -61,6 +61,23 @@ export function ProductCard({ product, className }: ProductCardProps) {
     (item) => item.productId === product.id && !item.productSizeId,
   );
 
+  // DEBUG: Log cart state changes
+  useEffect(() => {
+    if (cartItem) {
+      console.log(`%c## CART ITEM FOUND (${product.name})`, "background:#28a745;color:white;padding:5px;border-radius:3px;font-weight:bold", {
+        productId: product.id,
+        quantity: cartItem.quantity,
+        totalPrice: cartItem.totalPrice,
+        timestamp: cartItem.lastOptimisticTimestamp,
+      });
+    } else {
+      console.log(`%c## CART ITEM NOT FOUND (${product.name})`, "background:#dc3545;color:white;padding:5px;border-radius:3px;font-weight:bold", {
+        productId: product.id,
+        shouldShow: "Add to Cart button",
+      });
+    }
+  }, [cartItem, product.id, product.name]);
+
   // Quantity logic: Trust Redux if it has the item, otherwise use API data
   // Once Redux has the item, always use Redux (never revert to API)
   // This prevents rollbacks while showing correct initial state

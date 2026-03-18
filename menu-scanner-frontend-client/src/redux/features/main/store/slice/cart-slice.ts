@@ -290,6 +290,14 @@ const cartSlice = createSlice({
           updateCartFromResponse(state, action.payload, action.meta.arg.optimisticTimestamp);
           state.loaded = true;
           state.error = null;
+
+          // DEBUG: Log final cart state after API response
+          console.log("%c## CART STATE AFTER API RESPONSE", "background:#28a745;color:white;padding:5px;border-radius:3px;font-weight:bold", {
+            itemsCount: state.items.length,
+            totalItems: state.totalItems,
+            finalTotal: state.finalTotal,
+            items: state.items.map(i => ({ id: i.id, productId: i.productId, qty: i.quantity, timestamp: i.lastOptimisticTimestamp })),
+          });
         }
       )
       .addCase(addToCart.rejected, (state, action) => {
