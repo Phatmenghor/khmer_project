@@ -429,7 +429,7 @@ export default function ProductDetailPage() {
                         : "opacity-55 hover:opacity-100 hover:ring-2 hover:ring-primary/40 hover:ring-offset-1"
                     )}
                   >
-                    <Image src={img.imageUrl} alt={`View ${i + 1}`} fill className="object-cover" />
+                    <Image src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)} alt={`View ${i + 1}`} fill className="object-cover" />
                   </button>
                 ))}
               </div>
@@ -739,7 +739,7 @@ export default function ProductDetailPage() {
                 )}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.imageUrl} alt={`${i + 1}`} className="w-full h-full object-cover" />
+                <img src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)} alt={`${i + 1}`} className="w-full h-full object-cover" />
               </button>
             ))}
           </div>

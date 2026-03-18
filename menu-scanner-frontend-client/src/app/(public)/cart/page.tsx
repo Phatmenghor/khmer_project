@@ -29,6 +29,8 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { cn } from "@/lib/utils";
+import { sanitizeImageUrl } from "@/utils/common/common";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
 function CartSkeleton() {
   return (
@@ -207,7 +209,7 @@ export default function CartPage() {
                   <Link href={`/products/${item.productId}`} className="flex-shrink-0">
                     <div className="relative w-[72px] h-[72px] rounded-xl overflow-hidden bg-muted border">
                       <Image
-                        src={item.productImageUrl}
+                        src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
                         alt={item.productName || "Product image"}
                         fill
                         className="object-cover"
