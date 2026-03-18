@@ -26,17 +26,27 @@ export default function PageProgressBar() {
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+
+      // Don't track clicks on buttons, inputs, or form elements - only direct links!
+      if (target.tagName === "BUTTON" || target.tagName === "INPUT" || target.closest("button") || target.closest("input")) {
+        return;
+      }
+
       const anchor = target.closest("a");
 
       if (anchor && anchor.href) {
+        // Skip if explicitly disabled or inside a dialog
+        if (anchor.hasAttribute("data-no-progress") || anchor.closest('[role="dialog"]')) {
+          return;
+        }
+
         try {
           const url = new URL(anchor.href);
           const currentUrl = new URL(window.location.href);
 
           if (
             url.pathname !== currentUrl.pathname &&
-            url.origin === currentUrl.origin &&
-            !anchor.hasAttribute("data-no-progress")
+            url.origin === currentUrl.origin
           ) {
             document.body.classList.add("route-changing");
 
