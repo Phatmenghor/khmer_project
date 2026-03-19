@@ -7,28 +7,6 @@ import {
 import { CartResponseModel } from "../models/response/cart-response";
 import { AppDefault } from "@/constants/app-resource/default/default";
 
-export const fetchCart = createApiThunk<CartResponseModel, void>(
-  "cart/fetchCart",
-  async (_, signal) => {
-    const businessId = AppDefault.BUSINESS_ID;
-    const response = await axiosClientWithAuth.get(
-      `/api/v1/cart/${businessId}`,
-      { signal }
-    );
-    let responseData = response.data.data;
-
-    // Transform response to ensure frontend compatibility
-    if (responseData?.items) {
-      responseData.items = responseData.items.map((item: any) => ({
-        ...item,
-        hasPromotion: item.hasActivePromotion ?? item.hasPromotion ?? false,
-        isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
-      }));
-    }
-
-    return responseData;
-  },
-);
 
 export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
   "cart/addToCart",
@@ -38,12 +16,12 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
 
     // DEBUG: Log request
     console.log("%c## CART API REQUEST", "background:#007bff;color:white;padding:5px;border-radius:3px;font-weight:bold", {
-      endpoint: "POST /api/v1/cart",
+      endpoint: "POST /api/v1/cart/add",
       payload: requestData,
       timestamp: new Date().toLocaleTimeString()
     });
 
-    const response = await axiosClientWithAuth.post("/api/v1/cart", requestData, {
+    const response = await axiosClientWithAuth.post("/api/v1/cart/add", requestData, {
       signal,
     });
 
@@ -94,7 +72,7 @@ export const updateCartItem = createApiThunk<
 >("cart/updateCartItem", async (data, signal) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { optimisticTimestamp, ...requestData } = data;
-  const response = await axiosClientWithAuth.post("/api/v1/cart", requestData, {
+  const response = await axiosClientWithAuth.post("/api/v1/cart/add", requestData, {
     signal,
   });
   let responseData = response.data.data;
@@ -119,7 +97,7 @@ export const fetchCartPaginated = createApiThunk<
   async (params, signal) => {
     const businessId = AppDefault.BUSINESS_ID;
     const response = await axiosClientWithAuth.post(
-      "/api/v1/cart/paginated",
+      "/api/v1/cart/all",
       {
         businessId: businessId,
         pageNo: params.pageNo,

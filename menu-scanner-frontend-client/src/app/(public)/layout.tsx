@@ -7,7 +7,7 @@ import { BottomNav } from "@/components/layout/bottom-nav";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
-import { fetchCart } from "@/redux/features/main/store/thunks/cart-thunks";
+import { fetchCartPaginated } from "@/redux/features/main/store/thunks/cart-thunks";
 import { fetchFavoriteList } from "@/redux/features/main/store/thunks/favorite-thunks";
 
 export default function PublicLayout({
@@ -31,7 +31,7 @@ export default function PublicLayout({
   useEffect(() => {
     if (isAuthenticated) {
       if (!cartLoaded && !cartLoading.fetch) {
-        cartDispatch(fetchCart());
+        cartDispatch(fetchCartPaginated({ pageNo: 1, pageSize: 20 }));
       }
       if (!favoriteLoaded && !favoriteLoading.fetch) {
         favoriteDispatch(fetchFavoriteList());

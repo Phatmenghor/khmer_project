@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  fetchCart,
   addToCart,
   updateCartItem,
   clearCart,
@@ -62,7 +61,7 @@ const updateCartFromResponse = (
   optimisticTimestamp?: number
 ) => {
   // If we have an optimistic timestamp from the request, we can check for conflicts
-  // If undefined (e.g. fetchCart), we treat it as 0 (older than any active optimistic update)
+  // If undefined, we treat it as 0 (older than any active optimistic update)
   const checkTimestamp = optimisticTimestamp || 0;
 
   // Create a map of existing items by product+size key for merging
@@ -279,26 +278,6 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Cart
-      .addCase(fetchCart.pending, (state) => {
-        state.loading.fetch = true;
-        state.error = null;
-      })
-      .addCase(
-        fetchCart.fulfilled,
-        (state, action: PayloadAction<CartResponseModel>) => {
-          state.loading.fetch = false;
-          updateCartFromResponse(state, action.payload);
-          state.loaded = true;
-          state.error = null;
-        }
-      )
-      .addCase(fetchCart.rejected, (state, action) => {
-        state.loading.fetch = false;
-        if (action.error.message === "canceled" || action.payload === "canceled") return;
-        state.error = action.error.message || "Failed to fetch cart";
-      })
-
       // Add to Cart
       .addCase(addToCart.pending, (state) => {
         state.loading.add = true;

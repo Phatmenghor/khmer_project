@@ -21,24 +21,17 @@ public class CartController {
 
     private final CartService cartService;
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<ApiResponse<CartSummaryResponse>> submitCartItem(@Valid @RequestBody CartItemCreateRequest request) {
         log.info("Submit cart item - product: {}, qty: {}", request.getProductId(), request.getQuantity());
         CartSummaryResponse cart = cartService.submitCartItem(request);
         return ResponseEntity.ok(ApiResponse.success("Cart updated successfully", cart));
     }
 
-    @GetMapping("/{businessId}")
-    public ResponseEntity<ApiResponse<CartSummaryResponse>> getCart(@PathVariable UUID businessId) {
-        log.info("Getting cart for business: {}", businessId);
-        CartSummaryResponse cart = cartService.getCart(businessId);
-        return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", cart));
-    }
-
-    @PostMapping("/paginated")
-    public ResponseEntity<ApiResponse<CartSummaryResponse>> getCartPaginated(
+    @PostMapping("/all")
+    public ResponseEntity<ApiResponse<CartSummaryResponse>> getCart(
             @Valid @RequestBody CartPaginationRequest request) {
-        log.info("Getting paginated cart for business: {}, page: {}, size: {}",
+        log.info("Getting cart for business: {}, page: {}, size: {}",
                 request.getBusinessId(), request.getPageNo(), request.getPageSize());
         CartSummaryResponse cart = cartService.getCartPaginated(request.getBusinessId(), request.getPageNo(), request.getPageSize());
         return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", cart));

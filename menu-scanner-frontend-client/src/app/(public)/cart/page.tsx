@@ -22,7 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
 import Link from "next/link";
-import { clearCart, fetchCart, fetchCartPaginated } from "@/redux/features/main/store/thunks/cart-thunks";
+import { clearCart, fetchCartPaginated } from "@/redux/features/main/store/thunks/cart-thunks";
 import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { LoginModal } from "@/components/shared/modal/login-modal";
@@ -117,7 +117,7 @@ export default function CartPage() {
   useEffect(() => {
     if (!authReady) return;
     if (!isAuthenticated) return;
-    if (!loaded && !loading.fetch) dispatch(fetchCart());
+    if (!loaded && !loading.fetch) dispatch(fetchCartPaginated({ pageNo: 1, pageSize: 20 }));
   }, [authReady, isAuthenticated, loaded, loading.fetch, dispatch]);
 
   const handleLoadMore = useCallback(() => {
