@@ -142,19 +142,19 @@ export default function CartPage() {
     if (!isAuthenticated) return;
     // Always fetch fresh cart data when navigating to cart page
     // This ensures server state is synced even after optimistic adds from product pages
-    if (!loading.fetch) dispatch(fetchCartPaginated({ pageNo: 1, pageSize: 20 }));
+    // Use 50 items per page to reduce pagination for most users
+    if (!loading.fetch) dispatch(fetchCartPaginated({ pageNo: 1, pageSize: 50 }));
   }, [authReady, isAuthenticated, loading.fetch, dispatch]);
 
   const handleLoadMore = useCallback(() => {
-    if (pagination.hasMore && !loading.paginate && !isLoadingRef.current) {
-      isLoadingRef.current = true;
-      const nextPage = pagination.currentPage + 1;
-      dispatch(fetchCartPaginated({ pageNo: nextPage, pageSize: pagination.pageSize })).finally(
-        () => {
-          isLoadingRef.current = false;
-        }
-      );
-    }
+    // Only load more if hasMore is true and not already loading
+    if (!pagination.hasMore || loading.paginate || isLoadingRef.current) return;
+
+    isLoadingRef.current = true;
+    const nextPage = pagination.currentPage + 1;
+    dispatch(fetchCartPaginated({ pageNo: nextPage, pageSize: pagination.pageSize })).finally(() => {
+      isLoadingRef.current = false;
+    });
   }, [pagination.hasMore, pagination.currentPage, pagination.pageSize, loading.paginate, dispatch]);
 
   useEffect(() => {
