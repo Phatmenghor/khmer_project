@@ -28,6 +28,7 @@ export const ROUTES = {
     CATEGORIES: "/admin/categories",
     EXCHANGE_RATE: "/admin/exchange-rate",
     DELIVERY_OPTIONS: "/admin/delivery-options",
+    PAYMENT_OPTIONS: "/admin/payment-options",
     ORDER_STATUS: "/admin/order-status",
     PRODUCTS: "/admin/products",
     PRODUCTS_PROMOTION: "/admin/product-promotions",
@@ -109,6 +110,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Delivery Options",
         href: ROUTES.ADMIN.DELIVERY_OPTIONS,
+      },
+      {
+        title: "Payment Options",
+        href: ROUTES.ADMIN.PAYMENT_OPTIONS,
       },
     ],
   },

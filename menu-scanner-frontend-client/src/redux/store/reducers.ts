@@ -14,6 +14,7 @@ import brandReducer from "../features/master-data/store/slice/brand-slice";
 import categoriesReducer from "../features/master-data/store/slice/categories-slice";
 import exchangeRateReducer from "../features/master-data/store/slice/exchange-rate-slice";
 import deliveryOptionsReducer from "../features/master-data/store/slice/delivery-options-slice";
+import paymentOptionsReducer from "../features/master-data/store/slice/payment-options-slice";
 
 import workScheduleTypeReducer from "../features/hr/store/slice/work-schedule-type-slice";
 import leaveTypeReducer from "../features/hr/store/slice/leave-type-slice";
@@ -54,6 +55,7 @@ export const reducers = {
   categories: categoriesReducer,
   exchangeRate: exchangeRateReducer,
   deliveryOptions: deliveryOptionsReducer,
+  paymentOptions: paymentOptionsReducer,
 
   // Business
   products: productReducer,
