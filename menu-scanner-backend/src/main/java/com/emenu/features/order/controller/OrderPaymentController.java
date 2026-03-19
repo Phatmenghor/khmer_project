@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/business-payments")
+@RequestMapping("/api/v1/order-payments")
 @RequiredArgsConstructor
 @Slf4j
 public class OrderPaymentController {
