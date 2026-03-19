@@ -136,22 +136,4 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
             """)
     List<SizeCartQuantityProjection> getSizeQuantitiesInCart(@Param("userId") UUID userId,
                                                               @Param("productId") UUID productId);
-
-    /**
-     * Removes duplicate cart items, keeping only the newest one per (cartId, productId, productSizeId)
-     * This cleans up data inconsistencies caused by race conditions or bugs.
-     */
-    @Modifying
-    @Query("""
-            DELETE FROM CartItem ci WHERE ci.id IN (
-              SELECT ci2.id FROM CartItem ci2
-              WHERE ci2.isDeleted = false
-              AND ci2.id NOT IN (
-                SELECT MAX(ci3.id) FROM CartItem ci3
-                WHERE ci3.isDeleted = false
-                GROUP BY ci3.cartId, ci3.productId, ci3.productSizeId
-              )
-            )
-            """)
-    int removeDuplicateCartItems();
 }
