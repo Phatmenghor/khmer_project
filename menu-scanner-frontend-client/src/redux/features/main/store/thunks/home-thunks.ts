@@ -45,6 +45,8 @@ export const fetchHomePromotionProducts = createApiThunk<
       hasPromotion: true,
       status: Status.ACTIVE,
       businessId: AppDefault.BUSINESS_ID,
+      pageNo: request?.pageNo || 0,
+      pageSize: request?.pageSize || 20, // Paginate to avoid timeout on large datasets
       ...request,
     },
   );
