@@ -202,7 +202,8 @@ export default function CartPage() {
     showToast.success("Proceeding to checkout...");
   };
 
-  if (!mounted || !authReady || (loading.fetch && !loaded)) return <CartPageSkeleton />;
+  if (!mounted || !authReady) return <CartPageSkeleton />;
+  if (loading.fetch && !loaded) return <CartPageSkeleton />;
 
   if (!isAuthenticated) {
     return (
@@ -218,7 +219,7 @@ export default function CartPage() {
     );
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && loaded) {
     return (
       <CartEmptyState
         title="Your Cart is Empty"
