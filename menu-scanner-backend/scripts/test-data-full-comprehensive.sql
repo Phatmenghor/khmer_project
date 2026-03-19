@@ -107,7 +107,7 @@ BEGIN
     FROM businesses bs WHERE bs.id != key_business_id;
 
     INSERT INTO subscriptions (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, plan_id, start_date, end_date, auto_renew)
-    SELECT gen_random_uuid(), 0, t - INTERVAL '6 months', t, 'system', 'system', false, NULL, NULL, bs.id, CASE (ROW_NUMBER() OVER (ORDER BY bs.id) %% 3) WHEN 0 THEN plan1 WHEN 1 THEN plan2 ELSE plan3 END, t - INTERVAL '6 months', t + INTERVAL '6 months', true
+    SELECT gen_random_uuid(), 0, t - INTERVAL '6 months', t, 'system', 'system', false, NULL, NULL, bs.id, CASE (ROW_NUMBER() OVER (ORDER BY bs.id) % 3) WHEN 0 THEN plan1 WHEN 1 THEN plan2 ELSE plan3 END, t - INTERVAL '6 months', t + INTERVAL '6 months', true
     FROM businesses bs;
 
     -- BUSINESS ROLES
@@ -118,7 +118,7 @@ BEGIN
     -- 60,000 BUSINESS USERS
     RAISE NOTICE 'Creating 60,000 business users...';
     INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'staff' || b_idx || '-' || s || '@business.com', 'staff' || b_idx || '-' || s || '@business.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Staff', 'Member ' || b_idx || '-' || s, '+855 10 200 ' || LPAD((s)::TEXT, 4, '0'), CASE WHEN s %% 2 = 0 THEN photo1 ELSE photo2 END, 'BUSINESS_USER', 'ACTIVE', (SELECT id FROM businesses WHERE id != key_business_id ORDER BY id OFFSET ((b_idx - 1) %% 99) LIMIT 1), 'Position ' || s, 'Business Address', 'Staff ' || b_idx || '-' || s, t - (RANDOM() * INTERVAL '30 days'), t - (RANDOM() * INTERVAL '2 days'), 1
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'staff' || b_idx || '-' || s || '@business.com', 'staff' || b_idx || '-' || s || '@business.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Staff', 'Member ' || b_idx || '-' || s, '+855 10 200 ' || LPAD((s)::TEXT, 4, '0'), CASE WHEN s % 2 = 0 THEN photo1 ELSE photo2 END, 'BUSINESS_USER', 'ACTIVE', (SELECT id FROM businesses WHERE id != key_business_id ORDER BY id OFFSET ((b_idx - 1) % 99) LIMIT 1), 'Position ' || s, 'Business Address', 'Staff ' || b_idx || '-' || s, t - (RANDOM() * INTERVAL '30 days'), t - (RANDOM() * INTERVAL '2 days'), 1
     FROM GENERATE_SERIES(1, 100) b_idx, GENERATE_SERIES(1, 600) s;
 
     INSERT INTO user_roles (user_id, role_id) SELECT u.id, r.id FROM users u JOIN businesses b ON u.business_id = b.id JOIN roles r ON r.business_id = b.id WHERE u.user_type = 'BUSINESS_USER' AND u.id != business_user_id LIMIT 60000;
@@ -126,7 +126,7 @@ BEGIN
     -- 120,000 CUSTOMERS
     RAISE NOTICE 'Creating 120,000 customers...';
     INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'customer' || n || '@test.com', 'customer' || n || '@test.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Customer' || n, 'User' || n, '+855 10 300 ' || LPAD((n %% 10000)::TEXT, 4, '0'), CASE WHEN n %% 2 = 0 THEN photo1 ELSE photo2 END, 'CUSTOMER', 'ACTIVE', NULL, NULL, 'Phnom Penh', 'Customer ' || n, t - (RANDOM() * INTERVAL '60 days'), t - (RANDOM() * INTERVAL '5 days'), 1
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'customer' || n || '@test.com', 'customer' || n || '@test.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Customer' || n, 'User' || n, '+855 10 300 ' || LPAD((n % 10000)::TEXT, 4, '0'), CASE WHEN n % 2 = 0 THEN photo1 ELSE photo2 END, 'CUSTOMER', 'ACTIVE', NULL, NULL, 'Phnom Penh', 'Customer ' || n, t - (RANDOM() * INTERVAL '60 days'), t - (RANDOM() * INTERVAL '5 days'), 1
     FROM GENERATE_SERIES(1, 120000) n;
 
     INSERT INTO user_roles (user_id, role_id) SELECT u.id, role_customer FROM users u WHERE u.user_type = 'CUSTOMER';
@@ -134,25 +134,25 @@ BEGIN
     -- 240 CATEGORIES
     RAISE NOTICE 'Creating 240 categories...';
     INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, image_url, status)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Category ' || c || ' (' || CASE (c %% 8) WHEN 0 THEN 'Premium' WHEN 1 THEN 'Budget' WHEN 2 THEN 'New' WHEN 3 THEN 'Popular' WHEN 4 THEN 'Sale' WHEN 5 THEN 'Seasonal' WHEN 6 THEN 'Limited' ELSE 'Exclusive' END || ')', CASE WHEN c %% 2 = 0 THEN photo1 ELSE photo2 END, 'ACTIVE'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Category ' || c || ' (' || CASE (c % 8) WHEN 0 THEN 'Premium' WHEN 1 THEN 'Budget' WHEN 2 THEN 'New' WHEN 3 THEN 'Popular' WHEN 4 THEN 'Sale' WHEN 5 THEN 'Seasonal' WHEN 6 THEN 'Limited' ELSE 'Exclusive' END || ')', CASE WHEN c % 2 = 0 THEN photo1 ELSE photo2 END, 'ACTIVE'
     FROM GENERATE_SERIES(1, 240) c;
 
     -- 240 BRANDS
     INSERT INTO brands (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, image_url, description, status)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Brand ' || br || ' - ' || CASE (br %% 5) WHEN 0 THEN 'Premium' WHEN 1 THEN 'Standard' WHEN 2 THEN 'Economy' WHEN 3 THEN 'Luxury' ELSE 'Boutique' END, CASE WHEN br %% 2 = 0 THEN photo1 ELSE photo2 END, 'Premium brand with quality products ' || br, 'ACTIVE'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Brand ' || br || ' - ' || CASE (br % 5) WHEN 0 THEN 'Premium' WHEN 1 THEN 'Standard' WHEN 2 THEN 'Economy' WHEN 3 THEN 'Luxury' ELSE 'Boutique' END, CASE WHEN br % 2 = 0 THEN photo1 ELSE photo2 END, 'Premium brand with quality products ' || br, 'ACTIVE'
     FROM GENERATE_SERIES(1, 240) br;
 
     -- 180,000 PRODUCTS
     RAISE NOTICE 'Creating 180,000 products...';
     INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, status, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, display_price, display_origin_price, display_promotion_type, display_promotion_value, display_promotion_from_date, display_promotion_to_date, has_sizes, has_active_promotion, view_count, favorite_count, main_image_url)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM categories WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), (SELECT id FROM brands WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), 'Premium Product ' || p || ' (' || CASE (p %% 100) WHEN 0 THEN 'Bestseller' WHEN 1 THEN 'New' ELSE 'Popular' END || ')', 'High-quality product with comprehensive description - Item ' || p, 'ACTIVE', (15.00 + (p %% 300))::NUMERIC, CASE WHEN p %% 2 = 0 THEN 'PERCENTAGE' WHEN p %% 2 = 1 THEN 'FIXED_AMOUNT' ELSE NULL END, CASE WHEN p %% 2 = 0 THEN (5 + (p %% 40)) WHEN p %% 2 = 1 THEN (2.00 + (p %% 50)) ELSE NULL END, CASE WHEN p %% 2 > 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p %% 2 > 0 THEN t + INTERVAL '90 days' ELSE NULL END, (15.00 + (p %% 300))::NUMERIC, (15.00 + (p %% 300))::NUMERIC, CASE WHEN p %% 2 = 0 THEN 'PERCENTAGE' WHEN p %% 2 = 1 THEN 'FIXED_AMOUNT' ELSE NULL END, CASE WHEN p %% 2 = 0 THEN (5 + (p %% 40)) WHEN p %% 2 = 1 THEN (2.00 + (p %% 50)) ELSE NULL END, CASE WHEN p %% 2 > 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p %% 2 > 0 THEN t + INTERVAL '90 days' ELSE NULL END, CASE WHEN p %% 4 = 0 THEN true ELSE false END, CASE WHEN p %% 2 = 0 THEN true ELSE false END, (p %% 10000), (p %% 1000), CASE WHEN p %% 2 = 0 THEN photo1 ELSE photo2 END
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM categories WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), (SELECT id FROM brands WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), 'Premium Product ' || p || ' (' || CASE (p % 100) WHEN 0 THEN 'Bestseller' WHEN 1 THEN 'New' ELSE 'Popular' END || ')', 'High-quality product with comprehensive description - Item ' || p, 'ACTIVE', (15.00 + (p % 300))::NUMERIC, CASE WHEN p % 2 = 0 THEN 'PERCENTAGE' WHEN p % 2 = 1 THEN 'FIXED_AMOUNT' ELSE NULL END, CASE WHEN p % 2 = 0 THEN (5 + (p % 40)) WHEN p % 2 = 1 THEN (2.00 + (p % 50)) ELSE NULL END, CASE WHEN p % 2 > 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 2 > 0 THEN t + INTERVAL '90 days' ELSE NULL END, (15.00 + (p % 300))::NUMERIC, (15.00 + (p % 300))::NUMERIC, CASE WHEN p % 2 = 0 THEN 'PERCENTAGE' WHEN p % 2 = 1 THEN 'FIXED_AMOUNT' ELSE NULL END, CASE WHEN p % 2 = 0 THEN (5 + (p % 40)) WHEN p % 2 = 1 THEN (2.00 + (p % 50)) ELSE NULL END, CASE WHEN p % 2 > 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 2 > 0 THEN t + INTERVAL '90 days' ELSE NULL END, CASE WHEN p % 4 = 0 THEN true ELSE false END, CASE WHEN p % 2 = 0 THEN true ELSE false END, (p % 10000), (p % 1000), CASE WHEN p % 2 = 0 THEN photo1 ELSE photo2 END
     FROM GENERATE_SERIES(1, 180000) p;
     RAISE NOTICE 'Products created successfully!';
 
     -- 720,000+ PRODUCT IMAGES
     RAISE NOTICE 'Creating 720,000+ product images...';
     INSERT INTO product_images (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, image_url)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, p.id, CASE WHEN (ROW_NUMBER() OVER (PARTITION BY p.id) - 1) %% 2 = 0 THEN photo1 ELSE photo2 END
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, p.id, CASE WHEN (ROW_NUMBER() OVER (PARTITION BY p.id) - 1) % 2 = 0 THEN photo1 ELSE photo2 END
     FROM products p, GENERATE_SERIES(1, 4) img_num WHERE p.business_id = key_business_id;
     RAISE NOTICE 'Product images created successfully!';
 
@@ -163,12 +163,12 @@ BEGIN
 
     -- DELIVERY OPTIONS
     INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, image_url, price, status)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, CASE (d %% 5) WHEN 0 THEN 'Standard Delivery' WHEN 1 THEN 'Express Delivery' WHEN 2 THEN 'Scheduled Delivery' WHEN 3 THEN 'Pickup' ELSE 'Dine-in' END, 'Delivery option ' || d, CASE WHEN d %% 2 = 0 THEN photo1 ELSE photo2 END, CASE (d %% 5) WHEN 0 THEN 2.00 WHEN 1 THEN 5.00 WHEN 2 THEN 2.50 ELSE 0.00 END, 'ACTIVE'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, CASE (d % 5) WHEN 0 THEN 'Standard Delivery' WHEN 1 THEN 'Express Delivery' WHEN 2 THEN 'Scheduled Delivery' WHEN 3 THEN 'Pickup' ELSE 'Dine-in' END, 'Delivery option ' || d, CASE WHEN d % 2 = 0 THEN photo1 ELSE photo2 END, CASE (d % 5) WHEN 0 THEN 2.00 WHEN 1 THEN 5.00 WHEN 2 THEN 2.50 ELSE 0.00 END, 'ACTIVE'
     FROM GENERATE_SERIES(1, 150) d;
 
     -- BANNERS
     INSERT INTO banners (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, image_url, link_url, status)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, CASE WHEN bn %% 2 = 0 THEN photo1 ELSE photo2 END, '/menu?promo=' || bn, 'ACTIVE'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, CASE WHEN bn % 2 = 0 THEN photo1 ELSE photo2 END, '/menu?promo=' || bn, 'ACTIVE'
     FROM GENERATE_SERIES(1, 300) bn;
 
     -- CUSTOMER ADDRESSES
@@ -177,7 +177,7 @@ BEGIN
     FROM GENERATE_SERIES(1, 300) a;
 
     INSERT INTO customer_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM users WHERE user_type = 'CUSTOMER' AND id != customer_user_id ORDER BY RANDOM() LIMIT 1), 'Village ' || a, 'Commune ' || a, 'District ' || a, 'Phnom Penh', 'Cambodia', 'Street ' || a, 'House ' || a, 'Apt ' || a, 11.5564 + (a::NUMERIC / 1000), 104.9282 + (a::NUMERIC / 1000), a %% 3 = 1
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM users WHERE user_type = 'CUSTOMER' AND id != customer_user_id ORDER BY RANDOM() LIMIT 1), 'Village ' || a, 'Commune ' || a, 'District ' || a, 'Phnom Penh', 'Cambodia', 'Street ' || a, 'House ' || a, 'Apt ' || a, 11.5564 + (a::NUMERIC / 1000), 104.9282 + (a::NUMERIC / 1000), a % 3 = 1
     FROM GENERATE_SERIES(1, 279700) a;
 
     -- CARTS & ITEMS
@@ -187,11 +187,11 @@ BEGIN
     FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' ORDER BY RANDOM() LIMIT 120000) u;
 
     INSERT INTO cart_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, cart_id, product_id, product_size_id, quantity)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM carts WHERE user_id = customer_user_id LIMIT 1), (SELECT id FROM products ORDER BY RANDOM() LIMIT 1), NULL, (1 + (ci %% 20))
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM carts WHERE user_id = customer_user_id LIMIT 1), (SELECT id FROM products ORDER BY RANDOM() LIMIT 1), NULL, (1 + (ci % 20))
     FROM GENERATE_SERIES(1, 2000) ci;
 
     INSERT INTO cart_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, cart_id, product_id, product_size_id, quantity)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM carts WHERE user_id != customer_user_id ORDER BY RANDOM() LIMIT 1), (SELECT id FROM products ORDER BY RANDOM() LIMIT 1), NULL, (1 + (ci %% 20))
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM carts WHERE user_id != customer_user_id ORDER BY RANDOM() LIMIT 1), (SELECT id FROM products ORDER BY RANDOM() LIMIT 1), NULL, (1 + (ci % 20))
     FROM GENERATE_SERIES(1, 118000) ci;
 
     INSERT INTO product_favorites (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, product_id)
@@ -208,11 +208,11 @@ BEGIN
     -- ORDERS
     RAISE NOTICE 'Creating 200,000 orders...';
     INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_process_status_name, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
-    SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '180 days'), t, 'system', 'system', false, NULL, NULL, key_business_id, customer_user_id, 'ORD-KCU-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(ord_n::TEXT, 6, '0'), CASE WHEN ord_n %% 10 = 0 THEN 'Pending' WHEN ord_n %% 10 = 1 THEN 'Confirmed' WHEN ord_n %% 10 = 2 THEN 'Preparing' WHEN ord_n %% 10 = 3 THEN 'Ready' WHEN ord_n %% 10 = 4 THEN 'In Delivery' WHEN ord_n %% 10 = 5 THEN 'Delivered' WHEN ord_n %% 10 = 6 THEN 'Completed' WHEN ord_n %% 10 = 7 THEN 'Cancelled' WHEN ord_n %% 10 = 8 THEN 'Refunded' ELSE 'Failed' END, '{"village":"Village"}', '{"name":"Standard"}', (20.00 + (ord_n %% 200))::NUMERIC, (ord_n %% 10)::NUMERIC, 2.00, (ord_n %% 5)::NUMERIC, ((20.00 + (ord_n %% 200)) - (ord_n %% 10) + 2.00 + (ord_n %% 5))::NUMERIC, CASE (ord_n %% 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END, CASE (ord_n %% 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'REFUNDED' END, 'Note ' || ord_n, 'Note ' || ord_n, CASE WHEN ord_n %% 2 = 0 THEN t - (RANDOM() * INTERVAL '150 days') ELSE NULL END, CASE WHEN ord_n %% 3 = 2 THEN t - (RANDOM() * INTERVAL '100 days') ELSE NULL END
+    SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '180 days'), t, 'system', 'system', false, NULL, NULL, key_business_id, customer_user_id, 'ORD-KCU-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(ord_n::TEXT, 6, '0'), CASE WHEN ord_n % 10 = 0 THEN 'Pending' WHEN ord_n % 10 = 1 THEN 'Confirmed' WHEN ord_n % 10 = 2 THEN 'Preparing' WHEN ord_n % 10 = 3 THEN 'Ready' WHEN ord_n % 10 = 4 THEN 'In Delivery' WHEN ord_n % 10 = 5 THEN 'Delivered' WHEN ord_n % 10 = 6 THEN 'Completed' WHEN ord_n % 10 = 7 THEN 'Cancelled' WHEN ord_n % 10 = 8 THEN 'Refunded' ELSE 'Failed' END, '{"village":"Village"}', '{"name":"Standard"}', (20.00 + (ord_n % 200))::NUMERIC, (ord_n % 10)::NUMERIC, 2.00, (ord_n % 5)::NUMERIC, ((20.00 + (ord_n % 200)) - (ord_n % 10) + 2.00 + (ord_n % 5))::NUMERIC, CASE (ord_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END, CASE (ord_n % 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'REFUNDED' END, 'Note ' || ord_n, 'Note ' || ord_n, CASE WHEN ord_n % 2 = 0 THEN t - (RANDOM() * INTERVAL '150 days') ELSE NULL END, CASE WHEN ord_n % 3 = 2 THEN t - (RANDOM() * INTERVAL '100 days') ELSE NULL END
     FROM GENERATE_SERIES(1, 10000) ord_n;
 
     INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_process_status_name, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
-    SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '180 days'), t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM users WHERE user_type = 'CUSTOMER' AND id != customer_user_id ORDER BY RANDOM() LIMIT 1), 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD((10000 + ord_n)::TEXT, 6, '0'), CASE WHEN ord_n %% 10 = 0 THEN 'Pending' WHEN ord_n %% 10 = 1 THEN 'Confirmed' WHEN ord_n %% 10 = 2 THEN 'Preparing' WHEN ord_n %% 10 = 3 THEN 'Ready' WHEN ord_n %% 10 = 4 THEN 'In Delivery' WHEN ord_n %% 10 = 5 THEN 'Delivered' WHEN ord_n %% 10 = 6 THEN 'Completed' WHEN ord_n %% 10 = 7 THEN 'Cancelled' WHEN ord_n %% 10 = 8 THEN 'Refunded' ELSE 'Failed' END, '{"village":"Village"}', '{"name":"Standard"}', (20.00 + (ord_n %% 200))::NUMERIC, (ord_n %% 10)::NUMERIC, 2.00, (ord_n %% 5)::NUMERIC, ((20.00 + (ord_n %% 200)) - (ord_n %% 10) + 2.00 + (ord_n %% 5))::NUMERIC, CASE (ord_n %% 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END, CASE (ord_n %% 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'REFUNDED' END, 'Note ' || ord_n, 'Note ' || ord_n, CASE WHEN ord_n %% 2 = 0 THEN t - (RANDOM() * INTERVAL '150 days') ELSE NULL END, CASE WHEN ord_n %% 3 = 2 THEN t - (RANDOM() * INTERVAL '100 days') ELSE NULL END
+    SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '180 days'), t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM users WHERE user_type = 'CUSTOMER' AND id != customer_user_id ORDER BY RANDOM() LIMIT 1), 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD((10000 + ord_n)::TEXT, 6, '0'), CASE WHEN ord_n % 10 = 0 THEN 'Pending' WHEN ord_n % 10 = 1 THEN 'Confirmed' WHEN ord_n % 10 = 2 THEN 'Preparing' WHEN ord_n % 10 = 3 THEN 'Ready' WHEN ord_n % 10 = 4 THEN 'In Delivery' WHEN ord_n % 10 = 5 THEN 'Delivered' WHEN ord_n % 10 = 6 THEN 'Completed' WHEN ord_n % 10 = 7 THEN 'Cancelled' WHEN ord_n % 10 = 8 THEN 'Refunded' ELSE 'Failed' END, '{"village":"Village"}', '{"name":"Standard"}', (20.00 + (ord_n % 200))::NUMERIC, (ord_n % 10)::NUMERIC, 2.00, (ord_n % 5)::NUMERIC, ((20.00 + (ord_n % 200)) - (ord_n % 10) + 2.00 + (ord_n % 5))::NUMERIC, CASE (ord_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END, CASE (ord_n % 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'REFUNDED' END, 'Note ' || ord_n, 'Note ' || ord_n, CASE WHEN ord_n % 2 = 0 THEN t - (RANDOM() * INTERVAL '150 days') ELSE NULL END, CASE WHEN ord_n % 3 = 2 THEN t - (RANDOM() * INTERVAL '100 days') ELSE NULL END
     FROM GENERATE_SERIES(1, 190000) ord_n;
     RAISE NOTICE 'Orders created successfully!';
 
@@ -223,27 +223,27 @@ BEGIN
 
     -- ORDER PAYMENTS
     INSERT INTO order_payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, order_id, payment_reference, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, status, customer_payment_method)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM orders ORDER BY RANDOM() LIMIT 1), 'PAY-' || LPAD(opay_n::TEXT, 10, '0'), 100.00, 10.00, 2.00, 5.00, 97.00, CASE (opay_n %% 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END, CASE (opay_n %% 4) WHEN 0 THEN 'PENDING' WHEN 1 THEN 'COMPLETED' WHEN 2 THEN 'FAILED' ELSE 'CANCELLED' END, 'Cash'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM orders ORDER BY RANDOM() LIMIT 1), 'PAY-' || LPAD(opay_n::TEXT, 10, '0'), 100.00, 10.00, 2.00, 5.00, 97.00, CASE (opay_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END, CASE (opay_n % 4) WHEN 0 THEN 'PENDING' WHEN 1 THEN 'COMPLETED' WHEN 2 THEN 'FAILED' ELSE 'CANCELLED' END, 'Cash'
     FROM GENERATE_SERIES(1, 200000) opay_n;
 
     -- WORK SCHEDULES
     INSERT INTO work_schedules (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, user_id, name, schedule_type_enum, start_time, end_time, break_start_time, break_end_time)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, business_user_id, 'Schedule ' || ws, CASE WHEN ws %% 2 = 0 THEN 'MORNING_SHIFT' ELSE 'EVENING_SHIFT' END, '06:00'::TIME, '14:00'::TIME, '12:00'::TIME, '13:00'::TIME
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, business_user_id, 'Schedule ' || ws, CASE WHEN ws % 2 = 0 THEN 'MORNING_SHIFT' ELSE 'EVENING_SHIFT' END, '06:00'::TIME, '14:00'::TIME, '12:00'::TIME, '13:00'::TIME
     FROM GENERATE_SERIES(1, 500) ws;
 
     -- ATTENDANCES
     INSERT INTO attendances (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, reference_number, user_id, business_id, work_schedule_id, attendance_date, status, remarks)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'ATT-' || gen_random_uuid()::TEXT, business_user_id, key_business_id, (SELECT id FROM work_schedules WHERE user_id = business_user_id LIMIT 1), (t - (INTERVAL '1 day' * (att %% 365)))::DATE, CASE WHEN att %% 15 = 0 THEN 'ABSENT' WHEN att %% 15 = 1 THEN 'LATE' ELSE 'PRESENT' END, 'Attendance'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'ATT-' || gen_random_uuid()::TEXT, business_user_id, key_business_id, (SELECT id FROM work_schedules WHERE user_id = business_user_id LIMIT 1), (t - (INTERVAL '1 day' * (att % 365)))::DATE, CASE WHEN att % 15 = 0 THEN 'ABSENT' WHEN att % 15 = 1 THEN 'LATE' ELSE 'PRESENT' END, 'Attendance'
     FROM GENERATE_SERIES(1, 20000) att;
 
     -- CHECK-INS
     INSERT INTO attendance_check_ins (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, reference_number, attendance_id, check_in_type, check_in_time, latitude, longitude, remarks)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'CHK-' || gen_random_uuid()::TEXT, (SELECT id FROM attendances WHERE user_id = business_user_id ORDER BY RANDOM() LIMIT 1), CASE WHEN aci %% 2 = 0 THEN 'START' ELSE 'END' END, (t - (INTERVAL '1 day' * (aci %% 365)))::TIMESTAMP, 11.5564, 104.9282, 'Check-in'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'CHK-' || gen_random_uuid()::TEXT, (SELECT id FROM attendances WHERE user_id = business_user_id ORDER BY RANDOM() LIMIT 1), CASE WHEN aci % 2 = 0 THEN 'START' ELSE 'END' END, (t - (INTERVAL '1 day' * (aci % 365)))::TIMESTAMP, 11.5564, 104.9282, 'Check-in'
     FROM GENERATE_SERIES(1, 40000) aci;
 
     -- LEAVES
     INSERT INTO leaves (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, reference_number, user_id, business_id, leave_type_enum, start_date, end_date, total_days, reason, status, action_by, action_at, action_note)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'LEV-' || gen_random_uuid()::TEXT, business_user_id, key_business_id, 'SICK_LEAVE', (t + (INTERVAL '1 day' * (lv %% 365)))::DATE, (t + (INTERVAL '1 day' * ((lv %% 365) + 3)))::DATE, (3 + (lv %% 7))::DOUBLE PRECISION, 'Leave reason', CASE WHEN lv %% 4 = 0 THEN 'PENDING' WHEN lv %% 4 = 1 THEN 'APPROVED' WHEN lv %% 4 = 2 THEN 'REJECTED' ELSE 'CANCELLED' END, CASE WHEN lv %% 2 = 0 THEN business_user_id ELSE NULL END, CASE WHEN lv %% 2 = 0 THEN t ELSE NULL END, 'Approved'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'LEV-' || gen_random_uuid()::TEXT, business_user_id, key_business_id, 'SICK_LEAVE', (t + (INTERVAL '1 day' * (lv % 365)))::DATE, (t + (INTERVAL '1 day' * ((lv % 365) + 3)))::DATE, (3 + (lv % 7))::DOUBLE PRECISION, 'Leave reason', CASE WHEN lv % 4 = 0 THEN 'PENDING' WHEN lv % 4 = 1 THEN 'APPROVED' WHEN lv % 4 = 2 THEN 'REJECTED' ELSE 'CANCELLED' END, CASE WHEN lv % 2 = 0 THEN business_user_id ELSE NULL END, CASE WHEN lv % 2 = 0 THEN t ELSE NULL END, 'Approved'
     FROM GENERATE_SERIES(1, 5000) lv;
 
     -- EXCHANGE RATES
