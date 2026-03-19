@@ -236,8 +236,8 @@ export default function CartPage() {
         <PageHeader
           title="Shopping Cart"
           icon={ShoppingCart}
-          count={totalQuantity}
-          subtitle={`${totalQuantity} ${totalQuantity === 1 ? "item" : "items"}`}
+          count={totalItems}
+          subtitle={`${totalItems} ${totalItems === 1 ? "item" : "items"} • ${totalQuantity} total quantity`}
           actions={
             <CustomButton
               variant="ghost"
