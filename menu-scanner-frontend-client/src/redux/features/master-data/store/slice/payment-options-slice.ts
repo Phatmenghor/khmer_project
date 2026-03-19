@@ -12,6 +12,8 @@ import {
   fetchAllPaymentOptionsService,
   fetchPaymentOptionByIdService,
   updatePaymentOptionService,
+  activatePaymentOptionService,
+  deactivatePaymentOptionService,
 } from "../thunks/payment-options-thunks";
 
 /**
@@ -32,6 +34,8 @@ const initialState: PaymentOptionsManagementState = {
     isUpdating: false,
     isDeleting: false,
     isFetchingDetail: false,
+    isActivating: false,
+    isDeactivating: false,
   },
 };
 
@@ -179,6 +183,47 @@ const paymentOptionsSlice = createSlice({
         state.operations.isDeleting = false;
       });
 
+    builder
+      .addCase(activatePaymentOptionService.pending, (state) => {
+        state.operations.isActivating = true;
+        state.error = null;
+      })
+      .addCase(activatePaymentOptionService.fulfilled, (state, action) => {
+        state.selectedPaymentOption = action.payload;
+        state.operations.isActivating = false;
+
+        // Update in list
+        if (state.data) {
+          state.data.content = state.data.content.map((option) =>
+            option.id === action.payload.id ? action.payload : option
+          );
+        }
+      })
+      .addCase(activatePaymentOptionService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.operations.isActivating = false;
+      });
+
+    builder
+      .addCase(deactivatePaymentOptionService.pending, (state) => {
+        state.operations.isDeactivating = true;
+        state.error = null;
+      })
+      .addCase(deactivatePaymentOptionService.fulfilled, (state, action) => {
+        state.selectedPaymentOption = action.payload;
+        state.operations.isDeactivating = false;
+
+        // Update in list
+        if (state.data) {
+          state.data.content = state.data.content.map((option) =>
+            option.id === action.payload.id ? action.payload : option
+          );
+        }
+      })
+      .addCase(deactivatePaymentOptionService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.operations.isDeactivating = false;
+      });
   },
 });
 

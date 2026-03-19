@@ -17,6 +17,8 @@ export function usePaymentOptionsState() {
     update: paymentOptionsState.operations.isUpdating,
     delete: paymentOptionsState.operations.isDeleting,
     detail: paymentOptionsState.operations.isFetchingDetail,
+    activate: paymentOptionsState.operations.isActivating,
+    deactivate: paymentOptionsState.operations.isDeactivating,
   };
 
   const filters = paymentOptionsState.filters;

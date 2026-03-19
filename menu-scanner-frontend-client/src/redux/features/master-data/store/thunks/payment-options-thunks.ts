@@ -104,3 +104,41 @@ export const deletePaymentOptionService = createAsyncThunk<string, string>(
   }
 );
 
+/**
+ * Activate payment option
+ */
+export const activatePaymentOptionService = createAsyncThunk<
+  PaymentOptionResponse,
+  string
+>("paymentOptions/activate", async (id, { rejectWithValue }) => {
+  try {
+    const response = await ApiClient.patch<PaymentOptionResponse>(
+      `${API_BASE}/${id}/activate`,
+      {}
+    );
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.message || "Failed to activate payment option");
+  }
+});
+
+/**
+ * Deactivate payment option
+ */
+export const deactivatePaymentOptionService = createAsyncThunk<
+  PaymentOptionResponse,
+  string
+>("paymentOptions/deactivate", async (id, { rejectWithValue }) => {
+  try {
+    const response = await ApiClient.patch<PaymentOptionResponse>(
+      `${API_BASE}/${id}/deactivate`,
+      {}
+    );
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.message || "Failed to deactivate payment option"
+    );
+  }
+});
+
