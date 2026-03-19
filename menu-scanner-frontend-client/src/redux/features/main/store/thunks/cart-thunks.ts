@@ -51,6 +51,15 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
       timestamp: new Date().toLocaleTimeString()
     });
 
+    // DEBUG: Log the actual items structure
+    if (responseData?.items?.length > 0) {
+      console.log("%c## ACTUAL ITEMS FROM BACKEND", "background:#ff9800;color:white;padding:5px;border-radius:3px;font-weight:bold", {
+        firstItem: responseData.items[0],
+        fields: Object.keys(responseData.items[0]),
+        itemCount: responseData.items.length
+      });
+    }
+
     if (!isCorrect) {
       console.error("%c## ❌ RESPONSE IS WRONG STRUCTURE", "background:#dc3545;color:white;padding:5px", responseData);
     }
