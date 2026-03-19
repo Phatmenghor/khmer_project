@@ -234,6 +234,14 @@ const cartSlice = createSlice({
       }
 
       recalculateTotals(state);
+
+      // Reset pagination to page 1 when adding new item from product card
+      // This ensures newly added items are visible immediately
+      state.pagination = {
+        currentPage: 1,
+        pageSize: state.pagination.pageSize,
+        hasMore: state.items.length > state.pagination.pageSize,
+      };
     },
     updateLocalCartItem: (
       state,

@@ -119,8 +119,11 @@ export const fetchCartPaginated = createApiThunk<
   async (params, signal) => {
     const businessId = AppDefault.BUSINESS_ID;
     const response = await axiosClientWithAuth.post(
-      `/api/v1/cart/${businessId}/paginated?pageNo=${params.pageNo}&pageSize=${params.pageSize}`,
-      {},
+      `/api/v1/cart/${businessId}/paginated`,
+      {
+        pageNo: params.pageNo,
+        pageSize: params.pageSize,
+      },
       { signal }
     );
     let responseData = response.data.data;
