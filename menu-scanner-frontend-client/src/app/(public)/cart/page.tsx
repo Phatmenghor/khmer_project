@@ -33,13 +33,36 @@ import { cn } from "@/lib/utils";
 import { sanitizeImageUrl } from "@/utils/common/common";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 
-function CartSkeleton() {
+function CartItemSkeleton() {
   return (
-    <PageContainer className="py-4 sm:py-8">
-      <Skeleton className="h-8 w-48 mb-6" />
-      <div className="grid lg:grid-cols-3 gap-6">
+    <div className="bg-card border rounded-2xl p-3 sm:p-4">
+      <div className="flex gap-3">
+        <Skeleton className="w-[72px] h-[72px] rounded-xl flex-shrink-0" />
+        <div className="flex-1 space-y-3">
+          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+          <div className="flex gap-2">
+            <Skeleton className="h-8 w-24" />
+            <Skeleton className="h-8 w-20" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CartPageSkeleton() {
+  return (
+    <PageContainer className="py-4 sm:py-8 pb-40 sm:pb-8">
+      <div className="mb-6 space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-5 w-64" />
+      </div>
+      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="lg:col-span-2 space-y-3">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full rounded-2xl" />)}
+          {[1, 2, 3, 4, 5].map((i) => (
+            <CartItemSkeleton key={i} />
+          ))}
         </div>
         <div className="hidden lg:block">
           <Skeleton className="h-64 w-full rounded-2xl" />
@@ -179,7 +202,7 @@ export default function CartPage() {
     showToast.success("Proceeding to checkout...");
   };
 
-  if (!mounted || !authReady || (loading.fetch && !loaded)) return <CartSkeleton />;
+  if (!mounted || !authReady || (loading.fetch && !loaded)) return <CartPageSkeleton />;
 
   if (!isAuthenticated) {
     return (
@@ -325,7 +348,7 @@ export default function CartPage() {
             ))}
 
             {/* Infinite scroll observer + loading state */}
-            {pagination.hasMore && (
+            {pagination.hasMore ? (
               <div ref={observerRef} className="flex justify-center py-8">
                 {loading.paginate && (
                   <div className="flex items-center gap-2 text-muted-foreground">
@@ -334,7 +357,17 @@ export default function CartPage() {
                   </div>
                 )}
               </div>
-            )}
+            ) : items.length > 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <ShoppingCart className="h-8 w-8 text-primary" strokeWidth={1.5} />
+                </div>
+                <p className="text-sm font-medium text-foreground">You've reached the end</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  All {totalItems} items are loaded
+                </p>
+              </div>
+            ) : null}
           </div>
 
           {/* ── Order Summary (desktop) ── */}

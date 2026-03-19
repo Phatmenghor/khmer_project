@@ -27,7 +27,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
     /**
      * Finds a non-deleted cart item by cart ID, product ID, and optional product size ID
      */
-    @Query("SELECT ci FROM CartItem ci WHERE ci.cartId = :cartId AND ci.productId = :productId AND (:productSizeId IS NULL AND ci.productSizeId IS NULL OR ci.productSizeId = :productSizeId) AND ci.isDeleted = false")
+    @Query("SELECT ci FROM CartItem ci WHERE ci.cartId = :cartId AND ci.productId = :productId AND ((:productSizeId IS NULL AND ci.productSizeId IS NULL) OR (:productSizeId IS NOT NULL AND ci.productSizeId = :productSizeId)) AND ci.isDeleted = false")
     Optional<CartItem> findByCartIdAndProductIdAndSizeId(@Param("cartId") UUID cartId,
                                                           @Param("productId") UUID productId,
                                                           @Param("productSizeId") UUID productSizeId);
@@ -37,7 +37,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
      * concurrent modification race conditions when users rapidly update quantities.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT ci FROM CartItem ci WHERE ci.cartId = :cartId AND ci.productId = :productId AND (:productSizeId IS NULL AND ci.productSizeId IS NULL OR ci.productSizeId = :productSizeId) AND ci.isDeleted = false")
+    @Query("SELECT ci FROM CartItem ci WHERE ci.cartId = :cartId AND ci.productId = :productId AND ((:productSizeId IS NULL AND ci.productSizeId IS NULL) OR (:productSizeId IS NOT NULL AND ci.productSizeId = :productSizeId)) AND ci.isDeleted = false")
     Optional<CartItem> findByCartIdAndProductIdAndSizeIdForUpdate(@Param("cartId") UUID cartId,
                                                                     @Param("productId") UUID productId,
                                                                     @Param("productSizeId") UUID productSizeId);
