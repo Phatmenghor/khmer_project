@@ -14,19 +14,15 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { optimisticTimestamp, ...requestData } = data;
 
-    // Validate quantity is at least 1
-    if (requestData.quantity < 1) {
-      throw new Error("Quantity must be at least 1");
-    }
-
     // DEBUG: Log request
     console.log("%c## CART API REQUEST", "background:#007bff;color:white;padding:5px;border-radius:3px;font-weight:bold", {
-      endpoint: "POST /api/v1/cart/add",
+      endpoint: "POST /api/v1/cart",
       payload: requestData,
+      action: requestData.quantity === 0 ? "REMOVE" : "ADD/UPDATE",
       timestamp: new Date().toLocaleTimeString()
     });
 
-    const response = await axiosClientWithAuth.post("/api/v1/cart/add", requestData, {
+    const response = await axiosClientWithAuth.post("/api/v1/cart", requestData, {
       signal,
     });
 
@@ -78,12 +74,7 @@ export const updateCartItem = createApiThunk<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { optimisticTimestamp, ...requestData } = data;
 
-  // Validate quantity is at least 1
-  if (requestData.quantity < 1) {
-    throw new Error("Quantity must be at least 1");
-  }
-
-  const response = await axiosClientWithAuth.post("/api/v1/cart/update", requestData, {
+  const response = await axiosClientWithAuth.post("/api/v1/cart", requestData, {
     signal,
   });
   let responseData = response.data.data;
