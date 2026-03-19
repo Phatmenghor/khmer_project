@@ -34,6 +34,16 @@ public class CartController {
         return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", cart));
     }
 
+    @PostMapping("/{businessId}/paginated")
+    public ResponseEntity<ApiResponse<CartSummaryResponse>> getCartPaginated(
+            @PathVariable UUID businessId,
+            @RequestParam(defaultValue = "1") int pageNo,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Getting paginated cart for business: {}, page: {}, size: {}", businessId, pageNo, pageSize);
+        CartSummaryResponse cart = cartService.getCartPaginated(businessId, pageNo, pageSize);
+        return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", cart));
+    }
+
     @DeleteMapping("/{businessId}/clear")
     public ResponseEntity<ApiResponse<CartSummaryResponse>> clearCart(@PathVariable UUID businessId) {
         log.info("Clearing cart for business: {}", businessId);

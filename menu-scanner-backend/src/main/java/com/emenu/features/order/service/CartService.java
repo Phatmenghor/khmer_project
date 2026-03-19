@@ -19,6 +19,12 @@ public interface CartService {
     CartSummaryResponse getCart(UUID businessId);
 
     /**
+     * GET - Get paginated cart items for current user
+     * Used for infinite scroll / pagination on frontend
+     */
+    CartSummaryResponse getCartPaginated(UUID businessId, int pageNo, int pageSize);
+
+    /**
      * DELETE - Clear current user's cart for a specific business
      */
     CartSummaryResponse clearCart(UUID businessId);

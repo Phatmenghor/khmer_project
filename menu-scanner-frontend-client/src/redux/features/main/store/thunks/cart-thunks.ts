@@ -111,6 +111,33 @@ export const updateCartItem = createApiThunk<
   return responseData;
 });
 
+export const fetchCartPaginated = createApiThunk<
+  CartResponseModel,
+  { pageNo: number; pageSize: number }
+>(
+  "cart/fetchPaginated",
+  async (params, signal) => {
+    const businessId = AppDefault.BUSINESS_ID;
+    const response = await axiosClientWithAuth.post(
+      `/api/v1/cart/${businessId}/paginated?pageNo=${params.pageNo}&pageSize=${params.pageSize}`,
+      {},
+      { signal }
+    );
+    let responseData = response.data.data;
+
+    // Transform response to ensure frontend compatibility
+    if (responseData?.items) {
+      responseData.items = responseData.items.map((item: any) => ({
+        ...item,
+        hasPromotion: item.hasActivePromotion ?? item.hasPromotion ?? false,
+        isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
+      }));
+    }
+
+    return responseData;
+  }
+);
+
 export const clearCart = createApiThunk<void, void>(
   "cart/clearCart",
   async (_, signal) => {

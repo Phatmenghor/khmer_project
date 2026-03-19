@@ -108,6 +108,35 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public CartSummaryResponse getCartPaginated(UUID businessId, int pageNo, int pageSize) {
+        UUID userId = securityUtils.getCurrentUserId();
+        log.info("Getting paginated cart for user: {}, business: {}, page: {}, size: {}",
+                userId, businessId, pageNo, pageSize);
+
+        Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
+        if (cartOpt.isPresent()) {
+            Cart cart = cartOpt.get();
+
+            // Filter unavailable items first
+            filterUnavailableItems(cart);
+
+            // Apply pagination to items
+            if (cart.getItems() != null && !cart.getItems().isEmpty()) {
+                int start = (pageNo - 1) * pageSize;
+                int end = Math.min(start + pageSize, cart.getItems().size());
+
+                // Create a new list with only the paginated items
+                List<CartItem> paginatedItems = cart.getItems().subList(start, end);
+                cart.setItems(paginatedItems);
+            }
+
+            return cartMapper.toSummaryResponse(cart);
+        }
+        return emptyCartSummary();
+    }
+
+    @Override
     public CartSummaryResponse clearCart(UUID businessId) {
         UUID userId = securityUtils.getCurrentUserId();
         log.info("Clearing cart for user: {} and business: {}", userId, businessId);

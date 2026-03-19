@@ -4,6 +4,7 @@ import {
   addToCart,
   updateCartItem,
   clearCart,
+  fetchCartPaginated,
 } from "../thunks/cart-thunks";
 import {
   CartResponseModel,
@@ -16,11 +17,17 @@ interface CartState {
   subtotal: number;
   totalDiscount: number;
   finalTotal: number;
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    hasMore: boolean;
+  };
   loading: {
     fetch: boolean;
     add: boolean;
     update: boolean;
     clear: boolean;
+    paginate: boolean;
   };
   error: string | null;
   loaded: boolean;
@@ -32,11 +39,17 @@ const initialState: CartState = {
   subtotal: 0,
   totalDiscount: 0,
   finalTotal: 0,
+  pagination: {
+    currentPage: 1,
+    pageSize: 20,
+    hasMore: false,
+  },
   loading: {
     fetch: false,
     add: false,
     update: false,
     clear: false,
+    paginate: false,
   },
   error: null,
   loaded: false,
@@ -327,6 +340,39 @@ const cartSlice = createSlice({
         const payload = action.payload as any;
         if (payload?.aborted || payload === "canceled" || action.error.message === "canceled") return;
         state.error = action.error.message || "Failed to update cart item";
+      })
+
+      // Fetch Cart Paginated (for infinite scroll)
+      .addCase(fetchCartPaginated.pending, (state) => {
+        state.loading.paginate = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchCartPaginated.fulfilled,
+        (state, action: PayloadAction<CartResponseModel>) => {
+          state.loading.paginate = false;
+          const newItems = action.payload.items || [];
+          const pageSize = action.payload.totalItems || 20;
+
+          // Accumulate items (deduplicate by ID)
+          const existingIds = new Set(state.items.map((i) => i.id));
+          const uniqueNew = newItems.filter((i) => !existingIds.has(i.id));
+          state.items = [...state.items, ...uniqueNew];
+
+          // Update pagination state
+          state.pagination = {
+            currentPage: action.meta.arg.pageNo,
+            pageSize: action.meta.arg.pageSize,
+            hasMore: state.items.length < action.payload.totalItems,
+          };
+
+          recalculateTotals(state);
+          state.error = null;
+        }
+      )
+      .addCase(fetchCartPaginated.rejected, (state, action) => {
+        state.loading.paginate = false;
+        state.error = action.error.message || "Failed to fetch more cart items";
       })
 
       // Clear Cart

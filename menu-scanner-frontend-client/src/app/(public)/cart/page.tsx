@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -12,6 +12,7 @@ import {
   LogIn,
   ShoppingCart,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
@@ -21,7 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
 import Link from "next/link";
-import { clearCart, fetchCart } from "@/redux/features/main/store/thunks/cart-thunks";
+import { clearCart, fetchCart, fetchCartPaginated } from "@/redux/features/main/store/thunks/cart-thunks";
 import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { LoginModal } from "@/components/shared/modal/login-modal";
@@ -99,6 +100,7 @@ export default function CartPage() {
     subtotal,
     totalDiscount,
     finalTotal,
+    pagination,
     loading,
     loaded,
   } = useCartState();
@@ -107,6 +109,8 @@ export default function CartPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [clearCartModalOpen, setClearCartModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const observerRef = useRef<HTMLDivElement>(null);
+  const isLoadingRef = useRef(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -115,6 +119,34 @@ export default function CartPage() {
     if (!isAuthenticated) return;
     if (!loaded && !loading.fetch) dispatch(fetchCart());
   }, [authReady, isAuthenticated, loaded, loading.fetch, dispatch]);
+
+  const handleLoadMore = useCallback(() => {
+    if (pagination.hasMore && !loading.paginate && !isLoadingRef.current) {
+      isLoadingRef.current = true;
+      const nextPage = pagination.currentPage + 1;
+      dispatch(fetchCartPaginated({ pageNo: nextPage, pageSize: pagination.pageSize })).finally(
+        () => {
+          isLoadingRef.current = false;
+        }
+      );
+    }
+  }, [pagination.hasMore, pagination.currentPage, pagination.pageSize, loading.paginate, dispatch]);
+
+  useEffect(() => {
+    if (!observerRef.current || !pagination.hasMore || loading.paginate) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && pagination.hasMore && !loading.paginate && !isLoadingRef.current) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "200px" }
+    );
+
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [pagination.hasMore, loading.paginate, handleLoadMore]);
 
   const handleUpdateQuantity = useCallback(
     (productId: string, productSizeId: string | null, newQuantity: number) => {
@@ -199,6 +231,11 @@ export default function CartPage() {
 
           {/* ── Cart Items ── */}
           <div className="lg:col-span-2 space-y-3">
+            {items.length > 0 && (
+              <div className="text-xs text-muted-foreground">
+                Showing {items.length} of {totalItems} items
+              </div>
+            )}
             {items.map((item) => (
               <div
                 key={item.id}
@@ -286,6 +323,18 @@ export default function CartPage() {
                 </div>
               </div>
             ))}
+
+            {/* Infinite scroll observer + loading state */}
+            {pagination.hasMore && (
+              <div ref={observerRef} className="flex justify-center py-8">
+                {loading.paginate && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading more items...
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ── Order Summary (desktop) ── */}
