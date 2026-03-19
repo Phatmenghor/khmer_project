@@ -127,6 +127,9 @@ public class CartServiceImpl implements CartService {
             // Filter unavailable items
             filterUnavailableItems(cart);
 
+            // Store total item count BEFORE pagination (for response)
+            int totalItemCount = cart.getItems() == null ? 0 : cart.getItems().size();
+
             // Apply pagination to items
             if (cart.getItems() != null && !cart.getItems().isEmpty()) {
                 int start = (pageNo - 1) * pageSize;
@@ -137,7 +140,10 @@ public class CartServiceImpl implements CartService {
                 cart.setItems(paginatedItems);
             }
 
-            return cartMapper.toSummaryResponse(cart);
+            CartSummaryResponse response = cartMapper.toSummaryResponse(cart);
+            // Override totalItems to be item count (for pagination), not sum of quantities
+            response.setTotalItems(totalItemCount);
+            return response;
         }
         return emptyCartSummary();
     }
