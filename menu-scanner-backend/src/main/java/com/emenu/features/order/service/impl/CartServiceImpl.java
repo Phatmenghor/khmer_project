@@ -94,6 +94,9 @@ public class CartServiceImpl implements CartService {
         entityManager.flush();
         entityManager.clear();
 
+        // Deduplicate after any add/update operations to prevent race condition duplicates
+        deduplicateAfterSubmit(userId, businessId);
+
         // Reload cart with items for response
         return loadCartSummary(userId, businessId);
     }
@@ -118,7 +121,10 @@ public class CartServiceImpl implements CartService {
         if (cartOpt.isPresent()) {
             Cart cart = cartOpt.get();
 
-            // Filter unavailable items first
+            // Deduplicate items first (handles race conditions)
+            deduplicateCartItems(cart);
+
+            // Filter unavailable items
             filterUnavailableItems(cart);
 
             // Apply pagination to items
@@ -161,6 +167,7 @@ public class CartServiceImpl implements CartService {
         Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
         if (cartOpt.isPresent()) {
             Cart loaded = cartOpt.get();
+            deduplicateCartItems(loaded);
             filterUnavailableItems(loaded);
             return cartMapper.toSummaryResponse(loaded);
         }
@@ -216,6 +223,55 @@ public class CartServiceImpl implements CartService {
         if (!product.isActive()) {
             throw new ValidationException("Product is no longer available");
         }
+    }
+
+    private void deduplicateAfterSubmit(UUID userId, UUID businessId) {
+        try {
+            Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
+            if (cartOpt.isPresent()) {
+                Cart cart = cartOpt.get();
+                deduplicateCartItems(cart);
+            }
+        } catch (Exception e) {
+            log.error("Error deduplicating cart after submit: {}", e.getMessage());
+            // Don't fail the request if deduplication fails
+        }
+    }
+
+    private void deduplicateCartItems(Cart cart) {
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            return;
+        }
+
+        // Keep track of (productId, productSizeId) pairs we've seen
+        // Store the newest item for each pair
+        java.util.Map<String, CartItem> seenItems = new java.util.LinkedHashMap<>();
+        java.util.List<CartItem> duplicates = new java.util.ArrayList<>();
+
+        for (CartItem item : cart.getItems()) {
+            String key = item.getProductId() + "|" + item.getProductSizeId();
+            if (seenItems.containsKey(key)) {
+                // Compare by createdAt, keep the newer one
+                CartItem existing = seenItems.get(key);
+                if (item.getCreatedAt().isAfter(existing.getCreatedAt())) {
+                    duplicates.add(existing);
+                    seenItems.put(key, item);
+                } else {
+                    duplicates.add(item);
+                }
+            } else {
+                seenItems.put(key, item);
+            }
+        }
+
+        // Delete duplicates from database
+        if (!duplicates.isEmpty()) {
+            cartItemRepository.deleteAll(duplicates);
+            log.warn("Removed {} duplicate cart items", duplicates.size());
+        }
+
+        // Update cart with deduplicated items
+        cart.setItems(new java.util.ArrayList<>(seenItems.values()));
     }
 
     private void filterUnavailableItems(Cart cart) {
