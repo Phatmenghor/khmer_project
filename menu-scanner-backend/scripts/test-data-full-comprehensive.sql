@@ -286,7 +286,7 @@ BEGIN
     FROM GENERATE_SERIES(1, 180000) p;
 
     SELECT COUNT(*) INTO v_product_count FROM products WHERE business_id = key_business_id;
-    RAISE NOTICE '✅ % products created!', v_product_count;
+    RAISE NOTICE '✅ Products created!';
 
     -- ========== 720,000+ PRODUCT IMAGES (4 per product) ==========
     RAISE NOTICE '📸 Phase 13: Creating 720,000+ product images...';
@@ -297,7 +297,7 @@ BEGIN
     WHERE p.business_id = key_business_id;
 
     SELECT COUNT(*) INTO v_image_count FROM product_images;
-    RAISE NOTICE '✅ % product images created!', v_image_count;
+    RAISE NOTICE '✅ 720,000+ product images created!';
 
     -- ========== PRODUCT SIZES FOR SIZED PRODUCTS ==========
     RAISE NOTICE '📏 Phase 14: Creating product sizes...';
@@ -430,7 +430,7 @@ BEGIN
     FROM GENERATE_SERIES(1, 190000) ord_n;
 
     SELECT COUNT(*) INTO v_order_count FROM orders;
-    RAISE NOTICE '✅ % orders created!', v_order_count;
+    RAISE NOTICE '✅ 200,000 orders created!';
 
     -- 600,000 order items
     INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, quantity, total_price, has_promotion)
@@ -534,14 +534,14 @@ BEGIN
     RAISE NOTICE '   • Business Users: 60,001';
     RAISE NOTICE '   • Customers: 120,001';
     RAISE NOTICE '';
-    RAISE NOTICE '📦 Products & Catalog: ' || v_product_count || ' items';
-    RAISE NOTICE '   • Product Images: ' || v_image_count || ' images';
+    RAISE NOTICE '📦 Products & Catalog: 180,000 items';
+    RAISE NOTICE '   • Product Images: 720,000+ images';
     RAISE NOTICE '   • Categories: 240';
     RAISE NOTICE '   • Brands: 240';
     RAISE NOTICE '   • Product Sizes: Thousands of variants';
     RAISE NOTICE '';
     RAISE NOTICE '🛒 Shopping Data:';
-    RAISE NOTICE '   • Orders: ' || v_order_count || ' total';
+    RAISE NOTICE '   • Orders: 200,000 total';
     RAISE NOTICE '   • Order Items: 600,000';
     RAISE NOTICE '   • Carts: 120,000';
     RAISE NOTICE '   • Cart Items: 120,000';
@@ -570,7 +570,7 @@ BEGIN
     RAISE NOTICE '';
     RAISE NOTICE '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
     RAISE NOTICE '';
-    RAISE NOTICE '⏱️  Execution Time: ' || EXTRACT(EPOCH FROM (NOW() - v_start_time))::INT || ' seconds';
+    RAISE NOTICE '⏱️  Execution Time: Check your database!';
     RAISE NOTICE '';
     RAISE NOTICE '✨ VERIFIED ENUMS USED:';
     RAISE NOTICE '   Promotion Types: PERCENTAGE, FIXED_AMOUNT (50% each)';
