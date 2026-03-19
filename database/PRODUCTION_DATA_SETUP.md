@@ -48,10 +48,26 @@ psql -h localhost -U postgres -d emenu_db -f /path/to/01-create-production-index
 
 ## 📁 Files
 
-| File | Purpose | Time |
-|------|---------|------|
-| `00-load-production-data.sql` | Complete one-shot loader | 7-13 min |
-| `01-create-production-indexes.sql` | Standalone index script | 2-3 min |
+| File | Purpose | Time | Size |
+|------|---------|------|------|
+| `00-load-production-data.sql` | **PRODUCTION**: 180K products + full indexes | 7-13 min | 1-2 GB |
+| `test-data-full-comprehensive.sql` | **TESTING**: 2K products with all features | 1-2 min | 50-100 MB |
+| `01-create-production-indexes.sql` | Standalone index script | 2-3 min | — |
+
+### 🎯 Choose Your Setup
+
+**For Production/Stress Testing:**
+```bash
+psql -h localhost -U postgres -d emenu_db -f 00-load-production-data.sql
+```
+✅ 180,000 products | ✅ 720,000+ images | ✅ 200,000 orders | ✅ Full indexes
+
+**For Development/Testing:**
+```bash
+psql -h localhost -U postgres -d emenu_db -f test-data-full-comprehensive.sql
+# Then run: psql -h localhost -U postgres -d emenu_db -f 01-create-production-indexes.sql
+```
+✅ 2,000 products | ✅ All feature scenarios | ✅ 250 orders | ✅ Complete test coverage
 
 ## ✅ Verify Success
 
