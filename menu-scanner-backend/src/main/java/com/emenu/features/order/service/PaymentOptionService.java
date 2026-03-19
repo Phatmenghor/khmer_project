@@ -151,36 +151,6 @@ public class PaymentOptionService {
     }
 
     /**
-     * Activate payment option
-     */
-    @Transactional
-    public PaymentOptionResponse activatePaymentOption(UUID businessId, UUID id) {
-        log.info("Activating payment option: {} for business: {}", id, businessId);
-        PaymentOption option = paymentOptionRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment option not found"));
-
-        option.activate();
-        PaymentOption updated = paymentOptionRepository.save(option);
-        log.info("Payment option activated: {}", id);
-        return mapToResponse(updated);
-    }
-
-    /**
-     * Deactivate payment option
-     */
-    @Transactional
-    public PaymentOptionResponse deactivatePaymentOption(UUID businessId, UUID id) {
-        log.info("Deactivating payment option: {} for business: {}", id, businessId);
-        PaymentOption option = paymentOptionRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment option not found"));
-
-        option.deactivate();
-        PaymentOption updated = paymentOptionRepository.save(option);
-        log.info("Payment option deactivated: {}", id);
-        return mapToResponse(updated);
-    }
-
-    /**
      * Get all payment options with filters and pagination
      */
     @Transactional(readOnly = true)

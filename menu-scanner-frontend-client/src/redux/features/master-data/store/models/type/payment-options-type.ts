@@ -17,7 +17,5 @@ export interface PaymentOptionsManagementState {
     isUpdating: boolean;
     isDeleting: boolean;
     isFetchingDetail: boolean;
-    isActivating: boolean;
-    isDeactivating: boolean;
   };
 }

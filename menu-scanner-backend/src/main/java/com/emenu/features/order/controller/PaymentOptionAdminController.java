@@ -133,34 +133,4 @@ public class PaymentOptionAdminController {
         );
         return ResponseEntity.ok(ApiResponse.success("Payment option deleted successfully", null));
     }
-
-    /**
-     * Activate payment option
-     */
-    @PatchMapping("/{id}/activate")
-    public ResponseEntity<ApiResponse<PaymentOptionResponse>> activatePaymentOption(
-            @PathVariable UUID id) {
-        log.info("Activating payment option: {}", id);
-        User currentUser = securityUtils.getCurrentUser();
-        PaymentOptionResponse response = paymentOptionService.activatePaymentOption(
-                currentUser.getBusinessId(),
-                id
-        );
-        return ResponseEntity.ok(ApiResponse.success("Payment option activated successfully", response));
-    }
-
-    /**
-     * Deactivate payment option
-     */
-    @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<ApiResponse<PaymentOptionResponse>> deactivatePaymentOption(
-            @PathVariable UUID id) {
-        log.info("Deactivating payment option: {}", id);
-        User currentUser = securityUtils.getCurrentUser();
-        PaymentOptionResponse response = paymentOptionService.deactivatePaymentOption(
-                currentUser.getBusinessId(),
-                id
-        );
-        return ResponseEntity.ok(ApiResponse.success("Payment option deactivated successfully", response));
-    }
 }

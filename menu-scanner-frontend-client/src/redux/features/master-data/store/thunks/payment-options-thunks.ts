@@ -76,7 +76,7 @@ export const createPaymentOptionService = createAsyncThunk<
  */
 export const updatePaymentOptionService = createAsyncThunk<
   PaymentOptionResponse,
-  { id: string; name: string }
+  { id: string; name: string; paymentOptionType: string; status: string }
 >("paymentOptions/update", async ({ id, ...data }, { rejectWithValue }) => {
   try {
     const response = await ApiClient.put<PaymentOptionResponse>(
@@ -104,41 +104,4 @@ export const deletePaymentOptionService = createAsyncThunk<string, string>(
   }
 );
 
-/**
- * Activate payment option
- */
-export const activatePaymentOptionService = createAsyncThunk<
-  PaymentOptionResponse,
-  string
->("paymentOptions/activate", async (id, { rejectWithValue }) => {
-  try {
-    const response = await ApiClient.patch<PaymentOptionResponse>(
-      `${API_BASE}/${id}/activate`,
-      {}
-    );
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.message || "Failed to activate payment option");
-  }
-});
-
-/**
- * Deactivate payment option
- */
-export const deactivatePaymentOptionService = createAsyncThunk<
-  PaymentOptionResponse,
-  string
->("paymentOptions/deactivate", async (id, { rejectWithValue }) => {
-  try {
-    const response = await ApiClient.patch<PaymentOptionResponse>(
-      `${API_BASE}/${id}/deactivate`,
-      {}
-    );
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(
-      error.message || "Failed to deactivate payment option"
-    );
-  }
-});
 

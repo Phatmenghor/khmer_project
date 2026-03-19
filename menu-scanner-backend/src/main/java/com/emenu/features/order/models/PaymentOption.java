@@ -40,15 +40,6 @@ public class PaymentOption extends BaseUUIDEntity {
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;
 
-    // Business Methods
-    public void activate() {
-        this.status = Status.ACTIVE;
-    }
-
-    public void deactivate() {
-        this.status = Status.INACTIVE;
-    }
-
     public boolean isActive() {
         return Status.ACTIVE.equals(status);
     }
