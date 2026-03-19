@@ -199,8 +199,10 @@ const homeSlice = createSlice({
         const MAX_PAGES_IN_MEMORY = 3;
         const maxItems = MAX_PAGES_IN_MEMORY * pageSize;
 
-        // Append new products
-        const updatedProducts = [...state.featuredProducts, ...newProducts];
+        // Append new products with deduplication
+        const existingIds = new Set(state.featuredProducts.map(p => p.id));
+        const uniqueNewProducts = newProducts.filter(p => !existingIds.has(p.id));
+        const updatedProducts = [...state.featuredProducts, ...uniqueNewProducts];
 
         // If we exceed the limit, remove oldest items
         if (updatedProducts.length > maxItems) {
