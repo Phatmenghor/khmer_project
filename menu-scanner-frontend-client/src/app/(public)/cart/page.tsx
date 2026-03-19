@@ -258,7 +258,7 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-3">
             {items.length > 0 && (
               <div className="text-xs text-muted-foreground">
-                Showing {items.length} of {totalQuantity} items
+                Showing {items.length} items with total quantity {totalQuantity}
               </div>
             )}
             {items.map((item) => (
