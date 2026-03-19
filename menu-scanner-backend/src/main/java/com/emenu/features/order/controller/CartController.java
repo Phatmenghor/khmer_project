@@ -28,12 +28,6 @@ public class CartController {
         return ResponseEntity.ok(ApiResponse.success("Cart updated successfully", cart));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse<CartSummaryResponse>> submitCartItemLegacy(@Valid @RequestBody CartItemCreateRequest request) {
-        log.warn("Legacy /add endpoint used - please use POST /api/v1/cart instead");
-        return submitCartItem(request);
-    }
-
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<CartSummaryResponse>> getCart(
             @Valid @RequestBody CartPaginationRequest request) {
