@@ -375,34 +375,58 @@ export default function CartPage() {
           {/* ── Order Summary (desktop) ── */}
           <div className="hidden lg:block lg:col-span-1">
             <div className="bg-card border rounded-2xl p-5 sticky top-24">
-              <h2 className="text-lg font-bold mb-4">Order Summary</h2>
+              <h2 className="text-lg font-bold mb-4 flex items-center justify-between">
+                <span>Order Summary</span>
+                <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-lg">
+                  {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                </span>
+              </h2>
+
               <div className="space-y-3 mb-5">
+                {/* Items count with quantity */}
+                <div className="bg-muted/50 rounded-lg p-3 mb-4">
+                  <div className="text-xs text-muted-foreground mb-2">Items Breakdown</div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">{totalItems} unique {totalItems === 1 ? 'product' : 'products'}</span>
+                    <span className="text-lg font-bold text-foreground">{totalQuantity}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">total quantity</div>
+                </div>
+
+                {/* Subtotal */}
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal ({totalItems} items)</span>
+                  <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium">{formatCurrency(subtotal)}</span>
                 </div>
+
+                {/* Discount */}
                 {totalDiscount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Discount</span>
-                    <span className="font-medium text-green-600">-{formatCurrency(totalDiscount)}</span>
+                  <div className="flex justify-between text-sm bg-red-50/30 dark:bg-red-950/20 p-2.5 rounded-lg border border-red-200/50 dark:border-red-800/30">
+                    <span className="text-red-700 dark:text-red-400 font-medium">Discount Applied</span>
+                    <span className="font-bold text-red-600 dark:text-red-500">-{formatCurrency(totalDiscount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span className="text-muted-foreground text-xs">At checkout</span>
+
+                {/* Shipping */}
+                <div className="flex justify-between text-sm pt-2 border-t">
+                  <span className="text-muted-foreground">Shipping & Fees</span>
+                  <span className="text-muted-foreground text-xs">Calculated at checkout</span>
                 </div>
-                <div className="border-t pt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold">Total</span>
-                    <span className="text-xl font-bold text-primary">{formatCurrency(finalTotal)}</span>
+
+                {/* Total */}
+                <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-bold text-foreground">Total Amount</span>
+                    <span className="text-2xl font-bold text-primary">{formatCurrency(finalTotal)}</span>
                   </div>
                   {totalDiscount > 0 && (
-                    <p className="text-xs text-green-600 text-right mt-1">
-                      You save {formatCurrency(totalDiscount)}!
-                    </p>
+                    <div className="text-xs text-red-600 dark:text-red-400 text-right pt-2 border-t border-primary/10">
+                      💰 You save <span className="font-bold">{formatCurrency(totalDiscount)}</span>
+                    </div>
                   )}
                 </div>
               </div>
+
               <CustomButton className="w-full mb-2.5 gap-2 h-11 rounded-xl" onClick={handleCheckout}>
                 <CreditCard className="h-4 w-4" />
                 Proceed to Checkout
@@ -423,13 +447,18 @@ export default function CartPage() {
       {/* Mobile sticky checkout bar */}
       <div className="fixed bottom-16 left-0 right-0 z-40 lg:hidden bg-background/95 backdrop-blur-sm border-t px-4 py-3">
         <div className="flex items-center justify-between mb-2.5">
-          <div className="text-xs text-muted-foreground">
-            {totalItems} items
+          <div className="text-xs">
+            <div className="text-muted-foreground font-medium">{totalItems} items • {totalQuantity} qty</div>
             {totalDiscount > 0 && (
-              <span className="ml-2 text-green-600">Save {formatCurrency(totalDiscount)}</span>
+              <div className="text-red-600 dark:text-red-400 font-semibold mt-0.5">
+                Save {formatCurrency(totalDiscount)}
+              </div>
             )}
           </div>
-          <div className="text-lg font-bold text-primary">{formatCurrency(finalTotal)}</div>
+          <div className="text-right">
+            <div className="text-xs text-muted-foreground">Total</div>
+            <div className="text-xl font-bold text-primary">{formatCurrency(finalTotal)}</div>
+          </div>
         </div>
         <CustomButton className="w-full gap-2 h-11 rounded-xl" onClick={handleCheckout}>
           <CreditCard className="h-4 w-4" />
