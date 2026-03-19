@@ -94,10 +94,7 @@ public class CartServiceImpl implements CartService {
         entityManager.flush();
         entityManager.clear();
 
-        // Deduplicate after any add/update operations to prevent race condition duplicates
-        deduplicateAfterSubmit(userId, businessId);
-
-        // Reload cart with items for response
+        // Reload cart with items for response (deduplication happens during load)
         return loadCartSummary(userId, businessId);
     }
 
@@ -231,52 +228,42 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    private void deduplicateAfterSubmit(UUID userId, UUID businessId) {
-        try {
-            Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
-            if (cartOpt.isPresent()) {
-                Cart cart = cartOpt.get();
-                deduplicateCartItems(cart);
-            }
-        } catch (Exception e) {
-            log.error("Error deduplicating cart after submit: {}", e.getMessage());
-            // Don't fail the request if deduplication fails
-        }
-    }
-
     private void deduplicateCartItems(Cart cart) {
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
             return;
         }
 
-        // Keep track of (productId, productSizeId) pairs we've seen
-        // Store the newest item for each pair
-        java.util.Map<String, CartItem> seenItems = new java.util.LinkedHashMap<>();
-        java.util.List<CartItem> duplicates = new java.util.ArrayList<>();
+        // Keep track of (productId, productSizeId) pairs and their IDs
+        java.util.Map<String, java.util.UUID> latestByKey = new java.util.LinkedHashMap<>();
+        java.util.Map<String, java.time.LocalDateTime> latestTimeByKey = new java.util.LinkedHashMap<>();
+        java.util.List<java.util.UUID> duplicateIds = new java.util.ArrayList<>();
 
         for (CartItem item : cart.getItems()) {
             String key = item.getProductId() + "|" + item.getProductSizeId();
-            if (seenItems.containsKey(key)) {
-                // Compare by createdAt, keep the newer one
-                CartItem existing = seenItems.get(key);
-                if (item.getCreatedAt().isAfter(existing.getCreatedAt())) {
-                    duplicates.add(existing);
-                    seenItems.put(key, item);
+            java.time.LocalDateTime itemTime = item.getCreatedAt();
+
+            if (latestByKey.containsKey(key)) {
+                // Check which one is newer
+                java.time.LocalDateTime existingTime = latestTimeByKey.get(key);
+                if (itemTime != null && existingTime != null && itemTime.isAfter(existingTime)) {
+                    // Current item is newer, mark old one as duplicate
+                    duplicateIds.add(latestByKey.get(key));
+                    latestByKey.put(key, item.getId());
+                    latestTimeByKey.put(key, itemTime);
                 } else {
-                    duplicates.add(item);
+                    // Existing item is newer, mark current as duplicate
+                    duplicateIds.add(item.getId());
                 }
             } else {
-                seenItems.put(key, item);
+                latestByKey.put(key, item.getId());
+                latestTimeByKey.put(key, itemTime);
             }
         }
 
-        // Remove duplicates from cart and database
-        if (!duplicates.isEmpty()) {
-            // First remove from the cart's items collection (in-place)
-            cart.getItems().removeAll(duplicates);
-            // Then delete from database
-            cartItemRepository.deleteAll(duplicates);
-            log.warn("Removed {} duplicate cart items", duplicates.size());
+        // Remove duplicates from cart collection
+        if (!duplicateIds.isEmpty()) {
+            cart.getItems().removeIf(item -> duplicateIds.contains(item.getId()));
+            log.warn("Removed {} duplicate cart items from collection", duplicateIds.size());
         }
     }
 
