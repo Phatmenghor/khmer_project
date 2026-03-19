@@ -31,6 +31,7 @@ import {
   selectProductQuantityInCart,
   selectProductTotalQuantity,
 } from "@/redux/features/main/store/selectors/optimized-cart-selectors";
+import { RootState } from "@/redux/store";
 
 interface ProductCardProps {
   product: ProductDetailResponseModel;
@@ -51,8 +52,8 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   // Use optimized memoized selectors - only subscribe to this product's quantity
   // CRITICAL: This component only re-renders when THIS product's quantity changes,
   // not when any other cart item changes!
-  const quantity = useSelector((state) => selectProductQuantityInCart(state, product.id, null));
-  const totalQuantity = useSelector((state) => selectProductTotalQuantity(state, product.id));
+  const quantity = useSelector((state: RootState) => selectProductQuantityInCart(state, product.id, null));
+  const totalQuantity = useSelector((state: RootState) => selectProductTotalQuantity(state, product.id));
 
   // Derive from the favorites store (authoritative) — falls back to prop when not yet loaded.
   // This fixes the bug where navigating away and back shows stale isFavorited from listing data.
