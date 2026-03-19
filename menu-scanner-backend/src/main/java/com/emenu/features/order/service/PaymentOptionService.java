@@ -1,15 +1,19 @@
 package com.emenu.features.order.service;
 
 import com.emenu.enums.common.Status;
+import com.emenu.features.order.dto.filter.PaymentOptionFilterRequest;
 import com.emenu.features.order.dto.request.PaymentOptionRequest;
 import com.emenu.features.order.dto.response.PaymentOptionResponse;
 import com.emenu.features.order.models.PaymentOption;
 import com.emenu.features.order.repository.PaymentOptionRepository;
+import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -171,6 +175,51 @@ public class PaymentOptionService {
         PaymentOption updated = paymentOptionRepository.save(option);
         log.info("Payment option deactivated: {}", id);
         return mapToResponse(updated);
+    }
+
+    /**
+     * Get all payment options with filters and pagination
+     */
+    @Transactional(readOnly = true)
+    public PaginationResponse<PaymentOptionResponse> getAllPaymentOptionsWithFilters(
+            UUID businessId,
+            PaymentOptionFilterRequest filter) {
+        log.info("Getting payment options for business: {} with filters", businessId);
+
+        Sort.Direction direction = Sort.Direction.fromString(filter.getSortDirection());
+        Pageable pageable = PageRequest.of(
+                filter.getPageNo() - 1,
+                filter.getPageSize(),
+                Sort.by(direction, filter.getSortBy())
+        );
+
+        Page<PaymentOption> page = paymentOptionRepository.findAllByBusinessIdWithFilters(
+                businessId,
+                filter.getSearch(),
+                filter.getStatuses(),
+                pageable
+        );
+
+        return PaginationResponse.<PaymentOptionResponse>builder()
+                .data(page.getContent().stream().map(this::mapToResponse).collect(Collectors.toList()))
+                .pageNo(filter.getPageNo())
+                .pageSize(filter.getPageSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .isLast(page.isLast())
+                .build();
+    }
+
+    /**
+     * Get all active payment options (public - no pagination)
+     */
+    @Transactional(readOnly = true)
+    public List<PaymentOptionResponse> getAllActivePaymentOptions() {
+        log.info("Getting all active payment options");
+        List<PaymentOption> options = paymentOptionRepository.findAllActive();
+        return options.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     /**

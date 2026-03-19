@@ -184,6 +184,11 @@ BEGIN
         (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Khmer Bank', 'ACTIVE'),
         (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'MasterCard', 'ACTIVE'),
         (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Visa', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Amex', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'JCB', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Bank Transfer', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'eWallet', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'QR Code', 'ACTIVE'),
         (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Check', 'INACTIVE');
 
     -- BANNERS

@@ -69,4 +69,33 @@ public interface PaymentOptionRepository extends JpaRepository<PaymentOption, UU
             @Param("status") Status status,
             Pageable pageable
     );
+
+    /**
+     * Get all payment options for a business with pagination and filters
+     */
+    @Query("""
+        SELECT p FROM PaymentOption p
+        WHERE p.businessId = :businessId
+        AND p.isDeleted = false
+        AND (:search IS NULL OR :search = '' OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')))
+        AND (COALESCE(:statuses, NULL) IS NULL OR p.status IN :statuses)
+        ORDER BY p.createdAt DESC
+    """)
+    Page<PaymentOption> findAllByBusinessIdWithFilters(
+            @Param("businessId") UUID businessId,
+            @Param("search") String search,
+            @Param("statuses") List<Status> statuses,
+            Pageable pageable
+    );
+
+    /**
+     * Get all active payment options (public - no pagination)
+     */
+    @Query("""
+        SELECT p FROM PaymentOption p
+        WHERE p.status = 'ACTIVE'
+        AND p.isDeleted = false
+        ORDER BY p.name ASC
+    """)
+    List<PaymentOption> findAllActive();
 }

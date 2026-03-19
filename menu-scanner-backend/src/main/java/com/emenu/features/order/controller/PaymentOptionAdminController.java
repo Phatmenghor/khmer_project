@@ -1,28 +1,27 @@
 package com.emenu.features.order.controller;
 
-import com.emenu.enums.common.Status;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.order.dto.filter.PaymentOptionFilterRequest;
 import com.emenu.features.order.dto.request.PaymentOptionRequest;
 import com.emenu.features.order.dto.response.PaymentOptionResponse;
 import com.emenu.features.order.service.PaymentOptionService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
+import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/payment-options")
+@RequestMapping("/api/v1/admin/payment-options")
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentOptionController {
+public class PaymentOptionAdminController {
 
     private final PaymentOptionService paymentOptionService;
     private final SecurityUtils securityUtils;
@@ -39,30 +38,34 @@ public class PaymentOptionController {
                 currentUser.getBusinessId(),
                 request
         );
-        return ResponseEntity.ok(ApiResponse.success("Payment option created successfully", response));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Payment option created successfully", response));
     }
 
     /**
-     * Get all payment options for current business
+     * Get all payment options with pagination and filters
      */
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<PaymentOptionResponse>>> getAllPaymentOptions() {
-        log.info("Getting all payment options");
+    @PostMapping("/all")
+    public ResponseEntity<ApiResponse<PaginationResponse<PaymentOptionResponse>>> getAllPaymentOptions(
+            @Valid @RequestBody PaymentOptionFilterRequest filter) {
+        log.info("Getting all payment options with filters");
         User currentUser = securityUtils.getCurrentUser();
-        List<PaymentOptionResponse> options = paymentOptionService.getAllPaymentOptions(
-                currentUser.getBusinessId()
+        filter.setBusinessId(currentUser.getBusinessId());
+        PaginationResponse<PaymentOptionResponse> response = paymentOptionService.getAllPaymentOptionsWithFilters(
+                currentUser.getBusinessId(),
+                filter
         );
-        return ResponseEntity.ok(ApiResponse.success("Payment options retrieved successfully", options));
+        return ResponseEntity.ok(ApiResponse.success("Payment options retrieved successfully", response));
     }
 
     /**
      * Get all active payment options for current business
      */
     @GetMapping("/active")
-    public ResponseEntity<ApiResponse<List<PaymentOptionResponse>>> getActivePaymentOptions() {
+    public ResponseEntity<ApiResponse<java.util.List<PaymentOptionResponse>>> getActivePaymentOptions() {
         log.info("Getting active payment options");
         User currentUser = securityUtils.getCurrentUser();
-        List<PaymentOptionResponse> options = paymentOptionService.getActivePaymentOptions(
+        java.util.List<PaymentOptionResponse> options = paymentOptionService.getActivePaymentOptions(
                 currentUser.getBusinessId()
         );
         return ResponseEntity.ok(ApiResponse.success("Active payment options retrieved successfully", options));
@@ -72,19 +75,16 @@ public class PaymentOptionController {
      * Search payment options with pagination
      */
     @PostMapping("/search")
-    public ResponseEntity<ApiResponse<Page<PaymentOptionResponse>>> searchPaymentOptions(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) Status status,
-            Pageable pageable) {
+    public ResponseEntity<ApiResponse<PaginationResponse<PaymentOptionResponse>>> searchPaymentOptions(
+            @Valid @RequestBody PaymentOptionFilterRequest filter) {
         log.info("Searching payment options");
         User currentUser = securityUtils.getCurrentUser();
-        Page<PaymentOptionResponse> options = paymentOptionService.searchPaymentOptions(
+        filter.setBusinessId(currentUser.getBusinessId());
+        PaginationResponse<PaymentOptionResponse> response = paymentOptionService.getAllPaymentOptionsWithFilters(
                 currentUser.getBusinessId(),
-                search,
-                status,
-                pageable
+                filter
         );
-        return ResponseEntity.ok(ApiResponse.success("Payment options searched successfully", options));
+        return ResponseEntity.ok(ApiResponse.success("Payment options searched successfully", response));
     }
 
     /**
@@ -103,7 +103,7 @@ public class PaymentOptionController {
     }
 
     /**
-     * Update payment option
+     * Update payment option (Full update)
      */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<PaymentOptionResponse>> updatePaymentOption(
