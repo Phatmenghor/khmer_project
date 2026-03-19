@@ -58,7 +58,7 @@ BEGIN
     RAISE NOTICE '═══════════════════════════════════════════════════════════════';
     RAISE NOTICE '🚀 ULTIMATE TEST DATA GENERATION (4x PRODUCTS - CORRECTED)';
     RAISE NOTICE '═══════════════════════════════════════════════════════════════';
-    RAISE NOTICE 'Started: %', v_start_time;
+    RAISE NOTICE 'Started at: check query execution time';
     RAISE NOTICE '';
 
     -- ========== CLEANUP PHASE ==========
