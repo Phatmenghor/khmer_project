@@ -9,6 +9,7 @@ export const useCartState = () => {
     dispatch,
     items: cart.items,
     totalItems: cart.totalItems,
+    totalQuantity: cart.totalQuantity,
     subtotal: cart.subtotal,
     totalDiscount: cart.totalDiscount,
     finalTotal: cart.finalTotal,

@@ -12,7 +12,8 @@ import {
 
 interface CartState {
   items: CartItemModel[];
-  totalItems: number;
+  totalItems: number;              // Number of unique products
+  totalQuantity: number;            // Total quantity across all items
   subtotal: number;
   totalDiscount: number;
   finalTotal: number;
@@ -35,6 +36,7 @@ interface CartState {
 const initialState: CartState = {
   items: [],
   totalItems: 0,
+  totalQuantity: 0,
   subtotal: 0,
   totalDiscount: 0,
   finalTotal: 0,
@@ -120,7 +122,11 @@ const updateCartFromResponse = (
 
 // Helper to recalculate local totals from items
 const recalculateTotals = (state: CartState) => {
-  state.totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0);
+  // totalItems = number of unique products
+  state.totalItems = state.items.length;
+
+  // totalQuantity = sum of all quantities
+  state.totalQuantity = state.items.reduce((sum, i) => sum + i.quantity, 0);
 
   // Calculate subtotal before discount (at original prices)
   const subtotalBeforeDiscount = state.items.reduce(
@@ -145,6 +151,7 @@ const cartSlice = createSlice({
     resetCart: (state) => {
       state.items = [];
       state.totalItems = 0;
+      state.totalQuantity = 0;
       state.subtotal = 0;
       state.totalDiscount = 0;
       state.finalTotal = 0;

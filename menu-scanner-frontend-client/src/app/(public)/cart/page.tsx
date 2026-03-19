@@ -120,6 +120,7 @@ export default function CartPage() {
     dispatch,
     items,
     totalItems,
+    totalQuantity,
     subtotal,
     totalDiscount,
     finalTotal,
@@ -178,7 +179,6 @@ export default function CartPage() {
       const key = cartItemKey(productId, productSizeId);
       const timestamp = Date.now();
       dispatch(updateLocalCartItem({ productId, productSizeId, quantity: newQuantity, optimisticTimestamp: timestamp }));
-      if (newQuantity === 0) showToast.success("Item removed from cart");
       debouncedUpdate(key, productId, productSizeId, newQuantity, timestamp);
     },
     [dispatch, debouncedUpdate],
@@ -189,7 +189,6 @@ export default function CartPage() {
       const key = cartItemKey(productId, productSizeId);
       const timestamp = Date.now();
       dispatch(updateLocalCartItem({ productId, productSizeId, quantity: 0, optimisticTimestamp: timestamp }));
-      showToast.success("Item removed from cart");
       immediateUpdate(key, productId, productSizeId, 0, timestamp);
     },
     [dispatch, immediateUpdate],
@@ -237,8 +236,8 @@ export default function CartPage() {
         <PageHeader
           title="Shopping Cart"
           icon={ShoppingCart}
-          count={totalItems}
-          subtitle={`${totalItems} ${totalItems === 1 ? "item" : "items"}`}
+          count={totalQuantity}
+          subtitle={`${totalQuantity} ${totalQuantity === 1 ? "item" : "items"}`}
           actions={
             <CustomButton
               variant="ghost"
@@ -259,7 +258,7 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-3">
             {items.length > 0 && (
               <div className="text-xs text-muted-foreground">
-                Showing {items.length} of {totalItems} items
+                Showing {items.length} of {totalQuantity} items
               </div>
             )}
             {items.map((item) => (
