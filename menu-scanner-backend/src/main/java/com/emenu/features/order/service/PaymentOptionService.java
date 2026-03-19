@@ -1,13 +1,13 @@
 package com.emenu.features.order.service;
 
 import com.emenu.enums.common.Status;
+import com.emenu.exception.custom.ResourceNotFoundException;
 import com.emenu.features.order.dto.filter.PaymentOptionFilterRequest;
 import com.emenu.features.order.dto.request.PaymentOptionRequest;
 import com.emenu.features.order.dto.response.PaymentOptionResponse;
 import com.emenu.features.order.models.PaymentOption;
 import com.emenu.features.order.repository.PaymentOptionRepository;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -148,36 +148,6 @@ public class PaymentOptionService {
         option.setIsDeleted(true);
         paymentOptionRepository.save(option);
         log.info("Payment option deleted: {}", id);
-    }
-
-    /**
-     * Activate payment option
-     */
-    @Transactional
-    public PaymentOptionResponse activatePaymentOption(UUID businessId, UUID id) {
-        log.info("Activating payment option: {} for business: {}", id, businessId);
-        PaymentOption option = paymentOptionRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment option not found"));
-
-        option.activate();
-        PaymentOption updated = paymentOptionRepository.save(option);
-        log.info("Payment option activated: {}", id);
-        return mapToResponse(updated);
-    }
-
-    /**
-     * Deactivate payment option
-     */
-    @Transactional
-    public PaymentOptionResponse deactivatePaymentOption(UUID businessId, UUID id) {
-        log.info("Deactivating payment option: {} for business: {}", id, businessId);
-        PaymentOption option = paymentOptionRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment option not found"));
-
-        option.deactivate();
-        PaymentOption updated = paymentOptionRepository.save(option);
-        log.info("Payment option deactivated: {}", id);
-        return mapToResponse(updated);
     }
 
     /**
