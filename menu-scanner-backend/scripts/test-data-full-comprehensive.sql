@@ -39,6 +39,7 @@ BEGIN
     TRUNCATE TABLE products CASCADE;
     TRUNCATE TABLE banners CASCADE;
     TRUNCATE TABLE delivery_options CASCADE;
+    TRUNCATE TABLE payment_options CASCADE;
     TRUNCATE TABLE business_exchange_rates CASCADE;
     TRUNCATE TABLE subscriptions CASCADE;
     TRUNCATE TABLE subscription_plans CASCADE;
@@ -172,6 +173,18 @@ BEGIN
     INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, image_url, price, status)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, CASE (d % 5) WHEN 0 THEN 'Standard Delivery' WHEN 1 THEN 'Express Delivery' WHEN 2 THEN 'Scheduled Delivery' WHEN 3 THEN 'Pickup' ELSE 'Dine-in' END, 'Delivery option ' || d, CASE WHEN d % 2 = 0 THEN photo1 ELSE photo2 END, CASE (d % 5) WHEN 0 THEN 2.00 WHEN 1 THEN 5.00 WHEN 2 THEN 2.50 ELSE 0.00 END, 'ACTIVE'
     FROM GENERATE_SERIES(1, 150) d;
+
+    -- PAYMENT OPTIONS
+    INSERT INTO payment_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, status)
+    VALUES
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Cash', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'ABA', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'ACE', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Wing', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Khmer Bank', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'MasterCard', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Visa', 'ACTIVE'),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Check', 'INACTIVE');
 
     -- BANNERS
     INSERT INTO banners (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, image_url, link_url, status)
