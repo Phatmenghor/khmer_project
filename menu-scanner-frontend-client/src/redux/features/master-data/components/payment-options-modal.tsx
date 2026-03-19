@@ -15,8 +15,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { showToast } from "@/components/shared/common/show-toast";
-import { ModalMode } from "@/constants/status/status";
+import { ModalMode, Status } from "@/constants/status/status";
+import { PaymentOptionType } from "../store/models/response/payment-option-response";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   createPaymentOptionService,
@@ -31,6 +39,10 @@ const paymentOptionSchema = z.object({
     .string()
     .min(2, "Name must be at least 2 characters")
     .max(100, "Name must not exceed 100 characters"),
+  paymentOptionType: z.string().min(1, "Payment option type is required"),
+  status: z.enum(["ACTIVE", "INACTIVE"], {
+    errorMap: () => ({ message: "Status is required" }),
+  }),
 });
 
 type PaymentOptionFormData = z.infer<typeof paymentOptionSchema>;
@@ -56,6 +68,8 @@ export default function PaymentOptionsModal({
     resolver: zodResolver(paymentOptionSchema),
     defaultValues: {
       name: "",
+      paymentOptionType: "",
+      status: "ACTIVE",
     },
   });
 
@@ -71,6 +85,8 @@ export default function PaymentOptionsModal({
     if (selectedOption && mode === ModalMode.UPDATE_MODE) {
       form.reset({
         name: selectedOption.name,
+        paymentOptionType: selectedOption.paymentOptionType,
+        status: selectedOption.status,
       });
     }
   }, [selectedOption, mode, form]);
@@ -132,6 +148,64 @@ export default function PaymentOptionsModal({
                       disabled={isSubmitting}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="paymentOptionType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Payment Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={isSubmitting}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select payment type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="CASH">Cash</SelectItem>
+                      <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+                      <SelectItem value="CREDIT_CARD">Credit Card</SelectItem>
+                      <SelectItem value="DEBIT_CARD">Debit Card</SelectItem>
+                      <SelectItem value="MOBILE_WALLET">Mobile Wallet</SelectItem>
+                      <SelectItem value="CRYPTO">Cryptocurrency</SelectItem>
+                      <SelectItem value="CHECK">Check</SelectItem>
+                      <SelectItem value="OTHER">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={isSubmitting}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="ACTIVE">Active</SelectItem>
+                      <SelectItem value="INACTIVE">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

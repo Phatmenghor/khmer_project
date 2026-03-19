@@ -44,7 +44,8 @@ public class PaymentOptionService {
         PaymentOption paymentOption = PaymentOption.builder()
                 .businessId(businessId)
                 .name(request.getName())
-                .status(Status.ACTIVE)
+                .paymentOptionType(request.getPaymentOptionType())
+                .status(request.getStatus())
                 .build();
 
         PaymentOption saved = paymentOptionRepository.save(paymentOption);
@@ -128,6 +129,8 @@ public class PaymentOptionService {
         }
 
         option.setName(request.getName());
+        option.setPaymentOptionType(request.getPaymentOptionType());
+        option.setStatus(request.getStatus());
         PaymentOption updated = paymentOptionRepository.save(option);
         log.info("Payment option updated: {}", id);
         return mapToResponse(updated);
@@ -230,6 +233,7 @@ public class PaymentOptionService {
                 .id(option.getId())
                 .businessId(option.getBusinessId())
                 .name(option.getName())
+                .paymentOptionType(option.getPaymentOptionType())
                 .status(option.getStatus())
                 .createdAt(option.getCreatedAt())
                 .updatedAt(option.getUpdatedAt())

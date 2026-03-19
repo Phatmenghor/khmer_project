@@ -29,8 +29,6 @@ import {
 import {
   deletePaymentOptionService,
   fetchAllPaymentOptionsService,
-  activatePaymentOptionService,
-  deactivatePaymentOptionService,
 } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
 import { paymentOptionsTableColumns } from "@/redux/features/master-data/table/payment-options-table";
 import { PaymentOptionResponse } from "@/redux/features/master-data/store/models/response/payment-option-response";
@@ -129,54 +127,10 @@ export default function PaymentOptionsPage() {
     });
   };
 
-  const handleActivatePaymentOption = async (
-    paymentOption: PaymentOptionResponse,
-  ) => {
-    try {
-      await dispatch(activatePaymentOptionService(paymentOption.id)).unwrap();
-      showToast.success(
-        `Payment option "${paymentOption.name}" activated successfully`,
-      );
-      dispatch(
-        fetchAllPaymentOptionsService({
-          search: filters.search,
-          pageNo: filters.pageNo,
-          pageSize: globalPageSize,
-          statuses: filters.status == Status.ALL ? [] : [filters.status],
-        }),
-      );
-    } catch (error: any) {
-      showToast.error(error || "Failed to activate payment option");
-    }
-  };
-
-  const handleDeactivatePaymentOption = async (
-    paymentOption: PaymentOptionResponse,
-  ) => {
-    try {
-      await dispatch(deactivatePaymentOptionService(paymentOption.id)).unwrap();
-      showToast.success(
-        `Payment option "${paymentOption.name}" deactivated successfully`,
-      );
-      dispatch(
-        fetchAllPaymentOptionsService({
-          search: filters.search,
-          pageNo: filters.pageNo,
-          pageSize: globalPageSize,
-          statuses: filters.status == Status.ALL ? [] : [filters.status],
-        }),
-      );
-    } catch (error: any) {
-      showToast.error(error || "Failed to deactivate payment option");
-    }
-  };
-
   const tableHandlers = useMemo(
     () => ({
       handleEditPaymentOption,
       handleDeletePaymentOption,
-      handleActivatePaymentOption,
-      handleDeactivatePaymentOption,
     }),
     [],
   );

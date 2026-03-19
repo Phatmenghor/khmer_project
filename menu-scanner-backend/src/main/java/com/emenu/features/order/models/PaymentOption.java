@@ -1,6 +1,7 @@
 package com.emenu.features.order.models;
 
 import com.emenu.enums.common.Status;
+import com.emenu.enums.payment.PaymentOptionType;
 import com.emenu.features.auth.models.Business;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
@@ -28,6 +29,10 @@ public class PaymentOption extends BaseUUIDEntity {
 
     @Column(name = "name", nullable = false)
     private String name; // Ex: "Cash", "ABA", "ACE", "Khmer Bank"
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_option_type", nullable = false)
+    private PaymentOptionType paymentOptionType = PaymentOptionType.OTHER;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

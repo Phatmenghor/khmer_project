@@ -9,8 +9,6 @@ interface PaymentOptionsTableProps {
   handlers: {
     handleEditPaymentOption: (option: PaymentOptionResponse) => void;
     handleDeletePaymentOption: (option: PaymentOptionResponse) => void;
-    handleActivatePaymentOption?: (option: PaymentOptionResponse) => void;
-    handleDeactivatePaymentOption?: (option: PaymentOptionResponse) => void;
   };
 }
 
@@ -26,6 +24,18 @@ export const paymentOptionsTableColumns = (
       cell: ({ row }) => (
         <div className="font-medium">{row.getValue("name")}</div>
       ),
+    },
+    {
+      accessorKey: "paymentOptionType",
+      header: "Type",
+      cell: ({ row }) => {
+        const type = row.getValue("paymentOptionType") as string;
+        const typeLabel = type
+          .split("_")
+          .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+          .join(" ");
+        return <div className="text-sm">{typeLabel}</div>;
+      },
     },
     {
       accessorKey: "status",
@@ -58,38 +68,23 @@ export const paymentOptionsTableColumns = (
       header: "Actions",
       cell: ({ row }) => {
         const option = row.original;
-        const actions = [
-          {
-            label: "Edit",
-            icon: Edit2,
-            onClick: () => handlers.handleEditPaymentOption(option),
-          },
-        ];
-
-        if (option.status === "ACTIVE" && handlers.handleDeactivatePaymentOption) {
-          actions.push({
-            label: "Deactivate",
-            icon: () => null,
-            onClick: () => handlers.handleDeactivatePaymentOption?.(option),
-          });
-        }
-
-        if (option.status === "INACTIVE" && handlers.handleActivatePaymentOption) {
-          actions.push({
-            label: "Activate",
-            icon: () => null,
-            onClick: () => handlers.handleActivatePaymentOption?.(option),
-          });
-        }
-
-        actions.push({
-          label: "Delete",
-          icon: Trash2,
-          onClick: () => handlers.handleDeletePaymentOption(option),
-          className: "text-destructive hover:bg-destructive/10",
-        });
-
-        return <DataTableRowActions actions={actions} />;
+        return (
+          <DataTableRowActions
+            actions={[
+              {
+                label: "Edit",
+                icon: Edit2,
+                onClick: () => handlers.handleEditPaymentOption(option),
+              },
+              {
+                label: "Delete",
+                icon: Trash2,
+                onClick: () => handlers.handleDeletePaymentOption(option),
+                className: "text-destructive hover:bg-destructive/10",
+              },
+            ]}
+          />
+        );
       },
     },
   ];
