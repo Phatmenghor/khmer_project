@@ -3,8 +3,8 @@
 -- ============================================================================
 -- Complete one-shot script for production-ready database setup
 -- Includes data generation and comprehensive indexing
+-- Run with: psql -h localhost -U postgres -d emenu_db -f this-file.sql
 
-\timing on
 SELECT '🚀 ULTIMATE PRODUCTION DATA LOAD STARTED!' as status;
 SELECT 'Loading 180K products, 120K customers, 60K staff, 200K orders...' as info;
 
