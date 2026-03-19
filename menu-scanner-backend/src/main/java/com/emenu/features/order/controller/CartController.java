@@ -5,12 +5,14 @@ import com.emenu.features.order.dto.request.CartPaginationRequest;
 import com.emenu.features.order.dto.response.CartSummaryResponse;
 import com.emenu.features.order.service.CartService;
 import com.emenu.shared.dto.ApiResponse;
+import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.UUID;
 
 @RestController
@@ -29,12 +31,31 @@ public class CartController {
     }
 
     @PostMapping("/all")
-    public ResponseEntity<ApiResponse<CartSummaryResponse>> getCart(
+    public ResponseEntity<ApiResponse<PaginationResponse<CartSummaryResponse>>> getCart(
             @Valid @RequestBody CartPaginationRequest request) {
         log.info("Getting cart for business: {}, page: {}, size: {}",
                 request.getBusinessId(), request.getPageNo(), request.getPageSize());
         CartSummaryResponse cart = cartService.getCartPaginated(request.getBusinessId(), request.getPageNo(), request.getPageSize());
-        return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", cart));
+
+        // Wrap response with pagination info
+        int pageNo = request.getPageNo();
+        int pageSize = request.getPageSize();
+        int totalItems = cart.getTotalItems() != null ? cart.getTotalItems() : 0;
+        int totalPages = (totalItems + pageSize - 1) / pageSize; // Ceiling division
+
+        PaginationResponse<CartSummaryResponse> paginationResponse = PaginationResponse.<CartSummaryResponse>builder()
+                .content(Collections.singletonList(cart))
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalElements(totalItems)
+                .totalPages(totalPages)
+                .first(pageNo == 1)
+                .last(pageNo >= totalPages)
+                .hasNext(pageNo < totalPages)
+                .hasPrevious(pageNo > 1)
+                .build();
+
+        return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", paginationResponse));
     }
 
     @DeleteMapping("/{businessId}/clear")

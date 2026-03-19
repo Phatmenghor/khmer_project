@@ -1,6 +1,7 @@
 export interface CartResponseModel {
   items: CartItemModel[];
-  totalItems: number;
+  totalItems: number;                 // Number of unique products
+  totalQuantity?: number;              // Total quantity across all items
   subtotalBeforeDiscount?: number;  // Original price total (currentPrice * qty)
   subtotal: number;                  // Final price total before shipping/fees
   totalDiscount: number;              // Total discount applied

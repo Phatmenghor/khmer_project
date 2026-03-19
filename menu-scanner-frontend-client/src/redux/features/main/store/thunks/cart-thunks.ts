@@ -92,7 +92,7 @@ export const updateCartItem = createApiThunk<
 });
 
 export const fetchCartPaginated = createApiThunk<
-  CartResponseModel,
+  CartResponseModel & { pageInfo?: any },
   { pageNo: number; pageSize: number }
 >(
   "cart/fetchPaginated",
@@ -107,7 +107,25 @@ export const fetchCartPaginated = createApiThunk<
       },
       { signal }
     );
-    let responseData = response.data.data;
+    let paginationResponse = response.data.data;
+
+    // Extract cart data from pagination wrapper
+    // Response structure: { content: [cartData], pageNo, pageSize, totalElements, ... }
+    let responseData = paginationResponse?.content?.[0] || paginationResponse;
+
+    // Store pagination info for later use
+    if (paginationResponse?.pageNo !== undefined) {
+      responseData.pageInfo = {
+        pageNo: paginationResponse.pageNo,
+        pageSize: paginationResponse.pageSize,
+        totalElements: paginationResponse.totalElements,
+        totalPages: paginationResponse.totalPages,
+        hasNext: paginationResponse.hasNext,
+        hasPrevious: paginationResponse.hasPrevious,
+        first: paginationResponse.first,
+        last: paginationResponse.last,
+      };
+    }
 
     // Transform response to ensure frontend compatibility
     if (responseData?.items) {

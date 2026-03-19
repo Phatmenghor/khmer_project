@@ -113,6 +113,11 @@ return paginationMapper.toPaginationResponse(cartPage, this::toResponseList);
     default void setSummaryCartItems(@MappingTarget CartSummaryResponse response, Cart cart) {
         if (cart.getItems() != null) {
             response.setItems(toItemResponseList(cart.getItems()));
+            // Calculate total quantity (sum of all item quantities)
+            int totalQuantity = cart.getItems().stream()
+                    .mapToInt(item -> item.getQuantity() != null ? item.getQuantity() : 0)
+                    .sum();
+            response.setTotalQuantity(totalQuantity);
         }
     }
 

@@ -11,7 +11,8 @@ public class CartSummaryResponse {
     private UUID businessId;
     private String businessName;
     private List<CartItemResponse> items;
-    private Integer totalItems;
+    private Integer totalItems;                  // Total number of unique products
+    private Integer totalQuantity;               // Total quantity across all items
     private BigDecimal subtotalBeforeDiscount;  // Sum of all items at original price
     private BigDecimal subtotal;                 // Sum of all items after discount
     private BigDecimal totalDiscount;            // Total discount on all items
