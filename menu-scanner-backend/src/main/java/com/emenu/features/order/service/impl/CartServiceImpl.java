@@ -270,14 +270,14 @@ public class CartServiceImpl implements CartService {
             }
         }
 
-        // Delete duplicates from database
+        // Remove duplicates from cart and database
         if (!duplicates.isEmpty()) {
+            // First remove from the cart's items collection (in-place)
+            cart.getItems().removeAll(duplicates);
+            // Then delete from database
             cartItemRepository.deleteAll(duplicates);
             log.warn("Removed {} duplicate cart items", duplicates.size());
         }
-
-        // Update cart with deduplicated items
-        cart.setItems(new java.util.ArrayList<>(seenItems.values()));
     }
 
     private void filterUnavailableItems(Cart cart) {
