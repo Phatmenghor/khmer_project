@@ -218,41 +218,38 @@ export default function CartPage() {
                   </Link>
 
                   {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <Link href={`/products/${item.productId}`}>
-                      <h3 className="font-medium text-sm leading-snug hover:text-primary transition-colors line-clamp-1 mb-0.5">
-                        {item.productName}
-                      </h3>
-                    </Link>
-                    {item.sizeName && (
-                      <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full inline-block mb-1.5">
-                        {item.sizeName}
-                      </span>
-                    )}
-
-                    <div className="flex flex-col gap-1.5 mb-2.5">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-sm text-primary">{formatCurrency(item.finalPrice)}</span>
-                        {item.hasPromotion && item.currentPrice > item.finalPrice && (
-                          <>
-                            <span className="text-xs text-muted-foreground line-through">{formatCurrency(item.currentPrice)}</span>
-                            <Badge variant="destructive" className="text-[10px] px-1.5 py-0 leading-none">
-                              {item.promotionType === "PERCENTAGE"
-                                ? `-${item.promotionValue}%`
-                                : `-${formatCurrency(item.promotionValue || 0)}`}
-                            </Badge>
-                          </>
-                        )}
-                      </div>
-                      {item.hasPromotion && item.promotionFromDate && item.promotionToDate && (
-                        <span className="text-[10px] text-muted-foreground">
-                          Sale: {new Date(item.promotionFromDate).toLocaleDateString()} - {new Date(item.promotionToDate).toLocaleDateString()}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    {/* Product Name + Size in same row */}
+                    <div className="flex items-center gap-2 min-w-0 mb-2">
+                      <Link href={`/products/${item.productId}`}>
+                        <h3 className="font-medium text-sm leading-snug hover:text-primary transition-colors line-clamp-1">
+                          {item.productName}
+                        </h3>
+                      </Link>
+                      {item.sizeName && (
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
+                          {item.sizeName}
                         </span>
+                      )}
+                      {item.hasPromotion && (
+                        <Badge variant="destructive" className="text-[10px] px-1.5 py-0 leading-none flex-shrink-0">
+                          {item.promotionType === "PERCENTAGE"
+                            ? `-${item.promotionValue}%`
+                            : `-${formatCurrency(item.promotionValue || 0)}`}
+                        </Badge>
                       )}
                     </div>
 
-                    {/* Qty controls — same style as product card (h-8 w-8 rounded-lg) */}
-                    <div className="flex items-center justify-between">
+                    {/* Price Info */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="font-bold text-sm text-primary">{formatCurrency(item.finalPrice)}</span>
+                      {item.hasPromotion && item.currentPrice > item.finalPrice && (
+                        <span className="text-xs text-muted-foreground line-through">{formatCurrency(item.currentPrice)}</span>
+                      )}
+                    </div>
+
+                    {/* Qty controls + Total + Delete */}
+                    <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1">
                         <button
                           className={cn(
@@ -278,9 +275,9 @@ export default function CartPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold">{formatCurrency(item.totalPrice)}</span>
+                        <span className="text-sm font-bold whitespace-nowrap">{formatCurrency(item.totalPrice)}</span>
                         <button
-                          className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                          className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all flex-shrink-0"
                           onClick={() => handleRemoveItem(item.productId, item.productSizeId)}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
