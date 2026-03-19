@@ -16,7 +16,7 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
     /**
      * Finds a non-deleted cart by user ID and business ID with items, products, sizes, and business eagerly fetched
      */
-    @Query("SELECT c FROM Cart c " +
+    @Query("SELECT DISTINCT c FROM Cart c " +
            "LEFT JOIN FETCH c.items ci " +
            "LEFT JOIN FETCH ci.product p " +
            "LEFT JOIN FETCH ci.productSize ps " +
@@ -32,7 +32,7 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
     /**
      * Finds the most recently updated non-deleted cart for a user with items eagerly fetched
      */
-    @Query("SELECT c FROM Cart c " +
+    @Query("SELECT DISTINCT c FROM Cart c " +
            "LEFT JOIN FETCH c.items ci " +
            "LEFT JOIN FETCH ci.product p " +
            "LEFT JOIN FETCH ci.productSize ps " +
