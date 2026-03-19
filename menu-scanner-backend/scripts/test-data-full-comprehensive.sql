@@ -1,5 +1,5 @@
 -- ============================================================
--- ULTIMATE MASSIVE TEST DATA - PRODUCTION GRADE
+-- ULTIMATE MASSIVE TEST DATA - PRODUCTION READY (CORRECTED)
 -- ============================================================
 -- ENHANCED WITH 4X PRODUCTS: 180,000 Items
 -- ============================================================
@@ -19,6 +19,13 @@
 --   👥 20,000 Attendances
 --   🕐 40,000 Check-ins
 --   📄 5,000 Leaves
+--
+-- VERIFIED ENUM VALUES:
+--   Promotion Types: PERCENTAGE, FIXED_AMOUNT
+--   Payment Methods: CASH, BANK_TRANSFER, ONLINE, OTHER
+--   Order Status: Pending, Confirmed, Preparing, Ready, In Delivery, Delivered, Completed, Cancelled, Refunded, Failed
+--   Account Status: ACTIVE, INACTIVE, LOCKED, SUSPENDED
+--   User Types: PLATFORM_USER, BUSINESS_USER, CUSTOMER
 -- ============================================================
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
@@ -49,7 +56,7 @@ DECLARE
     v_order_count INT := 0;
 BEGIN
     RAISE NOTICE '═══════════════════════════════════════════════════════════════';
-    RAISE NOTICE '🚀 ULTIMATE TEST DATA GENERATION (4x PRODUCTS)';
+    RAISE NOTICE '🚀 ULTIMATE TEST DATA GENERATION (4x PRODUCTS - CORRECTED)';
     RAISE NOTICE '═══════════════════════════════════════════════════════════════';
     RAISE NOTICE 'Started: %', v_start_time;
     RAISE NOTICE '';
@@ -261,18 +268,18 @@ BEGIN
         'Premium Product ' || p || ' (' || CASE (p % 100) WHEN 0 THEN 'Bestseller' WHEN 1 THEN 'New' ELSE 'Popular' END || ')',
         'High-quality product with comprehensive description - Item #' || p, 'ACTIVE',
         (15.00 + (p % 300))::NUMERIC,
-        CASE WHEN p % 3 = 0 THEN 'PERCENTAGE' ELSE NULL END,
-        CASE WHEN p % 3 = 0 THEN (5 + (p % 40)) ELSE NULL END,
-        CASE WHEN p % 3 = 0 THEN t - INTERVAL '5 days' ELSE NULL END,
-        CASE WHEN p % 3 = 0 THEN t + INTERVAL '90 days' ELSE NULL END,
+        CASE WHEN p % 2 = 0 THEN 'PERCENTAGE' WHEN p % 2 = 1 THEN 'FIXED_AMOUNT' ELSE NULL END,
+        CASE WHEN p % 2 = 0 THEN (5 + (p % 40)) WHEN p % 2 = 1 THEN (2.00 + (p % 50)) ELSE NULL END,
+        CASE WHEN p % 2 > 0 THEN t - INTERVAL '5 days' ELSE NULL END,
+        CASE WHEN p % 2 > 0 THEN t + INTERVAL '90 days' ELSE NULL END,
         (15.00 + (p % 300))::NUMERIC,
         (15.00 + (p % 300))::NUMERIC,
-        CASE WHEN p % 3 = 0 THEN 'PERCENTAGE' ELSE NULL END,
-        CASE WHEN p % 3 = 0 THEN (5 + (p % 40)) ELSE NULL END,
-        CASE WHEN p % 3 = 0 THEN t - INTERVAL '5 days' ELSE NULL END,
-        CASE WHEN p % 3 = 0 THEN t + INTERVAL '90 days' ELSE NULL END,
-        CASE WHEN p % 5 = 0 THEN true ELSE false END,
-        CASE WHEN p % 3 = 0 THEN true ELSE false END,
+        CASE WHEN p % 2 = 0 THEN 'PERCENTAGE' WHEN p % 2 = 1 THEN 'FIXED_AMOUNT' ELSE NULL END,
+        CASE WHEN p % 2 = 0 THEN (5 + (p % 40)) WHEN p % 2 = 1 THEN (2.00 + (p % 50)) ELSE NULL END,
+        CASE WHEN p % 2 > 0 THEN t - INTERVAL '5 days' ELSE NULL END,
+        CASE WHEN p % 2 > 0 THEN t + INTERVAL '90 days' ELSE NULL END,
+        CASE WHEN p % 4 = 0 THEN true ELSE false END,
+        CASE WHEN p % 2 = 0 THEN true ELSE false END,
         (p % 10000),
         (p % 1000),
         CASE WHEN p % 2 = 0 THEN photo1 ELSE photo2 END
@@ -335,14 +342,12 @@ BEGIN
 
     -- ========== 280,000+ CUSTOMER ADDRESSES ==========
     RAISE NOTICE '📍 Phase 17: Creating 280,000+ customer addresses...';
-    -- Key customer gets 300 addresses
     INSERT INTO customer_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, customer_user_id,
         'Village ' || a, 'Commune ' || a, 'District ' || a, 'Phnom Penh', 'Cambodia', 'Street ' || a, 'House ' || a,
         'Apt ' || a, 11.5564 + (a::NUMERIC / 1000), 104.9282 + (a::NUMERIC / 1000), a = 1
     FROM GENERATE_SERIES(1, 300) a;
 
-    -- Other customers: 2-3 addresses each
     INSERT INTO customer_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL,
         (SELECT id FROM users WHERE user_type = 'CUSTOMER' AND id != customer_user_id ORDER BY RANDOM() LIMIT 1),
@@ -357,21 +362,18 @@ BEGIN
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, u.id, key_business_id
     FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' ORDER BY RANDOM() LIMIT 120000) u;
 
-    -- Key customer: 2000 cart items
     INSERT INTO cart_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, cart_id, product_id, product_size_id, quantity)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL,
         (SELECT id FROM carts WHERE user_id = customer_user_id LIMIT 1),
         (SELECT id FROM products ORDER BY RANDOM() LIMIT 1), NULL, (1 + (ci % 20))
     FROM GENERATE_SERIES(1, 2000) ci;
 
-    -- Other customers: distributed cart items
     INSERT INTO cart_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, cart_id, product_id, product_size_id, quantity)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL,
         (SELECT id FROM carts WHERE user_id != customer_user_id ORDER BY RANDOM() LIMIT 1),
         (SELECT id FROM products ORDER BY RANDOM() LIMIT 1), NULL, (1 + (ci % 20))
     FROM GENERATE_SERIES(1, 118000) ci;
 
-    -- Product favorites: 100,000
     INSERT INTO product_favorites (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, product_id)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL,
         (SELECT id FROM users WHERE user_type = 'CUSTOMER' ORDER BY RANDOM() LIMIT 1),
@@ -397,13 +399,13 @@ BEGIN
     INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_process_status_name, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
     SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '180 days'), t, 'system', 'system', false, NULL, NULL,
         key_business_id, customer_user_id, 'ORD-KCU-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(ord_n::TEXT, 6, '0'),
-        CASE WHEN ord_n % 4 = 0 THEN 'Pending' WHEN ord_n % 4 = 1 THEN 'Confirmed' WHEN ord_n % 4 = 2 THEN 'Preparing' ELSE 'Delivered' END,
+        CASE WHEN ord_n % 10 = 0 THEN 'Pending' WHEN ord_n % 10 = 1 THEN 'Confirmed' WHEN ord_n % 10 = 2 THEN 'Preparing' WHEN ord_n % 10 = 3 THEN 'Ready' WHEN ord_n % 10 = 4 THEN 'In Delivery' WHEN ord_n % 10 = 5 THEN 'Delivered' WHEN ord_n % 10 = 6 THEN 'Completed' WHEN ord_n % 10 = 7 THEN 'Cancelled' WHEN ord_n % 10 = 8 THEN 'Refunded' ELSE 'Failed' END,
         '{"village":"Village","commune":"Commune","district":"District","province":"Phnom Penh","street":"Street","house":"House"}',
         '{"name":"Standard","price":2.00}',
         (20.00 + (ord_n % 200))::NUMERIC, (ord_n % 10)::NUMERIC, (2.00 + (ord_n % 15))::NUMERIC, (ord_n % 5)::NUMERIC,
         ((20.00 + (ord_n % 200)) - (ord_n % 10) + (2.00 + (ord_n % 15)) + (ord_n % 5))::NUMERIC,
-        CASE (ord_n % 3) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' ELSE 'ONLINE' END,
-        CASE (ord_n % 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'COMPLETED' END,
+        CASE (ord_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END,
+        CASE (ord_n % 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'REFUNDED' END,
         'Customer note ' || ord_n, 'Business note ' || ord_n,
         CASE WHEN ord_n % 2 = 0 THEN t - (RANDOM() * INTERVAL '150 days') ELSE NULL END,
         CASE WHEN ord_n % 3 = 2 THEN t - (RANDOM() * INTERVAL '100 days') ELSE NULL END
@@ -414,13 +416,14 @@ BEGIN
     SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '180 days'), t, 'system', 'system', false, NULL, NULL,
         key_business_id,
         (SELECT id FROM users WHERE user_type = 'CUSTOMER' AND id != customer_user_id ORDER BY RANDOM() LIMIT 1),
-        'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD((10000 + ord_n)::TEXT, 6, '0'), 'Pending',
+        'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD((10000 + ord_n)::TEXT, 6, '0'),
+        CASE WHEN ord_n % 10 = 0 THEN 'Pending' WHEN ord_n % 10 = 1 THEN 'Confirmed' WHEN ord_n % 10 = 2 THEN 'Preparing' WHEN ord_n % 10 = 3 THEN 'Ready' WHEN ord_n % 10 = 4 THEN 'In Delivery' WHEN ord_n % 10 = 5 THEN 'Delivered' WHEN ord_n % 10 = 6 THEN 'Completed' WHEN ord_n % 10 = 7 THEN 'Cancelled' WHEN ord_n % 10 = 8 THEN 'Refunded' ELSE 'Failed' END,
         '{"village":"Village","commune":"Commune","district":"District","province":"Phnom Penh","street":"Street","house":"House"}',
         '{"name":"Standard","price":2.00}',
         (20.00 + (ord_n % 200))::NUMERIC, (ord_n % 10)::NUMERIC, (2.00 + (ord_n % 15))::NUMERIC, (ord_n % 5)::NUMERIC,
         ((20.00 + (ord_n % 200)) - (ord_n % 10) + (2.00 + (ord_n % 15)) + (ord_n % 5))::NUMERIC,
-        CASE (ord_n % 3) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' ELSE 'ONLINE' END,
-        CASE (ord_n % 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'COMPLETED' END,
+        CASE (ord_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END,
+        CASE (ord_n % 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'REFUNDED' END,
         'Customer note ' || ord_n, 'Business note ' || ord_n,
         CASE WHEN ord_n % 2 = 0 THEN t - (RANDOM() * INTERVAL '150 days') ELSE NULL END,
         CASE WHEN ord_n % 3 = 2 THEN t - (RANDOM() * INTERVAL '100 days') ELSE NULL END
@@ -457,8 +460,8 @@ BEGIN
         'PAY-' || LPAD(opay_n::TEXT, 10, '0'),
         (20.00 + (opay_n % 200))::NUMERIC, (opay_n % 10)::NUMERIC, (2.00 + (opay_n % 15))::NUMERIC, (opay_n % 5)::NUMERIC,
         ((20.00 + (opay_n % 200)) - (opay_n % 10) + (2.00 + (opay_n % 15)) + (opay_n % 5))::NUMERIC,
-        CASE (opay_n % 3) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' ELSE 'ONLINE' END,
-        CASE (opay_n % 3) WHEN 0 THEN 'PENDING' WHEN 1 THEN 'FAILED' ELSE 'COMPLETED' END, 'Cash'
+        CASE (opay_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END,
+        CASE (opay_n % 4) WHEN 0 THEN 'PENDING' WHEN 1 THEN 'COMPLETED' WHEN 2 THEN 'FAILED' ELSE 'CANCELLED' END, 'Cash'
     FROM GENERATE_SERIES(1, 200000) opay_n;
     RAISE NOTICE '✅ 200,000 payment records created!';
 
@@ -568,6 +571,12 @@ BEGIN
     RAISE NOTICE '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
     RAISE NOTICE '';
     RAISE NOTICE '⏱️  Execution Time: % seconds', EXTRACT(EPOCH FROM (NOW() - v_start_time))::INT;
+    RAISE NOTICE '';
+    RAISE NOTICE '✨ VERIFIED ENUMS USED:';
+    RAISE NOTICE '   Promotion Types: PERCENTAGE, FIXED_AMOUNT (50% each)';
+    RAISE NOTICE '   Payment Methods: CASH, BANK_TRANSFER, ONLINE, OTHER (25% each)';
+    RAISE NOTICE '   Payment Status: UNPAID, PAID, REFUNDED (33% each)';
+    RAISE NOTICE '   Order Status: Pending, Confirmed, Preparing, Ready, In Delivery, Delivered, Completed, Cancelled, Refunded, Failed (10% each)';
     RAISE NOTICE '';
     RAISE NOTICE '🚀 Ready for testing! All systems operational.';
     RAISE NOTICE '';
