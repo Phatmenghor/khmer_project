@@ -402,7 +402,7 @@ BEGIN
         '{"name":"Standard","price":2.00}',
         (20.00 + (ord_n % 200))::NUMERIC, (ord_n % 10)::NUMERIC, (2.00 + (ord_n % 15))::NUMERIC, (ord_n % 5)::NUMERIC,
         ((20.00 + (ord_n % 200)) - (ord_n % 10) + (2.00 + (ord_n % 15)) + (ord_n % 5))::NUMERIC,
-        CASE (ord_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'DIGITAL_WALLET' END,
+        CASE (ord_n % 3) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' ELSE 'ONLINE' END,
         CASE (ord_n % 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'COMPLETED' END,
         'Customer note ' || ord_n, 'Business note ' || ord_n,
         CASE WHEN ord_n % 2 = 0 THEN t - (RANDOM() * INTERVAL '150 days') ELSE NULL END,
@@ -419,7 +419,7 @@ BEGIN
         '{"name":"Standard","price":2.00}',
         (20.00 + (ord_n % 200))::NUMERIC, (ord_n % 10)::NUMERIC, (2.00 + (ord_n % 15))::NUMERIC, (ord_n % 5)::NUMERIC,
         ((20.00 + (ord_n % 200)) - (ord_n % 10) + (2.00 + (ord_n % 15)) + (ord_n % 5))::NUMERIC,
-        CASE (ord_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'DIGITAL_WALLET' END,
+        CASE (ord_n % 3) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' ELSE 'ONLINE' END,
         CASE (ord_n % 3) WHEN 0 THEN 'UNPAID' WHEN 1 THEN 'PAID' ELSE 'COMPLETED' END,
         'Customer note ' || ord_n, 'Business note ' || ord_n,
         CASE WHEN ord_n % 2 = 0 THEN t - (RANDOM() * INTERVAL '150 days') ELSE NULL END,
@@ -457,7 +457,7 @@ BEGIN
         'PAY-' || LPAD(opay_n::TEXT, 10, '0'),
         (20.00 + (opay_n % 200))::NUMERIC, (opay_n % 10)::NUMERIC, (2.00 + (opay_n % 15))::NUMERIC, (opay_n % 5)::NUMERIC,
         ((20.00 + (opay_n % 200)) - (opay_n % 10) + (2.00 + (opay_n % 15)) + (opay_n % 5))::NUMERIC,
-        CASE (opay_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'DIGITAL_WALLET' END,
+        CASE (opay_n % 3) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' ELSE 'ONLINE' END,
         CASE (opay_n % 3) WHEN 0 THEN 'PENDING' WHEN 1 THEN 'FAILED' ELSE 'COMPLETED' END, 'Cash'
     FROM GENERATE_SERIES(1, 200000) opay_n;
     RAISE NOTICE '✅ 200,000 payment records created!';
