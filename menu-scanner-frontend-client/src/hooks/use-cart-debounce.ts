@@ -3,7 +3,6 @@
 import { useRef, useEffect, useCallback } from "react";
 import { AppDispatch } from "@/redux/store";
 import {
-  addToCart,
   updateCartItem,
 } from "@/redux/features/main/store/thunks/cart-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -108,21 +107,14 @@ export function useCartDebounce(dispatch: AppDispatch) {
 
       const { productId, productSizeId, quantity, optimisticTimestamp } = args;
 
-      // Dispatch the appropriate thunk
-      const thunkAction =
-        quantity > 0
-          ? addToCart({
-            productId,
-            productSizeId,
-            quantity,
-            optimisticTimestamp,
-          })
-          : updateCartItem({
-            productId,
-            productSizeId,
-            quantity: 0,
-            optimisticTimestamp,
-          });
+      // Always use updateCartItem - the backend handles both insert and update
+      // (checks if item exists, then adds/updates accordingly)
+      const thunkAction = updateCartItem({
+        productId,
+        productSizeId,
+        quantity,
+        optimisticTimestamp,
+      });
 
       const promise = dispatch(thunkAction);
 
@@ -238,6 +230,7 @@ export function useCartDebounce(dispatch: AppDispatch) {
     timersRef.current.forEach((timer) => clearTimeout(timer));
     timersRef.current.clear();
     pendingUpdatesRef.current.clear();
+    isProcessingRef.current.clear();
     // Intentionally NOT aborting active requests to prevent partial server state.
     // Only unmount aborts.
   }, []);
