@@ -174,12 +174,15 @@ public class PaymentOptionService {
         );
 
         return PaginationResponse.<PaymentOptionResponse>builder()
-                .data(page.getContent().stream().map(this::mapToResponse).collect(Collectors.toList()))
+                .content(page.getContent().stream().map(this::mapToResponse).collect(Collectors.toList()))
                 .pageNo(filter.getPageNo())
                 .pageSize(filter.getPageSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
-                .isLast(page.isLast())
+                .last(page.isLast())
+                .first(page.isFirst())
+                .hasNext(page.hasNext())
+                .hasPrevious(page.hasPrevious())
                 .build();
     }
 

@@ -6,6 +6,7 @@ import com.emenu.features.auth.models.Business;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "payment_options")
 @Data
+@Builder
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
