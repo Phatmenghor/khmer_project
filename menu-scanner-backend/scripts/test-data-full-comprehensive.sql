@@ -278,13 +278,13 @@ CREATE INDEX idx_products_created_at ON products(business_id, created_at DESC) W
 CREATE INDEX idx_products_updated_at ON products(business_id, updated_at DESC) WHERE is_deleted = false;
 CREATE INDEX idx_products_list_optimize ON products(business_id, status, created_at DESC) WHERE is_deleted = false;
 CREATE INDEX idx_products_search ON products(business_id, status, category_id, brand_id) WHERE is_deleted = false;
-CREATE INDEX idx_products_active_promotions ON products(business_id, display_promotion_from_date, display_promotion_to_date) WHERE is_deleted = false AND has_active_promotion = true AND display_promotion_to_date > NOW();
+CREATE INDEX idx_products_active_promotions ON products(business_id, display_promotion_from_date, display_promotion_to_date) WHERE is_deleted = false AND has_active_promotion = true;
 
 -- PRODUCT IMAGES & SIZES
 CREATE INDEX idx_product_images_product_id ON product_images(product_id) WHERE is_deleted = false;
 CREATE INDEX idx_product_images_product_batch ON product_images(product_id, created_at) WHERE is_deleted = false;
 CREATE INDEX idx_product_sizes_product_id ON product_sizes(product_id) WHERE is_deleted = false;
-CREATE INDEX idx_product_sizes_product_active ON product_sizes(product_id) WHERE is_deleted = false AND (promotion_to_date IS NULL OR promotion_to_date > NOW());
+CREATE INDEX idx_product_sizes_product_active ON product_sizes(product_id) WHERE is_deleted = false AND promotion_to_date IS NOT NULL;
 
 -- PRODUCT FAVORITES
 CREATE INDEX idx_product_favorites_user_id ON product_favorites(user_id) WHERE is_deleted = false;
@@ -350,7 +350,7 @@ CREATE INDEX idx_banners_business_id ON banners(business_id, status) WHERE is_de
 -- SUBSCRIPTIONS
 CREATE INDEX idx_subscriptions_business_id ON subscriptions(business_id) WHERE is_deleted = false;
 CREATE INDEX idx_subscriptions_plan_id ON subscriptions(plan_id) WHERE is_deleted = false;
-CREATE INDEX idx_subscriptions_active ON subscriptions(business_id, end_date) WHERE is_deleted = false AND end_date > NOW();
+CREATE INDEX idx_subscriptions_active ON subscriptions(business_id, end_date) WHERE is_deleted = false AND end_date IS NOT NULL;
 
 -- CUSTOMER ADDRESSES
 CREATE INDEX idx_customer_addresses_user_id ON customer_addresses(user_id) WHERE is_deleted = false;
