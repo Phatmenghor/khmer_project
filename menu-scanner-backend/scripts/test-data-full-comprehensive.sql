@@ -241,10 +241,9 @@ BEGIN
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'CHK-' || gen_random_uuid()::TEXT, (SELECT id FROM attendances WHERE user_id = business_user_id ORDER BY RANDOM() LIMIT 1), CASE WHEN aci % 2 = 0 THEN 'START' ELSE 'END' END, (t - (INTERVAL '1 day' * (aci % 365)))::TIMESTAMP, 11.5564, 104.9282, 'Check-in'
     FROM GENERATE_SERIES(1, 40000) aci;
 
-    -- LEAVES
+    -- LEAVES (Simplified - 1 record for testing)
     INSERT INTO leaves (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, reference_number, user_id, business_id, leave_type_enum, start_date, end_date, total_days, reason, status, action_by, action_at, action_note)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'LEV-' || gen_random_uuid()::TEXT, business_user_id, key_business_id, 'SICK_LEAVE', (t + (INTERVAL '1 day' * (lv % 365)))::DATE, (t + (INTERVAL '1 day' * ((lv % 365) + 3)))::DATE, (3 + (lv % 7))::DOUBLE PRECISION, 'Leave reason', CASE WHEN lv % 4 = 0 THEN 'PENDING' WHEN lv % 4 = 1 THEN 'APPROVED' WHEN lv % 4 = 2 THEN 'REJECTED' ELSE 'CANCELLED' END, CASE WHEN lv % 2 = 0 THEN business_user_id ELSE NULL END, CASE WHEN lv % 2 = 0 THEN t ELSE NULL END, 'Approved'
-    FROM GENERATE_SERIES(1, 5000) lv;
+    VALUES (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'LEV-TEST-001', business_user_id, key_business_id, 'SICK_LEAVE', (t + INTERVAL '10 days')::DATE, (t + INTERVAL '13 days')::DATE, 3.0, 'Leave reason', 'PENDING', business_user_id, t, 'Approved');
 
     -- EXCHANGE RATES
     INSERT INTO exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, usd_to_khr_rate, is_active, notes) VALUES (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 4100.0, true, 'USD to KHR rate');
