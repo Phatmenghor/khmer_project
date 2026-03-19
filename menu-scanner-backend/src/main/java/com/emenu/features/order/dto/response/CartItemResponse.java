@@ -10,8 +10,13 @@ import java.util.UUID;
 public class CartItemResponse {
     private UUID id;
 
-    // Product info grouped for easy identification
-    private CartItemProductInfo product;
+    // Product information (flattened for frontend)
+    private UUID productId;
+    private String productName;
+    private String productImageUrl;
+    private UUID productSizeId;        // null for products without sizes
+    private String sizeName;           // "Standard" for products without sizes
+    private String status;             // ProductStatus: ACTIVE, INACTIVE, OUT_OF_STOCK
 
     // Current pricing (always real-time from product)
     private BigDecimal currentPrice;           // Base price

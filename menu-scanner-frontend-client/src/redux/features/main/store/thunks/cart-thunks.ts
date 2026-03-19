@@ -15,7 +15,18 @@ export const fetchCart = createApiThunk<CartResponseModel, void>(
       `/api/v1/cart/${businessId}`,
       { signal }
     );
-    return response.data.data;
+    let responseData = response.data.data;
+
+    // Transform response to ensure frontend compatibility
+    if (responseData?.items) {
+      responseData.items = responseData.items.map((item: any) => ({
+        ...item,
+        hasPromotion: item.hasActivePromotion ?? item.hasPromotion ?? false,
+        isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
+      }));
+    }
+
+    return responseData;
   },
 );
 
@@ -37,7 +48,7 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
     });
 
     // DEBUG: Log response
-    const responseData = response.data.data;
+    let responseData = response.data.data;
     const isCorrect = responseData?.items && Array.isArray(responseData.items);
     const bgColor = isCorrect ? "#28a745" : "#dc3545";
     const status = isCorrect ? "✅ CORRECT" : "❌ WRONG";
@@ -47,7 +58,6 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
       itemsCount: responseData?.items?.length || 0,
       totalItems: responseData?.totalItems,
       finalTotal: responseData?.finalTotal,
-      hasName: !!responseData?.name,
       timestamp: new Date().toLocaleTimeString()
     });
 
@@ -64,6 +74,16 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
       console.error("%c## ❌ RESPONSE IS WRONG STRUCTURE", "background:#dc3545;color:white;padding:5px", responseData);
     }
 
+    // Transform response to ensure frontend compatibility
+    // Map backend hasActivePromotion → hasPromotion for consistent naming
+    if (responseData?.items) {
+      responseData.items = responseData.items.map((item: any) => ({
+        ...item,
+        hasPromotion: item.hasActivePromotion ?? item.hasPromotion ?? false,
+        isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
+      }));
+    }
+
     return responseData;
   },
 );
@@ -77,7 +97,18 @@ export const updateCartItem = createApiThunk<
   const response = await axiosClientWithAuth.post("/api/v1/cart", requestData, {
     signal,
   });
-  return response.data.data;
+  let responseData = response.data.data;
+
+  // Transform response to ensure frontend compatibility
+  if (responseData?.items) {
+    responseData.items = responseData.items.map((item: any) => ({
+      ...item,
+      hasPromotion: item.hasActivePromotion ?? item.hasPromotion ?? false,
+      isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
+    }));
+  }
+
+  return responseData;
 });
 
 export const clearCart = createApiThunk<void, void>(

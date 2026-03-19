@@ -1,7 +1,6 @@
 package com.emenu.features.order.mapper;
 
 import com.emenu.features.order.dto.helper.CartCreateHelper;
-import com.emenu.features.order.dto.response.CartItemProductInfo;
 import com.emenu.features.order.dto.response.CartItemResponse;
 import com.emenu.features.order.dto.response.CartResponse;
 import com.emenu.features.order.dto.response.CartSummaryResponse;
@@ -20,7 +19,9 @@ import java.util.UUID;
 @Mapper(componentModel = "spring", uses = {PaginationMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CartMapper {
 
-    @Mapping(target = "product", ignore = true)
+    @Mapping(target = "productId", source = "productId")
+    @Mapping(target = "productSizeId", source = "productSizeId")
+    @Mapping(target = "sizeName", source = "sizeName")
     @Mapping(target = "currentPrice", expression = "java(cartItem.getCurrentPrice())")
     @Mapping(target = "finalPrice", expression = "java(cartItem.getFinalPrice())")
     @Mapping(target = "totalPrice", expression = "java(cartItem.getTotalPrice())")
@@ -29,17 +30,16 @@ public interface CartMapper {
 
     @AfterMapping
     default void setProductInfo(@MappingTarget CartItemResponse response, CartItem cartItem) {
-        CartItemProductInfo productInfo = new CartItemProductInfo();
-        productInfo.setId(cartItem.getProductId());
-        productInfo.setSizeId(cartItem.getProductSizeId());
-        productInfo.setSizeName(cartItem.getSizeName());
+        // Flatten product info to response
+        response.setProductId(cartItem.getProductId());
+        response.setProductSizeId(cartItem.getProductSizeId());
+        response.setSizeName(cartItem.getSizeName());
         if (cartItem.getProduct() != null) {
-            productInfo.setName(cartItem.getProduct().getName());
-            productInfo.setImageUrl(cartItem.getProduct().getMainImageUrl());
-            productInfo.setStatus(cartItem.getProduct().getStatus() != null
+            response.setProductName(cartItem.getProduct().getName());
+            response.setProductImageUrl(cartItem.getProduct().getMainImageUrl());
+            response.setStatus(cartItem.getProduct().getStatus() != null
                     ? cartItem.getProduct().getStatus().name() : null);
         }
-        response.setProduct(productInfo);
     }
 
     @AfterMapping

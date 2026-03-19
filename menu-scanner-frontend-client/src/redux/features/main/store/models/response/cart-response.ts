@@ -14,12 +14,14 @@ export interface CartItemModel {
   productImageUrl: string;
   productSizeId: string | null;
   sizeName: string | null;
+  status?: string;  // ACTIVE, INACTIVE, OUT_OF_STOCK
   currentPrice: number;
   finalPrice: number;
-  hasPromotion: boolean;
+  hasActivePromotion?: boolean;
+  hasPromotion?: boolean;  // For backward compatibility
   quantity: number;
   totalPrice: number;
-  isAvailable: boolean;
+  isAvailable?: boolean;  // Can be derived from status
   promotionType: string | null;
   promotionValue: number | null;
   promotionEndDate: string | null;
