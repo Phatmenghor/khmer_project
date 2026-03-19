@@ -1,10 +1,16 @@
 -- ============================================================================
--- ULTIMATE MASSIVE TEST DATA - PRODUCTION READY - 180,000 PRODUCTS
+-- MASTER PRODUCTION DATA LOADER - 180K PRODUCTS + FULL INDEXES
 -- ============================================================================
--- All verified enum values - NO SYNTAX ERRORS
--- Complete one-shot with full indexes included
+-- Complete one-shot script for production-ready database setup
+-- Includes data generation and comprehensive indexing
 -- Run with: psql -h localhost -U postgres -d emenu_db -f this-file.sql
 
+SELECT '🚀 ULTIMATE PRODUCTION DATA LOAD STARTED!' as status;
+SELECT 'Loading 180K products, 120K customers, 60K staff, 200K orders...' as info;
+
+-- ============================================================================
+-- ULTIMATE MASSIVE TEST DATA - PRODUCTION READY
+-- ============================================================================
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 SET synchronous_commit TO OFF;
 
@@ -254,17 +260,18 @@ BEGIN
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 4105.0, 35.45, 7.25, 24500.0, true, 'Exchange rates'
     FROM GENERATE_SERIES(1, 5) ber;
 
-    RAISE NOTICE '✅ SUCCESS: 180,000 products with 720,000+ images created!';
-    RAISE NOTICE '✅ TEST ACCOUNTS: phatmenghor19 / phatmenghor20 / phatmenghor21';
+    RAISE NOTICE 'SUCCESS: 180,000 products with 720,000+ images created!';
+    RAISE NOTICE 'TEST ACCOUNTS: phatmenghor19 / phatmenghor20 / phatmenghor21';
 
 END $$;
 
 SET synchronous_commit TO ON;
+SELECT 'Data population completed successfully!' as status;
 
 -- ============================================================================
--- COMPREHENSIVE PRODUCTION INDEXES - FULL INDEX SUITE
+-- COMPREHENSIVE PRODUCTION INDEXES
 -- ============================================================================
-SELECT '✅ Creating 90+ production indexes...' as status;
+SELECT '✅ Starting comprehensive indexing...' as status;
 
 -- PRODUCTS TABLE
 CREATE INDEX idx_products_business_id ON products(business_id) WHERE is_deleted = false;
@@ -378,5 +385,5 @@ CREATE INDEX idx_user_roles_role_id ON user_roles(role_id);
 ANALYZE;
 
 SELECT '✅ ALL INDEXES CREATED SUCCESSFULLY!' as status;
-SELECT '📊 Database is fully optimized for production use' as info;
-SELECT '🚀 180K products + 90+ indexes ready!' as ready;
+SELECT '📊 Database is fully optimized for 180K products' as info;
+SELECT '🚀 Ready for production use!' as status;
