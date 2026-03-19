@@ -250,28 +250,26 @@ export default function CartPage() {
 
                     {/* Qty controls + Total + Delete */}
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1">
-                        <button
-                          className={cn(
-                            "h-8 w-8 rounded-lg border border-border flex items-center justify-center transition-all",
-                            "hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                          )}
+                      <div className="flex items-center gap-1.5 w-full max-w-[140px]">
+                        <CustomButton
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
                           onClick={() => handleUpdateQuantity(item.productId, item.productSizeId, item.quantity - 1)}
                         >
-                          <Minus className="h-3.5 w-3.5" />
-                        </button>
-                        <div className="w-10 h-8 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center text-sm font-semibold text-primary">
+                          <Minus className="h-3 w-3" />
+                        </CustomButton>
+                        <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
                           {item.quantity}
                         </div>
-                        <button
-                          className={cn(
-                            "h-8 w-8 rounded-lg border border-border flex items-center justify-center transition-all",
-                            "hover:bg-primary hover:text-white hover:border-primary"
-                          )}
+                        <CustomButton
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
                           onClick={() => handleUpdateQuantity(item.productId, item.productSizeId, item.quantity + 1)}
                         >
-                          <Plus className="h-3.5 w-3.5" />
-                        </button>
+                          <Plus className="h-3 w-3" />
+                        </CustomButton>
                       </div>
 
                       <div className="flex items-center gap-2">
