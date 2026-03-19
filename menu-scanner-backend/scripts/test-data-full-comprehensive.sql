@@ -534,14 +534,14 @@ BEGIN
     RAISE NOTICE '   • Business Users: 60,001';
     RAISE NOTICE '   • Customers: 120,001';
     RAISE NOTICE '';
-    RAISE NOTICE '📦 Products & Catalog: % items', v_product_count;
-    RAISE NOTICE '   • Product Images: % images', v_image_count;
+    RAISE NOTICE '📦 Products & Catalog: ' || v_product_count || ' items';
+    RAISE NOTICE '   • Product Images: ' || v_image_count || ' images';
     RAISE NOTICE '   • Categories: 240';
     RAISE NOTICE '   • Brands: 240';
     RAISE NOTICE '   • Product Sizes: Thousands of variants';
     RAISE NOTICE '';
     RAISE NOTICE '🛒 Shopping Data:';
-    RAISE NOTICE '   • Orders: % total', v_order_count;
+    RAISE NOTICE '   • Orders: ' || v_order_count || ' total';
     RAISE NOTICE '   • Order Items: 600,000';
     RAISE NOTICE '   • Carts: 120,000';
     RAISE NOTICE '   • Cart Items: 120,000';
@@ -570,7 +570,7 @@ BEGIN
     RAISE NOTICE '';
     RAISE NOTICE '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
     RAISE NOTICE '';
-    RAISE NOTICE '⏱️  Execution Time: % seconds', EXTRACT(EPOCH FROM (NOW() - v_start_time))::INT;
+    RAISE NOTICE '⏱️  Execution Time: ' || EXTRACT(EPOCH FROM (NOW() - v_start_time))::INT || ' seconds';
     RAISE NOTICE '';
     RAISE NOTICE '✨ VERIFIED ENUMS USED:';
     RAISE NOTICE '   Promotion Types: PERCENTAGE, FIXED_AMOUNT (50% each)';
