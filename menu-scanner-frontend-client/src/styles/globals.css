@@ -150,20 +150,20 @@
     }
   }
 
-  .hover:scale-102 {
+  .hover-scale-102 {
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .hover:scale-102:hover {
+  .hover-scale-102:hover {
     transform: scale(1.02);
   }
 
   /* Lift effect on hover */
-  .hover:lift {
+  .hover-lift {
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .hover:lift:hover {
+  .hover-lift:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
   }

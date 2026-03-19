@@ -26,7 +26,7 @@ export function BrandCard({ brand, className }: BrandCardProps) {
     >
       <Card
         className={cn(
-          "overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 cursor-pointer h-full bg-card hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 hover:scale-102",
+          "overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 cursor-pointer h-full bg-card hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 hover-scale-102",
           className
         )}
       >
