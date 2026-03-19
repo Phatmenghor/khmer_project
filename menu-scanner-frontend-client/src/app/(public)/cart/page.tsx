@@ -140,8 +140,10 @@ export default function CartPage() {
   useEffect(() => {
     if (!authReady) return;
     if (!isAuthenticated) return;
-    if (!loaded && !loading.fetch) dispatch(fetchCartPaginated({ pageNo: 1, pageSize: 20 }));
-  }, [authReady, isAuthenticated, loaded, loading.fetch, dispatch]);
+    // Always fetch fresh cart data when navigating to cart page
+    // This ensures server state is synced even after optimistic adds from product pages
+    if (!loading.fetch) dispatch(fetchCartPaginated({ pageNo: 1, pageSize: 20 }));
+  }, [authReady, isAuthenticated, loading.fetch, dispatch]);
 
   const handleLoadMore = useCallback(() => {
     if (pagination.hasMore && !loading.paginate && !isLoadingRef.current) {
