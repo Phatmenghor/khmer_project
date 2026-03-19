@@ -4,7 +4,7 @@ import { PaymentOptionResponse } from "../models/response/payment-option-respons
 import { PaginationResponse } from "../models/pagination-response";
 import { ApiClient } from "@/utils/api-client";
 
-const API_BASE = "/api/v1/payment-options";
+const API_BASE = "/api/v1/admin/payment-options";
 
 /**
  * Fetch all payment options with filters and pagination
@@ -19,19 +19,16 @@ export const fetchAllPaymentOptionsService = createAsyncThunk<
   }
 >("paymentOptions/fetchAll", async (params, { rejectWithValue }) => {
   try {
-    const query = new URLSearchParams();
-    if (params.search) query.append("search", params.search);
-    if (params.pageNo) query.append("pageNo", params.pageNo.toString());
-    if (params.pageSize) query.append("pageSize", params.pageSize.toString());
-    if (params.statuses?.length) {
-      params.statuses.forEach((status) => {
-        if (status !== Status.ALL) query.append("status", status);
-      });
-    }
+    const payload = {
+      search: params.search || "",
+      pageNo: params.pageNo || 1,
+      pageSize: params.pageSize || 15,
+      statuses: params.statuses && params.statuses.length > 0 ? params.statuses : [],
+    };
 
     const response = await ApiClient.post<
       PaginationResponse<PaymentOptionResponse>
-    >(`${API_BASE}/search?${query.toString()}`, {});
+    >(`${API_BASE}/all`, payload);
 
     return response.data;
   } catch (error: any) {
