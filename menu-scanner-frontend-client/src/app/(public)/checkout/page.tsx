@@ -34,6 +34,9 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { cn } from "@/lib/utils";
 import { sanitizeImageUrl } from "@/utils/common/common";
 import { appImages } from "@/constants/app-resource/icons/app-images";
+import { ComboboxSelectLocation } from "@/components/shared/combobox/combobox-select-location";
+import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
+import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -364,105 +367,64 @@ export default function CheckoutPage() {
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Main Content - Compact */}
         <div className="lg:col-span-2 space-y-3">
-          {/* Delivery Address - Compact */}
+          {/* Delivery Address - Using Combobox */}
           <div className="bg-card border rounded-xl p-4">
-            <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-primary" />
-              Delivery Address
-            </h3>
-
-            {loadingDefaults ? (
-              <div className="text-xs text-muted-foreground py-2">Loading...</div>
-            ) : !defaultAddress && (!addresses || addresses.length === 0) ? (
-              <CustomButton
-                variant="outline"
-                size="sm"
-                onClick={() => router.push("/account/addresses")}
-                className="w-full h-8 rounded-lg text-xs"
-              >
-                + Add Address
-              </CustomButton>
-            ) : (
-              <div className="space-y-2">
-                {selectedAddress && (
-                  <div className="text-xs bg-primary/5 border border-primary/20 rounded-lg p-2">
-                    <p className="font-medium line-clamp-1">{selectedAddress.fullAddress}</p>
-                  </div>
-                )}
-                {addresses && addresses.length > 1 && (
-                  <select
-                    value={checkoutState.selectedAddressId || ""}
-                    onChange={(e) =>
-                      setCheckoutState((prev) => ({
-                        ...prev,
-                        selectedAddressId: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-1.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
-                  >
-                    {addresses.map((addr) => (
-                      <option key={addr.id} value={addr.id || ""}>
-                        {addr.fullAddress}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            )}
+            <ComboboxSelectLocation
+              dataSelect={selectedAddress as any}
+              onChangeSelected={(item) => {
+                if (item) {
+                  setCheckoutState((prev) => ({
+                    ...prev,
+                    selectedAddressId: item.id,
+                  }));
+                }
+              }}
+              label="Delivery Address"
+              required
+              placeholder="Select address..."
+              hasDefault={!!defaultAddress}
+              error={!checkoutState.selectedAddressId ? "Required" : ""}
+            />
           </div>
 
           {/* Delivery & Payment - Side by Side */}
           <div className="grid sm:grid-cols-2 gap-3">
-            {/* Delivery Option */}
+            {/* Delivery Option - Combobox */}
             <div className="bg-card border rounded-xl p-4">
-              <h3 className="font-semibold text-sm mb-2">Delivery</h3>
-              {!deliveryOptions || deliveryOptions.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No options</p>
-              ) : (
-                <select
-                  value={checkoutState.selectedDeliveryOptionId || ""}
-                  onChange={(e) =>
+              <ComboboxSelectDelivery
+                dataSelect={selectedDeliveryOption as any}
+                onChangeSelected={(item) => {
+                  if (item) {
                     setCheckoutState((prev) => ({
                       ...prev,
-                      selectedDeliveryOptionId: e.target.value,
-                    }))
+                      selectedDeliveryOptionId: item.id,
+                    }));
                   }
-                  className="w-full px-3 py-1.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
-                >
-                  <option value="">Select</option>
-                  {deliveryOptions.map((option) => (
-                    <option key={option.id} value={option.id || ""}>
-                      {option.name} - +{formatCurrency(option.price || 0)}
-                    </option>
-                  ))}
-                </select>
-              )}
+                }}
+                label="Delivery"
+                required
+                placeholder="Select option..."
+                error={!checkoutState.selectedDeliveryOptionId ? "Required" : ""}
+              />
             </div>
 
-            {/* Payment Option */}
+            {/* Payment Option - Combobox */}
             <div className="bg-card border rounded-xl p-4">
-              <h3 className="font-semibold text-sm mb-2">Payment</h3>
-              {!paymentOptions || paymentOptions.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No options</p>
-              ) : (
-                <select
-                  value={checkoutState.selectedPaymentOptionId || ""}
-                  onChange={(e) =>
+              <ComboboxSelectPayment
+                dataSelect={selectedPaymentOption as any}
+                onChangeSelected={(item) => {
+                  if (item) {
                     setCheckoutState((prev) => ({
                       ...prev,
-                      selectedPaymentOptionId: e.target.value,
-                    }))
+                      selectedPaymentOptionId: item.id,
+                    }));
                   }
-                  className="w-full px-3 py-1.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
-                >
-                  <option value="">Select</option>
-                  {paymentOptions.map((option) => (
-                    <option key={option.id} value={option.id || ""}>
-                      {option.name}
-                    </option>
-                  ))}
-                </select>
-              )}
+                }}
+                label="Payment"
+                required
+                placeholder="Select method..."
+                error={!checkoutState.selectedPaymentOptionId ? "Required" : ""}
+              />
             </div>
           </div>
 
