@@ -26,7 +26,7 @@ import { useAppDispatch } from "@/redux/store";
 import { fetchAllLocationsService } from "@/redux/features/location/store/thunks/location-thunks";
 import { fetchAllDeliveryOptionsService } from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
 import { fetchAllPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
-import { createOrderService } from "@/redux/features/main/store/thunks/order-thunks";
+import { createOrderService, CheckoutPayload } from "@/redux/features/main/store/thunks/order-thunks";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -204,7 +204,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      const checkoutPayload = {
+      const checkoutPayload: CheckoutPayload = {
         businessId: profile?.businessId || "",
         deliveryAddress: {
           village: selectedAddress.village || "",
@@ -255,7 +255,7 @@ export default function CheckoutPage() {
         },
         payment: {
           paymentMethod: selectedPaymentOption.paymentOptionType,
-          paymentStatus: "PENDING",
+          paymentStatus: "PENDING" as const,
         },
         customerNote: checkoutState.customerNote,
         orderProcessStatusName: "PENDING",
