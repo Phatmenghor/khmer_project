@@ -13,12 +13,16 @@ import {
 export const fetchDefaultAddressService = createApiThunk<
   LocationResponseModel,
   void
->("location/fetchDefault", async () => {
-  const response = await axiosClientWithAuth.get(
-    "/api/v1/locations/default"
-  );
-  return response.data.data;
-});
+>(
+  "location/fetchDefault",
+  async () => {
+    const response = await axiosClientWithAuth.get(
+      "/api/v1/locations/default"
+    );
+    return response.data.data;
+  },
+  { logError: false } // Don't log 404 - it's expected if no default exists
+);
 
 export const fetchAllLocationsService = createApiThunk<
   AllLocationResponseModel,
