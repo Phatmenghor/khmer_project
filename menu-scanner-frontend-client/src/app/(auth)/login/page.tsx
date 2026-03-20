@@ -46,7 +46,7 @@ export default function LoginPage() {
   async function onSubmit(values: FormData) {
     try {
       console.log("═══════════════════════════════════════════");
-      console.log("🔐 [LOGIN] Starting admin login...");
+      console.log("## [LOGIN] Starting admin login...");
 
       const result = await dispatch(
         loginService({
@@ -57,27 +57,27 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      console.log("🔐 [LOGIN] ✓ API successful, userType:", result.userType);
+      console.log("## [LOGIN] ✓ API successful, userType:", result.userType);
       
       // Verify token storage
       const { getAdminToken } = await import("@/utils/local-storage/token");
       const storedToken = getAdminToken();
-      console.log("🔐 [LOGIN] Token stored:", !!storedToken);
+      console.log("## [LOGIN] Token stored:", !!storedToken);
 
       showToast.success("✓ Welcome to admin dashboard!");
 
       // Small delay to ensure cookies are set
-      console.log("🔐 [LOGIN] Redirecting to /admin in 500ms...");
+      console.log("## [LOGIN] Redirecting to /admin in 500ms...");
       setTimeout(() => {
-        console.log("🔐 [LOGIN] Executing redirect to /admin");
+        console.log("## [LOGIN] Executing redirect to /admin");
         router.push(ROUTES.ADMIN.DASHBOARD);
         console.log("═══════════════════════════════════════════");
       }, 500);
     } catch (err: any) {
-      console.error("═══════════════════════════════════════════");
-      console.error("🔐 [LOGIN ERROR]", err?.message || err);
+      console.error("## ═══════════════════════════════════════════");
+      console.error("## ❌ [LOGIN ERROR]", err?.message || err);
       showToast.error(err?.message || error || "Login failed");
-      console.error("═══════════════════════════════════════════");
+      console.error("## ═══════════════════════════════════════════");
     }
   }
 

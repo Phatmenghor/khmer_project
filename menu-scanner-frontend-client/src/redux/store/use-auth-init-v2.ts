@@ -27,13 +27,13 @@ export function useAuthInitV2() {
     // Detect if we're on an admin route
     const isAdminRoute = pathname?.startsWith("/admin") === true;
 
-    console.log("🔐 [AUTH INIT] Route:", pathname, "| isAdminRoute:", isAdminRoute);
+    console.log("## [AUTH INIT] Route:", pathname, "| isAdminRoute:", isAdminRoute);
 
     // Get the correct token pair for this route
     const token = isAdminRoute ? getAdminToken() : getToken();
     const userInfo = isAdminRoute ? getAdminUserInfo() : getUserInfo();
 
-    console.log("🔐 [AUTH INIT] Cookie check:", {
+    console.log("## [AUTH INIT] Cookie check:", {
       isAdminRoute,
       hasToken: !!token,
       hasUserInfo: !!userInfo,
@@ -42,7 +42,7 @@ export function useAuthInitV2() {
 
     // If we have both token and user info, restore to Redux
     if (token && userInfo) {
-      console.log("🔐 [AUTH INIT] ✓ Restoring auth from cookies");
+      console.log("## [AUTH INIT] ✓ Restoring auth from cookies");
       dispatch(setUser(userInfo));
 
       // Try to fetch fresh profile (optional)
@@ -53,7 +53,7 @@ export function useAuthInitV2() {
     } else {
       // No auth data, mark as ready (not authenticated)
       if (!authReady) {
-        console.log("🔐 [AUTH INIT] ⚠ No auth data found");
+        console.log("## [AUTH INIT] ⚠ No auth data found");
         dispatch(setAuthReady());
       }
     }

@@ -28,7 +28,7 @@ export function AdminRouteGuardV2({ children }: AdminRouteGuardProps) {
   const isAdmin = userType === "BUSINESS_USER";
 
   useEffect(() => {
-    console.log("🛡️ [ADMIN GUARD] Checking access:", {
+    console.log("## [ADMIN GUARD] Checking access:", {
       authReady,
       isAuthenticated,
       userType,
@@ -37,14 +37,14 @@ export function AdminRouteGuardV2({ children }: AdminRouteGuardProps) {
 
     // Still loading auth
     if (!authReady) {
-      console.log("🛡️ [ADMIN GUARD] Auth still initializing...");
+      console.log("## [ADMIN GUARD] Auth still initializing...");
       setShowContent(false);
       return;
     }
 
     // Not authenticated
     if (!isAuthenticated) {
-      console.log("🛡️ [ADMIN GUARD] ❌ Not authenticated, redirecting to login");
+      console.log("## [ADMIN GUARD] ❌ Not authenticated, redirecting to login");
       router.replace(ROUTES.AUTH.LOGIN);
       return;
     }
@@ -52,14 +52,14 @@ export function AdminRouteGuardV2({ children }: AdminRouteGuardProps) {
     // Authenticated but not admin
     if (!isAdmin) {
       console.log(
-        "🛡️ [ADMIN GUARD] ❌ Not admin (userType: " + userType + "), redirecting to login"
+        "## ❌ [ADMIN GUARD] Not admin (userType: " + userType + "), redirecting to login"
       );
       router.replace(ROUTES.AUTH.LOGIN);
       return;
     }
 
     // All checks passed
-    console.log("🛡️ [ADMIN GUARD] ✓ Access granted, showing content");
+    console.log("## [ADMIN GUARD] ✓ Access granted, showing content");
     setShowContent(true);
   }, [authReady, isAuthenticated, userType, isAdmin, router]);
 
