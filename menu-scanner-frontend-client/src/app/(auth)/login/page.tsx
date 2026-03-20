@@ -54,10 +54,13 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
+<<<<<<< HEAD
       // If login succeeds, redirect to admin dashboard
                 showToast.success("Welcome to the emenu dashboard!");
+=======
+        showToast.success("Welcome to the emenu dashboard!");
+>>>>>>> 09ea732918ffc5f2ae8541ea3461db6453aa584a
         router.replace(ROUTES.ADMIN.DASHBOARD);
-      }
     } catch (err: any) {
       showToast.error(error || "Login failed. Please try again.");
     }
@@ -74,14 +77,16 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
+<<<<<<< HEAD
       // If login succeeds, redirect to admin dashboard
+=======
+>>>>>>> 09ea732918ffc5f2ae8541ea3461db6453aa584a
         showToast.success(
           result.isNewUser
             ? "Welcome! Your account has been created successfully."
             : "Welcome back!",
         );
         router.replace(ROUTES.ADMIN.DASHBOARD);
-      }
     } catch (err: any) {
       showToast.error(err || "Telegram login failed. Please try again.");
     } finally {
