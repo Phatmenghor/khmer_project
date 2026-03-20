@@ -67,7 +67,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             variant="ghost"
             size="icon"
             onClick={onMenuClick}
-            className="shrink-0 h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors sm:flex"
+            className="shrink-0 h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors sm:hidden"
             aria-label="Toggle menu"
           >
             <Menu className="h-5 w-5" />
