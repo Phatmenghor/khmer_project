@@ -49,12 +49,14 @@ export default function middleware(req: NextRequest) {
   }
 
   // =============================
-  // LOGIN PAGE
+  // LOGIN PAGE - ADMIN ONLY
   // =============================
-  if (pathname === "/login" && (isAdminAuth || isCustomerAuth)) {
+  if (pathname === "/login") {
+    // Admin logged in → redirect to /admin
     if (isAdminAuth && userType === "BUSINESS_USER") {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
+    // Customer logged in → BLOCK from /login, redirect to public
     if (isCustomerAuth) {
       return NextResponse.redirect(new URL("/", req.url));
     }
