@@ -92,10 +92,10 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
           </div>
 
           {/* Search and Actions Section */}
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-2 sm:gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:gap-2 lg:justify-start gap-2 sm:gap-4">
             {/* Search input */}
             {onSearchChange && (
-              <div className="flex w-full lg:w-[360px] items-center gap-2">
+              <div className="w-full lg:w-[280px] flex-shrink-0">
                 <div className="relative w-full group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   <Input
@@ -109,21 +109,21 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               </div>
             )}
 
-            {/* Right side actions */}
-            <div className="flex flex-wrap sm:items-end gap-2 w-full lg:w-auto">
-              {/* Filters */}
-              {customSelect && (
-                <div className="[&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200">
-                  {customSelect}
-                </div>
-              )}
+            {/* Filters */}
+            {customSelect && (
+              <div className="flex flex-wrap lg:flex-nowrap gap-2 items-end [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200 [&>*]:flex-shrink-0">
+                {customSelect}
+              </div>
+            )}
 
-              {children && (
-                <div className="flex flex-wrap items-center gap-2">
-                  {children}
-                </div>
-              )}
+            {children && (
+              <div className="flex flex-wrap lg:flex-nowrap items-center gap-2">
+                {children}
+              </div>
+            )}
 
+            {/* Right side buttons - push to right */}
+            <div className="flex flex-wrap lg:flex-nowrap gap-2 items-end lg:ml-auto">
               {buttonText && buttonHref && (
                 <TooltipProvider>
                   <Tooltip>
