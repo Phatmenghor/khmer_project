@@ -4,7 +4,7 @@ import { Edit, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { PaymentOptionResponse } from "../store/models/response/payment-option-response";
-import { PaginationResponse } from "../store/models/pagination-response";
+import { PaginationResponse } from "../store/models/response/pagination-response";
 
 interface PaymentOptionsTableHandlers {
   handleEditPaymentOption: (option: PaymentOptionResponse) => void;
@@ -28,7 +28,7 @@ export const paymentOptionsTableColumns = ({
       label: "#",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (_, index) => (
+      render: (_option, index) => (
         <span className="font-medium">
           {indexDisplay(data?.pageNo || 1, data?.pageSize || 15, index + 1)}
         </span>
