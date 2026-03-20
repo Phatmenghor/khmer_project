@@ -347,8 +347,8 @@ export default function CheckoutPage() {
 
   return (
     <PageContainer className="py-3 sm:py-6 pb-20">
-      {/* Compact Header */}
-      <div className="flex items-center gap-2 mb-4">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-6">
         <button
           onClick={() => router.back()}
           className="p-1.5 hover:bg-muted rounded-lg transition-colors"
@@ -356,16 +356,16 @@ export default function CheckoutPage() {
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Checkout</h1>
-          <p className="text-xs text-muted-foreground">{items.length} items</p>
+          <h1 className="text-2xl font-bold">Checkout</h1>
+          <p className="text-xs text-muted-foreground">{items.length} items in cart</p>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-4">
-        {/* Main Content - Compact */}
-        <div className="lg:col-span-2 space-y-3">
+      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-4">
           {/* Delivery Address - Using Combobox */}
-          <div className="bg-card border rounded-xl p-4">
+          <div className="bg-card border rounded-2xl p-4 sm:p-5">
             <ComboboxSelectLocation
               dataSelect={selectedAddress as any}
               onChangeSelected={(item) => {
@@ -385,9 +385,9 @@ export default function CheckoutPage() {
           </div>
 
           {/* Delivery & Payment - Side by Side */}
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-2 gap-4">
             {/* Delivery Option - Combobox */}
-            <div className="bg-card border rounded-xl p-4">
+            <div className="bg-card border rounded-2xl p-4 sm:p-5">
               <ComboboxSelectDelivery
                 dataSelect={selectedDeliveryOption as any}
                 onChangeSelected={(item) => {
@@ -398,7 +398,7 @@ export default function CheckoutPage() {
                     }));
                   }
                 }}
-                label="Delivery"
+                label="Delivery Option"
                 required
                 placeholder="Select option..."
                 error={!checkoutState.selectedDeliveryOptionId ? "Required" : ""}
@@ -406,7 +406,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment Option - Combobox */}
-            <div className="bg-card border rounded-xl p-4">
+            <div className="bg-card border rounded-2xl p-4 sm:p-5">
               <ComboboxSelectPayment
                 dataSelect={selectedPaymentOption as any}
                 onChangeSelected={(item) => {
@@ -417,7 +417,7 @@ export default function CheckoutPage() {
                     }));
                   }
                 }}
-                label="Payment"
+                label="Payment Method"
                 required
                 placeholder="Select method..."
                 error={!checkoutState.selectedPaymentOptionId ? "Required" : ""}
@@ -425,81 +425,101 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Order Items - Compact */}
-          <div className="bg-card border rounded-xl p-4">
-            <h3 className="font-semibold text-sm mb-3">Items ({items.length})</h3>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+          {/* Order Items */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-sm px-1">Items ({items.length})</h3>
+            <div className="space-y-3 max-h-64 overflow-y-auto">
               {items.map((item) => (
-                <div key={item.id} className="flex gap-2 pb-2 border-b last:pb-0 last:border-b-0">
-                  {/* Image */}
-                  <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-muted border flex-shrink-0">
-                    <Image
-                      src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
-                      alt={item.productName}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+                <div
+                  key={item.id}
+                  className="bg-card border rounded-2xl p-3 sm:p-4 hover:shadow-sm transition-shadow"
+                >
+                  <div className="flex gap-3">
+                    {/* Image */}
+                    <div className="relative w-[72px] h-[72px] rounded-xl overflow-hidden bg-muted border flex-shrink-0">
+                      <Image
+                        src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
+                        alt={item.productName}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium line-clamp-1">{item.productName}</p>
-                    {item.sizeName && (
-                      <p className="text-xs text-muted-foreground">Size: {item.sizeName}</p>
-                    )}
-                    <p className="text-xs font-bold text-primary mt-1">
-                      {formatCurrency(item.finalPrice)} × {item.quantity}
-                    </p>
-                  </div>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      {/* Product Name + Size */}
+                      <div className="flex items-center gap-2 min-w-0 mb-2">
+                        <p className="font-medium text-sm leading-snug line-clamp-1">{item.productName}</p>
+                        {item.sizeName && (
+                          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
+                            {item.sizeName}
+                          </span>
+                        )}
+                      </div>
 
-                  {/* Controls */}
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() =>
-                        handleQuantityChange(
-                          item.productId,
-                          item.productSizeId || null,
-                          item.quantity - 1
-                        )
-                      }
-                      className="p-1 hover:bg-muted rounded transition-colors"
-                    >
-                      <Minus className="h-3 w-3" />
-                    </button>
-                    <span className="w-4 text-center text-xs font-semibold">{item.quantity}</span>
-                    <button
-                      onClick={() =>
-                        handleQuantityChange(
-                          item.productId,
-                          item.productSizeId || null,
-                          item.quantity + 1
-                        )
-                      }
-                      className="p-1 hover:bg-muted rounded transition-colors"
-                    >
-                      <Plus className="h-3 w-3" />
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleQuantityChange(
-                          item.productId,
-                          item.productSizeId || null,
-                          0
-                        )
-                      }
-                      className="p-1 hover:bg-destructive/10 text-destructive rounded transition-colors ml-1"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
+                      {/* Price Info */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="font-bold text-sm text-primary">{formatCurrency(item.finalPrice)}</span>
+                      </div>
+
+                      {/* Qty controls + Total + Delete */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 w-full max-w-[140px]">
+                          <button
+                            onClick={() =>
+                              handleQuantityChange(
+                                item.productId,
+                                item.productSizeId || null,
+                                item.quantity - 1
+                              )
+                            }
+                            className="h-8 w-8 rounded-lg flex items-center justify-center border hover:bg-destructive hover:text-destructive-foreground transition-colors flex-shrink-0"
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
+                            {item.quantity}
+                          </div>
+                          <button
+                            onClick={() =>
+                              handleQuantityChange(
+                                item.productId,
+                                item.productSizeId || null,
+                                item.quantity + 1
+                              )
+                            }
+                            className="h-8 w-8 rounded-lg flex items-center justify-center border hover:bg-primary hover:text-primary-foreground transition-colors flex-shrink-0"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold whitespace-nowrap">{formatCurrency(item.totalPrice)}</span>
+                          <button
+                            onClick={() =>
+                              handleQuantityChange(
+                                item.productId,
+                                item.productSizeId || null,
+                                0
+                              )
+                            }
+                            className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all flex-shrink-0"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Customer Notes - Compact */}
-          <div className="bg-card border rounded-xl p-4">
-            <h3 className="font-semibold text-sm mb-2">Notes</h3>
+          {/* Customer Notes */}
+          <div className="bg-card border rounded-2xl p-4 sm:p-5">
+            <h3 className="font-semibold text-sm mb-3">Special Instructions</h3>
             <textarea
               value={checkoutState.customerNote}
               onChange={(e) =>
@@ -508,53 +528,69 @@ export default function CheckoutPage() {
                   customerNote: e.target.value.slice(0, 500),
                 }))
               }
-              placeholder="Special instructions..."
-              className="w-full h-16 p-2 rounded-lg border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-xs"
+              placeholder="Add any special requests or instructions for your order..."
+              className="w-full h-20 p-3 rounded-lg border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
               maxLength={500}
             />
-            <p className="text-xs text-muted-foreground mt-1">
-              {checkoutState.customerNote.length}/500
+            <p className="text-xs text-muted-foreground mt-2">
+              {checkoutState.customerNote.length}/500 characters
             </p>
           </div>
         </div>
 
-        {/* Sidebar - Order Summary - Compact & Sticky */}
+        {/* Sidebar - Order Summary */}
         <div className="lg:col-span-1">
-          <div className="bg-card border rounded-xl p-4 sticky top-20 space-y-3">
-            <h3 className="font-bold text-sm">Summary</h3>
+          <div className="bg-card border rounded-2xl p-5 sticky top-24 space-y-4">
+            <h2 className="text-lg font-bold flex items-center justify-between">
+              <span>Order Summary</span>
+              <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-lg">
+                {items.length} {items.length === 1 ? 'item' : 'items'}
+              </span>
+            </h2>
 
-            {/* Breakdown */}
-            <div className="space-y-1.5 text-xs pb-3 border-b">
-              <div className="flex justify-between">
+            <div className="space-y-3">
+              {/* Subtotal */}
+              <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-medium">{formatCurrency(subtotal)}</span>
               </div>
+
+              {/* Discount */}
               {totalDiscount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Discount</span>
-                  <span className="font-medium">-{formatCurrency(totalDiscount)}</span>
+                <div className="flex justify-between text-sm bg-red-50/30 dark:bg-red-950/20 p-2.5 rounded-lg border border-red-200/50 dark:border-red-800/30">
+                  <span className="text-red-700 dark:text-red-400 font-medium">Discount</span>
+                  <span className="font-bold text-red-600 dark:text-red-500">-{formatCurrency(totalDiscount)}</span>
                 </div>
               )}
-              <div className="flex justify-between">
+
+              {/* Delivery Fee */}
+              <div className="flex justify-between text-sm pt-2 border-t">
                 <span className="text-muted-foreground">Delivery</span>
-                <span className="font-medium">+{formatCurrency(deliveryFee)}</span>
+                <span className="text-muted-foreground font-medium">+{formatCurrency(deliveryFee)}</span>
+              </div>
+
+              {/* Total */}
+              <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-bold text-foreground">Total Amount</span>
+                  <span className="text-2xl font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                </div>
+                {totalDiscount > 0 && (
+                  <div className="text-xs text-red-600 dark:text-red-400 text-right pt-2 border-t border-primary/10">
+                    💰 You save <span className="font-bold">{formatCurrency(totalDiscount)}</span>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Total */}
-            <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
-              <p className="text-xs text-muted-foreground mb-1">Total</p>
-              <p className="text-xl font-bold text-primary">{formatCurrency(orderTotal)}</p>
-            </div>
-
-            {/* Validation */}
+            {/* Validation Alert */}
             {(!checkoutState.selectedAddressId ||
               !checkoutState.selectedDeliveryOptionId ||
               !checkoutState.selectedPaymentOptionId) && (
               <div className="flex gap-2 p-2.5 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200/50">
                 <AlertCircle className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Complete all fields
+                  Complete all required fields to proceed
                 </p>
               </div>
             )}
@@ -564,7 +600,7 @@ export default function CheckoutPage() {
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
               className={cn(
-                "w-full h-10 rounded-lg gap-2 font-semibold text-sm",
+                "w-full gap-2 h-11 rounded-xl font-semibold",
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
@@ -581,7 +617,7 @@ export default function CheckoutPage() {
               )}
             </CustomButton>
 
-            <p className="text-xs text-muted-foreground text-center">🔒 Secure</p>
+            <p className="text-xs text-muted-foreground text-center">🔒 Secure checkout</p>
           </div>
         </div>
       </div>
