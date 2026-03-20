@@ -145,10 +145,11 @@ export const logoutService = createApiThunk<void, void>(
     console.log("## [LOGOUT] Starting logout...");
     try {
       await axiosClientWithAuth.post("/api/v1/users/logout", {});
-      console.log("## [LOGOUT] ✓ Logout successful");
+      console.log("## [LOGOUT] ✓ Logout successful from server");
     } catch (err: any) {
-      console.error("## [LOGOUT] ❌ Error:", err?.response?.status, err?.message);
-      throw err;
+      // Logout endpoint might fail, but we'll clear tokens locally anyway
+      console.warn("## [LOGOUT] ⚠ Server logout failed (continuing with local cleanup):", err?.response?.status);
+      // Don't throw - continue to clear local tokens
     }
   }
 );
