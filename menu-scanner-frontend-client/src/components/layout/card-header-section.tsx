@@ -109,9 +109,12 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               </div>
             )}
 
-            {/* Filters */}
+            {/* Filters - Inline with labels */}
             {customSelect && (
-              <div className="flex flex-wrap lg:flex-nowrap gap-2 items-end [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200 [&>*]:flex-shrink-0 [&>*]:w-auto">
+              <div className="flex flex-wrap lg:flex-nowrap gap-3 items-end
+                [&>*]:flex [&>*]:flex-row [&>*]:gap-1.5 [&>*]:items-center [&>*]:w-auto
+                [&>*>label]:whitespace-nowrap [&>*>label]:text-xs [&>*>label]:font-medium [&>*>label]:min-w-fit
+                [&>*>div]:bg-gray-800 [&>*>div]:border-gray-700 [&>*>div]:text-gray-200 [&>*>div]:w-auto">
                 {customSelect}
               </div>
             )}
