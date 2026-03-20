@@ -1,15 +1,18 @@
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { selectPaymentOptionsState } from "../selectors/payment-options-selectors";
-import { PaymentOptionResponse } from "../models/response/payment-option-response";
-import { PaginationResponse } from "../models/pagination-response";
+import {
+  AllPaymentOptionResponseModel,
+  PaymentOptionResponse,
+} from "../models/response/payment-option-response";
 
 export function usePaymentOptionsState() {
   const dispatch = useAppDispatch();
   const paymentOptionsState = useAppSelector(selectPaymentOptionsState);
 
-  const paymentOptionsData = paymentOptionsState.data;
-  const paymentOptionsContent =
-    paymentOptionsData?.content || ([] as PaymentOptionResponse[]);
+  const paymentOptionsData: AllPaymentOptionResponseModel | null =
+    paymentOptionsState.data;
+  const paymentOptionsContent: PaymentOptionResponse[] =
+    paymentOptionsData?.content || [];
 
   const isLoading = {
     fetch: paymentOptionsState.isLoading,

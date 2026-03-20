@@ -3,8 +3,10 @@ import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { PaymentOptionResponse } from "../store/models/response/payment-option-response";
-import { PaginationResponse } from "../store/models/response/pagination-response";
+import {
+  AllPaymentOptionResponseModel,
+  PaymentOptionResponse,
+} from "../store/models/response/payment-option-response";
 
 interface PaymentOptionsTableHandlers {
   handleEditPaymentOption: (option: PaymentOptionResponse) => void;
@@ -12,7 +14,7 @@ interface PaymentOptionsTableHandlers {
 }
 
 interface PaymentOptionsTableOptions {
-  data: PaginationResponse<PaymentOptionResponse> | null;
+  data: AllPaymentOptionResponseModel | null;
   handlers: PaymentOptionsTableHandlers;
 }
 

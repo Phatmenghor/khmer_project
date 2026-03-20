@@ -1,9 +1,11 @@
 import { Status } from "@/constants/status/status";
-import { PaymentOptionResponse } from "../response/payment-option-response";
-import { PaginationResponse } from "@/redux/features/master-data/store/models/pagination-response";
+import {
+  AllPaymentOptionResponseModel,
+  PaymentOptionResponse,
+} from "../response/payment-option-response";
 
 export interface PaymentOptionsManagementState {
-  data: PaginationResponse<PaymentOptionResponse> | null;
+  data: AllPaymentOptionResponseModel | null;
   selectedPaymentOption: PaymentOptionResponse | null;
   isLoading: boolean;
   error: string | null;
