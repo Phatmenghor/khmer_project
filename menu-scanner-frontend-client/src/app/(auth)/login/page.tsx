@@ -54,13 +54,8 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-<<<<<<< HEAD
-      // If login succeeds, redirect to admin dashboard
-                showToast.success("Welcome to the emenu dashboard!");
-=======
-        showToast.success("Welcome to the emenu dashboard!");
->>>>>>> 09ea732918ffc5f2ae8541ea3461db6453aa584a
-        router.replace(ROUTES.ADMIN.DASHBOARD);
+      showToast.success("Welcome to the emenu dashboard!");
+      router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: any) {
       showToast.error(error || "Login failed. Please try again.");
     }
@@ -77,16 +72,12 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-<<<<<<< HEAD
-      // If login succeeds, redirect to admin dashboard
-=======
->>>>>>> 09ea732918ffc5f2ae8541ea3461db6453aa584a
-        showToast.success(
-          result.isNewUser
-            ? "Welcome! Your account has been created successfully."
-            : "Welcome back!",
-        );
-        router.replace(ROUTES.ADMIN.DASHBOARD);
+      showToast.success(
+        result.isNewUser
+          ? "Welcome! Your account has been created successfully."
+          : "Welcome back!",
+      );
+      router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: any) {
       showToast.error(err || "Telegram login failed. Please try again.");
     } finally {
@@ -150,9 +141,7 @@ export default function LoginPage() {
                 className="w-full h-11 mt-2 font-semibold"
                 disabled={isAnyLoading}
               >
-                {isLoading && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
