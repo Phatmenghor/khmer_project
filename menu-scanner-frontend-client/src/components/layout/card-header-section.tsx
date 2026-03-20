@@ -123,45 +123,42 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
           </div>
 
           {/* Search and Actions Section - Responsive Grid */}
-          <div className="space-y-3 sm:space-y-4">
-            {/* Row 1: Search + Select (on desktop they stay together) */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end">
-              {/* Search input */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 items-end">
+            {/* Left: Search input - Full width on mobile, 2 cols on desktop */}
+            <div className="lg:col-span-1">
               {onSearchChange && (
-                <div className="flex-1 min-w-0">
-                  <div className="relative w-full group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none flex-shrink-0" />
-                    <Input
-                      type="search"
-                      placeholder={searchPlaceholder}
-                      className="pl-10 w-full text-sm placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 hover:border-gray-600 transition-all duration-200"
-                      value={searchValue}
-                      onChange={onSearchChange}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Filters/Select on same row as search on desktop */}
-              {customSelect && (
-                <div className="w-full sm:w-auto flex-shrink-0 [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200 [&>*]:text-sm">
-                  {customSelect}
+                <div className="relative w-full group">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none flex-shrink-0" />
+                  <Input
+                    type="search"
+                    placeholder={searchPlaceholder}
+                    className="pl-10 w-full text-sm placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 hover:border-gray-600 transition-all duration-200"
+                    value={searchValue}
+                    onChange={onSearchChange}
+                  />
                 </div>
               )}
             </div>
 
-            {/* Row 2: Action buttons - Responsive layout */}
-            <div className="flex flex-wrap gap-2 sm:gap-3">
-              {/* Children (filter buttons etc) */}
+            {/* Middle: Filters/Select - Stack on mobile, side-by-side on tablet+ */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:col-span-1">
+              {customSelect && (
+                <div className="w-full [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200 [&>*]:text-sm [&>*]:w-full">
+                  {customSelect}
+                </div>
+              )}
               {children && (
-                <div className="w-full order-first sm:order-none flex flex-wrap gap-2 sm:gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3 w-full">
                   {children}
                 </div>
               )}
+            </div>
 
+            {/* Right: Action buttons - Stack on mobile, horizontal on desktop */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full lg:col-span-1 lg:flex-row">
               {/* Custom add button */}
               {customAddNewButton && (
-                <div className="w-full sm:w-auto">{customAddNewButton}</div>
+                <div className="flex-1 sm:flex-none">{customAddNewButton}</div>
               )}
 
               {/* Link button */}
@@ -218,9 +215,9 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               )}
             </div>
 
-            {/* Filters/Actions row */}
+            {/* Full width filters below on mobile/tablet */}
             {children1 && (
-              <div className="pt-2 sm:pt-3 [&>*]:text-gray-200 [&>*]:text-sm">
+              <div className="lg:col-span-3 pt-2 sm:pt-0 [&>*]:text-gray-200 [&>*]:text-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-auto gap-3">
                 {children1}
               </div>
             )}
