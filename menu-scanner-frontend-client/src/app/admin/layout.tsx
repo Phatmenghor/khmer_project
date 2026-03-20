@@ -1,11 +1,10 @@
 "use client";
 
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import { AdminRouteGuard } from "@/components/layout/route-guards";
+import { AdminRouteGuardV2 } from "@/components/layout/route-guards/admin-route-guard-v2";
 import type { ReactNode } from "react";
 
-// Force all admin routes to use dynamic rendering so useSearchParams() in
-// client components is not subject to the static pre-render Suspense check.
+// Force all admin routes to use dynamic rendering
 export const dynamic = "force-dynamic";
 
 interface DashboardGroupLayoutProps {
@@ -24,10 +23,10 @@ export default function DashboardGroupLayout({
   children,
 }: DashboardGroupLayoutProps) {
   return (
-    <AdminRouteGuard>
+    <AdminRouteGuardV2>
       <DashboardLayout>
         <div className="flex-1 space-y-4 pl-0 sm:pl-2">{children}</div>
       </DashboardLayout>
-    </AdminRouteGuard>
+    </AdminRouteGuardV2>
   );
 }

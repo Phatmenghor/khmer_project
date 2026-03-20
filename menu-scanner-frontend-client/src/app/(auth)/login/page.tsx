@@ -45,12 +45,8 @@ export default function LoginPage() {
 
   async function onSubmit(values: FormData) {
     try {
-      console.log("════════════════════════════════════════");
-      console.log("🔐 [STEP 1] Attempting login with:", {
-        userIdentifier: values.userIdentifier,
-        userType: "BUSINESS_USER",
-        businessId: AppDefault.BUSINESS_ID,
-      });
+      console.log("═══════════════════════════════════════════");
+      console.log("🔐 [LOGIN] Starting admin login...");
 
       const result = await dispatch(
         loginService({
@@ -61,38 +57,27 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      console.log("🔐 [STEP 2] ✓ Login API successful!");
-      console.log("🔐 [STEP 2.1] Response:", {
-        userType: result.userType,
-        hasAccessToken: !!result.accessToken,
-        email: result.email,
-      });
-
-      // Import and check if token was stored
+      console.log("🔐 [LOGIN] ✓ API successful, userType:", result.userType);
+      
+      // Verify token storage
       const { getAdminToken } = await import("@/utils/local-storage/token");
-      const adminToken = getAdminToken();
-      console.log("🔐 [STEP 2.2] Admin token storage check:", {
-        tokenStored: !!adminToken,
-        tokenLength: adminToken?.length,
-      });
+      const storedToken = getAdminToken();
+      console.log("🔐 [LOGIN] Token stored:", !!storedToken);
 
-      showToast.success("Welcome to the emenu dashboard!");
-      console.log("🔐 [STEP 3] Toast shown, redirecting to /admin");
+      showToast.success("✓ Welcome to admin dashboard!");
 
-      // Direct redirect
-      console.log("🔐 [STEP 4] Calling router.push to /admin");
-      router.push(ROUTES.ADMIN.DASHBOARD);
-      console.log("🔐 [STEP 5] Navigation initiated");
-      console.log("════════════════════════════════════════");
+      // Small delay to ensure cookies are set
+      console.log("🔐 [LOGIN] Redirecting to /admin in 500ms...");
+      setTimeout(() => {
+        console.log("🔐 [LOGIN] Executing redirect to /admin");
+        router.push(ROUTES.ADMIN.DASHBOARD);
+        console.log("═══════════════════════════════════════════");
+      }, 500);
     } catch (err: any) {
-      console.error("════════════════════════════════════════");
-      console.error("🔐 [LOGIN ERROR]:", {
-        message: err?.message,
-        code: err?.code,
-        fullError: err,
-      });
-      showToast.error(err?.message || error || "Login failed. Please try again.");
-      console.error("════════════════════════════════════════");
+      console.error("═══════════════════════════════════════════");
+      console.error("🔐 [LOGIN ERROR]", err?.message || err);
+      showToast.error(err?.message || error || "Login failed");
+      console.error("═══════════════════════════════════════════");
     }
   }
 
