@@ -141,16 +141,8 @@ const authSlice = createSlice({
         state.isAuthenticated = !!action.payload.accessToken;
         state.authReady = true;
 
-        // Store tokens in admin or customer cookies based on userType
-        if (action.payload.accessToken) {
-          if (isAdmin(action.payload.userType)) {
-            storeAdminTokens(action.payload.accessToken, action.payload.refreshToken);
-            storeAdminUserInfo(action.payload);
-          } else {
-            storeTokens(action.payload.accessToken, action.payload.refreshToken);
-            storeUserInfo(action.payload);
-          }
-        }
+        // NOTE: Token storage now happens in the loginService thunk (side effects in thunks, not reducers!)
+        // Reducer is pure function - no side effects here
       })
       .addCase(loginService.rejected, (state, action) => {
         state.isLoading = false;

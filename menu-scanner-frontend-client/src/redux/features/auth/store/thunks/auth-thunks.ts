@@ -9,6 +9,8 @@ import {
 } from "../models/request/auth-request";
 import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
+import { storeAdminTokens, storeAdminUserInfo, storeTokens, storeUserInfo } from "@/utils/local-storage/token";
+import { storeAdminUserInfo as storeAdminInfoUtil, storeUserInfo as storeUserInfoUtil } from "@/utils/local-storage/userInfo";
 
 /**
  * Login thunk
@@ -17,7 +19,29 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
   "auth/login",
   async (credentials) => {
     const response = await axiosClient.post("/api/v1/auth/login", credentials);
-    return response.data.data;
+    const data = response.data.data;
+
+    // Store tokens immediately in thunk BEFORE reducer runs
+    // Side effects belong in thunks, NOT in reducers!
+    if (data.accessToken) {
+      console.log("💾 [THUNK] Storing tokens for userType:", data.userType);
+      
+      const isAdmin = (userType?: string) => userType === "BUSINESS_USER";
+      
+      if (isAdmin(data.userType)) {
+        console.log("💾 [THUNK] Storing ADMIN tokens");
+        storeAdminTokens(data.accessToken, data.refreshToken);
+        storeAdminUserInfo(data);
+      } else {
+        console.log("💾 [THUNK] Storing CUSTOMER tokens");
+        storeTokens(data.accessToken, data.refreshToken);
+        storeUserInfo(data);
+      }
+      
+      console.log("💾 [THUNK] Tokens stored successfully");
+    }
+
+    return data;
   }
 );
 
