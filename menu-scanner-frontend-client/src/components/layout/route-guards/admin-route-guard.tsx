@@ -2,41 +2,26 @@
 
 import React, { useEffect, useState } from "react";
 import { useAppSelector } from "@/redux/store";
-import {
-  selectAuthReady,
-  selectUserType,
-} from "@/redux/features/auth/store/selectors/auth-selectors";
+import { selectAuthReady } from "@/redux/features/auth/store/selectors/auth-selectors";
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
 }
 
 /**
- * AdminRouteGuard - Checks if user is admin (BUSINESS_USER)
- * Middleware handles auth/redirect, this only checks user type
+ * AdminRouteGuard - Renders admin content
+ * Middleware checks token exists, guard just renders
  */
 export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
   const authReady = useAppSelector(selectAuthReady);
-  const userType = useAppSelector(selectUserType);
   const [showContent, setShowContent] = useState(false);
 
-  const isAdmin = userType === "BUSINESS_USER";
-
   useEffect(() => {
-    // Wait for auth to be ready
-    if (!authReady) {
-      setShowContent(false);
-      return;
-    }
-
-    // Show content only if admin
-    if (isAdmin) {
+    // Show content when auth is ready
+    if (authReady) {
       setShowContent(true);
-    } else {
-      // Not admin - show error (middleware should prevent this)
-      setShowContent(false);
     }
-  }, [authReady, isAdmin]);
+  }, [authReady]);
 
   // Still loading
   if (!authReady) {
@@ -52,6 +37,6 @@ export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     );
   }
 
-  // Show content if admin
+  // Show content (middleware ensures auth exists)
   return <>{showContent ? children : null}</>;
 }

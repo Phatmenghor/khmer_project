@@ -10,16 +10,6 @@ export default function middleware(req: NextRequest) {
   const customerToken = req.cookies.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
   const adminToken = req.cookies.get(COOKIE_KEYS.ADMIN_ACCESS_TOKEN)?.value;
 
-  // Determine user type
-  const isAdmin = !!adminToken;
-  const userInfoCookie = req.cookies.get(
-    isAdmin ? COOKIE_KEYS.ADMIN_USER_INFO : COOKIE_KEYS.USER_INFO
-  )?.value;
-  const userInfo = userInfoCookie
-    ? JSON.parse(decodeURIComponent(userInfoCookie))
-    : null;
-  const userType = userInfo?.userType;
-
   // Locale handling
   const localeCookie = req.cookies.get("locale")?.value;
   const locale =
@@ -28,31 +18,20 @@ export default function middleware(req: NextRequest) {
       : defaultLocale;
 
   // =============================
-  // ADMIN ROUTES - REQUIRE TOKEN
+  // ADMIN ROUTES - REQUIRE ADMIN TOKEN
   // =============================
   if (pathname.startsWith("/admin")) {
+    // Need admin token for /admin
     if (!adminToken) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }
 
   // =============================
-  // LOGIN PAGE - ONLY ADMIN
+  // PUBLIC ROUTES - ALLOW ALL
   // =============================
-  if (pathname === "/login") {
-    // Customer trying to access /login → redirect to /
-    if (customerToken && !adminToken) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-  }
-
-  // =============================
-  // PUBLIC ROUTES - BLOCK ADMIN ONLY
-  // =============================
-  if (pathname === "/" && isAdmin && userType === "BUSINESS_USER") {
-    // Admin on public home → redirect to /admin
-    return NextResponse.redirect(new URL("/admin", req.url));
-  }
+  // If on public page, just need some auth (admin can use customer auth, or customer)
+  // Don't block, don't redirect - let user use whichever auth they have
 
   // Continue request with locale header
   const response = NextResponse.next();
