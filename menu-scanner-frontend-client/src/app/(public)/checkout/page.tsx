@@ -266,14 +266,12 @@ export default function CheckoutPage() {
       // Call API endpoint to create order
       const orderResult = await dispatch(createOrderService(checkoutPayload)).unwrap();
 
-      showToast.success("Order placed successfully!");
+      showToast.success("✅ Order placed successfully! Redirecting...");
 
-      // Redirect to order confirmation
-      if (orderResult?.id) {
-        router.push(`/order-confirmation/${orderResult.id}`);
-      } else {
+      // Redirect to customer orders page
+      setTimeout(() => {
         router.push("/orders");
-      }
+      }, 1500);
     } catch (error: any) {
       console.error("Checkout error:", error);
       showToast.error(error?.message || "Failed to complete checkout");
