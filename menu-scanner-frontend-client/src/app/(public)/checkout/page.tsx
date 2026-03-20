@@ -21,9 +21,11 @@ import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useLocationState } from "@/redux/features/location/store/state/location-state";
 import { useDeliveryOptionsState } from "@/redux/features/master-data/store/state/delivery-options-state";
+import { usePaymentOptionsState } from "@/redux/features/master-data/store/state/payment-options-state";
 import { useAppDispatch } from "@/redux/store";
 import { fetchAllLocationsService } from "@/redux/features/location/store/thunks/location-thunks";
 import { fetchAllDeliveryOptionsService } from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
+import { fetchAllPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
 import { createOrderService } from "@/redux/features/main/store/thunks/order-thunks";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -37,16 +39,10 @@ import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slic
 interface CheckoutState {
   selectedAddressId: string | null;
   selectedDeliveryOptionId: string | null;
-  selectedPaymentMethod: string;
+  selectedPaymentOptionId: string | null;
   customerNote: string;
   isProcessing: boolean;
 }
-
-const PAYMENT_METHODS = [
-  { value: "CASH", label: "Cash on Delivery" },
-  { value: "BANK_TRANSFER", label: "Bank Transfer" },
-  { value: "ONLINE", label: "Online Payment" },
-];
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -54,23 +50,30 @@ export default function CheckoutPage() {
   const { isAuthenticated, profile, authReady } = useAuthState();
   const { items, finalTotal, subtotal, totalDiscount, totalQuantity } = useCartState();
   const { locations: addresses } = useLocationState();
-  const { deliveryOptionsContent: deliveryOptions, isLoading: deliveryLoading } = useDeliveryOptionsState();
+  const { deliveryOptionsContent: deliveryOptions } = useDeliveryOptionsState();
+  const { paymentOptionsContent: paymentOptions } = usePaymentOptionsState();
 
   const [checkoutState, setCheckoutState] = useState<CheckoutState>({
     selectedAddressId: null,
     selectedDeliveryOptionId: null,
-    selectedPaymentMethod: PAYMENT_METHODS[0].value,
+    selectedPaymentOptionId: null,
     customerNote: "",
     isProcessing: false,
   });
 
-  // Fetch addresses and delivery options on mount
+  // Fetch addresses, delivery options, and payment options on mount
   useEffect(() => {
     if (!authReady || !isAuthenticated) return;
 
     dispatch(fetchAllLocationsService());
     dispatch(
       fetchAllDeliveryOptionsService({
+        pageNo: 1,
+        pageSize: 100,
+      })
+    );
+    dispatch(
+      fetchAllPaymentOptionsService({
         pageNo: 1,
         pageSize: 100,
       })
@@ -99,6 +102,17 @@ export default function CheckoutPage() {
     }
   }, [deliveryOptions, checkoutState.selectedDeliveryOptionId]);
 
+  // Set default payment option if available
+  useEffect(() => {
+    if (paymentOptions && paymentOptions.length > 0 && !checkoutState.selectedPaymentOptionId) {
+      const firstOption = paymentOptions[0];
+      setCheckoutState((prev) => ({
+        ...prev,
+        selectedPaymentOptionId: firstOption.id || null,
+      }));
+    }
+  }, [paymentOptions, checkoutState.selectedPaymentOptionId]);
+
   const selectedAddress = useMemo(
     () => addresses?.find((addr) => addr.id === checkoutState.selectedAddressId),
     [addresses, checkoutState.selectedAddressId]
@@ -112,10 +126,12 @@ export default function CheckoutPage() {
     [deliveryOptions, checkoutState.selectedDeliveryOptionId]
   );
 
-  const selectedPaymentMethod = useMemo(
+  const selectedPaymentOption = useMemo(
     () =>
-      PAYMENT_METHODS.find((m) => m.value === checkoutState.selectedPaymentMethod),
-    [checkoutState.selectedPaymentMethod]
+      paymentOptions?.find(
+        (opt) => opt.id === checkoutState.selectedPaymentOptionId
+      ),
+    [paymentOptions, checkoutState.selectedPaymentOptionId]
   );
 
   const deliveryFee = selectedDeliveryOption?.price || 0;
@@ -135,10 +151,10 @@ export default function CheckoutPage() {
     }));
   };
 
-  const handlePaymentMethodChange = (method: string) => {
+  const handlePaymentOptionChange = (optionId: string) => {
     setCheckoutState((prev) => ({
       ...prev,
-      selectedPaymentMethod: method,
+      selectedPaymentOptionId: optionId,
     }));
   };
 
@@ -160,7 +176,8 @@ export default function CheckoutPage() {
   const canCheckout =
     items.length > 0 &&
     checkoutState.selectedAddressId &&
-    checkoutState.selectedDeliveryOptionId;
+    checkoutState.selectedDeliveryOptionId &&
+    checkoutState.selectedPaymentOptionId;
 
   const handleCheckout = async () => {
     if (!canCheckout) {
@@ -181,8 +198,14 @@ export default function CheckoutPage() {
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
+      if (!selectedPaymentOption) {
+        showToast.error("Please select a payment method");
+        setCheckoutState((prev) => ({ ...prev, isProcessing: false }));
+        return;
+      }
+
       const checkoutPayload = {
-        businessId: items[0]?.businessId || profile?.businessId,
+        businessId: profile?.businessId || "",
         deliveryAddress: {
           village: selectedAddress.village || "",
           commune: selectedAddress.commune || "",
@@ -201,8 +224,8 @@ export default function CheckoutPage() {
           price: selectedDeliveryOption.price || 0,
         },
         cart: {
-          businessId: items[0]?.businessId,
-          businessName: items[0]?.businessName || "",
+          businessId: profile?.businessId || "",
+          businessName: profile?.businessName || "",
           items: items.map((item) => ({
             id: item.id,
             productId: item.productId,
@@ -231,7 +254,7 @@ export default function CheckoutPage() {
           finalTotal: finalTotal,
         },
         payment: {
-          paymentMethod: checkoutState.selectedPaymentMethod as "CASH" | "BANK_TRANSFER" | "ONLINE",
+          paymentMethod: selectedPaymentOption.paymentOptionType,
           paymentStatus: "PENDING",
         },
         customerNote: checkoutState.customerNote,
@@ -441,27 +464,38 @@ export default function CheckoutPage() {
               <h2 className="text-lg font-bold">Payment Method</h2>
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-3">
-              {PAYMENT_METHODS.map((method) => (
-                <label
-                  key={method.value}
-                  className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-primary transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    value={method.value}
-                    checked={
-                      checkoutState.selectedPaymentMethod === method.value
-                    }
-                    onChange={() => handlePaymentMethodChange(method.value)}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{method.label}</p>
-                  </div>
-                </label>
-              ))}
-            </div>
+            {!paymentOptions || paymentOptions.length === 0 ? (
+              <p className="text-center py-6 text-muted-foreground">
+                No payment options available
+              </p>
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-3">
+                {paymentOptions.map((option) => (
+                  <label
+                    key={option.id}
+                    className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-primary transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                  >
+                    <input
+                      type="radio"
+                      name="payment"
+                      value={option.id || ""}
+                      checked={
+                        checkoutState.selectedPaymentOptionId === option.id
+                      }
+                      onChange={() =>
+                        handlePaymentOptionChange(option.id || "")
+                      }
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{option.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {option.paymentOptionType}
+                      </p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Customer Note Section */}
@@ -626,6 +660,14 @@ export default function CheckoutPage() {
                   +{formatCurrency(deliveryFee)}
                 </span>
               </div>
+
+              {/* Payment Method */}
+              <div className="flex justify-between text-sm mt-2">
+                <span className="text-muted-foreground">Payment Method</span>
+                <span className="font-medium">
+                  {selectedPaymentOption?.name || "Select method"}
+                </span>
+              </div>
             </div>
 
             {/* Total */}
@@ -651,6 +693,15 @@ export default function CheckoutPage() {
                 <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 dark:text-amber-400">
                   Please select a delivery option
+                </p>
+              </div>
+            )}
+
+            {!checkoutState.selectedPaymentOptionId && (
+              <div className="flex gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200/50 dark:border-amber-800/30">
+                <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  Please select a payment method
                 </p>
               </div>
             )}
