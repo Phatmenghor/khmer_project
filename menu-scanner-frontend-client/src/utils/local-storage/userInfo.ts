@@ -11,6 +11,7 @@ export function storeUserInfo(userInfo: any): void {
 
   setCookie(USER_INFO_KEY, JSON.stringify(userInfo), {
     maxAge: 365 * 24 * 60 * 60,
+    path: "/",
   });
 }
 
@@ -39,6 +40,7 @@ export function storeAdminUserInfo(userInfo: any): void {
   if (typeof window === "undefined") return;
   setCookie(COOKIE_KEYS.ADMIN_USER_INFO, JSON.stringify(userInfo), {
     maxAge: 365 * 24 * 60 * 60,
+    path: "/",
   });
 }
 
