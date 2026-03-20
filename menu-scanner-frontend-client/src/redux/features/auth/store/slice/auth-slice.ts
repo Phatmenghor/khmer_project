@@ -350,25 +350,51 @@ const authSlice = createSlice({
       .addCase(logoutService.fulfilled, (state) => {
         state.isLoading = false;
         state.isAuthenticated = false;
+
+        // Only clear tokens for the user type being logged out
+        const isAdmin = state.user?.userType === "BUSINESS_USER";
+
+        if (isAdmin) {
+          // Admin logout - only clear admin tokens
+          clearAdminTokens();
+          clearAdminUserInfo();
+          console.log("## [LOGOUT] Cleared admin tokens only");
+        } else {
+          // Customer logout - only clear customer tokens
+          clearAllTokens();
+          clearUserInfo();
+          console.log("## [LOGOUT] Cleared customer tokens only");
+        }
+
         state.user = null;
         state.profile = null;
         state.socialSync = null;
         state.isNewUser = false;
-        clearAllTokens();
-        clearUserInfo();
-        clearAdminTokens();
-        clearAdminUserInfo();
       })
       .addCase(logoutService.rejected, (state) => {
         // Even if server logout fails, clear local state
         state.isLoading = false;
         state.isAuthenticated = false;
+
+        // Only clear tokens for the user type being logged out
+        const isAdmin = state.user?.userType === "BUSINESS_USER";
+
+        if (isAdmin) {
+          // Admin logout - only clear admin tokens
+          clearAdminTokens();
+          clearAdminUserInfo();
+          console.log("## [LOGOUT] Cleared admin tokens only (on error)");
+        } else {
+          // Customer logout - only clear customer tokens
+          clearAllTokens();
+          clearUserInfo();
+          console.log("## [LOGOUT] Cleared customer tokens only (on error)");
+        }
+
         state.user = null;
         state.profile = null;
         state.socialSync = null;
         state.isNewUser = false;
-        clearAllTokens();
-        clearUserInfo();
         clearAdminTokens();
         clearAdminUserInfo();
       });
