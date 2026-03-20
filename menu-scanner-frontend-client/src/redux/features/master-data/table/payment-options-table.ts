@@ -30,7 +30,7 @@ export const paymentOptionsTableColumns = ({
       label: "#",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (_option, index) => (
+      render: (_, index) => (
         <span className="font-medium">
           {indexDisplay(data?.pageNo || 1, data?.pageSize || 15, index + 1)}
         </span>
@@ -71,18 +71,11 @@ export const paymentOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (option) => {
-        const isActive = option?.status === "ACTIVE";
-        return (
-          <span
-            className={`text-xs font-medium ${
-              isActive ? "text-green-600" : "text-gray-500"
-            }`}
-          >
-            {isActive ? "Active" : "Inactive"}
-          </span>
-        );
-      },
+      render: (option) => (
+        <span className="text-xs text-muted-foreground">
+          {option?.status || "---"}
+        </span>
+      ),
     },
     {
       key: "createdAt",
