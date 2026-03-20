@@ -25,19 +25,19 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
     // Side effects belong in thunks, NOT in reducers!
     if (data.accessToken) {
       console.log("## [THUNK] Storing tokens for userType:", data.userType);
-      
+
       const isAdmin = (userType?: string) => userType === "BUSINESS_USER";
-      
+
       if (isAdmin(data.userType)) {
-        console.log("## [THUNK] Storing ADMIN tokens");
+        console.log("## [THUNK] Storing ADMIN tokens (keeping customer auth)");
         storeAdminTokens(data.accessToken, data.refreshToken);
         storeAdminUserInfo(data);
       } else {
-        console.log("## [THUNK] Storing CUSTOMER tokens");
+        console.log("## [THUNK] Storing CUSTOMER tokens (keeping admin auth)");
         storeTokens(data.accessToken, data.refreshToken);
         storeUserInfo(data);
       }
-      
+
       console.log("## [THUNK] Tokens stored successfully");
     }
 
