@@ -33,7 +33,7 @@ export function storeTokenRemember(token: string | undefined): void {
   }
 
   const maxAge = getMaxAgeFromToken(token, 365 * 24 * 60 * 60);
-  setCookie(ACCESS_TOKEN_KEY, token, { maxAge });
+  setCookie(ACCESS_TOKEN_KEY, token, { maxAge, path: "/" });
 }
 
 export function getToken() {
@@ -50,7 +50,7 @@ export function storeToken(token: string | undefined): void {
   }
 
   const maxAge = getMaxAgeFromToken(token, 7 * 24 * 60 * 60); // fallback: 7 days
-  setCookie(ACCESS_TOKEN_KEY, token, { maxAge });
+  setCookie(ACCESS_TOKEN_KEY, token, { maxAge, path: "/" });
 }
 
 /**
@@ -62,7 +62,7 @@ export function storeRefreshToken(refreshToken: string | undefined): void {
   }
 
   const maxAge = getMaxAgeFromToken(refreshToken, 30 * 24 * 60 * 60); // fallback: 30 days
-  setCookie(REFRESH_TOKEN_KEY, refreshToken, { maxAge });
+  setCookie(REFRESH_TOKEN_KEY, refreshToken, { maxAge, path: "/" });
 }
 
 /**
@@ -111,13 +111,13 @@ export function clearAllTokens(): void {
 export function storeAdminToken(token: string | undefined): void {
   if (typeof window === "undefined" || !token) return;
   const maxAge = getMaxAgeFromToken(token, 7 * 24 * 60 * 60);
-  setCookie(COOKIE_KEYS.ADMIN_ACCESS_TOKEN, token, { maxAge });
+  setCookie(COOKIE_KEYS.ADMIN_ACCESS_TOKEN, token, { maxAge, path: "/" });
 }
 
 export function storeAdminRefreshToken(refreshToken: string | undefined): void {
   if (typeof window === "undefined" || !refreshToken) return;
   const maxAge = getMaxAgeFromToken(refreshToken, 30 * 24 * 60 * 60);
-  setCookie(COOKIE_KEYS.ADMIN_REFRESH_TOKEN, refreshToken, { maxAge });
+  setCookie(COOKIE_KEYS.ADMIN_REFRESH_TOKEN, refreshToken, { maxAge, path: "/" });
 }
 
 export function storeAdminTokens(

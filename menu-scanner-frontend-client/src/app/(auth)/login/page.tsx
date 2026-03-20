@@ -45,7 +45,13 @@ export default function LoginPage() {
 
   async function onSubmit(values: FormData) {
     try {
-      console.log("🔐 Attempting login...");
+      console.log("════════════════════════════════════════");
+      console.log("🔐 [STEP 1] Attempting login with:", {
+        userIdentifier: values.userIdentifier,
+        userType: "BUSINESS_USER",
+        businessId: AppDefault.BUSINESS_ID,
+      });
+
       const result = await dispatch(
         loginService({
           userIdentifier: values.userIdentifier,
@@ -55,21 +61,38 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      console.log("✓ Login successful, result:", result);
-      showToast.success("Welcome to the emenu dashboard!");
+      console.log("🔐 [STEP 2] ✓ Login API successful!");
+      console.log("🔐 [STEP 2.1] Response:", {
+        userType: result.userType,
+        hasAccessToken: !!result.accessToken,
+        email: result.email,
+      });
 
-      // Use push for better navigation, with window.location fallback
-      setTimeout(() => {
-        try {
-          router.push(ROUTES.ADMIN.DASHBOARD);
-        } catch (navErr) {
-          console.error("✗ Push failed, using window.location:", navErr);
-          window.location.href = ROUTES.ADMIN.DASHBOARD;
-        }
-      }, 300);
+      // Import and check if token was stored
+      const { getAdminToken } = await import("@/utils/local-storage/token");
+      const adminToken = getAdminToken();
+      console.log("🔐 [STEP 2.2] Admin token storage check:", {
+        tokenStored: !!adminToken,
+        tokenLength: adminToken?.length,
+      });
+
+      showToast.success("Welcome to the emenu dashboard!");
+      console.log("🔐 [STEP 3] Toast shown, redirecting to /admin");
+
+      // Direct redirect
+      console.log("🔐 [STEP 4] Calling router.push to /admin");
+      router.push(ROUTES.ADMIN.DASHBOARD);
+      console.log("🔐 [STEP 5] Navigation initiated");
+      console.log("════════════════════════════════════════");
     } catch (err: any) {
-      console.error("✗ Login failed:", err);
+      console.error("════════════════════════════════════════");
+      console.error("🔐 [LOGIN ERROR]:", {
+        message: err?.message,
+        code: err?.code,
+        fullError: err,
+      });
       showToast.error(err?.message || error || "Login failed. Please try again.");
+      console.error("════════════════════════════════════════");
     }
   }
 
