@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/redux/store/hooks";
+import { useAppSelector } from "@/redux/store";
 import {
   selectIsAuthenticated,
   selectAuthReady,
