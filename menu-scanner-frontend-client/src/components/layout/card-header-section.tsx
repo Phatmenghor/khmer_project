@@ -1,13 +1,5 @@
 "use client";
 // components/CardHeaderSection.tsx
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,13 +16,7 @@ import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/redux/store/use-mobile";
 import { ActionButton } from "../shared/button/action-button";
 
-interface BreadcrumbItemType {
-  label: string;
-  href?: string;
-}
-
 interface CardHeaderSectionProps {
-  breadcrumbs?: BreadcrumbItemType[];
   title?: string;
   searchPlaceholder?: string;
   searchValue?: string;
@@ -49,7 +35,6 @@ interface CardHeaderSectionProps {
 }
 
 export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
-  breadcrumbs,
   title,
   searchPlaceholder = "Search...",
   searchValue,
@@ -72,38 +57,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
   return (
     <div>
       <Card>
-        <CardContent className="p-3 sm:p-4 md:p-5">
-          {/* Breadcrumb - Compact */}
-          {breadcrumbs && breadcrumbs.length > 0 && (
-            <div className="mb-2.5">
-              <Breadcrumb>
-                <BreadcrumbList>
-                  {breadcrumbs.map((item, index) => (
-                    <React.Fragment key={index}>
-                      <BreadcrumbItem>
-                        {item.href ? (
-                          <BreadcrumbLink
-                            href={item.href}
-                            className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
-                          >
-                            {item.label}
-                          </BreadcrumbLink>
-                        ) : (
-                          <BreadcrumbPage className="text-xs text-gray-500 font-medium">
-                            {item.label}
-                          </BreadcrumbPage>
-                        )}
-                      </BreadcrumbItem>
-                      {index < breadcrumbs.length - 1 && (
-                        <BreadcrumbSeparator className="text-gray-600" />
-                      )}
-                    </React.Fragment>
-                  ))}
-                </BreadcrumbList>
-              </Breadcrumb>
-            </div>
-          )}
-
+        <CardContent className="py-3 sm:py-4 px-3 sm:px-4">
           {/* Header Row: Title (Left) + Add Button (Right) */}
           <div className="flex items-center justify-between gap-3 mb-2.5">
             {/* Back button + Title */}
