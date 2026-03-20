@@ -66,9 +66,9 @@ export default function LoginPage() {
 
       showToast.success("✓ Welcome to admin dashboard!");
 
-      // Use replace() — no setTimeout, cleaner history (no back button loop)
+      // Use router.replace() — Next routing, no back button loop
       console.log("## [LOGIN] Hard redirect to /admin");
-      window.location.replace(ROUTES.ADMIN.DASHBOARD);
+      router.replace(ROUTES.ADMIN.DASHBOARD);
       console.log("═══════════════════════════════════════════");
     } catch (err: any) {
       console.error("## ═══════════════════════════════════════════");
@@ -97,8 +97,8 @@ export default function LoginPage() {
           : "Welcome back!",
       );
 
-      // Use replace() — no setTimeout, cleaner history (no back button loop)
-      window.location.replace(ROUTES.ADMIN.DASHBOARD);
+      // Use router.replace() — Next routing, no back button loop
+      router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: any) {
       console.error("✗ Telegram auth failed:", err);
       showToast.error(err?.message || err || "Telegram login failed. Please try again.");
