@@ -44,6 +44,7 @@ export function useAuthInit() {
     if (token && userInfo) {
       console.log("## [AUTH INIT] ✓ Restoring auth from cookies");
       dispatch(setUser(userInfo));
+      dispatch(setAuthReady());
 
       // Try to fetch fresh profile (optional)
       dispatch(getProfileService()).catch((err) => {
