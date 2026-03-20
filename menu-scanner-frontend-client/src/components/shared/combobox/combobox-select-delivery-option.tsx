@@ -161,8 +161,13 @@ export function ComboboxSelectDelivery({
             disabled={disabled}
           >
             <span className="truncate line-clamp-1">
-              {dataSelect ? `${dataSelect.name} - +${formatCurrency(dataSelect.price || 0)}` : placeholder}
+              {dataSelect ? dataSelect.name : placeholder}
             </span>
+            {dataSelect && (
+              <span className="text-sm font-semibold text-primary flex-shrink-0 ml-2 whitespace-nowrap">
+                +{formatCurrency(dataSelect.price || 0)}
+              </span>
+            )}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -181,7 +186,9 @@ export function ComboboxSelectDelivery({
               className="text-sm h-11 px-3 border-b"
             />
             <CommandList className="max-h-48 overflow-y-auto">
-              <CommandEmpty className="text-xs">No option found.</CommandEmpty>
+              <CommandEmpty className="text-sm py-4 text-center text-muted-foreground">
+                No delivery option found.
+              </CommandEmpty>
               <CommandGroup>
                 {data.map((item, index) => (
                   <CommandItem
@@ -189,7 +196,7 @@ export function ComboboxSelectDelivery({
                     value={item.name}
                     onSelect={() => handleSelect(item)}
                     ref={index === data.length - 1 ? ref : null}
-                    className="text-sm py-2"
+                    className="text-sm py-2.5"
                   >
                     <Check
                       className={cn(
@@ -198,13 +205,11 @@ export function ComboboxSelectDelivery({
                       )}
                     />
                     <span className="truncate line-clamp-1 flex-1">
-                      {item.name} - +{formatCurrency(item.price || 0)}
+                      {item.name}
                     </span>
-                    {item.description && (
-                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                        ({item.description})
-                      </span>
-                    )}
+                    <span className="text-sm font-semibold text-primary flex-shrink-0 ml-2 whitespace-nowrap">
+                      +{formatCurrency(item.price || 0)}
+                    </span>
                   </CommandItem>
                 ))}
               </CommandGroup>

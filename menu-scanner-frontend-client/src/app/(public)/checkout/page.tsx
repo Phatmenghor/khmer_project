@@ -115,6 +115,9 @@ export default function CheckoutPage() {
           fetchAllDeliveryOptionsService({
             pageNo: 1,
             pageSize: 100,
+            search: "",
+            businessId: profile?.businessId,
+            statuses: ["ACTIVE"],
           })
         );
       } catch (error) {

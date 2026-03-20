@@ -12,14 +12,14 @@ import {
 import { CreateDeliveryOptionsData } from "../models/schema/delivery-options-schema";
 
 /**
- * Fetch all DeliveryOptions
+ * Fetch all DeliveryOptions from /api/v1/delivery-options/all
  */
 export const fetchAllDeliveryOptionsService = createApiThunk<
   any,
   AllDeliveryOptionsRequest
 >("delivery-options/fetchAll", async (params) => {
   const response = await axiosClientWithAuth.post(
-    "/api/v1/delivery-options/my-business/all",
+    "/api/v1/delivery-options/all",
     params
   );
   return response.data.data;
