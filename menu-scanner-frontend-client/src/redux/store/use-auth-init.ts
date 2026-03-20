@@ -33,6 +33,12 @@ export function useAuthInit() {
     const token = isAdminRoute ? getAdminToken() : getToken();
     const userInfo = isAdminRoute ? getAdminUserInfo() : getUserInfo();
 
+    console.log("## [AUTH INIT] Raw values:", {
+      tokenType: typeof token,
+      tokenLength: token?.length,
+      userInfoType: typeof userInfo,
+    });
+
     console.log("## [AUTH INIT] Cookie check:", {
       isAdminRoute,
       hasToken: !!token,
