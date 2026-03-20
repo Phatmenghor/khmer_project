@@ -15,6 +15,13 @@ import {
   clearAdminTokens,
 } from "../local-storage/token";
 
+/** Detect if user is admin by checking which token exists in cookies */
+const isAdminUser = (): boolean => {
+  if (typeof window === "undefined") return false;
+  // Prioritize admin token if it exists
+  return !!getAdminToken();
+};
+
 /** True when the current page is an admin route (browser only). */
 const isAdminPath = (): boolean =>
   typeof window !== "undefined" &&
@@ -320,9 +327,9 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       config.headers = config.headers || {};
       config.headers["X-Request-ID"] = requestId;
 
-      // Handle authentication — pick admin or customer token by route
+      // Handle authentication — pick admin or customer token by which one exists
       if (requiresAuth) {
-        const token = isAdminPath() ? getAdminToken() : getToken();
+        const token = isAdminUser() ? getAdminToken() : getToken();
 
         if (token) {
           config.headers["Authorization"] = `Bearer ${token}`;
@@ -482,11 +489,11 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       if (err.response?.status === 401 && originalRequest && !originalRequest._retry) {
         // Check if this is the refresh token endpoint itself failing
         if (originalRequest.url?.includes("/api/v1/auth/refresh")) {
-          const admin = isAdminPath();
+          const admin = isAdminUser();
           if (admin) clearAdminTokens(); else clearAllTokens();
           if (typeof window !== "undefined") {
             toast.error("Session expired. Please login again.");
-            window.location.href = admin ? "/login" : "/";
+            window.location.href = admin ? "/admin/login" : "/login";
           }
           return Promise.reject(error);
         }
@@ -510,8 +517,8 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         originalRequest._retry = true;
         isRefreshing = true;
 
-        // Try to refresh the token — use the right pair based on route
-        const admin = isAdminPath();
+        // Try to refresh the token — use the right pair based on which token exists
+        const admin = isAdminUser();
         const refreshToken = admin ? getAdminRefreshToken() : getRefreshToken();
 
         if (!refreshToken) {
@@ -519,7 +526,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           if (admin) clearAdminTokens(); else clearAllTokens();
           if (typeof window !== "undefined") {
             toast.error("Session expired. Please login again.");
-            window.location.href = admin ? "/login" : "/";
+            window.location.href = admin ? "/admin/login" : "/login";
           }
           return Promise.reject(error);
         }
@@ -553,7 +560,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           if (admin) clearAdminTokens(); else clearAllTokens();
           if (typeof window !== "undefined") {
             toast.error("Session expired. Please login again.");
-            window.location.href = admin ? "/login" : "/";
+            window.location.href = admin ? "/admin/login" : "/login";
           }
           return Promise.reject(refreshError);
         } finally {
