@@ -9,7 +9,16 @@ export default function middleware(req: NextRequest) {
   // Check for both customer and admin tokens
   const customerToken = req.cookies.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
   const adminToken = req.cookies.get(COOKIE_KEYS.ADMIN_ACCESS_TOKEN)?.value;
-  const hasAuth = customerToken || adminToken;
+
+  // Determine user type
+  const isAdmin = !!adminToken;
+  const userInfoCookie = req.cookies.get(
+    isAdmin ? COOKIE_KEYS.ADMIN_USER_INFO : COOKIE_KEYS.USER_INFO
+  )?.value;
+  const userInfo = userInfoCookie
+    ? JSON.parse(decodeURIComponent(userInfoCookie))
+    : null;
+  const userType = userInfo?.userType;
 
   // Locale handling
   const localeCookie = req.cookies.get("locale")?.value;
@@ -19,13 +28,30 @@ export default function middleware(req: NextRequest) {
       : defaultLocale;
 
   // =============================
-  // ADMIN ROUTES - REQUIRE AUTH
+  // ADMIN ROUTES - REQUIRE TOKEN
   // =============================
   if (pathname.startsWith("/admin")) {
-    if (!hasAuth) {
-      // No token - redirect to login immediately
+    if (!adminToken) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
+  }
+
+  // =============================
+  // LOGIN PAGE - ONLY ADMIN
+  // =============================
+  if (pathname === "/login") {
+    // Customer trying to access /login → redirect to /
+    if (customerToken && !adminToken) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+  }
+
+  // =============================
+  // PUBLIC ROUTES - BLOCK ADMIN ONLY
+  // =============================
+  if (pathname === "/" && isAdmin && userType === "BUSINESS_USER") {
+    // Admin on public home → redirect to /admin
+    return NextResponse.redirect(new URL("/admin", req.url));
   }
 
   // Continue request with locale header

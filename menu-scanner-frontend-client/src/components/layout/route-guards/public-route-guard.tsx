@@ -2,18 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { useAppSelector } from "@/redux/store";
-import {
-  selectAuthReady,
-  selectUserType,
-} from "@/redux/features/auth/store/selectors/auth-selectors";
+import { selectAuthReady } from "@/redux/features/auth/store/selectors/auth-selectors";
 
 interface PublicRouteGuardProps {
   children: React.ReactNode;
 }
 
 /**
- * PublicRouteGuard - Allows access to public pages
- * Middleware handles auth checks, this just renders content
+ * PublicRouteGuard - Just waits for auth ready
+ * Middleware handles all redirects (faster, server-side)
  */
 export function PublicRouteGuard({ children }: PublicRouteGuardProps) {
   const authReady = useAppSelector(selectAuthReady);
@@ -40,6 +37,6 @@ export function PublicRouteGuard({ children }: PublicRouteGuardProps) {
     );
   }
 
-  // Show content (public page accessible to all)
+  // Show content for all users on public pages
   return <>{showContent ? children : null}</>;
 }
