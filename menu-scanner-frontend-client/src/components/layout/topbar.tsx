@@ -14,10 +14,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { clearToken } from "@/utils/local-storage/token";
-import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { useLogout } from "@/redux/store/use-logout";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { CustomDropdownMenu } from "@/components/shared/common/custom-dropdown-menu";
 
@@ -45,16 +44,13 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const pathname = usePathname();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   const { profile, fullName, profileImage } = useAuthState();
+  const { logout: handleLogout } = useLogout();
 
   const breadcrumbs = getBreadcrumbs(pathname);
 
-  const handleLogout = () => {
-    clearToken();
-    clearUserInfo();
+  const confirmLogout = async () => {
     setShowLogoutAlert(false);
-    setTimeout(() => {
-      router.replace(ROUTES.AUTH.LOGIN);
-    }, 100);
+    await handleLogout();
   };
 
   return (
@@ -195,7 +191,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
               Stay Signed In
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleLogout}
+              onClick={confirmLogout}
               className="w-full sm:w-auto bg-red-600 hover:bg-red-700 focus:ring-red-600 rounded-xl gap-2"
             >
               <LogOut className="h-4 w-4" />

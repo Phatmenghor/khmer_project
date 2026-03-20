@@ -24,10 +24,8 @@ import { CustomButton } from "../shared/button/custom-button";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
-import { logout } from "@/redux/features/auth/store/slice/auth-slice";
 import { showToast } from "@/components/shared/common/show-toast";
-import { clearToken } from "@/utils/local-storage/token";
-import { clearUserInfo } from "@/utils/local-storage/userInfo";
+import { useLogout } from "@/redux/store/use-logout";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { LoginModal } from "../shared/modal/login-modal";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
@@ -52,10 +50,11 @@ export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { isAuthenticated, profile, fullName, email, profileImage, dispatch } =
+  const { isAuthenticated, profile, fullName, email, profileImage } =
     useAuthState();
   const { totalItems: cartItemCount } = useCartState();
   const { totalItems: favoriteItemCount } = useFavoriteState();
+  const { logout: handleLogout } = useLogout();
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);
@@ -112,13 +111,6 @@ export function Navbar() {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    clearToken();
-    clearUserInfo();
-    showToast.success("You've been logged out successfully");
-    router.push("/");
-  };
 
   const dropdownSections = [
     {
