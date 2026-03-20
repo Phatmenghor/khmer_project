@@ -4,7 +4,6 @@ import { Suspense, useEffect } from "react";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
-import { PublicRouteGuard } from "@/components/layout/route-guards";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
@@ -49,23 +48,21 @@ export default function PublicLayout({
   ]);
 
   return (
-    <PublicRouteGuard>
-      <div className="min-h-screen flex flex-col bg-background">
-        <Navbar />
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
 
-        {/* Extra bottom padding on mobile so content clears the fixed bottom nav */}
-        <main className="flex-1 pb-16 sm:pb-0">
-          <Suspense>{children}</Suspense>
-        </main>
+      {/* Extra bottom padding on mobile so content clears the fixed bottom nav */}
+      <main className="flex-1 pb-16 sm:pb-0">
+        <Suspense>{children}</Suspense>
+      </main>
 
-        {/* Footer — hidden on mobile (replaced by bottom nav) */}
-        <div className="hidden sm:block">
-          <Footer />
-        </div>
-
-        {/* Native-style bottom tab bar — mobile only */}
-        <BottomNav />
+      {/* Footer — hidden on mobile (replaced by bottom nav) */}
+      <div className="hidden sm:block">
+        <Footer />
       </div>
-    </PublicRouteGuard>
+
+      {/* Native-style bottom tab bar — mobile only */}
+      <BottomNav />
+    </div>
   );
 }
