@@ -588,19 +588,26 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       // Get request ID from metadata
       const requestId = err.config?.metadata?.requestId || "unknown";
 
-      // Log error with details and request ID
-      const errorDetails = {
-        method: err.config?.method?.toUpperCase(),
-        url: err.config?.url,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        message: err.message,
-      };
+      // Don't log 404 for endpoints where it's expected (e.g., no default address)
+      const is404ForExpectedEndpoint =
+        err.response?.status === 404 &&
+        err.config?.url?.includes("/locations/default");
 
-      logger.error(`API Error:`, errorDetails, requestId);
+      if (!is404ForExpectedEndpoint) {
+        // Log error with details and request ID
+        const errorDetails = {
+          method: err.config?.method?.toUpperCase(),
+          url: err.config?.url,
+          status: err.response?.status,
+          statusText: err.response?.statusText,
+          message: err.message,
+        };
 
-      // Enhanced error request body logging
-      if (err.config?.data) {
+        logger.error(`API Error:`, errorDetails, requestId);
+      }
+
+      // Enhanced error request body logging (skip for expected 404s)
+      if (err.config?.data && !is404ForExpectedEndpoint) {
         // Log with comprehensive details
         logger.error(
           `Request body for failed request:`,
@@ -617,8 +624,8 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         );
       }
 
-      // Always log response data for errors with enhanced details
-      if (err.response?.data) {
+      // Log response data for errors (skip for expected 404s)
+      if (err.response?.data && !is404ForExpectedEndpoint) {
         const errorResponseData = err.response.data;
         let formattedErrorData;
 
