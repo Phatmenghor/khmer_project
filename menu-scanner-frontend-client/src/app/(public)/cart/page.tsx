@@ -200,7 +200,7 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
-    showToast.success("Proceeding to checkout...");
+    router.push("/checkout");
   };
 
   if (!mounted || !authReady) return <CartPageSkeleton />;
