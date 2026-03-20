@@ -54,8 +54,8 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      if (result) {
-        showToast.success("Welcome to the emenu dashboard!");
+      // If login succeeds, redirect to admin dashboard
+                showToast.success("Welcome to the emenu dashboard!");
         router.replace(ROUTES.ADMIN.DASHBOARD);
       }
     } catch (err: any) {
@@ -74,7 +74,7 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      if (result) {
+      // If login succeeds, redirect to admin dashboard
         showToast.success(
           result.isNewUser
             ? "Welcome! Your account has been created successfully."
