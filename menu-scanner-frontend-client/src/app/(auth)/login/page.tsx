@@ -54,10 +54,8 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      if (result) {
         showToast.success("Welcome to the emenu dashboard!");
         router.replace(ROUTES.ADMIN.DASHBOARD);
-      }
     } catch (err: any) {
       showToast.error(error || "Login failed. Please try again.");
     }
@@ -74,14 +72,12 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      if (result) {
         showToast.success(
           result.isNewUser
             ? "Welcome! Your account has been created successfully."
             : "Welcome back!",
         );
         router.replace(ROUTES.ADMIN.DASHBOARD);
-      }
     } catch (err: any) {
       showToast.error(err || "Telegram login failed. Please try again.");
     } finally {
