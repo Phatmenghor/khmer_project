@@ -40,6 +40,8 @@ interface ComboboxSelectDeliveryProps {
   required?: boolean;
   placeholder?: string;
   error?: string;
+  businessId?: string;
+  statuses?: string[];
 }
 
 export function ComboboxSelectDelivery({
@@ -50,6 +52,8 @@ export function ComboboxSelectDelivery({
   required = false,
   placeholder = "Select delivery option...",
   error,
+  businessId,
+  statuses = ["ACTIVE"],
 }: ComboboxSelectDeliveryProps) {
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
@@ -88,6 +92,8 @@ export function ComboboxSelectDelivery({
           search,
           pageNo: newPage,
           pageSize: 20,
+          ...(businessId && { businessId }),
+          ...(statuses && { statuses }),
         })
       ).unwrap();
 

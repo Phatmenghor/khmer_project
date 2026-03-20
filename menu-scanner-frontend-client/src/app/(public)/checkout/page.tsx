@@ -418,6 +418,8 @@ export default function CheckoutPage() {
                 required
                 placeholder="Select option..."
                 error={!checkoutState.selectedDeliveryOptionId ? "Required" : ""}
+                businessId={profile?.businessId}
+                statuses={["ACTIVE"]}
               />
             </div>
 
