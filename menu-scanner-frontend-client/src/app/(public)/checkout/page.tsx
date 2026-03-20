@@ -23,7 +23,6 @@ import { usePaymentOptionsState } from "@/redux/features/master-data/store/state
 import { useDeliveryOptionsState } from "@/redux/features/master-data/store/state/delivery-options-state";
 import { useAppDispatch } from "@/redux/store";
 import { fetchDefaultAddressService } from "@/redux/features/location/store/thunks/location-thunks";
-import { fetchAllDeliveryOptionsService } from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
 import { fetchAllPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
 import { createOrderService, CheckoutPayload } from "@/redux/features/main/store/thunks/order-thunks";
 import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
@@ -108,20 +107,6 @@ export default function CheckoutPage() {
         if (error?.response?.status !== 404) {
           console.error("Failed to fetch default address:", error);
         }
-      }
-
-      try {
-        dispatch(
-          fetchAllDeliveryOptionsService({
-            pageNo: 1,
-            pageSize: 100,
-            search: "",
-            businessId: profile?.businessId,
-            statuses: ["ACTIVE"],
-          })
-        );
-      } catch (error) {
-        console.error("Failed to fetch delivery options:", error);
       }
 
       try {
