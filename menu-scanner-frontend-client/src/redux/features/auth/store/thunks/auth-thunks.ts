@@ -9,8 +9,8 @@ import {
 } from "../models/request/auth-request";
 import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
-import { storeAdminTokens, storeAdminUserInfo, storeTokens, storeUserInfo } from "@/utils/local-storage/token";
-import { storeAdminUserInfo as storeAdminInfoUtil, storeUserInfo as storeUserInfoUtil } from "@/utils/local-storage/userInfo";
+import { storeAdminTokens, storeTokens } from "@/utils/local-storage/token";
+import { storeAdminUserInfo, storeUserInfo } from "@/utils/local-storage/userInfo";
 
 /**
  * Login thunk
