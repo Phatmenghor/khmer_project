@@ -37,6 +37,7 @@ import { appImages } from "@/constants/app-resource/icons/app-images";
 import { ComboboxSelectLocation } from "@/components/shared/combobox/combobox-select-location";
 import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
+import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -347,41 +348,49 @@ export default function CheckoutPage() {
 
   return (
     <PageContainer className="py-3 sm:py-6 pb-20">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-6">
-        <button
-          onClick={() => router.back()}
-          className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold">Checkout</h1>
-          <p className="text-xs text-muted-foreground">{items.length} items in cart</p>
-        </div>
+      {/* Header - Match Cart Page */}
+      <div className="mb-8 space-y-2">
+        <h1 className="text-2xl font-bold">Checkout</h1>
+        <p className="text-sm text-muted-foreground">
+          {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} total quantity
+        </p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Delivery Address - Using Combobox */}
-          <div className="bg-card border rounded-2xl p-4 sm:p-5">
-            <ComboboxSelectLocation
-              dataSelect={selectedAddress as any}
-              onChangeSelected={(item) => {
-                if (item) {
-                  setCheckoutState((prev) => ({
-                    ...prev,
-                    selectedAddressId: item.id,
-                  }));
-                }
-              }}
-              label="Delivery Address"
-              required
-              placeholder="Select address..."
-              hasDefault={!!defaultAddress}
-              error={!checkoutState.selectedAddressId ? "Required" : ""}
-            />
+          {/* Delivery Address Section */}
+          <div className="space-y-3">
+            {/* Combobox - Bigger */}
+            <div className="bg-card border rounded-2xl p-4 sm:p-5">
+              <ComboboxSelectLocation
+                dataSelect={selectedAddress as any}
+                onChangeSelected={(item) => {
+                  if (item) {
+                    setCheckoutState((prev) => ({
+                      ...prev,
+                      selectedAddressId: item.id,
+                    }));
+                  }
+                }}
+                label="Delivery Address"
+                required
+                placeholder="Select address..."
+                hasDefault={!!defaultAddress}
+                error={!checkoutState.selectedAddressId ? "Required" : ""}
+              />
+            </div>
+
+            {/* Selected Address Display */}
+            {selectedAddress && (
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 sm:p-5">
+                <p className="text-xs font-semibold text-muted-foreground mb-2">Selected Address</p>
+                <p className="text-sm font-medium line-clamp-1">{selectedAddress.fullAddress}</p>
+                {selectedAddress.note && (
+                  <p className="text-xs text-muted-foreground mt-1">📝 {selectedAddress.note}</p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Delivery & Payment - Side by Side */}
@@ -425,94 +434,37 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Order Items */}
+          {/* Order Items - Using Reusable Component */}
           <div className="space-y-3">
-            <h3 className="font-semibold text-sm px-1">Items ({items.length})</h3>
-            <div className="space-y-3 max-h-64 overflow-y-auto">
+            <div className="text-xs text-muted-foreground px-1">
+              Showing {items.length} items with total quantity {totalQuantity}
+            </div>
+            <div className="space-y-3">
               {items.map((item) => (
-                <div
+                <CartItemCard
                   key={item.id}
-                  className="bg-card border rounded-2xl p-3 sm:p-4 hover:shadow-sm transition-shadow"
-                >
-                  <div className="flex gap-3">
-                    {/* Image */}
-                    <div className="relative w-[72px] h-[72px] rounded-xl overflow-hidden bg-muted border flex-shrink-0">
-                      <Image
-                        src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
-                        alt={item.productName}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-between">
-                      {/* Product Name + Size */}
-                      <div className="flex items-center gap-2 min-w-0 mb-2">
-                        <p className="font-medium text-sm leading-snug line-clamp-1">{item.productName}</p>
-                        {item.sizeName && (
-                          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
-                            {item.sizeName}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Price Info */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="font-bold text-sm text-primary">{formatCurrency(item.finalPrice)}</span>
-                      </div>
-
-                      {/* Qty controls + Total + Delete */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 w-full max-w-[140px]">
-                          <button
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.productId,
-                                item.productSizeId || null,
-                                item.quantity - 1
-                              )
-                            }
-                            className="h-8 w-8 rounded-lg flex items-center justify-center border hover:bg-destructive hover:text-destructive-foreground transition-colors flex-shrink-0"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </button>
-                          <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
-                            {item.quantity}
-                          </div>
-                          <button
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.productId,
-                                item.productSizeId || null,
-                                item.quantity + 1
-                              )
-                            }
-                            className="h-8 w-8 rounded-lg flex items-center justify-center border hover:bg-primary hover:text-primary-foreground transition-colors flex-shrink-0"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold whitespace-nowrap">{formatCurrency(item.totalPrice)}</span>
-                          <button
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.productId,
-                                item.productSizeId || null,
-                                0
-                              )
-                            }
-                            className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all flex-shrink-0"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  id={item.id}
+                  productId={item.productId}
+                  productName={item.productName}
+                  productImageUrl={item.productImageUrl}
+                  productSizeId={item.productSizeId}
+                  sizeName={item.sizeName}
+                  currentPrice={item.currentPrice}
+                  finalPrice={item.finalPrice}
+                  quantity={item.quantity}
+                  totalPrice={item.totalPrice}
+                  hasPromotion={item.hasPromotion}
+                  promotionType={item.promotionType}
+                  promotionValue={item.promotionValue}
+                  onQuantityChange={(newQuantity) =>
+                    handleQuantityChange(item.productId, item.productSizeId || null, newQuantity)
+                  }
+                  onRemove={() =>
+                    handleQuantityChange(item.productId, item.productSizeId || null, 0)
+                  }
+                  showLink={false}
+                  showControls={true}
+                />
               ))}
             </div>
           </div>
