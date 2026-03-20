@@ -238,20 +238,18 @@ export function ComboboxSelectLocation({
                     value={item.fullAddress}
                     onSelect={() => handleSelect(item)}
                     ref={index === data.length - 1 ? ref : null}
-                    className="text-xs py-1.5 flex-col items-start"
+                    className="text-sm py-2"
                   >
-                    <div className="flex items-center w-full">
-                      <Check
-                        className={cn(
-                          "mr-2 h-3 w-3 flex-shrink-0",
-                          dataSelect?.id === item.id ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      <span className="truncate flex-1">{item.fullAddress}</span>
-                    </div>
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4 flex-shrink-0",
+                        dataSelect?.id === item.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <span className="truncate line-clamp-1 flex-1">{item.fullAddress}</span>
                     {item.note && (
-                      <span className="text-xs text-muted-foreground ml-5">
-                        {item.note}
+                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                        ({item.note})
                       </span>
                     )}
                   </CommandItem>
