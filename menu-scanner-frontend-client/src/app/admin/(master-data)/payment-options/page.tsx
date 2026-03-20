@@ -88,7 +88,7 @@ export default function PaymentOptionsPage() {
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
-        statuses: filters.status == Status.ALL ? [] : [filters.status],
+        ...(filters.status !== Status.ALL && { statuses: [filters.status] }),
       }),
     );
   }, [
