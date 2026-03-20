@@ -72,10 +72,10 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
   return (
     <div>
       <Card>
-        <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6">
-          {/* Breadcrumb Section */}
+        <CardContent className="p-3 sm:p-4 md:p-5">
+          {/* Breadcrumb - Compact */}
           {breadcrumbs && breadcrumbs.length > 0 && (
-            <div className="mb-3 sm:mb-4">
+            <div className="mb-2.5">
               <Breadcrumb>
                 <BreadcrumbList>
                   {breadcrumbs.map((item, index) => (
@@ -84,12 +84,12 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                         {item.href ? (
                           <BreadcrumbLink
                             href={item.href}
-                            className="text-xs sm:text-sm text-gray-600 hover:text-gray-500 transition-colors duration-200"
+                            className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
                           >
                             {item.label}
                           </BreadcrumbLink>
                         ) : (
-                          <BreadcrumbPage className="text-xs sm:text-sm text-gray-400 font-medium">
+                          <BreadcrumbPage className="text-xs text-gray-500 font-medium">
                             {item.label}
                           </BreadcrumbPage>
                         )}
@@ -104,122 +104,120 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
             </div>
           )}
 
-          {/* Title Section with Back Button */}
-          <div className="flex items-center gap-2 mb-4 sm:mb-6">
-            {(back || isMobile) && (
-              <ActionButton
-                size="sm"
-                icon={<ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />}
-                tooltip="Back"
-                onClick={() => router.back()}
-                variant="ghost"
-              />
-            )}
-            {title && (
-              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
-                {title}
-              </h1>
-            )}
-          </div>
-
-          {/* Row 1: Search and Filters - Left side, Add button - Right side */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-end justify-between">
-            {/* Left: Search input + Filters */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-1 min-w-0">
-              {/* Search input */}
-              {onSearchChange && (
-                <div className="relative w-full sm:w-auto group flex-1 sm:flex-none sm:min-w-[250px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none flex-shrink-0" />
-                  <Input
-                    type="search"
-                    placeholder={searchPlaceholder}
-                    className="pl-10 w-full text-sm placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 hover:border-gray-600 transition-all duration-200"
-                    value={searchValue}
-                    onChange={onSearchChange}
-                  />
-                </div>
+          {/* Header Row: Title + Actions */}
+          <div className="flex items-center gap-2 mb-3">
+            {/* Back button + Title */}
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              {(back || isMobile) && (
+                <ActionButton
+                  size="sm"
+                  icon={<ArrowLeft className="w-4 h-4" />}
+                  tooltip="Back"
+                  onClick={() => router.back()}
+                  variant="ghost"
+                />
               )}
-
-              {/* Filters/Select */}
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                {customSelect && (
-                  <div className="w-full [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200 [&>*]:text-sm [&>*]:w-full">
-                    {customSelect}
-                  </div>
-                )}
-                {children && (
-                  <div className="flex flex-wrap gap-2 sm:gap-3">
-                    {children}
-                  </div>
-                )}
-              </div>
+              {title && (
+                <h1 className="text-lg sm:text-xl font-semibold truncate">
+                  {title}
+                </h1>
+              )}
             </div>
 
-            {/* Right: Action buttons */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-              {/* Custom add button */}
-              {customAddNewButton && (
-                <div className="flex-1 sm:flex-none">{customAddNewButton}</div>
-              )}
-
-              {/* Link button */}
-              {buttonText && buttonHref && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link href={buttonHref} className="flex-1 sm:flex-none">
-                        <Button className="w-full sm:w-auto text-sm">
+            {/* Quick Action Button (Right) */}
+            {(buttonText && openModal) || customAddNewButton ? (
+              <div className="flex items-center gap-1 shrink-0">
+                {customAddNewButton && customAddNewButton}
+                {buttonText && openModal && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="gap-1.5 font-medium text-xs sm:text-sm h-9"
+                          onClick={openModal}
+                        >
                           {buttonIcon && (
-                            <span className="transition-transform duration-200 group-hover:scale-110">
+                            <span className="flex-shrink-0">
                               {buttonIcon}
                             </span>
                           )}
                           <span className="hidden sm:inline">{buttonText}</span>
+                          <span className="sm:hidden">{buttonText?.split(" ")[0]}</span>
                         </Button>
-                      </Link>
-                    </TooltipTrigger>
-                    {buttonTooltip && (
-                      <TooltipContent>
-                        <p>{buttonTooltip}</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
-              )}
+                      </TooltipTrigger>
+                      {buttonTooltip && (
+                        <TooltipContent>
+                          <p>{buttonTooltip}</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+            ) : null}
+          </div>
 
-              {/* Modal button - Primary */}
-              {buttonText && openModal && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="default"
-                        className="flex-1 sm:flex-none gap-2 font-medium text-sm transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/25 group"
-                        onClick={openModal}
-                      >
+          {/* Controls Row: Search + Filters */}
+          <div className="flex flex-col sm:flex-row gap-2 items-end">
+            {/* Search Input */}
+            {onSearchChange && (
+              <div className="relative w-full sm:flex-1 group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-500 pointer-events-none" />
+                <Input
+                  type="search"
+                  placeholder={searchPlaceholder}
+                  className="pl-9 h-9 text-sm placeholder:text-gray-600 focus:border-pink-500 focus:ring-pink-500/20 hover:border-gray-600 transition-all"
+                  value={searchValue}
+                  onChange={onSearchChange}
+                />
+              </div>
+            )}
+
+            {/* Filters - Compact */}
+            <div className="flex gap-2 items-end flex-wrap w-full sm:w-auto">
+              {customSelect && (
+                <div className="[&>*]:h-9 [&>*]:text-sm [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200">
+                  {customSelect}
+                </div>
+              )}
+              {children && (
+                <div className="flex gap-2 items-end flex-wrap">
+                  {children}
+                </div>
+              )}
+            </div>
+
+            {/* Secondary Action Button */}
+            {buttonText && buttonHref && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href={buttonHref}>
+                      <Button variant="outline" size="sm" className="h-9 text-xs sm:text-sm gap-1.5">
                         {buttonIcon && (
-                          <span className="transition-transform duration-200 group-hover:scale-110">
+                          <span className="flex-shrink-0">
                             {buttonIcon}
                           </span>
                         )}
                         <span className="hidden sm:inline">{buttonText}</span>
-                        <span className="sm:hidden">{buttonText?.split(" ")[0]}</span>
                       </Button>
-                    </TooltipTrigger>
-                    {buttonTooltip && (
-                      <TooltipContent>
-                        <p>{buttonTooltip}</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-            </div>
+                    </Link>
+                  </TooltipTrigger>
+                  {buttonTooltip && (
+                    <TooltipContent>
+                      <p>{buttonTooltip}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
 
-          {/* Row 2: Full width filters */}
+          {/* Advanced Filters Row (Optional) */}
           {children1 && (
-            <div className="[&>*]:text-gray-200 [&>*]:text-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-auto gap-3">
+            <div className="flex flex-wrap gap-2 mt-2 [&>*]:text-gray-200 [&>*]:text-sm">
               {children1}
             </div>
           )}
@@ -227,7 +225,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
 
         {/* Tabs Section */}
         {tabs && (
-          <div className="border-t border-gray-800 px-3 sm:px-4 md:px-5 lg:px-6 py-3 bg-gray-850">
+          <div className="border-t border-gray-800 px-3 sm:px-4 md:px-5 py-2.5 bg-gray-850">
             <div className="overflow-x-auto [&>*]:text-gray-300 [&>*:hover]:text-gray-100 [&>*[data-state=active]]:text-pink-400 [&>*[data-state=active]]:border-pink-400">
               {tabs}
             </div>
