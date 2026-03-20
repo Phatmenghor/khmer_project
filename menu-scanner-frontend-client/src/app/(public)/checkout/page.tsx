@@ -383,12 +383,16 @@ export default function CheckoutPage() {
 
             {/* Selected Address Display */}
             {selectedAddress && (
-              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 sm:p-5">
-                <p className="text-xs font-semibold text-muted-foreground mb-2">Selected Address</p>
-                <p className="text-sm font-medium line-clamp-1">{selectedAddress.fullAddress}</p>
-                {selectedAddress.note && (
-                  <p className="text-xs text-muted-foreground mt-1">📝 {selectedAddress.note}</p>
-                )}
+              <div className="bg-gradient-to-br from-green-50/50 to-emerald-50/30 dark:from-green-950/20 dark:to-emerald-950/10 border border-green-200/50 dark:border-green-800/30 rounded-2xl p-3 sm:p-4">
+                <div className="flex items-start gap-2">
+                  <div className="text-lg flex-shrink-0">✓</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-green-900 dark:text-green-300 line-clamp-1">{selectedAddress.fullAddress}</p>
+                    {selectedAddress.note && (
+                      <p className="text-xs text-green-800/70 dark:text-green-400/70 mt-0.5">Note: {selectedAddress.note}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </div>

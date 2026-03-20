@@ -151,17 +151,17 @@ export function ComboboxSelectPayment({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between px-3 py-2 h-9 text-xs",
+              "w-full justify-between px-4 py-2 h-11 text-sm",
               !dataSelect && "text-muted-foreground",
               disabled && "opacity-50 cursor-not-allowed",
               error && "border-red-500"
             )}
             disabled={disabled}
           >
-            <span className="truncate">
+            <span className="truncate line-clamp-1">
               {dataSelect ? dataSelect.name : placeholder}
             </span>
-            <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent
@@ -176,7 +176,7 @@ export function ComboboxSelectPayment({
               placeholder="Search payment method..."
               value={searchTerm}
               onValueChange={handleSearchChange}
-              className="text-xs h-8"
+              className="text-sm h-11 px-3 border-b"
             />
             <CommandList className="max-h-48 overflow-y-auto">
               <CommandEmpty className="text-xs">No method found.</CommandEmpty>
