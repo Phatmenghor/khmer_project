@@ -85,7 +85,6 @@ export default function CheckoutPage() {
     const fetchDefaults = async () => {
       setLoadingDefaults(true);
       try {
-        // Fetch default address
         const defaultAddr = await dispatch(fetchDefaultAddressService()).unwrap();
         setDefaultAddress(defaultAddr);
         if (defaultAddr?.id) {
@@ -99,14 +98,12 @@ export default function CheckoutPage() {
       }
 
       try {
-        // Fetch all addresses as fallback
         dispatch(fetchAllLocationsService());
       } catch (error) {
         console.error("Failed to fetch addresses:", error);
       }
 
       try {
-        // Fetch delivery options
         dispatch(
           fetchAllDeliveryOptionsService({
             pageNo: 1,
@@ -118,7 +115,6 @@ export default function CheckoutPage() {
       }
 
       try {
-        // Fetch payment options
         dispatch(
           fetchAllPaymentOptionsService({
             pageNo: 1,
@@ -343,61 +339,49 @@ export default function CheckoutPage() {
   }
 
   return (
-    <PageContainer className="py-4 sm:py-8 pb-24">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
+    <PageContainer className="py-3 sm:py-6 pb-20">
+      {/* Compact Header */}
+      <div className="flex items-center gap-2 mb-4">
         <button
           onClick={() => router.back()}
-          className="p-2 hover:bg-muted rounded-lg transition-colors"
+          className="p-1.5 hover:bg-muted rounded-lg transition-colors"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Checkout</h1>
-          <p className="text-sm text-muted-foreground">{items.length} items</p>
+          <h1 className="text-xl sm:text-2xl font-bold">Checkout</h1>
+          <p className="text-xs text-muted-foreground">{items.length} items</p>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Delivery Address Section */}
-          <div className="bg-card border rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <MapPin className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold">Delivery Address</h2>
-            </div>
+      <div className="grid lg:grid-cols-3 gap-4">
+        {/* Main Content - Compact */}
+        <div className="lg:col-span-2 space-y-3">
+          {/* Delivery Address - Compact */}
+          <div className="bg-card border rounded-xl p-4">
+            <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" />
+              Delivery Address
+            </h3>
 
             {loadingDefaults ? (
-              <div className="text-center py-6 text-muted-foreground">
-                Loading default address...
-              </div>
+              <div className="text-xs text-muted-foreground py-2">Loading...</div>
             ) : !defaultAddress && (!addresses || addresses.length === 0) ? (
-              <div className="text-center py-6">
-                <p className="text-muted-foreground mb-4">
-                  No delivery address found
-                </p>
-                <CustomButton
-                  variant="outline"
-                  onClick={() => router.push("/account/addresses")}
-                  className="h-9 rounded-xl"
-                >
-                  Add Address
-                </CustomButton>
-              </div>
+              <CustomButton
+                variant="outline"
+                size="sm"
+                onClick={() => router.push("/account/addresses")}
+                className="w-full h-8 rounded-lg text-xs"
+              >
+                + Add Address
+              </CustomButton>
             ) : (
-              <div className="space-y-3">
-                {/* Selected Address Display */}
+              <div className="space-y-2">
                 {selectedAddress && (
-                  <div className="bg-primary/5 border-2 border-primary rounded-xl p-4">
-                    <p className="font-semibold text-sm">{selectedAddress.fullAddress || "Default Address"}</p>
-                    {selectedAddress.note && (
-                      <p className="text-xs text-muted-foreground mt-1">{selectedAddress.note}</p>
-                    )}
+                  <div className="text-xs bg-primary/5 border border-primary/20 rounded-lg p-2">
+                    <p className="font-medium line-clamp-1">{selectedAddress.fullAddress}</p>
                   </div>
                 )}
-
-                {/* Combobox for selecting address */}
                 {addresses && addresses.length > 1 && (
                   <select
                     value={checkoutState.selectedAddressId || ""}
@@ -407,43 +391,27 @@ export default function CheckoutPage() {
                         selectedAddressId: e.target.value,
                       }))
                     }
-                    className="w-full px-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    className="w-full px-3 py-1.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
                   >
                     {addresses.map((addr) => (
                       <option key={addr.id} value={addr.id || ""}>
-                        {addr.fullAddress || `${addr.houseNumber}, ${addr.streetNumber}`}
+                        {addr.fullAddress}
                       </option>
                     ))}
                   </select>
-                )}
-
-                {addresses && addresses.length > 0 && (
-                  <CustomButton
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push("/account/addresses")}
-                    className="w-full h-9 rounded-xl"
-                  >
-                    Manage Addresses
-                  </CustomButton>
                 )}
               </div>
             )}
           </div>
 
-          {/* Delivery Option Section - Combobox */}
-          <div className="bg-card border rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <MapPin className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold">Delivery Option</h2>
-            </div>
-
-            {!deliveryOptions || deliveryOptions.length === 0 ? (
-              <p className="text-center py-6 text-muted-foreground">
-                No delivery options available
-              </p>
-            ) : (
-              <div>
+          {/* Delivery & Payment - Side by Side */}
+          <div className="grid sm:grid-cols-2 gap-3">
+            {/* Delivery Option */}
+            <div className="bg-card border rounded-xl p-4">
+              <h3 className="font-semibold text-sm mb-2">Delivery</h3>
+              {!deliveryOptions || deliveryOptions.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No options</p>
+              ) : (
                 <select
                   value={checkoutState.selectedDeliveryOptionId || ""}
                   onChange={(e) =>
@@ -452,41 +420,24 @@ export default function CheckoutPage() {
                       selectedDeliveryOptionId: e.target.value,
                     }))
                   }
-                  className="w-full px-4 py-2.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                  className="w-full px-3 py-1.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
                 >
-                  <option value="">Select delivery option</option>
+                  <option value="">Select</option>
                   {deliveryOptions.map((option) => (
                     <option key={option.id} value={option.id || ""}>
                       {option.name} - +{formatCurrency(option.price || 0)}
                     </option>
                   ))}
                 </select>
-
-                {/* Selected option preview */}
-                {selectedDeliveryOption && (
-                  <div className="mt-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                    <p className="font-semibold text-sm">{selectedDeliveryOption.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{selectedDeliveryOption.description}</p>
-                    <p className="text-sm font-bold text-primary mt-2">+{formatCurrency(selectedDeliveryOption.price || 0)}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Payment Method Section - Combobox */}
-          <div className="bg-card border rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <CreditCard className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold">Payment Method</h2>
+              )}
             </div>
 
-            {!paymentOptions || paymentOptions.length === 0 ? (
-              <p className="text-center py-6 text-muted-foreground">
-                No payment options available
-              </p>
-            ) : (
-              <div>
+            {/* Payment Option */}
+            <div className="bg-card border rounded-xl p-4">
+              <h3 className="font-semibold text-sm mb-2">Payment</h3>
+              {!paymentOptions || paymentOptions.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No options</p>
+              ) : (
                 <select
                   value={checkoutState.selectedPaymentOptionId || ""}
                   onChange={(e) =>
@@ -495,234 +446,149 @@ export default function CheckoutPage() {
                       selectedPaymentOptionId: e.target.value,
                     }))
                   }
-                  className="w-full px-4 py-2.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                  className="w-full px-3 py-1.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
                 >
-                  <option value="">Select payment method</option>
+                  <option value="">Select</option>
                   {paymentOptions.map((option) => (
                     <option key={option.id} value={option.id || ""}>
                       {option.name}
                     </option>
                   ))}
                 </select>
-
-                {/* Selected option preview */}
-                {selectedPaymentOption && (
-                  <div className="mt-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                    <p className="font-semibold text-sm">{selectedPaymentOption.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{selectedPaymentOption.paymentOptionType}</p>
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          {/* Cart Items Section - Same as Cart Page */}
-          <div className="bg-card border rounded-2xl p-6">
-            <h2 className="text-lg font-bold mb-4">Order Items</h2>
-            <div className="space-y-4">
+          {/* Order Items - Compact */}
+          <div className="bg-card border rounded-xl p-4">
+            <h3 className="font-semibold text-sm mb-3">Items ({items.length})</h3>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
               {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex gap-3 pb-4 border-b last:pb-0 last:border-b-0"
-                >
+                <div key={item.id} className="flex gap-2 pb-2 border-b last:pb-0 last:border-b-0">
                   {/* Image */}
-                  <div className="flex-shrink-0">
-                    <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted border">
-                      <Image
-                        src={sanitizeImageUrl(
-                          item.productImageUrl,
-                          appImages.NoImage
-                        )}
-                        alt={item.productName}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+                  <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-muted border flex-shrink-0">
+                    <Image
+                      src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
+                      alt={item.productName}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm leading-snug line-clamp-2">
-                      {item.productName}
-                    </h3>
+                    <p className="text-xs font-medium line-clamp-1">{item.productName}</p>
                     {item.sizeName && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Size: {item.sizeName}
-                      </p>
+                      <p className="text-xs text-muted-foreground">Size: {item.sizeName}</p>
                     )}
-                    <p className="text-sm font-bold text-primary mt-2">
-                      {formatCurrency(item.finalPrice)}
+                    <p className="text-xs font-bold text-primary mt-1">
+                      {formatCurrency(item.finalPrice)} × {item.quantity}
                     </p>
                   </div>
 
-                  {/* Quantity Controls */}
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-                      <CustomButton
-                        size="icon"
-                        variant="ghost"
-                        className="h-7 w-7 shrink-0"
-                        onClick={() =>
-                          handleQuantityChange(
-                            item.productId,
-                            item.productSizeId || null,
-                            item.quantity - 1
-                          )
-                        }
-                      >
-                        <Minus className="h-3 w-3" />
-                      </CustomButton>
-                      <div className="w-6 text-center text-xs font-semibold">
-                        {item.quantity}
-                      </div>
-                      <CustomButton
-                        size="icon"
-                        variant="ghost"
-                        className="h-7 w-7 shrink-0"
-                        onClick={() =>
-                          handleQuantityChange(
-                            item.productId,
-                            item.productSizeId || null,
-                            item.quantity + 1
-                          )
-                        }
-                      >
-                        <Plus className="h-3 w-3" />
-                      </CustomButton>
-                    </div>
-
-                    {/* Total & Delete */}
-                    <div className="text-right">
-                      <p className="text-sm font-bold">
-                        {formatCurrency(item.totalPrice)}
-                      </p>
-                      <CustomButton
-                        size="icon"
-                        variant="ghost"
-                        className="h-7 w-7 text-destructive hover:bg-destructive/10 mt-1"
-                        onClick={() =>
-                          handleQuantityChange(
-                            item.productId,
-                            item.productSizeId || null,
-                            0
-                          )
-                        }
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </CustomButton>
-                    </div>
+                  {/* Controls */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() =>
+                        handleQuantityChange(
+                          item.productId,
+                          item.productSizeId || null,
+                          item.quantity - 1
+                        )
+                      }
+                      className="p-1 hover:bg-muted rounded transition-colors"
+                    >
+                      <Minus className="h-3 w-3" />
+                    </button>
+                    <span className="w-4 text-center text-xs font-semibold">{item.quantity}</span>
+                    <button
+                      onClick={() =>
+                        handleQuantityChange(
+                          item.productId,
+                          item.productSizeId || null,
+                          item.quantity + 1
+                        )
+                      }
+                      className="p-1 hover:bg-muted rounded transition-colors"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleQuantityChange(
+                          item.productId,
+                          item.productSizeId || null,
+                          0
+                        )
+                      }
+                      className="p-1 hover:bg-destructive/10 text-destructive rounded transition-colors ml-1"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Customer Note Section - Below Order Items */}
-          <div className="bg-card border rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <MessageSquare className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold">Additional Notes</h2>
-            </div>
-
+          {/* Customer Notes - Compact */}
+          <div className="bg-card border rounded-xl p-4">
+            <h3 className="font-semibold text-sm mb-2">Notes</h3>
             <textarea
               value={checkoutState.customerNote}
               onChange={(e) =>
                 setCheckoutState((prev) => ({
                   ...prev,
-                  customerNote: e.target.value,
+                  customerNote: e.target.value.slice(0, 500),
                 }))
               }
-              placeholder="Add any special instructions or notes for the delivery..."
-              className="w-full min-h-24 p-3 rounded-xl border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+              placeholder="Special instructions..."
+              className="w-full h-16 p-2 rounded-lg border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-xs"
               maxLength={500}
             />
-            <p className="text-xs text-muted-foreground mt-2">
-              {checkoutState.customerNote.length}/500 characters
+            <p className="text-xs text-muted-foreground mt-1">
+              {checkoutState.customerNote.length}/500
             </p>
           </div>
         </div>
 
-        {/* Sidebar - Order Summary */}
+        {/* Sidebar - Order Summary - Compact & Sticky */}
         <div className="lg:col-span-1">
-          <div className="bg-card border rounded-2xl p-6 sticky top-24 space-y-4">
-            <h2 className="text-lg font-bold">Order Summary</h2>
+          <div className="bg-card border rounded-xl p-4 sticky top-20 space-y-3">
+            <h3 className="font-bold text-sm">Summary</h3>
 
-            {/* Items */}
-            <div className="space-y-2 pb-4 border-b">
-              <div className="flex justify-between text-sm">
+            {/* Breakdown */}
+            <div className="space-y-1.5 text-xs pb-3 border-b">
+              <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-medium">{formatCurrency(subtotal)}</span>
               </div>
-
               {totalDiscount > 0 && (
-                <div className="flex justify-between text-sm text-green-600">
+                <div className="flex justify-between text-green-600">
                   <span>Discount</span>
-                  <span className="font-medium">
-                    -{formatCurrency(totalDiscount)}
-                  </span>
+                  <span className="font-medium">-{formatCurrency(totalDiscount)}</span>
                 </div>
               )}
-
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Items Total</span>
-                <span className="font-medium">
-                  {formatCurrency(finalTotal)}
-                </span>
-              </div>
-            </div>
-
-            {/* Delivery Fee */}
-            <div className="space-y-2 pb-4 border-b">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">
-                  {selectedDeliveryOption?.name || "Delivery"}
-                </span>
-                <span className="font-medium">
-                  +{formatCurrency(deliveryFee)}
-                </span>
-              </div>
-
-              {/* Payment Method */}
-              <div className="flex justify-between text-sm mt-2">
-                <span className="text-muted-foreground">Payment</span>
-                <span className="font-medium text-xs">
-                  {selectedPaymentOption?.name || "—"}
-                </span>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Delivery</span>
+                <span className="font-medium">+{formatCurrency(deliveryFee)}</span>
               </div>
             </div>
 
             {/* Total */}
-            <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
-              <p className="text-xs text-muted-foreground mb-1">Total Amount</p>
-              <p className="text-2xl font-bold text-primary">
-                {formatCurrency(orderTotal)}
-              </p>
+            <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
+              <p className="text-xs text-muted-foreground mb-1">Total</p>
+              <p className="text-xl font-bold text-primary">{formatCurrency(orderTotal)}</p>
             </div>
 
-            {/* Validation Messages */}
-            {!checkoutState.selectedAddressId && (
-              <div className="flex gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200/50 dark:border-amber-800/30">
-                <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            {/* Validation */}
+            {(!checkoutState.selectedAddressId ||
+              !checkoutState.selectedDeliveryOptionId ||
+              !checkoutState.selectedPaymentOptionId) && (
+              <div className="flex gap-2 p-2.5 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200/50">
+                <AlertCircle className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Please select a delivery address
-                </p>
-              </div>
-            )}
-
-            {!checkoutState.selectedDeliveryOptionId && (
-              <div className="flex gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200/50 dark:border-amber-800/30">
-                <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Please select a delivery option
-                </p>
-              </div>
-            )}
-
-            {!checkoutState.selectedPaymentOptionId && (
-              <div className="flex gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200/50 dark:border-amber-800/30">
-                <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Please select a payment method
+                  Complete all fields
                 </p>
               </div>
             )}
@@ -732,7 +598,7 @@ export default function CheckoutPage() {
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
               className={cn(
-                "w-full h-11 rounded-xl gap-2 font-semibold",
+                "w-full h-10 rounded-lg gap-2 font-semibold text-sm",
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
@@ -749,9 +615,7 @@ export default function CheckoutPage() {
               )}
             </CustomButton>
 
-            <p className="text-xs text-muted-foreground text-center">
-              🔒 Your payment information is secure
-            </p>
+            <p className="text-xs text-muted-foreground text-center">🔒 Secure</p>
           </div>
         </div>
       </div>
@@ -761,16 +625,14 @@ export default function CheckoutPage() {
 
 function CheckoutPageSkeleton() {
   return (
-    <PageContainer className="py-8">
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bg-card border rounded-2xl p-6 h-40 animate-pulse" />
+    <PageContainer className="py-6">
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-muted rounded-xl h-20 animate-pulse" />
           ))}
         </div>
-        <div className="lg:col-span-1">
-          <div className="bg-card border rounded-2xl p-6 h-96 animate-pulse" />
-        </div>
+        <div className="bg-muted rounded-xl h-64 animate-pulse" />
       </div>
     </PageContainer>
   );
