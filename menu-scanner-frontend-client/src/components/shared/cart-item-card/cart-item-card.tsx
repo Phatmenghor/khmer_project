@@ -21,8 +21,8 @@ export interface CartItemCardProps {
   quantity: number;
   totalPrice: number;
   hasPromotion?: boolean;
-  promotionType?: string;
-  promotionValue?: number;
+  promotionType?: string | null;
+  promotionValue?: number | null;
   // Handlers
   onQuantityChange: (quantity: number) => void;
   onRemove: () => void;
