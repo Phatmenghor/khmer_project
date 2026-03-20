@@ -1,5 +1,3 @@
-"use client";
-
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { AdminRouteGuardV2 } from "@/components/layout/route-guards/admin-route-guard-v2";
 import type { ReactNode } from "react";
