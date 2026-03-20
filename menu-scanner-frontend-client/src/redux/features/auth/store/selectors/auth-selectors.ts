@@ -106,3 +106,33 @@ export const selectUserProfileImage = createSelector(
   [selectUser],
   (user) => user?.profileImageUrl || ""
 );
+
+/**
+ * Select user type
+ */
+export const selectUserType = createSelector(
+  [selectUser],
+  (user) => user?.userType || null
+);
+
+/**
+ * Select if user is an admin/business user
+ */
+export const selectIsAdmin = createSelector(
+  [selectUserType],
+  (userType) => userType === "BUSINESS_USER"
+);
+
+/**
+ * Select if user is a customer
+ */
+export const selectIsCustomer = createSelector(
+  [selectUserType],
+  (userType) => userType === "CUSTOMER"
+);
+
+/**
+ * Check if user has a specific role
+ */
+export const selectHasRole = (role: string) =>
+  createSelector([selectUserRoles], (roles) => roles?.includes(role) || false);
