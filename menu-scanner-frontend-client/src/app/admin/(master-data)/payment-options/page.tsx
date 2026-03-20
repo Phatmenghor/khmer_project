@@ -141,7 +141,7 @@ export default function PaymentOptionsPage() {
         data: paymentOptionsData,
         handlers: tableHandlers,
       }),
-    [paymentOptionsState, tableHandlers],
+    [paymentOptionsData, tableHandlers],
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
