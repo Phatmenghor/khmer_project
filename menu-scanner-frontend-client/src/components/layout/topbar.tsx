@@ -55,7 +55,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-14 sm:h-16 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-5 shadow-sm">
+      <header className="sticky top-0 z-20 flex h-16 sm:h-20 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-5 shadow-sm">
         {/* Left: menu toggle + breadcrumbs */}
         <div className="flex items-center gap-2 min-w-0 flex-1">
           {/* Mobile hamburger */}
