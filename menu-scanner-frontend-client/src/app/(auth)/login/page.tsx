@@ -73,11 +73,15 @@ export default function LoginPage() {
       ).unwrap();
 
       showToast.success(
-        result.isNewUser
+        result?.isNewUser
           ? "Welcome! Your account has been created successfully."
           : "Welcome back!",
       );
-      router.replace(ROUTES.ADMIN.DASHBOARD);
+      
+      // Give Redux and cookie storage time to update before navigating
+      setTimeout(() => {
+        router.replace(ROUTES.ADMIN.DASHBOARD);
+      }, 500);
     } catch (err: any) {
       showToast.error(err || "Telegram login failed. Please try again.");
     } finally {
