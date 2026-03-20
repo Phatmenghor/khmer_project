@@ -44,15 +44,22 @@ public class PaymentOptionAdminController {
 
     /**
      * Get all payment options with pagination and filters
+     * If businessId is provided in filter, use it; otherwise use current user's business
      */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<PaymentOptionResponse>>> getAllPaymentOptions(
             @Valid @RequestBody PaymentOptionFilterRequest filter) {
         log.info("Getting all payment options with filters");
         User currentUser = securityUtils.getCurrentUser();
-        filter.setBusinessId(currentUser.getBusinessId());
+
+        // Use businessId from filter if provided, otherwise use current user's business
+        UUID businessId = (filter.getBusinessId() != null)
+            ? filter.getBusinessId()
+            : currentUser.getBusinessId();
+
+        filter.setBusinessId(businessId);
         PaginationResponse<PaymentOptionResponse> response = paymentOptionService.getAllPaymentOptionsWithFilters(
-                currentUser.getBusinessId(),
+                businessId,
                 filter
         );
         return ResponseEntity.ok(ApiResponse.success("Payment options retrieved successfully", response));
