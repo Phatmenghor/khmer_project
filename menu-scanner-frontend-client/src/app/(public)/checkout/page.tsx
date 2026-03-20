@@ -102,8 +102,11 @@ export default function CheckoutPage() {
             selectedAddressId: defaultAddr.id,
           }));
         }
-      } catch (error) {
-        console.error("Failed to fetch default address:", error);
+      } catch (error: any) {
+        // 404 is expected if no default address exists, don't log as error
+        if (error?.response?.status !== 404) {
+          console.error("Failed to fetch default address:", error);
+        }
       }
 
       try {
