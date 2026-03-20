@@ -218,6 +218,34 @@ BEGIN
         (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Barter', 'OTHER', 'ACTIVE'),
         (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Gift Card', 'OTHER', 'ACTIVE');
 
+    -- PAYMENT OPTIONS FOR ALL OTHER BUSINESSES (99 businesses)
+    RAISE NOTICE 'Creating payment options for 99 other businesses...';
+    INSERT INTO payment_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, payment_option_type, status)
+    SELECT
+        gen_random_uuid(), 0, t, t, 'system', 'system',
+        false, NULL, NULL, b.id, po_name, po_type, po_status
+    FROM (SELECT id FROM businesses WHERE id != key_business_id AND is_deleted = false) b,
+    (VALUES
+        ('Cash', 'CASH', 'ACTIVE'),
+        ('Bank Transfer', 'BANK_TRANSFER', 'ACTIVE'),
+        ('Wire Transfer', 'BANK_TRANSFER', 'ACTIVE'),
+        ('Visa', 'CREDIT_CARD', 'ACTIVE'),
+        ('MasterCard', 'CREDIT_CARD', 'ACTIVE'),
+        ('American Express', 'CREDIT_CARD', 'ACTIVE'),
+        ('Debit Card', 'DEBIT_CARD', 'ACTIVE'),
+        ('ABA Card', 'DEBIT_CARD', 'ACTIVE'),
+        ('Wing Mobile', 'MOBILE_WALLET', 'ACTIVE'),
+        ('ABA Mobile', 'MOBILE_WALLET', 'ACTIVE'),
+        ('GCash', 'MOBILE_WALLET', 'ACTIVE'),
+        ('Bitcoin', 'CRYPTO', 'ACTIVE'),
+        ('Ethereum', 'CRYPTO', 'ACTIVE'),
+        ('USDC', 'CRYPTO', 'ACTIVE'),
+        ('Check', 'CHECK', 'INACTIVE'),
+        ('Barter', 'OTHER', 'ACTIVE'),
+        ('Gift Card', 'OTHER', 'ACTIVE')
+    ) AS po(po_name, po_type, po_status);
+    RAISE NOTICE 'Payment options created for all businesses! (26 options × 100 businesses = 2,600 total)';
+
     -- BANNERS
     INSERT INTO banners (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, image_url, link_url, status)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, CASE WHEN bn % 2 = 0 THEN photo1 ELSE photo2 END, '/menu?promo=' || bn, 'ACTIVE'
