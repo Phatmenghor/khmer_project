@@ -58,7 +58,7 @@ export default function LoginPage() {
       ).unwrap();
 
       console.log("## [LOGIN] ✓ API successful, userType:", result.userType);
-
+      
       // Verify token storage
       const { getAdminToken } = await import("@/utils/local-storage/token");
       const storedToken = getAdminToken();
@@ -66,13 +66,13 @@ export default function LoginPage() {
 
       showToast.success("✓ Welcome to admin dashboard!");
 
-      // Use window.location for a hard refresh that properly reads cookies
-      console.log("## [LOGIN] Redirecting to /admin with full page refresh...");
+      // Small delay to ensure cookies are set
+      console.log("## [LOGIN] Redirecting to /admin in 500ms...");
       setTimeout(() => {
-        console.log("## [LOGIN] Executing hard redirect to /admin");
-        window.location.href = ROUTES.ADMIN.DASHBOARD;
+        console.log("## [LOGIN] Executing redirect to /admin");
+        router.push(ROUTES.ADMIN.DASHBOARD);
         console.log("═══════════════════════════════════════════");
-      }, 1000); // 1 second to ensure cookies are persisted
+      }, 500);
     } catch (err: any) {
       console.error("## ═══════════════════════════════════════════");
       console.error("## ❌ [LOGIN ERROR]", err?.message || err);
@@ -100,10 +100,15 @@ export default function LoginPage() {
           : "Welcome back!",
       );
 
-      // Use hard redirect for telegram auth too
+      // Use push for better navigation, with window.location fallback
       setTimeout(() => {
-        window.location.href = ROUTES.ADMIN.DASHBOARD;
-      }, 1000);
+        try {
+          router.push(ROUTES.ADMIN.DASHBOARD);
+        } catch (navErr) {
+          console.error("✗ Push failed, using window.location:", navErr);
+          window.location.href = ROUTES.ADMIN.DASHBOARD;
+        }
+      }, 300);
     } catch (err: any) {
       console.error("✗ Telegram auth failed:", err);
       showToast.error(err?.message || err || "Telegram login failed. Please try again.");
