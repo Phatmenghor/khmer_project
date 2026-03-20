@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   ChevronLeft,
-  Truck,
   MapPin,
   CreditCard,
   MessageSquare,
@@ -20,13 +19,14 @@ import {
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useLocationState } from "@/redux/features/location/store/state/location-state";
-import { useDeliveryOptionsState } from "@/redux/features/master-data/store/state/delivery-options-state";
 import { usePaymentOptionsState } from "@/redux/features/master-data/store/state/payment-options-state";
+import { useDeliveryOptionsState } from "@/redux/features/master-data/store/state/delivery-options-state";
 import { useAppDispatch } from "@/redux/store";
-import { fetchAllLocationsService } from "@/redux/features/location/store/thunks/location-thunks";
+import { fetchDefaultAddressService, fetchAllLocationsService } from "@/redux/features/location/store/thunks/location-thunks";
 import { fetchAllDeliveryOptionsService } from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
 import { fetchAllPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
 import { createOrderService, CheckoutPayload } from "@/redux/features/main/store/thunks/order-thunks";
+import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -34,7 +34,6 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { cn } from "@/lib/utils";
 import { sanitizeImageUrl } from "@/utils/common/common";
 import { appImages } from "@/constants/app-resource/icons/app-images";
-import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -42,6 +41,21 @@ interface CheckoutState {
   selectedPaymentOptionId: string | null;
   customerNote: string;
   isProcessing: boolean;
+}
+
+interface LocationResponse {
+  id: string;
+  village: string;
+  commune: string;
+  district: string;
+  province: string;
+  streetNumber: string;
+  houseNumber: string;
+  note: string;
+  latitude: number;
+  longitude: number;
+  fullAddress: string;
+  isDefault: boolean;
 }
 
 export default function CheckoutPage() {
@@ -53,6 +67,9 @@ export default function CheckoutPage() {
   const { deliveryOptionsContent: deliveryOptions } = useDeliveryOptionsState();
   const { paymentOptionsContent: paymentOptions } = usePaymentOptionsState();
 
+  const [defaultAddress, setDefaultAddress] = useState<LocationResponse | null>(null);
+  const [loadingDefaults, setLoadingDefaults] = useState(false);
+
   const [checkoutState, setCheckoutState] = useState<CheckoutState>({
     selectedAddressId: null,
     selectedDeliveryOptionId: null,
@@ -61,43 +78,69 @@ export default function CheckoutPage() {
     isProcessing: false,
   });
 
-  // Fetch addresses, delivery options, and payment options on mount
+  // Fetch defaults and options on mount
   useEffect(() => {
     if (!authReady || !isAuthenticated) return;
 
-    dispatch(fetchAllLocationsService());
-    dispatch(
-      fetchAllDeliveryOptionsService({
-        pageNo: 1,
-        pageSize: 100,
-      })
-    );
-    dispatch(
-      fetchAllPaymentOptionsService({
-        pageNo: 1,
-        pageSize: 100,
-      })
-    );
-  }, [authReady, isAuthenticated, dispatch]);
+    const fetchDefaults = async () => {
+      setLoadingDefaults(true);
+      try {
+        // Fetch default address
+        const defaultAddr = await dispatch(fetchDefaultAddressService()).unwrap();
+        setDefaultAddress(defaultAddr);
+        if (defaultAddr?.id) {
+          setCheckoutState((prev) => ({
+            ...prev,
+            selectedAddressId: defaultAddr.id,
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch default address:", error);
+      }
 
-  // Set default address if available
-  useEffect(() => {
-    if (addresses && addresses.length > 0 && !checkoutState.selectedAddressId) {
-      const defaultAddress = addresses[0];
-      setCheckoutState((prev) => ({
-        ...prev,
-        selectedAddressId: defaultAddress.id || null,
-      }));
-    }
-  }, [addresses, checkoutState.selectedAddressId]);
+      try {
+        // Fetch all addresses as fallback
+        dispatch(fetchAllLocationsService());
+      } catch (error) {
+        console.error("Failed to fetch addresses:", error);
+      }
+
+      try {
+        // Fetch delivery options
+        dispatch(
+          fetchAllDeliveryOptionsService({
+            pageNo: 1,
+            pageSize: 100,
+          })
+        );
+      } catch (error) {
+        console.error("Failed to fetch delivery options:", error);
+      }
+
+      try {
+        // Fetch payment options
+        dispatch(
+          fetchAllPaymentOptionsService({
+            pageNo: 1,
+            pageSize: 100,
+          })
+        );
+      } catch (error) {
+        console.error("Failed to fetch payment options:", error);
+      }
+
+      setLoadingDefaults(false);
+    };
+
+    fetchDefaults();
+  }, [authReady, isAuthenticated, dispatch]);
 
   // Set default delivery option if available
   useEffect(() => {
     if (deliveryOptions && deliveryOptions.length > 0 && !checkoutState.selectedDeliveryOptionId) {
-      const firstOption = deliveryOptions[0];
       setCheckoutState((prev) => ({
         ...prev,
-        selectedDeliveryOptionId: firstOption.id || null,
+        selectedDeliveryOptionId: deliveryOptions[0].id || null,
       }));
     }
   }, [deliveryOptions, checkoutState.selectedDeliveryOptionId]);
@@ -105,58 +148,30 @@ export default function CheckoutPage() {
   // Set default payment option if available
   useEffect(() => {
     if (paymentOptions && paymentOptions.length > 0 && !checkoutState.selectedPaymentOptionId) {
-      const firstOption = paymentOptions[0];
       setCheckoutState((prev) => ({
         ...prev,
-        selectedPaymentOptionId: firstOption.id || null,
+        selectedPaymentOptionId: paymentOptions[0].id || null,
       }));
     }
   }, [paymentOptions, checkoutState.selectedPaymentOptionId]);
 
   const selectedAddress = useMemo(
-    () => addresses?.find((addr) => addr.id === checkoutState.selectedAddressId),
-    [addresses, checkoutState.selectedAddressId]
+    () => addresses?.find((addr) => addr.id === checkoutState.selectedAddressId) || defaultAddress,
+    [addresses, checkoutState.selectedAddressId, defaultAddress]
   );
 
   const selectedDeliveryOption = useMemo(
-    () =>
-      deliveryOptions?.find(
-        (opt) => opt.id === checkoutState.selectedDeliveryOptionId
-      ),
+    () => deliveryOptions?.find((opt) => opt.id === checkoutState.selectedDeliveryOptionId),
     [deliveryOptions, checkoutState.selectedDeliveryOptionId]
   );
 
   const selectedPaymentOption = useMemo(
-    () =>
-      paymentOptions?.find(
-        (opt) => opt.id === checkoutState.selectedPaymentOptionId
-      ),
+    () => paymentOptions?.find((opt) => opt.id === checkoutState.selectedPaymentOptionId),
     [paymentOptions, checkoutState.selectedPaymentOptionId]
   );
 
   const deliveryFee = selectedDeliveryOption?.price || 0;
   const orderTotal = finalTotal + deliveryFee;
-
-  const handleAddressChange = (addressId: string) => {
-    setCheckoutState((prev) => ({
-      ...prev,
-      selectedAddressId: addressId,
-    }));
-  };
-
-  const handleDeliveryOptionChange = (optionId: string) => {
-    setCheckoutState((prev) => ({
-      ...prev,
-      selectedDeliveryOptionId: optionId,
-    }));
-  };
-
-  const handlePaymentOptionChange = (optionId: string) => {
-    setCheckoutState((prev) => ({
-      ...prev,
-      selectedPaymentOptionId: optionId,
-    }));
-  };
 
   const handleQuantityChange = (
     productId: string,
@@ -195,15 +210,14 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!selectedPaymentOption) {
+      showToast.error("Please select a payment method");
+      return;
+    }
+
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
-      if (!selectedPaymentOption) {
-        showToast.error("Please select a payment method");
-        setCheckoutState((prev) => ({ ...prev, isProcessing: false }));
-        return;
-      }
-
       const checkoutPayload: CheckoutPayload = {
         businessId: profile?.businessId || "",
         deliveryAddress: {
@@ -354,10 +368,14 @@ export default function CheckoutPage() {
               <h2 className="text-lg font-bold">Delivery Address</h2>
             </div>
 
-            {!addresses || addresses.length === 0 ? (
+            {loadingDefaults ? (
+              <div className="text-center py-6 text-muted-foreground">
+                Loading default address...
+              </div>
+            ) : !defaultAddress && (!addresses || addresses.length === 0) ? (
               <div className="text-center py-6">
                 <p className="text-muted-foreground mb-4">
-                  No delivery addresses found
+                  No delivery address found
                 </p>
                 <CustomButton
                   variant="outline"
@@ -369,48 +387,54 @@ export default function CheckoutPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {addresses.map((address) => (
-                  <label
-                    key={address.id}
-                    className="flex items-start gap-3 p-4 border rounded-xl cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                {/* Selected Address Display */}
+                {selectedAddress && (
+                  <div className="bg-primary/5 border-2 border-primary rounded-xl p-4">
+                    <p className="font-semibold text-sm">{selectedAddress.fullAddress || "Default Address"}</p>
+                    {selectedAddress.note && (
+                      <p className="text-xs text-muted-foreground mt-1">{selectedAddress.note}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Combobox for selecting address */}
+                {addresses && addresses.length > 1 && (
+                  <select
+                    value={checkoutState.selectedAddressId || ""}
+                    onChange={(e) =>
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        selectedAddressId: e.target.value,
+                      }))
+                    }
+                    className="w-full px-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
                   >
-                    <input
-                      type="radio"
-                      name="address"
-                      value={address.id || ""}
-                      checked={
-                        checkoutState.selectedAddressId === address.id
-                      }
-                      onChange={() =>
-                        handleAddressChange(address.id || "")
-                      }
-                      className="mt-1"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">
-                        {address.houseNumber && `${address.houseNumber}, `}
-                        {address.streetNumber && `${address.streetNumber}, `}
-                        {address.village && `${address.village}, `}
-                        {address.commune && `${address.commune}, `}
-                        {address.district && `${address.district}, `}
-                        {address.province}
-                      </p>
-                      {address.note && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {address.note}
-                        </p>
-                      )}
-                    </div>
-                  </label>
-                ))}
+                    {addresses.map((addr) => (
+                      <option key={addr.id} value={addr.id || ""}>
+                        {addr.fullAddress || `${addr.houseNumber}, ${addr.streetNumber}`}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {addresses && addresses.length > 0 && (
+                  <CustomButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push("/account/addresses")}
+                    className="w-full h-9 rounded-xl"
+                  >
+                    Manage Addresses
+                  </CustomButton>
+                )}
               </div>
             )}
           </div>
 
-          {/* Delivery Option Section */}
+          {/* Delivery Option Section - Combobox */}
           <div className="bg-card border rounded-2xl p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Truck className="h-5 w-5 text-primary" />
+              <MapPin className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-bold">Delivery Option</h2>
             </div>
 
@@ -419,43 +443,38 @@ export default function CheckoutPage() {
                 No delivery options available
               </p>
             ) : (
-              <div className="grid sm:grid-cols-2 gap-3">
-                {deliveryOptions.map((option) => (
-                  <label
-                    key={option.id}
-                    className="relative flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-primary transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
-                  >
-                    <input
-                      type="radio"
-                      name="delivery"
-                      value={option.id || ""}
-                      checked={
-                        checkoutState.selectedDeliveryOptionId ===
-                        option.id
-                      }
-                      onChange={() =>
-                        handleDeliveryOptionChange(option.id || "")
-                      }
-                      className="mt-0.5"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{option.name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {option.description}
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="font-bold text-sm text-primary">
-                        +{formatCurrency(option.price || 0)}
-                      </p>
-                    </div>
-                  </label>
-                ))}
+              <div>
+                <select
+                  value={checkoutState.selectedDeliveryOptionId || ""}
+                  onChange={(e) =>
+                    setCheckoutState((prev) => ({
+                      ...prev,
+                      selectedDeliveryOptionId: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                >
+                  <option value="">Select delivery option</option>
+                  {deliveryOptions.map((option) => (
+                    <option key={option.id} value={option.id || ""}>
+                      {option.name} - +{formatCurrency(option.price || 0)}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Selected option preview */}
+                {selectedDeliveryOption && (
+                  <div className="mt-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                    <p className="font-semibold text-sm">{selectedDeliveryOption.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{selectedDeliveryOption.description}</p>
+                    <p className="text-sm font-bold text-primary mt-2">+{formatCurrency(selectedDeliveryOption.price || 0)}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          {/* Payment Method Section */}
+          {/* Payment Method Section - Combobox */}
           <div className="bg-card border rounded-2xl p-6">
             <div className="flex items-center gap-2 mb-4">
               <CreditCard className="h-5 w-5 text-primary" />
@@ -467,36 +486,138 @@ export default function CheckoutPage() {
                 No payment options available
               </p>
             ) : (
-              <div className="grid sm:grid-cols-2 gap-3">
-                {paymentOptions.map((option) => (
-                  <label
-                    key={option.id}
-                    className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-primary transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      value={option.id || ""}
-                      checked={
-                        checkoutState.selectedPaymentOptionId === option.id
-                      }
-                      onChange={() =>
-                        handlePaymentOptionChange(option.id || "")
-                      }
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{option.name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {option.paymentOptionType}
-                      </p>
-                    </div>
-                  </label>
-                ))}
+              <div>
+                <select
+                  value={checkoutState.selectedPaymentOptionId || ""}
+                  onChange={(e) =>
+                    setCheckoutState((prev) => ({
+                      ...prev,
+                      selectedPaymentOptionId: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                >
+                  <option value="">Select payment method</option>
+                  {paymentOptions.map((option) => (
+                    <option key={option.id} value={option.id || ""}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Selected option preview */}
+                {selectedPaymentOption && (
+                  <div className="mt-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                    <p className="font-semibold text-sm">{selectedPaymentOption.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{selectedPaymentOption.paymentOptionType}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          {/* Customer Note Section */}
+          {/* Cart Items Section - Same as Cart Page */}
+          <div className="bg-card border rounded-2xl p-6">
+            <h2 className="text-lg font-bold mb-4">Order Items</h2>
+            <div className="space-y-4">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex gap-3 pb-4 border-b last:pb-0 last:border-b-0"
+                >
+                  {/* Image */}
+                  <div className="flex-shrink-0">
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted border">
+                      <Image
+                        src={sanitizeImageUrl(
+                          item.productImageUrl,
+                          appImages.NoImage
+                        )}
+                        alt={item.productName}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm leading-snug line-clamp-2">
+                      {item.productName}
+                    </h3>
+                    {item.sizeName && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Size: {item.sizeName}
+                      </p>
+                    )}
+                    <p className="text-sm font-bold text-primary mt-2">
+                      {formatCurrency(item.finalPrice)}
+                    </p>
+                  </div>
+
+                  {/* Quantity Controls */}
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                      <CustomButton
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 shrink-0"
+                        onClick={() =>
+                          handleQuantityChange(
+                            item.productId,
+                            item.productSizeId || null,
+                            item.quantity - 1
+                          )
+                        }
+                      >
+                        <Minus className="h-3 w-3" />
+                      </CustomButton>
+                      <div className="w-6 text-center text-xs font-semibold">
+                        {item.quantity}
+                      </div>
+                      <CustomButton
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 shrink-0"
+                        onClick={() =>
+                          handleQuantityChange(
+                            item.productId,
+                            item.productSizeId || null,
+                            item.quantity + 1
+                          )
+                        }
+                      >
+                        <Plus className="h-3 w-3" />
+                      </CustomButton>
+                    </div>
+
+                    {/* Total & Delete */}
+                    <div className="text-right">
+                      <p className="text-sm font-bold">
+                        {formatCurrency(item.totalPrice)}
+                      </p>
+                      <CustomButton
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 text-destructive hover:bg-destructive/10 mt-1"
+                        onClick={() =>
+                          handleQuantityChange(
+                            item.productId,
+                            item.productSizeId || null,
+                            0
+                          )
+                        }
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </CustomButton>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Customer Note Section - Below Order Items */}
           <div className="bg-card border rounded-2xl p-6">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="h-5 w-5 text-primary" />
@@ -513,109 +634,11 @@ export default function CheckoutPage() {
               }
               placeholder="Add any special instructions or notes for the delivery..."
               className="w-full min-h-24 p-3 rounded-xl border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+              maxLength={500}
             />
             <p className="text-xs text-muted-foreground mt-2">
               {checkoutState.customerNote.length}/500 characters
             </p>
-          </div>
-
-          {/* Cart Items Section */}
-          <div className="bg-card border rounded-2xl p-6">
-            <h2 className="text-lg font-bold mb-4">Order Items</h2>
-            <div className="space-y-4">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex gap-3 pb-4 border-b last:pb-0 last:border-b-0"
-                >
-                  {/* Image */}
-                  <div className="flex-shrink-0">
-                    <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted border">
-                      <Image
-                        src={sanitizeImageUrl(
-                          item.productImageUrl,
-                          appImages.NoImage
-                        )}
-                        alt={item.productName}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-sm line-clamp-1">
-                      {item.productName}
-                    </h3>
-                    {item.sizeName && (
-                      <p className="text-xs text-muted-foreground">
-                        Size: {item.sizeName}
-                      </p>
-                    )}
-                    <p className="text-sm font-bold text-primary mt-1">
-                      {formatCurrency(item.finalPrice)}
-                    </p>
-                  </div>
-
-                  {/* Quantity Controls */}
-                  <div className="flex items-center gap-2">
-                    <CustomButton
-                      size="icon"
-                      variant="outline"
-                      className="h-8 w-8 shrink-0"
-                      onClick={() =>
-                        handleQuantityChange(
-                          item.productId,
-                          item.productSizeId || null,
-                          item.quantity - 1
-                        )
-                      }
-                    >
-                      <Minus className="h-3 w-3" />
-                    </CustomButton>
-                    <div className="w-8 text-center text-sm font-semibold">
-                      {item.quantity}
-                    </div>
-                    <CustomButton
-                      size="icon"
-                      variant="outline"
-                      className="h-8 w-8 shrink-0"
-                      onClick={() =>
-                        handleQuantityChange(
-                          item.productId,
-                          item.productSizeId || null,
-                          item.quantity + 1
-                        )
-                      }
-                    >
-                      <Plus className="h-3 w-3" />
-                    </CustomButton>
-                  </div>
-
-                  {/* Total */}
-                  <div className="flex flex-col items-end gap-2">
-                    <span className="text-sm font-bold">
-                      {formatCurrency(item.totalPrice)}
-                    </span>
-                    <CustomButton
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                      onClick={() =>
-                        handleQuantityChange(
-                          item.productId,
-                          item.productSizeId || null,
-                          0
-                        )
-                      }
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </CustomButton>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
@@ -661,9 +684,9 @@ export default function CheckoutPage() {
 
               {/* Payment Method */}
               <div className="flex justify-between text-sm mt-2">
-                <span className="text-muted-foreground">Payment Method</span>
-                <span className="font-medium">
-                  {selectedPaymentOption?.name || "Select method"}
+                <span className="text-muted-foreground">Payment</span>
+                <span className="font-medium text-xs">
+                  {selectedPaymentOption?.name || "—"}
                 </span>
               </div>
             </div>
@@ -741,12 +764,12 @@ function CheckoutPageSkeleton() {
     <PageContainer className="py-8">
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="bg-card border rounded-2xl p-6 h-40 animate-pulse" />
           ))}
         </div>
         <div className="lg:col-span-1">
-          <div className="bg-card border rounded-2xl p-6 h-80 animate-pulse" />
+          <div className="bg-card border rounded-2xl p-6 h-96 animate-pulse" />
         </div>
       </div>
     </PageContainer>

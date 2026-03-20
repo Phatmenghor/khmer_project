@@ -10,6 +10,16 @@ import {
   LocationResponseModel,
 } from "../models/response/location-response";
 
+export const fetchDefaultAddressService = createApiThunk<
+  LocationResponseModel,
+  void
+>("location/fetchDefault", async () => {
+  const response = await axiosClientWithAuth.get(
+    "/api/v1/locations/default"
+  );
+  return response.data.data;
+});
+
 export const fetchAllLocationsService = createApiThunk<
   AllLocationResponseModel,
   LocationFilterRequest | void
