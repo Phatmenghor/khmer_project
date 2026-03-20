@@ -51,9 +51,9 @@ export function storeTokenRemember(token: string | undefined): void {
   setCookie(ACCESS_TOKEN_KEY, token, { maxAge, path: "/" });
 }
 
-export function getToken() {
+export function getToken(): string | undefined {
   const token = getCookie(ACCESS_TOKEN_KEY);
-  return token;
+  return token as string | undefined;
 }
 
 /**

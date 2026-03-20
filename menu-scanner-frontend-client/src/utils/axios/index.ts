@@ -16,8 +16,8 @@ import {
 } from "../local-storage/token";
 
 /** Get the correct token based on current route */
-const getActiveToken = (): string | null => {
-  if (typeof window === "undefined") return null;
+const getActiveToken = (): string | undefined => {
+  if (typeof window === "undefined") return undefined;
 
   // Use admin token for admin routes, customer token for public routes
   if (isAdminPath()) {
@@ -27,8 +27,8 @@ const getActiveToken = (): string | null => {
 };
 
 /** Get the correct refresh token based on current route */
-const getActiveRefreshToken = (): string | null => {
-  if (typeof window === "undefined") return null;
+const getActiveRefreshToken = (): string | undefined => {
+  if (typeof window === "undefined") return undefined;
 
   // Match the token type based on current route
   if (isAdminPath()) {
