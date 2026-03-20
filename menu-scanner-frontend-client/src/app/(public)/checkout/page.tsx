@@ -67,6 +67,7 @@ export default function CheckoutPage() {
   const { deliveryOptionsContent: deliveryOptions } = useDeliveryOptionsState();
   const { paymentOptionsContent: paymentOptions } = usePaymentOptionsState();
 
+  const [mounted, setMounted] = useState(false);
   const [defaultAddress, setDefaultAddress] = useState<LocationResponse | null>(null);
   const [loadingDefaults, setLoadingDefaults] = useState(false);
 
@@ -78,9 +79,14 @@ export default function CheckoutPage() {
     isProcessing: false,
   });
 
+  // Set mounted after hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Fetch defaults and options on mount
   useEffect(() => {
-    if (!authReady || !isAuthenticated) return;
+    if (!mounted || !authReady || !isAuthenticated) return;
 
     const fetchDefaults = async () => {
       setLoadingDefaults(true);
@@ -129,7 +135,7 @@ export default function CheckoutPage() {
     };
 
     fetchDefaults();
-  }, [authReady, isAuthenticated, dispatch]);
+  }, [mounted, authReady, isAuthenticated, dispatch]);
 
   // Set default delivery option if available
   useEffect(() => {
@@ -290,7 +296,8 @@ export default function CheckoutPage() {
     }
   };
 
-  if (!authReady) {
+  // Prevent hydration mismatch - show skeleton until mounted
+  if (!mounted || !authReady) {
     return <CheckoutPageSkeleton />;
   }
 
