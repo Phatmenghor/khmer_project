@@ -99,13 +99,28 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
   async function onLoginSubmit(values: LoginFormData) {
     try {
-      await dispatch(
+      const result = await dispatch(
         loginService({
           userIdentifier: values.userIdentifier,
           password: values.password,
           userType: "CUSTOMER",
         }),
       ).unwrap();
+
+      // Block business users from logging in via public modal
+      if (result?.userType === "BUSINESS_USER") {
+        showToast.error("❌ Business accounts must use the Admin Login page");
+        // Clear the tokens since we shouldn't have stored them
+        const { clearAllTokens, clearAdminTokens } = await import("@/utils/local-storage/token");
+        const { clearUserInfo, clearAdminUserInfo } = await import("@/utils/local-storage/userInfo");
+        clearAllTokens();
+        clearAdminTokens();
+        clearUserInfo();
+        clearAdminUserInfo();
+        loginForm.reset();
+        return;
+      }
+
       showToast.success("Welcome! You've successfully logged in.");
       onOpenChange(false);
       loginForm.reset();
@@ -142,6 +157,21 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
       const result = await dispatch(
         telegramAuthenticateService({ telegramData, userType: "CUSTOMER" }),
       ).unwrap();
+
+      // Block business users from logging in via public modal
+      if (result?.userType === "BUSINESS_USER") {
+        showToast.error("❌ Business accounts must use the Admin Login page");
+        // Clear the tokens
+        const { clearAllTokens, clearAdminTokens } = await import("@/utils/local-storage/token");
+        const { clearUserInfo, clearAdminUserInfo } = await import("@/utils/local-storage/userInfo");
+        clearAllTokens();
+        clearAdminTokens();
+        clearUserInfo();
+        clearAdminUserInfo();
+        setIsTelegramLoading(false);
+        return;
+      }
+
       if (result) {
         showToast.success(
           result.isNewUser ? "Welcome! Your account has been created." : "Welcome back!",
