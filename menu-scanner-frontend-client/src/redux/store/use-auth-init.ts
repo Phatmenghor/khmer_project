@@ -8,9 +8,17 @@ import {
   setAuthReady,
 } from "@/redux/features/auth/store/slice/auth-slice";
 import { getProfileService } from "@/redux/features/auth/store/thunks/auth-thunks";
-import { getToken, getAdminToken } from "@/utils/local-storage/token";
-import { getUserInfo, getAdminUserInfo } from "@/utils/local-storage/userInfo";
 import { selectAuthReady } from "@/redux/features/auth/store/selectors/auth-selectors";
+import { COOKIE_KEYS } from "@/constants/cookie-keys";
+
+// Helper to read cookies directly from browser (works on client-side refresh)
+function getCookieValue(name: string): string | null {
+  if (typeof window === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+  return null;
+}
 
 /**
  * Simplified auth initialization hook
@@ -29,15 +37,13 @@ export function useAuthInit() {
 
     console.log("## [AUTH INIT] Route:", pathname, "| isAdminRoute:", isAdminRoute);
 
-    // Get the correct token pair for this route
-    const token = isAdminRoute ? getAdminToken() : getToken();
-    const userInfo = isAdminRoute ? getAdminUserInfo() : getUserInfo();
+    // Read cookies directly from browser (not using cookies-next due to client-side refresh issues)
+    const tokenCookieName = isAdminRoute ? COOKIE_KEYS.ADMIN_ACCESS_TOKEN : COOKIE_KEYS.ACCESS_TOKEN;
+    const userInfoCookieName = isAdminRoute ? COOKIE_KEYS.ADMIN_USER_INFO : COOKIE_KEYS.USER_INFO;
 
-    console.log("## [AUTH INIT] Raw values:", {
-      tokenType: typeof token,
-      tokenLength: token?.length,
-      userInfoType: typeof userInfo,
-    });
+    const token = getCookieValue(tokenCookieName);
+    const userInfoStr = getCookieValue(userInfoCookieName);
+    const userInfo = userInfoStr ? JSON.parse(decodeURIComponent(userInfoStr)) : null;
 
     console.log("## [AUTH INIT] Cookie check:", {
       isAdminRoute,
