@@ -59,35 +59,6 @@ public class PaymentOptionAdminController {
     }
 
     /**
-     * Get all active payment options for current business
-     */
-    @GetMapping("/active")
-    public ResponseEntity<ApiResponse<java.util.List<PaymentOptionResponse>>> getActivePaymentOptions() {
-        log.info("Getting active payment options");
-        User currentUser = securityUtils.getCurrentUser();
-        java.util.List<PaymentOptionResponse> options = paymentOptionService.getActivePaymentOptions(
-                currentUser.getBusinessId()
-        );
-        return ResponseEntity.ok(ApiResponse.success("Active payment options retrieved successfully", options));
-    }
-
-    /**
-     * Search payment options with pagination
-     */
-    @PostMapping("/search")
-    public ResponseEntity<ApiResponse<PaginationResponse<PaymentOptionResponse>>> searchPaymentOptions(
-            @Valid @RequestBody PaymentOptionFilterRequest filter) {
-        log.info("Searching payment options");
-        User currentUser = securityUtils.getCurrentUser();
-        filter.setBusinessId(currentUser.getBusinessId());
-        PaginationResponse<PaymentOptionResponse> response = paymentOptionService.getAllPaymentOptionsWithFilters(
-                currentUser.getBusinessId(),
-                filter
-        );
-        return ResponseEntity.ok(ApiResponse.success("Payment options searched successfully", response));
-    }
-
-    /**
      * Get payment option by ID
      */
     @GetMapping("/{id}")
