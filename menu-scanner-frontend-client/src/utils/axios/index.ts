@@ -15,10 +15,23 @@ import {
   clearAdminTokens,
 } from "../local-storage/token";
 
-/** Detect if user is admin by checking which token exists in cookies */
+/** Get the active token (admin or customer) - whichever exists */
+const getActiveToken = (): string | null => {
+  if (typeof window === "undefined") return null;
+  // Prioritize admin token if it exists
+  return getAdminToken() || getToken();
+};
+
+/** Get the active refresh token (admin or customer) */
+const getActiveRefreshToken = (): string | null => {
+  if (typeof window === "undefined") return null;
+  // Match the active token type
+  return getAdminToken() ? getAdminRefreshToken() : getRefreshToken();
+};
+
+/** Check if the active user is admin based on which token exists */
 const isAdminUser = (): boolean => {
   if (typeof window === "undefined") return false;
-  // Prioritize admin token if it exists
   return !!getAdminToken();
 };
 
@@ -327,9 +340,9 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       config.headers = config.headers || {};
       config.headers["X-Request-ID"] = requestId;
 
-      // Handle authentication — pick admin or customer token by which one exists
+      // Handle authentication — use the single active token
       if (requiresAuth) {
-        const token = isAdminUser() ? getAdminToken() : getToken();
+        const token = getActiveToken();
 
         if (token) {
           config.headers["Authorization"] = `Bearer ${token}`;
@@ -490,7 +503,11 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         // Check if this is the refresh token endpoint itself failing
         if (originalRequest.url?.includes("/api/v1/auth/refresh")) {
           const admin = isAdminUser();
-          if (admin) clearAdminTokens(); else clearAllTokens();
+          if (admin) {
+            clearAdminTokens();
+          } else {
+            clearAllTokens();
+          }
           if (typeof window !== "undefined") {
             toast.error("Session expired. Please login again.");
             window.location.href = admin ? "/admin/login" : "/login";
@@ -517,9 +534,9 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         originalRequest._retry = true;
         isRefreshing = true;
 
-        // Try to refresh the token — use the right pair based on which token exists
+        // Try to refresh the token using the active token type
         const admin = isAdminUser();
-        const refreshToken = admin ? getAdminRefreshToken() : getRefreshToken();
+        const refreshToken = getActiveRefreshToken();
 
         if (!refreshToken) {
           isRefreshing = false;
