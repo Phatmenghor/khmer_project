@@ -1,6 +1,17 @@
+/**
+ * Payment Options Management - Async Thunks
+ * Redux thunks for Payment Options CRUD operations
+ */
+
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
-import { Status } from "@/constants/status/status";
+import {
+  AllPaymentOptionsRequest,
+  UpdatePaymentOptionParams,
+} from "../models/request/payment-options-request";
+import {
+  CreatePaymentOptionData,
+} from "../models/schema/payment-options-schema";
 import { PaymentOptionResponse } from "../models/response/payment-option-response";
 import { PaginationResponse } from "../models/pagination-response";
 
@@ -11,23 +22,11 @@ const API_BASE = "/api/v1/admin/payment-options";
  */
 export const fetchAllPaymentOptionsService = createApiThunk<
   PaginationResponse<PaymentOptionResponse>,
-  {
-    search?: string;
-    pageNo?: number;
-    pageSize?: number;
-    statuses?: Status[];
-  }
+  AllPaymentOptionsRequest
 >("paymentOptions/fetchAll", async (params) => {
-  const payload = {
-    search: params.search || "",
-    pageNo: params.pageNo || 1,
-    pageSize: params.pageSize || 15,
-    statuses: params.statuses && params.statuses.length > 0 ? params.statuses : [],
-  };
-
   const response = await axiosClientWithAuth.post<
     PaginationResponse<PaymentOptionResponse>
-  >(`${API_BASE}/all`, payload);
+  >(`${API_BASE}/all`, params);
 
   return response.data.data;
 });
@@ -50,11 +49,11 @@ export const fetchPaymentOptionByIdService = createApiThunk<
  */
 export const createPaymentOptionService = createApiThunk<
   PaymentOptionResponse,
-  { name: string; paymentOptionType: string; status: string }
->("paymentOptions/create", async (data) => {
+  CreatePaymentOptionData
+>("paymentOptions/create", async (payload) => {
   const response = await axiosClientWithAuth.post<PaymentOptionResponse>(
     `${API_BASE}`,
-    data
+    payload
   );
   return response.data.data;
 });
@@ -64,11 +63,11 @@ export const createPaymentOptionService = createApiThunk<
  */
 export const updatePaymentOptionService = createApiThunk<
   PaymentOptionResponse,
-  { id: string; name: string; paymentOptionType: string; status: string }
->("paymentOptions/update", async ({ id, ...data }) => {
+  UpdatePaymentOptionParams
+>("paymentOptions/update", async ({ id, payload }) => {
   const response = await axiosClientWithAuth.put<PaymentOptionResponse>(
     `${API_BASE}/${id}`,
-    data
+    payload
   );
   return response.data.data;
 });

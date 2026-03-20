@@ -34,18 +34,12 @@ import {
 import { selectSelectedPaymentOption } from "../store/selectors/payment-options-selectors";
 import { clearSelectedPaymentOption } from "../store/slice/payment-options-slice";
 
-const paymentOptionSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must not exceed 100 characters"),
-  paymentOptionType: z.string().min(1, "Payment option type is required"),
-  status: z.enum(["ACTIVE", "INACTIVE"], {
-    errorMap: () => ({ message: "Status is required" }),
-  }),
-});
+import {
+  createPaymentOptionSchema,
+  updatePaymentOptionSchema,
+} from "../store/models/schema/payment-options-schema";
 
-type PaymentOptionFormData = z.infer<typeof paymentOptionSchema>;
+type PaymentOptionFormData = z.infer<typeof createPaymentOptionSchema>;
 
 interface PaymentOptionsModalProps {
   isOpen: boolean;
@@ -65,7 +59,11 @@ export default function PaymentOptionsModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<PaymentOptionFormData>({
-    resolver: zodResolver(paymentOptionSchema),
+    resolver: zodResolver(
+      mode === ModalMode.CREATE_MODE
+        ? createPaymentOptionSchema
+        : updatePaymentOptionSchema
+    ),
     defaultValues: {
       name: "",
       paymentOptionType: "",
@@ -101,7 +99,7 @@ export default function PaymentOptionsModal({
         await dispatch(
           updatePaymentOptionService({
             id: paymentOptionId!,
-            ...data,
+            payload: data,
           })
         ).unwrap();
         showToast.success("Payment option updated successfully");
