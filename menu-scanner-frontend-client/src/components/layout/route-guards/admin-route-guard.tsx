@@ -28,7 +28,8 @@ export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
   const isAdmin = userType === "BUSINESS_USER";
 
   useEffect(() => {
-    console.log("## [ADMIN GUARD] Checking access:", {
+    // Debug redux state
+    console.log("## [ADMIN GUARD] Redux state:", {
       authReady,
       isAuthenticated,
       userType,
@@ -37,7 +38,7 @@ export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
 
     // Still loading auth
     if (!authReady) {
-      console.log("## [ADMIN GUARD] Auth still initializing...");
+      console.log("## [ADMIN GUARD] ⏳ Auth still initializing, waiting...");
       setShowContent(false);
       return;
     }
@@ -52,14 +53,14 @@ export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     // Authenticated but not admin
     if (!isAdmin) {
       console.log(
-        "## ❌ [ADMIN GUARD] Not admin (userType: " + userType + "), redirecting to login"
+        "## [ADMIN GUARD] ❌ Not admin (userType: " + userType + "), redirecting to login"
       );
       router.replace(ROUTES.AUTH.LOGIN);
       return;
     }
 
     // All checks passed
-    console.log("## [ADMIN GUARD] ✓ Access granted, showing content");
+    console.log("## [ADMIN GUARD] ✓ Access granted!");
     setShowContent(true);
   }, [authReady, isAuthenticated, userType, isAdmin, router]);
 
