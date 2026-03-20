@@ -1,91 +1,117 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { indexDisplay } from "@/utils/common/common";
+import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { Edit, Trash } from "lucide-react";
+import { TableColumn } from "@/components/shared/common/data-table";
+import { ActionButton } from "@/components/shared/button/action-button";
 import { PaymentOptionResponse } from "../store/models/response/payment-option-response";
-import { Edit2, Trash2 } from "lucide-react";
-import { DataTableRowActions } from "@/components/shared/common/data-table-row-actions";
-import { Badge } from "@/components/ui/badge";
+import { PaginationResponse } from "../store/models/pagination-response";
 
-interface PaymentOptionsTableProps {
-  data: PaymentOptionResponse[];
-  handlers: {
-    handleEditPaymentOption: (option: PaymentOptionResponse) => void;
-    handleDeletePaymentOption: (option: PaymentOptionResponse) => void;
-  };
+interface PaymentOptionsTableHandlers {
+  handleEditPaymentOption: (option: PaymentOptionResponse) => void;
+  handleDeletePaymentOption: (option: PaymentOptionResponse) => void;
 }
 
-export const paymentOptionsTableColumns = (
-  props: PaymentOptionsTableProps
-): ColumnDef<PaymentOptionResponse>[] => {
-  const { handlers } = props;
+interface PaymentOptionsTableOptions {
+  data: PaginationResponse<PaymentOptionResponse> | null;
+  handlers: PaymentOptionsTableHandlers;
+}
+
+export const paymentOptionsTableColumns = ({
+  data,
+  handlers,
+}: PaymentOptionsTableOptions): TableColumn<PaymentOptionResponse>[] => {
+  const { handleEditPaymentOption, handleDeletePaymentOption } = handlers;
 
   return [
     {
-      accessorKey: "name",
-      header: "Payment Method",
-      cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("name")}</div>
+      key: "index",
+      label: "#",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (_, index) => (
+        <span className="font-medium">
+          {indexDisplay(data?.pageNo || 1, data?.pageSize || 15, index + 1)}
+        </span>
       ),
     },
     {
-      accessorKey: "paymentOptionType",
-      header: "Type",
-      cell: ({ row }) => {
-        const type = row.getValue("paymentOptionType") as string;
+      key: "name",
+      label: "Payment Method",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (option) => (
+        <span className="text-xs text-muted-foreground">
+          {option?.name || "---"}
+        </span>
+      ),
+    },
+    {
+      key: "paymentOptionType",
+      label: "Type",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (option) => {
+        const type = option?.paymentOptionType || "";
         const typeLabel = type
           .split("_")
           .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
           .join(" ");
-        return <div className="text-sm">{typeLabel}</div>;
-      },
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.getValue("status");
         return (
-          <Badge variant={status === "ACTIVE" ? "default" : "secondary"}>
-            {status === "ACTIVE" ? "Active" : "Inactive"}
-          </Badge>
+          <span className="text-xs text-muted-foreground">{typeLabel}</span>
         );
       },
     },
     {
-      accessorKey: "createdAt",
-      header: "Created",
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("createdAt"));
-        return <div className="text-xs text-muted-foreground">
-          {date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
-        </div>;
-      },
+      key: "status",
+      label: "Status",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (option) => (
+        <span
+          className={`text-xs font-medium ${
+            option?.status === "ACTIVE"
+              ? "text-green-600"
+              : "text-gray-500"
+          }`}
+        >
+          {option?.status === "ACTIVE" ? "Active" : "Inactive"}
+        </span>
+      ),
     },
     {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const option = row.original;
-        return (
-          <DataTableRowActions
-            actions={[
-              {
-                label: "Edit",
-                icon: Edit2,
-                onClick: () => handlers.handleEditPaymentOption(option),
-              },
-              {
-                label: "Delete",
-                icon: Trash2,
-                onClick: () => handlers.handleDeletePaymentOption(option),
-                className: "text-destructive hover:bg-destructive/10",
-              },
-            ]}
+      key: "createdAt",
+      label: "Created At",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (option) => (
+        <span className="text-sm text-muted-foreground">
+          {dateTimeFormat(option?.createdAt)}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (option) => (
+        <div className="flex items-center gap-2">
+          <ActionButton
+            icon={<Edit className="w-4 h-4" />}
+            tooltip="Edit Payment Option"
+            onClick={() => handleEditPaymentOption(option)}
           />
-        );
-      },
+          <ActionButton
+            icon={<Trash className="w-4 h-4" />}
+            tooltip="Delete Payment Option"
+            onClick={() => handleDeletePaymentOption(option)}
+            variant="destructive"
+          />
+        </div>
+      ),
     },
   ];
 };
