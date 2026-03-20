@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/store";
 import {
-  selectIsAuthenticated,
   selectAuthReady,
-  selectIsAdmin,
+  selectIsAuthenticated,
+  selectUserType,
 } from "@/redux/features/auth/store/selectors/auth-selectors";
 import { ROUTES } from "@/constants/app-routes/routes";
 
@@ -15,52 +15,82 @@ interface AdminRouteGuardProps {
 }
 
 /**
- * AdminRouteGuard - Protects admin routes from unauthorized access
- * Redirects non-admin users back to login
+ * AdminRouteGuard V2 - Simplified version
+ * Protects admin routes with clear, simple logic
  */
 export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
   const router = useRouter();
   const authReady = useAppSelector(selectAuthReady);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const isAdmin = useAppSelector(selectIsAdmin);
+  const userType = useAppSelector(selectUserType);
+  const [showContent, setShowContent] = useState(false);
+
+  const isAdmin = userType === "BUSINESS_USER";
 
   useEffect(() => {
-    if (!authReady) return; // Wait for auth to initialize
+    console.log("## [ADMIN GUARD] Checking access:", {
+      authReady,
+      isAuthenticated,
+      userType,
+      isAdmin,
+    });
 
-    // Redirect if not authenticated OR not an admin
-    if (!isAuthenticated || !isAdmin) {
-      console.warn(
-        "🚫 Unauthorized admin access. Redirecting to login.",
-        {
-          isAuthenticated,
-          isAdmin,
-        }
+    // Still loading auth
+    if (!authReady) {
+      console.log("## [ADMIN GUARD] Auth still initializing...");
+      setShowContent(false);
+      return;
+    }
+
+    // Not authenticated
+    if (!isAuthenticated) {
+      console.log("## [ADMIN GUARD] ❌ Not authenticated, redirecting to login");
+      router.replace(ROUTES.AUTH.LOGIN);
+      return;
+    }
+
+    // Authenticated but not admin
+    if (!isAdmin) {
+      console.log(
+        "## ❌ [ADMIN GUARD] Not admin (userType: " + userType + "), redirecting to login"
       );
       router.replace(ROUTES.AUTH.LOGIN);
+      return;
     }
-  }, [authReady, isAuthenticated, isAdmin, router]);
 
+    // All checks passed
+    console.log("## [ADMIN GUARD] ✓ Access granted, showing content");
+    setShowContent(true);
+  }, [authReady, isAuthenticated, userType, isAdmin, router]);
+
+  // Still loading
   if (!authReady) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Loading...</p>
+          <div className="inline-flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+          <p className="mt-4 text-sm text-muted-foreground">Initializing...</p>
         </div>
       </div>
     );
   }
 
+  // Not authenticated or not admin
   if (!isAuthenticated || !isAdmin) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
-          <p className="text-red-500 font-semibold mb-2">Unauthorized Access</p>
-          <p className="text-sm text-gray-500">Redirecting to login...</p>
+          <p className="text-red-500 font-semibold">Access Denied</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Redirecting to login...
+          </p>
         </div>
       </div>
     );
   }
 
-  return <>{children}</>;
+  // Authenticated and admin
+  return <>{showContent ? children : null}</>;
 }

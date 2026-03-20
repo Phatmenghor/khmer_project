@@ -1,9 +1,8 @@
-// hooks/use-auth-init.ts
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   setUser,
   setAuthReady,
@@ -11,55 +10,54 @@ import {
 import { getProfileService } from "@/redux/features/auth/store/thunks/auth-thunks";
 import { getToken, getAdminToken } from "@/utils/local-storage/token";
 import { getUserInfo, getAdminUserInfo } from "@/utils/local-storage/userInfo";
+import { selectAuthReady } from "@/redux/features/auth/store/selectors/auth-selectors";
 
+/**
+ * Simplified auth initialization hook
+ * - Runs on every route change
+ * - Properly detects which tokens to read based on current route
+ * - Restores auth state from cookies to Redux
+ */
 export function useAuthInit() {
-  const { dispatch, isAuthenticated, authReady } = useAuthState();
-  const lastPathnameRef = useRef<string | null>(null);
+  const dispatch = useAppDispatch();
   const pathname = usePathname();
+  const authReady = useAppSelector(selectAuthReady);
 
   useEffect(() => {
-    // Only re-initialize if pathname changed (prevents duplicate work on re-renders)
-    if (lastPathnameRef.current === pathname) return;
-    lastPathnameRef.current = pathname;
+    // Detect if we're on an admin route
+    const isAdminRoute = pathname?.startsWith("/admin") === true;
 
-    const isAdminRoute = pathname?.startsWith("/admin") ?? false;
+    console.log("## [AUTH INIT] Route:", pathname, "| isAdminRoute:", isAdminRoute);
 
-    const initAuth = async () => {
-      console.log("🔐 Initializing auth for route:", pathname, { isAdminRoute });
+    // Get the correct token pair for this route
+    const token = isAdminRoute ? getAdminToken() : getToken();
+    const userInfo = isAdminRoute ? getAdminUserInfo() : getUserInfo();
 
-      // Pick the correct cookie pair based on the current route
-      const token = isAdminRoute ? getAdminToken() : getToken();
-      const userInfo = isAdminRoute ? getAdminUserInfo() : getUserInfo();
+    console.log("## [AUTH INIT] Cookie check:", {
+      isAdminRoute,
+      hasToken: !!token,
+      hasUserInfo: !!userInfo,
+      userType: userInfo?.userType,
+    });
 
-      console.log("📦 Found auth data:", {
-        hasToken: !!token,
-        hasUserInfo: !!userInfo,
-        isAdminRoute,
-        userType: userInfo?.userType,
+    // If we have both token and user info, restore to Redux
+    if (token && userInfo) {
+      console.log("## [AUTH INIT] ✓ Restoring auth from cookies");
+      dispatch(setUser(userInfo));
+
+      // Try to fetch fresh profile (optional)
+      dispatch(getProfileService()).catch((err) => {
+        console.warn("⚠ Profile fetch failed:", err);
+        // Don't block auth on profile fetch failure
       });
-
-      if (token && userInfo) {
-        // Restore user to Redux state (this also sets authReady = true)
-        console.log("✓ Restoring user from cookies:", userInfo.userType);
-        dispatch(setUser(userInfo));
-
-        // Fetch fresh profile data
-        try {
-          await dispatch(getProfileService()).unwrap();
-          console.log("✓ Profile fetched successfully");
-        } catch (error) {
-          console.error("⚠ Failed to fetch profile:", error);
-          // Still mark as authenticated even if profile fetch fails
-        }
-      } else {
-        // No token / no user info — mark auth as ready (not authenticated)
-        console.log("⚠ No auth data found, marking auth as ready");
+    } else {
+      // No auth data, mark as ready (not authenticated)
+      if (!authReady) {
+        console.log("## [AUTH INIT] ⚠ No auth data found");
         dispatch(setAuthReady());
       }
-    };
+    }
+  }, [pathname, dispatch, authReady]);
 
-    initAuth();
-  }, [dispatch, pathname]); // pathname MUST be in deps to re-init on route change
-
-  return { isAuthenticated, authReady };
+  return { authReady };
 }

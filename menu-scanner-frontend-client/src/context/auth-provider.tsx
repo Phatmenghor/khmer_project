@@ -1,11 +1,11 @@
 // components/providers/auth-provider.tsx
 "use client";
 
-import { useAuthInitV2 } from "@/redux/store/use-auth-init-v2";
+import { useAuthInit } from "@/redux/store/use-auth-init";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Initialize auth from cookies on every route change
-  useAuthInitV2();
+  useAuthInit();
 
   return <>{children}</>;
 }
