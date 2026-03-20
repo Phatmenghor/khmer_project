@@ -122,12 +122,13 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
             )}
           </div>
 
-          {/* Search and Actions Section - Responsive Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 items-end">
-            {/* Left: Search input - Full width on mobile, 2 cols on desktop */}
-            <div className="lg:col-span-1">
+          {/* Row 1: Search and Filters - Left side, Add button - Right side */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-end justify-between">
+            {/* Left: Search input + Filters */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-1 min-w-0">
+              {/* Search input */}
               {onSearchChange && (
-                <div className="relative w-full group">
+                <div className="relative w-full sm:w-auto group flex-1 sm:flex-none sm:min-w-[250px]">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none flex-shrink-0" />
                   <Input
                     type="search"
@@ -138,24 +139,24 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                   />
                 </div>
               )}
+
+              {/* Filters/Select */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                {customSelect && (
+                  <div className="w-full [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200 [&>*]:text-sm [&>*]:w-full">
+                    {customSelect}
+                  </div>
+                )}
+                {children && (
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
+                    {children}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Middle: Filters/Select - Stack on mobile, side-by-side on tablet+ */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:col-span-1">
-              {customSelect && (
-                <div className="w-full [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200 [&>*]:text-sm [&>*]:w-full">
-                  {customSelect}
-                </div>
-              )}
-              {children && (
-                <div className="flex flex-wrap gap-2 sm:gap-3 w-full">
-                  {children}
-                </div>
-              )}
-            </div>
-
-            {/* Right: Action buttons - Stack on mobile, horizontal on desktop */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full lg:col-span-1 lg:flex-row">
+            {/* Right: Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
               {/* Custom add button */}
               {customAddNewButton && (
                 <div className="flex-1 sm:flex-none">{customAddNewButton}</div>
@@ -214,14 +215,14 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                 </TooltipProvider>
               )}
             </div>
-
-            {/* Full width filters below on mobile/tablet */}
-            {children1 && (
-              <div className="lg:col-span-3 pt-2 sm:pt-0 [&>*]:text-gray-200 [&>*]:text-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-auto gap-3">
-                {children1}
-              </div>
-            )}
           </div>
+
+          {/* Row 2: Full width filters */}
+          {children1 && (
+            <div className="[&>*]:text-gray-200 [&>*]:text-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-auto gap-3">
+              {children1}
+            </div>
+          )}
         </CardContent>
 
         {/* Tabs Section */}
