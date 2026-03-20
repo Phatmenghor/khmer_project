@@ -39,8 +39,4 @@ public class PaymentOption extends BaseUUIDEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;
-
-    public boolean isActive() {
-        return Status.ACTIVE.equals(status);
-    }
 }

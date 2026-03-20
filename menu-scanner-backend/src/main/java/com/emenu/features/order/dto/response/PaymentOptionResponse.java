@@ -23,8 +23,4 @@ public class PaymentOptionResponse {
     private Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    public boolean isActive() {
-        return Status.ACTIVE.equals(status);
-    }
 }
