@@ -49,12 +49,18 @@ public class CategoryController {
 
     /**
      * Get all categories with filtering (uses current user's business from token)
+     * If businessId is provided in filter, use it; otherwise use current user's business
      */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getMyBusinessAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
         log.info("Getting my categories for current user's business");
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        filter.setBusinessId(businessId);
+
+        // Use businessId from filter if provided, otherwise use current user's business
+        if (filter.getBusinessId() == null) {
+            UUID businessId = securityUtils.getCurrentUserBusinessId();
+            filter.setBusinessId(businessId);
+        }
+
         PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
     }

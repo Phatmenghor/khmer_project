@@ -50,12 +50,18 @@ public class BannerController {
 
     /**
      * Get all banners with filtering
+     * If businessId is provided in filter, use it; otherwise use current user's business
      */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BannerResponse>>> getMyBusinessAllBanners(@Valid @RequestBody BannerFilterRequest filter) {
         log.info("Getting my banners for current user's business");
         User currentUser = securityUtils.getCurrentUser();
-        filter.setBusinessId(currentUser.getBusinessId());
+
+        // Use businessId from filter if provided, otherwise use current user's business
+        if (filter.getBusinessId() == null) {
+            filter.setBusinessId(currentUser.getBusinessId());
+        }
+
         PaginationResponse<BannerResponse> banners = bannerService.getAllBanners(filter);
         return ResponseEntity.ok(ApiResponse.success("Banners retrieved successfully", banners));
     }

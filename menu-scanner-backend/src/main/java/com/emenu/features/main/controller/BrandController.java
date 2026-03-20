@@ -50,12 +50,18 @@ public class BrandController {
 
     /**
      * Get my business brands
+     * If businessId is provided in filter, use it; otherwise use current user's business
      */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BrandResponse>>> getMyBusinessBrands(@Valid @RequestBody BrandFilterRequest filter) {
         log.info("Getting brands for current user's business");
         User currentUser = securityUtils.getCurrentUser();
-        filter.setBusinessId(currentUser.getBusinessId());
+
+        // Use businessId from filter if provided, otherwise use current user's business
+        if (filter.getBusinessId() == null) {
+            filter.setBusinessId(currentUser.getBusinessId());
+        }
+
         PaginationResponse<BrandResponse> brands = brandService.getAllBrands(filter);
         return ResponseEntity.ok(ApiResponse.success("Business brands retrieved successfully", brands));
     }

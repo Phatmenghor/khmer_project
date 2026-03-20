@@ -53,14 +53,18 @@ public class DeliveryOptionController {
 
     /**
      * Get my business delivery options with filtering
+     * If businessId is provided in filter, use it; otherwise use current user's business
      */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<DeliveryOptionResponse>>> getMyBusinessDeliveryOptions(
             @Valid @RequestBody DeliveryOptionFilterRequest filter) {
         log.info("Getting delivery options for current user's business");
 
-        UUID businessId = securityUtils.getCurrentUser().getBusinessId();
-        filter.setBusinessId(businessId);
+        // Use businessId from filter if provided, otherwise use current user's business
+        if (filter.getBusinessId() == null) {
+            UUID businessId = securityUtils.getCurrentUser().getBusinessId();
+            filter.setBusinessId(businessId);
+        }
 
         PaginationResponse<DeliveryOptionResponse> deliveryOptions =
                 deliveryOptionService.getAllDeliveryOptions(filter);
