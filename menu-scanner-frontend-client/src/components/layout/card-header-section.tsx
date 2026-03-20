@@ -16,7 +16,13 @@ import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/redux/store/use-mobile";
 import { ActionButton } from "../shared/button/action-button";
 
+interface BreadcrumbItemType {
+  label: string;
+  href?: string;
+}
+
 interface CardHeaderSectionProps {
+  breadcrumbs?: BreadcrumbItemType[];
   title?: string;
   searchPlaceholder?: string;
   searchValue?: string;
@@ -35,6 +41,7 @@ interface CardHeaderSectionProps {
 }
 
 export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
+  breadcrumbs,
   title,
   searchPlaceholder = "Search...",
   searchValue,
