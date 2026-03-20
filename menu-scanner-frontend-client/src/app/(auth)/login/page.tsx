@@ -45,6 +45,7 @@ export default function LoginPage() {
 
   async function onSubmit(values: FormData) {
     try {
+      console.log("🔐 Attempting login...");
       const result = await dispatch(
         loginService({
           userIdentifier: values.userIdentifier,
@@ -54,16 +55,28 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
+      console.log("✓ Login successful, result:", result);
       showToast.success("Welcome to the emenu dashboard!");
-      router.replace(ROUTES.ADMIN.DASHBOARD);
+
+      // Use push for better navigation, with window.location fallback
+      setTimeout(() => {
+        try {
+          router.push(ROUTES.ADMIN.DASHBOARD);
+        } catch (navErr) {
+          console.error("✗ Push failed, using window.location:", navErr);
+          window.location.href = ROUTES.ADMIN.DASHBOARD;
+        }
+      }, 300);
     } catch (err: any) {
-      showToast.error(error || "Login failed. Please try again.");
+      console.error("✗ Login failed:", err);
+      showToast.error(err?.message || error || "Login failed. Please try again.");
     }
   }
 
   const handleTelegramAuth = async (telegramData: TelegramAuthData) => {
     setIsTelegramLoading(true);
     try {
+      console.log("🔐 Attempting Telegram auth...");
       const result = await dispatch(
         telegramAuthenticateService({
           telegramData,
@@ -78,12 +91,19 @@ export default function LoginPage() {
           ? "Welcome! Your account has been created successfully."
           : "Welcome back!",
       );
-      
-      // Redirect immediately - cookies are already set by Redux action
-      router.push(ROUTES.ADMIN.DASHBOARD);
+
+      // Use push for better navigation, with window.location fallback
+      setTimeout(() => {
+        try {
+          router.push(ROUTES.ADMIN.DASHBOARD);
+        } catch (navErr) {
+          console.error("✗ Push failed, using window.location:", navErr);
+          window.location.href = ROUTES.ADMIN.DASHBOARD;
+        }
+      }, 300);
     } catch (err: any) {
       console.error("✗ Telegram auth failed:", err);
-      showToast.error(err || "Telegram login failed. Please try again.");
+      showToast.error(err?.message || err || "Telegram login failed. Please try again.");
     } finally {
       setIsTelegramLoading(false);
     }
