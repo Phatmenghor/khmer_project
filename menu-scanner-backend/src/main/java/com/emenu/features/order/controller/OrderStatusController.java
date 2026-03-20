@@ -1,5 +1,6 @@
 package com.emenu.features.order.controller;
 
+import com.emenu.features.auth.models.User;
 import com.emenu.features.order.dto.filter.OrderProcessStatusFilterRequest;
 import com.emenu.features.order.dto.request.OrderProcessStatusCreateRequest;
 import com.emenu.features.order.dto.response.OrderProcessStatusResponse;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/order-statuses")
+@RequestMapping("/api/v1/order-process-statuses")
 @RequiredArgsConstructor
 @Slf4j
 public class OrderStatusController {
@@ -49,7 +50,13 @@ public class OrderStatusController {
     public ResponseEntity<ApiResponse<PaginationResponse<OrderProcessStatusResponse>>> getMyBusinessOrderStatuses(
             @Valid @RequestBody OrderProcessStatusFilterRequest filter) {
         log.info("Getting order statuses for current user's business");
-        UUID businessId = securityUtils.getCurrentUser().getBusinessId();
+        User currentUser = securityUtils.getCurrentUser();
+
+        // Use businessId from filter if provided, otherwise use current user's business
+        UUID businessId = (filter.getBusinessId() != null)
+            ? filter.getBusinessId()
+            : currentUser.getBusinessId();
+
         filter.setBusinessId(businessId);
         PaginationResponse<OrderProcessStatusResponse> response =
                 orderProcessStatusService.getAllOrderProcessStatuses(filter);
