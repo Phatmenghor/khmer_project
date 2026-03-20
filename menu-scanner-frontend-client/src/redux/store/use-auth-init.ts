@@ -14,40 +14,52 @@ import { getUserInfo, getAdminUserInfo } from "@/utils/local-storage/userInfo";
 
 export function useAuthInit() {
   const { dispatch, isAuthenticated, authReady } = useAuthState();
-  const isInitialized = useRef(false);
+  const lastPathnameRef = useRef<string | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only run once on mount
-    if (isInitialized.current) return;
-    isInitialized.current = true;
+    // Only re-initialize if pathname changed (prevents duplicate work on re-renders)
+    if (lastPathnameRef.current === pathname) return;
+    lastPathnameRef.current = pathname;
 
     const isAdminRoute = pathname?.startsWith("/admin") ?? false;
 
     const initAuth = async () => {
+      console.log("🔐 Initializing auth for route:", pathname, { isAdminRoute });
+
       // Pick the correct cookie pair based on the current route
       const token = isAdminRoute ? getAdminToken() : getToken();
       const userInfo = isAdminRoute ? getAdminUserInfo() : getUserInfo();
 
+      console.log("📦 Found auth data:", {
+        hasToken: !!token,
+        hasUserInfo: !!userInfo,
+        isAdminRoute,
+        userType: userInfo?.userType,
+      });
+
       if (token && userInfo) {
         // Restore user to Redux state (this also sets authReady = true)
+        console.log("✓ Restoring user from cookies:", userInfo.userType);
         dispatch(setUser(userInfo));
 
         // Fetch fresh profile data
         try {
           await dispatch(getProfileService()).unwrap();
+          console.log("✓ Profile fetched successfully");
         } catch (error) {
-          console.error("Failed to fetch profile:", error);
+          console.error("⚠ Failed to fetch profile:", error);
+          // Still mark as authenticated even if profile fetch fails
         }
       } else {
         // No token / no user info — mark auth as ready (not authenticated)
+        console.log("⚠ No auth data found, marking auth as ready");
         dispatch(setAuthReady());
       }
     };
 
     initAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]); // pathname is only used on first mount — isInitialized.current prevents re-runs
+  }, [dispatch, pathname]); // pathname MUST be in deps to re-init on route change
 
   return { isAuthenticated, authReady };
 }
