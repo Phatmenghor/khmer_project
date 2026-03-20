@@ -111,13 +111,13 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
 
             {/* Filters */}
             {customSelect && (
-              <div className="flex flex-wrap lg:flex-nowrap gap-2 items-end [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200 [&>*]:flex-shrink-0">
+              <div className="flex flex-wrap lg:flex-nowrap gap-2 items-end [&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200 [&>*]:flex-shrink-0 [&>*]:w-auto">
                 {customSelect}
               </div>
             )}
 
             {children && (
-              <div className="flex flex-wrap lg:flex-nowrap items-center gap-2">
+              <div className="flex flex-wrap lg:flex-nowrap items-center gap-2 [&>*]:w-auto">
                 {children}
               </div>
             )}
