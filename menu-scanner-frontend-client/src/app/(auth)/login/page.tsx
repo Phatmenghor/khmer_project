@@ -73,7 +73,7 @@ export default function LoginPage() {
         console.log("## [LOGIN] Executing hard redirect to /admin");
         window.location.href = ROUTES.ADMIN.DASHBOARD;
         console.log("═══════════════════════════════════════════");
-      }, 3000); // 3 seconds to ensure cookies are fully persisted
+      }, 1000); // 1 second for cookies to persist to ensure cookies are fully persisted
     } catch (err: any) {
       console.error("## ═══════════════════════════════════════════");
       console.error("## ❌ [LOGIN ERROR]", err?.message || err);
@@ -104,7 +104,7 @@ export default function LoginPage() {
       // Use hard redirect for telegram auth too
       setTimeout(() => {
         window.location.href = ROUTES.ADMIN.DASHBOARD;
-      }, 3000);
+      }, 1000);
     } catch (err: any) {
       console.error("✗ Telegram auth failed:", err);
       showToast.error(err?.message || err || "Telegram login failed. Please try again.");
