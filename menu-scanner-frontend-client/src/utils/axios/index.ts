@@ -15,24 +15,37 @@ import {
   clearAdminTokens,
 } from "../local-storage/token";
 
-/** Get the active token (admin or customer) - whichever exists */
+/** Get the correct token based on current route */
 const getActiveToken = (): string | null => {
   if (typeof window === "undefined") return null;
-  // Prioritize admin token if it exists
-  return getAdminToken() || getToken();
+
+  // Use admin token for admin routes, customer token for public routes
+  if (isAdminPath()) {
+    return getAdminToken();
+  }
+  return getToken();
 };
 
-/** Get the active refresh token (admin or customer) */
+/** Get the correct refresh token based on current route */
 const getActiveRefreshToken = (): string | null => {
   if (typeof window === "undefined") return null;
-  // Match the active token type
-  return getAdminToken() ? getAdminRefreshToken() : getRefreshToken();
+
+  // Match the token type based on current route
+  if (isAdminPath()) {
+    return getAdminRefreshToken();
+  }
+  return getRefreshToken();
 };
 
-/** Check if the active user is admin based on which token exists */
+/** Check if the active user is admin based on current route and token availability */
 const isAdminUser = (): boolean => {
   if (typeof window === "undefined") return false;
-  return !!getAdminToken();
+  // If on admin route, user should have admin token
+  if (isAdminPath()) {
+    return !!getAdminToken();
+  }
+  // If on public route, user should have customer token
+  return false;
 };
 
 /** True when the current page is an admin route (browser only). */
