@@ -72,17 +72,17 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
+      console.log("✓ Telegram auth successful, result:", result);
       showToast.success(
         result?.isNewUser
           ? "Welcome! Your account has been created successfully."
           : "Welcome back!",
       );
       
-      // Give Redux and cookie storage time to update before navigating
-      setTimeout(() => {
-        router.replace(ROUTES.ADMIN.DASHBOARD);
-      }, 500);
+      // Redirect immediately - cookies are already set by Redux action
+      router.push(ROUTES.ADMIN.DASHBOARD);
     } catch (err: any) {
+      console.error("✗ Telegram auth failed:", err);
       showToast.error(err || "Telegram login failed. Please try again.");
     } finally {
       setIsTelegramLoading(false);
