@@ -2,11 +2,7 @@
 
 import { useEffect, useCallback, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import {
-  Trash2,
-  Plus,
-  Minus,
   ShoppingBag,
   CreditCard,
   LogIn,
@@ -17,11 +13,9 @@ import {
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
-import Link from "next/link";
 import { clearCart, fetchCartPaginated } from "@/redux/features/main/store/thunks/cart-thunks";
 import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
@@ -30,8 +24,7 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { cn } from "@/lib/utils";
-import { sanitizeImageUrl } from "@/utils/common/common";
-import { appImages } from "@/constants/app-resource/icons/app-images";
+import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 
 function CartItemSkeleton() {
   return (
@@ -262,91 +255,28 @@ export default function CartPage() {
               </div>
             )}
             {items.map((item) => (
-              <div
+              <CartItemCard
                 key={item.id}
-                className="bg-card border rounded-2xl p-3 sm:p-4 hover:shadow-sm transition-shadow"
-              >
-                <div className="flex gap-3">
-                  {/* Thumbnail */}
-                  <Link href={`/products/${item.productId}`} className="flex-shrink-0">
-                    <div className="relative w-[72px] h-[72px] rounded-xl overflow-hidden bg-muted border">
-                      <Image
-                        src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
-                        alt={item.productName || "Product image"}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </Link>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-between">
-                    {/* Product Name + Size in same row */}
-                    <div className="flex items-center gap-2 min-w-0 mb-2">
-                      <Link href={`/products/${item.productId}`}>
-                        <h3 className="font-medium text-sm leading-snug hover:text-primary transition-colors line-clamp-1">
-                          {item.productName}
-                        </h3>
-                      </Link>
-                      {item.sizeName && (
-                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
-                          {item.sizeName}
-                        </span>
-                      )}
-                      {item.hasPromotion && (
-                        <Badge variant="destructive" className="text-[10px] px-1.5 py-0 leading-none flex-shrink-0">
-                          {item.promotionType === "PERCENTAGE"
-                            ? `-${item.promotionValue}%`
-                            : `-${formatCurrency(item.promotionValue || 0)}`}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Price Info */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="font-bold text-sm text-primary">{formatCurrency(item.finalPrice)}</span>
-                      {item.hasPromotion && item.currentPrice > item.finalPrice && (
-                        <span className="text-xs text-muted-foreground line-through">{formatCurrency(item.currentPrice)}</span>
-                      )}
-                    </div>
-
-                    {/* Qty controls + Total + Delete */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 w-full max-w-[140px]">
-                        <CustomButton
-                          size="icon"
-                          variant="outline"
-                          className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
-                          onClick={() => handleUpdateQuantity(item.productId, item.productSizeId, item.quantity - 1)}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </CustomButton>
-                        <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
-                          {item.quantity}
-                        </div>
-                        <CustomButton
-                          size="icon"
-                          variant="outline"
-                          className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
-                          onClick={() => handleUpdateQuantity(item.productId, item.productSizeId, item.quantity + 1)}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </CustomButton>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold whitespace-nowrap">{formatCurrency(item.totalPrice)}</span>
-                        <button
-                          className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all flex-shrink-0"
-                          onClick={() => handleRemoveItem(item.productId, item.productSizeId)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                id={item.id}
+                productId={item.productId}
+                productName={item.productName}
+                productImageUrl={item.productImageUrl}
+                productSizeId={item.productSizeId}
+                sizeName={item.sizeName}
+                currentPrice={item.currentPrice}
+                finalPrice={item.finalPrice}
+                quantity={item.quantity}
+                totalPrice={item.totalPrice}
+                hasPromotion={item.hasPromotion}
+                promotionType={item.promotionType}
+                promotionValue={item.promotionValue}
+                onQuantityChange={(newQuantity) =>
+                  handleUpdateQuantity(item.productId, item.productSizeId, newQuantity)
+                }
+                onRemove={() => handleRemoveItem(item.productId, item.productSizeId)}
+                showLink={true}
+                showControls={true}
+              />
             ))}
 
             {/* Infinite scroll observer + loading state */}
