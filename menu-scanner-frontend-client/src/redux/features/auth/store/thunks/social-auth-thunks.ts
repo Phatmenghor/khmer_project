@@ -142,7 +142,14 @@ export const refreshTokenService = createApiThunk<
 export const logoutService = createApiThunk<void, void>(
   "auth/logout",
   async () => {
-    await axiosClientWithAuth.post("/api/v1/users/logout");
+    console.log("## [LOGOUT] Starting logout...");
+    try {
+      await axiosClientWithAuth.post("/api/v1/users/logout", {});
+      console.log("## [LOGOUT] ✓ Logout successful");
+    } catch (err: any) {
+      console.error("## [LOGOUT] ❌ Error:", err?.response?.status, err?.message);
+      throw err;
+    }
   }
 );
 
