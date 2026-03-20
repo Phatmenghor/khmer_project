@@ -24,6 +24,7 @@ import { useDeliveryOptionsState } from "@/redux/features/master-data/store/stat
 import { useAppDispatch } from "@/redux/store";
 import { fetchAllLocationsService } from "@/redux/features/location/store/thunks/location-thunks";
 import { fetchAllDeliveryOptionsService } from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
+import { createOrderService } from "@/redux/features/main/store/thunks/order-thunks";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -238,13 +239,18 @@ export default function CheckoutPage() {
       };
 
       console.log("🛒 Checkout Payload:", checkoutPayload);
+
+      // Call API endpoint to create order
+      const orderResult = await dispatch(createOrderService(checkoutPayload)).unwrap();
+
       showToast.success("Order placed successfully!");
 
-      // TODO: Call API endpoint to create order
-      // await dispatch(createOrderService(checkoutPayload)).unwrap();
-
       // Redirect to order confirmation
-      // router.push(`/order-confirmation/${orderId}`);
+      if (orderResult?.id) {
+        router.push(`/order-confirmation/${orderResult.id}`);
+      } else {
+        router.push("/orders");
+      }
     } catch (error: any) {
       console.error("Checkout error:", error);
       showToast.error(error?.message || "Failed to complete checkout");
