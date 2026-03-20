@@ -66,14 +66,10 @@ export default function LoginPage() {
 
       showToast.success("✓ Welcome to admin dashboard!");
 
-      // Use window.location for a hard refresh that properly reads cookies
-      // Increased delay to 3 seconds to ensure cookies are fully persisted to browser storage
-      console.log("## [LOGIN] Redirecting to /admin in 3 seconds...");
-      setTimeout(() => {
-        console.log("## [LOGIN] Executing hard redirect to /admin");
-        window.location.href = ROUTES.ADMIN.DASHBOARD;
-        console.log("═══════════════════════════════════════════");
-      }, 1000); // 1 second for cookies to persist to ensure cookies are fully persisted
+      // Use replace() — no setTimeout, cleaner history (no back button loop)
+      console.log("## [LOGIN] Hard redirect to /admin");
+      window.location.replace(ROUTES.ADMIN.DASHBOARD);
+      console.log("═══════════════════════════════════════════");
     } catch (err: any) {
       console.error("## ═══════════════════════════════════════════");
       console.error("## ❌ [LOGIN ERROR]", err?.message || err);
@@ -101,10 +97,8 @@ export default function LoginPage() {
           : "Welcome back!",
       );
 
-      // Use hard redirect for telegram auth too
-      setTimeout(() => {
-        window.location.href = ROUTES.ADMIN.DASHBOARD;
-      }, 1000);
+      // Use replace() — no setTimeout, cleaner history (no back button loop)
+      window.location.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: any) {
       console.error("✗ Telegram auth failed:", err);
       showToast.error(err?.message || err || "Telegram login failed. Please try again.");
