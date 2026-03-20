@@ -5,6 +5,7 @@
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
+import { PaymentOptionType } from "@/redux/features/master-data/store/models/response/payment-option-response";
 
 export interface CheckoutPayload {
   businessId: string;
@@ -56,7 +57,7 @@ export interface CheckoutPayload {
     finalTotal: number;
   };
   payment: {
-    paymentMethod: "CASH" | "BANK_TRANSFER" | "ONLINE";
+    paymentMethod: PaymentOptionType;
     paymentStatus: "PENDING";
   };
   customerNote: string;
