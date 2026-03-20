@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, Bell, ChevronRight } from "lucide-react";
+import { LogOut, Menu, Bell, ChevronRight, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -19,6 +19,7 @@ import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomDropdownMenu } from "@/components/shared/common/custom-dropdown-menu";
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -111,39 +112,62 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             <Bell className="h-4 w-4" />
           </Button>
 
-          {/* User avatar + name (desktop) */}
+          {/* Profile Dropdown Menu */}
           {profile && (
-            <div
-              className="hidden sm:flex items-center gap-2.5 pl-2 border-l border-border/50 ml-1 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => router.push(ROUTES.ADMIN.PROFILE)}
-            >
-              <CustomAvatar
-                imageUrl={profileImage || profile?.profileImageUrl}
-                name={fullName || profile?.fullName || "Admin"}
-                size="sm"
-                enableImagePreview={false}
-              />
-              <div className="flex flex-col leading-none">
-                <span className="text-sm font-semibold text-foreground leading-snug max-w-[120px] truncate">
-                  {fullName || profile?.fullName || "Admin"}
-                </span>
-                <span className="text-xs text-muted-foreground leading-snug max-w-[120px] truncate">
-                  {profile?.email || ""}
-                </span>
-              </div>
-            </div>
+            <CustomDropdownMenu
+              trigger={
+                <div className="h-9 w-9 flex items-center justify-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
+                  <CustomAvatar
+                    imageUrl={profileImage || profile?.profileImageUrl}
+                    name={fullName || profile?.fullName || "Admin"}
+                    size="sm"
+                    enableImagePreview={false}
+                  />
+                </div>
+              }
+              header={
+                <div className="flex items-center gap-3">
+                  <CustomAvatar
+                    imageUrl={profileImage || profile?.profileImageUrl}
+                    name={fullName || profile?.fullName || "Admin"}
+                    size="lg"
+                  />
+                  <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
+                    <p className="text-sm font-semibold line-clamp-1">
+                      {fullName || profile?.fullName || "Admin"}
+                    </p>
+                    <p className="text-xs text-muted-foreground line-clamp-1">
+                      {profile?.email || ""}
+                    </p>
+                  </div>
+                </div>
+              }
+              sections={[
+                {
+                  items: [
+                    {
+                      label: "My Profile",
+                      icon: <UserCircle className="h-4 w-4" />,
+                      onClick: () => router.push(ROUTES.ADMIN.PROFILE),
+                    },
+                  ],
+                },
+                {
+                  items: [
+                    {
+                      label: "Logout",
+                      icon: <LogOut className="h-4 w-4" />,
+                      onClick: () => setShowLogoutAlert(true),
+                      variant: "destructive" as const,
+                    },
+                  ],
+                },
+              ]}
+              align="right"
+              openOnHover={false}
+              hoverDelay={200}
+            />
           )}
-
-          {/* Logout button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowLogoutAlert(true)}
-            className="h-9 flex items-center gap-1.5 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors rounded-xl border-border/60 text-muted-foreground ml-1"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline text-xs font-medium">Logout</span>
-          </Button>
         </div>
       </header>
 
