@@ -28,6 +28,7 @@ import homeReducer from "../features/main/store/slice/home-slice";
 import publicProductReducer from "../features/main/store/slice/public-product-slice";
 import publicBrandsReducer from "../features/main/store/slice/public-brands-slice";
 import publicCategoriesReducer from "../features/main/store/slice/public-categories-slice";
+import myOrdersReducer from "../features/main/store/slice/my-orders-slice";
 import scrollReducer from "../features/main/store/slice/scroll-slice";
 import cartReducer from "../features/main/store/slice/cart-slice";
 import globalSettingsReducer from "./slices/global-settings-slice";
@@ -72,6 +73,7 @@ export const reducers = {
   publicProducts: publicProductReducer,
   publicBrands: publicBrandsReducer,
   publicCategories: publicCategoriesReducer,
+  myOrders: myOrdersReducer,
   scroll: scrollReducer,
   favorites: favoritesReducer,
   cart: cartReducer,

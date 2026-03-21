@@ -13,9 +13,10 @@ import {
   Calendar,
 } from "lucide-react";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { useAppDispatch } from "@/redux/store";
+import { useMyOrdersState } from "@/redux/features/main/store/state/my-orders-state";
 import { fetchMyOrdersService } from "@/redux/features/main/store/thunks/my-orders-thunks";
 import { fetchAllOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
+import { setLoadedFilters, clearOrders } from "@/redux/features/main/store/slice/my-orders-slice";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -29,27 +30,6 @@ import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 
 type Order = OrderResponse;
 
-interface OrderStatus {
-  id: string;
-  name: string;
-  description?: string;
-  isInitial?: boolean;
-}
-
-interface OrdersState {
-  orders: Order[];
-  loading: boolean;
-  loadingMore: boolean;
-  loaded: boolean;
-  error: string | null;
-  pagination: {
-    currentPage: number;
-    pageSize: number;
-    totalElements: number;
-    totalPages: number;
-  };
-}
-
 interface StatusTab {
   value: string;
   label: string;
@@ -57,36 +37,29 @@ interface StatusTab {
 
 export default function OrdersPage() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const { isAuthenticated, profile, authReady } = useAuthState();
-
-  const [ordersState, setOrdersState] = useState<OrdersState>({
-    orders: [],
-    loading: false,
-    loadingMore: false,
-    loaded: false,
-    error: null,
-    pagination: {
-      currentPage: 1,
-      pageSize: 15,
-      totalElements: 0,
-      totalPages: 0,
-    },
-  });
+  const {
+    dispatch,
+    orders,
+    pagination,
+    loading,
+    error,
+    statusTabs,
+    loadedFilters,
+  } = useMyOrdersState();
 
   const [filters, setFilters] = useState({
     status: "",
     search: "",
-    isInitial: true,
   });
 
   const [mounted, setMounted] = useState(false);
-  const [statusTabs, setStatusTabs] = useState<StatusTab[]>([]);
-  const [statusesLoading, setStatusesLoading] = useState(false);
+  const [displayTabs, setDisplayTabs] = useState<StatusTab[]>([]);
   const observerRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
+  const [page, setPage] = useState(1);
 
-  // Hydration fix - only set mounted, don't refetch
+  // Hydration fix
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -98,148 +71,115 @@ export default function OrdersPage() {
     customKey: "orders",
   });
 
-  // Fetch order statuses from API
-  // Note: Currently using AppDefault.BUSINESS_ID for development
-  // In production, businessId will be determined from subdomain routing
+  // Build current filters string for comparison
+  const currentFilters = JSON.stringify({
+    status: filters.status,
+    search: filters.search,
+    businessId: profile?.businessId || AppDefault.BUSINESS_ID,
+  });
+
+  // Fetch order statuses
   useEffect(() => {
     if (!authReady || !isAuthenticated || !mounted) return;
+    if (loading.statuses || statusTabs.length > 0) return; // Already loading or loaded
 
-    const fetchStatuses = async () => {
-      setStatusesLoading(true);
-      try {
-        // Development: Use AppDefault.BUSINESS_ID
-        // Production: Will get from subdomain/route context
-        const businessId = AppDefault.BUSINESS_ID;
+    dispatch(
+      fetchAllOrderStatusService({
+        businessId: AppDefault.BUSINESS_ID,
+        statuses: ["ACTIVE"],
+        pageNo: 1,
+        pageSize: 100,
+      })
+    );
+  }, [mounted, authReady, isAuthenticated, dispatch, loading.statuses, statusTabs.length]);
 
-        const result = await dispatch(
-          fetchAllOrderStatusService({
-            businessId,
-            statuses: ["ACTIVE"],
-            pageNo: 1,
-            pageSize: 100,
-          })
-        ).unwrap();
+  // Build display tabs from Redux status tabs
+  useEffect(() => {
+    const tabs: StatusTab[] = [
+      { value: "", label: "All Orders" },
+      ...(statusTabs || []).map((status: any) => ({
+        value: status.name,
+        label: status.name,
+      })),
+    ];
+    setDisplayTabs(tabs);
+  }, [statusTabs]);
 
-        const tabs: StatusTab[] = [
-          { value: "", label: "All Orders" },
-          ...(result.content || []).map((status: OrderStatus) => ({
-            value: status.name,
-            label: status.name,
-          })),
-        ];
-
-        setStatusTabs(tabs);
-        setStatusesLoading(false);
-      } catch (error: any) {
-        console.error("Failed to fetch order statuses:", error);
-        setStatusesLoading(false);
-      }
-    };
-
-    fetchStatuses();
-  }, [mounted, authReady, isAuthenticated, dispatch]);
-
-  // Fetch orders
-  const fetchOrders = useCallback(
-    async (pageNo: number, isLoadMore: boolean = false) => {
-      if (!authReady || !isAuthenticated) return;
-
-      try {
-        if (isLoadMore) {
-          setOrdersState((prev) => ({ ...prev, loadingMore: true }));
-        } else if (!ordersState.loaded || ordersState.orders.length === 0) {
-          // Only show loading on first load or if no data
-          setOrdersState((prev) => ({ ...prev, loading: true }));
-        }
-
-        const result = await dispatch(
-          fetchMyOrdersService({
-            pageNo,
-            pageSize: ordersState.pagination.pageSize,
-            status: filters.status || undefined,
-            search: filters.search || undefined,
-            businessId: profile?.businessId || undefined,
-          })
-        ).unwrap();
-
-        setOrdersState((prev) => {
-          const newOrders = isLoadMore
-            ? [...prev.orders, ...(result.content || [])]
-            : result.content || [];
-
-          // Sort orders by order process status order
-          const sortedOrders = [...newOrders].sort((a, b) => {
-            const orderA = a.orderProcessStatus?.order || 0;
-            const orderB = b.orderProcessStatus?.order || 0;
-            return orderA - orderB;
-          });
-
-          return {
-            ...prev,
-            orders: sortedOrders,
-            pagination: {
-              currentPage: result.pageNo || 1,
-              pageSize: result.pageSize || 15,
-              totalElements: result.totalElements || 0,
-              totalPages: result.totalPages || 0,
-            },
-            loading: false,
-            loadingMore: false,
-            loaded: !isLoadMore, // Mark as loaded on first load (not on loadMore)
-          };
-        });
-      } catch (error: any) {
-        console.error("Failed to fetch orders:", error);
-        setOrdersState((prev) => ({
-          ...prev,
-          error: error?.message || "Failed to load orders",
-          loading: false,
-          loadingMore: false,
-        }));
-      }
+  // Load orders function
+  const loadOrders = useCallback(
+    async (pageNo: number) => {
+      await dispatch(
+        fetchMyOrdersService({
+          pageNo,
+          pageSize: 15,
+          status: filters.status || undefined,
+          search: filters.search || undefined,
+          businessId: profile?.businessId || AppDefault.BUSINESS_ID,
+        })
+      );
     },
-    [dispatch, authReady, isAuthenticated, filters, ordersState.pagination.pageSize]
+    [dispatch, filters, profile]
   );
 
-  // Initial fetch on mount - only once
+  // Main fetch effect - matches product page pattern
   useEffect(() => {
     if (!authReady || !isAuthenticated || !mounted) return;
-    if (ordersState.loaded) return; // Don't refetch if already loaded
 
-    isLoadingRef.current = false;
-    fetchOrders(1, false);
-  }, [mounted, authReady, isAuthenticated, ordersState.loaded, fetchOrders]);
+    const hasOrdersInStore = orders.length > 0;
+    const filtersMatch = loadedFilters === currentFilters;
 
-  // Fetch on explicit filter/search change only (after initial load)
+    // If data exists and filters match, don't fetch (this prevents double fetch!)
+    if (hasOrdersInStore && filtersMatch) {
+      return;
+    }
+
+    // Need to fetch if filters changed or no data
+    if (!filtersMatch || !hasOrdersInStore) {
+      // Clear old data if filters changed
+      if (!filtersMatch && hasOrdersInStore) {
+        dispatch(clearOrders());
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      setPage(1);
+      dispatch(setLoadedFilters(currentFilters));
+      loadOrders(1);
+    }
+  }, [
+    currentFilters,
+    loadedFilters,
+    orders.length,
+    loadOrders,
+    dispatch,
+    authReady,
+    isAuthenticated,
+    mounted,
+  ]);
+
+  // Infinite scroll
+  const handleLoadMore = useCallback(() => {
+    if (pagination.totalPages > page && !loading.list && !isLoadingRef.current) {
+      isLoadingRef.current = true;
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadOrders(nextPage).finally(() => {
+        isLoadingRef.current = false;
+      });
+    }
+  }, [pagination.totalPages, loading.list, page, loadOrders]);
+
   useEffect(() => {
-    if (!authReady || !isAuthenticated || !mounted) return;
-    if (!ordersState.loaded) return; // Skip until initial load is complete
-
-    isLoadingRef.current = false;
-    fetchOrders(1, false);
-  }, [filters.status, filters.search, authReady, isAuthenticated, mounted, ordersState.loaded, fetchOrders]);
-
-  // Infinite scroll observer
-  useEffect(() => {
-    if (!observerRef.current) return;
+    if (!observerRef.current || !pagination.totalPages || loading.list) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (
           entries[0].isIntersecting &&
-          ordersState.pagination.currentPage < ordersState.pagination.totalPages &&
-          !ordersState.loadingMore &&
+          page < pagination.totalPages &&
+          !loading.list &&
           !isLoadingRef.current
         ) {
-          isLoadingRef.current = true;
-          const nextPage = ordersState.pagination.currentPage + 1;
-          fetchOrders(nextPage, true).finally(() => {
-            isLoadingRef.current = false;
-            setOrdersState((prev) => ({
-              ...prev,
-              pagination: { ...prev.pagination, currentPage: nextPage },
-            }));
-          });
+          handleLoadMore();
         }
       },
       { threshold: 0.1, rootMargin: "200px" }
@@ -247,9 +187,9 @@ export default function OrdersPage() {
 
     observer.observe(observerRef.current);
     return () => observer.disconnect();
-  }, [ordersState.pagination, ordersState.loadingMore, fetchOrders]);
+  }, [pagination.totalPages, loading.list, page, handleLoadMore]);
 
-  const totalOrders = ordersState.pagination.totalElements;
+  const totalOrders = pagination.totalElements;
 
   // Prevent hydration mismatch
   if (!mounted || !authReady) {
@@ -289,7 +229,7 @@ export default function OrdersPage() {
 
       {/* Status Filter Tabs */}
       <div className="mt-8 mb-8">
-        {statusesLoading ? (
+        {loading.statuses ? (
           <div className="flex gap-2 pb-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-10 bg-muted rounded-lg animate-pulse flex-shrink-0 w-24" />
@@ -297,19 +237,14 @@ export default function OrdersPage() {
           </div>
         ) : (
           <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
-            {statusTabs.map((tab, index) => {
+            {displayTabs.map((tab) => {
               const isActive = filters.status === tab.value;
-              const orderCount = isActive ? ordersState.pagination.totalElements : 0;
+              const orderCount = isActive ? pagination.totalElements : 0;
               return (
                 <button
                   key={tab.value || "all"}
                   onClick={() => {
-                    setFilters((prev) => ({ ...prev, status: tab.value, isInitial: false }));
-                    setOrdersState((prev) => ({
-                      ...prev,
-                      orders: [],
-                      pagination: { ...prev.pagination, currentPage: 1 },
-                    }));
+                    setFilters((prev) => ({ ...prev, status: tab.value }));
                   }}
                   className={cn(
                     "flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0",
@@ -351,24 +286,24 @@ export default function OrdersPage() {
       </div>
 
       {/* Orders List */}
-      {ordersState.loading ? (
+      {loading.list && orders.length === 0 ? (
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
             <p className="text-muted-foreground">Loading your orders...</p>
           </div>
         </div>
-      ) : ordersState.error ? (
+      ) : error.list ? (
         <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-6">
           <div className="flex items-start gap-4">
             <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-semibold text-red-900 dark:text-red-200">Error Loading Orders</h3>
-              <p className="text-red-800 dark:text-red-300 text-sm mt-1">{ordersState.error}</p>
+              <p className="text-red-800 dark:text-red-300 text-sm mt-1">{error.list}</p>
             </div>
           </div>
         </div>
-      ) : ordersState.orders.length === 0 ? (
+      ) : orders.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Package className="h-8 w-8 text-primary" />
@@ -390,29 +325,7 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {ordersState.orders.length === 0 && !ordersState.loading ? (
-            <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Package className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                {filters.status ? "No Orders Found" : "No Orders Yet"}
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                {filters.status
-                  ? `No orders with ${filters.status.toLowerCase()} status. Try a different filter.`
-                  : "You haven't placed any orders yet. Start shopping now!"}
-              </p>
-              <CustomButton
-                onClick={() => router.push("/menu")}
-                className="rounded-xl h-11 px-6"
-              >
-                Browse Menu
-              </CustomButton>
-            </div>
-          ) : (
-            <>
-              {ordersState.orders.map((order) => {
+          {orders.map((order: Order) => {
             const itemCount = order.items?.length || 0;
             const deliveryAddress = [
               order.deliveryAddress?.houseNumber,
@@ -497,23 +410,21 @@ export default function OrdersPage() {
             );
           })}
 
-              {/* Infinite Scroll Sentinel */}
-              <div ref={observerRef} className="flex justify-center py-8">
-                {ordersState.loadingMore && (
-                  <div className="text-center">
-                    <Loader2 className="h-6 w-6 text-primary mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Loading more orders...</p>
-                  </div>
-                )}
+          {/* Infinite Scroll Sentinel */}
+          <div ref={observerRef} className="flex justify-center py-8">
+            {loading.list && orders.length > 0 && (
+              <div className="text-center">
+                <Loader2 className="h-6 w-6 text-primary mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Loading more orders...</p>
               </div>
+            )}
+          </div>
 
-              {/* End of list message */}
-              {!ordersState.loadingMore && ordersState.pagination.currentPage >= ordersState.pagination.totalPages && ordersState.orders.length > 0 && (
-                <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">You've seen all your orders</p>
-                </div>
-              )}
-            </>
+          {/* End of list message */}
+          {!loading.list && page >= pagination.totalPages && orders.length > 0 && (
+            <div className="text-center py-8">
+              <p className="text-sm text-muted-foreground">You've seen all your orders</p>
+            </div>
           )}
         </div>
       )}
