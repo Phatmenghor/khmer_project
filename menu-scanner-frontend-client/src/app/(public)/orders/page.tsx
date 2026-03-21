@@ -53,25 +53,6 @@ interface StatusTab {
   label: string;
 }
 
-// Simple status color mapping
-const getStatusColor = (statusName?: string) => {
-  const colors: Record<string, { bg: string; text: string }> = {
-    PENDING: { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400" },
-    CONFIRMED: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400" },
-    PREPARING: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400" },
-    PROCESSING: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400" },
-    IN_DELIVERY: { bg: "bg-cyan-100 dark:bg-cyan-900/30", text: "text-cyan-700 dark:text-cyan-400" },
-    DELIVERED: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400" },
-    COMPLETED: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400" },
-    CANCELLED: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400" },
-    REFUNDED: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400" },
-    FAILED: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400" },
-    READY: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400" },
-  };
-
-  return colors[statusName || "PENDING"] || { bg: "bg-gray-100 dark:bg-gray-900/30", text: "text-gray-700 dark:text-gray-400" };
-};
-
 export default function OrdersPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -401,7 +382,6 @@ export default function OrdersPage() {
           ) : (
             <>
               {ordersState.orders.map((order) => {
-            const statusColor = getStatusColor(order.orderProcessStatus?.name ?? undefined);
             const itemCount = order.items?.length || 0;
             const deliveryAddress = [
               order.deliveryAddress?.houseNumber,
@@ -424,8 +404,8 @@ export default function OrdersPage() {
                   {/* Top row: Order Number, Items Count, Status */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={cn("p-2.5 rounded-lg shrink-0 flex items-center justify-center", statusColor.bg)}>
-                        <Package className={cn("h-5 w-5", statusColor.text)} />
+                      <div className="p-2.5 rounded-lg shrink-0 flex items-center justify-center bg-gray-100 dark:bg-gray-900/30">
+                        <Package className="h-5 w-5 text-gray-700 dark:text-gray-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -443,7 +423,7 @@ export default function OrdersPage() {
                           {itemCount} item{itemCount !== 1 ? "s" : ""}
                         </span>
                       </div>
-                      <div className={cn("px-3 py-1 rounded-lg font-semibold text-xs whitespace-nowrap", statusColor.bg, statusColor.text)}>
+                      <div className="px-3 py-1 rounded-lg font-semibold text-xs whitespace-nowrap bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400">
                         {order.orderProcessStatus?.name || "Unknown"}
                       </div>
                     </div>
