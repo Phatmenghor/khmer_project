@@ -401,7 +401,7 @@ export default function OrdersPage() {
           ) : (
             <>
               {ordersState.orders.map((order) => {
-            const statusColor = getStatusColor(order.orderProcessStatus?.name);
+            const statusColor = getStatusColor(order.orderProcessStatus?.name ?? undefined);
             const itemCount = order.items?.length || 0;
             const deliveryAddress = [
               order.deliveryAddress?.houseNumber,
