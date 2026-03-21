@@ -22,6 +22,7 @@ import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
 import { fetchAllPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 interface PaymentOption {
   id: string;
@@ -86,7 +87,8 @@ export function ComboboxSelectPayment({
           search,
           pageNo: newPage,
           pageSize: 15,
-        })
+          businessId: AppDefault.BUSINESS_ID,
+        }),
       ).unwrap();
 
       if (!result) return;
@@ -154,7 +156,7 @@ export function ComboboxSelectPayment({
               "w-full justify-between px-4 py-2 h-11 text-sm",
               !dataSelect && "text-muted-foreground",
               disabled && "opacity-50 cursor-not-allowed",
-              error && "border-red-500"
+              error && "border-red-500",
             )}
             disabled={disabled}
           >
@@ -192,10 +194,14 @@ export function ComboboxSelectPayment({
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4 flex-shrink-0",
-                        dataSelect?.id === item.id ? "opacity-100" : "opacity-0"
+                        dataSelect?.id === item.id
+                          ? "opacity-100"
+                          : "opacity-0",
                       )}
                     />
-                    <span className="truncate line-clamp-1 flex-1">{item.name}</span>
+                    <span className="truncate line-clamp-1 flex-1">
+                      {item.name}
+                    </span>
                     <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
                       ({item.paymentOptionType})
                     </span>
