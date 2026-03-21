@@ -308,6 +308,8 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal subtotal = cartSummary.getSubtotal() != null ? cartSummary.getSubtotal() : BigDecimal.ZERO;
         BigDecimal discountAmount = cartSummary.getTotalDiscount() != null ? cartSummary.getTotalDiscount() : BigDecimal.ZERO;
 
+        Order order = orderRepository.findById(orderId).orElseThrow();
+
         for (var item : cartSummary.getItems()) {
             OrderItemCreateHelper helper = OrderItemCreateHelper.builder()
                     .orderId(orderId)
@@ -329,9 +331,10 @@ public class OrderServiceImpl implements OrderService {
 
             OrderItem orderItem = orderMapper.createOrderItemFromHelper(helper);
             orderItem.setTotalPrice(item.getTotalPrice());
+            orderItem.setOrder(order);
+            order.getItems().add(orderItem);
         }
 
-        Order order = orderRepository.findById(orderId).orElseThrow();
         order.setSubtotal(subtotal);
         order.setDiscountAmount(discountAmount);
 
