@@ -39,6 +39,8 @@ import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { useOrderStatusState } from "@/redux/features/master-data/store/state/order-status-state";
+import { fetchAllOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -71,6 +73,7 @@ export default function CheckoutPage() {
   const { locations: addresses } = useLocationState();
   const { deliveryOptionsContent: deliveryOptions } = useDeliveryOptionsState();
   const { paymentOptionsContent: paymentOptions } = usePaymentOptionsState();
+  const { orderStatusContent: orderStatuses } = useOrderStatusState();
 
   const [mounted, setMounted] = useState(false);
   const [defaultAddress, setDefaultAddress] = useState<LocationResponse | null>(null);
@@ -109,6 +112,18 @@ export default function CheckoutPage() {
         if (error?.response?.status !== 404) {
           console.error("Failed to fetch default address:", error);
         }
+      }
+
+      // Fetch order statuses
+      try {
+        await dispatch(
+          fetchAllOrderStatusService({
+            pageNo: 1,
+            pageSize: 100,
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error("Failed to fetch order statuses:", error);
       }
 
       setLoadingDefaults(false);
@@ -200,6 +215,11 @@ export default function CheckoutPage() {
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
+      // Get the first available order status (should use the initial status)
+      const initialOrderStatus = orderStatuses && orderStatuses.length > 0
+        ? orderStatuses[0].statusName
+        : "PENDING";
+
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
         deliveryAddress: {
@@ -254,7 +274,7 @@ export default function CheckoutPage() {
           paymentStatus: "PENDING" as const,
         },
         customerNote: checkoutState.customerNote,
-        orderProcessStatusName: "PENDING",
+        orderProcessStatusName: initialOrderStatus,
       };
 
       console.log("🛒 Checkout Payload:", checkoutPayload);
