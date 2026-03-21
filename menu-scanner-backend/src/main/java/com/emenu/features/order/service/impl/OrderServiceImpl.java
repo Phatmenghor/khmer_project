@@ -59,35 +59,53 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
-        log.info("Creating order from cart for business: {}", request.getBusinessId());
+        log.info("🛍️  [CHECKOUT START] Creating order from cart - Business: {}, Customer: {}",
+            request.getBusinessId(), securityUtils.getCurrentUser().getId());
 
         User currentUser = securityUtils.getCurrentUser();
 
-        Order order = createBaseOrder(request, currentUser.getId());
-        assignProcessStatus(order, request.getBusinessId(), request.getOrderProcessStatusName());
-        Order savedOrder = orderRepository.save(order);
+        try {
+            log.debug("📋 [STEP 1/6] Creating base order...");
+            Order order = createBaseOrder(request, currentUser.getId());
 
-        // Create order items from cart summary (frontend) or database cart
-        if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
-            log.info("Creating order items from frontend cart summary");
-            createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart());
-        } else {
-            log.info("Creating order items from database cart");
-            Cart cart = cartRepository.findByUserIdAndBusinessIdWithItems(currentUser.getId(), request.getBusinessId())
-                    .orElseThrow(() -> new ValidationException("Cart is empty or not found"));
+            log.debug("📋 [STEP 2/6] Assigning process status: {}", request.getOrderProcessStatusName());
+            assignProcessStatus(order, request.getBusinessId(), request.getOrderProcessStatusName());
 
-            if (cart.getItems() == null || cart.getItems().isEmpty()) {
-                throw new ValidationException("Cannot create order from empty cart");
+            log.debug("📋 [STEP 3/6] Saving base order...");
+            Order savedOrder = orderRepository.save(order);
+            log.info("✅ [ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
+
+            // Create order items from cart summary (frontend) or database cart
+            if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
+                log.info("📋 [STEP 4/6] Processing {} items from frontend cart summary", request.getCart().getItems().size());
+                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart());
+            } else {
+                log.info("📋 [STEP 4/6] Processing items from database cart");
+                Cart cart = cartRepository.findByUserIdAndBusinessIdWithItems(currentUser.getId(), request.getBusinessId())
+                        .orElseThrow(() -> new ValidationException("Cart is empty or not found"));
+
+                if (cart.getItems() == null || cart.getItems().isEmpty()) {
+                    throw new ValidationException("Cannot create order from empty cart");
+                }
+
+                createOrderItemsFromCart(savedOrder.getId(), cart);
             }
 
-            createOrderItemsFromCart(savedOrder.getId(), cart);
+            log.debug("📋 [STEP 5/6] Creating payment record...");
+            createPaymentRecord(savedOrder);
+
+            log.debug("📋 [STEP 6/6] Clearing cart...");
+            clearCartAfterOrder(currentUser.getId(), request.getBusinessId());
+
+            log.info("✅ [CHECKOUT SUCCESS] Order created successfully: {} - Fetching full response...", savedOrder.getOrderNumber());
+            OrderResponse response = getOrderById(savedOrder.getId());
+            log.info("🎉 [CHECKOUT COMPLETE] Order #{} - Total: {}, Items: {}",
+                response.getOrderNumber(), response.getTotalAmount(), response.getItems().size());
+            return response;
+        } catch (Exception e) {
+            log.error("❌ [CHECKOUT ERROR] Failed to create order: {}", e.getMessage(), e);
+            throw e;
         }
-
-        createPaymentRecord(savedOrder);
-        clearCartAfterOrder(currentUser.getId(), request.getBusinessId());
-
-        log.info("Order created successfully: {}", savedOrder.getOrderNumber());
-        return getOrderById(savedOrder.getId());
     }
 
     @Override
@@ -305,12 +323,27 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void createOrderItemsFromCartSummary(UUID orderId, com.emenu.features.order.dto.response.CartSummaryResponse cartSummary) {
+        log.debug("🛒 [CART SUMMARY] Processing {} items for order: {}", cartSummary.getItems().size(), orderId);
+
         BigDecimal subtotal = cartSummary.getSubtotal() != null ? cartSummary.getSubtotal() : BigDecimal.ZERO;
         BigDecimal discountAmount = cartSummary.getTotalDiscount() != null ? cartSummary.getTotalDiscount() : BigDecimal.ZERO;
 
-        Order order = orderRepository.findById(orderId).orElseThrow();
+        log.debug("💰 [PRICING] Subtotal: {}, Discount: {}", subtotal, discountAmount);
 
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> {
+                    log.error("❌ [ERROR] Order not found: {}", orderId);
+                    return new NotFoundException("Order not found: " + orderId);
+                });
+
+        log.debug("✅ [ORDER LOADED] Order ID: {}, Items List: {}", orderId, order.getItems() != null ? "initialized" : "null");
+
+        int itemCount = 0;
         for (var item : cartSummary.getItems()) {
+            itemCount++;
+            log.debug("📦 [ITEM {}] Product: {} (ID: {}), Qty: {}, Price: {}",
+                itemCount, item.getProductName(), item.getProductId(), item.getQuantity(), item.getFinalPrice());
+
             OrderItemCreateHelper helper = OrderItemCreateHelper.builder()
                     .orderId(orderId)
                     .productId(item.getProductId())
@@ -333,6 +366,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setTotalPrice(item.getTotalPrice());
             orderItem.setOrder(order);
             order.getItems().add(orderItem);
+            log.debug("✅ [ITEM ADDED] Item {} added to order, total items now: {}", itemCount, order.getItems().size());
         }
 
         order.setSubtotal(subtotal);
@@ -340,8 +374,14 @@ public class OrderServiceImpl implements OrderService {
 
         BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
         BigDecimal taxAmount = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
-        order.setTotalAmount(subtotal.subtract(discountAmount).add(deliveryFee).add(taxAmount));
+        BigDecimal totalAmount = subtotal.subtract(discountAmount).add(deliveryFee).add(taxAmount);
+        order.setTotalAmount(totalAmount);
+
+        log.info("💾 [SAVING ORDER] Order ID: {}, Items: {}, Total: {} (Subtotal: {}, Discount: {}, Delivery: {}, Tax: {})",
+            orderId, order.getItems().size(), totalAmount, subtotal, discountAmount, deliveryFee, taxAmount);
+
         orderRepository.save(order);
+        log.info("✅ [ORDER ITEMS SAVED] Successfully saved {} items for order: {}", order.getItems().size(), orderId);
     }
 
     private void createPaymentRecord(Order order) {
