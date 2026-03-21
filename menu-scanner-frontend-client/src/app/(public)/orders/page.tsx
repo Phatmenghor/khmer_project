@@ -52,24 +52,23 @@ interface StatusTab {
   label: string;
 }
 
-// Color palette for status badges (without icons since API provides status names)
-const STATUS_COLOR_PALETTE = [
-  { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400" },
-  { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400" },
-  { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400" },
-  { bg: "bg-cyan-100 dark:bg-cyan-900/30", text: "text-cyan-700 dark:text-cyan-400" },
-  { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400" },
-  { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400" },
-  { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-400" },
-  { bg: "bg-pink-100 dark:bg-pink-900/30", text: "text-pink-700 dark:text-pink-400" },
-  { bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-400" },
-  { bg: "bg-teal-100 dark:bg-teal-900/30", text: "text-teal-700 dark:text-teal-400" },
-];
+// Simple status color mapping
+const getStatusColor = (statusName?: string) => {
+  const colors: Record<string, { bg: string; text: string }> = {
+    PENDING: { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400" },
+    CONFIRMED: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400" },
+    PREPARING: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400" },
+    PROCESSING: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400" },
+    IN_DELIVERY: { bg: "bg-cyan-100 dark:bg-cyan-900/30", text: "text-cyan-700 dark:text-cyan-400" },
+    DELIVERED: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400" },
+    COMPLETED: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400" },
+    CANCELLED: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400" },
+    REFUNDED: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400" },
+    FAILED: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400" },
+    READY: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400" },
+  };
 
-// Map status names to colors (cycling through palette)
-const getStatusColor = (statusName: string, index: number) => {
-  const colorIndex = index % STATUS_COLOR_PALETTE.length;
-  return STATUS_COLOR_PALETTE[colorIndex];
+  return colors[statusName || "PENDING"] || { bg: "bg-gray-100 dark:bg-gray-900/30", text: "text-gray-700 dark:text-gray-400" };
 };
 
 export default function OrdersPage() {
@@ -109,11 +108,34 @@ export default function OrdersPage() {
 
   // Fetch order statuses from API
   useEffect(() => {
-    if (!authReady || !isAuthenticated || !mounted || !profile?.businessId) return;
+    if (!authReady || !isAuthenticated || !mounted) return;
 
     const fetchStatuses = async () => {
       setStatusesLoading(true);
       try {
+        // For customers without businessId, skip API fetch
+        // Statuses will come from actual orders data
+        if (!profile?.businessId) {
+          // Get unique statuses from orders
+          const uniqueStatuses = new Set(
+            ordersState.orders
+              .map((order) => order.orderProcessStatus?.name)
+              .filter(Boolean)
+          );
+
+          const tabs: StatusTab[] = [{ value: "", label: "All Orders" }];
+
+          // Add statuses from actual orders
+          Array.from(uniqueStatuses).forEach((status) => {
+            tabs.push({ value: status as string, label: status as string });
+          });
+
+          setStatusTabs(tabs);
+          setStatusesLoading(false);
+          return;
+        }
+
+        // For business users, fetch from API
         const result = await dispatch(
           fetchAllOrderStatusService({
             businessId: profile.businessId,
@@ -123,7 +145,6 @@ export default function OrdersPage() {
           })
         ).unwrap();
 
-        // Create tabs from API response
         const tabs: StatusTab[] = [
           { value: "", label: "All Orders" },
           ...(result.content || []).map((status: OrderStatus) => ({
@@ -141,12 +162,12 @@ export default function OrdersPage() {
     };
 
     fetchStatuses();
-  }, [mounted, authReady, isAuthenticated, profile?.businessId, dispatch]);
+  }, [mounted, authReady, isAuthenticated, profile?.businessId, dispatch, ordersState.orders]);
 
   // Fetch orders
   const fetchOrders = useCallback(
     async (pageNo: number, isLoadMore: boolean = false) => {
-      if (!authReady || !isAuthenticated || !profile?.businessId) return;
+      if (!authReady || !isAuthenticated) return;
 
       try {
         if (isLoadMore) {
@@ -160,7 +181,6 @@ export default function OrdersPage() {
             pageNo,
             pageSize: ordersState.pagination.pageSize,
             status: filters.status || undefined,
-            businessId: profile.businessId,
             search: filters.search || undefined,
           })
         ).unwrap();
@@ -193,7 +213,7 @@ export default function OrdersPage() {
         }));
       }
     },
-    [dispatch, authReady, isAuthenticated, profile?.businessId, filters, ordersState.pagination.pageSize]
+    [dispatch, authReady, isAuthenticated, filters, ordersState.pagination.pageSize]
   );
 
   // Initial fetch on filter change
@@ -396,9 +416,8 @@ export default function OrdersPage() {
             </div>
           ) : (
             <>
-              {ordersState.orders.map((order, orderIndex) => {
-            const statusIndex = statusTabs.findIndex(tab => tab.value === order.orderProcessStatus?.name);
-            const statusColor = getStatusColor(order.orderProcessStatus?.name || "", statusIndex >= 0 ? statusIndex : 0);
+              {ordersState.orders.map((order) => {
+            const statusColor = getStatusColor(order.orderProcessStatus?.name);
             const itemCount = order.items?.length || 0;
             const deliveryAddress = [
               order.deliveryAddress?.houseNumber,
