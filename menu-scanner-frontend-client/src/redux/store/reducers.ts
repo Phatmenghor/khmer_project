@@ -9,7 +9,6 @@ import usersReducer from "../features/auth/store/slice/users-slice";
 import sessionReducer from "../features/sessions/store/slice/session-slice";
 
 import bannerReducer from "../features/master-data/store/slice/banner-slice";
-import orderStatusReducer from "../features/master-data/store/slice/order-status-slice";
 import brandReducer from "../features/master-data/store/slice/brand-slice";
 import categoriesReducer from "../features/master-data/store/slice/categories-slice";
 import exchangeRateReducer from "../features/master-data/store/slice/exchange-rate-slice";
@@ -51,7 +50,6 @@ export const reducers = {
 
   // Master Data (Admin)
   banner: bannerReducer,
-  orderStatus: orderStatusReducer,
   brand: brandReducer,
   categories: categoriesReducer,
   exchangeRate: exchangeRateReducer,
