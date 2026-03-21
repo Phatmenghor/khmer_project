@@ -29,7 +29,6 @@ export const ROUTES = {
     EXCHANGE_RATE: "/admin/exchange-rate",
     DELIVERY_OPTIONS: "/admin/delivery-options",
     PAYMENT_OPTIONS: "/admin/payment-options",
-    ORDER_STATUS: "/admin/order-status",
     PRODUCTS: "/admin/products",
     PRODUCTS_PROMOTION: "/admin/product-promotions",
   },
@@ -87,10 +86,6 @@ export const SIDEBAR_MENU: MenuItem[] = [
     title: "Master Data",
     icon: Database,
     items: [
-      {
-        title: "Order Status",
-        href: ROUTES.ADMIN.ORDER_STATUS,
-      },
       {
         title: "Banner",
         href: ROUTES.ADMIN.BANNER,

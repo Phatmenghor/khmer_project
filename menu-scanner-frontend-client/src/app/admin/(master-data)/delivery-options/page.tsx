@@ -32,7 +32,6 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/redux/store";
-import { DeliveryOptionsDetailModal } from "@/redux/features/master-data/components/order-status-detail-modal";
 
 export default function DeliveryOptionsPage() {
   // Clean up state when leaving admin area (performance optimization)
@@ -280,14 +279,7 @@ export default function DeliveryOptionsPage() {
         mode={modalState.mode}
       />
 
-      {/* Modals delivery options Detail */}
-      <DeliveryOptionsDetailModal
-        deliveryOptionsId={detailModalState.deliveryOptionsId}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
-      />
-
-      {/* Modals Delete name platform */}
+{/* Modals Delete name platform */}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}
