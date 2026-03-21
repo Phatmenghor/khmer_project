@@ -16,6 +16,7 @@ import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useAppDispatch } from "@/redux/store";
 import { fetchMyOrdersService } from "@/redux/features/main/store/thunks/my-orders-thunks";
 import { fetchAllOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -113,32 +114,12 @@ export default function OrdersPage() {
     const fetchStatuses = async () => {
       setStatusesLoading(true);
       try {
-        // For customers without businessId, skip API fetch
-        // Statuses will come from actual orders data
-        if (!profile?.businessId) {
-          // Get unique statuses from orders
-          const uniqueStatuses = new Set(
-            ordersState.orders
-              .map((order) => order.orderProcessStatus?.name)
-              .filter(Boolean)
-          );
+        // Use profile businessId or default
+        const businessId = profile?.businessId || AppDefault.BUSINESS_ID;
 
-          const tabs: StatusTab[] = [{ value: "", label: "All Orders" }];
-
-          // Add statuses from actual orders
-          Array.from(uniqueStatuses).forEach((status) => {
-            tabs.push({ value: status as string, label: status as string });
-          });
-
-          setStatusTabs(tabs);
-          setStatusesLoading(false);
-          return;
-        }
-
-        // For business users, fetch from API
         const result = await dispatch(
           fetchAllOrderStatusService({
-            businessId: profile.businessId,
+            businessId,
             statuses: ["ACTIVE"],
             pageNo: 1,
             pageSize: 100,
@@ -162,7 +143,7 @@ export default function OrdersPage() {
     };
 
     fetchStatuses();
-  }, [mounted, authReady, isAuthenticated, profile?.businessId, dispatch, ordersState.orders]);
+  }, [mounted, authReady, isAuthenticated, dispatch];
 
   // Fetch orders
   const fetchOrders = useCallback(
