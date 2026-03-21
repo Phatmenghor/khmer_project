@@ -29,6 +29,7 @@ import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slic
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
+import { PageHeader } from "@/components/shared/common/page-header";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { cn } from "@/lib/utils";
 import { sanitizeImageUrl } from "@/utils/common/common";
@@ -37,6 +38,7 @@ import { ComboboxSelectLocation } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -324,25 +326,27 @@ export default function CheckoutPage() {
   }
 
   return (
-    <PageContainer className="py-3 sm:py-6 pb-20">
-      {/* Header - Match Cart Page */}
-      <div className="mb-8 space-y-2">
-        <h1 className="text-2xl font-bold">Checkout</h1>
-        <p className="text-sm text-muted-foreground">
-          {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} total quantity
-        </p>
-      </div>
+    <PageContainer className="py-0 pb-20">
+      {/* Professional Header - Matches Cart Page */}
+      <PageHeader
+        title="Checkout"
+        subtitle={`${items.length} ${items.length === 1 ? "item" : "items"} • ${totalQuantity} total quantity`}
+        icon={CreditCard}
+        count={items.length}
+        countLabel="items"
+      />
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Card 1: Selection Inputs */}
-          <div className="bg-card border rounded-2xl p-6 space-y-6">
+          {/* Card 1: Delivery Information - Clean & Professional */}
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 space-y-6">
             {/* Delivery Address */}
             <div className="space-y-3">
               <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
-                Delivery Address*
+                Delivery Address
+                <span className="text-red-500">*</span>
               </label>
               <ComboboxSelectLocation
                 dataSelect={selectedAddress as any}
@@ -354,23 +358,24 @@ export default function CheckoutPage() {
                     }));
                   }
                 }}
-                placeholder="Select address..."
+                placeholder="Select your delivery address..."
                 hasDefault={!!defaultAddress}
-                error={!checkoutState.selectedAddressId ? "Required" : ""}
+                error={!checkoutState.selectedAddressId ? "Please select a delivery address" : ""}
                 label=""
               />
             </div>
 
             {/* Divider */}
-            <div className="border-t opacity-20" />
+            <div className="border-t border-border/50" />
 
-            {/* Delivery & Payment Options */}
+            {/* Delivery & Payment Options - Side by Side */}
             <div className="grid sm:grid-cols-2 gap-6">
               {/* Delivery Option */}
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Truck className="h-4 w-4 text-primary" />
-                  Delivery Option*
+                  Delivery Option
+                  <span className="text-red-500">*</span>
                 </label>
                 <ComboboxSelectDelivery
                   dataSelect={selectedDeliveryOption as any}
@@ -382,10 +387,10 @@ export default function CheckoutPage() {
                       }));
                     }
                   }}
-                  placeholder="Select option..."
-                  error={!checkoutState.selectedDeliveryOptionId ? "Required" : ""}
+                  placeholder="Select delivery option..."
+                  error={!checkoutState.selectedDeliveryOptionId ? "Please select delivery option" : ""}
                   label=""
-                  businessId={profile?.businessId}
+                  businessId={AppDefault.BUSINESS_ID}
                   statuses={["ACTIVE"]}
                 />
               </div>
@@ -394,7 +399,8 @@ export default function CheckoutPage() {
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <CreditCard className="h-4 w-4 text-primary" />
-                  Payment Method*
+                  Payment Method
+                  <span className="text-red-500">*</span>
                 </label>
                 <ComboboxSelectPayment
                   dataSelect={selectedPaymentOption as any}
@@ -406,15 +412,15 @@ export default function CheckoutPage() {
                       }));
                     }
                   }}
-                  placeholder="Select method..."
-                  error={!checkoutState.selectedPaymentOptionId ? "Required" : ""}
+                  placeholder="Select payment method..."
+                  error={!checkoutState.selectedPaymentOptionId ? "Please select payment method" : ""}
                   label=""
                 />
               </div>
             </div>
 
             {/* Special Instructions */}
-            <div className="space-y-3 pt-2 border-t opacity-20">
+            <div className="space-y-3 pt-4 border-t border-border/50">
               <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-primary" />
                 Special Instructions
@@ -427,27 +433,29 @@ export default function CheckoutPage() {
                     customerNote: e.target.value.slice(0, 500),
                   }))
                 }
-                placeholder="Add any special requests..."
-                className="w-full h-24 p-3 rounded-lg border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                placeholder="Add any special requests or notes for your order..."
+                className="w-full h-28 p-4 rounded-lg border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
                 maxLength={500}
               />
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center px-1">
                 <p className="text-xs text-muted-foreground">
-                  {checkoutState.customerNote.length}/500
+                  {checkoutState.customerNote.length}/500 characters
                 </p>
                 {checkoutState.customerNote.length > 400 && (
-                  <span className="text-xs text-amber-600 dark:text-amber-400">⚠️ Limit near</span>
+                  <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                    ⚠️ Approaching limit
+                  </span>
                 )}
               </div>
             </div>
           </div>
 
           {/* Card 2: Order Items */}
-          <div className="bg-card border rounded-2xl p-6">
-            <div className="mb-5">
-              <h3 className="font-semibold text-foreground mb-1">Order Items</h3>
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7">
+            <div className="mb-6">
+              <h3 className="font-semibold text-foreground mb-1.5">Order Items</h3>
               <p className="text-xs text-muted-foreground">
-                {items.length} {items.length === 1 ? 'item' : 'items'} • {totalQuantity} total quantity
+                {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} total quantity
               </p>
             </div>
             <div className="space-y-3">
@@ -481,41 +489,43 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Card 3: Order Summary */}
+        {/* Card 3: Order Summary - Sticky */}
         <div className="lg:col-span-1">
-          <div className="bg-card border rounded-2xl p-6 sticky top-24 space-y-6">
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 sticky top-24 space-y-6">
             <div>
-              <h2 className="font-semibold text-foreground mb-5">Order Summary</h2>
+              <h2 className="text-base font-semibold text-foreground mb-5">Order Summary</h2>
 
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 {/* Subtotal */}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">{formatCurrency(subtotal)}</span>
+                  <span className="font-medium text-foreground">{formatCurrency(subtotal)}</span>
                 </div>
 
                 {/* Discount */}
                 {totalDiscount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-red-600 dark:text-red-400 font-medium">Discount</span>
-                    <span className="font-bold text-red-600 dark:text-red-500">-{formatCurrency(totalDiscount)}</span>
+                    <span className="font-semibold text-red-600 dark:text-red-500">-{formatCurrency(totalDiscount)}</span>
                   </div>
                 )}
 
                 {/* Delivery Fee */}
-                <div className="flex justify-between text-sm pt-2 border-t opacity-30">
-                  <span className="text-muted-foreground">Delivery</span>
+                <div className="flex justify-between text-sm pt-2.5 border-t border-border/50">
+                  <span className="text-muted-foreground">Delivery Fee</span>
                   <span className="font-medium text-primary">+{formatCurrency(deliveryFee)}</span>
                 </div>
 
                 {/* Total */}
-                <div className="flex justify-between items-baseline pt-3 border-t">
-                  <span className="font-semibold">Total</span>
-                  <span className="text-2xl font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                <div className="flex justify-between items-center pt-3.5 border-t border-border">
+                  <span className="font-semibold text-foreground">Total</span>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                  </div>
                 </div>
 
                 {totalDiscount > 0 && (
-                  <p className="text-xs text-red-600 dark:text-red-400 text-right">
+                  <p className="text-xs text-red-600 dark:text-red-400 text-right font-medium">
                     💰 You save {formatCurrency(totalDiscount)}
                   </p>
                 )}
@@ -526,9 +536,11 @@ export default function CheckoutPage() {
             {(!checkoutState.selectedAddressId ||
               !checkoutState.selectedDeliveryOptionId ||
               !checkoutState.selectedPaymentOptionId) && (
-              <div className="flex gap-2 text-xs p-3 bg-amber-50/50 dark:bg-amber-950/20 rounded-lg border border-amber-200/50 dark:border-amber-800/30">
-                <AlertCircle className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-amber-700 dark:text-amber-400">Complete required fields</p>
+              <div className="flex gap-3 p-3.5 bg-amber-50/60 dark:bg-amber-950/30 rounded-lg border border-amber-200/60 dark:border-amber-800/40">
+                <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  Complete all required fields to continue
+                </p>
               </div>
             )}
 
@@ -537,14 +549,14 @@ export default function CheckoutPage() {
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
               className={cn(
-                "w-full gap-2 h-11 rounded-xl font-semibold",
+                "w-full gap-2 h-11 rounded-xl font-semibold text-sm",
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
               {checkoutState.isProcessing ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Processing
+                  Processing Order
                 </>
               ) : (
                 <>
@@ -554,7 +566,9 @@ export default function CheckoutPage() {
               )}
             </CustomButton>
 
-            <p className="text-xs text-muted-foreground text-center">🔒 Secure checkout</p>
+            <p className="text-xs text-muted-foreground text-center">
+              🔒 Secure & encrypted checkout
+            </p>
           </div>
         </div>
       </div>
@@ -564,14 +578,15 @@ export default function CheckoutPage() {
 
 function CheckoutPageSkeleton() {
   return (
-    <PageContainer className="py-6">
-      <div className="grid lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-muted rounded-xl h-20 animate-pulse" />
+    <PageContainer className="py-0 pb-20">
+      <div className="h-16 border-b mb-6 animate-pulse" />
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {[1, 2].map((i) => (
+            <div key={i} className="bg-card border rounded-2xl h-48 animate-pulse" />
           ))}
         </div>
-        <div className="bg-muted rounded-xl h-64 animate-pulse" />
+        <div className="bg-card border rounded-2xl h-80 animate-pulse" />
       </div>
     </PageContainer>
   );
