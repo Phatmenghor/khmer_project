@@ -202,8 +202,7 @@ export default function OrdersPage() {
       <PageHeader
         title="My Orders"
         subtitle={`You have ${totalOrders} order${totalOrders !== 1 ? "s" : ""}`}
-        icon={<ShoppingBag className="h-8 w-8" />}
-        onBack={() => router.back()}
+        icon={ShoppingBag}
       />
 
       {/* Status Filter Tabs */}
