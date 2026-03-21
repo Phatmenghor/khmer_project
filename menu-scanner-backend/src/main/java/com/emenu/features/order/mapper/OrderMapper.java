@@ -177,25 +177,31 @@ public interface OrderMapper {
 
     /**
      * Map current order process status with details of who set it
-     * Returns the most recent status from history, or null if no history exists
+     * Uses orderProcessStatusName from order, with optional details from status history
      */
     default com.emenu.features.order.dto.response.OrderStatusDto mapOrderProcessStatus(Order order) {
-        if (order.getStatusHistory() == null || order.getStatusHistory().isEmpty()) {
-            // Return null when no status history exists (order just created)
+        // Primary source: orderProcessStatusName stored on Order entity
+        if (order.getOrderProcessStatusName() == null || order.getOrderProcessStatusName().isBlank()) {
             return null;
         }
 
-        // Get the most recent status change (last in list)
-        OrderStatusHistory latestStatus = order.getStatusHistory().get(order.getStatusHistory().size() - 1);
+        // Build response from Order's status name
+        var builder = com.emenu.features.order.dto.response.OrderStatusDto.builder()
+                .name(order.getOrderProcessStatusName());
 
-        return com.emenu.features.order.dto.response.OrderStatusDto.builder()
-                .name(latestStatus.getOrderProcessStatus() != null ?
-                        latestStatus.getOrderProcessStatus().getName() : null)
-                .description(latestStatus.getOrderProcessStatus() != null ?
-                        latestStatus.getOrderProcessStatus().getDescription() : null)
-                .changedBy(mapStatusHistoryUserInfo(latestStatus))
-                .createdAt(latestStatus.getCreatedAt())
-                .build();
+        // Enhance with details from latest status history if available
+        if (order.getStatusHistory() != null && !order.getStatusHistory().isEmpty()) {
+            OrderStatusHistory latestStatus = order.getStatusHistory().get(order.getStatusHistory().size() - 1);
+
+            // Get description and change details from history
+            if (latestStatus.getOrderProcessStatus() != null) {
+                builder.description(latestStatus.getOrderProcessStatus().getDescription());
+            }
+            builder.changedBy(mapStatusHistoryUserInfo(latestStatus));
+            builder.createdAt(latestStatus.getCreatedAt());
+        }
+
+        return builder.build();
     }
 
     /**
