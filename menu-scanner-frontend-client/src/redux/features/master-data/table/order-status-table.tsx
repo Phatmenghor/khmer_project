@@ -81,6 +81,24 @@ export const orderStatusTableColumns = ({
     },
 
     {
+      key: "isInitial",
+      label: "Initial",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (orderStatus) => (
+        <span className="text-xs">
+          {orderStatus?.isInitial ? (
+            <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full text-xs font-medium">
+              ⭐ Initial
+            </span>
+          ) : (
+            <span className="text-muted-foreground">---</span>
+          )}
+        </span>
+      ),
+    },
+
+    {
       key: "createdAt",
       label: "Created At",
       minWidth: "10px",

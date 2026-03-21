@@ -7,6 +7,7 @@ export const createOrderStatusSchema = z.object({
   name: z.string().min(1, "name is required"),
   description: z.string().optional().or(z.literal("")),
   status: z.string().min(1, "Status is required"),
+  isInitial: z.boolean().optional().default(false),
 });
 
 /**
@@ -16,6 +17,7 @@ export const updateOrderStatusSchema = z.object({
   name: z.string().min(1, "name is required"),
   description: z.string().optional().or(z.literal("")),
   status: z.string().min(1, "Status is required"),
+  isInitial: z.boolean().optional(),
 });
 
 export type CreateOrderStatusData = z.infer<typeof createOrderStatusSchema>;

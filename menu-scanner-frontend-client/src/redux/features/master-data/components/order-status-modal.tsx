@@ -21,6 +21,7 @@ import {
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
+import { CheckboxField } from "@/components/shared/form-field/checkbox-field";
 import { Loading } from "@/components/shared/common/loading";
 import {
   selectError,
@@ -82,6 +83,7 @@ export default function OrderStatusModal({
       name: "",
       description: "",
       status: Status.ACTIVE,
+      isInitial: false,
     },
     mode: "onChange",
   });
@@ -92,6 +94,7 @@ export default function OrderStatusModal({
         name: "",
         description: "",
         status: Status.ACTIVE,
+        isInitial: false,
       });
     }
   }, [isOpen, orderStatusId, reset]);
@@ -113,6 +116,7 @@ export default function OrderStatusModal({
             name: data?.name || "",
             description: data?.description || "",
             status: data?.status || "",
+            isInitial: data?.isInitial || false,
           });
         }
       } catch (error) {
@@ -136,6 +140,7 @@ export default function OrderStatusModal({
         name: data?.name || "",
         description: data?.description || "",
         status: data.status,
+        isInitial: data?.isInitial || false,
       };
 
       if (isCreate) {
@@ -230,6 +235,14 @@ export default function OrderStatusModal({
                       error={errors.status}
                     />
                   </div>
+
+                  <CheckboxField
+                    control={control}
+                    name="isInitial"
+                    label="Set as Initial Status"
+                    description="Mark this as the initial status for new orders. Only one status per business can be marked as initial."
+                    disabled={isProcessing}
+                  />
 
                   <TextareaField
                     control={control}
