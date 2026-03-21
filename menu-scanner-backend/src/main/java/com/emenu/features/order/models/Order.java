@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -93,10 +94,10 @@ public class Order extends BaseUUIDEntity {
     private LocalDateTime completedAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItem> items;
+    private List<OrderItem> items = new ArrayList<>();
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderStatusHistory> statusHistory;
+    private List<OrderStatusHistory> statusHistory = new ArrayList<>();
 
     // Business Methods
     public void updateStatus(String newOrderProcessStatusName) {
