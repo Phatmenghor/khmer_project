@@ -23,7 +23,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/order-process-statuses")
 @RequiredArgsConstructor
 @Slf4j
-public class OrderStatusController {
+public class OrderProcessStatusController {
 
     private final OrderProcessStatusService orderProcessStatusService;
     private final SecurityUtils securityUtils;
