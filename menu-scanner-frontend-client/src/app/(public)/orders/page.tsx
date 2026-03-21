@@ -8,17 +8,14 @@ import {
   AlertCircle,
   Loader2,
   MapPin,
-  Truck,
   ArrowRight,
-  Clock,
-  CheckCircle2,
-  XCircle,
   ShoppingBag,
   Calendar,
 } from "lucide-react";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useAppDispatch } from "@/redux/store";
 import { fetchMyOrdersService } from "@/redux/features/main/store/thunks/my-orders-thunks";
+import { fetchAllOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -29,6 +26,13 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 type Order = OrderResponse;
+
+interface OrderStatus {
+  id: string;
+  name: string;
+  description?: string;
+  isInitial?: boolean;
+}
 
 interface OrdersState {
   orders: Order[];
@@ -43,53 +47,29 @@ interface OrdersState {
   };
 }
 
-const STATUS_TABS = [
-  { value: "", label: "All Orders", badge: true },
-  { value: "PENDING", label: "Pending", icon: Clock },
-  { value: "CONFIRMED", label: "Confirmed", icon: CheckCircle2 },
-  { value: "PROCESSING", label: "Processing", icon: Package },
-  { value: "SHIPPED", label: "Shipped", icon: Truck },
-  { value: "DELIVERED", label: "Delivered", icon: CheckCircle2 },
-  { value: "CANCELLED", label: "Cancelled", icon: XCircle },
+interface StatusTab {
+  value: string;
+  label: string;
+}
+
+// Color palette for status badges (without icons since API provides status names)
+const STATUS_COLOR_PALETTE = [
+  { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400" },
+  { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400" },
+  { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400" },
+  { bg: "bg-cyan-100 dark:bg-cyan-900/30", text: "text-cyan-700 dark:text-cyan-400" },
+  { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400" },
+  { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400" },
+  { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-400" },
+  { bg: "bg-pink-100 dark:bg-pink-900/30", text: "text-pink-700 dark:text-pink-400" },
+  { bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-400" },
+  { bg: "bg-teal-100 dark:bg-teal-900/30", text: "text-teal-700 dark:text-teal-400" },
 ];
 
-const STATUS_COLORS: Record<string, { bg: string; text: string; icon: React.ReactNode; lightBg: string }> = {
-  PENDING: {
-    bg: "bg-amber-100 dark:bg-amber-900/30",
-    lightBg: "bg-amber-50 dark:bg-amber-950/30",
-    text: "text-amber-700 dark:text-amber-400",
-    icon: <Clock className="h-4 w-4" />,
-  },
-  CONFIRMED: {
-    bg: "bg-blue-100 dark:bg-blue-900/30",
-    lightBg: "bg-blue-50 dark:bg-blue-950/30",
-    text: "text-blue-700 dark:text-blue-400",
-    icon: <CheckCircle2 className="h-4 w-4" />,
-  },
-  PROCESSING: {
-    bg: "bg-purple-100 dark:bg-purple-900/30",
-    lightBg: "bg-purple-50 dark:bg-purple-950/30",
-    text: "text-purple-700 dark:text-purple-400",
-    icon: <Package className="h-4 w-4" />,
-  },
-  SHIPPED: {
-    bg: "bg-cyan-100 dark:bg-cyan-900/30",
-    lightBg: "bg-cyan-50 dark:bg-cyan-950/30",
-    text: "text-cyan-700 dark:text-cyan-400",
-    icon: <Truck className="h-4 w-4" />,
-  },
-  DELIVERED: {
-    bg: "bg-green-100 dark:bg-green-900/30",
-    lightBg: "bg-green-50 dark:bg-green-950/30",
-    text: "text-green-700 dark:text-green-400",
-    icon: <CheckCircle2 className="h-4 w-4" />,
-  },
-  CANCELLED: {
-    bg: "bg-red-100 dark:bg-red-900/30",
-    lightBg: "bg-red-50 dark:bg-red-950/30",
-    text: "text-red-700 dark:text-red-400",
-    icon: <XCircle className="h-4 w-4" />,
-  },
+// Map status names to colors (cycling through palette)
+const getStatusColor = (statusName: string, index: number) => {
+  const colorIndex = index % STATUS_COLOR_PALETTE.length;
+  return STATUS_COLOR_PALETTE[colorIndex];
 };
 
 export default function OrdersPage() {
@@ -117,6 +97,8 @@ export default function OrdersPage() {
   });
 
   const [mounted, setMounted] = useState(false);
+  const [statusTabs, setStatusTabs] = useState<StatusTab[]>([]);
+  const [statusesLoading, setStatusesLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
 
@@ -124,6 +106,42 @@ export default function OrdersPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch order statuses from API
+  useEffect(() => {
+    if (!authReady || !isAuthenticated || !mounted || !profile?.businessId) return;
+
+    const fetchStatuses = async () => {
+      setStatusesLoading(true);
+      try {
+        const result = await dispatch(
+          fetchAllOrderStatusService({
+            businessId: profile.businessId,
+            statuses: ["ACTIVE"],
+            pageNo: 1,
+            pageSize: 100,
+          })
+        ).unwrap();
+
+        // Create tabs from API response
+        const tabs: StatusTab[] = [
+          { value: "", label: "All Orders" },
+          ...(result.content || []).map((status: OrderStatus) => ({
+            value: status.name,
+            label: status.name,
+          })),
+        ];
+
+        setStatusTabs(tabs);
+        setStatusesLoading(false);
+      } catch (error: any) {
+        console.error("Failed to fetch order statuses:", error);
+        setStatusesLoading(false);
+      }
+    };
+
+    fetchStatuses();
+  }, [mounted, authReady, isAuthenticated, profile?.businessId, dispatch]);
 
   // Fetch orders
   const fetchOrders = useCallback(
@@ -255,43 +273,46 @@ export default function OrdersPage() {
 
       {/* Status Filter Tabs */}
       <div className="mt-8 mb-8">
-        <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
-          {STATUS_TABS.map((tab) => {
-            const isActive = filters.status === tab.value;
-            const orderCount = isActive ? ordersState.pagination.totalElements : 0;
-            return (
-              <button
-                key={tab.value}
-                onClick={() => {
-                  setFilters((prev) => ({ ...prev, status: tab.value, isInitial: false }));
-                  setOrdersState((prev) => ({
-                    ...prev,
-                    orders: [],
-                    pagination: { ...prev.pagination, currentPage: 1 },
-                  }));
-                }}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0",
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-lg"
-                    : "bg-card border border-border/50 text-foreground hover:border-primary/30 hover:bg-muted"
-                )}
-              >
-                {tab.value && STATUS_COLORS[tab.value] && (
-                  <div className={cn("text-lg", isActive ? "text-primary-foreground" : STATUS_COLORS[tab.value].text)}>
-                    {STATUS_COLORS[tab.value].icon}
-                  </div>
-                )}
-                <span>{tab.label}</span>
-                {isActive && orderCount > 0 && (
-                  <span className={cn("ml-1 px-2 py-0.5 rounded-full text-xs font-bold", isActive ? "bg-white/20" : "bg-muted")}>
-                    {orderCount}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        {statusesLoading ? (
+          <div className="flex gap-2 pb-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-10 bg-muted rounded-lg animate-pulse flex-shrink-0 w-24" />
+            ))}
+          </div>
+        ) : (
+          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+            {statusTabs.map((tab, index) => {
+              const isActive = filters.status === tab.value;
+              const orderCount = isActive ? ordersState.pagination.totalElements : 0;
+              return (
+                <button
+                  key={tab.value || "all"}
+                  onClick={() => {
+                    setFilters((prev) => ({ ...prev, status: tab.value, isInitial: false }));
+                    setOrdersState((prev) => ({
+                      ...prev,
+                      orders: [],
+                      pagination: { ...prev.pagination, currentPage: 1 },
+                    }));
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0",
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-lg"
+                      : "bg-card border border-border/50 text-foreground hover:border-primary/30 hover:bg-muted"
+                  )}
+                >
+                  <span>{tab.label}</span>
+                  {isActive && orderCount > 0 && (
+                    <span className={cn("ml-1 px-2 py-0.5 rounded-full text-xs font-bold", isActive ? "bg-white/20" : "bg-muted")}>
+                      {orderCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Search Bar */}
@@ -375,8 +396,9 @@ export default function OrdersPage() {
             </div>
           ) : (
             <>
-              {ordersState.orders.map((order) => {
-            const statusColor = STATUS_COLORS[order.orderProcessStatus?.name || "PENDING"] || STATUS_COLORS.PENDING;
+              {ordersState.orders.map((order, orderIndex) => {
+            const statusIndex = statusTabs.findIndex(tab => tab.value === order.orderProcessStatus?.name);
+            const statusColor = getStatusColor(order.orderProcessStatus?.name || "", statusIndex >= 0 ? statusIndex : 0);
             const itemCount = order.items?.length || 0;
             const deliveryAddress = [
               order.deliveryAddress?.houseNumber,
@@ -399,10 +421,8 @@ export default function OrdersPage() {
                   {/* Top row: Order Number, Items Count, Status */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={cn("p-2.5 rounded-lg shrink-0", statusColor.bg)}>
-                        <div className={cn("text-lg", statusColor.text)}>
-                          {statusColor.icon}
-                        </div>
+                      <div className={cn("p-2.5 rounded-lg shrink-0 flex items-center justify-center", statusColor.bg)}>
+                        <Package className={cn("h-5 w-5", statusColor.text)} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
