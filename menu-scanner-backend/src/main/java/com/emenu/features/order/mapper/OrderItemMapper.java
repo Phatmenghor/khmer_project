@@ -16,10 +16,6 @@ public interface OrderItemMapper {
     @Mapping(source = "hasPromotion", target = "hasActivePromotion")
     @Mapping(target = "totalBeforeDiscount", expression = "java(calculateTotalBeforeDiscount(orderItem))")
     @Mapping(target = "discountAmount", expression = "java(calculateDiscountAmount(orderItem))")
-    @Mapping(target = "promotionType", expression = "java(orderItem.getHasPromotion() ? orderItem.getPromotionType() : null)")
-    @Mapping(target = "promotionValue", expression = "java(orderItem.getHasPromotion() ? orderItem.getPromotionValue() : null)")
-    @Mapping(target = "promotionFromDate", expression = "java(orderItem.getHasPromotion() ? orderItem.getPromotionFromDate() : null)")
-    @Mapping(target = "promotionToDate", expression = "java(orderItem.getHasPromotion() ? orderItem.getPromotionToDate() : null)")
     OrderItemResponse toResponse(OrderItem orderItem);
 
     List<OrderItemResponse> toResponseList(List<OrderItem> orderItems);
