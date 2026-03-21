@@ -40,6 +40,9 @@ public class OrderProcessStatus extends BaseUUIDEntity {
     @Column(name = "is_initial", nullable = false)
     private Boolean isInitial = false;
 
+    @Column(name = "\"order\"", nullable = false)
+    private Integer order = 1;
+
     public void activate() {
         this.status = Status.ACTIVE;
     }

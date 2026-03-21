@@ -193,9 +193,10 @@ public interface OrderMapper {
         if (order.getStatusHistory() != null && !order.getStatusHistory().isEmpty()) {
             OrderStatusHistory latestStatus = order.getStatusHistory().get(order.getStatusHistory().size() - 1);
 
-            // Get description and change details from history
+            // Get description, order, and change details from history
             if (latestStatus.getOrderProcessStatus() != null) {
                 builder.description(latestStatus.getOrderProcessStatus().getDescription());
+                builder.order(latestStatus.getOrderProcessStatus().getOrder());
             }
             builder.changedBy(mapStatusHistoryUserInfo(latestStatus));
             builder.createdAt(latestStatus.getCreatedAt());

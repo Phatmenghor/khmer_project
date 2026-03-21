@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class OrderStatusDto {
     private String name;
     private String description;
+    private Integer order; // Sort order for displaying status sequence
 
     // Who changed to this status - nested object with full details
     @Valid
