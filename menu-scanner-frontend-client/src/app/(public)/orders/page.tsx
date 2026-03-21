@@ -25,6 +25,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 
 type Order = OrderResponse;
 
@@ -39,6 +40,7 @@ interface OrdersState {
   orders: Order[];
   loading: boolean;
   loadingMore: boolean;
+  loaded: boolean;
   error: string | null;
   pagination: {
     currentPage: number;
@@ -62,6 +64,7 @@ export default function OrdersPage() {
     orders: [],
     loading: false,
     loadingMore: false,
+    loaded: false,
     error: null,
     pagination: {
       currentPage: 1,
@@ -82,13 +85,18 @@ export default function OrdersPage() {
   const [statusesLoading, setStatusesLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
-  const hasInitialLoadRef = useRef(false);
-  const isFirstLoadRef = useRef(true);
 
   // Hydration fix - only set mounted, don't refetch
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Smart scroll restoration: Keep position on navigation, reset on browser refresh
+  useScrollRestoration({
+    enabled: true,
+    restoreOnMount: true,
+    customKey: "orders",
+  });
 
   // Fetch order statuses from API
   // Note: Currently using AppDefault.BUSINESS_ID for development
@@ -139,7 +147,7 @@ export default function OrdersPage() {
       try {
         if (isLoadMore) {
           setOrdersState((prev) => ({ ...prev, loadingMore: true }));
-        } else if (isFirstLoadRef.current || ordersState.orders.length === 0) {
+        } else if (!ordersState.loaded || ordersState.orders.length === 0) {
           // Only show loading on first load or if no data
           setOrdersState((prev) => ({ ...prev, loading: true }));
         }
@@ -177,10 +185,9 @@ export default function OrdersPage() {
             },
             loading: false,
             loadingMore: false,
+            loaded: !isLoadMore, // Mark as loaded on first load (not on loadMore)
           };
         });
-
-        isFirstLoadRef.current = false;
       } catch (error: any) {
         console.error("Failed to fetch orders:", error);
         setOrdersState((prev) => ({
@@ -197,20 +204,20 @@ export default function OrdersPage() {
   // Initial fetch on mount - only once
   useEffect(() => {
     if (!authReady || !isAuthenticated || !mounted) return;
-    if (!isFirstLoadRef.current) return; // Don't refetch if already loaded
+    if (ordersState.loaded) return; // Don't refetch if already loaded
 
     isLoadingRef.current = false;
     fetchOrders(1, false);
-  }, [mounted, authReady, isAuthenticated, fetchOrders]);
+  }, [mounted, authReady, isAuthenticated, ordersState.loaded, fetchOrders]);
 
-  // Fetch on explicit filter/search change only
+  // Fetch on explicit filter/search change only (after initial load)
   useEffect(() => {
     if (!authReady || !isAuthenticated || !mounted) return;
-    if (isFirstLoadRef.current) return; // Skip on first load
+    if (!ordersState.loaded) return; // Skip until initial load is complete
 
     isLoadingRef.current = false;
     fetchOrders(1, false);
-  }, [filters.status, filters.search, authReady, isAuthenticated, mounted, fetchOrders]);
+  }, [filters.status, filters.search, authReady, isAuthenticated, mounted, ordersState.loaded, fetchOrders]);
 
   // Infinite scroll observer
   useEffect(() => {
