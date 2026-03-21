@@ -201,7 +201,7 @@ export default function CheckoutPage() {
 
     try {
       const checkoutPayload: CheckoutPayload = {
-        businessId: profile?.businessId || "",
+        businessId: AppDefault.BUSINESS_ID,
         deliveryAddress: {
           village: selectedAddress.village || "",
           commune: selectedAddress.commune || "",
@@ -220,8 +220,8 @@ export default function CheckoutPage() {
           price: selectedDeliveryOption.price || 0,
         },
         cart: {
-          businessId: profile?.businessId || "",
-          businessName: profile?.businessName || "",
+          businessId: AppDefault.BUSINESS_ID,
+          businessName: "Default Business",
           items: items.map((item) => ({
             id: item.id,
             productId: item.productId,
