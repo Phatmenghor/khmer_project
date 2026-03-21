@@ -14,6 +14,7 @@ export interface OrderStatusHistoryUserInfo {
 export interface OrderStatusDto {
   name: string | null;
   description: string | null;
+  order: number; // Sort order for displaying status sequence
   changedBy: OrderStatusHistoryUserInfo | null;
   createdAt: string;
 }

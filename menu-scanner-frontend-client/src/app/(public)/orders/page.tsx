@@ -156,9 +156,16 @@ export default function OrdersPage() {
             ? [...prev.orders, ...(result.content || [])]
             : result.content || [];
 
+          // Sort orders by order process status order
+          const sortedOrders = [...newOrders].sort((a, b) => {
+            const orderA = a.orderProcessStatus?.order || 0;
+            const orderB = b.orderProcessStatus?.order || 0;
+            return orderA - orderB;
+          });
+
           return {
             ...prev,
-            orders: newOrders,
+            orders: sortedOrders,
             pagination: {
               currentPage: result.pageNo || 1,
               pageSize: result.pageSize || 15,

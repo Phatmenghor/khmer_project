@@ -15,5 +15,6 @@ export interface OrderStatusResponseModel {
   name: string;
   description: string;
   status: string;
+  order: number; // Sort order for displaying status sequence
   isInitial?: boolean; // Mark as initial status for new orders
 }
