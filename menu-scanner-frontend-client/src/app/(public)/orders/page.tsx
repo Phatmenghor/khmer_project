@@ -356,7 +356,7 @@ export default function OrdersPage() {
             return (
               <div
                 key={order.id}
-                className="group relative rounded-2xl border border-border/40 bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 cursor-pointer overflow-hidden"
+                className="group relative rounded-2xl border border-border bg-card hover:border-primary hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer overflow-hidden ring-1 ring-border/50"
                 onClick={() => router.push(`/orders/${order.id}`)}
               >
                 {/* Status indicator line */}
