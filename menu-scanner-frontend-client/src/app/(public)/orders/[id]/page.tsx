@@ -124,7 +124,7 @@ export default function OrderDetailPage() {
         // Fetch order details
         const orderResult = await dispatch(fetchOrderDetailsService(orderId)).unwrap();
 
-        // Fetch order statuses (filtered to ACTIVE only)
+        // Fetch order statuses (filtered to ACTIVE only, sorted by order on backend)
         const statusResult = await dispatch(
           fetchAllOrderStatusService({
             businessId: AppDefault.BUSINESS_ID,
@@ -134,10 +134,8 @@ export default function OrderDetailPage() {
           })
         ).unwrap();
 
-        // Sort statuses by order (create copy to avoid mutating immutable array)
-        const sortedStatuses = [...(statusResult.content || [])].sort((a: any, b: any) =>
-          (a.order || 0) - (b.order || 0)
-        );
+        // Statuses are already sorted by order field on the backend
+        const sortedStatuses = statusResult.content || [];
 
         setState((prev) => ({
           ...prev,
