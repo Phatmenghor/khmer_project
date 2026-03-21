@@ -404,18 +404,10 @@ export default function OrdersPage() {
                 <div className="p-4 sm:p-5">
                   {/* Top row: Order Number, Items Count, Status */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="p-2.5 rounded-lg shrink-0 flex items-center justify-center bg-gray-100 dark:bg-gray-900/30">
-                        <Package className="h-5 w-5 text-gray-700 dark:text-gray-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                          Order
-                        </p>
-                        <p className="text-sm sm:text-base font-bold text-foreground truncate">
-                          {order.orderNumber}
-                        </p>
-                      </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm sm:text-base font-bold text-foreground truncate">
+                        {order.orderNumber}
+                      </p>
                     </div>
                     <div className="flex items-center gap-3 sm:flex-col-reverse sm:items-end">
                       <div className="flex items-center gap-1.5">
@@ -430,29 +422,18 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  {/* Date Created */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <Calendar className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(order.createdAt).toLocaleDateString()} • {new Date(order.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </p>
-                  </div>
-
                   {/* Delivery Address */}
                   <div className="flex items-start gap-2.5 mb-3 pb-3 border-b border-border/50">
                     <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Delivery
-                      </p>
                       <p className="text-sm text-foreground leading-snug truncate" title={deliveryAddress}>
                         {deliveryAddress || "No address provided"}
                       </p>
                     </div>
                   </div>
 
-                  {/* Bottom row: Total Price and View Details Button */}
-                  <div className="flex items-center justify-between">
+                  {/* Bottom row: Total Price, Date, and View Details Button */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div className="flex items-baseline gap-2">
                       <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         Total
@@ -460,6 +441,12 @@ export default function OrdersPage() {
                       <span className="text-lg sm:text-xl font-bold text-primary">
                         {formatCurrency(order.pricing?.finalTotal || 0)}
                       </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                      <p>
+                        {new Date(order.createdAt).toLocaleDateString()} • {new Date(order.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </p>
                     </div>
                     <CustomButton
                       variant="ghost"
