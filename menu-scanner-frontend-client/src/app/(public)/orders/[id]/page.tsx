@@ -134,8 +134,8 @@ export default function OrderDetailPage() {
           })
         ).unwrap();
 
-        // Sort statuses by order
-        const sortedStatuses = (statusResult.content || []).sort((a: any, b: any) =>
+        // Sort statuses by order (create copy to avoid mutating immutable array)
+        const sortedStatuses = [...(statusResult.content || [])].sort((a: any, b: any) =>
           (a.order || 0) - (b.order || 0)
         );
 
