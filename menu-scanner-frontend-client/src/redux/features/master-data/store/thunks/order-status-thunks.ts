@@ -74,3 +74,16 @@ export const deleteOrderStatusService = createApiThunk<any, string>(
     return response.data.data;
   },
 );
+
+/**
+ * Fetch Initial OrderStatus for a business
+ */
+export const fetchInitialOrderStatusService = createApiThunk<any, string>(
+  "order-status/fetchInitial",
+  async (businessId) => {
+    const response = await axiosClientWithAuth.get(
+      `/api/v1/order-process-statuses/business/${businessId}/initial`,
+    );
+    return response.data.data;
+  },
+);

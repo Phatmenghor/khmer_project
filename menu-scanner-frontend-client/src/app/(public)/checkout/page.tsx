@@ -39,8 +39,7 @@ import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { useOrderStatusState } from "@/redux/features/master-data/store/state/order-status-state";
-import { fetchAllOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
+import { fetchInitialOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -73,11 +72,11 @@ export default function CheckoutPage() {
   const { locations: addresses } = useLocationState();
   const { deliveryOptionsContent: deliveryOptions } = useDeliveryOptionsState();
   const { paymentOptionsContent: paymentOptions } = usePaymentOptionsState();
-  const { orderStatusContent: orderStatuses } = useOrderStatusState();
 
   const [mounted, setMounted] = useState(false);
   const [defaultAddress, setDefaultAddress] = useState<LocationResponse | null>(null);
   const [loadingDefaults, setLoadingDefaults] = useState(false);
+  const [initialOrderStatus, setInitialOrderStatus] = useState<string>("Pending");
 
   const [checkoutState, setCheckoutState] = useState<CheckoutState>({
     selectedAddressId: null,
@@ -114,16 +113,16 @@ export default function CheckoutPage() {
         }
       }
 
-      // Fetch order statuses
+      // Fetch initial order status for this business
       try {
-        await dispatch(
-          fetchAllOrderStatusService({
-            pageNo: 1,
-            pageSize: 100,
-          })
+        const initialStatus = await dispatch(
+          fetchInitialOrderStatusService(AppDefault.BUSINESS_ID)
         ).unwrap();
-      } catch (error) {
-        console.error("Failed to fetch order statuses:", error);
+        setInitialOrderStatus(initialStatus.name);
+      } catch (error: any) {
+        // If no initial status is set, default to "Pending"
+        console.warn("No initial order status found, using default:", error);
+        setInitialOrderStatus("Pending");
       }
 
       setLoadingDefaults(false);
@@ -215,19 +214,6 @@ export default function CheckoutPage() {
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
-      // Get the initial order status marked by admin
-      let initialOrderStatus = "Pending"; // Default fallback
-      if (orderStatuses && orderStatuses.length > 0) {
-        // First, try to find the status marked as initial
-        const initialStatus = orderStatuses.find((status) => status.isInitial);
-        if (initialStatus) {
-          initialOrderStatus = initialStatus.name;
-        } else {
-          // Fallback to first status if no initial status is marked
-          initialOrderStatus = orderStatuses[0].name;
-        }
-      }
-
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
         deliveryAddress: {
