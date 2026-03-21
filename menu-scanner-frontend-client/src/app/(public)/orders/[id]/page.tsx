@@ -34,6 +34,7 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
+import { PageHeader } from "@/components/shared/common/page-header";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
@@ -295,36 +296,29 @@ export default function OrderDetailPage() {
 
   return (
     <PageContainer className="py-6 sm:py-8">
-      {/* Back Button & Header */}
-      <div className="mb-8">
+      {/* Back Button */}
+      <div className="mb-6">
         <CustomButton
           variant="ghost"
-          className="gap-2 h-10 px-4 rounded-lg mb-6"
+          className="gap-2 h-10 px-4 rounded-lg"
           onClick={() => router.back()}
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Orders
         </CustomButton>
+      </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Order #{order.orderNumber}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Placed on{" "}
-              {new Date(order.createdAt).toLocaleDateString([], {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
-          </div>
+      {/* Header */}
+      <PageHeader
+        title={`Order #${order.orderNumber}`}
+        icon={Package}
+        subtitle={`${formatCurrency(order.pricing?.finalTotal || 0)} • ${order.items?.length || 0} item${(order.items?.length || 0) !== 1 ? "s" : ""}`}
+        actions={
           <div className={cn("px-4 py-2 rounded-xl font-semibold text-sm whitespace-nowrap", statusColor.bg, statusColor.text)}>
             {order.orderProcessStatus?.name || "Unknown"}
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
