@@ -13,3 +13,5 @@ export const useMyOrdersState = () => {
     loadedFilters: useAppSelector((state) => state.myOrders.loadedFilters),
   };
 };
+
+export * from "../slice/my-orders-slice";

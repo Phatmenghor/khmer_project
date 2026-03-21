@@ -13,7 +13,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { useMyOrdersState } from "@/redux/features/main/store/state/my-orders-state";
+import { useMyOrdersState, setStatusTabs, setStatusesLoading, setStatusesError } from "@/redux/features/main/store/state/my-orders-state";
 import { fetchMyOrdersService } from "@/redux/features/main/store/thunks/my-orders-thunks";
 import { fetchAllOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
 import { setLoadedFilters, clearOrders } from "@/redux/features/main/store/slice/my-orders-slice";
@@ -83,14 +83,29 @@ export default function OrdersPage() {
     if (!authReady || !isAuthenticated || !mounted) return;
     if (loading.statuses || statusTabs.length > 0) return; // Already loading or loaded
 
-    dispatch(
-      fetchAllOrderStatusService({
-        businessId: AppDefault.BUSINESS_ID,
-        statuses: ["ACTIVE"],
-        pageNo: 1,
-        pageSize: 100,
-      })
-    );
+    const fetchStatuses = async () => {
+      dispatch(setStatusesLoading(true));
+      try {
+        const result = await dispatch(
+          fetchAllOrderStatusService({
+            businessId: AppDefault.BUSINESS_ID,
+            statuses: ["ACTIVE"],
+            pageNo: 1,
+            pageSize: 100,
+          })
+        ).unwrap();
+
+        dispatch(setStatusTabs(result.content || []));
+        dispatch(setStatusesError(null));
+      } catch (error: any) {
+        console.error("Failed to fetch order statuses:", error);
+        dispatch(setStatusesError(error?.message || "Failed to load statuses"));
+      } finally {
+        dispatch(setStatusesLoading(false));
+      }
+    };
+
+    fetchStatuses();
   }, [mounted, authReady, isAuthenticated, dispatch, loading.statuses, statusTabs.length]);
 
   // Build display tabs from Redux status tabs

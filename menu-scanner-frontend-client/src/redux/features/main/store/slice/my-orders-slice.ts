@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { OrderResponse } from "../models/response/order-response";
-import { fetchMyOrdersService, fetchAllOrderStatusService } from "../thunks/my-orders-thunks";
+import { fetchMyOrdersService } from "../thunks/my-orders-thunks";
 
 interface OrderStatusTab {
   id: string;
@@ -57,6 +57,18 @@ const myOrdersSlice = createSlice({
       state.loadedFilters = action.payload;
     },
 
+    setStatusTabs: (state, action: PayloadAction<OrderStatusTab[]>) => {
+      state.statusTabs = action.payload;
+    },
+
+    setStatusesLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading.statuses = action.payload;
+    },
+
+    setStatusesError: (state, action: PayloadAction<string | null>) => {
+      state.error.statuses = action.payload;
+    },
+
     clearOrders: (state) => {
       state.orders = [];
       state.pagination = initialState.pagination;
@@ -95,27 +107,14 @@ const myOrdersSlice = createSlice({
         state.loading.list = false;
         state.error.list = action.payload as string;
       });
-
-    // Fetch Order Status Tabs
-    builder
-      .addCase(fetchAllOrderStatusService.pending, (state) => {
-        state.loading.statuses = true;
-        state.error.statuses = null;
-      })
-      .addCase(fetchAllOrderStatusService.fulfilled, (state, action) => {
-        const statuses = action.payload.content || [];
-        state.statusTabs = statuses;
-        state.loading.statuses = false;
-      })
-      .addCase(fetchAllOrderStatusService.rejected, (state, action) => {
-        state.loading.statuses = false;
-        state.error.statuses = action.payload as string;
-      });
   },
 });
 
 export const {
   setLoadedFilters,
+  setStatusTabs,
+  setStatusesLoading,
+  setStatusesError,
   clearOrders,
   resetMyOrdersState,
 } = myOrdersSlice.actions;
