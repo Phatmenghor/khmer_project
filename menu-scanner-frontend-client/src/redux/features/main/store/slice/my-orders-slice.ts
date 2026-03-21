@@ -86,19 +86,31 @@ const myOrdersSlice = createSlice({
       })
       .addCase(fetchMyOrdersService.fulfilled, (state, action) => {
         const newOrders = action.payload.content || [];
+        const pageNo = action.payload.pageNo || 1;
+        const pageSize = action.payload.pageSize || 15;
 
-        // Sort orders by order process status order
-        const sortedOrders = [...newOrders].sort((a, b) => {
+        // Sort new orders by order process status order
+        const sortedNewOrders = [...newOrders].sort((a, b) => {
           const orderA = a.orderProcessStatus?.order || 0;
           const orderB = b.orderProcessStatus?.order || 0;
           return orderA - orderB;
         });
 
-        state.orders = sortedOrders;
+        // For infinite scroll: append on page > 1, replace on page 1
+        if (pageNo === 1) {
+          // First page: replace all orders
+          state.orders = sortedNewOrders;
+        } else {
+          // Load more: append new orders, deduplicating by ID
+          const existingIds = new Set(state.orders.map((o) => o.id));
+          const uniqueNew = sortedNewOrders.filter((o) => !existingIds.has(o.id));
+          state.orders = [...state.orders, ...uniqueNew];
+        }
+
         state.loading.list = false;
         state.pagination = {
-          currentPage: action.payload.pageNo || 1,
-          pageSize: action.payload.pageSize || 15,
+          currentPage: pageNo,
+          pageSize: pageSize,
           totalPages: action.payload.totalPages || 0,
           totalElements: action.payload.totalElements || 0,
         };
