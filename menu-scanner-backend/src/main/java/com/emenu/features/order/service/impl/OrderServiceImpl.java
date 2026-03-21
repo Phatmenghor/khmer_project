@@ -100,7 +100,9 @@ public class OrderServiceImpl implements OrderService {
             log.info("✅ [CHECKOUT SUCCESS] Order created successfully: {} - Fetching full response...", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
             log.info("🎉 [CHECKOUT COMPLETE] Order #{} - Total: {}, Items: {}",
-                response.getOrderNumber(), response.getTotalAmount(), response.getItems().size());
+                response.getOrderNumber(),
+                response.getPricing() != null ? response.getPricing().getFinalTotal() : "N/A",
+                response.getItems().size());
             return response;
         } catch (Exception e) {
             log.error("❌ [CHECKOUT ERROR] Failed to create order: {}", e.getMessage(), e);
