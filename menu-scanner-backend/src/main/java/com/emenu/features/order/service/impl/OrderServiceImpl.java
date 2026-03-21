@@ -136,6 +136,12 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse getOrderById(UUID orderId) {
         Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
+
+        // Load statusHistory separately to avoid MultipleBagFetchException
+        // This ensures OrderProcessStatus and changedByUser are eagerly loaded
+        List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(orderId);
+        order.setStatusHistory(statusHistory);
+
         return orderMapper.toResponse(order);
     }
 
@@ -451,16 +457,21 @@ public class OrderServiceImpl implements OrderService {
                     .orElse(null);
 
             if (status != null) {
+                // Get user who created the order for the history record
+                User user = securityUtils.getCurrentUser();
+                String changedByName = user != null ? user.getFullName() : "System";
+
                 // Create initial status history entry to track order creation
                 OrderStatusHistory history = new OrderStatusHistory();
                 history.setOrderId(order.getId());
                 history.setOrderProcessStatusId(status.getId());
                 history.setChangedByUserId(userId);
+                history.setChangedByName(changedByName);  // Snapshot of user's name at time of change
                 history.setNote("Order created from checkout");
 
                 orderStatusHistoryRepository.save(history);
-                log.debug("✅ [STATUS HISTORY] Created initial status history for order: {} with status: {}",
-                    order.getOrderNumber(), status.getName());
+                log.debug("✅ [STATUS HISTORY] Created initial status history for order: {} with status: {} by user: {}",
+                    order.getOrderNumber(), status.getName(), changedByName);
             }
         } catch (Exception e) {
             log.warn("⚠️  [STATUS HISTORY] Failed to create initial status history: {}", e.getMessage());

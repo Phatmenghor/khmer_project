@@ -1,6 +1,7 @@
 package com.emenu.features.order.repository;
 
 import com.emenu.features.order.models.Order;
+import com.emenu.features.order.models.OrderStatusHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,6 +28,16 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
            "LEFT JOIN FETCH o.customer " +
            "WHERE o.id = :id AND o.isDeleted = false")
     Optional<Order> findByIdWithDetails(@Param("id") UUID id);
+
+    /**
+     * Finds status history for an order with OrderProcessStatus and changed by user eagerly fetched
+     */
+    @Query("SELECT h FROM OrderStatusHistory h " +
+           "LEFT JOIN FETCH h.orderProcessStatus " +
+           "LEFT JOIN FETCH h.changedByUser " +
+           "WHERE h.orderId = :orderId " +
+           "ORDER BY h.createdAt ASC")
+    List<OrderStatusHistory> findStatusHistoryByOrderId(@Param("orderId") UUID orderId);
 
     /**
      * Finds all non-deleted orders by customer ID, ordered by creation date descending
