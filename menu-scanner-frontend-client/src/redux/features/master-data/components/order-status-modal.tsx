@@ -82,6 +82,7 @@ export default function OrderStatusModal({
     defaultValues: {
       name: "",
       description: "",
+      order: 1,
       status: Status.ACTIVE,
       isInitial: false,
     },
@@ -93,6 +94,7 @@ export default function OrderStatusModal({
       reset({
         name: "",
         description: "",
+        order: 1,
         status: Status.ACTIVE,
         isInitial: false,
       });
@@ -115,6 +117,7 @@ export default function OrderStatusModal({
           reset({
             name: data?.name || "",
             description: data?.description || "",
+            order: data?.order || 1,
             status: data?.status || "",
             isInitial: data?.isInitial || false,
           });
@@ -139,6 +142,7 @@ export default function OrderStatusModal({
       const payload: CreateOrderStatusData = {
         name: data?.name || "",
         description: data?.description || "",
+        order: data?.order || 1,
         status: data.status,
         isInitial: data?.isInitial || false,
       };
@@ -214,7 +218,7 @@ export default function OrderStatusModal({
                   </h3>
 
                   {/* Order Status Details Grid */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <TextField
                       control={control}
                       name="name"
@@ -222,6 +226,16 @@ export default function OrderStatusModal({
                       placeholder="Enter name order status"
                       disabled={isProcessing}
                       error={errors.name}
+                    />
+
+                    <TextField
+                      control={control}
+                      name="order"
+                      label="Sort Order"
+                      placeholder="1"
+                      type="number"
+                      disabled={isProcessing}
+                      error={errors.order}
                     />
 
                     <SelectField

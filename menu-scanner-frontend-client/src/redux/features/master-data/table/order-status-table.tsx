@@ -81,6 +81,18 @@ export const orderStatusTableColumns = ({
     },
 
     {
+      key: "order",
+      label: "Sort Order",
+      minWidth: "10px",
+      maxWidth: "100px",
+      render: (orderStatus) => (
+        <span className="text-xs font-semibold text-primary">
+          {orderStatus?.order || "---"}
+        </span>
+      ),
+    },
+
+    {
       key: "isInitial",
       label: "Initial",
       minWidth: "10px",
