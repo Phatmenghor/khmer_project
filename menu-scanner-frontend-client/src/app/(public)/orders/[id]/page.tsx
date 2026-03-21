@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { OrderStatus, getOrderStatusLabel, getOrderStatusColor } from "@/enums/order-status.enum";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -29,7 +30,6 @@ import {
   fetchOrderDetailsService,
   cancelOrderService,
 } from "@/redux/features/main/store/thunks/my-orders-thunks";
-import { fetchAllOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -193,7 +193,7 @@ export default function OrderDetailPage() {
   };
 
   const handleCancelOrder = async () => {
-    if (!state.order || state.order.orderProcessStatus?.name === "CANCELLED") {
+    if (!state.order || state.order.orderStatus === "CANCELLED") {
       return;
     }
 
@@ -223,8 +223,8 @@ export default function OrderDetailPage() {
 
   const canCancel =
     state.order &&
-    (state.order.orderProcessStatus?.name === "PENDING" ||
-      state.order.orderProcessStatus?.name === "CONFIRMED");
+    (state.order.orderStatus === "PENDING" ||
+      state.order.orderStatus === "CONFIRMED");
 
   const getStatusPosition = (status: string | null): number => {
     if (!status) return -1;
@@ -275,10 +275,10 @@ export default function OrderDetailPage() {
 
   const order = state.order;
   const statusColor =
-    STATUS_COLORS[order.orderProcessStatus?.name || "PENDING"] ||
+    STATUS_COLORS[order.orderStatus || "PENDING"] ||
     STATUS_COLORS.PENDING;
   const currentStatusPosition = getStatusPosition(
-    order.orderProcessStatus?.name || null
+    order.orderStatus || null
   );
 
   const formattedDeliveryAddress = [

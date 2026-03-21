@@ -13,9 +13,9 @@ import {
   Calendar,
 } from "lucide-react";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { useMyOrdersState, setStatusTabs, setStatusesLoading, setStatusesError } from "@/redux/features/main/store/state/my-orders-state";
+import { useMyOrdersState } from "@/redux/features/main/store/state/my-orders-state";
 import { fetchMyOrdersService } from "@/redux/features/main/store/thunks/my-orders-thunks";
-import { fetchAllOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
+
 import { setLoadedFilters, clearOrders } from "@/redux/features/main/store/slice/my-orders-slice";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
@@ -26,6 +26,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { OrderStatus, getOrderStatusLabel, getOrderStatusColor } from "@/enums/order-status.enum";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 
 type Order = OrderResponse;
@@ -87,17 +88,6 @@ export default function OrdersPage() {
       dispatch(setStatusesLoading(true));
       try {
         const result = await dispatch(
-          fetchAllOrderStatusService({
-            businessId: AppDefault.BUSINESS_ID,
-            statuses: ["ACTIVE"],
-            pageNo: 1,
-            pageSize: 100,
-          })
-        ).unwrap();
-
-        dispatch(setStatusTabs(result.content || []));
-        dispatch(setStatusesError(null));
-      } catch (error: any) {
         console.error("Failed to fetch order statuses:", error);
         dispatch(setStatusesError(error?.message || "Failed to load statuses"));
       } finally {
@@ -378,7 +368,7 @@ export default function OrdersPage() {
                     </div>
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-primary/10 text-primary border border-primary/20">
                       <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                      {order.orderProcessStatus?.name || "Unknown"}
+                      {order.orderStatus || "Unknown"}
                     </div>
                   </div>
 

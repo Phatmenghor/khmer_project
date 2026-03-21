@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { OrderStatus } from "@/enums/order-status.enum";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -40,7 +41,6 @@ import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { fetchInitialOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -119,10 +119,6 @@ export default function CheckoutPage() {
       // Production: Will get businessId from subdomain routing
       try {
         const initialStatus = await dispatch(
-          fetchInitialOrderStatusService(AppDefault.BUSINESS_ID)
-        ).unwrap();
-        setInitialOrderStatus(initialStatus.name);
-      } catch (error: any) {
         // If no initial status is set, default to "Pending"
         console.warn("No initial order status found, using default:", error);
         setInitialOrderStatus("Pending");
@@ -273,7 +269,7 @@ export default function CheckoutPage() {
           paymentStatus: "PENDING" as const,
         },
         customerNote: checkoutState.customerNote,
-        orderProcessStatusName: initialOrderStatus,
+        
       };
 
       console.log("🛒 Checkout Payload:", checkoutPayload);
@@ -287,7 +283,7 @@ export default function CheckoutPage() {
           orderNumber: orderResult.orderNumber,
           total: orderResult.pricing?.finalTotal,
           paymentStatus: orderResult.payment?.paymentStatus,
-          orderStatus: orderResult.orderProcessStatus?.name,
+          orderStatus: orderResult.orderStatus?.name,
           statusHistory: orderResult.statusHistory?.length || 0,
         });
       }
