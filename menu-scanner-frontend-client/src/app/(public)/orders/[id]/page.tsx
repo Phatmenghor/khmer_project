@@ -312,12 +312,6 @@ export default function OrderDetailPage() {
       <PageHeader
         title="Order Details"
         icon={Package}
-        subtitle={order.orderProcessStatus?.name || "Unknown"}
-        actions={
-          <div className={cn("px-4 py-2 rounded-xl font-semibold text-sm whitespace-nowrap", statusColor.bg, statusColor.text)}>
-            {order.orderProcessStatus?.name || "Unknown"}
-          </div>
-        }
       />
 
       {/* Main Content Grid */}
@@ -375,42 +369,25 @@ export default function OrderDetailPage() {
                 </div>
               </div>
 
-              {/* Status & Payment Status */}
-              <div className="grid grid-cols-2 gap-4 pb-4 border-b border-border/50">
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                    Status
-                  </p>
-                  <div
-                    className={cn(
-                      "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-xs",
-                      statusColor.bg,
-                      statusColor.text
-                    )}
-                  >
-                    {statusColor.icon}
-                    {order.orderProcessStatus?.name || "Unknown"}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                    Payment Status
-                  </p>
-                  <div
-                    className={cn(
-                      "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-xs",
-                      order.payment?.paymentStatus === "PAID"
-                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                        : order.payment?.paymentStatus === "PENDING"
-                          ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
-                          : "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400"
-                    )}
-                  >
-                    {order.payment?.paymentStatus === "PAID" && (
-                      <Check className="h-3.5 w-3.5" />
-                    )}
-                    {order.payment?.paymentStatus || "Unknown"}
-                  </div>
+              {/* Payment Status Only */}
+              <div className="pb-4 border-b border-border/50">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  Payment Status
+                </p>
+                <div
+                  className={cn(
+                    "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-xs",
+                    order.payment?.paymentStatus === "PAID"
+                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                      : order.payment?.paymentStatus === "PENDING"
+                        ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                        : "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400"
+                  )}
+                >
+                  {order.payment?.paymentStatus === "PAID" && (
+                    <Check className="h-3.5 w-3.5" />
+                  )}
+                  {order.payment?.paymentStatus || "Unknown"}
                 </div>
               </div>
 
