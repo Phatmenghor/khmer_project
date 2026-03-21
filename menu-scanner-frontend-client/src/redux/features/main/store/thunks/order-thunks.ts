@@ -6,6 +6,7 @@
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
 import { PaymentOptionType } from "@/redux/features/master-data/store/models/response/payment-option-response";
+import { OrderResponse } from "../models/response/order-response";
 
 export interface CheckoutPayload {
   businessId: string;
@@ -67,7 +68,7 @@ export interface CheckoutPayload {
 /**
  * Create a new order from checkout
  */
-export const createOrderService = createApiThunk<any, CheckoutPayload>(
+export const createOrderService = createApiThunk<OrderResponse, CheckoutPayload>(
   "order/create",
   async (payload) => {
     const response = await axiosClientWithAuth.post(
@@ -81,7 +82,7 @@ export const createOrderService = createApiThunk<any, CheckoutPayload>(
 /**
  * Fetch order by ID
  */
-export const fetchOrderByIdService = createApiThunk<any, string>(
+export const fetchOrderByIdService = createApiThunk<OrderResponse, string>(
   "order/fetchById",
   async (id) => {
     const response = await axiosClientWithAuth.get(

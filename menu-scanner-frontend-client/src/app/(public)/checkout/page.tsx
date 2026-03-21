@@ -25,6 +25,7 @@ import { useDeliveryOptionsState } from "@/redux/features/master-data/store/stat
 import { useAppDispatch } from "@/redux/store";
 import { fetchDefaultAddressService } from "@/redux/features/location/store/thunks/location-thunks";
 import { createOrderService, CheckoutPayload } from "@/redux/features/main/store/thunks/order-thunks";
+import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
 import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -274,7 +275,18 @@ export default function CheckoutPage() {
       console.log("🛒 Checkout Payload:", checkoutPayload);
 
       // Call API endpoint to create order
-      const orderResult = await dispatch(createOrderService(checkoutPayload)).unwrap();
+      const orderResult: OrderResponse = await dispatch(createOrderService(checkoutPayload)).unwrap();
+
+      // Log successful order creation with details
+      if (orderResult?.orderNumber) {
+        console.log("✅ Order created:", {
+          orderNumber: orderResult.orderNumber,
+          total: orderResult.pricing?.finalTotal,
+          paymentStatus: orderResult.payment?.paymentStatus,
+          orderStatus: orderResult.orderProcessStatus?.name,
+          statusHistory: orderResult.statusHistory?.length || 0,
+        });
+      }
 
       showToast.success("✅ Order placed successfully! Redirecting...");
 
@@ -283,8 +295,21 @@ export default function CheckoutPage() {
         router.push("/orders");
       }, 1500);
     } catch (error: any) {
-      console.error("Checkout error:", error);
-      showToast.error(error?.message || "Failed to complete checkout");
+      // Log detailed error information
+      console.error("Checkout error details:", {
+        message: error?.message,
+        status: error?.response?.status,
+        data: error?.response?.data,
+        error: error,
+      });
+
+      // Show user-friendly error message
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to complete checkout. Please try again.";
+
+      showToast.error(errorMessage);
     } finally {
       setCheckoutState((prev) => ({ ...prev, isProcessing: false }));
     }
