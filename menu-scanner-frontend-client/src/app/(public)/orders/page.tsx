@@ -79,25 +79,6 @@ export default function OrdersPage() {
     businessId: profile?.businessId || AppDefault.BUSINESS_ID,
   });
 
-  // Fetch order statuses
-  useEffect(() => {
-    if (!authReady || !isAuthenticated || !mounted) return;
-    if (loading.statuses || statusTabs.length > 0) return; // Already loading or loaded
-
-    const fetchStatuses = async () => {
-      dispatch(setStatusesLoading(true));
-      try {
-        const result = await dispatch(
-        console.error("Failed to fetch order statuses:", error);
-        dispatch(setStatusesError(error?.message || "Failed to load statuses"));
-      } finally {
-        dispatch(setStatusesLoading(false));
-      }
-    };
-
-    fetchStatuses();
-  }, [mounted, authReady, isAuthenticated, dispatch, loading.statuses, statusTabs.length]);
-
   // Build display tabs from Redux status tabs
   useEffect(() => {
     const tabs: StatusTab[] = [
