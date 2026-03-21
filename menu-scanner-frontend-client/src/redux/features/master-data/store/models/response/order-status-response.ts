@@ -15,4 +15,5 @@ export interface OrderStatusResponseModel {
   name: string;
   description: string;
   status: string;
+  isInitial?: boolean; // Mark as initial status for new orders
 }

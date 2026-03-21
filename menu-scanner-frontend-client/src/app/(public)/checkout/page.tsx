@@ -215,10 +215,18 @@ export default function CheckoutPage() {
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
-      // Get the first available order status (should use the initial status)
-      const initialOrderStatus = orderStatuses && orderStatuses.length > 0
-        ? orderStatuses[0].statusName
-        : "PENDING";
+      // Get the initial order status marked by admin
+      let initialOrderStatus = "Pending"; // Default fallback
+      if (orderStatuses && orderStatuses.length > 0) {
+        // First, try to find the status marked as initial
+        const initialStatus = orderStatuses.find((status) => status.isInitial);
+        if (initialStatus) {
+          initialOrderStatus = initialStatus.name;
+        } else {
+          // Fallback to first status if no initial status is marked
+          initialOrderStatus = orderStatuses[0].name;
+        }
+      }
 
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
