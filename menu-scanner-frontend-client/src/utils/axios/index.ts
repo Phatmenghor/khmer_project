@@ -334,6 +334,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
   const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
     timeout: requiresAuth ? 60000 : 30000, // Increase timeout for auth requests (product queries)
+    withCredentials: true, // Send cookies with requests
     headers: {
       "Content-Type": "application/json",
     },
