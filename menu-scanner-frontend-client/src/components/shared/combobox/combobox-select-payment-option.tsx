@@ -85,7 +85,7 @@ export function ComboboxSelectPayment({
         fetchAllPaymentOptionsService({
           search,
           pageNo: newPage,
-          pageSize: 20,
+          pageSize: 15,
         })
       ).unwrap();
 

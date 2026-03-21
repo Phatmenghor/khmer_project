@@ -91,7 +91,7 @@ export function ComboboxSelectDelivery({
         fetchAllDeliveryOptionsService({
           search,
           pageNo: newPage,
-          pageSize: 20,
+          pageSize: 15,
           ...(businessId && { businessId }),
           ...(statuses && { statuses }),
         })

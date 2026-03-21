@@ -86,7 +86,7 @@ export function ComboboxSelectCommune({
         fetchCommunesService({
           search,
           pageNo: newPage,
-          pageSize: 10,
+          pageSize: 15,
           districtCode,
         })
       ).unwrap();

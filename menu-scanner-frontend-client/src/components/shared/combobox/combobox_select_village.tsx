@@ -86,7 +86,7 @@ export function ComboboxSelectVillage({
         fetchVillagesService({
           search,
           pageNo: newPage,
-          pageSize: 10,
+          pageSize: 15,
           communeCode,
         })
       ).unwrap();

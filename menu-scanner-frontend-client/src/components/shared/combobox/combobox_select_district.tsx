@@ -86,7 +86,7 @@ export function ComboboxSelectDistrict({
         fetchDistrictsService({
           search,
           pageNo: newPage,
-          pageSize: 10,
+          pageSize: 15,
           provinceCode,
         })
       ).unwrap();

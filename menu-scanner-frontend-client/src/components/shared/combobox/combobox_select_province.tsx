@@ -80,7 +80,7 @@ export function ComboboxSelectProvince({
     setLoading(true);
     try {
       const result = await dispatch(
-        fetchProvincesService({ search, pageNo: newPage, pageSize: 10 })
+        fetchProvincesService({ search, pageNo: newPage, pageSize: 15 })
       ).unwrap();
 
       if (!result) return;

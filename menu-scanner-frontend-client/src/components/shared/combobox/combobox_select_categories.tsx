@@ -103,7 +103,7 @@ export function ComboboxSelectCategories({
         fetchAllCategoriesService({
           search,
           pageNo: newPage,
-          pageSize: 10,
+          pageSize: 15,
         })
       ).unwrap();
 
