@@ -29,6 +29,8 @@ import {
   fetchOrderDetailsService,
   cancelOrderService,
 } from "@/redux/features/main/store/thunks/my-orders-thunks";
+import { fetchAllOrderStatusService } from "@/redux/features/master-data/store/thunks/order-status-thunks";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -79,19 +81,19 @@ const STATUS_COLORS: Record<
   },
 };
 
-const STATUS_TIMELINE = [
-  { key: "PENDING", label: "Pending", position: 0 },
-  { key: "CONFIRMED", label: "Confirmed", position: 1 },
-  { key: "PROCESSING", label: "Processing", position: 2 },
-  { key: "SHIPPED", label: "Shipped", position: 3 },
-  { key: "DELIVERED", label: "Delivered", position: 4 },
-];
+// Status timeline will be fetched from API
+interface StatusTimelineItem {
+  id: string;
+  name: string;
+  order: number;
+}
 
 interface OrderDetailState {
   order: OrderResponse | null;
   loading: boolean;
   error: string | null;
   cancelling: boolean;
+  statusTimeline: StatusTimelineItem[];
 }
 
 export default function OrderDetailPage() {
@@ -105,22 +107,42 @@ export default function OrderDetailPage() {
     loading: true,
     error: null,
     cancelling: false,
+    statusTimeline: [],
   });
 
   const [copied, setCopied] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-  // Fetch order details
+  // Fetch order details and status timeline
   useEffect(() => {
     if (!orderId) return;
 
     const fetchOrderDetails = async () => {
       try {
         setState((prev) => ({ ...prev, loading: true, error: null }));
-        const result = await dispatch(fetchOrderDetailsService(orderId)).unwrap();
+
+        // Fetch order details
+        const orderResult = await dispatch(fetchOrderDetailsService(orderId)).unwrap();
+
+        // Fetch order statuses (filtered to ACTIVE only)
+        const statusResult = await dispatch(
+          fetchAllOrderStatusService({
+            businessId: AppDefault.BUSINESS_ID,
+            statuses: ["ACTIVE"],
+            pageNo: 1,
+            pageSize: 100,
+          })
+        ).unwrap();
+
+        // Sort statuses by order
+        const sortedStatuses = (statusResult.content || []).sort((a: any, b: any) =>
+          (a.order || 0) - (b.order || 0)
+        );
+
         setState((prev) => ({
           ...prev,
-          order: result,
+          order: orderResult,
+          statusTimeline: sortedStatuses,
           loading: false,
         }));
       } catch (error: any) {
@@ -206,8 +228,9 @@ export default function OrderDetailPage() {
       state.order.orderProcessStatus?.name === "CONFIRMED");
 
   const getStatusPosition = (status: string | null): number => {
-    const statusEntry = STATUS_TIMELINE.find((s) => s.key === status);
-    return statusEntry?.position ?? -1;
+    if (!status) return -1;
+    const statusEntry = state.statusTimeline.find((s) => s.name === status);
+    return statusEntry?.order ?? -1;
   };
 
   if (state.loading) {
@@ -421,95 +444,78 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Status Timeline */}
+          {/* Order Timeline - Horizontal Steps */}
           <div className="rounded-2xl border border-border/50 bg-card p-6">
             <h2 className="text-lg font-bold text-foreground mb-6">
-              Order Timeline
+              Order Progress
             </h2>
 
-            <div className="space-y-4">
-              {STATUS_TIMELINE.map((status, index) => {
-                const isCompleted = currentStatusPosition >= status.position;
-                const isCurrent = currentStatusPosition === status.position;
-                const statusHistory = order.statusHistory?.find(
-                  (h) => h.statusName === status.key
-                );
+            {state.statusTimeline.length > 0 ? (
+              <div className="overflow-x-auto">
+                <div className="flex items-center gap-2 pb-4 min-w-max">
+                  {state.statusTimeline.map((status, index) => {
+                    const statusOrder = status.order || 0;
+                    const isCompleted = currentStatusPosition >= statusOrder;
+                    const isCurrent = currentStatusPosition === statusOrder;
+                    const statusHistory = order.statusHistory?.find(
+                      (h) => h.statusName === status.name
+                    );
 
-                return (
-                  <div key={status.key} className="flex gap-4">
-                    {/* Timeline dot and line */}
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs transition-all",
-                          isCompleted
-                            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                            : isCurrent
-                              ? "bg-primary/20 text-primary border-2 border-primary"
-                              : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {isCompleted ? (
-                          <Check className="h-4 w-4" />
-                        ) : isCurrent ? (
-                          <Zap className="h-4 w-4" />
-                        ) : (
-                          index + 1
+                    return (
+                      <div key={status.id} className="flex items-center">
+                        {/* Status Step */}
+                        <div className="flex flex-col items-center">
+                          <div
+                            className={cn(
+                              "w-12 h-12 rounded-full flex items-center justify-center font-semibold text-sm transition-all ring-2 ring-offset-2 dark:ring-offset-slate-950 flex-shrink-0",
+                              isCompleted
+                                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-200"
+                                : isCurrent
+                                  ? "bg-primary text-primary-foreground ring-primary/50 shadow-lg shadow-primary/20 animate-pulse"
+                                  : "bg-muted text-muted-foreground ring-muted"
+                            )}
+                          >
+                            {isCompleted ? (
+                              <Check className="h-5 w-5" />
+                            ) : isCurrent ? (
+                              <Zap className="h-5 w-5" />
+                            ) : (
+                              status.order
+                            )}
+                          </div>
+                          <span className="text-xs font-semibold text-foreground mt-2 text-center w-16 line-clamp-2">
+                            {status.name}
+                          </span>
+                          {statusHistory && (
+                            <span className="text-xs text-muted-foreground mt-1 text-center w-16">
+                              {new Date(statusHistory.changedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Connector Line */}
+                        {index < state.statusTimeline.length - 1 && (
+                          <div className="mx-2">
+                            <div
+                              className={cn(
+                                "w-8 h-1 transition-colors",
+                                isCompleted
+                                  ? "bg-gradient-to-r from-green-200 to-green-200 dark:from-green-900/50 dark:to-green-900/50"
+                                  : "bg-muted"
+                              )}
+                            />
+                          </div>
                         )}
                       </div>
-                      {index < STATUS_TIMELINE.length - 1 && (
-                        <div
-                          className={cn(
-                            "w-0.5 h-16 mt-2",
-                            isCompleted
-                              ? "bg-green-200 dark:bg-green-900/50"
-                              : "bg-muted"
-                          )}
-                        />
-                      )}
-                    </div>
-
-                    {/* Timeline content */}
-                    <div className="pb-4 flex-1">
-                      <h3 className="font-semibold text-foreground">
-                        {status.label}
-                      </h3>
-                      {statusHistory ? (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {dateTimeFormat(statusHistory.changedAt)}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Pending
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {order.orderProcessStatus?.name === "CANCELLED" && (
-                <div className="flex gap-4 pt-4 border-t border-border/50">
-                  <div className="flex flex-col items-center">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
-                      <XCircle className="h-4 w-4" />
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-red-700 dark:text-red-400">
-                      Order Cancelled
-                    </h3>
-                    {order.statusHistory?.find((h) => h.statusName === "CANCELLED") && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {dateTimeFormat(
-                          order.statusHistory.find((h) => h.statusName === "CANCELLED")?.changedAt
-                        )}
-                      </p>
-                    )}
-                  </div>
+                    );
+                  })}
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                No status timeline available
+              </p>
+            )}
           </div>
 
           {/* Order Items */}
@@ -733,62 +739,6 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="rounded-2xl border border-border/50 bg-card p-6">
-        <h2 className="text-lg font-bold text-foreground mb-4">Actions</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <CustomButton
-            variant="outline"
-            className="h-11 rounded-lg gap-2 font-semibold"
-            onClick={handlePrint}
-          >
-            <Printer className="h-4 w-4" />
-            Print Order
-          </CustomButton>
-
-          <CustomButton
-            variant="outline"
-            className="h-11 rounded-lg gap-2 font-semibold"
-            onClick={handleShare}
-          >
-            <Share2 className="h-4 w-4" />
-            Share Order
-          </CustomButton>
-
-          <CustomButton
-            variant="outline"
-            className="h-11 rounded-lg gap-2 font-semibold sm:col-span-2"
-            onClick={() =>
-              window.location.href = "mailto:support@example.com?subject=Order Support"
-            }
-          >
-            <HelpCircle className="h-4 w-4" />
-            Contact Support
-          </CustomButton>
-
-          {canCancel && (
-            <CustomButton
-              variant="destructive"
-              className="h-11 rounded-lg gap-2 font-semibold sm:col-span-2"
-              onClick={() => setShowCancelConfirm(true)}
-              disabled={state.cancelling}
-            >
-              {state.cancelling ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Cancelling...
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-4 w-4" />
-                  Cancel Order
-                </>
-              )}
-            </CustomButton>
-          )}
-        </div>
-      </div>
 
       {/* Cancel Confirmation Modal */}
       {showCancelConfirm && (
