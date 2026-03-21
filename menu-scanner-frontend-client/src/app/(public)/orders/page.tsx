@@ -147,6 +147,7 @@ export default function OrdersPage() {
             pageSize: ordersState.pagination.pageSize,
             status: filters.status || undefined,
             search: filters.search || undefined,
+            businessId: profile?.businessId || undefined,
           })
         ).unwrap();
 
