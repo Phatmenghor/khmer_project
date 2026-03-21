@@ -89,21 +89,15 @@ const myOrdersSlice = createSlice({
         const pageNo = action.payload.pageNo || 1;
         const pageSize = action.payload.pageSize || 15;
 
-        // Sort new orders by order process status order
-        const sortedNewOrders = [...newOrders].sort((a, b) => {
-          const orderA = a.orderProcessStatus?.order || 0;
-          const orderB = b.orderProcessStatus?.order || 0;
-          return orderA - orderB;
-        });
-
         // For infinite scroll: append on page > 1, replace on page 1
+        // Backend handles all sorting - no frontend sorting
         if (pageNo === 1) {
           // First page: replace all orders
-          state.orders = sortedNewOrders;
+          state.orders = newOrders;
         } else {
           // Load more: append new orders, deduplicating by ID
           const existingIds = new Set(state.orders.map((o) => o.id));
-          const uniqueNew = sortedNewOrders.filter((o) => !existingIds.has(o.id));
+          const uniqueNew = newOrders.filter((o) => !existingIds.has(o.id));
           state.orders = [...state.orders, ...uniqueNew];
         }
 
