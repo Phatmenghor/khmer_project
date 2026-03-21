@@ -333,91 +333,119 @@ export default function CheckoutPage() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8 sm:gap-10">
+      <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-10">
-          {/* Delivery Address */}
-          <div className="space-y-3">
-            <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-primary" />
-              Delivery Address*
-            </label>
-            <ComboboxSelectLocation
-              dataSelect={selectedAddress as any}
-              onChangeSelected={(item) => {
-                if (item) {
+        <div className="lg:col-span-2 space-y-6">
+          {/* Card 1: Selection Inputs */}
+          <div className="bg-card border rounded-2xl p-6 space-y-6">
+            {/* Delivery Address */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
+                Delivery Address*
+              </label>
+              <ComboboxSelectLocation
+                dataSelect={selectedAddress as any}
+                onChangeSelected={(item) => {
+                  if (item) {
+                    setCheckoutState((prev) => ({
+                      ...prev,
+                      selectedAddressId: item.id,
+                    }));
+                  }
+                }}
+                placeholder="Select address..."
+                hasDefault={!!defaultAddress}
+                error={!checkoutState.selectedAddressId ? "Required" : ""}
+                label=""
+              />
+            </div>
+
+            {/* Divider */}
+            <div className="border-t opacity-20" />
+
+            {/* Delivery & Payment Options */}
+            <div className="grid sm:grid-cols-2 gap-6">
+              {/* Delivery Option */}
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-primary" />
+                  Delivery Option*
+                </label>
+                <ComboboxSelectDelivery
+                  dataSelect={selectedDeliveryOption as any}
+                  onChangeSelected={(item) => {
+                    if (item) {
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        selectedDeliveryOptionId: item.id,
+                      }));
+                    }
+                  }}
+                  placeholder="Select option..."
+                  error={!checkoutState.selectedDeliveryOptionId ? "Required" : ""}
+                  label=""
+                  businessId={profile?.businessId}
+                  statuses={["ACTIVE"]}
+                />
+              </div>
+
+              {/* Payment Method */}
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-primary" />
+                  Payment Method*
+                </label>
+                <ComboboxSelectPayment
+                  dataSelect={selectedPaymentOption as any}
+                  onChangeSelected={(item) => {
+                    if (item) {
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        selectedPaymentOptionId: item.id,
+                      }));
+                    }
+                  }}
+                  placeholder="Select method..."
+                  error={!checkoutState.selectedPaymentOptionId ? "Required" : ""}
+                  label=""
+                />
+              </div>
+            </div>
+
+            {/* Special Instructions */}
+            <div className="space-y-3 pt-2 border-t opacity-20">
+              <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-primary" />
+                Special Instructions
+              </label>
+              <textarea
+                value={checkoutState.customerNote}
+                onChange={(e) =>
                   setCheckoutState((prev) => ({
                     ...prev,
-                    selectedAddressId: item.id,
-                  }));
+                    customerNote: e.target.value.slice(0, 500),
+                  }))
                 }
-              }}
-              placeholder="Select address..."
-              hasDefault={!!defaultAddress}
-              error={!checkoutState.selectedAddressId ? "Required" : ""}
-              label=""
-            />
-          </div>
-
-          {/* Divider */}
-          <div className="border-t opacity-40" />
-
-          {/* Delivery & Payment Options */}
-          <div className="grid sm:grid-cols-2 gap-8">
-            {/* Delivery Option */}
-            <div className="space-y-3">
-              <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Truck className="h-4 w-4 text-primary" />
-                Delivery Option*
-              </label>
-              <ComboboxSelectDelivery
-                dataSelect={selectedDeliveryOption as any}
-                onChangeSelected={(item) => {
-                  if (item) {
-                    setCheckoutState((prev) => ({
-                      ...prev,
-                      selectedDeliveryOptionId: item.id,
-                    }));
-                  }
-                }}
-                placeholder="Select option..."
-                error={!checkoutState.selectedDeliveryOptionId ? "Required" : ""}
-                label=""
-                businessId={profile?.businessId}
-                statuses={["ACTIVE"]}
+                placeholder="Add any special requests..."
+                className="w-full h-24 p-3 rounded-lg border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                maxLength={500}
               />
-            </div>
-
-            {/* Payment Method */}
-            <div className="space-y-3">
-              <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <CreditCard className="h-4 w-4 text-primary" />
-                Payment Method*
-              </label>
-              <ComboboxSelectPayment
-                dataSelect={selectedPaymentOption as any}
-                onChangeSelected={(item) => {
-                  if (item) {
-                    setCheckoutState((prev) => ({
-                      ...prev,
-                      selectedPaymentOptionId: item.id,
-                    }));
-                  }
-                }}
-                placeholder="Select method..."
-                error={!checkoutState.selectedPaymentOptionId ? "Required" : ""}
-                label=""
-              />
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-muted-foreground">
+                  {checkoutState.customerNote.length}/500
+                </p>
+                {checkoutState.customerNote.length > 400 && (
+                  <span className="text-xs text-amber-600 dark:text-amber-400">⚠️ Limit near</span>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="border-t opacity-40" />
-
-          {/* Order Items */}
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-foreground mb-1">Order Items</h3>
+          {/* Card 2: Order Items */}
+          <div className="bg-card border rounded-2xl p-6">
+            <div className="mb-5">
+              <h3 className="font-semibold text-foreground mb-1">Order Items</h3>
               <p className="text-xs text-muted-foreground">
                 {items.length} {items.length === 1 ? 'item' : 'items'} • {totalQuantity} total quantity
               </p>
@@ -451,46 +479,15 @@ export default function CheckoutPage() {
               ))}
             </div>
           </div>
-
-          {/* Divider */}
-          <div className="border-t opacity-40" />
-
-          {/* Special Instructions */}
-          <div className="space-y-3">
-            <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-primary" />
-              Special Instructions
-            </label>
-            <textarea
-              value={checkoutState.customerNote}
-              onChange={(e) =>
-                setCheckoutState((prev) => ({
-                  ...prev,
-                  customerNote: e.target.value.slice(0, 500),
-                }))
-              }
-              placeholder="Add any special requests or instructions..."
-              className="w-full h-32 p-3 rounded-lg border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
-              maxLength={500}
-            />
-            <div className="flex justify-between items-center">
-              <p className="text-xs text-muted-foreground">
-                {checkoutState.customerNote.length}/500
-              </p>
-              {checkoutState.customerNote.length > 400 && (
-                <span className="text-xs text-amber-600 dark:text-amber-400">⚠️ Limit near</span>
-              )}
-            </div>
-          </div>
         </div>
 
-        {/* Sidebar - Order Summary */}
+        {/* Card 3: Order Summary */}
         <div className="lg:col-span-1">
-          <div className="sticky top-24 space-y-6">
+          <div className="bg-card border rounded-2xl p-6 sticky top-24 space-y-6">
             <div>
-              <h2 className="text-lg font-bold mb-5">Summary</h2>
+              <h2 className="font-semibold text-foreground mb-5">Order Summary</h2>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Subtotal */}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
@@ -513,13 +510,13 @@ export default function CheckoutPage() {
 
                 {/* Total */}
                 <div className="flex justify-between items-baseline pt-3 border-t">
-                  <span className="font-semibold text-foreground">Total</span>
-                  <span className="text-3xl font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                  <span className="font-semibold">Total</span>
+                  <span className="text-2xl font-bold text-primary">{formatCurrency(orderTotal)}</span>
                 </div>
 
                 {totalDiscount > 0 && (
                   <p className="text-xs text-red-600 dark:text-red-400 text-right">
-                    💰 Save {formatCurrency(totalDiscount)}
+                    💰 You save {formatCurrency(totalDiscount)}
                   </p>
                 )}
               </div>
@@ -540,7 +537,7 @@ export default function CheckoutPage() {
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
               className={cn(
-                "w-full gap-2 h-12 rounded-lg font-semibold text-base",
+                "w-full gap-2 h-11 rounded-xl font-semibold",
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
@@ -557,7 +554,7 @@ export default function CheckoutPage() {
               )}
             </CustomButton>
 
-            <p className="text-xs text-muted-foreground text-center">🔒 Secure</p>
+            <p className="text-xs text-muted-foreground text-center">🔒 Secure checkout</p>
           </div>
         </div>
       </div>
