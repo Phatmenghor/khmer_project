@@ -72,6 +72,15 @@ public class OrderStatusController {
         return ResponseEntity.ok(ApiResponse.success("Business order statuses retrieved successfully", response));
     }
 
+    @GetMapping("/business/{businessId}/initial")
+    public ResponseEntity<ApiResponse<OrderProcessStatusResponse>> getInitialOrderStatus(
+            @PathVariable UUID businessId) {
+        log.info("Getting initial order status for business: {}", businessId);
+        OrderProcessStatusResponse response =
+                orderProcessStatusService.getInitialOrderProcessStatusByBusinessId(businessId);
+        return ResponseEntity.ok(ApiResponse.success("Initial order status retrieved successfully", response));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderProcessStatusResponse>> getOrderStatusById(@PathVariable UUID id) {
         log.info("Getting order status by ID: {}", id);

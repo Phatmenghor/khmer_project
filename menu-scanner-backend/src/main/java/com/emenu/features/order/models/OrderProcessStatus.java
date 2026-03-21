@@ -37,6 +37,9 @@ public class OrderProcessStatus extends BaseUUIDEntity {
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;
 
+    @Column(name = "is_initial", nullable = false)
+    private Boolean isInitial = false;
+
     public void activate() {
         this.status = Status.ACTIVE;
     }
@@ -47,5 +50,13 @@ public class OrderProcessStatus extends BaseUUIDEntity {
 
     public boolean isActive() {
         return Status.ACTIVE.equals(status);
+    }
+
+    public void setAsInitial() {
+        this.isInitial = true;
+    }
+
+    public void removeAsInitial() {
+        this.isInitial = false;
     }
 }

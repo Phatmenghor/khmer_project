@@ -49,6 +49,12 @@ public class OrderProcessStatusServiceImpl implements OrderProcessStatusService 
             throw new ValidationException("Order process status name already exists in your business");
         }
 
+        // If setting as initial, remove initial flag from all other statuses for this business
+        if (request.getIsInitial() != null && request.getIsInitial()) {
+            orderProcessStatusRepository.removeInitialFlagForBusiness(currentUser.getBusinessId());
+            log.info("Removed initial flag from all other statuses for business: {}", currentUser.getBusinessId());
+        }
+
         OrderProcessStatus orderProcessStatus = orderProcessStatusMapper.toEntity(request);
         orderProcessStatus.setBusinessId(currentUser.getBusinessId());
 
@@ -90,6 +96,15 @@ public class OrderProcessStatusServiceImpl implements OrderProcessStatusService 
 
     @Override
     @Transactional(readOnly = true)
+    public OrderProcessStatusResponse getInitialOrderProcessStatusByBusinessId(UUID businessId) {
+        OrderProcessStatus status = orderProcessStatusRepository.findInitialStatusByBusinessId(businessId)
+                .orElseThrow(() -> new NotFoundException(
+                        "No initial order process status found for business: " + businessId));
+        return orderProcessStatusMapper.toResponse(status);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public OrderProcessStatusResponse getOrderProcessStatusById(UUID id) {
         OrderProcessStatus status = findById(id);
         return orderProcessStatusMapper.toResponse(status);
@@ -104,6 +119,12 @@ public class OrderProcessStatusServiceImpl implements OrderProcessStatusService 
                     request.getName(), orderProcessStatus.getBusinessId())) {
                 throw new ValidationException("Order process status name already exists in your business");
             }
+        }
+
+        // If setting as initial, remove initial flag from all other statuses for this business
+        if (request.getIsInitial() != null && request.getIsInitial()) {
+            orderProcessStatusRepository.removeInitialFlagForBusiness(orderProcessStatus.getBusinessId());
+            log.info("Removed initial flag from all other statuses for business: {}", orderProcessStatus.getBusinessId());
         }
 
         orderProcessStatusMapper.updateEntity(request, orderProcessStatus);

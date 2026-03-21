@@ -17,6 +17,8 @@ public interface OrderProcessStatusService {
 
     List<OrderProcessStatusResponse> getBusinessOrderProcessStatuses(UUID businessId);
 
+    OrderProcessStatusResponse getInitialOrderProcessStatusByBusinessId(UUID businessId);
+
     OrderProcessStatusResponse getOrderProcessStatusById(UUID id);
 
     OrderProcessStatusResponse updateOrderProcessStatus(UUID id, OrderProcessStatusUpdateRequest request);

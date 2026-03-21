@@ -9,4 +9,5 @@ public class OrderProcessStatusCreateRequest {
     @NotBlank(message = "Status name is required")
     private String name;
     private String description;
+    private Boolean isInitial = false; // Set as initial status for new orders
 }
