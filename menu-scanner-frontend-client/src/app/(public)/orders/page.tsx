@@ -405,63 +405,69 @@ export default function OrdersPage() {
             return (
               <div
                 key={order.id}
-                className="rounded-xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
+                className="group relative rounded-2xl border border-border/40 bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 cursor-pointer overflow-hidden"
                 onClick={() => router.push(`/orders/${order.id}`)}
               >
-                <div className="p-4 sm:p-5">
-                  {/* Top row: Order Number, Items Count, Status */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                {/* Status indicator line */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                <div className="p-5 sm:p-6">
+                  {/* Header: Order Number + Status Badge */}
+                  <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm sm:text-base font-bold text-foreground truncate">
+                      <h3 className="text-base sm:text-lg font-bold text-foreground truncate tracking-tight">
                         {order.orderNumber}
-                      </p>
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground">
+                        <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                        <time dateTime={order.createdAt}>
+                          {new Date(order.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(order.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </time>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 sm:flex-col-reverse sm:items-end">
-                      <div className="flex items-center gap-1.5">
-                        <Package className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-semibold text-foreground">
-                          {itemCount} item{itemCount !== 1 ? "s" : ""}
-                        </span>
-                      </div>
-                      <div className="px-3 py-1 rounded-lg font-semibold text-xs whitespace-nowrap bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400">
-                        {order.orderProcessStatus?.name || "Unknown"}
-                      </div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-primary/10 text-primary border border-primary/20">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                      {order.orderProcessStatus?.name || "Unknown"}
                     </div>
                   </div>
+
+                  {/* Divider */}
+                  <div className="h-px bg-gradient-to-r from-border via-border to-transparent mb-4" />
 
                   {/* Delivery Address */}
-                  <div className="flex items-start gap-2.5 mb-3 pb-3 border-b border-border/50">
-                    <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground leading-snug truncate" title={deliveryAddress}>
-                        {deliveryAddress || "No address provided"}
-                      </p>
+                  <div className="mb-4">
+                    <div className="flex items-start gap-2.5">
+                      <MapPin className="h-4 w-4 text-primary/70 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground/80 leading-snug line-clamp-2" title={deliveryAddress}>
+                          {deliveryAddress || "No address provided"}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Bottom row: Total Price, Date, and View Details Button */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Total
-                      </span>
-                      <span className="text-lg sm:text-xl font-bold text-primary">
-                        {formatCurrency(order.pricing?.finalTotal || 0)}
-                      </span>
+                  {/* Items and Total */}
+                  <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/30">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 rounded-lg bg-muted">
+                        <Package className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Items</p>
+                        <p className="text-sm font-semibold text-foreground">{itemCount}</p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
-                      <p>
-                        {new Date(order.createdAt).toLocaleDateString()} • {new Date(order.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+
+                    <div className="flex-1 text-right">
+                      <p className="text-xs text-muted-foreground font-medium mb-0.5">Total Amount</p>
+                      <p className="text-xl font-bold text-primary">
+                        {formatCurrency(order.pricing?.finalTotal || 0)}
                       </p>
                     </div>
-                    <CustomButton
-                      variant="ghost"
-                      className="h-9 px-4 rounded-lg text-sm font-semibold gap-1.5 flex items-center"
-                    >
-                      Details
-                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </CustomButton>
+
+                    <div className="hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ArrowRight className="h-5 w-5 text-primary/60 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                    </div>
                   </div>
                 </div>
               </div>
