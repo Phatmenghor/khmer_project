@@ -90,7 +90,7 @@ public class OrderProcessStatusServiceImpl implements OrderProcessStatusService 
     @Transactional(readOnly = true)
     public List<OrderProcessStatusResponse> getBusinessOrderProcessStatuses(UUID businessId) {
         List<OrderProcessStatus> statuses = orderProcessStatusRepository
-                .findByBusinessIdAndStatusOrderByCreatedAtAsc(businessId, Status.ACTIVE);
+                .findByBusinessIdAndStatusOrderByOrderAsc(businessId, Status.ACTIVE);
         return orderProcessStatusMapper.toResponseList(statuses);
     }
 

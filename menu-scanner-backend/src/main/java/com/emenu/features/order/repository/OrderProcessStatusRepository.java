@@ -37,8 +37,8 @@ public interface OrderProcessStatusRepository extends JpaRepository<OrderProcess
 
     @Query("SELECT ops FROM OrderProcessStatus ops " +
            "WHERE ops.businessId = :businessId AND ops.status = :status AND ops.isDeleted = false " +
-           "ORDER BY ops.createdAt ASC")
-    List<OrderProcessStatus> findByBusinessIdAndStatusOrderByCreatedAtAsc(
+           "ORDER BY ops.order ASC")
+    List<OrderProcessStatus> findByBusinessIdAndStatusOrderByOrderAsc(
             @Param("businessId") UUID businessId, @Param("status") Status status);
 
     @Query("SELECT DISTINCT ops FROM OrderProcessStatus ops " +
