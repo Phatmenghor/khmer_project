@@ -39,6 +39,8 @@ interface ComboboxSelectPaymentProps {
   required?: boolean;
   placeholder?: string;
   error?: string;
+  businessId?: string;
+  statuses?: string[];
 }
 
 export function ComboboxSelectPayment({
@@ -49,6 +51,8 @@ export function ComboboxSelectPayment({
   required = false,
   placeholder = "Select payment method...",
   error,
+  businessId,
+  statuses = ["ACTIVE"],
 }: ComboboxSelectPaymentProps) {
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
@@ -87,8 +91,9 @@ export function ComboboxSelectPayment({
           search,
           pageNo: newPage,
           pageSize: 15,
-          businessId: AppDefault.BUSINESS_ID,
-        }),
+          ...(businessId && { businessId }),
+          ...(statuses && { statuses }),
+        })
       ).unwrap();
 
       if (!result) return;
