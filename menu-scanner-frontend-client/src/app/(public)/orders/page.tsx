@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Package,
@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   XCircle,
   ShoppingBag,
+  Calendar,
 } from "lucide-react";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useAppDispatch } from "@/redux/store";
@@ -32,6 +33,7 @@ type Order = OrderResponse;
 interface OrdersState {
   orders: Order[];
   loading: boolean;
+  loadingMore: boolean;
   error: string | null;
   pagination: {
     currentPage: number;
@@ -45,7 +47,7 @@ const STATUS_TABS = [
   { value: "", label: "All Orders", badge: true },
   { value: "PENDING", label: "Pending", icon: Clock },
   { value: "CONFIRMED", label: "Confirmed", icon: CheckCircle2 },
-  { value: "PROCESSING", label: "Processing", icon: Loader2 },
+  { value: "PROCESSING", label: "Processing", icon: Package },
   { value: "SHIPPED", label: "Shipped", icon: Truck },
   { value: "DELIVERED", label: "Delivered", icon: CheckCircle2 },
   { value: "CANCELLED", label: "Cancelled", icon: XCircle },
@@ -68,7 +70,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; icon: React.Reac
     bg: "bg-purple-100 dark:bg-purple-900/30",
     lightBg: "bg-purple-50 dark:bg-purple-950/30",
     text: "text-purple-700 dark:text-purple-400",
-    icon: <Loader2 className="h-4 w-4 animate-spin" />,
+    icon: <Package className="h-4 w-4" />,
   },
   SHIPPED: {
     bg: "bg-cyan-100 dark:bg-cyan-900/30",
@@ -98,10 +100,11 @@ export default function OrdersPage() {
   const [ordersState, setOrdersState] = useState<OrdersState>({
     orders: [],
     loading: false,
+    loadingMore: false,
     error: null,
     pagination: {
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 15,
       totalElements: 0,
       totalPages: 0,
     },
@@ -114,6 +117,8 @@ export default function OrdersPage() {
   });
 
   const [mounted, setMounted] = useState(false);
+  const observerRef = useRef<HTMLDivElement>(null);
+  const isLoadingRef = useRef(false);
 
   // Hydration fix
   useEffect(() => {
@@ -121,45 +126,94 @@ export default function OrdersPage() {
   }, []);
 
   // Fetch orders
-  useEffect(() => {
-    if (!authReady || !isAuthenticated || !mounted) return;
+  const fetchOrders = useCallback(
+    async (pageNo: number, isLoadMore: boolean = false) => {
+      if (!authReady || !isAuthenticated || !profile?.businessId) return;
 
-    const fetchOrders = async () => {
-      setOrdersState((prev) => ({ ...prev, loading: true }));
       try {
+        if (isLoadMore) {
+          setOrdersState((prev) => ({ ...prev, loadingMore: true }));
+        } else {
+          setOrdersState((prev) => ({ ...prev, loading: true }));
+        }
+
         const result = await dispatch(
           fetchMyOrdersService({
-            pageNo: ordersState.pagination.currentPage,
+            pageNo,
             pageSize: ordersState.pagination.pageSize,
             status: filters.status || undefined,
-            businessId: profile?.businessId,
+            businessId: profile.businessId,
             search: filters.search || undefined,
           })
         ).unwrap();
 
-        setOrdersState((prev) => ({
-          ...prev,
-          orders: result.content || [],
-          pagination: {
-            currentPage: result.pageNo || 1,
-            pageSize: result.pageSize || 10,
-            totalElements: result.totalElements || 0,
-            totalPages: result.totalPages || 0,
-          },
-          loading: false,
-        }));
+        setOrdersState((prev) => {
+          const newOrders = isLoadMore
+            ? [...prev.orders, ...(result.content || [])]
+            : result.content || [];
+
+          return {
+            ...prev,
+            orders: newOrders,
+            pagination: {
+              currentPage: result.pageNo || 1,
+              pageSize: result.pageSize || 15,
+              totalElements: result.totalElements || 0,
+              totalPages: result.totalPages || 0,
+            },
+            loading: false,
+            loadingMore: false,
+          };
+        });
       } catch (error: any) {
         console.error("Failed to fetch orders:", error);
         setOrdersState((prev) => ({
           ...prev,
           error: error?.message || "Failed to load orders",
           loading: false,
+          loadingMore: false,
         }));
       }
-    };
+    },
+    [dispatch, authReady, isAuthenticated, profile?.businessId, filters, ordersState.pagination.pageSize]
+  );
 
-    fetchOrders();
-  }, [mounted, authReady, isAuthenticated, filters, ordersState.pagination.currentPage, dispatch, profile]);
+  // Initial fetch on filter change
+  useEffect(() => {
+    if (!authReady || !isAuthenticated || !mounted) return;
+    isLoadingRef.current = false;
+    fetchOrders(1, false);
+  }, [mounted, authReady, isAuthenticated, filters, fetchOrders]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!observerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          ordersState.pagination.currentPage < ordersState.pagination.totalPages &&
+          !ordersState.loadingMore &&
+          !isLoadingRef.current
+        ) {
+          isLoadingRef.current = true;
+          const nextPage = ordersState.pagination.currentPage + 1;
+          fetchOrders(nextPage, true).finally(() => {
+            isLoadingRef.current = false;
+            setOrdersState((prev) => ({
+              ...prev,
+              pagination: { ...prev.pagination, currentPage: nextPage },
+            }));
+          });
+        }
+      },
+      { threshold: 0.1, rootMargin: "200px" }
+    );
+
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [ordersState.pagination, ordersState.loadingMore, fetchOrders]);
 
   const totalOrders = ordersState.pagination.totalElements;
 
@@ -204,6 +258,7 @@ export default function OrdersPage() {
         <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
           {STATUS_TABS.map((tab) => {
             const isActive = filters.status === tab.value;
+            const orderCount = isActive ? ordersState.pagination.totalElements : 0;
             return (
               <button
                 key={tab.value}
@@ -211,6 +266,7 @@ export default function OrdersPage() {
                   setFilters((prev) => ({ ...prev, status: tab.value, isInitial: false }));
                   setOrdersState((prev) => ({
                     ...prev,
+                    orders: [],
                     pagination: { ...prev.pagination, currentPage: 1 },
                   }));
                 }}
@@ -227,6 +283,11 @@ export default function OrdersPage() {
                   </div>
                 )}
                 <span>{tab.label}</span>
+                {isActive && orderCount > 0 && (
+                  <span className={cn("ml-1 px-2 py-0.5 rounded-full text-xs font-bold", isActive ? "bg-white/20" : "bg-muted")}>
+                    {orderCount}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -292,7 +353,29 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {ordersState.orders.map((order) => {
+          {ordersState.orders.length === 0 && !ordersState.loading ? (
+            <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Package className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {filters.status ? "No Orders Found" : "No Orders Yet"}
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                {filters.status
+                  ? `No orders with ${filters.status.toLowerCase()} status. Try a different filter.`
+                  : "You haven't placed any orders yet. Start shopping now!"}
+              </p>
+              <CustomButton
+                onClick={() => router.push("/menu")}
+                className="rounded-xl h-11 px-6"
+              >
+                Browse Menu
+              </CustomButton>
+            </div>
+          ) : (
+            <>
+              {ordersState.orders.map((order) => {
             const statusColor = STATUS_COLORS[order.orderProcessStatus?.name || "PENDING"] || STATUS_COLORS.PENDING;
             const itemCount = order.items?.length || 0;
             const deliveryAddress = [
@@ -343,6 +426,14 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
+                  {/* Date Created */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <Calendar className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(order.createdAt).toLocaleDateString()} • {new Date(order.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+
                   {/* Delivery Address */}
                   <div className="flex items-start gap-2.5 mb-3 pb-3 border-b border-border/50">
                     <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
@@ -378,56 +469,25 @@ export default function OrdersPage() {
               </div>
             );
           })}
-        </div>
-      )}
 
-      {/* Pagination */}
-      {ordersState.pagination.totalPages > 1 && (
-        <div className="mt-12 flex items-center justify-between bg-card rounded-2xl border border-border/50 p-6">
-          <p className="text-sm font-semibold text-foreground">
-            Page <span className="text-primary">{ordersState.pagination.currentPage}</span> of{" "}
-            <span className="text-primary">{ordersState.pagination.totalPages}</span>
-          </p>
-          <div className="flex gap-3">
-            <CustomButton
-              onClick={() =>
-                setOrdersState((prev) => ({
-                  ...prev,
-                  pagination: {
-                    ...prev.pagination,
-                    currentPage: Math.max(1, prev.pagination.currentPage - 1),
-                  },
-                }))
-              }
-              disabled={ordersState.pagination.currentPage === 1}
-              variant="outline"
-              className="h-11 rounded-lg px-6 font-semibold"
-            >
-              ← Previous
-            </CustomButton>
-            <CustomButton
-              onClick={() =>
-                setOrdersState((prev) => ({
-                  ...prev,
-                  pagination: {
-                    ...prev.pagination,
-                    currentPage: Math.min(
-                      prev.pagination.totalPages,
-                      prev.pagination.currentPage + 1
-                    ),
-                  },
-                }))
-              }
-              disabled={
-                ordersState.pagination.currentPage ===
-                ordersState.pagination.totalPages
-              }
-              variant="outline"
-              className="h-11 rounded-lg px-6 font-semibold"
-            >
-              Next →
-            </CustomButton>
-          </div>
+              {/* Infinite Scroll Sentinel */}
+              <div ref={observerRef} className="flex justify-center py-8">
+                {ordersState.loadingMore && (
+                  <div className="text-center">
+                    <Loader2 className="h-6 w-6 text-primary mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Loading more orders...</p>
+                  </div>
+                )}
+              </div>
+
+              {/* End of list message */}
+              {!ordersState.loadingMore && ordersState.pagination.currentPage >= ordersState.pagination.totalPages && ordersState.orders.length > 0 && (
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground">You've seen all your orders</p>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
     </PageContainer>
