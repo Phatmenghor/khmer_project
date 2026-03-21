@@ -1,5 +1,6 @@
 package com.emenu.features.order.models;
 
+import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.auth.models.Business;
@@ -51,8 +52,9 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "delivery_option_snapshot", columnDefinition = "TEXT")
     private String deliveryOptionSnapshot;
 
-    @Column(name = "order_process_status_name")
-    private String orderProcessStatusName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", nullable = false)
+    private OrderStatus orderStatus = OrderStatus.PENDING;
 
     @Column(name = "customer_note", columnDefinition = "TEXT")
     private String customerNote;
@@ -100,8 +102,26 @@ public class Order extends BaseUUIDEntity {
     private List<OrderStatusHistory> statusHistory = new ArrayList<>();
 
     // Business Methods
-    public void updateStatus(String newOrderProcessStatusName) {
-        this.orderProcessStatusName = newOrderProcessStatusName;
+    public void updateStatus(OrderStatus newStatus) {
+        this.orderStatus = newStatus;
+    }
+
+    public void confirmOrder() {
+        this.orderStatus = OrderStatus.CONFIRMED;
+        this.confirm();
+    }
+
+    public void completeOrder() {
+        this.orderStatus = OrderStatus.COMPLETED;
+        this.complete();
+    }
+
+    public void cancelOrder() {
+        this.orderStatus = OrderStatus.CANCELLED;
+    }
+
+    public void failOrder() {
+        this.orderStatus = OrderStatus.FAILED;
     }
 
     public void confirm() {

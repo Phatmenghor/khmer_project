@@ -1,5 +1,6 @@
 package com.emenu.features.order.service.impl;
 
+import com.emenu.enums.order.OrderStatus;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.User;
@@ -16,10 +17,8 @@ import com.emenu.features.order.models.OrderPayment;
 import com.emenu.features.order.models.Cart;
 import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderItem;
-import com.emenu.features.order.models.OrderProcessStatus;
 import com.emenu.features.order.repository.OrderPaymentRepository;
 import com.emenu.features.order.repository.CartRepository;
-import com.emenu.features.order.repository.OrderProcessStatusRepository;
 import com.emenu.features.order.repository.OrderRepository;
 import com.emenu.features.order.repository.OrderStatusHistoryRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
@@ -51,7 +50,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
     private final OrderPaymentRepository paymentRepository;
-    private final OrderProcessStatusRepository orderProcessStatusRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final OrderMapper orderMapper;
     private final OrderPaymentMapper paymentMapper;
@@ -71,8 +69,10 @@ public class OrderServiceImpl implements OrderService {
             log.debug("📋 [STEP 1/6] Creating base order...");
             Order order = createBaseOrder(request, currentUser.getId());
 
-            log.debug("📋 [STEP 2/6] Assigning process status: {}", request.getOrderProcessStatusName());
-            assignProcessStatus(order, request.getBusinessId(), request.getOrderProcessStatusName());
+            // Set order status - default to PENDING if not specified
+            OrderStatus status = request.getOrderStatus() != null ? request.getOrderStatus() : OrderStatus.PENDING;
+            log.debug("📋 [STEP 2/6] Setting order status: {}", status);
+            order.setOrderStatus(status);
 
             log.debug("📋 [STEP 3/6] Saving base order...");
             Order savedOrder = orderRepository.save(order);
@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
 
             // Create initial order status history to track when order was created
             log.debug("📋 [STEP 3.5/6] Creating initial status history...");
-            createInitialOrderStatusHistory(savedOrder, currentUser.getId(), request.getBusinessId());
+            createInitialOrderStatusHistory(savedOrder, currentUser.getId());
 
             // Create order items from cart summary (frontend) or database cart
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
@@ -138,7 +138,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
         // Load statusHistory separately to avoid MultipleBagFetchException
-        // This ensures OrderProcessStatus and changedByUser are eagerly loaded
+        // This ensures changedByUser is eagerly loaded
         List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(orderId);
         order.setStatusHistory(statusHistory);
 
@@ -173,14 +173,8 @@ public class OrderServiceImpl implements OrderService {
             throw new ValidationException("You can only update orders for your business");
         }
 
-        if (request.getOrderProcessStatusName() != null) {
-            // Validate that the status exists and belongs to the business
-            OrderProcessStatus processStatus = orderProcessStatusRepository
-                    .findByNameAndBusinessIdAndIsDeletedFalse(request.getOrderProcessStatusName(), currentUser.getBusinessId())
-                    .orElseThrow(() -> new NotFoundException("Order process status not found: " + request.getOrderProcessStatusName()));
-
-            // Store the status name as snapshot (not ID) for history preservation
-            order.updateStatus(request.getOrderProcessStatusName());
+        if (request.getOrderStatus() != null) {
+            order.updateStatus(request.getOrderStatus());
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -431,48 +425,22 @@ public class OrderServiceImpl implements OrderService {
                 });
     }
 
-    private void assignProcessStatus(Order order, UUID businessId, String statusName) {
-        if (statusName != null && !statusName.isBlank()) {
-            // Validate that the status exists and belongs to the business
-            OrderProcessStatus status = orderProcessStatusRepository
-                    .findByNameAndBusinessIdAndIsDeletedFalse(statusName, businessId)
-                    .orElseThrow(() -> new NotFoundException("Order process status not found: " + statusName));
-
-            // Store the status name as snapshot (not ID) for history preservation
-            order.setOrderProcessStatusName(statusName);
-        } else {
-            // If no status provided, use the first status name for the business
-            orderProcessStatusRepository.findByBusinessIdOrderByCreatedAtAsc(businessId)
-                    .stream()
-                    .findFirst()
-                    .ifPresent(first -> order.setOrderProcessStatusName(first.getName()));
-        }
-    }
-
-    private void createInitialOrderStatusHistory(Order order, UUID userId, UUID businessId) {
+    private void createInitialOrderStatusHistory(Order order, UUID userId) {
         try {
-            // Get the OrderProcessStatus that was assigned to the order
-            OrderProcessStatus status = orderProcessStatusRepository
-                    .findByNameAndBusinessIdAndIsDeletedFalse(order.getOrderProcessStatusName(), businessId)
-                    .orElse(null);
+            // Create initial status history entry to track order creation
+            User user = securityUtils.getCurrentUser();
+            String changedByName = user != null ? user.getFullName() : "System";
 
-            if (status != null) {
-                // Get user who created the order for the history record
-                User user = securityUtils.getCurrentUser();
-                String changedByName = user != null ? user.getFullName() : "System";
+            OrderStatusHistory history = new OrderStatusHistory();
+            history.setOrderId(order.getId());
+            history.setOrderStatus(order.getOrderStatus());
+            history.setChangedByUserId(userId);
+            history.setChangedByName(changedByName);  // Snapshot of user's name at time of change
+            history.setNote("Order created from checkout");
 
-                // Create initial status history entry to track order creation
-                OrderStatusHistory history = new OrderStatusHistory();
-                history.setOrderId(order.getId());
-                history.setOrderProcessStatusId(status.getId());
-                history.setChangedByUserId(userId);
-                history.setChangedByName(changedByName);  // Snapshot of user's name at time of change
-                history.setNote("Order created from checkout");
-
-                orderStatusHistoryRepository.save(history);
-                log.debug("✅ [STATUS HISTORY] Created initial status history for order: {} with status: {} by user: {}",
-                    order.getOrderNumber(), status.getName(), changedByName);
-            }
+            orderStatusHistoryRepository.save(history);
+            log.debug("✅ [STATUS HISTORY] Created initial status history for order: {} with status: {} by user: {}",
+                order.getOrderNumber(), order.getOrderStatus(), changedByName);
         } catch (Exception e) {
             log.warn("⚠️  [STATUS HISTORY] Failed to create initial status history: {}", e.getMessage());
             // Don't throw exception - order creation should not fail if history creation fails

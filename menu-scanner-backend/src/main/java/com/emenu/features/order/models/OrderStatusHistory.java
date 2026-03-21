@@ -1,5 +1,6 @@
 package com.emenu.features.order.models;
 
+import com.emenu.enums.order.OrderStatus;
 import com.emenu.features.auth.models.User;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
@@ -25,12 +26,9 @@ public class OrderStatusHistory extends BaseUUIDEntity {
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private Order order;
 
-    @Column(name = "order_process_status_id", nullable = false)
-    private UUID orderProcessStatusId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_process_status_id", insertable = false, updatable = false)
-    private OrderProcessStatus orderProcessStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", nullable = false)
+    private OrderStatus orderStatus;
 
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;
@@ -47,9 +45,9 @@ public class OrderStatusHistory extends BaseUUIDEntity {
     @Column(name = "changed_by_name")
     private String changedByName; // Full name for backward compatibility
 
-    public OrderStatusHistory(UUID orderId, UUID orderProcessStatusId, String note, UUID changedByUserId, String changedByName) {
+    public OrderStatusHistory(UUID orderId, OrderStatus orderStatus, String note, UUID changedByUserId, String changedByName) {
         this.orderId = orderId;
-        this.orderProcessStatusId = orderProcessStatusId;
+        this.orderStatus = orderStatus;
         this.note = note;
         this.changedByUserId = changedByUserId;
         this.changedByName = changedByName;

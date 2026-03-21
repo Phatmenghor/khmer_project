@@ -1,5 +1,6 @@
 package com.emenu.features.order.dto.request;
 
+import com.emenu.enums.order.OrderStatus;
 import com.emenu.features.order.dto.response.CartSummaryResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -26,5 +27,5 @@ public class OrderCreateRequest {
 
     private String customerNote;
 
-    private String orderProcessStatusName;
+    private OrderStatus orderStatus = OrderStatus.PENDING;
 }

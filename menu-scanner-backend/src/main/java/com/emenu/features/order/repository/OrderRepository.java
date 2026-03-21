@@ -1,5 +1,6 @@
 package com.emenu.features.order.repository;
 
+import com.emenu.enums.order.OrderStatus;
 import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderStatusHistory;
 import org.springframework.data.domain.Page;
@@ -30,10 +31,9 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     Optional<Order> findByIdWithDetails(@Param("id") UUID id);
 
     /**
-     * Finds status history for an order with OrderProcessStatus and changed by user eagerly fetched
+     * Finds status history for an order with changed by user eagerly fetched
      */
     @Query("SELECT h FROM OrderStatusHistory h " +
-           "LEFT JOIN FETCH h.orderProcessStatus " +
            "LEFT JOIN FETCH h.changedByUser " +
            "WHERE h.orderId = :orderId " +
            "ORDER BY h.createdAt ASC")
@@ -52,10 +52,10 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findByBusinessIdOrderByCreatedAtDesc(@Param("businessId") UUID businessId);
 
     /**
-     * Finds non-deleted orders by business ID and process status, ordered by creation date descending
+     * Finds non-deleted orders by business ID and order status, ordered by creation date descending
      */
-    @Query("SELECT o FROM Order o WHERE o.businessId = :businessId AND o.orderProcessStatusName = :orderProcessStatusName AND o.isDeleted = false ORDER BY o.createdAt DESC")
-    List<Order> findByBusinessIdAndOrderProcessStatusNameOrderByCreatedAtDesc(@Param("businessId") UUID businessId, @Param("orderProcessStatusName") String orderProcessStatusName);
+    @Query("SELECT o FROM Order o WHERE o.businessId = :businessId AND o.orderStatus = :orderStatus AND o.isDeleted = false ORDER BY o.createdAt DESC")
+    List<Order> findByBusinessIdAndOrderStatusOrderByCreatedAtDesc(@Param("businessId") UUID businessId, @Param("orderStatus") OrderStatus orderStatus);
 
     /**
      * Checks if an order exists with the given order number
@@ -63,10 +63,10 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     boolean existsByOrderNumber(String orderNumber);
 
     /**
-     * Counts non-deleted orders by business ID and process status
+     * Counts non-deleted orders by business ID and order status
      */
-    @Query("SELECT COUNT(o) FROM Order o WHERE o.businessId = :businessId AND o.orderProcessStatusName = :orderProcessStatusName AND o.isDeleted = false")
-    long countByBusinessIdAndOrderProcessStatusName(@Param("businessId") UUID businessId, @Param("orderProcessStatusName") String orderProcessStatusName);
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.businessId = :businessId AND o.orderStatus = :orderStatus AND o.isDeleted = false")
+    long countByBusinessIdAndOrderStatus(@Param("businessId") UUID businessId, @Param("orderStatus") OrderStatus orderStatus);
 
     /**
      * Finds paginated non-deleted orders by customer ID, ordered by creation date descending

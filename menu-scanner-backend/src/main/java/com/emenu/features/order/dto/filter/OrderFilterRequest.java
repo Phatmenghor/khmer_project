@@ -1,5 +1,6 @@
 package com.emenu.features.order.dto.filter;
 
+import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.shared.dto.BaseFilterRequest;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Data
 public class OrderFilterRequest extends BaseFilterRequest {
     private UUID businessId;
-    private String orderProcessStatusName;
+    private OrderStatus orderStatus;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;
 }

@@ -27,7 +27,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = {LocationMapper.class, DeliveryOptionMapper.class, OrderItemMapper.class, PaginationMapper.class, OrderProcessStatusMapper.class, OrderStatusHistoryMapper.class})
+        uses = {LocationMapper.class, DeliveryOptionMapper.class, OrderItemMapper.class, PaginationMapper.class, OrderStatusHistoryMapper.class})
 public interface OrderMapper {
 
     @Mapping(target = "customerName", expression = "java(order.getCustomerIdentifier())")
@@ -35,7 +35,7 @@ public interface OrderMapper {
     @Mapping(source = "business.name", target = "businessName")
     @Mapping(target = "deliveryAddress", expression = "java(mapDeliveryAddress(order))")
     @Mapping(target = "deliveryOption", expression = "java(mapDeliveryOption(order))")
-    @Mapping(target = "orderProcessStatus", expression = "java(mapOrderProcessStatus(order))")
+    @Mapping(source = "orderStatus", target = "orderStatus")
     @Mapping(target = "pricing", expression = "java(mapPricingInfo(order))")
     @Mapping(target = "statusHistory", expression = "java(mapStatusHistory(order))")
     @Mapping(target = "payment", expression = "java(mapPaymentInfo(order))")
@@ -175,35 +175,6 @@ public interface OrderMapper {
         }
     }
 
-    /**
-     * Map current order process status with details of who set it
-     * Uses orderProcessStatusName from order, with optional details from status history
-     */
-    default com.emenu.features.order.dto.response.OrderStatusDto mapOrderProcessStatus(Order order) {
-        // Primary source: orderProcessStatusName stored on Order entity
-        if (order.getOrderProcessStatusName() == null || order.getOrderProcessStatusName().isBlank()) {
-            return null;
-        }
-
-        // Build response from Order's status name
-        var builder = com.emenu.features.order.dto.response.OrderStatusDto.builder()
-                .name(order.getOrderProcessStatusName());
-
-        // Enhance with details from latest status history if available
-        if (order.getStatusHistory() != null && !order.getStatusHistory().isEmpty()) {
-            OrderStatusHistory latestStatus = order.getStatusHistory().get(order.getStatusHistory().size() - 1);
-
-            // Get description, order, and change details from history
-            if (latestStatus.getOrderProcessStatus() != null) {
-                builder.description(latestStatus.getOrderProcessStatus().getDescription());
-                builder.order(latestStatus.getOrderProcessStatus().getOrder());
-            }
-            builder.changedBy(mapStatusHistoryUserInfo(latestStatus));
-            builder.createdAt(latestStatus.getCreatedAt());
-        }
-
-        return builder.build();
-    }
 
     /**
      * Calculate total number of items in the order
@@ -230,10 +201,10 @@ public interface OrderMapper {
         return order.getStatusHistory().stream()
                 .map(history -> OrderStatusHistoryResponse.builder()
                         .id(history.getId())
-                        .statusName(history.getOrderProcessStatus() != null ?
-                                history.getOrderProcessStatus().getName() : null)
-                        .statusDescription(history.getOrderProcessStatus() != null ?
-                                history.getOrderProcessStatus().getDescription() : null)
+                        .statusName(history.getOrderStatus() != null ?
+                                history.getOrderStatus().getDisplayName() : null)
+                        .statusDescription(history.getOrderStatus() != null ?
+                                history.getOrderStatus().getDescription() : null)
                         .note(history.getNote())
                         .changedBy(mapStatusHistoryUserInfo(history))
                         .changedAt(history.getCreatedAt())

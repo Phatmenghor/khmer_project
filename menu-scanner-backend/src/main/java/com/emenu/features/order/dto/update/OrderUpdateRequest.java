@@ -1,5 +1,6 @@
 package com.emenu.features.order.dto.update;
 
+import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.order.dto.helper.OrderItemCreateHelper;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Data
 public class OrderUpdateRequest {
-    private String orderProcessStatusName;
+    private OrderStatus orderStatus;
     private DeliveryAddressRequest deliveryAddress;
     private DeliveryOptionRequest deliveryOption;
     private PaymentMethod paymentMethod;

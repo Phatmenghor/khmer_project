@@ -11,8 +11,8 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface OrderStatusHistoryMapper {
 
-    @Mapping(source = "orderProcessStatus.name", target = "statusName")
-    @Mapping(source = "orderProcessStatus.description", target = "statusDescription")
+    @Mapping(source = "orderStatus.displayName", target = "statusName")
+    @Mapping(source = "orderStatus.description", target = "statusDescription")
     @Mapping(source = "createdAt", target = "changedAt")
     OrderStatusHistoryResponse toResponse(OrderStatusHistory history);
 

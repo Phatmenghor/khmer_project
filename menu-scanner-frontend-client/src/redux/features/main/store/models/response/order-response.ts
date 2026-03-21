@@ -3,20 +3,14 @@
  * Complete type definitions matching backend OrderResponse
  */
 
+import { OrderStatus } from '@/enums/order-status.enum';
+
 export interface OrderStatusHistoryUserInfo {
   userId: string;
   firstName: string;
   lastName: string;
   phoneNumber?: string;
   businessId?: string;
-}
-
-export interface OrderStatusDto {
-  name: string | null;
-  description: string | null;
-  order: number; // Sort order for displaying status sequence
-  changedBy: OrderStatusHistoryUserInfo | null;
-  createdAt: string;
 }
 
 export interface OrderStatusHistoryResponse {
@@ -101,7 +95,7 @@ export interface OrderResponse {
   businessName: string;
   deliveryAddress: OrderDeliveryAddressDto;
   deliveryOption: OrderDeliveryOptionDto;
-  orderProcessStatus: OrderStatusDto | null;
+  orderStatus: OrderStatus;
   customerNote: string;
   businessNote: string | null;
   pricing: OrderPricingInfo;

@@ -1,5 +1,6 @@
 package com.emenu.features.order.dto.response;
 
+import com.emenu.enums.order.OrderStatus;
 import com.emenu.shared.dto.BaseAuditResponse;
 import jakarta.validation.Valid;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class OrderResponse extends BaseAuditResponse {
     private OrderDeliveryOptionDto deliveryOption;
 
     // Order details
-    private OrderStatusDto orderProcessStatus;
+    private OrderStatus orderStatus;
     private String customerNote;
     private String businessNote;
 
