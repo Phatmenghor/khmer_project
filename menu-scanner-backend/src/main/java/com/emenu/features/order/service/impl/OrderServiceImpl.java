@@ -21,6 +21,8 @@ import com.emenu.features.order.repository.OrderPaymentRepository;
 import com.emenu.features.order.repository.CartRepository;
 import com.emenu.features.order.repository.OrderProcessStatusRepository;
 import com.emenu.features.order.repository.OrderRepository;
+import com.emenu.features.order.repository.OrderStatusHistoryRepository;
+import com.emenu.features.order.models.OrderStatusHistory;
 import com.emenu.features.order.service.OrderService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
@@ -50,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
     private final CartRepository cartRepository;
     private final OrderPaymentRepository paymentRepository;
     private final OrderProcessStatusRepository orderProcessStatusRepository;
+    private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final OrderMapper orderMapper;
     private final OrderPaymentMapper paymentMapper;
     private final SecurityUtils securityUtils;
@@ -75,12 +78,16 @@ public class OrderServiceImpl implements OrderService {
             Order savedOrder = orderRepository.save(order);
             log.info("✅ [ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
+            // Create initial order status history to track when order was created
+            log.debug("📋 [STEP 3.5/6] Creating initial status history...");
+            createInitialOrderStatusHistory(savedOrder, currentUser.getId(), request.getBusinessId());
+
             // Create order items from cart summary (frontend) or database cart
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
-                log.info("📋 [STEP 4/6] Processing {} items from frontend cart summary", request.getCart().getItems().size());
+                log.info("📋 [STEP 4/7] Processing {} items from frontend cart summary", request.getCart().getItems().size());
                 createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart());
             } else {
-                log.info("📋 [STEP 4/6] Processing items from database cart");
+                log.info("📋 [STEP 4/7] Processing items from database cart");
                 Cart cart = cartRepository.findByUserIdAndBusinessIdWithItems(currentUser.getId(), request.getBusinessId())
                         .orElseThrow(() -> new ValidationException("Cart is empty or not found"));
 
@@ -91,10 +98,10 @@ public class OrderServiceImpl implements OrderService {
                 createOrderItemsFromCart(savedOrder.getId(), cart);
             }
 
-            log.debug("📋 [STEP 5/6] Creating payment record...");
+            log.debug("📋 [STEP 5/7] Creating payment record...");
             createPaymentRecord(savedOrder);
 
-            log.debug("📋 [STEP 6/6] Clearing cart...");
+            log.debug("📋 [STEP 6/7] Clearing cart...");
             clearCartAfterOrder(currentUser.getId(), request.getBusinessId());
 
             log.info("✅ [CHECKOUT SUCCESS] Order created successfully: {} - Fetching full response...", savedOrder.getOrderNumber());
@@ -433,6 +440,31 @@ public class OrderServiceImpl implements OrderService {
                     .stream()
                     .findFirst()
                     .ifPresent(first -> order.setOrderProcessStatusName(first.getName()));
+        }
+    }
+
+    private void createInitialOrderStatusHistory(Order order, UUID userId, UUID businessId) {
+        try {
+            // Get the OrderProcessStatus that was assigned to the order
+            OrderProcessStatus status = orderProcessStatusRepository
+                    .findByNameAndBusinessIdAndIsDeletedFalse(order.getOrderProcessStatusName(), businessId)
+                    .orElse(null);
+
+            if (status != null) {
+                // Create initial status history entry to track order creation
+                OrderStatusHistory history = new OrderStatusHistory();
+                history.setOrderId(order.getId());
+                history.setOrderProcessStatusId(status.getId());
+                history.setChangedByUserId(userId);
+                history.setNote("Order created from checkout");
+
+                orderStatusHistoryRepository.save(history);
+                log.debug("✅ [STATUS HISTORY] Created initial status history for order: {} with status: {}",
+                    order.getOrderNumber(), status.getName());
+            }
+        } catch (Exception e) {
+            log.warn("⚠️  [STATUS HISTORY] Failed to create initial status history: {}", e.getMessage());
+            // Don't throw exception - order creation should not fail if history creation fails
         }
     }
 
