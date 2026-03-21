@@ -82,10 +82,16 @@ export default function OrdersPage() {
   const [statusesLoading, setStatusesLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
+  const hasInitialLoadRef = useRef(false);
+  const scrollPosRef = useRef(0);
 
-  // Hydration fix
+  // Hydration fix & restore scroll position
   useEffect(() => {
     setMounted(true);
+    // Restore scroll position when returning from detail page
+    if (typeof window !== "undefined" && scrollPosRef.current > 0) {
+      setTimeout(() => window.scrollTo(0, scrollPosRef.current), 0);
+    }
   }, []);
 
   // Fetch order statuses from API
@@ -189,12 +195,14 @@ export default function OrdersPage() {
     [dispatch, authReady, isAuthenticated, filters, ordersState.pagination.pageSize]
   );
 
-  // Initial fetch on filter change
+  // Initial fetch on mount and filter change
   useEffect(() => {
     if (!authReady || !isAuthenticated || !mounted) return;
+
     isLoadingRef.current = false;
+    hasInitialLoadRef.current = true;
     fetchOrders(1, false);
-  }, [mounted, authReady, isAuthenticated, filters, fetchOrders]);
+  }, [mounted, authReady, isAuthenticated, filters.status, filters.search]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -227,6 +235,12 @@ export default function OrdersPage() {
   }, [ordersState.pagination, ordersState.loadingMore, fetchOrders]);
 
   const totalOrders = ordersState.pagination.totalElements;
+
+  // Save scroll position and navigate to order detail
+  const handleOrderClick = (orderId: string) => {
+    scrollPosRef.current = window.scrollY || 0;
+    router.push(`/orders/${orderId}`);
+  };
 
   // Prevent hydration mismatch
   if (!mounted || !authReady) {
@@ -406,7 +420,7 @@ export default function OrdersPage() {
               <div
                 key={order.id}
                 className="group relative rounded-2xl border border-border/40 bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 cursor-pointer overflow-hidden"
-                onClick={() => router.push(`/orders/${order.id}`)}
+                onClick={() => handleOrderClick(order.id)}
               >
                 {/* Status indicator line */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
