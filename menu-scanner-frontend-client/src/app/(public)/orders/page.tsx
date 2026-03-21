@@ -1,18 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Package, ChevronLeft, Search, Filter, AlertCircle, Loader2 } from "lucide-react";
+import Image from "next/image";
+import {
+  Package,
+  ChevronLeft,
+  Search,
+  AlertCircle,
+  Loader2,
+  MapPin,
+  Truck,
+  CreditCard,
+  Calendar,
+  DollarSign,
+  ArrowRight,
+  Clock,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useAppDispatch } from "@/redux/store";
 import { fetchMyOrdersService } from "@/redux/features/main/store/thunks/my-orders-thunks";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
+import { PageHeader } from "@/components/shared/common/page-header";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
-import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { sanitizeImageUrl } from "@/utils/common/common";
 
 type Order = OrderResponse;
 
@@ -38,13 +64,37 @@ const STATUS_OPTIONS = [
   { value: "CANCELLED", label: "Cancelled" },
 ];
 
-const STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-  CONFIRMED: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  PROCESSING: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-  SHIPPED: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400",
-  DELIVERED: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  CANCELLED: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+const STATUS_COLORS: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
+  PENDING: {
+    bg: "bg-amber-50 dark:bg-amber-950/30",
+    text: "text-amber-700 dark:text-amber-400",
+    icon: <Clock className="h-4 w-4" />,
+  },
+  CONFIRMED: {
+    bg: "bg-blue-50 dark:bg-blue-950/30",
+    text: "text-blue-700 dark:text-blue-400",
+    icon: <CheckCircle2 className="h-4 w-4" />,
+  },
+  PROCESSING: {
+    bg: "bg-purple-50 dark:bg-purple-950/30",
+    text: "text-purple-700 dark:text-purple-400",
+    icon: <Loader2 className="h-4 w-4 animate-spin" />,
+  },
+  SHIPPED: {
+    bg: "bg-cyan-50 dark:bg-cyan-950/30",
+    text: "text-cyan-700 dark:text-cyan-400",
+    icon: <Truck className="h-4 w-4" />,
+  },
+  DELIVERED: {
+    bg: "bg-green-50 dark:bg-green-950/30",
+    text: "text-green-700 dark:text-green-400",
+    icon: <CheckCircle2 className="h-4 w-4" />,
+  },
+  CANCELLED: {
+    bg: "bg-red-50 dark:bg-red-950/30",
+    text: "text-red-700 dark:text-red-400",
+    icon: <XCircle className="h-4 w-4" />,
+  },
 };
 
 export default function OrdersPage() {
@@ -69,9 +119,16 @@ export default function OrdersPage() {
     search: "",
   });
 
-  // Fetch orders on mount and when filters change
+  const [mounted, setMounted] = useState(false);
+
+  // Hydration fix
   useEffect(() => {
-    if (!authReady || !isAuthenticated) return;
+    setMounted(true);
+  }, []);
+
+  // Fetch orders
+  useEffect(() => {
+    if (!authReady || !isAuthenticated || !mounted) return;
 
     const fetchOrders = async () => {
       setOrdersState((prev) => ({ ...prev, loading: true }));
@@ -108,9 +165,12 @@ export default function OrdersPage() {
     };
 
     fetchOrders();
-  }, [authReady, isAuthenticated, filters, ordersState.pagination.currentPage, dispatch, profile?.businessId]);
+  }, [mounted, authReady, isAuthenticated, filters, ordersState.pagination.currentPage, dispatch, profile]);
 
-  if (!authReady) {
+  const totalOrders = ordersState.pagination.totalElements;
+
+  // Prevent hydration mismatch
+  if (!mounted || !authReady) {
     return <OrdersPageSkeleton />;
   }
 
@@ -137,297 +197,314 @@ export default function OrdersPage() {
   }
 
   return (
-    <PageContainer className="py-4 sm:py-8">
+    <PageContainer className="py-6 sm:py-8">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => router.back()}
-          className="p-2 hover:bg-muted rounded-lg transition-colors"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">My Orders</h1>
-          <p className="text-sm text-muted-foreground">
-            {ordersState.pagination.totalElements} total orders
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="My Orders"
+        subtitle={`You have ${totalOrders} order${totalOrders !== 1 ? "s" : ""}`}
+        icon={<Package className="h-8 w-8" />}
+        onBack={() => router.back()}
+      />
 
-      {/* Filters */}
-      <div className="bg-card border rounded-2xl p-4 mb-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <Filter className="h-5 w-5 text-primary" />
-          <h2 className="font-semibold">Filters</h2>
-        </div>
-
-        <div className="grid sm:grid-cols-2 gap-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search order number or items..."
-              value={filters.search}
-              onChange={(e) => {
-                setFilters((prev) => ({ ...prev, search: e.target.value }));
-                setOrdersState((prev) => ({
-                  ...prev,
-                  pagination: { ...prev.pagination, currentPage: 1 },
-                }));
-              }}
-              className="w-full pl-9 pr-4 py-2 rounded-lg border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-            />
+      {/* Filter Section */}
+      <div className="mt-8 mb-8 space-y-4 bg-card rounded-2xl border border-border/50 p-6">
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Status Filter */}
+          <div className="flex-1">
+            <label className="text-sm font-semibold text-foreground mb-2 block">
+              Filter by Status
+            </label>
+            <Select value={filters.status} onValueChange={(value) => setFilters((prev) => ({ ...prev, status: value }))}>
+              <SelectTrigger className="h-11 rounded-lg border-border/70 bg-background">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Status Filter */}
-          <select
-            value={filters.status}
-            onChange={(e) => {
-              setFilters((prev) => ({ ...prev, status: e.target.value }));
-              setOrdersState((prev) => ({
-                ...prev,
-                pagination: { ...prev.pagination, currentPage: 1 },
-              }));
-            }}
-            className="px-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-          >
-            {STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          {/* Search Filter */}
+          <div className="flex-1">
+            <label className="text-sm font-semibold text-foreground mb-2 block">
+              Search Orders
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search by order number..."
+                value={filters.search}
+                onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
+                className="pl-10 h-11 rounded-lg border-border/70 bg-background"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Orders List */}
-      <div className="space-y-4">
-        {ordersState.loading ? (
-          <div className="flex justify-center py-12">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Loading orders...
+      {ordersState.loading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading your orders...</p>
+          </div>
+        </div>
+      ) : ordersState.error ? (
+        <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-6">
+          <div className="flex items-start gap-4">
+            <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-red-900 dark:text-red-200">Error Loading Orders</h3>
+              <p className="text-red-800 dark:text-red-300 text-sm mt-1">{ordersState.error}</p>
             </div>
           </div>
-        ) : ordersState.orders.length === 0 ? (
-          <div className="bg-card border rounded-2xl p-12 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <Package className="h-8 w-8 text-primary" />
-            </div>
-            <h2 className="text-lg font-semibold mb-2">No Orders Found</h2>
-            <p className="text-muted-foreground mb-6">
-              {filters.status || filters.search
-                ? "No orders match your filters. Try adjusting your search."
-                : "You haven't placed any orders yet."}
-            </p>
-            <CustomButton
-              onClick={() => router.push("/products")}
-              className="gap-2 h-10 rounded-lg"
-            >
-              Start Shopping
-            </CustomButton>
+        </div>
+      ) : ordersState.orders.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <Package className="h-8 w-8 text-primary" />
           </div>
-        ) : (
-          <>
-            {ordersState.orders.map((order) => (
-              <Link
+          <h3 className="text-lg font-semibold text-foreground mb-2">No Orders Yet</h3>
+          <p className="text-muted-foreground mb-6">
+            You haven't placed any orders yet. Start shopping now!
+          </p>
+          <CustomButton
+            onClick={() => router.push("/menu")}
+            className="rounded-xl h-11 px-6"
+          >
+            Browse Menu
+          </CustomButton>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {ordersState.orders.map((order) => {
+            const statusColor = STATUS_COLORS[order.orderProcessStatus?.name || "PENDING"] || STATUS_COLORS.PENDING;
+            const itemCount = order.items?.length || 0;
+
+            return (
+              <div
                 key={order.id}
-                href={`/orders/${order.id}`}
-                className="block"
+                className="group rounded-2xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-lg transition-all duration-200 overflow-hidden"
               >
-                <div className="bg-card border rounded-2xl p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    {/* Order Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-sm sm:text-base">
-                          Order #{order.orderNumber}
-                        </h3>
-                        <span
-                          className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-                            STATUS_COLORS[order.orderProcessStatus?.name || ""] ||
-                            "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
-                          }`}
-                        >
-                          {order.orderProcessStatus?.name || "Unknown"}
-                        </span>
+                <div className="p-6">
+                  {/* Order Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-6 border-b border-border/50">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className={cn("p-3 rounded-xl", statusColor.bg)}>
+                        <div className={cn("text-lg", statusColor.text)}>
+                          {statusColor.icon}
+                        </div>
                       </div>
-
-                      <p className="text-xs text-muted-foreground mb-3">
-                        {dateTimeFormat(order.createdAt)}
-                      </p>
-
-                      {/* Items */}
-                      <div className="space-y-1 mb-3">
-                        {order.items.slice(0, 2).map((item, idx) => (
-                          <p key={idx} className="text-sm text-muted-foreground">
-                            • {item.product.name} × {item.quantity}
-                          </p>
-                        ))}
-                        {order.items.length > 2 && (
-                          <p className="text-sm text-muted-foreground">
-                            +{order.items.length - 2} more item
-                            {order.items.length - 2 > 1 ? "s" : ""}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Amount & Status */}
-                    <div className="flex flex-col items-end gap-2 sm:text-right">
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Total Amount</p>
-                        <p className="text-lg sm:text-2xl font-bold text-primary">
-                          {formatCurrency(order.pricing.finalTotal)}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-muted-foreground">Order Number</p>
+                        <p className="text-base sm:text-lg font-bold text-foreground truncate">
+                          {order.orderNumber}
                         </p>
                       </div>
-
-                      <span
-                        className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-                          order.payment.paymentStatus === "PAID"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                            : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
-                        }`}
-                      >
-                        {order.payment.paymentStatus}
-                      </span>
+                    </div>
+                    <div className={cn("px-3 py-1.5 rounded-lg font-semibold text-sm whitespace-nowrap", statusColor.bg, statusColor.text)}>
+                      {order.orderProcessStatus?.name || "Unknown"}
                     </div>
                   </div>
+
+                  {/* Order Details Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    {/* Date */}
+                    <div className="flex items-start gap-3">
+                      <Calendar className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Order Date
+                        </p>
+                        <p className="text-sm font-medium text-foreground mt-1">
+                          {dateTimeFormat(order.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Total Amount */}
+                    <div className="flex items-start gap-3">
+                      <DollarSign className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Total Amount
+                        </p>
+                        <p className="text-sm font-bold text-primary mt-1">
+                          {formatCurrency(order.pricing?.finalTotal || 0)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Items Count */}
+                    <div className="flex items-start gap-3">
+                      <Package className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Items
+                        </p>
+                        <p className="text-sm font-medium text-foreground mt-1">
+                          {itemCount} product{itemCount !== 1 ? "s" : ""}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Payment Status */}
+                    <div className="flex items-start gap-3">
+                      <CreditCard className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Payment
+                        </p>
+                        <p className="text-sm font-medium text-foreground mt-1">
+                          {order.payment?.paymentStatus || "Unknown"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Order Items */}
+                  <div className="mb-6 pb-6 border-b border-border/50">
+                    <p className="text-sm font-semibold text-foreground mb-3">Order Items</p>
+                    <div className="space-y-2">
+                      {order.items?.slice(0, 3).map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-sm bg-muted/40 rounded-lg p-3">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {item.product?.imageUrl && (
+                              <div className="relative w-10 h-10 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+                                <Image
+                                  src={sanitizeImageUrl(item.product.imageUrl)}
+                                  alt={item.product?.name || "Product"}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-foreground truncate">
+                                {item.product?.name || "Unknown Product"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {item.product?.sizeName && `Size: ${item.product.sizeName}`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right flex-shrink-0 ml-2">
+                            <p className="font-semibold text-foreground">×{item.quantity}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatCurrency(item.totalPrice || 0)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                      {itemCount > 3 && (
+                        <p className="text-xs text-muted-foreground text-center py-2">
+                          +{itemCount - 3} more item{itemCount - 3 !== 1 ? "s" : ""}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Delivery Info */}
+                  <div className="flex items-start gap-3 mb-6 pb-6 border-b border-border/50">
+                    <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground mb-2">Delivery Address</p>
+                      <p className="text-sm text-muted-foreground">
+                        {order.deliveryAddress?.houseNumber && `${order.deliveryAddress.houseNumber}, `}
+                        {order.deliveryAddress?.streetNumber && `Street ${order.deliveryAddress.streetNumber}, `}
+                        {order.deliveryAddress?.village && `${order.deliveryAddress.village}, `}
+                        {order.deliveryAddress?.commune && `${order.deliveryAddress.commune}, `}
+                        {order.deliveryAddress?.district && `${order.deliveryAddress.district}, `}
+                        {order.deliveryAddress?.province}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="flex gap-3">
+                    <CustomButton
+                      onClick={() => router.push(`/orders/${order.id}`)}
+                      className="flex-1 h-11 rounded-xl flex items-center justify-center gap-2 group/btn"
+                    >
+                      View Details
+                      <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                    </CustomButton>
+                  </div>
                 </div>
-              </Link>
-            ))}
-
-            {/* Pagination */}
-            {ordersState.pagination.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-6">
-                <CustomButton
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setOrdersState((prev) => ({
-                      ...prev,
-                      pagination: {
-                        ...prev.pagination,
-                        currentPage: Math.max(1, prev.pagination.currentPage - 1),
-                      },
-                    }))
-                  }
-                  disabled={ordersState.pagination.currentPage === 1}
-                  className="rounded-lg"
-                >
-                  Previous
-                </CustomButton>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({
-                    length: Math.min(5, ordersState.pagination.totalPages),
-                  }).map((_, i) => {
-                    const pageNum =
-                      ordersState.pagination.currentPage - 2 + i;
-                    if (pageNum < 1 || pageNum > ordersState.pagination.totalPages)
-                      return null;
-                    return (
-                      <CustomButton
-                        key={pageNum}
-                        variant={
-                          pageNum === ordersState.pagination.currentPage
-                            ? "default"
-                            : "outline"
-                        }
-                        size="sm"
-                        onClick={() =>
-                          setOrdersState((prev) => ({
-                            ...prev,
-                            pagination: {
-                              ...prev.pagination,
-                              currentPage: pageNum,
-                            },
-                          }))
-                        }
-                        className="h-8 w-8 rounded-lg"
-                      >
-                        {pageNum}
-                      </CustomButton>
-                    );
-                  })}
-                </div>
-
-                <CustomButton
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setOrdersState((prev) => ({
-                      ...prev,
-                      pagination: {
-                        ...prev.pagination,
-                        currentPage: Math.min(
-                          prev.pagination.totalPages,
-                          prev.pagination.currentPage + 1
-                        ),
-                      },
-                    }))
-                  }
-                  disabled={
-                    ordersState.pagination.currentPage ===
-                    ordersState.pagination.totalPages
-                  }
-                  className="rounded-lg"
-                >
-                  Next
-                </CustomButton>
               </div>
-            )}
-          </>
-        )}
+            );
+          })}
+        </div>
+      )}
 
-        {/* Error State */}
-        {ordersState.error && (
-          <div className="flex gap-3 p-4 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-200/50 dark:border-red-800/30">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-red-800 dark:text-red-400">
-                Error loading orders
-              </p>
-              <p className="text-sm text-red-700 dark:text-red-400 mt-1">
-                {ordersState.error}
-              </p>
-            </div>
+      {/* Pagination */}
+      {ordersState.pagination.totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Page {ordersState.pagination.currentPage} of {ordersState.pagination.totalPages}
+          </p>
+          <div className="flex gap-2">
+            <CustomButton
+              onClick={() =>
+                setOrdersState((prev) => ({
+                  ...prev,
+                  pagination: {
+                    ...prev.pagination,
+                    currentPage: Math.max(1, prev.pagination.currentPage - 1),
+                  },
+                }))
+              }
+              disabled={ordersState.pagination.currentPage === 1}
+              variant="outline"
+              className="h-10 rounded-lg"
+            >
+              Previous
+            </CustomButton>
+            <CustomButton
+              onClick={() =>
+                setOrdersState((prev) => ({
+                  ...prev,
+                  pagination: {
+                    ...prev.pagination,
+                    currentPage: Math.min(
+                      prev.pagination.totalPages,
+                      prev.pagination.currentPage + 1
+                    ),
+                  },
+                }))
+              }
+              disabled={
+                ordersState.pagination.currentPage ===
+                ordersState.pagination.totalPages
+              }
+              variant="outline"
+              className="h-10 rounded-lg"
+            >
+              Next
+            </CustomButton>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </PageContainer>
   );
 }
 
 function OrdersPageSkeleton() {
   return (
-    <PageContainer className="py-4 sm:py-8">
-      {/* Header with back button - matches actual page structure */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-muted rounded-lg animate-pulse" />
-        <div className="flex-1">
-          <div className="h-8 bg-muted rounded-lg w-48 animate-pulse" />
-          <div className="h-4 bg-muted rounded-lg w-32 animate-pulse mt-2" />
-        </div>
-      </div>
-
-      {/* Filters skeleton */}
-      <div className="bg-card border rounded-2xl p-4 mb-6 space-y-4">
-        <div className="h-6 bg-muted rounded-lg w-24 animate-pulse" />
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div className="h-10 bg-muted rounded-lg animate-pulse" />
-          <div className="h-10 bg-muted rounded-lg animate-pulse" />
-        </div>
-      </div>
-
-      {/* Orders skeleton */}
+    <PageContainer className="py-8">
       <div className="space-y-4">
+        <div className="h-12 bg-muted rounded-lg animate-pulse" />
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="bg-card border rounded-2xl p-6 h-40 animate-pulse"
-          />
+          <div key={i} className="rounded-2xl border border-border p-6 space-y-4">
+            <div className="h-8 bg-muted rounded-lg animate-pulse" />
+            <div className="h-20 bg-muted rounded-lg animate-pulse" />
+          </div>
         ))}
       </div>
     </PageContainer>
