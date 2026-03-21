@@ -146,7 +146,7 @@ export default function OrdersPage() {
     };
 
     fetchStatuses();
-  }, [mounted, authReady, isAuthenticated, dispatch];
+  }, [mounted, authReady, isAuthenticated, dispatch]);
 
   // Fetch orders
   const fetchOrders = useCallback(
