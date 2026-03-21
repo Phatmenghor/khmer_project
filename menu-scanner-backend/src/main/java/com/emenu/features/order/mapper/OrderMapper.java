@@ -69,7 +69,10 @@ public interface OrderMapper {
                 .businessId(request.getBusinessId())
                 .paymentMethod(request.getPayment() != null ? request.getPayment().getPaymentMethod() : null)
                 .paymentStatus(request.getPayment() != null ? request.getPayment().getPaymentStatus() : null)
-                .customerNote(request.getCustomerNote());
+                .customerNote(request.getCustomerNote())
+                // Initialize pricing with defaults - will be updated after items are processed
+                .subtotal(BigDecimal.ZERO)
+                .totalAmount(BigDecimal.ZERO);
 
         // Serialize full delivery address object as JSON snapshot
         if (request.getDeliveryAddress() != null) {
