@@ -416,29 +416,33 @@ export default function OrdersPage() {
 
 function OrdersPageSkeleton() {
   return (
-    <PageContainer className="py-8">
-      <div className="space-y-6">
-        {/* Header skeleton */}
-        <div className="h-10 bg-muted rounded-lg w-48 animate-pulse" />
-
-        {/* Filters skeleton */}
-        <div className="bg-card border rounded-2xl p-4 space-y-4">
-          <div className="h-6 bg-muted rounded-lg w-24 animate-pulse" />
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="h-10 bg-muted rounded-lg animate-pulse" />
-            <div className="h-10 bg-muted rounded-lg animate-pulse" />
-          </div>
+    <PageContainer className="py-4 sm:py-8">
+      {/* Header with back button - matches actual page structure */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 bg-muted rounded-lg animate-pulse" />
+        <div className="flex-1">
+          <div className="h-8 bg-muted rounded-lg w-48 animate-pulse" />
+          <div className="h-4 bg-muted rounded-lg w-32 animate-pulse mt-2" />
         </div>
+      </div>
 
-        {/* Orders skeleton */}
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="bg-card border rounded-2xl p-6 h-40 animate-pulse"
-            />
-          ))}
+      {/* Filters skeleton */}
+      <div className="bg-card border rounded-2xl p-4 mb-6 space-y-4">
+        <div className="h-6 bg-muted rounded-lg w-24 animate-pulse" />
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="h-10 bg-muted rounded-lg animate-pulse" />
+          <div className="h-10 bg-muted rounded-lg animate-pulse" />
         </div>
+      </div>
+
+      {/* Orders skeleton */}
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="bg-card border rounded-2xl p-6 h-40 animate-pulse"
+          />
+        ))}
       </div>
     </PageContainer>
   );
