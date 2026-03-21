@@ -393,6 +393,7 @@ export default function CheckoutPage() {
                   businessId={AppDefault.BUSINESS_ID}
                   statuses={["ACTIVE"]}
                 />
+
               </div>
 
               {/* Payment Method */}
