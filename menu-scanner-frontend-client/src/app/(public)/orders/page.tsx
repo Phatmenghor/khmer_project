@@ -11,24 +11,10 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
 import Link from "next/link";
 
-interface Order {
-  id: string;
-  orderNumber: string;
-  status: string;
-  paymentStatus: string;
-  totalAmount: number;
-  createdAt: string;
-  deliveryOption?: {
-    name: string;
-    price: number;
-  };
-  items: Array<{
-    productName: string;
-    quantity: number;
-  }>;
-}
+type Order = OrderResponse;
 
 interface OrdersState {
   orders: Order[];
@@ -260,11 +246,11 @@ export default function OrdersPage() {
                         </h3>
                         <span
                           className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-                            STATUS_COLORS[order.status] ||
+                            STATUS_COLORS[order.orderProcessStatus?.name || ""] ||
                             "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
                           }`}
                         >
-                          {order.status}
+                          {order.orderProcessStatus?.name || "Unknown"}
                         </span>
                       </div>
 
@@ -276,7 +262,7 @@ export default function OrdersPage() {
                       <div className="space-y-1 mb-3">
                         {order.items.slice(0, 2).map((item, idx) => (
                           <p key={idx} className="text-sm text-muted-foreground">
-                            • {item.productName} × {item.quantity}
+                            • {item.product.name} × {item.quantity}
                           </p>
                         ))}
                         {order.items.length > 2 && (
@@ -293,18 +279,18 @@ export default function OrdersPage() {
                       <div className="text-right">
                         <p className="text-xs text-muted-foreground">Total Amount</p>
                         <p className="text-lg sm:text-2xl font-bold text-primary">
-                          {formatCurrency(order.totalAmount)}
+                          {formatCurrency(order.pricing.finalTotal)}
                         </p>
                       </div>
 
                       <span
                         className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-                          order.paymentStatus === "PAID"
+                          order.payment.paymentStatus === "PAID"
                             ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                             : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
                         }`}
                       >
-                        {order.paymentStatus}
+                        {order.payment.paymentStatus}
                       </span>
                     </div>
                   </div>
