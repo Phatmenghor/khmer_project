@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Package,
-  ChevronLeft,
   Search,
   AlertCircle,
   Loader2,
@@ -18,6 +17,7 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  ShoppingBag,
 } from "lucide-react";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useAppDispatch } from "@/redux/store";
@@ -29,13 +29,6 @@ import { PageHeader } from "@/components/shared/common/page-header";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { sanitizeImageUrl } from "@/utils/common/common";
@@ -54,44 +47,50 @@ interface OrdersState {
   };
 }
 
-const STATUS_OPTIONS = [
-  { value: "", label: "All Status" },
-  { value: "PENDING", label: "Pending" },
-  { value: "CONFIRMED", label: "Confirmed" },
-  { value: "PROCESSING", label: "Processing" },
-  { value: "SHIPPED", label: "Shipped" },
-  { value: "DELIVERED", label: "Delivered" },
-  { value: "CANCELLED", label: "Cancelled" },
+const STATUS_TABS = [
+  { value: "", label: "All Orders", badge: true },
+  { value: "PENDING", label: "Pending", icon: Clock },
+  { value: "CONFIRMED", label: "Confirmed", icon: CheckCircle2 },
+  { value: "PROCESSING", label: "Processing", icon: Loader2 },
+  { value: "SHIPPED", label: "Shipped", icon: Truck },
+  { value: "DELIVERED", label: "Delivered", icon: CheckCircle2 },
+  { value: "CANCELLED", label: "Cancelled", icon: XCircle },
 ];
 
-const STATUS_COLORS: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
+const STATUS_COLORS: Record<string, { bg: string; text: string; icon: React.ReactNode; lightBg: string }> = {
   PENDING: {
-    bg: "bg-amber-50 dark:bg-amber-950/30",
+    bg: "bg-amber-100 dark:bg-amber-900/30",
+    lightBg: "bg-amber-50 dark:bg-amber-950/30",
     text: "text-amber-700 dark:text-amber-400",
     icon: <Clock className="h-4 w-4" />,
   },
   CONFIRMED: {
-    bg: "bg-blue-50 dark:bg-blue-950/30",
+    bg: "bg-blue-100 dark:bg-blue-900/30",
+    lightBg: "bg-blue-50 dark:bg-blue-950/30",
     text: "text-blue-700 dark:text-blue-400",
     icon: <CheckCircle2 className="h-4 w-4" />,
   },
   PROCESSING: {
-    bg: "bg-purple-50 dark:bg-purple-950/30",
+    bg: "bg-purple-100 dark:bg-purple-900/30",
+    lightBg: "bg-purple-50 dark:bg-purple-950/30",
     text: "text-purple-700 dark:text-purple-400",
     icon: <Loader2 className="h-4 w-4 animate-spin" />,
   },
   SHIPPED: {
-    bg: "bg-cyan-50 dark:bg-cyan-950/30",
+    bg: "bg-cyan-100 dark:bg-cyan-900/30",
+    lightBg: "bg-cyan-50 dark:bg-cyan-950/30",
     text: "text-cyan-700 dark:text-cyan-400",
     icon: <Truck className="h-4 w-4" />,
   },
   DELIVERED: {
-    bg: "bg-green-50 dark:bg-green-950/30",
+    bg: "bg-green-100 dark:bg-green-900/30",
+    lightBg: "bg-green-50 dark:bg-green-950/30",
     text: "text-green-700 dark:text-green-400",
     icon: <CheckCircle2 className="h-4 w-4" />,
   },
   CANCELLED: {
-    bg: "bg-red-50 dark:bg-red-950/30",
+    bg: "bg-red-100 dark:bg-red-900/30",
+    lightBg: "bg-red-50 dark:bg-red-950/30",
     text: "text-red-700 dark:text-red-400",
     icon: <XCircle className="h-4 w-4" />,
   },
@@ -117,6 +116,7 @@ export default function OrdersPage() {
   const [filters, setFilters] = useState({
     status: "",
     search: "",
+    isInitial: true,
   });
 
   const [mounted, setMounted] = useState(false);
@@ -202,48 +202,60 @@ export default function OrdersPage() {
       <PageHeader
         title="My Orders"
         subtitle={`You have ${totalOrders} order${totalOrders !== 1 ? "s" : ""}`}
-        icon={<Package className="h-8 w-8" />}
+        icon={<ShoppingBag className="h-8 w-8" />}
         onBack={() => router.back()}
       />
 
-      {/* Filter Section */}
-      <div className="mt-8 mb-8 space-y-4 bg-card rounded-2xl border border-border/50 p-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Status Filter */}
-          <div className="flex-1">
-            <label className="text-sm font-semibold text-foreground mb-2 block">
-              Filter by Status
-            </label>
-            <Select value={filters.status} onValueChange={(value) => setFilters((prev) => ({ ...prev, status: value }))}>
-              <SelectTrigger className="h-11 rounded-lg border-border/70 bg-background">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Status Filter Tabs */}
+      <div className="mt-8 mb-8">
+        <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+          {STATUS_TABS.map((tab) => {
+            const isActive = filters.status === tab.value;
+            return (
+              <button
+                key={tab.value}
+                onClick={() => {
+                  setFilters((prev) => ({ ...prev, status: tab.value, isInitial: false }));
+                  setOrdersState((prev) => ({
+                    ...prev,
+                    pagination: { ...prev.pagination, currentPage: 1 },
+                  }));
+                }}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0",
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "bg-card border border-border/50 text-foreground hover:border-primary/30 hover:bg-muted"
+                )}
+              >
+                {tab.value && STATUS_COLORS[tab.value] && (
+                  <div className={cn("text-lg", isActive ? "text-primary-foreground" : STATUS_COLORS[tab.value].text)}>
+                    {STATUS_COLORS[tab.value].icon}
+                  </div>
+                )}
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-          {/* Search Filter */}
-          <div className="flex-1">
-            <label className="text-sm font-semibold text-foreground mb-2 block">
-              Search Orders
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search by order number..."
-                value={filters.search}
-                onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
-                className="pl-10 h-11 rounded-lg border-border/70 bg-background"
-              />
-            </div>
-          </div>
+      {/* Search Bar */}
+      <div className="mb-8">
+        <label className="text-sm font-semibold text-foreground mb-2 block">
+          Search Orders
+        </label>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by order number..."
+            value={filters.search}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, search: e.target.value }))
+            }
+            className="pl-10 h-12 rounded-lg border-border/70 bg-background text-base"
+          />
         </div>
       </div>
 
@@ -270,9 +282,13 @@ export default function OrdersPage() {
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Package className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">No Orders Yet</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            {filters.status ? "No Orders Found" : "No Orders Yet"}
+          </h3>
           <p className="text-muted-foreground mb-6">
-            You haven't placed any orders yet. Start shopping now!
+            {filters.status
+              ? `No orders with ${filters.status.toLowerCase()} status. Try a different filter.`
+              : "You haven't placed any orders yet. Start shopping now!"}
           </p>
           <CustomButton
             onClick={() => router.push("/menu")}
@@ -290,152 +306,203 @@ export default function OrdersPage() {
             return (
               <div
                 key={order.id}
-                className="group rounded-2xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-lg transition-all duration-200 overflow-hidden"
+                className="group rounded-2xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 overflow-hidden"
               >
-                <div className="p-6">
-                  {/* Order Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-6 border-b border-border/50">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className={cn("p-3 rounded-xl", statusColor.bg)}>
-                        <div className={cn("text-lg", statusColor.text)}>
+                <div className="p-6 sm:p-8">
+                  {/* Order Header with Status */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 pb-8 border-b border-border/50">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className={cn("p-4 rounded-2xl", statusColor.bg)}>
+                        <div className={cn("text-2xl", statusColor.text)}>
                           {statusColor.icon}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-muted-foreground">Order Number</p>
-                        <p className="text-base sm:text-lg font-bold text-foreground truncate">
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                          Order ID
+                        </p>
+                        <p className="text-lg sm:text-xl font-bold text-foreground truncate mt-1">
                           {order.orderNumber}
                         </p>
                       </div>
                     </div>
-                    <div className={cn("px-3 py-1.5 rounded-lg font-semibold text-sm whitespace-nowrap", statusColor.bg, statusColor.text)}>
+                    <div className={cn("px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap self-start sm:self-auto", statusColor.bg, statusColor.text)}>
                       {order.orderProcessStatus?.name || "Unknown"}
                     </div>
                   </div>
 
-                  {/* Order Details Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    {/* Date */}
-                    <div className="flex items-start gap-3">
-                      <Calendar className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                          Order Date
-                        </p>
-                        <p className="text-sm font-medium text-foreground mt-1">
-                          {dateTimeFormat(order.createdAt)}
+                  {/* Order Meta Information - 4 Column Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 pb-8 border-b border-border/50">
+                    {/* Order Date */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                          Date
                         </p>
                       </div>
+                      <p className="text-sm font-semibold text-foreground">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(order.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
                     </div>
 
                     {/* Total Amount */}
-                    <div className="flex items-start gap-3">
-                      <DollarSign className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                          Total Amount
-                        </p>
-                        <p className="text-sm font-bold text-primary mt-1">
-                          {formatCurrency(order.pricing?.finalTotal || 0)}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <DollarSign className="h-4 w-4 text-primary flex-shrink-0" />
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                          Total
                         </p>
                       </div>
+                      <p className="text-sm font-bold text-primary">
+                        {formatCurrency(order.pricing?.finalTotal || 0)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? "s" : ""}
+                      </p>
                     </div>
 
-                    {/* Items Count */}
-                    <div className="flex items-start gap-3">
-                      <Package className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                          Items
-                        </p>
-                        <p className="text-sm font-medium text-foreground mt-1">
-                          {itemCount} product{itemCount !== 1 ? "s" : ""}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Payment Status */}
-                    <div className="flex items-start gap-3">
-                      <CreditCard className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    {/* Payment Method */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CreditCard className="h-4 w-4 text-primary flex-shrink-0" />
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                           Payment
                         </p>
-                        <p className="text-sm font-medium text-foreground mt-1">
-                          {order.payment?.paymentStatus || "Unknown"}
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">
+                        {order.payment?.paymentStatus || "Unknown"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.deliveryOption?.name || "—"}
+                      </p>
+                    </div>
+
+                    {/* Delivery */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Truck className="h-4 w-4 text-primary flex-shrink-0" />
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                          Delivery
                         </p>
                       </div>
+                      <p className="text-sm font-semibold text-foreground">
+                        {formatCurrency(order.deliveryOption?.price || 0)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.deliveryAddress?.province || "—"}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Order Items */}
-                  <div className="mb-6 pb-6 border-b border-border/50">
-                    <p className="text-sm font-semibold text-foreground mb-3">Order Items</p>
-                    <div className="space-y-2">
-                      {order.items?.slice(0, 3).map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-sm bg-muted/40 rounded-lg p-3">
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            {item.product?.imageUrl && (
-                              <div className="relative w-10 h-10 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
-                                <Image
-                                  src={sanitizeImageUrl(item.product.imageUrl)}
-                                  alt={item.product?.name || "Product"}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-foreground truncate">
-                                {item.product?.name || "Unknown Product"}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {item.product?.sizeName && `Size: ${item.product.sizeName}`}
-                              </p>
+                  {/* Order Items Cards */}
+                  <div className="mb-8 pb-8 border-b border-border/50">
+                    <p className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
+                      Items ({itemCount})
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {order.items?.slice(0, 4).map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-3 bg-muted/50 rounded-xl p-4 border border-border/30 hover:border-primary/30 hover:bg-muted transition-all"
+                        >
+                          {item.product?.imageUrl && (
+                            <div className="relative w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-muted border border-border/50">
+                              <Image
+                                src={sanitizeImageUrl(item.product.imageUrl)}
+                                alt={item.product?.name || "Product"}
+                                fill
+                                className="object-cover"
+                              />
                             </div>
-                          </div>
-                          <div className="text-right flex-shrink-0 ml-2">
-                            <p className="font-semibold text-foreground">×{item.quantity}</p>
-                            <p className="text-xs text-muted-foreground">
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-foreground text-sm truncate">
+                              {item.product?.name || "Unknown"}
+                            </p>
+                            {item.product?.sizeName && (
+                              <p className="text-xs text-muted-foreground">
+                                {item.product.sizeName}
+                              </p>
+                            )}
+                            <p className="text-xs font-semibold text-primary mt-1">
                               {formatCurrency(item.totalPrice || 0)}
+                            </p>
+                          </div>
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 flex-shrink-0">
+                            <p className="text-xs font-bold text-primary">
+                              ×{item.quantity}
                             </p>
                           </div>
                         </div>
                       ))}
-                      {itemCount > 3 && (
-                        <p className="text-xs text-muted-foreground text-center py-2">
-                          +{itemCount - 3} more item{itemCount - 3 !== 1 ? "s" : ""}
-                        </p>
-                      )}
                     </div>
+                    {itemCount > 4 && (
+                      <p className="text-xs text-muted-foreground text-center py-3 mt-3 border-t border-border/50">
+                        +{itemCount - 4} more item{itemCount - 4 !== 1 ? "s" : ""}
+                      </p>
+                    )}
                   </div>
 
-                  {/* Delivery Info */}
-                  <div className="flex items-start gap-3 mb-6 pb-6 border-b border-border/50">
+                  {/* Delivery Address */}
+                  <div className="flex items-start gap-3 mb-8">
                     <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground mb-2">Delivery Address</p>
-                      <p className="text-sm text-muted-foreground">
-                        {order.deliveryAddress?.houseNumber && `${order.deliveryAddress.houseNumber}, `}
-                        {order.deliveryAddress?.streetNumber && `Street ${order.deliveryAddress.streetNumber}, `}
-                        {order.deliveryAddress?.village && `${order.deliveryAddress.village}, `}
-                        {order.deliveryAddress?.commune && `${order.deliveryAddress.commune}, `}
-                        {order.deliveryAddress?.district && `${order.deliveryAddress.district}, `}
+                      <p className="text-sm font-bold text-foreground mb-2 uppercase tracking-wider">
+                        Delivery Address
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {order.deliveryAddress?.houseNumber && (
+                          <>
+                            <span className="font-semibold text-foreground">
+                              {order.deliveryAddress.houseNumber}
+                            </span>
+                            {", "}
+                          </>
+                        )}
+                        {order.deliveryAddress?.streetNumber && (
+                          <>
+                            St. {order.deliveryAddress.streetNumber}
+                            {", "}
+                          </>
+                        )}
+                        {order.deliveryAddress?.village && (
+                          <>
+                            {order.deliveryAddress.village}
+                            {", "}
+                          </>
+                        )}
+                        {order.deliveryAddress?.commune && (
+                          <>
+                            {order.deliveryAddress.commune}
+                            {", "}
+                          </>
+                        )}
+                        {order.deliveryAddress?.district && (
+                          <>
+                            {order.deliveryAddress.district}
+                            {", "}
+                          </>
+                        )}
                         {order.deliveryAddress?.province}
                       </p>
                     </div>
                   </div>
 
                   {/* Action Button */}
-                  <div className="flex gap-3">
-                    <CustomButton
-                      onClick={() => router.push(`/orders/${order.id}`)}
-                      className="flex-1 h-11 rounded-xl flex items-center justify-center gap-2 group/btn"
-                    >
-                      View Details
-                      <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                    </CustomButton>
-                  </div>
+                  <CustomButton
+                    onClick={() => router.push(`/orders/${order.id}`)}
+                    className="w-full h-12 rounded-xl flex items-center justify-center gap-2 group/btn text-base font-semibold"
+                  >
+                    View Full Details
+                    <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </CustomButton>
                 </div>
               </div>
             );
@@ -445,11 +512,12 @@ export default function OrdersPage() {
 
       {/* Pagination */}
       {ordersState.pagination.totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Page {ordersState.pagination.currentPage} of {ordersState.pagination.totalPages}
+        <div className="mt-12 flex items-center justify-between bg-card rounded-2xl border border-border/50 p-6">
+          <p className="text-sm font-semibold text-foreground">
+            Page <span className="text-primary">{ordersState.pagination.currentPage}</span> of{" "}
+            <span className="text-primary">{ordersState.pagination.totalPages}</span>
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <CustomButton
               onClick={() =>
                 setOrdersState((prev) => ({
@@ -462,9 +530,9 @@ export default function OrdersPage() {
               }
               disabled={ordersState.pagination.currentPage === 1}
               variant="outline"
-              className="h-10 rounded-lg"
+              className="h-11 rounded-lg px-6 font-semibold"
             >
-              Previous
+              ← Previous
             </CustomButton>
             <CustomButton
               onClick={() =>
@@ -484,9 +552,9 @@ export default function OrdersPage() {
                 ordersState.pagination.totalPages
               }
               variant="outline"
-              className="h-10 rounded-lg"
+              className="h-11 rounded-lg px-6 font-semibold"
             >
-              Next
+              Next →
             </CustomButton>
           </div>
         </div>
@@ -503,7 +571,7 @@ function OrdersPageSkeleton() {
         {[1, 2, 3].map((i) => (
           <div key={i} className="rounded-2xl border border-border p-6 space-y-4">
             <div className="h-8 bg-muted rounded-lg animate-pulse" />
-            <div className="h-20 bg-muted rounded-lg animate-pulse" />
+            <div className="h-32 bg-muted rounded-lg animate-pulse" />
           </div>
         ))}
       </div>
