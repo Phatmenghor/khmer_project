@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import {
   Package,
   Search,
@@ -10,9 +9,6 @@ import {
   Loader2,
   MapPin,
   Truck,
-  CreditCard,
-  Calendar,
-  DollarSign,
   ArrowRight,
   Clock,
   CheckCircle2,
@@ -27,11 +23,9 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { sanitizeImageUrl } from "@/utils/common/common";
 
 type Order = OrderResponse;
 
@@ -297,211 +291,89 @@ export default function OrdersPage() {
           </CustomButton>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {ordersState.orders.map((order) => {
             const statusColor = STATUS_COLORS[order.orderProcessStatus?.name || "PENDING"] || STATUS_COLORS.PENDING;
             const itemCount = order.items?.length || 0;
+            const deliveryAddress = [
+              order.deliveryAddress?.houseNumber,
+              order.deliveryAddress?.streetNumber ? `St. ${order.deliveryAddress.streetNumber}` : null,
+              order.deliveryAddress?.village,
+              order.deliveryAddress?.commune,
+              order.deliveryAddress?.district,
+              order.deliveryAddress?.province,
+            ]
+              .filter(Boolean)
+              .join(", ");
 
             return (
               <div
                 key={order.id}
-                className="group rounded-2xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 overflow-hidden"
+                className="rounded-xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
+                onClick={() => router.push(`/orders/${order.id}`)}
               >
-                <div className="p-6 sm:p-8">
-                  {/* Order Header with Status */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 pb-8 border-b border-border/50">
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
-                      <div className={cn("p-4 rounded-2xl", statusColor.bg)}>
-                        <div className={cn("text-2xl", statusColor.text)}>
+                <div className="p-4 sm:p-5">
+                  {/* Top row: Order Number, Items Count, Status */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={cn("p-2.5 rounded-lg shrink-0", statusColor.bg)}>
+                        <div className={cn("text-lg", statusColor.text)}>
                           {statusColor.icon}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                          Order ID
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                          Order
                         </p>
-                        <p className="text-lg sm:text-xl font-bold text-foreground truncate mt-1">
+                        <p className="text-sm sm:text-base font-bold text-foreground truncate">
                           {order.orderNumber}
                         </p>
                       </div>
                     </div>
-                    <div className={cn("px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap self-start sm:self-auto", statusColor.bg, statusColor.text)}>
-                      {order.orderProcessStatus?.name || "Unknown"}
-                    </div>
-                  </div>
-
-                  {/* Order Meta Information - 4 Column Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 pb-8 border-b border-border/50">
-                    {/* Order Date */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                          Date
-                        </p>
+                    <div className="flex items-center gap-3 sm:flex-col-reverse sm:items-end">
+                      <div className="flex items-center gap-1.5">
+                        <Package className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-semibold text-foreground">
+                          {itemCount} item{itemCount !== 1 ? "s" : ""}
+                        </span>
                       </div>
-                      <p className="text-sm font-semibold text-foreground">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(order.createdAt).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-
-                    {/* Total Amount */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="h-4 w-4 text-primary flex-shrink-0" />
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                          Total
-                        </p>
+                      <div className={cn("px-3 py-1 rounded-lg font-semibold text-xs whitespace-nowrap", statusColor.bg, statusColor.text)}>
+                        {order.orderProcessStatus?.name || "Unknown"}
                       </div>
-                      <p className="text-sm font-bold text-primary">
-                        {formatCurrency(order.pricing?.finalTotal || 0)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? "s" : ""}
-                      </p>
                     </div>
-
-                    {/* Payment Method */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CreditCard className="h-4 w-4 text-primary flex-shrink-0" />
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                          Payment
-                        </p>
-                      </div>
-                      <p className="text-sm font-semibold text-foreground">
-                        {order.payment?.paymentStatus || "Unknown"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {order.deliveryOption?.name || "—"}
-                      </p>
-                    </div>
-
-                    {/* Delivery */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Truck className="h-4 w-4 text-primary flex-shrink-0" />
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                          Delivery
-                        </p>
-                      </div>
-                      <p className="text-sm font-semibold text-foreground">
-                        {formatCurrency(order.deliveryOption?.price || 0)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {order.deliveryAddress?.province || "—"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Order Items Cards */}
-                  <div className="mb-8 pb-8 border-b border-border/50">
-                    <p className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
-                      Items ({itemCount})
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {order.items?.slice(0, 4).map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-3 bg-muted/50 rounded-xl p-4 border border-border/30 hover:border-primary/30 hover:bg-muted transition-all"
-                        >
-                          {item.product?.imageUrl && (
-                            <div className="relative w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-muted border border-border/50">
-                              <Image
-                                src={sanitizeImageUrl(item.product.imageUrl)}
-                                alt={item.product?.name || "Product"}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-foreground text-sm truncate">
-                              {item.product?.name || "Unknown"}
-                            </p>
-                            {item.product?.sizeName && (
-                              <p className="text-xs text-muted-foreground">
-                                {item.product.sizeName}
-                              </p>
-                            )}
-                            <p className="text-xs font-semibold text-primary mt-1">
-                              {formatCurrency(item.totalPrice || 0)}
-                            </p>
-                          </div>
-                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 flex-shrink-0">
-                            <p className="text-xs font-bold text-primary">
-                              ×{item.quantity}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {itemCount > 4 && (
-                      <p className="text-xs text-muted-foreground text-center py-3 mt-3 border-t border-border/50">
-                        +{itemCount - 4} more item{itemCount - 4 !== 1 ? "s" : ""}
-                      </p>
-                    )}
                   </div>
 
                   {/* Delivery Address */}
-                  <div className="flex items-start gap-3 mb-8">
-                    <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5 mb-3 pb-3 border-b border-border/50">
+                    <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-foreground mb-2 uppercase tracking-wider">
-                        Delivery Address
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Delivery
                       </p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {order.deliveryAddress?.houseNumber && (
-                          <>
-                            <span className="font-semibold text-foreground">
-                              {order.deliveryAddress.houseNumber}
-                            </span>
-                            {", "}
-                          </>
-                        )}
-                        {order.deliveryAddress?.streetNumber && (
-                          <>
-                            St. {order.deliveryAddress.streetNumber}
-                            {", "}
-                          </>
-                        )}
-                        {order.deliveryAddress?.village && (
-                          <>
-                            {order.deliveryAddress.village}
-                            {", "}
-                          </>
-                        )}
-                        {order.deliveryAddress?.commune && (
-                          <>
-                            {order.deliveryAddress.commune}
-                            {", "}
-                          </>
-                        )}
-                        {order.deliveryAddress?.district && (
-                          <>
-                            {order.deliveryAddress.district}
-                            {", "}
-                          </>
-                        )}
-                        {order.deliveryAddress?.province}
+                      <p className="text-sm text-foreground leading-snug truncate" title={deliveryAddress}>
+                        {deliveryAddress || "No address provided"}
                       </p>
                     </div>
                   </div>
 
-                  {/* Action Button */}
-                  <CustomButton
-                    onClick={() => router.push(`/orders/${order.id}`)}
-                    className="w-full h-12 rounded-xl flex items-center justify-center gap-2 group/btn text-base font-semibold"
-                  >
-                    View Full Details
-                    <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                  </CustomButton>
+                  {/* Bottom row: Total Price and View Details Button */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Total
+                      </span>
+                      <span className="text-lg sm:text-xl font-bold text-primary">
+                        {formatCurrency(order.pricing?.finalTotal || 0)}
+                      </span>
+                    </div>
+                    <CustomButton
+                      variant="ghost"
+                      className="h-9 px-4 rounded-lg text-sm font-semibold gap-1.5 flex items-center"
+                    >
+                      Details
+                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </CustomButton>
+                  </div>
                 </div>
               </div>
             );
