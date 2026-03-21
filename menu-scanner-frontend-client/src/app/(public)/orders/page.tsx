@@ -108,14 +108,17 @@ export default function OrdersPage() {
   }, []);
 
   // Fetch order statuses from API
+  // Note: Currently using AppDefault.BUSINESS_ID for development
+  // In production, businessId will be determined from subdomain routing
   useEffect(() => {
     if (!authReady || !isAuthenticated || !mounted) return;
 
     const fetchStatuses = async () => {
       setStatusesLoading(true);
       try {
-        // Use profile businessId or default
-        const businessId = profile?.businessId || AppDefault.BUSINESS_ID;
+        // Development: Use AppDefault.BUSINESS_ID
+        // Production: Will get from subdomain/route context
+        const businessId = AppDefault.BUSINESS_ID;
 
         const result = await dispatch(
           fetchAllOrderStatusService({

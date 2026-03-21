@@ -115,6 +115,8 @@ export default function CheckoutPage() {
       }
 
       // Fetch initial order status for this business
+      // Development: Uses AppDefault.BUSINESS_ID
+      // Production: Will get businessId from subdomain routing
       try {
         const initialStatus = await dispatch(
           fetchInitialOrderStatusService(AppDefault.BUSINESS_ID)
@@ -215,6 +217,8 @@ export default function CheckoutPage() {
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
+      // Development: Uses AppDefault.BUSINESS_ID
+      // Production: Will get businessId from subdomain routing
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
         deliveryAddress: {
