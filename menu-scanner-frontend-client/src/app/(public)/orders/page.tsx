@@ -83,15 +83,11 @@ export default function OrdersPage() {
   const observerRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
   const hasInitialLoadRef = useRef(false);
-  const scrollPosRef = useRef(0);
+  const isFirstLoadRef = useRef(true);
 
-  // Hydration fix & restore scroll position
+  // Hydration fix - only set mounted, don't refetch
   useEffect(() => {
     setMounted(true);
-    // Restore scroll position when returning from detail page
-    if (typeof window !== "undefined" && scrollPosRef.current > 0) {
-      setTimeout(() => window.scrollTo(0, scrollPosRef.current), 0);
-    }
   }, []);
 
   // Fetch order statuses from API
@@ -143,7 +139,8 @@ export default function OrdersPage() {
       try {
         if (isLoadMore) {
           setOrdersState((prev) => ({ ...prev, loadingMore: true }));
-        } else {
+        } else if (isFirstLoadRef.current || ordersState.orders.length === 0) {
+          // Only show loading on first load or if no data
           setOrdersState((prev) => ({ ...prev, loading: true }));
         }
 
@@ -182,6 +179,8 @@ export default function OrdersPage() {
             loadingMore: false,
           };
         });
+
+        isFirstLoadRef.current = false;
       } catch (error: any) {
         console.error("Failed to fetch orders:", error);
         setOrdersState((prev) => ({
@@ -195,14 +194,23 @@ export default function OrdersPage() {
     [dispatch, authReady, isAuthenticated, filters, ordersState.pagination.pageSize]
   );
 
-  // Initial fetch on mount and filter change
+  // Initial fetch on mount - only once
   useEffect(() => {
     if (!authReady || !isAuthenticated || !mounted) return;
+    if (!isFirstLoadRef.current) return; // Don't refetch if already loaded
 
     isLoadingRef.current = false;
-    hasInitialLoadRef.current = true;
     fetchOrders(1, false);
-  }, [mounted, authReady, isAuthenticated, filters.status, filters.search]);
+  }, [mounted, authReady, isAuthenticated, fetchOrders]);
+
+  // Fetch on explicit filter/search change only
+  useEffect(() => {
+    if (!authReady || !isAuthenticated || !mounted) return;
+    if (isFirstLoadRef.current) return; // Skip on first load
+
+    isLoadingRef.current = false;
+    fetchOrders(1, false);
+  }, [filters.status, filters.search, authReady, isAuthenticated, mounted, fetchOrders]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -235,12 +243,6 @@ export default function OrdersPage() {
   }, [ordersState.pagination, ordersState.loadingMore, fetchOrders]);
 
   const totalOrders = ordersState.pagination.totalElements;
-
-  // Save scroll position and navigate to order detail
-  const handleOrderClick = (orderId: string) => {
-    scrollPosRef.current = window.scrollY || 0;
-    router.push(`/orders/${orderId}`);
-  };
 
   // Prevent hydration mismatch
   if (!mounted || !authReady) {
@@ -420,7 +422,7 @@ export default function OrdersPage() {
               <div
                 key={order.id}
                 className="group relative rounded-2xl border border-border/40 bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 cursor-pointer overflow-hidden"
-                onClick={() => handleOrderClick(order.id)}
+                onClick={() => router.push(`/orders/${order.id}`)}
               >
                 {/* Status indicator line */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
