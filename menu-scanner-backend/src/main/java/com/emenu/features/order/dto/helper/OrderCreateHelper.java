@@ -29,4 +29,8 @@ public class OrderCreateHelper {
     private String deliveryAddressSnapshot;
     private String deliveryOptionSnapshot;
     private BigDecimal deliveryFee;
+
+    // Pricing - initialized with defaults, updated after items are processed
+    private BigDecimal subtotal;
+    private BigDecimal totalAmount;
 }
