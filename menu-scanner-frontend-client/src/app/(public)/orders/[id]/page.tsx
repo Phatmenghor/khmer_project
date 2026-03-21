@@ -310,9 +310,9 @@ export default function OrderDetailPage() {
 
       {/* Header */}
       <PageHeader
-        title={`Order #${order.orderNumber}`}
+        title="Order Details"
         icon={Package}
-        subtitle={`${formatCurrency(order.pricing?.finalTotal || 0)} • ${order.items?.length || 0} item${(order.items?.length || 0) !== 1 ? "s" : ""}`}
+        subtitle={order.orderProcessStatus?.name || "Unknown"}
         actions={
           <div className={cn("px-4 py-2 rounded-xl font-semibold text-sm whitespace-nowrap", statusColor.bg, statusColor.text)}>
             {order.orderProcessStatus?.name || "Unknown"}
@@ -331,14 +331,14 @@ export default function OrderDetailPage() {
             </h2>
 
             <div className="space-y-4">
-              {/* Order ID with Copy */}
+              {/* Order Number with Copy */}
               <div className="flex items-start justify-between pb-4 border-b border-border/50">
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                    Order ID
+                    Order Number
                   </p>
-                  <p className="text-base font-mono text-foreground">
-                    {order.id}
+                  <p className="text-base font-mono font-bold text-foreground">
+                    {order.orderNumber}
                   </p>
                 </div>
                 <CustomButton
