@@ -72,7 +72,9 @@ public interface OrderMapper {
                 .customerNote(request.getCustomerNote())
                 // Initialize pricing with defaults - will be updated after items are processed
                 .subtotal(BigDecimal.ZERO)
-                .totalAmount(BigDecimal.ZERO);
+                .totalAmount(BigDecimal.ZERO)
+                // Initialize businessNote as empty (will be set later if provided)
+                .businessNote("");
 
         // Serialize full delivery address object as JSON snapshot
         if (request.getDeliveryAddress() != null) {
@@ -175,10 +177,11 @@ public interface OrderMapper {
 
     /**
      * Map current order process status with details of who set it
-     * Returns the most recent status from history
+     * Returns the most recent status from history, or null if no history exists
      */
     default com.emenu.features.order.dto.response.OrderStatusDto mapOrderProcessStatus(Order order) {
         if (order.getStatusHistory() == null || order.getStatusHistory().isEmpty()) {
+            // Return null when no status history exists (order just created)
             return null;
         }
 
@@ -209,10 +212,12 @@ public interface OrderMapper {
 
     /**
      * Map order status history to response DTOs
+     * Returns empty list if no history exists (order just created)
      */
     default List<OrderStatusHistoryResponse> mapStatusHistory(Order order) {
         if (order.getStatusHistory() == null || order.getStatusHistory().isEmpty()) {
-            return null;
+            // Return empty list instead of null for consistency with client expectations
+            return List.of();
         }
 
         return order.getStatusHistory().stream()
