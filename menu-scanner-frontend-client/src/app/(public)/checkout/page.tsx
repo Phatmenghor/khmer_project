@@ -114,16 +114,6 @@ export default function CheckoutPage() {
         }
       }
 
-      // Fetch initial order status for this business
-      // Development: Uses AppDefault.BUSINESS_ID
-      // Production: Will get businessId from subdomain routing
-      try {
-        const initialStatus = await dispatch(
-        // If no initial status is set, default to "Pending"
-        console.warn("No initial order status found, using default:", error);
-        setInitialOrderStatus("Pending");
-      }
-
       setLoadingDefaults(false);
     };
 
