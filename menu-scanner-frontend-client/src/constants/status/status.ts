@@ -4,6 +4,35 @@ export enum Status {
   INACTIVE = "INACTIVE",
 }
 
+// Status configuration with descriptions and helper properties
+export const StatusConfig = {
+  [Status.ACTIVE]: {
+    label: "Active",
+    description: "Active",
+  },
+  [Status.INACTIVE]: {
+    label: "Inactive",
+    description: "Inactive",
+  },
+};
+
+// Helper functions for Status enum
+export const getStatusLabel = (status: Status): string => {
+  return StatusConfig[status]?.label || status;
+};
+
+export const getStatusDescription = (status: Status): string => {
+  return StatusConfig[status]?.description || status;
+};
+
+export const isActive = (status: Status): boolean => {
+  return status === Status.ACTIVE;
+};
+
+export const isInactive = (status: Status): boolean => {
+  return status === Status.INACTIVE;
+};
+
 export enum AccountStatus {
   ALL = "ALL",
   ACTIVE = "ACTIVE",
