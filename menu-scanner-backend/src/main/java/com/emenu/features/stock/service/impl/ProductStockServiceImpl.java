@@ -67,7 +67,7 @@ public class ProductStockServiceImpl implements ProductStockService {
             throw new ValidationException("Business ID is required");
         }
 
-        Pageable pageable = PaginationUtils.createPageable(
+        Pageable pageable = PaginationUtils.createPageableForNativeQuery(
                 request.getPageNo(),
                 request.getPageSize(),
                 request.getSortBy(),
