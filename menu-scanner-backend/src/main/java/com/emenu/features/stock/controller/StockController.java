@@ -3,7 +3,7 @@ package com.emenu.features.stock.controller;
 import com.emenu.features.stock.dto.request.StockAdjustmentRequest;
 import com.emenu.features.stock.dto.request.StockQueryRequest;
 import com.emenu.features.stock.dto.response.ProductStockDto;
-import com.emenu.response.ApiResponse;
+import com.emenu.shared.dto.ApiResponse;
 import com.emenu.features.stock.service.StockService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

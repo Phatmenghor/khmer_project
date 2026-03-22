@@ -2,7 +2,7 @@ package com.emenu.features.stock.controller;
 
 import com.emenu.features.stock.dto.response.StockAlertDto;
 import com.emenu.features.stock.service.StockService;
-import com.emenu.response.ApiResponse;
+import com.emenu.shared.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
