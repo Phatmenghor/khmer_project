@@ -1,6 +1,8 @@
 package com.emenu.features.stock.service.impl;
 
 import com.emenu.exception.custom.ValidationException;
+import com.emenu.features.main.repository.ProductRepository;
+import com.emenu.features.main.repository.ProductSizeRepository;
 import com.emenu.features.stock.dto.request.ProductStockCreateRequest;
 import com.emenu.features.stock.dto.request.ProductStockFilterRequest;
 import com.emenu.features.stock.dto.request.ProductStockUpdateRequest;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -30,6 +33,8 @@ public class ProductStockServiceImpl implements ProductStockService {
     private final ProductStockRepository productStockRepository;
     private final ProductStockMapper productStockMapper;
     private final PaginationMapper paginationMapper;
+    private final ProductRepository productRepository;
+    private final ProductSizeRepository productSizeRepository;
 
     @Override
     public ProductStockDto createProductStock(UUID businessId, ProductStockCreateRequest request) {
@@ -49,10 +54,20 @@ public class ProductStockServiceImpl implements ProductStockService {
         ProductStock productStock = productStockMapper.toEntity(request);
         productStock.setBusinessId(businessId);
 
+        // Default costPerUnit to priceIn if not provided
+        if (productStock.getCostPerUnit() == null) {
+            productStock.setCostPerUnit(productStock.getPriceIn());
+        }
+
+        // Set dateIn to now on first creation
+        productStock.setDateIn(LocalDateTime.now());
+
         ProductStock savedProductStock = productStockRepository.save(productStock);
         log.info("Product stock created: {}", savedProductStock.getId());
 
-        return productStockMapper.toDto(savedProductStock);
+        ProductStockDto dto = productStockMapper.toDto(savedProductStock);
+        enrichWithProductInfo(dto, savedProductStock);
+        return dto;
     }
 
     @Override
@@ -94,7 +109,9 @@ public class ProductStockServiceImpl implements ProductStockService {
         ProductStock productStock = productStockRepository.findById(productStockId)
                 .orElseThrow(() -> new ValidationException("Product stock not found"));
 
-        return productStockMapper.toDto(productStock);
+        ProductStockDto dto = productStockMapper.toDto(productStock);
+        enrichWithProductInfo(dto, productStock);
+        return dto;
     }
 
     @Override
@@ -108,7 +125,9 @@ public class ProductStockServiceImpl implements ProductStockService {
         ProductStock updatedProductStock = productStockRepository.save(productStock);
 
         log.info("Product stock updated: {}", updatedProductStock.getId());
-        return productStockMapper.toDto(updatedProductStock);
+        ProductStockDto dto = productStockMapper.toDto(updatedProductStock);
+        enrichWithProductInfo(dto, updatedProductStock);
+        return dto;
     }
 
     @Override
@@ -121,5 +140,16 @@ public class ProductStockServiceImpl implements ProductStockService {
         productStockRepository.delete(productStock);
 
         log.info("Product stock deleted: {}", productStockId);
+    }
+
+    /** Populate productName and sizeName from the product and size repositories */
+    private void enrichWithProductInfo(ProductStockDto dto, ProductStock stock) {
+        productRepository.findByIdAndIsDeletedFalse(stock.getProductId())
+                .ifPresent(product -> dto.setProductName(product.getName()));
+
+        if (stock.getProductSizeId() != null) {
+            productSizeRepository.findByIdAndIsDeletedFalse(stock.getProductSizeId())
+                    .ifPresent(size -> dto.setSizeName(size.getName()));
+        }
     }
 }

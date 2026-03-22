@@ -67,7 +67,7 @@ public class ProductStock {
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal priceOut; // Selling price
 
-    @Column(nullable = false, precision = 19, scale = 4)
+    @Column(nullable = true, precision = 19, scale = 4)
     private BigDecimal costPerUnit;
 
     // ========== Dates & Tracking ==========

@@ -805,9 +805,7 @@ public class StockServiceImpl implements StockService {
         dto.setPriceOut(stock.getPriceOut());
         dto.setCostPerUnit(stock.getCostPerUnit());
         dto.setDateIn(stock.getDateIn());
-        dto.setDateOut(stock.getDateOut());
         dto.setExpiryDate(stock.getExpiryDate());
-        dto.setDaysUntilExpiry(stock.getDaysUntilExpiry());
         dto.setBarcode(stock.getBarcode());
         dto.setSku(stock.getSku());
         dto.setLocation(stock.getLocation());
@@ -816,7 +814,6 @@ public class StockServiceImpl implements StockService {
         dto.setTrackInventory(stock.getTrackInventory());
         dto.setIsLowStock(stock.isLowStock());
         dto.setIsOutOfStock(stock.isOutOfStock());
-        dto.setIsOverSold(stock.isOverSold());
         dto.setInventoryValue(stock.getInventoryValue());
         dto.setRetailValue(stock.getRetailValue());
         dto.setPotentialProfit(stock.getPotentialProfit());
