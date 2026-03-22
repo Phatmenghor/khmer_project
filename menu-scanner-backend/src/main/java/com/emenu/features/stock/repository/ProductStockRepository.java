@@ -136,30 +136,56 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     // ========== Pagination Queries ==========
     Page<ProductStock> findByBusinessId(UUID businessId, Pageable pageable);
 
-    @Query("""
-        SELECT ps FROM ProductStock ps
-        WHERE ps.businessId = :businessId
-            AND (LOWER(CAST(ps.barcode AS String)) LIKE LOWER(CONCAT('%', :search, '%'))
-                OR LOWER(CAST(ps.sku AS String)) LIKE LOWER(CONCAT('%', :search, '%')))
-    """)
+    @Query(value = """
+        SELECT * FROM product_stock ps
+        WHERE ps.business_id = :businessId
+            AND (
+                (ps.barcode IS NOT NULL AND convert_from(ps.barcode, 'UTF8') ILIKE '%' || :search || '%')
+                OR (ps.sku IS NOT NULL AND convert_from(ps.sku, 'UTF8') ILIKE '%' || :search || '%')
+            )
+        ORDER BY ps.date_in DESC NULLS LAST, ps.created_at DESC
+    """,
+    countQuery = """
+        SELECT COUNT(*) FROM product_stock ps
+        WHERE ps.business_id = :businessId
+            AND (
+                (ps.barcode IS NOT NULL AND convert_from(ps.barcode, 'UTF8') ILIKE '%' || :search || '%')
+                OR (ps.sku IS NOT NULL AND convert_from(ps.sku, 'UTF8') ILIKE '%' || :search || '%')
+            )
+    """,
+    nativeQuery = true)
     Page<ProductStock> searchByBusinessIdAndNameOrBarcodeOrSku(
         @Param("businessId") UUID businessId,
         @Param("search") String search,
         Pageable pageable
     );
 
-    @Query("""
-        SELECT ps FROM ProductStock ps
-        WHERE ps.businessId = :businessId
-            AND (:productId IS NULL OR ps.productId = :productId)
-            AND (:productSizeId IS NULL OR ps.productSizeId = :productSizeId)
-            AND (:status IS NULL OR ps.status = :status)
-            AND (:lowStockThreshold IS NULL OR ps.quantityOnHand < :lowStockThreshold)
-            AND (:expiredBefore IS NULL OR (ps.expiryDate IS NOT NULL AND ps.expiryDate <= :expiredBefore))
-            AND (:search IS NULL OR LOWER(CAST(ps.barcode AS String)) LIKE LOWER(CONCAT('%', :search, '%'))
-                OR LOWER(CAST(ps.sku AS String)) LIKE LOWER(CONCAT('%', :search, '%')))
-        ORDER BY ps.dateIn DESC
-    """)
+    @Query(value = """
+        SELECT * FROM product_stock ps
+        WHERE ps.business_id = :businessId
+            AND (:productId IS NULL OR ps.product_id = :productId)
+            AND (:productSizeId IS NULL OR ps.product_size_id = :productSizeId)
+            AND (:status IS NULL OR ps.status = CAST(:status AS VARCHAR))
+            AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
+            AND (:expiredBefore IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= CAST(:expiredBefore AS TIMESTAMP)))
+            AND (:search IS NULL
+                OR (ps.barcode IS NOT NULL AND convert_from(ps.barcode, 'UTF8') ILIKE '%' || :search || '%')
+                OR (ps.sku IS NOT NULL AND convert_from(ps.sku, 'UTF8') ILIKE '%' || :search || '%'))
+        ORDER BY ps.date_in DESC NULLS LAST, ps.created_at DESC
+    """,
+    countQuery = """
+        SELECT COUNT(*) FROM product_stock ps
+        WHERE ps.business_id = :businessId
+            AND (:productId IS NULL OR ps.product_id = :productId)
+            AND (:productSizeId IS NULL OR ps.product_size_id = :productSizeId)
+            AND (:status IS NULL OR ps.status = CAST(:status AS VARCHAR))
+            AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
+            AND (:expiredBefore IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= CAST(:expiredBefore AS TIMESTAMP)))
+            AND (:search IS NULL
+                OR (ps.barcode IS NOT NULL AND convert_from(ps.barcode, 'UTF8') ILIKE '%' || :search || '%')
+                OR (ps.sku IS NOT NULL AND convert_from(ps.sku, 'UTF8') ILIKE '%' || :search || '%'))
+    """,
+    nativeQuery = true)
     Page<ProductStock> findWithFilters(
         @Param("businessId") UUID businessId,
         @Param("productId") UUID productId,

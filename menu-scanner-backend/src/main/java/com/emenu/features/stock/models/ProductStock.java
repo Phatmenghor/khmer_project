@@ -3,6 +3,8 @@ package com.emenu.features.stock.models;
 import jakarta.persistence.*;
 import lombok.*;
 import com.emenu.enums.product.ProductStatus;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -65,9 +67,11 @@ public class ProductStock {
     private LocalDateTime expiryDate;
 
     // ========== Identifiers ==========
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = true, unique = true, columnDefinition = "varchar(255)")
     private String barcode;
 
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = true, columnDefinition = "varchar(255)")
     private String sku;
 
