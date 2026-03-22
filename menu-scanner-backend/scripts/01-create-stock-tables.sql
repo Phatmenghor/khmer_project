@@ -60,12 +60,12 @@ CREATE TABLE IF NOT EXISTS product_stock (
 );
 
 -- Indices for product_stock
-CREATE INDEX idx_product_stock_business_id ON product_stock(business_id);
-CREATE INDEX idx_product_stock_product_id ON product_stock(product_id);
-CREATE INDEX idx_product_stock_barcode ON product_stock(barcode);
-CREATE INDEX idx_product_stock_is_expired ON product_stock(is_expired);
-CREATE INDEX idx_product_stock_low_stock ON product_stock(quantity_on_hand);
-CREATE INDEX idx_product_stock_expiry ON product_stock(expiry_date);
+CREATE INDEX IF NOT EXISTS idx_product_stock_business_id ON product_stock(business_id);
+CREATE INDEX IF NOT EXISTS idx_product_stock_product_id ON product_stock(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_stock_barcode ON product_stock(barcode);
+CREATE INDEX IF NOT EXISTS idx_product_stock_is_expired ON product_stock(is_expired);
+CREATE INDEX IF NOT EXISTS idx_product_stock_low_stock ON product_stock(quantity_on_hand);
+CREATE INDEX IF NOT EXISTS idx_product_stock_expiry ON product_stock(expiry_date);
 
 -- =====================================================
 -- TABLE 2: STOCK_MOVEMENTS - Audit trail
@@ -103,11 +103,11 @@ CREATE TABLE IF NOT EXISTS stock_movements (
 );
 
 -- Indices for stock_movements
-CREATE INDEX idx_stock_movements_business ON stock_movements(business_id);
-CREATE INDEX idx_stock_movements_product_stock ON stock_movements(product_stock_id);
-CREATE INDEX idx_stock_movements_type ON stock_movements(movement_type);
-CREATE INDEX idx_stock_movements_order ON stock_movements(order_id);
-CREATE INDEX idx_stock_movements_created ON stock_movements(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_business ON stock_movements(business_id);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_product_stock ON stock_movements(product_stock_id);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_type ON stock_movements(movement_type);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_order ON stock_movements(order_id);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_created ON stock_movements(created_at DESC);
 
 
 -- =====================================================
@@ -142,9 +142,9 @@ CREATE TABLE IF NOT EXISTS stock_adjustments (
 );
 
 -- Indices for stock_adjustments
-CREATE INDEX idx_stock_adjustments_business ON stock_adjustments(business_id);
-CREATE INDEX idx_stock_adjustments_product_stock ON stock_adjustments(product_stock_id);
-CREATE INDEX idx_stock_adjustments_requires_approval ON stock_adjustments(requires_approval, approved);
+CREATE INDEX IF NOT EXISTS idx_stock_adjustments_business ON stock_adjustments(business_id);
+CREATE INDEX IF NOT EXISTS idx_stock_adjustments_product_stock ON stock_adjustments(product_stock_id);
+CREATE INDEX IF NOT EXISTS idx_stock_adjustments_requires_approval ON stock_adjustments(requires_approval, approved);
 
 
 -- =====================================================
@@ -183,10 +183,10 @@ CREATE TABLE IF NOT EXISTS stock_alerts (
 );
 
 -- Indices for stock_alerts
-CREATE INDEX idx_stock_alerts_business ON stock_alerts(business_id);
-CREATE INDEX idx_stock_alerts_status ON stock_alerts(status);
-CREATE INDEX idx_stock_alerts_type ON stock_alerts(alert_type);
-CREATE INDEX idx_stock_alerts_product_stock ON stock_alerts(product_stock_id);
+CREATE INDEX IF NOT EXISTS idx_stock_alerts_business ON stock_alerts(business_id);
+CREATE INDEX IF NOT EXISTS idx_stock_alerts_status ON stock_alerts(status);
+CREATE INDEX IF NOT EXISTS idx_stock_alerts_type ON stock_alerts(alert_type);
+CREATE INDEX IF NOT EXISTS idx_stock_alerts_product_stock ON stock_alerts(product_stock_id);
 
 
 -- =====================================================
@@ -219,9 +219,9 @@ CREATE TABLE IF NOT EXISTS barcode_mappings (
 );
 
 -- Indices for barcode_mappings
-CREATE INDEX idx_barcode_mappings_business ON barcode_mappings(business_id);
-CREATE INDEX idx_barcode_mappings_barcode ON barcode_mappings(barcode);
-CREATE INDEX idx_barcode_mappings_product_stock ON barcode_mappings(product_stock_id);
+CREATE INDEX IF NOT EXISTS idx_barcode_mappings_business ON barcode_mappings(business_id);
+CREATE INDEX IF NOT EXISTS idx_barcode_mappings_barcode ON barcode_mappings(barcode);
+CREATE INDEX IF NOT EXISTS idx_barcode_mappings_product_stock ON barcode_mappings(product_stock_id);
 
 
 -- =====================================================
