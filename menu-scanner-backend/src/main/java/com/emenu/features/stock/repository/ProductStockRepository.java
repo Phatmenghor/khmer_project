@@ -139,19 +139,15 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     @Query(value = """
         SELECT * FROM product_stock ps
         WHERE ps.business_id = :businessId
-            AND (
-                (ps.barcode IS NOT NULL AND convert_from(ps.barcode, 'UTF8') ILIKE '%' || :search || '%')
-                OR (ps.sku IS NOT NULL AND convert_from(ps.sku, 'UTF8') ILIKE '%' || :search || '%')
-            )
+            AND (ps.barcode ILIKE '%' || :search || '%'
+                OR ps.sku ILIKE '%' || :search || '%')
         ORDER BY ps.date_in DESC NULLS LAST, ps.created_at DESC
     """,
     countQuery = """
         SELECT COUNT(*) FROM product_stock ps
         WHERE ps.business_id = :businessId
-            AND (
-                (ps.barcode IS NOT NULL AND convert_from(ps.barcode, 'UTF8') ILIKE '%' || :search || '%')
-                OR (ps.sku IS NOT NULL AND convert_from(ps.sku, 'UTF8') ILIKE '%' || :search || '%')
-            )
+            AND (ps.barcode ILIKE '%' || :search || '%'
+                OR ps.sku ILIKE '%' || :search || '%')
     """,
     nativeQuery = true)
     Page<ProductStock> searchByBusinessIdAndNameOrBarcodeOrSku(
@@ -169,8 +165,8 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
             AND (:expiredBefore IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= CAST(:expiredBefore AS TIMESTAMP)))
             AND (:search IS NULL
-                OR (ps.barcode IS NOT NULL AND convert_from(ps.barcode, 'UTF8') ILIKE '%' || :search || '%')
-                OR (ps.sku IS NOT NULL AND convert_from(ps.sku, 'UTF8') ILIKE '%' || :search || '%'))
+                OR ps.barcode ILIKE '%' || :search || '%'
+                OR ps.sku ILIKE '%' || :search || '%')
         ORDER BY ps.date_in DESC NULLS LAST, ps.created_at DESC
     """,
     countQuery = """
@@ -182,8 +178,8 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
             AND (:expiredBefore IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= CAST(:expiredBefore AS TIMESTAMP)))
             AND (:search IS NULL
-                OR (ps.barcode IS NOT NULL AND convert_from(ps.barcode, 'UTF8') ILIKE '%' || :search || '%')
-                OR (ps.sku IS NOT NULL AND convert_from(ps.sku, 'UTF8') ILIKE '%' || :search || '%'))
+                OR ps.barcode ILIKE '%' || :search || '%'
+                OR ps.sku ILIKE '%' || :search || '%')
     """,
     nativeQuery = true)
     Page<ProductStock> findWithFilters(
