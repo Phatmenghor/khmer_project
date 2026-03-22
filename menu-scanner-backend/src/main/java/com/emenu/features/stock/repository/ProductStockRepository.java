@@ -139,6 +139,18 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     @Query("""
         SELECT ps FROM ProductStock ps
         WHERE ps.businessId = :businessId
+            AND (LOWER(ps.barcode) LIKE LOWER(CONCAT('%', :search, '%'))
+                OR LOWER(ps.sku) LIKE LOWER(CONCAT('%', :search, '%')))
+    """)
+    Page<ProductStock> searchByBusinessIdAndNameOrBarcodeOrSku(
+        @Param("businessId") UUID businessId,
+        @Param("search") String search,
+        Pageable pageable
+    );
+
+    @Query("""
+        SELECT ps FROM ProductStock ps
+        WHERE ps.businessId = :businessId
             AND (:productId IS NULL OR ps.productId = :productId)
             AND (:productSizeId IS NULL OR ps.productSizeId = :productSizeId)
             AND (:status IS NULL OR ps.status = :status)
