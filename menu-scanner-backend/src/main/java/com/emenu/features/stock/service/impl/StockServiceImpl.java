@@ -801,7 +801,6 @@ public class StockServiceImpl implements StockService {
         dto.setQuantityReserved(stock.getQuantityReserved());
         dto.setQuantityAvailable(stock.getQuantityAvailable());
         dto.setMinimumStockLevel(stock.getMinimumStockLevel());
-        dto.setReorderQuantity(stock.getReorderQuantity());
         dto.setPriceIn(stock.getPriceIn());
         dto.setPriceOut(stock.getPriceOut());
         dto.setCostPerUnit(stock.getCostPerUnit());
