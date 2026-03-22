@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -38,25 +37,21 @@ public class ProductStockServiceImpl implements ProductStockService {
 
         // Check if product stock with same product and size already exists
         if (request.getProductSizeId() != null) {
-            var existing = productStockRepository.findByProductIdAndProductSizeIdAndBusinessId(
+            productStockRepository.findByProductIdAndProductSizeIdAndBusinessId(
                     request.getProductId(),
                     request.getProductSizeId(),
                     businessId
-            );
-            if (existing.isPresent()) {
+            ).ifPresent(existing -> {
                 throw new ValidationException("Product stock for this product and size already exists");
-            }
+            });
         }
 
         ProductStock productStock = productStockMapper.toEntity(request);
         productStock.setBusinessId(businessId);
-        productStock.setCreatedAt(LocalDateTime.now());
-        productStock.setUpdatedAt(LocalDateTime.now());
-        productStock.setCreatedBy(null); // Can be enhanced to add authenticated user
 
         ProductStock savedProductStock = productStockRepository.save(productStock);
-
         log.info("Product stock created: {}", savedProductStock.getId());
+
         return productStockMapper.toDto(savedProductStock);
     }
 
@@ -110,9 +105,6 @@ public class ProductStockServiceImpl implements ProductStockService {
                 .orElseThrow(() -> new ValidationException("Product stock not found"));
 
         productStockMapper.updateEntityFromRequest(request, productStock);
-        productStock.setUpdatedAt(LocalDateTime.now());
-        productStock.setUpdatedBy(null); // Can be enhanced to add authenticated user
-
         ProductStock updatedProductStock = productStockRepository.save(productStock);
 
         log.info("Product stock updated: {}", updatedProductStock.getId());
