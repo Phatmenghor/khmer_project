@@ -62,6 +62,10 @@ public class ProductStockServiceImpl implements ProductStockService {
         // Set dateIn to now on first creation
         productStock.setDateIn(LocalDateTime.now());
 
+        // Normalize expiryDate: strip time to 00:00:00 (date-only for now)
+        // TODO: remove toStartOfDay() when time-based expiry is needed
+        productStock.setExpiryDate(toStartOfDay(request.getExpiryDate()));
+
         ProductStock savedProductStock = productStockRepository.save(productStock);
         log.info("Product stock created: {}", savedProductStock.getId());
 
@@ -122,6 +126,13 @@ public class ProductStockServiceImpl implements ProductStockService {
                 .orElseThrow(() -> new ValidationException("Product stock not found"));
 
         productStockMapper.updateEntityFromRequest(request, productStock);
+
+        // Normalize expiryDate: strip time to 00:00:00 (date-only for now)
+        // TODO: remove toStartOfDay() when time-based expiry is needed
+        if (request.getExpiryDate() != null) {
+            productStock.setExpiryDate(toStartOfDay(request.getExpiryDate()));
+        }
+
         ProductStock updatedProductStock = productStockRepository.save(productStock);
 
         log.info("Product stock updated: {}", updatedProductStock.getId());
@@ -140,6 +151,15 @@ public class ProductStockServiceImpl implements ProductStockService {
         productStockRepository.delete(productStock);
 
         log.info("Product stock deleted: {}", productStockId);
+    }
+
+    /**
+     * Strips the time part from a LocalDateTime, returning date at 00:00:00.
+     * Used for expiryDate — currently date-only; remove this when time-based expiry is needed.
+     */
+    private LocalDateTime toStartOfDay(LocalDateTime dateTime) {
+        if (dateTime == null) return null;
+        return dateTime.toLocalDate().atStartOfDay();
     }
 
     /** Populate productName and sizeName from the product and size repositories */
