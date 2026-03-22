@@ -22,9 +22,6 @@ public class ProductStockCreateRequest {
     @Min(value = 0, message = "Quantity on hand must be >= 0")
     private Integer quantityOnHand;
 
-    @Min(value = 0, message = "Quantity reserved must be >= 0")
-    private Integer quantityReserved;
-
     @NotNull(message = "Price in is required")
     @DecimalMin(value = "0.01", message = "Price in must be > 0")
     private BigDecimal priceIn;
