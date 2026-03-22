@@ -25,10 +25,6 @@ public class ProductStockCreateRequest {
     @Min(value = 0, message = "Quantity reserved must be >= 0")
     private Integer quantityReserved;
 
-    @NotNull(message = "Minimum stock level is required")
-    @Min(value = 0, message = "Minimum stock level must be >= 0")
-    private Integer minimumStockLevel;
-
     @NotNull(message = "Price in is required")
     @DecimalMin(value = "0.01", message = "Price in must be > 0")
     private BigDecimal priceIn;
@@ -46,10 +42,4 @@ public class ProductStockCreateRequest {
     private String sku;
 
     private String location;
-
-    @Builder.Default
-    private Boolean isActive = true;
-
-    @Builder.Default
-    private Boolean trackInventory = true;
 }

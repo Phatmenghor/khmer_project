@@ -16,13 +16,8 @@ import java.util.UUID;
         @Index(name = "idx_product_stock_barcode", columnList = "barcode"),
         @Index(name = "idx_product_stock_is_expired", columnList = "is_expired"),
         @Index(name = "idx_product_stock_low_stock", columnList = "quantity_on_hand"),
-        @Index(name = "idx_product_stock_expiry", columnList = "expiry_date")
-    },
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "product_stock_unique_variant",
-            columnNames = {"product_id", "product_size_id", "business_id"}
-        )
+        @Index(name = "idx_product_stock_expiry", columnList = "expiry_date"),
+        @Index(name = "idx_product_stock_date_in", columnList = "date_in")
     }
 )
 @Getter
@@ -54,10 +49,6 @@ public class ProductStock {
 
     @Column(nullable = false)
     private Integer quantityAvailable;
-
-    // ========== Stock Thresholds ==========
-    @Column(nullable = false)
-    private Integer minimumStockLevel;
 
     // ========== Pricing ==========
     @Column(nullable = false, precision = 19, scale = 4)
@@ -97,9 +88,6 @@ public class ProductStock {
     @Column(nullable = false)
     private Boolean isExpired;
 
-    @Column(nullable = false)
-    private Boolean trackInventory;
-
     // ========== Audit ==========
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -114,10 +102,6 @@ public class ProductStock {
     private UUID updatedBy;
 
     // ========== Calculated Methods ==========
-    public Boolean isLowStock() {
-        return quantityOnHand <= minimumStockLevel;
-    }
-
     public Boolean isOutOfStock() {
         return quantityOnHand <= 0;
     }
@@ -151,7 +135,6 @@ public class ProductStock {
         if (quantityReserved == null) quantityReserved = 0;
         if (quantityAvailable == null) quantityAvailable = 0;
         if (status == null) status = ProductStatus.ACTIVE;
-        if (trackInventory == null) trackInventory = true;
         updateQuantityAvailable();
         checkExpiry();
     }

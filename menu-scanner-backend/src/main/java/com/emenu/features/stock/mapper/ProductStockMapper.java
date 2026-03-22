@@ -18,7 +18,6 @@ import java.util.List;
 public interface ProductStockMapper {
 
     @Mapping(target = "profitMargin", expression = "java(calculateProfitMargin(productStock))")
-    @Mapping(target = "isLowStock", expression = "java(productStock.isLowStock())")
     @Mapping(target = "isOutOfStock", expression = "java(productStock.isOutOfStock())")
     @Mapping(target = "inventoryValue", expression = "java(productStock.getInventoryValue())")
     @Mapping(target = "retailValue", expression = "java(productStock.getRetailValue())")

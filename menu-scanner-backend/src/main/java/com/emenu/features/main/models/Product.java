@@ -105,6 +105,9 @@ public class Product extends BaseUUIDEntity {
     @Column(name = "favorite_count", nullable = false)
     private Long favoriteCount = 0L;
 
+    @Column(name = "minimum_stock_level", nullable = false)
+    private Integer minimumStockLevel = 0;
+
     @Column(name = "main_image_url")
     private String mainImageUrl;
 

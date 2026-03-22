@@ -62,7 +62,9 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public List<ProductStockDto> getLowStockProducts(UUID businessId) {
-        return productStockRepository.findLowStockProducts(businessId)
+        // Low stock is now determined by minimumStockLevel on Product/ProductSize.
+        // Return out-of-stock batches as a proxy until a cross-table query is implemented.
+        return productStockRepository.findOutOfStockProducts(businessId)
             .stream()
             .map(this::mapToDto)
             .collect(Collectors.toList());
@@ -102,11 +104,6 @@ public class StockServiceImpl implements StockService {
                 request.getSearchText(),
                 pageable
             );
-        } else if (request.getLowStockOnly() != null && request.getLowStockOnly()) {
-            stocks = productStockRepository.findLowStockProductsPaginated(
-                request.getBusinessId(),
-                pageable
-            );
         } else {
             stocks = productStockRepository.findByBusinessId(
                 request.getBusinessId(),
@@ -121,20 +118,11 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public Boolean checkAvailability(UUID productId, UUID sizeId, Integer quantity, UUID businessId) {
-        Optional<ProductStock> stockOpt = productStockRepository
-            .findByProductIdAndProductSizeIdAndBusinessId(productId, sizeId, businessId);
-
-        if (stockOpt.isEmpty()) {
-            return true; // No stock record = product not tracked
+        Integer totalAvailable = productStockRepository.sumAvailableQuantity(productId, sizeId, businessId);
+        if (totalAvailable == null || totalAvailable == 0) {
+            return true; // No stock tracked = product not tracked, allow sale
         }
-
-        ProductStock stock = stockOpt.get();
-
-        if (stock.getIsExpired()) {
-            return false; // Can't sell expired products
-        }
-
-        return stock.getQuantityAvailable() >= quantity;
+        return totalAvailable >= quantity;
     }
 
     @Override
@@ -215,11 +203,6 @@ public class StockServiceImpl implements StockService {
             null
         );
 
-        // Check thresholds
-        if (stock.getQuantityOnHand() <= stock.getMinimumStockLevel()) {
-            createOrUpdateAlert(businessId, stock, "LOW_STOCK");
-        }
-
         log.info("Stock adjusted for product {}: {} -> {}", stock.getProductId(), previousQty, newQty);
         return mapToDto(movement);
     }
@@ -268,10 +251,6 @@ public class StockServiceImpl implements StockService {
         Integer previousQty = stock.getQuantityOnHand();
         Integer newQty = previousQty - quantity;
 
-        if (newQty < -999) { // Allow slight oversell but not extreme
-            throw new InvalidOperationException("Insufficient stock available");
-        }
-
         stock.setQuantityOnHand(newQty);
         stock.setDateOut(LocalDateTime.now());
         stock.setUpdatedBy(getCurrentUserId());
@@ -292,16 +271,57 @@ public class StockServiceImpl implements StockService {
             stock.getPriceOut()
         );
 
-        // Check for alerts
-        if (newQty <= stock.getMinimumStockLevel()) {
-            createOrUpdateAlert(businessId, stock, "LOW_STOCK");
-        }
         if (newQty < 0) {
             createOrUpdateAlert(businessId, stock, "NEGATIVE_STOCK");
         }
 
-        log.info("Stock deducted for order {}: {} units from product {}", orderId, quantity, stock.getProductId());
+        log.info("Stock deducted for order {}: {} units from batch {}", orderId, quantity, stock.getId());
         return mapToDto(movement);
+    }
+
+    /**
+     * Deduct stock using FIFO — oldest batch first.
+     * Called when an order is confirmed to automatically cut stock across batches.
+     */
+    public void deductStockFIFO(UUID businessId, UUID productId, UUID sizeId, Integer quantity, UUID orderId, String reason) {
+        List<ProductStock> batches = productStockRepository.findActiveBatchesFIFO(productId, sizeId, businessId);
+
+        int remaining = quantity;
+
+        for (ProductStock batch : batches) {
+            if (remaining <= 0) break;
+
+            int deduct = Math.min(remaining, batch.getQuantityOnHand());
+            int previousQty = batch.getQuantityOnHand();
+            int newQty = previousQty - deduct;
+
+            batch.setQuantityOnHand(newQty);
+            batch.setDateOut(LocalDateTime.now());
+            batch.setUpdatedBy(getCurrentUserId());
+            productStockRepository.save(batch);
+
+            createStockMovement(
+                businessId,
+                batch.getId(),
+                "STOCK_OUT",
+                -deduct,
+                previousQty,
+                newQty,
+                "ORDER",
+                orderId,
+                reason,
+                getCurrentUserId(),
+                orderId,
+                batch.getPriceOut()
+            );
+
+            remaining -= deduct;
+            log.info("FIFO deducted {} units from batch {} (dateIn: {}), remaining: {}", deduct, batch.getId(), batch.getDateIn(), remaining);
+        }
+
+        if (remaining > 0) {
+            log.warn("Insufficient stock for product {} size {}: {} units short", productId, sizeId, remaining);
+        }
     }
 
     @Override
@@ -473,13 +493,15 @@ public class StockServiceImpl implements StockService {
             UUID sizeId = item.get("sizeId") != null ? UUID.fromString(item.get("sizeId").toString()) : null;
             Integer quantity = Integer.parseInt(item.get("quantity").toString());
 
-            Optional<ProductStock> stockOpt = productStockRepository
-                .findByProductIdAndProductSizeIdAndBusinessId(productId, sizeId, businessId);
-
-            if (stockOpt.isPresent()) {
-                ProductStock stock = stockOpt.get();
-                stock.setQuantityReserved(stock.getQuantityReserved() + quantity);
-                productStockRepository.save(stock);
+            // Reserve across FIFO batches
+            List<ProductStock> batches = productStockRepository.findActiveBatchesFIFO(productId, sizeId, businessId);
+            int remaining = quantity;
+            for (ProductStock batch : batches) {
+                if (remaining <= 0) break;
+                int reserve = Math.min(remaining, batch.getQuantityAvailable());
+                batch.setQuantityReserved(batch.getQuantityReserved() + reserve);
+                productStockRepository.save(batch);
+                remaining -= reserve;
             }
         }
     }
@@ -623,9 +645,8 @@ public class StockServiceImpl implements StockService {
         List<ProductStock> stocks = productStockRepository.findByBusinessId(businessId);
 
         Map<String, Object> summary = new HashMap<>();
-        summary.put("totalVariants", stocks.size());
+        summary.put("totalBatches", stocks.size());
         summary.put("totalItems", stocks.stream().mapToInt(ProductStock::getQuantityOnHand).sum());
-        summary.put("lowStockCount", stocks.stream().filter(ProductStock::isLowStock).count());
         summary.put("outOfStockCount", stocks.stream().filter(ProductStock::isOutOfStock).count());
         summary.put("expiredCount", stocks.stream().filter(ProductStock::getIsExpired).count());
         summary.put("activeAlerts", countActiveAlerts(businessId));
@@ -665,23 +686,11 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public Map<String, Object> getLowStockReport(UUID businessId) {
-        List<ProductStock> lowStockProducts = productStockRepository.findLowStockProducts(businessId);
+        List<ProductStock> outOfStockBatches = productStockRepository.findOutOfStockProducts(businessId);
 
         Map<String, Object> report = new HashMap<>();
-        report.put("criticalProducts", lowStockProducts.size());
-        report.put("products", lowStockProducts.stream().map(this::mapToDto).collect(Collectors.toList()));
-
-        List<Map<String, Object>> recommendations = lowStockProducts.stream()
-            .map(stock -> {
-                Map<String, Object> rec = new HashMap<>();
-                rec.put("productId", stock.getProductId());
-                rec.put("productName", stock.getProductId());
-                rec.put("currentQuantity", stock.getQuantityOnHand());
-                return rec;
-            })
-            .collect(Collectors.toList());
-
-        report.put("recommendations", recommendations);
+        report.put("outOfStockBatches", outOfStockBatches.size());
+        report.put("products", outOfStockBatches.stream().map(this::mapToDto).collect(Collectors.toList()));
         return report;
     }
 
@@ -760,7 +769,7 @@ public class StockServiceImpl implements StockService {
                 .productId(stock.getProductId())
                 .productSizeId(stock.getProductSizeId())
                 .currentQuantity(stock.getQuantityOnHand())
-                .threshold(stock.getMinimumStockLevel())
+                .threshold(0)
                 .expiryDate(stock.getExpiryDate())
                 .daysUntilExpiry(stock.getDaysUntilExpiry())
                 .status("ACTIVE")
@@ -799,7 +808,6 @@ public class StockServiceImpl implements StockService {
         dto.setQuantityOnHand(stock.getQuantityOnHand());
         dto.setQuantityReserved(stock.getQuantityReserved());
         dto.setQuantityAvailable(stock.getQuantityAvailable());
-        dto.setMinimumStockLevel(stock.getMinimumStockLevel());
         dto.setPriceIn(stock.getPriceIn());
         dto.setPriceOut(stock.getPriceOut());
         dto.setCostPerUnit(stock.getCostPerUnit());
@@ -810,8 +818,6 @@ public class StockServiceImpl implements StockService {
         dto.setLocation(stock.getLocation());
         dto.setStatus(stock.getStatus());
         dto.setIsExpired(stock.getIsExpired());
-        dto.setTrackInventory(stock.getTrackInventory());
-        dto.setIsLowStock(stock.isLowStock());
         dto.setIsOutOfStock(stock.isOutOfStock());
         dto.setInventoryValue(stock.getInventoryValue());
         dto.setRetailValue(stock.getRetailValue());

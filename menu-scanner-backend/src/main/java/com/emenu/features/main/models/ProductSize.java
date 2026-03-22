@@ -48,6 +48,9 @@ public class ProductSize extends BaseUUIDEntity {
     @Column(name = "promotion_to_date")
     private LocalDateTime promotionToDate;
 
+    @Column(name = "minimum_stock_level", nullable = false)
+    private Integer minimumStockLevel = 0;
+
     public ProductSize(UUID productId, String name, BigDecimal price) {
         this.productId = productId;
         this.name = name;

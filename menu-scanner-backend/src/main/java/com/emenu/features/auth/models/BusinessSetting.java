@@ -90,6 +90,10 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "secondary_color")
     private String secondaryColor;
 
+    // Inventory Settings
+    @Column(name = "track_inventory")
+    private Boolean trackInventory = true;
+
     // Notification Settings
     @Column(name = "email_notifications_enabled")
     private Boolean emailNotificationsEnabled = true;

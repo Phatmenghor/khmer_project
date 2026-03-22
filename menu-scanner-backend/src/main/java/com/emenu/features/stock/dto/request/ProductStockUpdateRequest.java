@@ -18,9 +18,6 @@ public class ProductStockUpdateRequest {
     @Min(value = 0, message = "Quantity reserved must be >= 0")
     private Integer quantityReserved;
 
-    @Min(value = 0, message = "Minimum stock level must be >= 0")
-    private Integer minimumStockLevel;
-
     @DecimalMin(value = "0.01", message = "Price in must be > 0")
     private BigDecimal priceIn;
 
@@ -36,8 +33,4 @@ public class ProductStockUpdateRequest {
     private String sku;
 
     private String location;
-
-    private Boolean isActive;
-
-    private Boolean trackInventory;
 }

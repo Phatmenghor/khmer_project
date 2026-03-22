@@ -33,19 +33,65 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
 
     List<ProductStock> findByBusinessIdAndProductId(UUID businessId, UUID productId);
 
-    // ========== Stock Status Queries ==========
+    // ========== Batch Queries (for FIFO) ==========
+
+    /**
+     * Get all active, non-expired batches for a product+size ordered by dateIn ASC (oldest first).
+     * Used for FIFO stock deduction when an order is placed.
+     */
     @Query("""
         SELECT ps FROM ProductStock ps
-        WHERE ps.businessId = :businessId
-            AND ps.quantityOnHand <= ps.minimumStockLevel
+        WHERE ps.productId = :productId
+            AND ps.businessId = :businessId
+            AND (:sizeId IS NULL OR ps.productSizeId = :sizeId)
             AND ps.isExpired = false
+            AND ps.quantityOnHand > 0
             AND ps.status = 'ACTIVE'
-        ORDER BY ps.quantityOnHand ASC
+        ORDER BY ps.dateIn ASC
     """)
-    List<ProductStock> findLowStockProducts(
+    List<ProductStock> findActiveBatchesFIFO(
+        @Param("productId") UUID productId,
+        @Param("sizeId") UUID sizeId,
         @Param("businessId") UUID businessId
     );
 
+    /**
+     * Get total available quantity across all non-expired batches for a product+size.
+     */
+    @Query("""
+        SELECT COALESCE(SUM(ps.quantityAvailable), 0)
+        FROM ProductStock ps
+        WHERE ps.productId = :productId
+            AND ps.businessId = :businessId
+            AND (:sizeId IS NULL OR ps.productSizeId = :sizeId)
+            AND ps.isExpired = false
+            AND ps.status = 'ACTIVE'
+    """)
+    Integer sumAvailableQuantity(
+        @Param("productId") UUID productId,
+        @Param("sizeId") UUID sizeId,
+        @Param("businessId") UUID businessId
+    );
+
+    /**
+     * Get total quantity on hand across all non-expired batches for a product+size.
+     */
+    @Query("""
+        SELECT COALESCE(SUM(ps.quantityOnHand), 0)
+        FROM ProductStock ps
+        WHERE ps.productId = :productId
+            AND ps.businessId = :businessId
+            AND (:sizeId IS NULL OR ps.productSizeId = :sizeId)
+            AND ps.isExpired = false
+            AND ps.status = 'ACTIVE'
+    """)
+    Integer sumOnHandQuantity(
+        @Param("productId") UUID productId,
+        @Param("sizeId") UUID sizeId,
+        @Param("businessId") UUID businessId
+    );
+
+    // ========== Stock Status Queries ==========
     @Query("""
         SELECT ps FROM ProductStock ps
         WHERE ps.businessId = :businessId
@@ -80,7 +126,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         @Param("businessId") UUID businessId
     );
 
-    // Find products expiring within specified days
     List<ProductStock> findByBusinessIdAndExpiryDateBetweenAndIsExpiredFalseAndQuantityOnHandGreaterThan(
         UUID businessId,
         LocalDateTime startDate,
@@ -106,12 +151,11 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     @Query("""
         SELECT ps FROM ProductStock ps
         WHERE ps.businessId = :businessId
-            AND ps.quantityOnHand <= ps.minimumStockLevel
-            AND ps.isExpired = false
-            AND ps.status = 'ACTIVE'
+            AND ps.quantityOnHand < :threshold
     """)
-    Page<ProductStock> findLowStockProductsPaginated(
+    Page<ProductStock> findByBusinessIdAndLowStockThreshold(
         @Param("businessId") UUID businessId,
+        @Param("threshold") Integer threshold,
         Pageable pageable
     );
 
@@ -150,41 +194,4 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     );
 
     Long countByBusinessIdAndIsExpiredTrue(UUID businessId);
-
-    Long countByBusinessIdAndTrackInventoryTrue(UUID businessId);
-
-    // ========== Tracking Status Queries ==========
-    @Query("""
-        SELECT ps FROM ProductStock ps
-        WHERE ps.businessId = :businessId
-            AND ps.trackInventory = true
-    """)
-    List<ProductStock> findTrackedInventory(
-        @Param("businessId") UUID businessId
-    );
-
-    @Query("""
-        SELECT ps FROM ProductStock ps
-        WHERE ps.businessId = :businessId
-            AND ps.trackInventory = true
-            AND ps.quantityOnHand <= :threshold
-            AND ps.isExpired = false
-            AND ps.status = 'ACTIVE'
-    """)
-    List<ProductStock> findAlertableProducts(
-        @Param("businessId") UUID businessId,
-        @Param("threshold") Integer threshold
-    );
-
-    // ========== Dynamic Filtering with Threshold ==========
-    @Query("""
-        SELECT ps FROM ProductStock ps
-        WHERE ps.businessId = :businessId
-            AND ps.quantityOnHand < :threshold
-    """)
-    Page<ProductStock> findByBusinessIdAndLowStockThreshold(
-        @Param("businessId") UUID businessId,
-        @Param("threshold") Integer threshold,
-        Pageable pageable
-    );
 }

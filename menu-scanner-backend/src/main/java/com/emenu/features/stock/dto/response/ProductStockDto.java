@@ -15,7 +15,7 @@ public class ProductStockDto {
 
     // ========== Identity ==========
 
-    /** Unique ID of this stock record */
+    /** Unique ID of this stock batch record */
     private UUID id;
 
     /** ID of the business that owns this stock */
@@ -37,7 +37,7 @@ public class ProductStockDto {
 
     // ========== Stock Quantities ==========
 
-    /** Total physical units currently in stock */
+    /** Total physical units in this batch */
     private Integer quantityOnHand;
 
     /** Units reserved for pending orders (not yet fulfilled) */
@@ -46,12 +46,9 @@ public class ProductStockDto {
     /** Units available to sell = quantityOnHand - quantityReserved */
     private Integer quantityAvailable;
 
-    /** Alert threshold — triggers low-stock warning when quantityOnHand <= this value */
-    private Integer minimumStockLevel;
-
     // ========== Pricing ==========
 
-    /** Cost price — how much you paid per unit (buying price) */
+    /** Cost price — how much you paid per unit for this batch */
     private BigDecimal priceIn;
 
     /** Selling price — how much customers pay per unit */
@@ -65,10 +62,10 @@ public class ProductStockDto {
 
     // ========== Dates ==========
 
-    /** Date and time when this stock batch was received */
+    /** Date and time when this batch was received */
     private LocalDateTime dateIn;
 
-    /** Expiry date/time of this stock batch (null if product does not expire) */
+    /** Expiry date/time of this batch (null if product does not expire) */
     private LocalDateTime expiryDate;
 
     // ========== Identifiers ==========
@@ -90,23 +87,15 @@ public class ProductStockDto {
     /** True if the stock has passed its expiry date */
     private Boolean isExpired;
 
-    /** Whether inventory quantity is being tracked for this item */
-    private Boolean trackInventory;
-
-    // ========== Stock Status Flags ==========
-
-    /** True when quantityOnHand <= minimumStockLevel — needs restocking */
-    private Boolean isLowStock;
-
-    /** True when quantityOnHand <= 0 — completely out of stock */
+    /** True when quantityOnHand <= 0 — this batch is empty */
     private Boolean isOutOfStock;
 
     // ========== Financial Summary ==========
 
-    /** Total cost value of stock on hand = quantityOnHand × priceIn */
+    /** Total cost value of this batch = quantityOnHand × priceIn */
     private BigDecimal inventoryValue;
 
-    /** Total retail value of stock on hand = quantityOnHand × priceOut */
+    /** Total retail value of this batch = quantityOnHand × priceOut */
     private BigDecimal retailValue;
 
     /** Potential profit if all stock is sold = retailValue - inventoryValue */

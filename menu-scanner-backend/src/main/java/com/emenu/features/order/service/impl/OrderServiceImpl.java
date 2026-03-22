@@ -23,6 +23,7 @@ import com.emenu.features.order.repository.OrderRepository;
 import com.emenu.features.order.repository.OrderStatusHistoryRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
 import com.emenu.features.order.service.OrderService;
+import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.generate.ReferenceNumberGenerator;
@@ -57,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
     private final ReferenceNumberGenerator referenceNumberGenerator;
     private final PaymentReferenceGenerator paymentReferenceGenerator;
     private final PaginationMapper paginationMapper;
+    private final StockServiceImpl stockService;
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
@@ -174,7 +176,13 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (request.getOrderStatus() != null) {
+            OrderStatus previousStatus = order.getOrderStatus();
             order.updateStatus(request.getOrderStatus());
+
+            // Deduct stock via FIFO when order moves to CONFIRMED
+            if (request.getOrderStatus() == OrderStatus.CONFIRMED && previousStatus != OrderStatus.CONFIRMED) {
+                deductStockForOrder(order);
+            }
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -449,5 +457,31 @@ public class OrderServiceImpl implements OrderService {
 
     private String generateOrderNumber() {
         return referenceNumberGenerator.generateOrderNumber();
+    }
+
+    /**
+     * Deduct stock via FIFO for each item in the order.
+     * Called when order status changes to CONFIRMED.
+     */
+    private void deductStockForOrder(Order order) {
+        if (order.getItems() == null || order.getItems().isEmpty()) return;
+
+        for (OrderItem item : order.getItems()) {
+            try {
+                stockService.deductStockFIFO(
+                    order.getBusinessId(),
+                    item.getProductId(),
+                    item.getProductSizeId(),
+                    item.getQuantity(),
+                    order.getId(),
+                    "Order confirmed: " + order.getOrderNumber()
+                );
+            } catch (Exception e) {
+                log.warn("Failed to deduct stock for product {} in order {}: {}",
+                    item.getProductId(), order.getOrderNumber(), e.getMessage());
+            }
+        }
+
+        log.info("Stock deducted via FIFO for confirmed order: {}", order.getOrderNumber());
     }
 }

@@ -38,18 +38,7 @@ public class ProductStockServiceImpl implements ProductStockService {
 
     @Override
     public ProductStockDto createProductStock(UUID businessId, ProductStockCreateRequest request) {
-        log.info("Creating product stock for business: {}", businessId);
-
-        // Check if product stock with same product and size already exists
-        if (request.getProductSizeId() != null) {
-            productStockRepository.findByProductIdAndProductSizeIdAndBusinessId(
-                    request.getProductId(),
-                    request.getProductSizeId(),
-                    businessId
-            ).ifPresent(existing -> {
-                throw new ValidationException("Product stock for this product and size already exists");
-            });
-        }
+        log.info("Creating product stock batch for business: {}", businessId);
 
         ProductStock productStock = productStockMapper.toEntity(request);
         productStock.setBusinessId(businessId);

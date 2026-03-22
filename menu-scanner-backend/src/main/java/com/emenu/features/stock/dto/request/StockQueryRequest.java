@@ -28,8 +28,6 @@ public class StockQueryRequest {
 
     private String searchText; // Search by product name, barcode, SKU
 
-    private Boolean trackInventory;
-    private Boolean isActive;
     private Boolean isExpired;
 
     // Quantity filters
