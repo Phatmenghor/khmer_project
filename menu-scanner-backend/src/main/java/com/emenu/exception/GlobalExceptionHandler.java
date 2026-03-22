@@ -173,11 +173,11 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             Object rejectedValue = ((FieldError) error).getRejectedValue();
 
-            fieldErrors.put(fieldName, Map.of(
-                    "message", errorMessage,
-                    "rejectedValue", rejectedValue,
-                    "field", fieldName
-            ));
+            Map<String, Object> errorInfo = new HashMap<>();
+            errorInfo.put("message", errorMessage != null ? errorMessage : "Validation failed");
+            errorInfo.put("rejectedValue", rejectedValue);
+            errorInfo.put("field", fieldName);
+            fieldErrors.put(fieldName, errorInfo);
 
             // Categorize errors
             if (errorMessage.toLowerCase().contains("required") ||
