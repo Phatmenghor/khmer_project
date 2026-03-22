@@ -800,8 +800,6 @@ public class StockServiceImpl implements StockService {
         dto.setQuantityReserved(stock.getQuantityReserved());
         dto.setQuantityAvailable(stock.getQuantityAvailable());
         dto.setPriceIn(stock.getPriceIn());
-
-        dto.setCostPerUnit(stock.getCostPerUnit());
         dto.setDateIn(stock.getDateIn());
         dto.setExpiryDate(stock.getExpiryDate());
         dto.setBarcode(stock.getBarcode());
