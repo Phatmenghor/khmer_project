@@ -814,7 +814,7 @@ public class StockServiceImpl implements StockService {
         dto.setBarcode(stock.getBarcode());
         dto.setSku(stock.getSku());
         dto.setLocation(stock.getLocation());
-        dto.setIsActive(stock.getIsActive());
+        dto.setStatus(stock.getStatus());
         dto.setIsExpired(stock.getIsExpired());
         dto.setTrackInventory(stock.getTrackInventory());
         dto.setIsLowStock(stock.isLowStock());
