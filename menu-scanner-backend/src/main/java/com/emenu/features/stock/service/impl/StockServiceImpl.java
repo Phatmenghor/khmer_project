@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -79,8 +78,8 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public List<ProductStockDto> getExpiringProducts(UUID businessId, Integer daysAhead) {
-        LocalDate today = LocalDate.now();
-        LocalDate expiryEndDate = today.plusDays(daysAhead);
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime expiryEndDate = today.plusDays(daysAhead);
         return productStockRepository.findByBusinessIdAndExpiryDateBetweenAndIsExpiredFalseAndQuantityOnHandGreaterThan(
             businessId, today, expiryEndDate, 0)
             .stream()

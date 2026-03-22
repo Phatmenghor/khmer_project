@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.emenu.enums.product.ProductStatus;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -78,7 +77,7 @@ public class ProductStock {
     private LocalDateTime dateOut;
 
     @Column(nullable = true)
-    private LocalDate expiryDate;
+    private LocalDateTime expiryDate;
 
     // ========== Identifiers ==========
     @Column(nullable = true, unique = true)
@@ -141,7 +140,7 @@ public class ProductStock {
 
     public Integer getDaysUntilExpiry() {
         if (expiryDate == null) return null;
-        return (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
+        return (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDateTime.now(), expiryDate);
     }
 
     @PrePersist
@@ -170,7 +169,7 @@ public class ProductStock {
 
     private void checkExpiry() {
         if (expiryDate != null) {
-            isExpired = expiryDate.isBefore(LocalDate.now());
+            isExpired = expiryDate.isBefore(LocalDateTime.now());
         }
     }
 }

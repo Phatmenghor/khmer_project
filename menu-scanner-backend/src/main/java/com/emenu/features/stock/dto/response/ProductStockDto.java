@@ -3,7 +3,6 @@ package com.emenu.features.stock.dto.response;
 import lombok.*;
 import com.emenu.enums.product.ProductStatus;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -69,8 +68,8 @@ public class ProductStockDto {
     /** Date and time when this stock batch was received */
     private LocalDateTime dateIn;
 
-    /** Expiry date of this stock batch (null if product does not expire) */
-    private LocalDate expiryDate;
+    /** Expiry date/time of this stock batch (null if product does not expire) */
+    private LocalDateTime expiryDate;
 
     // ========== Identifiers ==========
 

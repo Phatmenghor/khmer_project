@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,7 +72,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         SELECT ps FROM ProductStock ps
         WHERE ps.businessId = :businessId
             AND ps.expiryDate IS NOT NULL
-            AND ps.expiryDate < CAST(CURRENT_DATE AS DATE)
+            AND ps.expiryDate < CURRENT_TIMESTAMP
             AND ps.isExpired = true
         ORDER BY ps.expiryDate ASC
     """)
@@ -83,8 +83,8 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     // Find products expiring within specified days
     List<ProductStock> findByBusinessIdAndExpiryDateBetweenAndIsExpiredFalseAndQuantityOnHandGreaterThan(
         UUID businessId,
-        LocalDate startDate,
-        LocalDate endDate,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         Integer quantity
     );
 
