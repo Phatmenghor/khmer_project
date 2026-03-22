@@ -2,6 +2,7 @@ package com.emenu.features.stock.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.emenu.enums.product.ProductStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -93,8 +94,9 @@ public class ProductStock {
     private String location;
 
     // ========== Status Flags ==========
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Boolean isActive;
+    private ProductStatus status;
 
     @Column(nullable = false)
     private Boolean isExpired;
@@ -156,7 +158,7 @@ public class ProductStock {
         if (quantityOnHand == null) quantityOnHand = 0;
         if (quantityReserved == null) quantityReserved = 0;
         if (quantityAvailable == null) quantityAvailable = 0;
-        if (isActive == null) isActive = true;
+        if (status == null) status = ProductStatus.ACTIVE;
         if (trackInventory == null) trackInventory = true;
         updateQuantityAvailable();
         checkExpiry();

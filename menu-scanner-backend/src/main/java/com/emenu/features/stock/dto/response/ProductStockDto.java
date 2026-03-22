@@ -1,6 +1,7 @@
 package com.emenu.features.stock.dto.response;
 
 import lombok.*;
+import com.emenu.enums.product.ProductStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,7 +46,7 @@ public class ProductStockDto {
     private String location;
 
     // Status Flags
-    private Boolean isActive;
+    private ProductStatus status;
     private Boolean isExpired;
     private Boolean trackInventory;
 

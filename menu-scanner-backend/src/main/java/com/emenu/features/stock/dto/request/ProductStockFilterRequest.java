@@ -1,6 +1,7 @@
 package com.emenu.features.stock.dto.request;
 
 import com.emenu.shared.dto.BaseFilterRequest;
+import com.emenu.enums.product.ProductStatus;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,7 +19,7 @@ public class ProductStockFilterRequest extends BaseFilterRequest {
     private UUID productSizeId;
 
     // Stock Status Filters
-    private Boolean isActive;
+    private ProductStatus status;
     private Boolean isExpired;
     private Boolean trackInventory;
     private Boolean isOutOfStock;

@@ -39,7 +39,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         WHERE ps.businessId = :businessId
             AND ps.quantityOnHand <= ps.minimumStockLevel
             AND ps.isExpired = false
-            AND ps.isActive = true
+            AND ps.status = 'ACTIVE'
         ORDER BY ps.quantityOnHand ASC
     """)
     List<ProductStock> findLowStockProducts(
@@ -50,7 +50,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         SELECT ps FROM ProductStock ps
         WHERE ps.businessId = :businessId
             AND ps.quantityOnHand = 0
-            AND ps.isActive = true
+            AND ps.status = 'ACTIVE'
         ORDER BY ps.updatedAt DESC
     """)
     List<ProductStock> findOutOfStockProducts(
@@ -108,7 +108,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         WHERE ps.businessId = :businessId
             AND ps.quantityOnHand <= ps.minimumStockLevel
             AND ps.isExpired = false
-            AND ps.isActive = true
+            AND ps.status = 'ACTIVE'
     """)
     Page<ProductStock> findLowStockProductsPaginated(
         @Param("businessId") UUID businessId,
@@ -120,7 +120,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         SELECT SUM(ps.quantityOnHand * ps.priceIn)
         FROM ProductStock ps
         WHERE ps.businessId = :businessId
-            AND ps.isActive = true
+            AND ps.status = 'ACTIVE'
             AND ps.isExpired = false
     """)
     Optional<java.math.BigDecimal> getTotalInventoryValue(
@@ -131,7 +131,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         SELECT SUM(ps.quantityOnHand * ps.priceOut)
         FROM ProductStock ps
         WHERE ps.businessId = :businessId
-            AND ps.isActive = true
+            AND ps.status = 'ACTIVE'
             AND ps.isExpired = false
     """)
     Optional<java.math.BigDecimal> getTotalRetailValue(
@@ -169,6 +169,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             AND ps.trackInventory = true
             AND ps.quantityOnHand <= :threshold
             AND ps.isExpired = false
+            AND ps.status = 'ACTIVE'
     """)
     List<ProductStock> findAlertableProducts(
         @Param("businessId") UUID businessId,
