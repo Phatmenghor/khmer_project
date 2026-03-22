@@ -16,15 +16,20 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * Controller for managing Stock transactions and operations
+ * Handles stock additions, adjustments, reports, and queries
+ * Endpoint: /api/v1/stock
+ */
 @RestController
 @RequestMapping("/api/v1/stock")
 @RequiredArgsConstructor
 @Slf4j
-public class ProductStockController {
+public class StockManagementController {
 
     private final StockService stockService;
 
-    // ========== Query Operations - Product Stock Filtering ==========
+    // ========== Query Operations - Stock Filtering ==========
 
     @PostMapping("/search")
     public ResponseEntity<ApiResponse<Page<ProductStockDto>>> searchStock(
