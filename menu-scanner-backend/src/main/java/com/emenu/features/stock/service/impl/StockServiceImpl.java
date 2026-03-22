@@ -79,7 +79,10 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public List<ProductStockDto> getExpiringProducts(UUID businessId, Integer daysAhead) {
-        return productStockRepository.findExpiringProducts(businessId, daysAhead)
+        LocalDate today = LocalDate.now();
+        LocalDate expiryEndDate = today.plusDays(daysAhead);
+        return productStockRepository.findByBusinessIdAndExpiryDateBetweenAndIsExpiredFalseAndQuantityOnHandGreaterThan(
+            businessId, today, expiryEndDate, 0)
             .stream()
             .map(this::mapToDto)
             .collect(Collectors.toList());

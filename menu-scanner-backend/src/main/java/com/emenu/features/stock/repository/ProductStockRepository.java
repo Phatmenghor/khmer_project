@@ -80,19 +80,12 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         @Param("businessId") UUID businessId
     );
 
-    @Query("""
-        SELECT ps FROM ProductStock ps
-        WHERE ps.businessId = :businessId
-            AND ps.expiryDate IS NOT NULL
-            AND ps.expiryDate >= CAST(CURRENT_DATE AS DATE)
-            AND ps.expiryDate <= CAST(CURRENT_DATE AS DATE) + :days
-            AND ps.isExpired = false
-            AND ps.quantityOnHand > 0
-        ORDER BY ps.expiryDate ASC
-    """)
-    List<ProductStock> findExpiringProducts(
-        @Param("businessId") UUID businessId,
-        @Param("days") Integer days
+    // Find products expiring within specified days
+    List<ProductStock> findByBusinessIdAndExpiryDateBetweenAndIsExpiredFalseAndQuantityOnHandGreaterThan(
+        UUID businessId,
+        LocalDate startDate,
+        LocalDate endDate,
+        Integer quantity
     );
 
     // ========== Pagination Queries ==========
