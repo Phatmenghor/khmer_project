@@ -91,7 +91,7 @@ public class ProductStock {
 
     // ========== Status Flags ==========
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true, columnDefinition = "varchar(50) default 'ACTIVE'")
+    @Column(nullable = true)
     private ProductStatus status;
 
     @Column(nullable = false)
