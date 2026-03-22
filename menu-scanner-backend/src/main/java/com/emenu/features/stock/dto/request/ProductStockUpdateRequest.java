@@ -21,9 +21,6 @@ public class ProductStockUpdateRequest {
     @DecimalMin(value = "0.01", message = "Price in must be > 0")
     private BigDecimal priceIn;
 
-    @DecimalMin(value = "0.01", message = "Price out must be > 0")
-    private BigDecimal priceOut;
-
     private BigDecimal costPerUnit;
 
     private LocalDateTime expiryDate;

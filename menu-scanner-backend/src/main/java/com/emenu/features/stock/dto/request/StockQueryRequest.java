@@ -46,7 +46,7 @@ public class StockQueryRequest {
 
     // Sorting
     @Builder.Default
-    private String sortBy = "createdAt"; // createdAt, quantityOnHand, priceOut, expiryDate
+    private String sortBy = "createdAt"; // createdAt, quantityOnHand, priceIn, expiryDate
     @Builder.Default
     private String sortOrder = "DESC"; // ASC, DESC
 }

@@ -268,7 +268,7 @@ public class StockServiceImpl implements StockService {
             reason,
             getCurrentUserId(),
             orderId,
-            stock.getPriceOut()
+            stock.getPriceIn()
         );
 
         if (newQty < 0) {
@@ -312,7 +312,7 @@ public class StockServiceImpl implements StockService {
                 reason,
                 getCurrentUserId(),
                 orderId,
-                batch.getPriceOut()
+                batch.getPriceIn()
             );
 
             remaining -= deduct;
@@ -357,7 +357,7 @@ public class StockServiceImpl implements StockService {
                     reason,
                     getCurrentUserId(),
                     orderId,
-                    stock.getPriceOut()
+                    stock.getPriceIn()
                 );
             }
         }
@@ -394,7 +394,7 @@ public class StockServiceImpl implements StockService {
             reason,
             userId,
             null,
-            stock.getPriceOut()
+            stock.getPriceIn()
         );
 
         createOrUpdateAlert(businessId, stock, "EXPIRED");
@@ -652,11 +652,8 @@ public class StockServiceImpl implements StockService {
         summary.put("activeAlerts", countActiveAlerts(businessId));
 
         Optional<BigDecimal> costValue = productStockRepository.getTotalInventoryValue(businessId);
-        Optional<BigDecimal> retailValue = productStockRepository.getTotalRetailValue(businessId);
 
         summary.put("totalCostValue", costValue.orElse(BigDecimal.ZERO));
-        summary.put("totalRetailValue", retailValue.orElse(BigDecimal.ZERO));
-        summary.put("potentialProfit", retailValue.orElse(BigDecimal.ZERO).subtract(costValue.orElse(BigDecimal.ZERO)));
 
         return summary;
     }
@@ -671,15 +668,9 @@ public class StockServiceImpl implements StockService {
             .map(ProductStock::getInventoryValue)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal totalRetail = stocks.stream()
-            .map(ProductStock::getRetailValue)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
         report.put("totalCostValue", totalCost);
-        report.put("totalRetailValue", totalRetail);
-        report.put("potentialProfit", totalRetail.subtract(totalCost));
         report.put("totalItems", stocks.stream().mapToInt(ProductStock::getQuantityOnHand).sum());
-        report.put("totalVariants", stocks.size());
+        report.put("totalBatches", stocks.size());
 
         return report;
     }
@@ -809,7 +800,7 @@ public class StockServiceImpl implements StockService {
         dto.setQuantityReserved(stock.getQuantityReserved());
         dto.setQuantityAvailable(stock.getQuantityAvailable());
         dto.setPriceIn(stock.getPriceIn());
-        dto.setPriceOut(stock.getPriceOut());
+
         dto.setCostPerUnit(stock.getCostPerUnit());
         dto.setDateIn(stock.getDateIn());
         dto.setExpiryDate(stock.getExpiryDate());
@@ -820,8 +811,7 @@ public class StockServiceImpl implements StockService {
         dto.setIsExpired(stock.getIsExpired());
         dto.setIsOutOfStock(stock.isOutOfStock());
         dto.setInventoryValue(stock.getInventoryValue());
-        dto.setRetailValue(stock.getRetailValue());
-        dto.setPotentialProfit(stock.getPotentialProfit());
+
         dto.setCreatedAt(stock.getCreatedAt());
         dto.setUpdatedAt(stock.getUpdatedAt());
 

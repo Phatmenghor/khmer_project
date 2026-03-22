@@ -50,15 +50,12 @@ public class ProductStock {
     @Column(nullable = false)
     private Integer quantityAvailable;
 
-    // ========== Pricing ==========
+    // ========== Pricing (cost side only — selling price is on Product/ProductSize) ==========
     @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal priceIn; // Cost price
-
-    @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal priceOut; // Selling price
+    private BigDecimal priceIn; // Cost price paid for this batch
 
     @Column(nullable = true, precision = 19, scale = 4)
-    private BigDecimal costPerUnit;
+    private BigDecimal costPerUnit; // Total cost per unit including shipping, handling, etc.
 
     // ========== Dates & Tracking ==========
     @Column(nullable = true)
@@ -112,14 +109,6 @@ public class ProductStock {
 
     public BigDecimal getInventoryValue() {
         return priceIn.multiply(BigDecimal.valueOf(quantityOnHand));
-    }
-
-    public BigDecimal getRetailValue() {
-        return priceOut.multiply(BigDecimal.valueOf(quantityOnHand));
-    }
-
-    public BigDecimal getPotentialProfit() {
-        return getRetailValue().subtract(getInventoryValue());
     }
 
     public Integer getDaysUntilExpiry() {

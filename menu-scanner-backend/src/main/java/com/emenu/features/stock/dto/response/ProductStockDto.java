@@ -51,14 +51,8 @@ public class ProductStockDto {
     /** Cost price — how much you paid per unit for this batch */
     private BigDecimal priceIn;
 
-    /** Selling price — how much customers pay per unit */
-    private BigDecimal priceOut;
-
-    /** Cost per unit (defaults to priceIn if not set separately) */
+    /** Total cost per unit including shipping, handling, etc. */
     private BigDecimal costPerUnit;
-
-    /** Profit margin percentage = (priceOut - priceIn) / priceIn × 100 */
-    private BigDecimal profitMargin;
 
     // ========== Dates ==========
 
@@ -94,12 +88,6 @@ public class ProductStockDto {
 
     /** Total cost value of this batch = quantityOnHand × priceIn */
     private BigDecimal inventoryValue;
-
-    /** Total retail value of this batch = quantityOnHand × priceOut */
-    private BigDecimal retailValue;
-
-    /** Potential profit if all stock is sold = retailValue - inventoryValue */
-    private BigDecimal potentialProfit;
 
     // ========== Audit ==========
 

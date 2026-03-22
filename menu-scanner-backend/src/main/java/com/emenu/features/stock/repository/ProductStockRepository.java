@@ -171,17 +171,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         @Param("businessId") UUID businessId
     );
 
-    @Query("""
-        SELECT SUM(ps.quantityOnHand * ps.priceOut)
-        FROM ProductStock ps
-        WHERE ps.businessId = :businessId
-            AND ps.status = 'ACTIVE'
-            AND ps.isExpired = false
-    """)
-    Optional<java.math.BigDecimal> getTotalRetailValue(
-        @Param("businessId") UUID businessId
-    );
-
     // ========== Count Queries ==========
     Long countByBusinessIdAndQuantityOnHandLessThanEqualAndIsExpiredFalse(
         UUID businessId,
