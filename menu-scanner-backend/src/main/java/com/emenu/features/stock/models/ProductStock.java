@@ -60,9 +60,6 @@ public class ProductStock {
     @Column(nullable = false)
     private Integer minimumStockLevel;
 
-    @Column(nullable = false)
-    private Integer reorderQuantity;
-
     // ========== Pricing ==========
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal priceIn; // Cost price
@@ -140,10 +137,6 @@ public class ProductStock {
 
     public BigDecimal getPotentialProfit() {
         return getRetailValue().subtract(getInventoryValue());
-    }
-
-    public Integer getUnitsToReorder() {
-        return Math.max(0, minimumStockLevel - quantityOnHand + reorderQuantity);
     }
 
     public Integer getDaysUntilExpiry() {

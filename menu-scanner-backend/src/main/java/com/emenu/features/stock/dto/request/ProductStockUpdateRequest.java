@@ -21,9 +21,6 @@ public class ProductStockUpdateRequest {
     @Min(value = 0, message = "Minimum stock level must be >= 0")
     private Integer minimumStockLevel;
 
-    @Min(value = 1, message = "Reorder quantity must be >= 1")
-    private Integer reorderQuantity;
-
     @DecimalMin(value = "0.01", message = "Price in must be > 0")
     private BigDecimal priceIn;
 

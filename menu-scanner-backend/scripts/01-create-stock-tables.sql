@@ -21,9 +21,8 @@ CREATE TABLE IF NOT EXISTS product_stock (
     quantity_reserved INT NOT NULL DEFAULT 0,
     quantity_available INT NOT NULL DEFAULT 0,
 
-    -- Stock Thresholds & Reorder
+    -- Stock Thresholds
     minimum_stock_level INT NOT NULL DEFAULT 5,
-    reorder_quantity INT NOT NULL DEFAULT 20,
 
     -- Pricing (Cost vs Selling)
     price_in DECIMAL(19, 4) NOT NULL DEFAULT 0.00,

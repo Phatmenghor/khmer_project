@@ -25,7 +25,6 @@ public interface ProductStockMapper {
     @Mapping(target = "inventoryValue", expression = "java(productStock.getInventoryValue())")
     @Mapping(target = "retailValue", expression = "java(productStock.getRetailValue())")
     @Mapping(target = "potentialProfit", expression = "java(productStock.getPotentialProfit())")
-    @Mapping(target = "unitsToReorder", expression = "java(productStock.getUnitsToReorder())")
     ProductStockDto toDto(ProductStock productStock);
 
     @Mapping(target = "id", ignore = true)

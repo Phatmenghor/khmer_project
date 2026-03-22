@@ -26,7 +26,6 @@ public class ProductStockDto {
 
     // Stock Thresholds
     private Integer minimumStockLevel;
-    private Integer reorderQuantity;
 
     // Pricing
     private BigDecimal priceIn;
@@ -59,9 +58,6 @@ public class ProductStockDto {
     private BigDecimal inventoryValue;
     private BigDecimal retailValue;
     private BigDecimal potentialProfit;
-
-    // Reorder Info
-    private Integer unitsToReorder;
 
     // Product Info (Optional)
     private String productName;

@@ -678,8 +678,6 @@ public class StockServiceImpl implements StockService {
                 rec.put("productId", stock.getProductId());
                 rec.put("productName", stock.getProductId());
                 rec.put("currentQuantity", stock.getQuantityOnHand());
-                rec.put("recommendedOrder", stock.getUnitsToReorder());
-                rec.put("estimatedCost", stock.getPriceIn().multiply(BigDecimal.valueOf(stock.getUnitsToReorder())));
                 return rec;
             })
             .collect(Collectors.toList());
@@ -823,7 +821,6 @@ public class StockServiceImpl implements StockService {
         dto.setInventoryValue(stock.getInventoryValue());
         dto.setRetailValue(stock.getRetailValue());
         dto.setPotentialProfit(stock.getPotentialProfit());
-        dto.setUnitsToReorder(stock.getUnitsToReorder());
         dto.setCreatedAt(stock.getCreatedAt());
         dto.setUpdatedAt(stock.getUpdatedAt());
 
