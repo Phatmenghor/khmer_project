@@ -65,10 +65,10 @@ public class ProductStock {
     private LocalDateTime expiryDate;
 
     // ========== Identifiers ==========
-    @Column(nullable = true, unique = true)
+    @Column(nullable = true, unique = true, columnDefinition = "varchar(255)")
     private String barcode;
 
-    @Column(nullable = true)
+    @Column(nullable = true, columnDefinition = "varchar(255)")
     private String sku;
 
     @Column(nullable = true)
