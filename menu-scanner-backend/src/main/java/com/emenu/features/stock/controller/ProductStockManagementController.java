@@ -8,13 +8,12 @@ import com.emenu.features.stock.service.ProductStockService;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 /**
  * Controller for managing ProductStock CRUD operations
@@ -58,10 +57,9 @@ public class ProductStockManagementController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<ProductStockDto>> createProductStock(
-            @RequestParam UUID businessId,
             @Valid @RequestBody ProductStockCreateRequest request) {
-        log.info("Create product stock for business: {}", businessId);
-        ProductStockDto response = productStockService.createProductStock(businessId, request);
+        log.info("Create product stock for business: {}", request.getBusinessId());
+        ProductStockDto response = productStockService.createProductStock(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Product stock created", response));
     }

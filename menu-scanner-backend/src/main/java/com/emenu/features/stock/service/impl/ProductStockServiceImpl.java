@@ -37,11 +37,11 @@ public class ProductStockServiceImpl implements ProductStockService {
     private final ProductSizeRepository productSizeRepository;
 
     @Override
-    public ProductStockDto createProductStock(UUID businessId, ProductStockCreateRequest request) {
-        log.info("Creating product stock batch for business: {}", businessId);
+    public ProductStockDto createProductStock(ProductStockCreateRequest request) {
+        log.info("Creating product stock for business: {}", request.getBusinessId());
 
         ProductStock productStock = productStockMapper.toEntity(request);
-        productStock.setBusinessId(businessId);
+        productStock.setBusinessId(request.getBusinessId());
 
         // Set dateIn to now on first creation
         productStock.setDateIn(LocalDateTime.now());
@@ -74,17 +74,6 @@ public class ProductStockServiceImpl implements ProductStockService {
                 request.getSortDirection()
         );
 
-        // Use low stock threshold filter if provided
-        if (request.getLowStockThreshold() != null && request.getLowStockThreshold() > 0) {
-            Page<ProductStock> productStockPage = productStockRepository.findByBusinessIdAndLowStockThreshold(
-                    request.getBusinessId(),
-                    request.getLowStockThreshold(),
-                    pageable
-            );
-            return productStockMapper.toPaginationResponse(productStockPage, paginationMapper);
-        }
-
-        // Default: get by business ID with optional filters applied in memory
         Page<ProductStock> productStockPage = productStockRepository.findByBusinessId(request.getBusinessId(), pageable);
         return productStockMapper.toPaginationResponse(productStockPage, paginationMapper);
     }

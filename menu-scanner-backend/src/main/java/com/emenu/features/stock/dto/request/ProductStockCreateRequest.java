@@ -13,6 +13,9 @@ import java.util.UUID;
 @Builder
 public class ProductStockCreateRequest {
 
+    @NotNull(message = "Business ID is required")
+    private UUID businessId;
+
     @NotNull(message = "Product ID is required")
     private UUID productId;
 

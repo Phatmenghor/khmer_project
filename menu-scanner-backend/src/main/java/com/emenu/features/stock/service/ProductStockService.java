@@ -12,7 +12,7 @@ public interface ProductStockService {
     /**
      * Create a new product stock
      */
-    ProductStockDto createProductStock(UUID businessId, ProductStockCreateRequest request);
+    ProductStockDto createProductStock(ProductStockCreateRequest request);
 
     /**
      * Get all product stocks with pagination and filters
