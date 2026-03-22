@@ -26,6 +26,11 @@ public class ProductStockController {
 
     // ========== Query Operations - Product Stock Filtering ==========
 
+    /**
+     * Search and filter product stock with complex criteria
+     * @param request Stock query/filter request
+     * @return Paginated list of matching stock items
+     */
     @PostMapping("/search")
     public ResponseEntity<ApiResponse<Page<ProductStockDto>>> searchStock(
         @Valid @RequestBody StockQueryRequest request
@@ -35,6 +40,11 @@ public class ProductStockController {
         return ResponseEntity.ok(ApiResponse.success(result, "Product stock search completed"));
     }
 
+    /**
+     * Get all products with stock below minimum threshold
+     * @param businessId Business ID
+     * @return List of low stock products
+     */
     @PostMapping("/low-stock")
     public ResponseEntity<ApiResponse<List<ProductStockDto>>> getLowStockProducts(
         @RequestParam UUID businessId
@@ -44,6 +54,11 @@ public class ProductStockController {
         return ResponseEntity.ok(ApiResponse.success(result, "Low stock products retrieved"));
     }
 
+    /**
+     * Get all expired product stock items
+     * @param businessId Business ID
+     * @return List of expired stock items
+     */
     @PostMapping("/expired")
     public ResponseEntity<ApiResponse<List<ProductStockDto>>> getExpiredProducts(
         @RequestParam UUID businessId
@@ -53,6 +68,12 @@ public class ProductStockController {
         return ResponseEntity.ok(ApiResponse.success(result, "Expired products retrieved"));
     }
 
+    /**
+     * Get products expiring within specified days
+     * @param businessId Business ID
+     * @param daysAhead Number of days to look ahead (default: 7)
+     * @return List of expiring stock items
+     */
     @PostMapping("/expiring")
     public ResponseEntity<ApiResponse<List<ProductStockDto>>> getExpiringProducts(
         @RequestParam UUID businessId,
@@ -63,7 +84,12 @@ public class ProductStockController {
         return ResponseEntity.ok(ApiResponse.success(result, "Expiring products retrieved"));
     }
 
-    @PostMapping("/all")
+    /**
+     * Get all stock items for a business
+     * @param businessId Business ID
+     * @return All stock items
+     */
+    @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<ProductStockDto>>> getAllStock(
         @RequestParam UUID businessId
     ) {
@@ -104,8 +130,16 @@ public class ProductStockController {
         return ResponseEntity.ok(ApiResponse.success(result, "Stock retrieved by barcode"));
     }
 
-    // ========== Availability Check - Body-Based ==========
+    // ========== Availability Check Operations ==========
 
+    /**
+     * Check if sufficient quantity is available for a product
+     * @param businessId Business ID
+     * @param productId Product ID
+     * @param sizeId Product size ID (optional)
+     * @param quantity Quantity to check
+     * @return Availability status
+     */
     @PostMapping("/check-availability")
     public ResponseEntity<ApiResponse<Map<String, Object>>> checkAvailability(
         @RequestParam UUID businessId,
@@ -123,6 +157,12 @@ public class ProductStockController {
         return ResponseEntity.ok(ApiResponse.success(result, "Availability checked"));
     }
 
+    /**
+     * Check availability for multiple products at once
+     * @param businessId Business ID
+     * @param productQuantities Map of product IDs to quantities
+     * @return Map of product IDs to availability status
+     */
     @PostMapping("/check-bulk-availability")
     public ResponseEntity<ApiResponse<Map<UUID, Boolean>>> checkBulkAvailability(
         @RequestParam UUID businessId,
@@ -195,6 +235,11 @@ public class ProductStockController {
 
     // ========== Stock Summary & Reports ==========
 
+    /**
+     * Get overall stock summary statistics
+     * @param businessId Business ID
+     * @return Stock summary with key metrics
+     */
     @PostMapping("/summary")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStockSummary(
         @RequestParam UUID businessId
@@ -204,6 +249,11 @@ public class ProductStockController {
         return ResponseEntity.ok(ApiResponse.success(result, "Stock summary retrieved"));
     }
 
+    /**
+     * Generate stock valuation report
+     * @param businessId Business ID
+     * @return Stock valuation report with cost analysis
+     */
     @PostMapping("/report/valuation")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getValuationReport(
         @RequestParam UUID businessId

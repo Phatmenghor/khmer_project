@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/images")
+@RequestMapping("/api/v1/images")
 @RequiredArgsConstructor
 @Slf4j
 public class ImageController {
