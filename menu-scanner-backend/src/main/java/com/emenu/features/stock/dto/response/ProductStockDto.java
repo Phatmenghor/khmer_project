@@ -51,9 +51,6 @@ public class ProductStockDto {
     /** Cost price — how much you paid per unit for this batch */
     private BigDecimal priceIn;
 
-    /** Total cost per unit including shipping, handling, etc. */
-    private BigDecimal costPerUnit;
-
     // ========== Dates ==========
 
     /** Date and time when this batch was received */

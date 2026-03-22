@@ -43,11 +43,6 @@ public class ProductStockServiceImpl implements ProductStockService {
         ProductStock productStock = productStockMapper.toEntity(request);
         productStock.setBusinessId(businessId);
 
-        // Default costPerUnit to priceIn if not provided
-        if (productStock.getCostPerUnit() == null) {
-            productStock.setCostPerUnit(productStock.getPriceIn());
-        }
-
         // Set dateIn to now on first creation
         productStock.setDateIn(LocalDateTime.now());
 

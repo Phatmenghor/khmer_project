@@ -54,9 +54,6 @@ public class ProductStock {
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal priceIn; // Cost price paid for this batch
 
-    @Column(nullable = true, precision = 19, scale = 4)
-    private BigDecimal costPerUnit; // Total cost per unit including shipping, handling, etc.
-
     // ========== Dates & Tracking ==========
     @Column(nullable = true)
     private LocalDateTime dateIn;

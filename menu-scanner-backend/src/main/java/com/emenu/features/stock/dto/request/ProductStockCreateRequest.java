@@ -26,8 +26,6 @@ public class ProductStockCreateRequest {
     @DecimalMin(value = "0.01", message = "Price in must be > 0")
     private BigDecimal priceIn;
 
-    private BigDecimal costPerUnit;
-
     private LocalDateTime expiryDate;
 
     private String barcode;
