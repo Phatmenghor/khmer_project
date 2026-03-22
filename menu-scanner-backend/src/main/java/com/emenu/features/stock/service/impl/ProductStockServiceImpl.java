@@ -74,7 +74,20 @@ public class ProductStockServiceImpl implements ProductStockService {
                 request.getSortDirection()
         );
 
-        Page<ProductStock> productStockPage = productStockRepository.findByBusinessId(request.getBusinessId(), pageable);
+        String status = request.getStatus() != null ? request.getStatus().name() : null;
+        String search = (request.getSearch() != null && !request.getSearch().isBlank())
+                ? request.getSearch() : null;
+
+        Page<ProductStock> productStockPage = productStockRepository.findWithFilters(
+                request.getBusinessId(),
+                request.getProductId(),
+                request.getProductSizeId(),
+                status,
+                request.getLowStockThreshold(),
+                request.getExpiredBefore(),
+                search,
+                pageable
+        );
         return productStockMapper.toPaginationResponse(productStockPage, paginationMapper);
     }
 

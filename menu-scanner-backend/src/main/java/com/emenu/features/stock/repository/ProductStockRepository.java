@@ -139,23 +139,23 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     @Query("""
         SELECT ps FROM ProductStock ps
         WHERE ps.businessId = :businessId
-            AND (LOWER(ps.barcode) LIKE LOWER(CONCAT('%', :search, '%'))
+            AND (:productId IS NULL OR ps.productId = :productId)
+            AND (:productSizeId IS NULL OR ps.productSizeId = :productSizeId)
+            AND (:status IS NULL OR ps.status = :status)
+            AND (:lowStockThreshold IS NULL OR ps.quantityOnHand < :lowStockThreshold)
+            AND (:expiredBefore IS NULL OR (ps.expiryDate IS NOT NULL AND ps.expiryDate <= :expiredBefore))
+            AND (:search IS NULL OR LOWER(ps.barcode) LIKE LOWER(CONCAT('%', :search, '%'))
                 OR LOWER(ps.sku) LIKE LOWER(CONCAT('%', :search, '%')))
+        ORDER BY ps.dateIn DESC
     """)
-    Page<ProductStock> searchByBusinessIdAndNameOrBarcodeOrSku(
+    Page<ProductStock> findWithFilters(
         @Param("businessId") UUID businessId,
+        @Param("productId") UUID productId,
+        @Param("productSizeId") UUID productSizeId,
+        @Param("status") String status,
+        @Param("lowStockThreshold") Integer lowStockThreshold,
+        @Param("expiredBefore") LocalDateTime expiredBefore,
         @Param("search") String search,
-        Pageable pageable
-    );
-
-    @Query("""
-        SELECT ps FROM ProductStock ps
-        WHERE ps.businessId = :businessId
-            AND ps.quantityOnHand < :threshold
-    """)
-    Page<ProductStock> findByBusinessIdAndLowStockThreshold(
-        @Param("businessId") UUID businessId,
-        @Param("threshold") Integer threshold,
         Pageable pageable
     );
 
