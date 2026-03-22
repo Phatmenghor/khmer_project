@@ -127,15 +127,10 @@ public interface StockAlertRepository extends JpaRepository<StockAlert, UUID> {
     );
 
     // ========== Duplicate Alert Check ==========
-    @Query("""
-        SELECT sa FROM StockAlert sa
-        WHERE sa.productStockId = :productStockId
-            AND sa.alertType = :alertType
-            AND sa.status = 'ACTIVE'
-        LIMIT 1
-    """)
-    List<StockAlert> findExistingActiveAlert(
-        @Param("productStockId") UUID productStockId,
-        @Param("alertType") String alertType
+    // Find if there's already an active alert for this product and alert type
+    List<StockAlert> findByProductStockIdAndAlertTypeAndStatusOrderByCreatedAtDesc(
+        UUID productStockId,
+        String alertType,
+        String status
     );
 }

@@ -753,7 +753,7 @@ public class StockServiceImpl implements StockService {
     }
 
     private void createOrUpdateAlert(UUID businessId, ProductStock stock, String alertType) {
-        List<StockAlert> existingAlerts = stockAlertRepository.findExistingActiveAlert(stock.getId(), alertType);
+        List<StockAlert> existingAlerts = stockAlertRepository.findByProductStockIdAndAlertTypeAndStatusOrderByCreatedAtDesc(stock.getId(), alertType, "ACTIVE");
 
         if (existingAlerts.isEmpty()) {
             StockAlert alert = StockAlert.builder()
