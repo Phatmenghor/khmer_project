@@ -68,8 +68,6 @@ CREATE INDEX idx_product_stock_is_expired ON product_stock(is_expired);
 CREATE INDEX idx_product_stock_low_stock ON product_stock(quantity_on_hand);
 CREATE INDEX idx_product_stock_expiry ON product_stock(expiry_date);
 
-PRINT 'TABLE 1: product_stock created successfully';
-
 -- =====================================================
 -- TABLE 2: STOCK_MOVEMENTS - Audit trail
 -- =====================================================
@@ -112,7 +110,6 @@ CREATE INDEX idx_stock_movements_type ON stock_movements(movement_type);
 CREATE INDEX idx_stock_movements_order ON stock_movements(order_id);
 CREATE INDEX idx_stock_movements_created ON stock_movements(created_at DESC);
 
-PRINT 'TABLE 2: stock_movements created successfully';
 
 -- =====================================================
 -- TABLE 3: STOCK_ADJUSTMENTS - Manual adjustments
@@ -150,7 +147,6 @@ CREATE INDEX idx_stock_adjustments_business ON stock_adjustments(business_id);
 CREATE INDEX idx_stock_adjustments_product_stock ON stock_adjustments(product_stock_id);
 CREATE INDEX idx_stock_adjustments_requires_approval ON stock_adjustments(requires_approval, approved);
 
-PRINT 'TABLE 3: stock_adjustments created successfully';
 
 -- =====================================================
 -- TABLE 4: STOCK_ALERTS - Alert management
@@ -193,7 +189,6 @@ CREATE INDEX idx_stock_alerts_status ON stock_alerts(status);
 CREATE INDEX idx_stock_alerts_type ON stock_alerts(alert_type);
 CREATE INDEX idx_stock_alerts_product_stock ON stock_alerts(product_stock_id);
 
-PRINT 'TABLE 4: stock_alerts created successfully';
 
 -- =====================================================
 -- TABLE 5: BARCODE_MAPPINGS - Scanner support
@@ -229,7 +224,6 @@ CREATE INDEX idx_barcode_mappings_business ON barcode_mappings(business_id);
 CREATE INDEX idx_barcode_mappings_barcode ON barcode_mappings(barcode);
 CREATE INDEX idx_barcode_mappings_product_stock ON barcode_mappings(product_stock_id);
 
-PRINT 'TABLE 5: barcode_mappings created successfully';
 
 -- =====================================================
 -- ADD COLUMNS TO EXISTING TABLES
@@ -263,7 +257,6 @@ ALTER TABLE IF EXISTS business_settings ADD COLUMN IF NOT EXISTS auto_restock_al
 ALTER TABLE IF EXISTS business_settings ADD COLUMN IF NOT EXISTS barcode_enabled BOOLEAN DEFAULT false;
 ALTER TABLE IF EXISTS business_settings ADD COLUMN IF NOT EXISTS stock_history_retention_days INT DEFAULT 365;
 
-PRINT 'EXISTING TABLES UPDATED successfully';
 
 -- =====================================================
 -- CREATE TRIGGERS
@@ -321,7 +314,6 @@ BEFORE INSERT OR UPDATE ON product_stock
 FOR EACH ROW
 EXECUTE FUNCTION update_cost_per_unit();
 
-PRINT 'TRIGGERS CREATED successfully';
 
 -- =====================================================
 -- CREATE VIEWS FOR REPORTING
@@ -392,7 +384,6 @@ JOIN products p ON ps.product_id = p.id
 WHERE ps.is_active = true AND ps.is_expired = false
 GROUP BY ps.business_id, p.id, p.name;
 
-PRINT 'VIEWS CREATED successfully';
 
 -- =====================================================
 -- VERIFICATION
