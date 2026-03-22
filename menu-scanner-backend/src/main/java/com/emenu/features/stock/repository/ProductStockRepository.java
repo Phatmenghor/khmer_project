@@ -174,4 +174,16 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         @Param("businessId") UUID businessId,
         @Param("threshold") Integer threshold
     );
+
+    // ========== Dynamic Filtering with Threshold ==========
+    @Query("""
+        SELECT ps FROM ProductStock ps
+        WHERE ps.businessId = :businessId
+            AND ps.quantityOnHand < :threshold
+    """)
+    Page<ProductStock> findByBusinessIdAndLowStockThreshold(
+        @Param("businessId") UUID businessId,
+        @Param("threshold") Integer threshold,
+        Pageable pageable
+    );
 }

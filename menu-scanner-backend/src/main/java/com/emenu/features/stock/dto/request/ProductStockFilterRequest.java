@@ -21,13 +21,13 @@ public class ProductStockFilterRequest extends BaseFilterRequest {
     private Boolean isActive;
     private Boolean isExpired;
     private Boolean trackInventory;
-    private Boolean isLowStock;
     private Boolean isOutOfStock;
 
     // Stock Level Filters
     private Integer minQuantity;
     private Integer maxQuantity;
     private Integer minStockLevel;
+    private Integer lowStockThreshold;  // Products with quantity < this threshold
 
     // Price Filters
     private BigDecimal minPrice;

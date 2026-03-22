@@ -65,6 +65,10 @@ public class ProductStockServiceImpl implements ProductStockService {
     public PaginationResponse<ProductStockDto> getAllProductStocks(ProductStockFilterRequest request) {
         log.info("Getting all product stocks with filters for business: {}", request.getBusinessId());
 
+        if (request.getBusinessId() == null) {
+            throw new ValidationException("Business ID is required");
+        }
+
         Pageable pageable = PaginationUtils.createPageable(
                 request.getPageNo(),
                 request.getPageSize(),
@@ -72,16 +76,18 @@ public class ProductStockServiceImpl implements ProductStockService {
                 request.getSortDirection()
         );
 
-        Page<ProductStock> productStockPage;
-
-        // Apply filters
-        if (request.getBusinessId() != null) {
-            productStockPage = productStockRepository.findByBusinessId(request.getBusinessId(), pageable);
-        } else {
-            // If no business ID provided, use empty result
-            throw new ValidationException("Business ID is required");
+        // Use low stock threshold filter if provided
+        if (request.getLowStockThreshold() != null && request.getLowStockThreshold() > 0) {
+            Page<ProductStock> productStockPage = productStockRepository.findByBusinessIdAndLowStockThreshold(
+                    request.getBusinessId(),
+                    request.getLowStockThreshold(),
+                    pageable
+            );
+            return productStockMapper.toPaginationResponse(productStockPage, paginationMapper);
         }
 
+        // Default: get by business ID with optional filters applied in memory
+        Page<ProductStock> productStockPage = productStockRepository.findByBusinessId(request.getBusinessId(), pageable);
         return productStockMapper.toPaginationResponse(productStockPage, paginationMapper);
     }
 
