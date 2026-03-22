@@ -20,19 +20,19 @@ import java.util.*;
 @RequestMapping("/api/v1/stock")
 @RequiredArgsConstructor
 @Slf4j
-public class StockController {
+public class ProductStockController {
 
     private final StockService stockService;
 
-    // ========== Query Operations - Body-Based Filtering ==========
+    // ========== Query Operations - Product Stock Filtering ==========
 
     @PostMapping("/search")
     public ResponseEntity<ApiResponse<Page<ProductStockDto>>> searchStock(
         @Valid @RequestBody StockQueryRequest request
     ) {
-        log.info("Searching stock with filters: {}", request);
+        log.info("Searching product stock with filters: {}", request);
         Page<ProductStockDto> result = stockService.searchStock(request);
-        return ResponseEntity.ok(ApiResponse.success(result, "Stock search completed"));
+        return ResponseEntity.ok(ApiResponse.success(result, "Product stock search completed"));
     }
 
     @PostMapping("/low-stock")

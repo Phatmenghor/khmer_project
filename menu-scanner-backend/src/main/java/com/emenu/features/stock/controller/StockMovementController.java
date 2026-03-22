@@ -17,10 +17,13 @@ import java.util.UUID;
 @RequestMapping("/api/v1/stock/history")
 @RequiredArgsConstructor
 @Slf4j
-public class StockHistoryController {
+public class StockMovementController {
 
     private final StockService stockService;
 
+    /**
+     * Get stock movements for a specific product
+     */
     @PostMapping("/product/{productStockId}")
     public ResponseEntity<ApiResponse<List<StockMovementDto>>> getProductHistory(
         @PathVariable UUID productStockId,
@@ -30,11 +33,14 @@ public class StockHistoryController {
         LocalDateTime fromDate = from != null ? from : LocalDateTime.now().minusMonths(1);
         LocalDateTime toDate = to != null ? to : LocalDateTime.now();
 
-        log.info("Getting history for product stock: {} from: {} to: {}", productStockId, fromDate, toDate);
+        log.info("Getting stock movements for product stock: {} from: {} to: {}", productStockId, fromDate, toDate);
         List<StockMovementDto> result = stockService.getStockHistory(productStockId, fromDate, toDate);
-        return ResponseEntity.ok(ApiResponse.success(result, "Stock history retrieved"));
+        return ResponseEntity.ok(ApiResponse.success(result, "Stock movements retrieved"));
     }
 
+    /**
+     * Get stock movements for a specific business
+     */
     @PostMapping("/business/{businessId}")
     public ResponseEntity<ApiResponse<Page<StockMovementDto>>> getBusinessHistory(
         @PathVariable UUID businessId,
@@ -47,7 +53,7 @@ public class StockHistoryController {
         LocalDateTime fromDate = from != null ? from : LocalDateTime.now().minusMonths(1);
         LocalDateTime toDate = to != null ? to : LocalDateTime.now();
 
-        log.info("Getting history for business: {} type: {} from: {} to: {}",
+        log.info("Getting stock movements for business: {} type: {} from: {} to: {}",
             businessId, movementType, fromDate, toDate);
 
         Page<StockMovementDto> result = stockService.getStockHistoryPaginated(

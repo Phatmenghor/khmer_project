@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/api/v1/payment-options")
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentOptionPublicController {
+public class PaymentOptionController {
 
     private final PaymentOptionService paymentOptionService;
 
     /**
-     * Get all active payment options (Public - No authentication required)
+     * Get all active payment options (Public API - No authentication required)
      * Returns all active payment options without pagination
      */
     @GetMapping("/all-data")
