@@ -25,7 +25,7 @@ public class StockAlertController {
     ) {
         log.info("Getting active alerts for business: {}", businessId);
         List<StockAlertDto> result = stockService.getActiveAlerts(businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Active alerts retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Active alerts retrieved", result));
     }
 
     @PostMapping("/critical")
@@ -34,7 +34,7 @@ public class StockAlertController {
     ) {
         log.info("Getting critical alerts for business: {}", businessId);
         List<StockAlertDto> result = stockService.getCriticalAlerts(businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Critical alerts retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Critical alerts retrieved", result));
     }
 
     @PostMapping("/by-type")
@@ -44,7 +44,7 @@ public class StockAlertController {
     ) {
         log.info("Getting {} alerts for business: {}", alertType, businessId);
         List<StockAlertDto> result = stockService.getAlertsByType(businessId, alertType);
-        return ResponseEntity.ok(ApiResponse.success(result, "Alerts retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Alerts retrieved", result));
     }
 
     @PostMapping("/{alertId}/acknowledge")
@@ -55,7 +55,7 @@ public class StockAlertController {
     ) {
         log.info("Acknowledging alert: {} by user: {}", alertId, userId);
         StockAlertDto result = stockService.acknowledgeAlert(businessId, alertId, userId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Alert acknowledged"));
+        return ResponseEntity.ok(ApiResponse.success("Alert acknowledged", result));
     }
 
     @PostMapping("/{alertId}/resolve")
@@ -65,7 +65,7 @@ public class StockAlertController {
     ) {
         log.info("Resolving alert: {}", alertId);
         StockAlertDto result = stockService.resolveAlert(businessId, alertId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Alert resolved"));
+        return ResponseEntity.ok(ApiResponse.success("Alert resolved", result));
     }
 
     @GetMapping("/count")
@@ -74,6 +74,6 @@ public class StockAlertController {
     ) {
         log.info("Counting active alerts for business: {}", businessId);
         Long count = stockService.countActiveAlerts(businessId);
-        return ResponseEntity.ok(ApiResponse.success(count, "Alert count retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Alert count retrieved", count));
     }
 }

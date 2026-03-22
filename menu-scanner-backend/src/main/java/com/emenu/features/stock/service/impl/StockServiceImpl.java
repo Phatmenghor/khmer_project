@@ -698,7 +698,7 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public Map<String, Object> getMovementReport(UUID businessId, LocalDateTime from, LocalDateTime to) {
-        List<StockMovement> movements = getBusinessStockHistory(businessId, from, to);
+        List<StockMovementDto> movements = getBusinessStockHistory(businessId, from, to);
 
         Map<String, Object> report = new HashMap<>();
         report.put("period_from", from);

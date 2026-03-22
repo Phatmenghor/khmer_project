@@ -32,7 +32,7 @@ public class ProductStockController {
     ) {
         log.info("Searching product stock with filters: {}", request);
         Page<ProductStockDto> result = stockService.searchStock(request);
-        return ResponseEntity.ok(ApiResponse.success(result, "Product stock search completed"));
+        return ResponseEntity.ok(ApiResponse.success("Product stock search completed", result));
     }
 
     @PostMapping("/low-stock")
@@ -41,7 +41,7 @@ public class ProductStockController {
     ) {
         log.info("Getting low stock products for business: {}", businessId);
         List<ProductStockDto> result = stockService.getLowStockProducts(businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Low stock products retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Low stock products retrieved", result));
     }
 
     @PostMapping("/expired")
@@ -50,7 +50,7 @@ public class ProductStockController {
     ) {
         log.info("Getting expired products for business: {}", businessId);
         List<ProductStockDto> result = stockService.getExpiredProducts(businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Expired products retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Expired products retrieved", result));
     }
 
     @PostMapping("/expiring")
@@ -60,7 +60,7 @@ public class ProductStockController {
     ) {
         log.info("Getting expiring products for business: {} within {} days", businessId, daysAhead);
         List<ProductStockDto> result = stockService.getExpiringProducts(businessId, daysAhead);
-        return ResponseEntity.ok(ApiResponse.success(result, "Expiring products retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Expiring products retrieved", result));
     }
 
     @PostMapping("/all")
@@ -69,7 +69,7 @@ public class ProductStockController {
     ) {
         log.info("Getting all stock for business: {}", businessId);
         List<ProductStockDto> result = stockService.getAllStockByBusiness(businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "All stock retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("All stock retrieved", result));
     }
 
     // ========== Get Operations ==========
@@ -80,7 +80,7 @@ public class ProductStockController {
     ) {
         log.info("Getting stock by ID: {}", stockId);
         ProductStockDto result = stockService.getStockById(stockId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Stock retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Stock retrieved", result));
     }
 
     @GetMapping("/product/{productId}")
@@ -91,7 +91,7 @@ public class ProductStockController {
     ) {
         log.info("Getting stock for product: {} in business: {}", productId, businessId);
         ProductStockDto result = stockService.getStockByProductAndSize(productId, sizeId, businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Stock retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Stock retrieved", result));
     }
 
     @GetMapping("/barcode/{barcode}")
@@ -101,7 +101,7 @@ public class ProductStockController {
     ) {
         log.info("Getting stock by barcode: {} for business: {}", barcode, businessId);
         ProductStockDto result = stockService.getByBarcode(barcode, businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Stock retrieved by barcode"));
+        return ResponseEntity.ok(ApiResponse.success("Stock retrieved by barcode", result));
     }
 
     // ========== Availability Check - Body-Based ==========
@@ -120,7 +120,7 @@ public class ProductStockController {
         result.put("available", available);
         result.put("quantity", quantity);
 
-        return ResponseEntity.ok(ApiResponse.success(result, "Availability checked"));
+        return ResponseEntity.ok(ApiResponse.success("Availability checked", result));
     }
 
     @PostMapping("/check-bulk-availability")
@@ -130,7 +130,7 @@ public class ProductStockController {
     ) {
         log.info("Checking bulk availability for {} products", productQuantities.size());
         Map<UUID, Boolean> result = stockService.checkBulkAvailability(productQuantities, businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Bulk availability checked"));
+        return ResponseEntity.ok(ApiResponse.success("Bulk availability checked", result));
     }
 
     // ========== Adjustment Operations - Body-Based ==========
@@ -143,7 +143,7 @@ public class ProductStockController {
         log.info("Adjusting stock: {}", request);
         var result = stockService.adjustStock(businessId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse.success(result, "Stock adjusted successfully"));
+            .body(ApiResponse.success("Stock adjusted successfully", result));
     }
 
     @PostMapping("/add")
@@ -156,7 +156,7 @@ public class ProductStockController {
         log.info("Adding stock: {} quantity for stock: {}", quantity, productStockId);
         var result = stockService.addStock(businessId, productStockId, quantity, reason != null ? reason : "Stock In", null);
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse.success(result, "Stock added successfully"));
+            .body(ApiResponse.success("Stock added successfully", result));
     }
 
     @PostMapping("/{stockId}/mark-expired")
@@ -167,7 +167,7 @@ public class ProductStockController {
     ) {
         log.info("Marking stock as expired: {}", stockId);
         var result = stockService.markExpired(businessId, stockId, reason != null ? reason : "Product expired", null);
-        return ResponseEntity.ok(ApiResponse.success(result, "Stock marked as expired"));
+        return ResponseEntity.ok(ApiResponse.success("Stock marked as expired", result));
     }
 
     // ========== Barcode Management ==========
@@ -180,7 +180,7 @@ public class ProductStockController {
     ) {
         log.info("Assigning barcode: {} to stock: {}", barcode, stockId);
         ProductStockDto result = stockService.assignBarcode(businessId, stockId, barcode);
-        return ResponseEntity.ok(ApiResponse.success(result, "Barcode assigned successfully"));
+        return ResponseEntity.ok(ApiResponse.success("Barcode assigned successfully", result));
     }
 
     @PostMapping("/{stockId}/remove-barcode")
@@ -190,7 +190,7 @@ public class ProductStockController {
     ) {
         log.info("Removing barcode from stock: {}", stockId);
         ProductStockDto result = stockService.removeBarcode(businessId, stockId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Barcode removed successfully"));
+        return ResponseEntity.ok(ApiResponse.success("Barcode removed successfully", result));
     }
 
     // ========== Stock Summary & Reports ==========
@@ -201,7 +201,7 @@ public class ProductStockController {
     ) {
         log.info("Getting stock summary for business: {}", businessId);
         Map<String, Object> result = stockService.getStockSummary(businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Stock summary retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Stock summary retrieved", result));
     }
 
     @PostMapping("/report/valuation")
@@ -210,7 +210,7 @@ public class ProductStockController {
     ) {
         log.info("Getting valuation report for business: {}", businessId);
         Map<String, Object> result = stockService.getStockValuationReport(businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Valuation report retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Valuation report retrieved", result));
     }
 
     @PostMapping("/report/low-stock")
@@ -219,7 +219,7 @@ public class ProductStockController {
     ) {
         log.info("Getting low stock report for business: {}", businessId);
         Map<String, Object> result = stockService.getLowStockReport(businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Low stock report retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Low stock report retrieved", result));
     }
 
     @PostMapping("/report/expiry")
@@ -228,7 +228,7 @@ public class ProductStockController {
     ) {
         log.info("Getting expiry report for business: {}", businessId);
         Map<String, Object> result = stockService.getExpiryReport(businessId);
-        return ResponseEntity.ok(ApiResponse.success(result, "Expiry report retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Expiry report retrieved", result));
     }
 
     @PostMapping("/report/movement")
@@ -242,6 +242,6 @@ public class ProductStockController {
 
         log.info("Getting movement report for business: {} from: {} to: {}", businessId, fromDate, toDate);
         Map<String, Object> result = stockService.getMovementReport(businessId, fromDate, toDate);
-        return ResponseEntity.ok(ApiResponse.success(result, "Movement report retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Movement report retrieved", result));
     }
 }

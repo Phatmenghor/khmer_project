@@ -35,7 +35,7 @@ public class StockMovementController {
 
         log.info("Getting stock movements for product stock: {} from: {} to: {}", productStockId, fromDate, toDate);
         List<StockMovementDto> result = stockService.getStockHistory(productStockId, fromDate, toDate);
-        return ResponseEntity.ok(ApiResponse.success(result, "Stock movements retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Stock movements retrieved", result));
     }
 
     /**
@@ -59,7 +59,7 @@ public class StockMovementController {
         Page<StockMovementDto> result = stockService.getStockHistoryPaginated(
             businessId, null, movementType, fromDate, toDate, pageNo, pageSize
         );
-        return ResponseEntity.ok(ApiResponse.success(result, "Business stock history retrieved"));
+        return ResponseEntity.ok(ApiResponse.success("Business stock history retrieved", result));
     }
 
     @PostMapping("/search")
@@ -81,7 +81,7 @@ public class StockMovementController {
         Page<StockMovementDto> result = stockService.getStockHistoryPaginated(
             businessId, productStockId, movementType, fromDate, toDate, pageNo, pageSize
         );
-        return ResponseEntity.ok(ApiResponse.success(result, "History search completed"));
+        return ResponseEntity.ok(ApiResponse.success("History search completed", result));
     }
 
     @PostMapping("/export")
@@ -95,6 +95,6 @@ public class StockMovementController {
 
         log.info("Exporting history for business: {} from: {} to: {}", businessId, fromDate, toDate);
         List<StockMovementDto> result = stockService.getBusinessStockHistory(businessId, fromDate, toDate);
-        return ResponseEntity.ok(ApiResponse.success(result, "History exported"));
+        return ResponseEntity.ok(ApiResponse.success("History exported", result));
     }
 }
