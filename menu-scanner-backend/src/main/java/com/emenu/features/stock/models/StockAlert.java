@@ -2,7 +2,6 @@ package com.emenu.features.stock.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -56,7 +55,7 @@ public class StockAlert {
 
     // ========== Expiry Info ==========
     @Column(nullable = true)
-    private LocalDate expiryDate;
+    private LocalDateTime expiryDate;
 
     @Column(nullable = true)
     private Integer daysUntilExpiry;

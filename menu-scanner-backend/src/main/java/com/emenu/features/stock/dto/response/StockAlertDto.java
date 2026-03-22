@@ -1,7 +1,6 @@
 package com.emenu.features.stock.dto.response;
 
 import lombok.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,7 +23,7 @@ public class StockAlertDto {
     private Integer currentQuantity;
     private Integer threshold;
 
-    private LocalDate expiryDate;
+    private LocalDateTime expiryDate;
     private Integer daysUntilExpiry;
 
     private String status;
