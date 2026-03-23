@@ -110,6 +110,7 @@ export default function PosPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const productGridRef = useRef<HTMLDivElement>(null);
   const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const scrollbarInstanceRef = useRef<any>(null);
 
   // ─── Fullscreen State ───
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -287,25 +288,29 @@ export default function PosPage() {
 
   // ─── Category Scroll Handler ───
   const scrollCategories = useCallback((direction: "left" | "right") => {
-    const container = categoryScrollRef.current;
-    console.log("Scroll button clicked:", direction, "Container:", container);
+    console.log("Scroll button clicked:", direction);
+    console.log("Scrollbar instance:", scrollbarInstanceRef.current);
 
-    if (!container) {
-      console.warn("Container ref not found");
+    // Use smooth-scrollbar instance's API if available
+    if (scrollbarInstanceRef.current) {
+      const scrollAmount = 250;
+      const currentScroll = scrollbarInstanceRef.current.offset.x;
+      const targetScroll = direction === "left"
+        ? Math.max(0, currentScroll - scrollAmount)
+        : currentScroll + scrollAmount;
+
+      console.log("Using SmoothScrollbar API - from", currentScroll, "to", targetScroll);
+      scrollbarInstanceRef.current.scrollLeft = targetScroll;
       return;
     }
 
-    const viewport = container.querySelector(
+    // Fallback to direct viewport scrolling
+    const viewport = categoryScrollRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]"
     ) as HTMLElement;
 
-    console.log("Viewport found:", !!viewport, "Element:", viewport?.tagName);
-    if (!viewport) {
-      console.warn("Viewport not found, trying direct scroll");
-      // Fallback: try scrolling the container directly
-      container.scrollLeft = (container.scrollLeft || 0) + (direction === "left" ? -250 : 250);
-      return;
-    }
+    console.log("Fallback: Viewport found:", !!viewport);
+    if (!viewport) return;
 
     const scrollAmount = 250;
     const currentPos = viewport.scrollLeft;
@@ -313,9 +318,7 @@ export default function PosPage() {
       ? Math.max(0, currentPos - scrollAmount)
       : currentPos + scrollAmount;
 
-    console.log("Scrolling from", currentPos, "to", targetPos);
-
-    // Directly set scrollLeft for smooth-scrollbar compatibility
+    console.log("Direct scrollLeft - from", currentPos, "to", targetPos);
     viewport.scrollLeft = targetPos;
   }, []);
 
@@ -327,7 +330,10 @@ export default function PosPage() {
     const viewport = categoryContainer.querySelector(
       "[data-radix-scroll-area-viewport]"
     ) as HTMLElement;
-    if (!viewport) return;
+    if (!viewport) {
+      console.warn("Viewport element not found for smooth-scrollbar");
+      return;
+    }
 
     // Ensure container and viewport are properly sized for horizontal-only scrolling
     Object.assign(categoryContainer.style, {
@@ -354,7 +360,12 @@ export default function PosPage() {
         direction: "x", // Only horizontal scrolling
       });
 
+      // Store instance for use in scroll handler
+      scrollbarInstanceRef.current = scrollbar;
+      console.log("SmoothScrollbar initialized:", scrollbar);
+
       return () => {
+        scrollbarInstanceRef.current = null;
         scrollbar.destroy();
       };
     } catch (error) {
