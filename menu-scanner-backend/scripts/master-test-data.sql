@@ -134,27 +134,27 @@ BEGIN
     SELECT u.id, r.id FROM users u, (SELECT id FROM roles WHERE business_id = key_business_id) r WHERE u.business_id = key_business_id AND u.id != business_user_id LIMIT 2000;
 
     -- =====================================================
-    -- 10 CATEGORIES
+    -- 28 CATEGORIES
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 35%% - Creating categories...';
+    RAISE NOTICE '📊 Progress: 35%% - Creating 28 categories...';
     INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, image_url, status)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Category ' || c, CASE WHEN c % 2 = 0 THEN photo1 ELSE photo2 END, 'ACTIVE'
-    FROM GENERATE_SERIES(1, 10) c;
+    FROM GENERATE_SERIES(1, 28) c;
 
     -- =====================================================
-    -- 5 BRANDS
+    -- 28 BRANDS
     -- =====================================================
     INSERT INTO brands (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, image_url, description, status)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Brand ' || br, CASE WHEN br % 2 = 0 THEN photo1 ELSE photo2 END, 'Brand ' || br, 'ACTIVE'
-    FROM GENERATE_SERIES(1, 5) br;
+    FROM GENERATE_SERIES(1, 28) br;
 
     -- =====================================================
-    -- 500 PRODUCTS
+    -- 10,000 PRODUCTS
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 40%% - Creating 500 products...';
+    RAISE NOTICE '📊 Progress: 40%% - Creating 10,000 products...';
     INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, status, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, display_price, display_origin_price, display_promotion_type, display_promotion_value, display_promotion_from_date, display_promotion_to_date, has_sizes, has_active_promotion, view_count, favorite_count, main_image_url)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM categories WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), (SELECT id FROM brands WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), 'Product ' || p, 'Description for product ' || p, 'ACTIVE', (15.00 + (p % 100))::NUMERIC, CASE WHEN p % 3 = 0 THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN p % 3 = 0 THEN 10 ELSE NULL END, CASE WHEN p % 3 = 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 3 = 0 THEN t + INTERVAL '90 days' ELSE NULL END, (15.00 + (p % 100))::NUMERIC, (15.00 + (p % 100))::NUMERIC, CASE WHEN p % 3 = 0 THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN p % 3 = 0 THEN 10 ELSE NULL END, CASE WHEN p % 3 = 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 3 = 0 THEN t + INTERVAL '90 days' ELSE NULL END, CASE WHEN p % 5 = 0 THEN true ELSE false END, CASE WHEN p % 3 = 0 THEN true ELSE false END, (p % 100), (p % 20), CASE WHEN p % 2 = 0 THEN photo1 ELSE photo2 END
-    FROM GENERATE_SERIES(1, 500) p;
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM categories WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), (SELECT id FROM brands WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), 'Product ' || p, 'Description for product ' || p, 'ACTIVE', (15.00 + (p % 300))::NUMERIC, CASE WHEN p % 4 = 0 THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN p % 4 = 0 THEN 10 ELSE NULL END, CASE WHEN p % 4 = 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 4 = 0 THEN t + INTERVAL '90 days' ELSE NULL END, (15.00 + (p % 300))::NUMERIC, (15.00 + (p % 300))::NUMERIC, CASE WHEN p % 4 = 0 THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN p % 4 = 0 THEN 10 ELSE NULL END, CASE WHEN p % 4 = 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 4 = 0 THEN t + INTERVAL '90 days' ELSE NULL END, CASE WHEN p % 5 = 0 THEN true ELSE false END, CASE WHEN p % 4 = 0 THEN true ELSE false END, (p % 1000), (p % 100), CASE WHEN p % 2 = 0 THEN photo1 ELSE photo2 END
+    FROM GENERATE_SERIES(1, 10000) p;
     RAISE NOTICE 'Products created!';
 
     -- =====================================================
@@ -298,7 +298,8 @@ BEGIN
     RAISE NOTICE '   • 1 Business: Phatmenghor Business (owned by phatmenghor20)';
     RAISE NOTICE '   • 30 Business Roles';
     RAISE NOTICE '   • 2000 Business Users (staff under phatmenghor20''s business)';
-    RAISE NOTICE '   • 500 Products with Sizes & Stock';
+    RAISE NOTICE '   • 28 Categories & 28 Brands';
+    RAISE NOTICE '   • 10,000 Products with Sizes & Stock';
     RAISE NOTICE '   • 200 Orders with Items & Payments';
     RAISE NOTICE '   • 5 Delivery Options & 5 Payment Methods';
     RAISE NOTICE '📊 Progress: 100%% - COMPLETE! ✅';
