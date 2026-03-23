@@ -56,7 +56,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-24 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-5 shadow-md">
+      <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-5 shadow-md">
         {/* Left: menu toggle + breadcrumbs */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Mobile hamburger */}
@@ -64,18 +64,18 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             variant="ghost"
             size="icon"
             onClick={onMenuClick}
-            className="shrink-0 h-11 w-11 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors sm:hidden"
+            className="shrink-0 h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors sm:hidden"
             aria-label="Toggle menu"
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-5 w-5" />
           </Button>
 
           {/* Breadcrumb — hidden on very small screens */}
-          <nav className="hidden sm:flex items-center gap-2 text-base min-w-0">
+          <nav className="hidden sm:flex items-center gap-2 text-sm min-w-0">
             {breadcrumbs.map((crumb, i) => (
               <div key={crumb.href} className="flex items-center gap-1 min-w-0">
                 {i > 0 && (
-                  <ChevronRight className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+                  <ChevronRight className="h-3 w-3 text-muted-foreground/50 shrink-0" />
                 )}
                 <span
                   className={
@@ -92,13 +92,13 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
           </nav>
 
           {/* Page title mobile */}
-          <span className="sm:hidden font-semibold text-base text-foreground truncate">
+          <span className="sm:hidden font-semibold text-sm text-foreground truncate">
             {breadcrumbs[breadcrumbs.length - 1]?.label ?? "Dashboard"}
           </span>
         </div>
 
         {/* Right: actions + user */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Fullscreen toggle */}
           {onFullscreenClick && (
             <Button
@@ -106,9 +106,9 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
               size="icon"
               onClick={onFullscreenClick}
               title="Fullscreen (F11)"
-              className="h-11 w-11 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
+              className="h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
             >
-              <Maximize2 className="h-5 w-5" />
+              <Maximize2 className="h-4 w-4" />
             </Button>
           )}
 
@@ -116,21 +116,21 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors relative"
+            className="h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors relative"
             aria-label="Notifications"
           >
-            <Bell className="h-5 w-5" />
+            <Bell className="h-4 w-4" />
           </Button>
 
           {/* Profile Dropdown Menu */}
           {profile && (
             <CustomDropdownMenu
               trigger={
-                <div className="h-11 w-11 flex items-center justify-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
+                <div className="h-9 w-9 flex items-center justify-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
                   <CustomAvatar
                     imageUrl={profileImage || profile?.profileImageUrl}
                     name={fullName || profile?.fullName || "Admin"}
-                    size="md"
+                    size="sm"
                     enableImagePreview={false}
                   />
                 </div>
