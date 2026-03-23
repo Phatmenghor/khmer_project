@@ -193,8 +193,8 @@ BEGIN
         false,
         t,
         t,
-        'system'::UUID,
-        'system'::UUID
+        'system',
+        'system'
     FROM (SELECT id, price FROM products WHERE business_id = key_business_id) p, GENERATE_SERIES(1, 1) ps(stock_qty);
 
     RAISE NOTICE 'Product stock created!';
@@ -226,8 +226,8 @@ BEGIN
         false,
         t,
         t,
-        'system'::UUID,
-        'system'::UUID
+        'system',
+        'system'
     FROM product_sizes ps, GENERATE_SERIES(1, 1) ps_qty(stock_qty)
     WHERE ps.product_id IN (SELECT id FROM products WHERE business_id = key_business_id AND has_sizes = true);
 
