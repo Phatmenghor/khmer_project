@@ -830,17 +830,18 @@ export default function PosPage() {
             </div>
           </div>
 
-          {/* Cart Items - takes remaining space */}
-          <ScrollArea className="flex-1 min-h-0">
+          {/* Cart Items - fills remaining space before checkout */}
+          <div className="flex-1 overflow-hidden flex flex-col">
             {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                <ShoppingCart className="w-16 h-16 mb-4 opacity-15" />
-                <p className="text-sm font-medium">No items yet</p>
-                <p className="text-xs mt-1 text-center px-4">
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground flex-1">
+                <ShoppingCart className="w-12 h-12 mb-3 opacity-15" />
+                <p className="text-xs font-medium">No items yet</p>
+                <p className="text-[11px] mt-1 text-center px-4">
                   Click on products to add them to the order
                 </p>
               </div>
             ) : (
+              <ScrollArea className="flex-1">
               <div className="divide-y">
                 {cartItems.map((item, index) => (
                   <div
@@ -936,11 +937,12 @@ export default function PosPage() {
                   </div>
                 ))}
               </div>
+            </ScrollArea>
             )}
-          </ScrollArea>
+          </div>
 
           {/* ─── Checkout Section ─── */}
-          <div className="border-t bg-muted/10 shrink-0">
+          <div className="border-t bg-muted/10 shrink-0 mt-auto">
             {/* Payment Method - Quick Select */}
             <div className="px-3 pt-3 pb-2">
               <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
