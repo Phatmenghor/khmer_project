@@ -89,9 +89,9 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
             )}
           </div>
 
-          {/* Search, Filters, and Actions - single row that wraps */}
+          {/* Search, Filters, and Actions */}
           <div className="flex flex-wrap items-end gap-2">
-            {/* Search input */}
+            {/* Search input - stays left */}
             {onSearchChange && (
               <div className="w-full sm:w-auto sm:min-w-[220px] sm:max-w-[280px] flex-shrink-0">
                 <div className="relative w-full group">
@@ -107,26 +107,28 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               </div>
             )}
 
-            {/* Filters - Inline with labels */}
-            {customSelect && (
-              <div className="flex flex-wrap gap-2 items-end
-                [&>*]:w-auto [&>*]:flex-shrink-0
-                [&>*>label]:whitespace-nowrap [&>*>label]:text-xs [&>*>label]:font-medium">
-                {customSelect}
-              </div>
-            )}
+            {/* Filters + Button - pushed to the right */}
+            <div className="flex flex-wrap items-end gap-2 ml-auto">
+              {/* Filters via customSelect */}
+              {customSelect && (
+                <div className="flex flex-wrap gap-2 items-end
+                  [&>*]:w-auto [&>*]:flex-shrink-0
+                  [&>*>label]:whitespace-nowrap [&>*>label]:text-xs [&>*>label]:font-medium">
+                  {customSelect}
+                </div>
+              )}
 
-            {children && (
-              <div className="flex flex-wrap items-end gap-2
-                [&_.space-y-2]:!w-auto [&_.space-y-2]:flex-shrink-0
-                [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
-                [&_.w-full]:!w-auto">
-                {children}
-              </div>
-            )}
+              {/* Filters via children */}
+              {children &&
+                React.Children.map(children, (child) => (
+                  <div className="w-auto flex-shrink-0
+                    [&>.space-y-2]:!w-auto
+                    [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]">
+                    {child}
+                  </div>
+                ))}
 
-            {/* Right side buttons - push to right */}
-            <div className="flex flex-wrap gap-2 items-end ml-auto">
+              {/* Action buttons */}
               {buttonText && buttonHref && (
                 <TooltipProvider>
                   <Tooltip>
