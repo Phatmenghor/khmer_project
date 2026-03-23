@@ -105,42 +105,46 @@ export function CartItemCard({
             )}
           </div>
 
-          {/* Price Info */}
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-bold text-sm text-primary">{formatCurrency(finalPrice)}</span>
-            {hasPromotion && currentPrice > finalPrice && (
-              <span className="text-xs text-muted-foreground line-through">{formatCurrency(currentPrice)}</span>
-            )}
-            {/* Size Badge on same line */}
-            {sizeName && (
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap ml-auto">
+          {/* Size Badge */}
+          {sizeName && (
+            <div className="mb-2">
+              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap inline-block">
                 {sizeName}
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Qty controls */}
+          {/* Price Info + Qty controls */}
           {showControls && (
-            <div className="flex items-center justify-end gap-1.5">
-              <CustomButton
-                size="icon"
-                variant="outline"
-                className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
-                onClick={() => onQuantityChange(Math.max(0, quantity - 1))}
-              >
-                <Minus className="h-3 w-3" />
-              </CustomButton>
-              <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center max-w-[50px]">
-                {quantity}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-primary">{formatCurrency(finalPrice)}</span>
+                {hasPromotion && currentPrice > finalPrice && (
+                  <span className="text-xs text-muted-foreground line-through">{formatCurrency(currentPrice)}</span>
+                )}
               </div>
-              <CustomButton
-                size="icon"
-                variant="outline"
-                className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
-                onClick={() => onQuantityChange(quantity + 1)}
-              >
-                <Plus className="h-3 w-3" />
-              </CustomButton>
+
+              <div className="flex items-center gap-1.5">
+                <CustomButton
+                  size="icon"
+                  variant="outline"
+                  className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => onQuantityChange(Math.max(0, quantity - 1))}
+                >
+                  <Minus className="h-3 w-3" />
+                </CustomButton>
+                <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center max-w-[50px]">
+                  {quantity}
+                </div>
+                <CustomButton
+                  size="icon"
+                  variant="outline"
+                  className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                  onClick={() => onQuantityChange(quantity + 1)}
+                >
+                  <Plus className="h-3 w-3" />
+                </CustomButton>
+              </div>
             </div>
           )}
         </div>
