@@ -795,7 +795,7 @@ export default function PosPage() {
 
           {/* Product Grid */}
           <ScrollArea className="flex-1 w-full" ref={productGridRef}>
-            <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 p-3 sm:p-4">
+            <div className="w-full p-3 sm:p-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
               {products.map((product) => (
                 <POSProductCard
                   key={product.id}
@@ -841,7 +841,7 @@ export default function PosPage() {
 
             {/* Initial Loading - OUTSIDE grid for better UX */}
             {productsLoading && products.length === 0 && (
-              <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 p-3 sm:p-4">
+              <div className="w-full p-3 sm:p-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
                 {Array.from({ length: 20 }).map((_, i) => (
                   <ProductCardSkeleton key={`initial-skeleton-${i}`} />
                 ))}
