@@ -15,12 +15,40 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const isMobile = useIsMobile();
   const pathname = usePathname();
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
   }, [pathname, isMobile]);
+
+  // Handle keyboard shortcut for fullscreen (F11)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F11") {
+        e.preventDefault();
+        setIsFullscreen((prev) => !prev);
+      }
+      if (e.key === "Escape" && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFullscreen]);
+
+  if (isFullscreen) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-background flex flex-col">
+        <TopBar
+          onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          onFullscreenClick={() => setIsFullscreen(false)}
+        />
+        <main className="dashboard-main flex-1 overflow-hidden">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex overflow-x-hidden h-screen w-full bg-background">
@@ -34,7 +62,10 @@ export default function DashboardLayout({
           isMobile ? "w-full" : isSidebarOpen ? "ml-56" : "ml-[60px]",
         )}
       >
-        <TopBar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
+        <TopBar
+          onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          onFullscreenClick={() => setIsFullscreen(true)}
+        />
         <main className="dashboard-main flex-1 p-2 md:p-4">{children}</main>
         <AdminFooter />
       </div>

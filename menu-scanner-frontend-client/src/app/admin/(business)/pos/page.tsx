@@ -22,7 +22,6 @@ import {
   Check,
   Ruler,
   Pencil,
-  Minimize2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -108,8 +107,6 @@ export default function PosPage() {
   const productGridRef = useRef<HTMLDivElement>(null);
   const categoryScrollRef = useRef<HTMLDivElement>(null);
 
-  // ─── Fullscreen State ───
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // ─── Product & Filter State ───
   const [products, setProducts] = useState<ProductDetailResponseModel[]>([]);
@@ -266,21 +263,14 @@ export default function PosPage() {
   // ─── Keyboard shortcuts ───
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "F11") {
-        e.preventDefault();
-        setIsFullscreen((prev) => !prev);
-      }
       if (e.key === "F2") {
         e.preventDefault();
         searchInputRef.current?.focus();
       }
-      if (e.key === "Escape" && isFullscreen) {
-        setIsFullscreen(false);
-      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isFullscreen]);
+  }, []);
 
   // ─── Category Scroll Handler ───
   const scrollCategories = useCallback((direction: "left" | "right") => {
@@ -588,25 +578,8 @@ export default function PosPage() {
   };
 
   // ─── Current time display ───
-  const containerClass = isFullscreen
-    ? "fixed inset-0 z-[100] bg-background flex flex-col"
-    : "flex flex-col h-screen -m-2 md:-m-4";
-
   return (
-    <div className={containerClass}>
-      {/* ─── Fullscreen Exit Button ─── */}
-      {isFullscreen && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsFullscreen(false)}
-          title="Exit fullscreen (F11)"
-          className="fixed top-4 right-4 z-[101] h-10 w-10 rounded-lg hover:bg-primary/20"
-        >
-          <Minimize2 className="w-5 h-5" />
-        </Button>
-      )}
-
+    <div className="flex flex-col h-screen -m-2 md:-m-4">
       {/* ─── Main Content ─── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}

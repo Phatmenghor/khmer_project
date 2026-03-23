@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, Bell, ChevronRight, UserCircle } from "lucide-react";
+import { LogOut, Menu, Bell, ChevronRight, UserCircle, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -22,6 +22,7 @@ import { CustomDropdownMenu } from "@/components/shared/common/custom-dropdown-m
 
 interface TopBarProps {
   onMenuClick?: () => void;
+  onFullscreenClick?: () => void;
 }
 
 // Convert pathname to breadcrumb segments
@@ -39,7 +40,7 @@ function getBreadcrumbs(pathname: string) {
   return crumbs;
 }
 
-export function TopBar({ onMenuClick }: TopBarProps) {
+export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
@@ -98,6 +99,19 @@ export function TopBar({ onMenuClick }: TopBarProps) {
 
         {/* Right: actions + user */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Fullscreen toggle */}
+          {onFullscreenClick && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onFullscreenClick}
+              title="Fullscreen (F11)"
+              className="h-11 w-11 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
+            >
+              <Maximize2 className="h-5 w-5" />
+            </Button>
+          )}
+
           {/* Notification bell */}
           <Button
             variant="ghost"
