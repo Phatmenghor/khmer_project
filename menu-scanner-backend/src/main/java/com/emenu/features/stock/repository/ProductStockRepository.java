@@ -164,7 +164,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             AND (:status IS NULL OR ps.status = :status)
             AND (:lowStockThreshold IS NULL OR ps.quantityOnHand < :lowStockThreshold)
             AND (:expiredBefore IS NULL OR (ps.expiryDate IS NOT NULL AND ps.expiryDate <= :expiredBefore))
-            AND (:search IS NULL OR LOWER(ps.sku) LIKE LOWER(CONCAT('%', :search, '%')))
+            AND (:search IS NULL OR LOWER(CAST(ps.sku AS STRING)) LIKE LOWER(CONCAT('%', :search, '%')))
         ORDER BY ps.dateIn DESC NULLS LAST, ps.createdAt DESC
     """)
     Page<ProductStock> findWithFilters(
