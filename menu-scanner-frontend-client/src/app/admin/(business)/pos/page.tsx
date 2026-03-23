@@ -4,24 +4,20 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation";
 import {
   Search,
-  Plus,
-  Minus,
   Trash2,
   ShoppingCart,
   X,
   ReceiptText,
   CreditCard,
-  Banknote,
-  Smartphone,
-  MoreHorizontal,
   Package,
   ChevronRight,
   CheckCircle2,
   Loader2,
   ChevronsUpDown,
   Check,
-  Ruler,
   Pencil,
+  Truck,
+  Tag,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,13 +26,6 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Popover,
   PopoverContent,
@@ -71,6 +60,10 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { DeliveryOptionsResponseModel } from "@/redux/features/master-data/store/models/response/delivery-options-response";
+import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
+import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 // ─── Local Cart Types ───
 interface PosCartItem {
@@ -90,12 +83,6 @@ interface PosCartItem {
   promotionToDate: string | null;
 }
 
-const PAYMENT_METHODS = [
-  { value: "CASH", label: "Cash", icon: Banknote },
-  { value: "BANK_TRANSFER", label: "Bank Transfer", icon: CreditCard },
-  { value: "ONLINE", label: "Online", icon: Smartphone },
-  { value: "OTHER", label: "Other", icon: MoreHorizontal },
-];
 
 export default function PosPage() {
   const router = useRouter();
@@ -104,6 +91,9 @@ export default function PosPage() {
   const productGridRef = useRef<HTMLDivElement>(null);
   const categoryScrollRef = useRef<HTMLDivElement>(null);
 
+  // ─── Payment & Delivery Options State ───
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<DeliveryOptionsResponseModel | null>(null);
+  const [selectedPaymentOption, setSelectedPaymentOption] = useState<any>(null);
 
   // ─── Product & Filter State ───
   const [products, setProducts] = useState<ProductDetailResponseModel[]>([]);
@@ -127,7 +117,6 @@ export default function PosPage() {
   const [showCart, setShowCart] = useState(true);
 
   // ─── Order State ───
-  const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [customerNote, setCustomerNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -447,15 +436,23 @@ export default function PosPage() {
       totalDiscount += beforeDiscount - afterDiscount;
     });
 
+    const deliveryFee = selectedDeliveryOption?.price || 0;
+    const taxRate = 0; // 0% tax for now
+    const taxAmount = (subtotal + deliveryFee) * taxRate;
+    const finalTotal = subtotal + deliveryFee + taxAmount;
+
     return {
       totalItems,
       totalQuantity,
       subtotalBeforeDiscount,
       subtotal,
       totalDiscount,
-      finalTotal: subtotal,
+      deliveryFee,
+      taxRate,
+      taxAmount,
+      finalTotal,
     };
-  }, [cartItems]);
+  }, [cartItems, selectedDeliveryOption]);
 
   // ─── Product Click Handler ───
   // ─── Handle Product Click - Show size modal for sized products ───
@@ -499,7 +496,7 @@ export default function PosPage() {
     setIsSubmitting(true);
     try {
       const payload = {
-        businessId: products[0]?.businessId || "",
+        businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
         deliveryAddress: {
           village: "",
           commune: "",
@@ -511,14 +508,21 @@ export default function PosPage() {
           latitude: 0,
           longitude: 0,
         },
-        deliveryOption: {
-          name: "In-Store",
-          description: "POS Order - In Store",
-          imageUrl: "",
-          price: 0,
-        },
+        deliveryOption: selectedDeliveryOption
+          ? {
+              name: selectedDeliveryOption.name,
+              description: selectedDeliveryOption.description || "POS Order",
+              imageUrl: selectedDeliveryOption.imageUrl || "",
+              price: selectedDeliveryOption.price || 0,
+            }
+          : {
+              name: "In-Store",
+              description: "POS Order - In Store",
+              imageUrl: "",
+              price: 0,
+            },
         cart: {
-          businessId: products[0]?.businessId || "",
+          businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
           businessName: products[0]?.businessName || "",
           items: cartItems.map((item) => ({
             id: item.id,
@@ -549,7 +553,7 @@ export default function PosPage() {
           finalTotal: cartSummary.finalTotal,
         },
         payment: {
-          paymentMethod: paymentMethod,
+          paymentMethod: selectedPaymentOption?.paymentOptionType || "CASH",
           paymentStatus: "PAID" as const,
         },
         customerNote: customerNote || "",
@@ -880,93 +884,168 @@ export default function PosPage() {
           </div>
 
           {/* ─── Checkout Section ─── */}
-          <div className="border-t bg-muted/10 shrink-0 mt-auto">
-            {/* Payment Method - Quick Select */}
-            <div className="px-3 pt-3 pb-2">
-              <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
-                Payment Method
-              </Label>
-              <div className="grid grid-cols-4 gap-1.5 mt-1.5">
-                {PAYMENT_METHODS.map((m) => {
-                  const Icon = m.icon;
-                  return (
-                    <button
-                      key={m.value}
-                      onClick={() => setPaymentMethod(m.value)}
-                      className={`flex flex-col items-center gap-1 p-2 rounded-lg border text-xs transition-all ${
-                        paymentMethod === m.value
-                          ? "border-primary bg-primary/10 text-primary font-medium"
-                          : "border-border hover:border-primary/40 hover:bg-muted/50 text-muted-foreground"
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      <span className="text-[10px] leading-none">
-                        {m.label}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          <div className="border-t bg-card shrink-0 mt-auto">
+            <ScrollArea className="max-h-[calc(100vh-280px)]">
+              <div className="p-3 space-y-3">
 
-            {/* Note */}
-            <div className="px-3 pb-2">
-              <Textarea
-                value={customerNote}
-                onChange={(e) => setCustomerNote(e.target.value)}
-                placeholder="Add order note..."
-                rows={2}
-                className="text-xs resize-none bg-background"
-              />
-            </div>
-
-            {/* Totals */}
-            <div className="px-3 py-2 space-y-1 bg-muted/30 mx-3 rounded-lg mb-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">
-                  Subtotal ({cartSummary.totalQuantity} items)
-                </span>
-                <span className="font-medium">
-                  {formatCurrency(cartSummary.subtotalBeforeDiscount)}
-                </span>
-              </div>
-              {cartSummary.totalDiscount > 0 && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Discount</span>
-                  <span className="text-red-500 font-medium">
-                    -{formatCurrency(cartSummary.totalDiscount)}
-                  </span>
+                {/* Delivery Option */}
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
+                    <Truck className="w-3 h-3" />
+                    Delivery Option
+                  </Label>
+                  <ComboboxSelectDelivery
+                    dataSelect={selectedDeliveryOption as any}
+                    onChangeSelected={(item) => setSelectedDeliveryOption(item as any)}
+                    placeholder="Select delivery option..."
+                    label=""
+                    businessId={AppDefault.BUSINESS_ID}
+                    statuses={["ACTIVE"]}
+                  />
                 </div>
-              )}
-              <Separator className="my-1" />
-              <div className="flex justify-between text-base font-bold">
-                <span>Total</span>
-                <span className="text-primary">
-                  {formatCurrency(cartSummary.finalTotal)}
-                </span>
-              </div>
-            </div>
 
-            {/* Submit Button */}
-            <div className="px-3 pb-3">
-              <Button
-                className="w-full font-bold h-12 text-base shadow-lg"
-                size="lg"
-                onClick={handleSubmitOrder}
-                disabled={cartItems.length === 0 || isSubmitting}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                ) : (
-                  <ReceiptText className="w-5 h-5 mr-2" />
-                )}
-                Place Order
-                {cartSummary.finalTotal > 0 && (
-                  <span className="ml-2">
-                    ({formatCurrency(cartSummary.finalTotal)})
-                  </span>
-                )}
-              </Button>
+                {/* Payment Method */}
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
+                    <CreditCard className="w-3 h-3" />
+                    Payment Method
+                  </Label>
+                  <ComboboxSelectPayment
+                    dataSelect={selectedPaymentOption as any}
+                    onChangeSelected={(item) => setSelectedPaymentOption(item as any)}
+                    placeholder="Select payment method..."
+                    label=""
+                    businessId={AppDefault.BUSINESS_ID}
+                    statuses={["ACTIVE"]}
+                  />
+                </div>
+
+                {/* Note */}
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                    Order Note
+                  </Label>
+                  <Textarea
+                    value={customerNote}
+                    onChange={(e) => setCustomerNote(e.target.value)}
+                    placeholder="Add order note..."
+                    rows={2}
+                    className="text-xs resize-none bg-background"
+                  />
+                </div>
+
+                {/* Order Summary Card */}
+                <div className="rounded-xl border border-border bg-muted/20 overflow-hidden">
+                  <div className="px-3 py-2 border-b border-border/50 bg-muted/30">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Order Summary
+                    </span>
+                  </div>
+                  <div className="px-3 py-2 space-y-2">
+                    {/* Subtotal */}
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">
+                        Subtotal ({cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"})
+                      </span>
+                      <span className="font-medium">
+                        {formatCurrency(cartSummary.subtotalBeforeDiscount)}
+                      </span>
+                    </div>
+
+                    {/* Discount */}
+                    {cartSummary.totalDiscount > 0 && (
+                      <div className="flex justify-between text-xs">
+                        <span className="text-red-500 font-medium">Discount</span>
+                        <span className="text-red-500 font-semibold">
+                          -{formatCurrency(cartSummary.totalDiscount)}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Delivery Fee */}
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        <Truck className="w-3 h-3" />
+                        Delivery Fee
+                      </span>
+                      <span className="font-medium text-primary">
+                        {cartSummary.deliveryFee > 0
+                          ? `+${formatCurrency(cartSummary.deliveryFee)}`
+                          : "Free"}
+                      </span>
+                    </div>
+
+                    {/* Tax */}
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        <Tag className="w-3 h-3" />
+                        Tax
+                        <span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
+                      </span>
+                      <span className="font-medium">
+                        {formatCurrency(cartSummary.taxAmount)}
+                      </span>
+                    </div>
+
+                    <Separator className="my-1" />
+
+                    {/* Total */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-bold">Total</span>
+                      <span className="text-lg font-bold text-primary">
+                        {formatCurrency(cartSummary.finalTotal)}
+                      </span>
+                    </div>
+
+                    {cartSummary.totalDiscount > 0 && (
+                      <p className="text-[10px] text-red-500 text-right font-medium">
+                        You save {formatCurrency(cartSummary.totalDiscount)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+
+            {/* Place Order - Card Design */}
+            <div className="p-3 pt-0">
+              <div className="rounded-xl border border-border bg-card shadow-md overflow-hidden">
+                <div className="flex items-stretch">
+                  {/* Left: Order info */}
+                  <div className="flex-1 px-3 py-3 border-r border-border">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                      {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
+                    </p>
+                    <p className="text-base font-bold text-primary leading-tight">
+                      {formatCurrency(cartSummary.finalTotal)}
+                    </p>
+                    {selectedPaymentOption && (
+                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                        {selectedPaymentOption.name || selectedPaymentOption.paymentOptionType}
+                      </p>
+                    )}
+                  </div>
+                  {/* Right: Place Order button */}
+                  <button
+                    className={`flex flex-col items-center justify-center px-4 py-3 gap-1 font-bold text-sm transition-all
+                      ${cartItems.length === 0 || isSubmitting
+                        ? "bg-muted text-muted-foreground cursor-not-allowed"
+                        : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer"
+                      }`}
+                    onClick={handleSubmitOrder}
+                    disabled={cartItems.length === 0 || isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <ReceiptText className="w-5 h-5" />
+                    )}
+                    <span className="text-[11px] font-semibold">
+                      {isSubmitting ? "Processing..." : "Place Order"}
+                    </span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -156,7 +156,9 @@ export default function CheckoutPage() {
   );
 
   const deliveryFee = selectedDeliveryOption?.price || 0;
-  const orderTotal = finalTotal + deliveryFee;
+  const taxRate = 0; // 0% tax for now
+  const taxAmount = (finalTotal + deliveryFee) * taxRate;
+  const orderTotal = finalTotal + deliveryFee + taxAmount;
 
   const handleQuantityChange = (
     productId: string,
@@ -530,7 +532,7 @@ export default function CheckoutPage() {
               <div className="space-y-3.5">
                 {/* Subtotal */}
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-muted-foreground">Subtotal ({items.length} {items.length === 1 ? "item" : "items"})</span>
                   <span className="font-medium text-foreground">{formatCurrency(subtotal)}</span>
                 </div>
 
@@ -545,7 +547,18 @@ export default function CheckoutPage() {
                 {/* Delivery Fee */}
                 <div className="flex justify-between text-sm pt-2.5 border-t border-border/50">
                   <span className="text-muted-foreground">Delivery Fee</span>
-                  <span className="font-medium text-primary">+{formatCurrency(deliveryFee)}</span>
+                  <span className="font-medium text-primary">
+                    {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
+                  </span>
+                </div>
+
+                {/* Tax */}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    Tax
+                    <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium">0%</span>
+                  </span>
+                  <span className="font-medium text-foreground">{formatCurrency(taxAmount)}</span>
                 </div>
 
                 {/* Total */}
@@ -558,7 +571,7 @@ export default function CheckoutPage() {
 
                 {totalDiscount > 0 && (
                   <p className="text-xs text-red-600 dark:text-red-400 text-right font-medium">
-                    💰 You save {formatCurrency(totalDiscount)}
+                    You save {formatCurrency(totalDiscount)}
                   </p>
                 )}
               </div>
