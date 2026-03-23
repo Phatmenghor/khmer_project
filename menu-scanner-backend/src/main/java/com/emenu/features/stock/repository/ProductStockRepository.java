@@ -161,9 +161,9 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         WHERE ps.business_id = :businessId
             AND (:productId IS NULL OR ps.product_id = :productId)
             AND (:productSizeId IS NULL OR ps.product_size_id = :productSizeId)
-            AND (:status IS NULL OR ps.status = CAST(:status AS VARCHAR))
+            AND (:status IS NULL OR ps.status = :status)
             AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
-            AND (:expiredBefore IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= CAST(:expiredBefore AS TIMESTAMP)))
+            AND (:expiredBefore::timestamp IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore::timestamp))
             AND (:search IS NULL
                 OR ps.barcode ILIKE '%' || :search || '%'
                 OR ps.sku ILIKE '%' || :search || '%')
@@ -174,9 +174,9 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         WHERE ps.business_id = :businessId
             AND (:productId IS NULL OR ps.product_id = :productId)
             AND (:productSizeId IS NULL OR ps.product_size_id = :productSizeId)
-            AND (:status IS NULL OR ps.status = CAST(:status AS VARCHAR))
+            AND (:status IS NULL OR ps.status = :status)
             AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
-            AND (:expiredBefore IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= CAST(:expiredBefore AS TIMESTAMP)))
+            AND (:expiredBefore::timestamp IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore::timestamp))
             AND (:search IS NULL
                 OR ps.barcode ILIKE '%' || :search || '%'
                 OR ps.sku ILIKE '%' || :search || '%')
