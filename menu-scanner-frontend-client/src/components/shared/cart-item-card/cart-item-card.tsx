@@ -61,7 +61,16 @@ export function CartItemCard({
   );
 
   return (
-    <div className="bg-card border rounded-2xl p-3 sm:p-4 hover:shadow-sm transition-shadow">
+    <div className="bg-card border rounded-2xl p-3 sm:p-4 hover:shadow-sm transition-shadow relative">
+      {/* Delete Button - Top Right */}
+      <button
+        className="absolute top-3 right-3 h-10 w-10 rounded-lg flex items-center justify-center bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all flex-shrink-0"
+        onClick={onRemove}
+        title="Remove item"
+      >
+        <Trash2 className="h-5 w-5" />
+      </button>
+
       <div className="flex gap-3">
         {/* Thumbnail */}
         {showLink ? (
@@ -73,9 +82,9 @@ export function CartItemCard({
         )}
 
         {/* Info */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between">
-          {/* Product Name + Size + Promotion */}
-          <div className="flex items-center gap-2 min-w-0 mb-2">
+        <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
+          {/* Product Name */}
+          <div className="min-w-0 mb-1">
             {showLink ? (
               <Link href={`/products/${productId}`}>
                 <h3 className="font-medium text-sm leading-snug hover:text-primary transition-colors line-clamp-1">
@@ -87,6 +96,10 @@ export function CartItemCard({
                 {productName}
               </h3>
             )}
+          </div>
+
+          {/* Size + Promotion Badge */}
+          <div className="flex items-center gap-2 min-w-0 mb-2">
             {sizeName && (
               <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
                 {sizeName}
@@ -101,15 +114,7 @@ export function CartItemCard({
             )}
           </div>
 
-          {/* Price Info */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className="font-bold text-sm text-primary">{formatCurrency(finalPrice)}</span>
-            {hasPromotion && currentPrice > finalPrice && (
-              <span className="text-xs text-muted-foreground line-through">{formatCurrency(currentPrice)}</span>
-            )}
-          </div>
-
-          {/* Qty controls + Total + Delete */}
+          {/* Qty controls + Price Info */}
           {showControls && (
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5 w-full max-w-[140px]">
@@ -134,14 +139,12 @@ export function CartItemCard({
                 </CustomButton>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold whitespace-nowrap">{formatCurrency(totalPrice)}</span>
-                <button
-                  className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all flex-shrink-0"
-                  onClick={onRemove}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+              {/* Price Display */}
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                <span className="font-bold text-sm text-primary">{formatCurrency(finalPrice)}</span>
+                {hasPromotion && currentPrice > finalPrice && (
+                  <span className="text-xs text-muted-foreground line-through">{formatCurrency(currentPrice)}</span>
+                )}
               </div>
             </div>
           )}
