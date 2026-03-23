@@ -298,7 +298,7 @@ export default function PosPage() {
     }
   }, []);
 
-  // ─── Enable Fast Click & Drag Scroll for Categories ───
+  // ─── Enable Smooth Click & Drag Scroll for Categories ───
   useEffect(() => {
     const categoryContainer = categoryScrollRef.current;
     if (!categoryContainer) return;
@@ -314,14 +314,22 @@ export default function PosPage() {
     let velocity = 0;
     let lastX = 0;
     let lastTime = 0;
+    let animationId: number | null = null;
 
     const handleMouseDown = (e: MouseEvent) => {
+      // Cancel any ongoing animation
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+
       isScrolling = true;
       startX = e.pageX - viewport.getBoundingClientRect().left;
       scrollLeft = viewport.scrollLeft;
       lastX = e.pageX;
       lastTime = Date.now();
       viewport.style.cursor = "grabbing";
+      velocity = 0;
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -332,10 +340,11 @@ export default function PosPage() {
       const distance = currentX - startX;
       viewport.scrollLeft = scrollLeft - distance;
 
-      // Calculate velocity for smooth dragging
+      // Calculate velocity smoothly
       const timeDiff = Date.now() - lastTime;
       if (timeDiff > 0) {
-        velocity = (lastX - currentX) / timeDiff;
+        const instantVelocity = (lastX - currentX) / timeDiff;
+        velocity = velocity * 0.7 + instantVelocity * 0.3; // Smooth velocity
       }
       lastX = currentX;
       lastTime = Date.now();
@@ -346,19 +355,19 @@ export default function PosPage() {
       isScrolling = false;
       viewport.style.cursor = "grab";
 
-      // Momentum scrolling with velocity
-      if (Math.abs(velocity) > 0.1) {
-        let currentVelocity = velocity;
-        const deceleration = 0.95;
+      // Smooth momentum scrolling with requestAnimationFrame
+      if (Math.abs(velocity) > 0.01) {
+        const animate = () => {
+          viewport.scrollLeft += velocity * 20;
+          velocity *= 0.92; // Smooth deceleration
 
-        const momentumScroll = setInterval(() => {
-          if (Math.abs(currentVelocity) < 0.1) {
-            clearInterval(momentumScroll);
-            return;
+          if (Math.abs(velocity) > 0.01) {
+            animationId = requestAnimationFrame(animate);
+          } else {
+            animationId = null;
           }
-          viewport.scrollLeft += currentVelocity * 50;
-          currentVelocity *= deceleration;
-        }, 16);
+        };
+        animationId = requestAnimationFrame(animate);
       }
     };
 
@@ -367,6 +376,7 @@ export default function PosPage() {
     document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
+      if (animationId) cancelAnimationFrame(animationId);
       viewport.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
