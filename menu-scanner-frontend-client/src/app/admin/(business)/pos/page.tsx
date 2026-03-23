@@ -788,7 +788,7 @@ export default function PosPage() {
         <div
           className={`${
             showCart ? "flex" : "hidden"
-          } lg:flex w-full lg:w-[380px] xl:w-[420px] h-full flex-col bg-card border-l shrink-0 ${
+          } lg:flex w-full lg:w-[380px] xl:w-[420px] h-full flex-col bg-card border-l shrink-0 overflow-hidden ${
             showCart && "fixed inset-0 z-50 lg:relative lg:z-auto"
           }`}
         >
@@ -830,8 +830,8 @@ export default function PosPage() {
             </div>
           </div>
 
-          {/* Cart Items */}
-          <ScrollArea className="flex-1">
+          {/* Cart Items - takes remaining space */}
+          <ScrollArea className="flex-1 min-h-0">
             {cartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
                 <ShoppingCart className="w-16 h-16 mb-4 opacity-15" />
@@ -940,7 +940,7 @@ export default function PosPage() {
           </ScrollArea>
 
           {/* ─── Checkout Section ─── */}
-          <div className="border-t bg-muted/10 shrink-0 mt-auto">
+          <div className="border-t bg-muted/10 shrink-0">
             {/* Payment Method - Quick Select */}
             <div className="px-3 pt-3 pb-2">
               <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
