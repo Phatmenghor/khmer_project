@@ -794,7 +794,7 @@ export default function PosPage() {
 
           {/* Product Grid */}
           <ScrollArea className="flex-1" ref={productGridRef}>
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1 p-1">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1 px-2 py-1">
               {products.map((product) => {
                 const qtyInCart = getProductCartQuantity(product.id);
                 return (
@@ -918,14 +918,24 @@ export default function PosPage() {
             {productsLoading && products.length > 0 && (
               <>
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <ProductCardSkeleton key={`skeleton-${i}`} />
+                  <ProductCardSkeleton key={`skeleton-${i}`} compact />
                 ))}
               </>
             )}
 
+            {/* Loading Button for more products */}
+            {productsLoading && products.length > 0 && (
+              <div className="col-span-full flex items-center justify-center py-4">
+                <Button disabled className="gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading more products...
+                </Button>
+              </div>
+            )}
+
             {/* Infinite Scroll Sentinel */}
             {hasMoreProducts && !productsLoading && (
-              <div ref={observerTarget} className="col-span-full h-4" />
+              <div ref={observerTarget} className="col-span-full h-1" />
             )}
 
             {/* Empty State */}
@@ -943,7 +953,7 @@ export default function PosPage() {
             {productsLoading && products.length === 0 && (
               <>
                 {Array.from({ length: 16 }).map((_, i) => (
-                  <ProductCardSkeleton key={`initial-skeleton-${i}`} />
+                  <ProductCardSkeleton key={`initial-skeleton-${i}`} compact />
                 ))}
               </>
             )}
