@@ -56,6 +56,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { POSProductCard } from "@/components/shared/card/pos-product-card";
+import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useAppDispatch } from "@/redux/store";
 import { axiosClientWithAuth } from "@/utils/axios";
@@ -65,12 +66,7 @@ import {
   ProductSize,
 } from "@/redux/features/business/store/models/response/product-response";
 import { OrderStatus } from "@/enums/order-status.enum";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
@@ -1035,82 +1031,22 @@ export default function PosPage() {
       </div>
 
       {/* ─── Size Picker Modal ─── */}
-      <Dialog
+      <SizePickerModal
+        product={sizePickerProduct}
         open={!!sizePickerProduct}
-        onOpenChange={() => {
+        onOpenChange={(open) => {
+          if (!open) {
+            setSizePickerProduct(null);
+            setEditingCartItemId(null);
+          }
+        }}
+        onSizeSelect={(product, size) => {
+          addToCart(product, size, editingCartItemId || undefined);
           setSizePickerProduct(null);
           setEditingCartItemId(null);
         }}
-      >
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-sm flex items-center gap-2">
-              <Package className="w-4 h-4" />
-              {editingCartItemId ? "Edit Size" : "Select Size"} - {sizePickerProduct?.name}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            {/* Option: Add base product without size */}
-            {sizePickerProduct &&
-              parseFloat(String(sizePickerProduct.price || 0)) > 0 && (
-                <button
-                  className="w-full flex items-center justify-between p-3 rounded-lg border hover:border-primary hover:bg-primary/5 transition-all active:scale-[0.98]"
-                  onClick={() => {
-                    if (sizePickerProduct) {
-                      addToCart(sizePickerProduct, undefined, editingCartItemId || undefined);
-                      setSizePickerProduct(null);
-                    }
-                  }}
-                >
-                  <span className="text-sm font-medium">Regular</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold">
-                      {formatCurrency(
-                        sizePickerProduct.displayPrice ||
-                          parseFloat(String(sizePickerProduct.price || 0))
-                      )}
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </button>
-              )}
-            {/* Size options */}
-            {sizePickerProduct?.sizes
-              ?.filter((s) => s.id)
-              .map((size) => (
-                <button
-                  key={size.id}
-                  className="w-full flex items-center justify-between p-3 rounded-lg border hover:border-primary hover:bg-primary/5 transition-all active:scale-[0.98]"
-                  onClick={() => {
-                    if (sizePickerProduct) {
-                      addToCart(sizePickerProduct, size, editingCartItemId || undefined);
-                      setSizePickerProduct(null);
-                    }
-                  }}
-                >
-                  <span className="text-sm font-medium">{size.name}</span>
-                  <div className="flex items-center gap-2">
-                    {size.hasPromotion ? (
-                      <>
-                        <span className="text-sm font-bold text-green-600">
-                          {formatCurrency(size.finalPrice)}
-                        </span>
-                        <span className="text-xs line-through text-muted-foreground">
-                          {formatCurrency(size.price)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-sm font-bold">
-                        {formatCurrency(size.price)}
-                      </span>
-                    )}
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </button>
-              ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+        isEditing={!!editingCartItemId}
+      />
 
       {/* ─── Order Success Modal ─── */}
       <Dialog
