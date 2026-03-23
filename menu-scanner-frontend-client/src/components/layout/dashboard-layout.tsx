@@ -38,6 +38,9 @@ export default function DashboardLayout({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFullscreen]);
 
+  // Check if current page is POS (hide footer and use full screen)
+  const isPosPage = pathname.includes("/pos");
+
   if (isFullscreen) {
     return (
       <div className="fixed inset-0 z-[100] bg-background flex flex-col">
@@ -58,7 +61,8 @@ export default function DashboardLayout({
       />
       <div
         className={cn(
-          "dashboard-content flex flex-col flex-1 transition-all overflow-y-auto duration-300",
+          "dashboard-content flex flex-col flex-1 transition-all duration-300",
+          isPosPage ? "overflow-hidden" : "overflow-y-auto",
           isMobile ? "w-full" : isSidebarOpen ? "ml-56" : "ml-[60px]",
         )}
       >
@@ -66,8 +70,13 @@ export default function DashboardLayout({
           onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
           onFullscreenClick={() => setIsFullscreen(true)}
         />
-        <main className="dashboard-main flex-1 p-2 md:p-4">{children}</main>
-        <AdminFooter />
+        <main className={cn(
+          "dashboard-main flex-1",
+          isPosPage ? "overflow-hidden" : "p-2 md:p-4"
+        )}>
+          {children}
+        </main>
+        {!isPosPage && <AdminFooter />}
       </div>
     </div>
   );
