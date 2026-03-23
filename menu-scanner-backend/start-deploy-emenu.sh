@@ -17,3 +17,5 @@ echo "Starting Monitor logs..."
 docker logs -f menu-scanner-backend-backend
 
 echo "✅ Backend is running on port 9090"
+echo "Monitoring logs..."
+docker logs -f $CONTAINER_NAME
