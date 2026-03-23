@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Minus, X } from "lucide-react";
+import { Plus, Minus, X, Edit2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { formatCurrency } from "@/utils/common/currency-format";
@@ -117,35 +117,45 @@ export function CartItemCard({
           {/* Price Info + Qty controls */}
           {showControls && (
             <div className="flex items-center justify-between gap-3">
-              {/* Quantity Controls - Left Side */}
-              <div className="flex items-center gap-1">
-                <CustomButton
-                  size="icon"
-                  variant="outline"
-                  className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={() => onQuantityChange(Math.max(0, quantity - 1))}
-                >
-                  <Minus className="h-3 w-3" />
-                </CustomButton>
-                <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
-                  {quantity}
-                </div>
-                <CustomButton
-                  size="icon"
-                  variant="outline"
-                  className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
-                  onClick={() => onQuantityChange(quantity + 1)}
-                >
-                  <Plus className="h-3 w-3" />
-                </CustomButton>
-              </div>
-
-              {/* Price Display - Right Side */}
-              <div className="flex items-baseline gap-2 text-right">
+              {/* Price Display - Left Side */}
+              <div className="flex items-baseline gap-2">
                 <span className="font-bold text-base text-slate-900">{formatCurrency(finalPrice)}</span>
                 {hasPromotion && currentPrice > finalPrice && (
                   <span className="text-xs text-slate-500 line-through font-medium">{formatCurrency(currentPrice)}</span>
                 )}
+              </div>
+
+              {/* Edit Icon + Quantity Controls - Right Side */}
+              <div className="flex items-center gap-2">
+                <CustomButton
+                  size="icon"
+                  variant="outline"
+                  className="h-8 w-8 shrink-0 text-slate-600 hover:bg-slate-100"
+                  title="Edit item"
+                >
+                  <Edit2 className="h-3.5 w-3.5" />
+                </CustomButton>
+                <div className="flex items-center gap-1">
+                  <CustomButton
+                    size="icon"
+                    variant="outline"
+                    className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                    onClick={() => onQuantityChange(Math.max(0, quantity - 1))}
+                  >
+                    <Minus className="h-3 w-3" />
+                  </CustomButton>
+                  <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
+                    {quantity}
+                  </div>
+                  <CustomButton
+                    size="icon"
+                    variant="outline"
+                    className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                    onClick={() => onQuantityChange(quantity + 1)}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </CustomButton>
+                </div>
               </div>
             </div>
           )}
