@@ -263,7 +263,7 @@ BEGIN
     -- =====================================================
     RAISE NOTICE '📊 Progress: 95%% - Creating order status history...';
     INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders ORDER BY id OFFSET (osh % (SELECT COUNT(*) FROM orders) - 1) LIMIT 1), CASE WHEN osh % 2 = 0 THEN 'CONFIRMED'::VARCHAR ELSE 'COMPLETED' END, business_user_id, 'System', 'Status updated'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders ORDER BY RANDOM() LIMIT 1), CASE WHEN osh % 2 = 0 THEN 'CONFIRMED'::VARCHAR ELSE 'COMPLETED' END, business_user_id, 'System', 'Status updated'
     FROM GENERATE_SERIES(1, 20) osh;
 
     -- =====================================================
