@@ -309,18 +309,17 @@ export default function PosPage() {
       ) as HTMLElement;
       if (!viewport) return;
 
-      // Support both mouse wheel (deltaY) and trackpad (deltaX)
-      // Prioritize deltaX for better left/right scrolling
+      // Mouse wheel: FAST, Trackpad: SLOW
       let scrollAmount = 0;
 
       if (Math.abs(e.deltaX) > 5) {
-        // Trackpad horizontal swipe or mouse with tilt wheel
-        scrollAmount = e.deltaX * 1.5; // Amplify for better responsiveness
+        // Trackpad horizontal swipe - SLOW & smooth
+        scrollAmount = e.deltaX * 0.5; // Slow down trackpad (0.5x)
       } else if (Math.abs(e.deltaY) > 0) {
-        // Mouse wheel vertical scroll
+        // Mouse wheel vertical scroll - FAST
         // Down (positive deltaY) → scroll right (positive)
         // Up (negative deltaY) → scroll left (negative)
-        scrollAmount = e.deltaY > 0 ? 150 : -150;
+        scrollAmount = e.deltaY > 0 ? 300 : -300; // Fast scroll (300px)
       }
 
       if (scrollAmount !== 0) {
@@ -336,54 +335,6 @@ export default function PosPage() {
     return () => categoryContainer.removeEventListener("wheel", handleWheel);
   }, []);
 
-  // ─── Enable Click & Drag Scroll for Categories ───
-  useEffect(() => {
-    const categoryContainer = categoryScrollRef.current;
-    if (!categoryContainer) return;
-
-    const viewport = categoryContainer.querySelector(
-      "[data-radix-scroll-area-viewport]"
-    ) as HTMLElement;
-    if (!viewport) return;
-
-    let isScrolling = false;
-    let startX = 0;
-    let scrollLeft = 0;
-
-    const handleMouseDown = (e: MouseEvent) => {
-      // Only allow scrolling with middle/wheel button or when hovering over scrollbar
-      if (e.button !== 1 && e.button !== 0) return; // 0 = left, 1 = middle
-
-      isScrolling = true;
-      startX = e.pageX - categoryContainer.offsetLeft;
-      scrollLeft = viewport.scrollLeft;
-      categoryContainer.style.cursor = "grabbing";
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isScrolling) return;
-      e.preventDefault();
-
-      const x = e.pageX - categoryContainer.offsetLeft;
-      const distance = (x - startX) * 0.5; // Slower drag for better control
-      viewport.scrollLeft = scrollLeft - distance;
-    };
-
-    const handleMouseUp = () => {
-      isScrolling = false;
-      categoryContainer.style.cursor = "grab";
-    };
-
-    viewport.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      viewport.removeEventListener("mousedown", handleMouseDown);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, []);
 
   // ─── Cart Logic ───
   const addToCart = useCallback(
