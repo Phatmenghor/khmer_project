@@ -171,10 +171,67 @@ BEGIN
 
     RAISE NOTICE 'Product images created!';
 
+    -- PRODUCT STOCK (All 180,000 products with stock)
+    RAISE NOTICE 'Creating product stock for all 180,000 products...';
+    INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, date_out, expiry_date, barcode, sku, location, status, is_expired, created_at, updated_at, created_by, updated_by)
+    SELECT
+        gen_random_uuid(),
+        key_business_id,
+        p.id,
+        NULL,
+        (100 + (ps.stock_qty % 500))::INTEGER, -- quantity_on_hand: 100-600
+        (ps.stock_qty % 20)::INTEGER, -- quantity_reserved: 0-20
+        ((100 + (ps.stock_qty % 500)) - (ps.stock_qty % 20))::INTEGER, -- quantity_available
+        (p.price - 5.00)::NUMERIC(19,4), -- price_in (cost)
+        t - INTERVAL '30 days',
+        NULL,
+        t + INTERVAL '180 days', -- expiry_date
+        'BARCODE-' || p.id::TEXT || '-' || ps.stock_qty::TEXT, -- barcode
+        'SKU-' || LPAD(ps.stock_qty::TEXT, 8, '0'), -- sku
+        'Warehouse-' || CASE WHEN ps.stock_qty % 5 = 0 THEN 'A' WHEN ps.stock_qty % 5 = 1 THEN 'B' WHEN ps.stock_qty % 5 = 2 THEN 'C' WHEN ps.stock_qty % 5 = 3 THEN 'D' ELSE 'E' END, -- location
+        'ACTIVE',
+        false,
+        t,
+        t,
+        'system'::UUID,
+        'system'::UUID
+    FROM (SELECT id, price FROM products WHERE business_id = key_business_id) p, GENERATE_SERIES(1, 1) ps(stock_qty);
+
+    RAISE NOTICE 'Product stock created!';
+
     -- PRODUCT SIZES
     INSERT INTO product_sizes (id, version, created_at, updated_at, created_by, updated_by, is_deleted, product_id, name, price, minimum_stock_level, promotion_type, promotion_value, promotion_from_date, promotion_to_date)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, p.id, CASE s WHEN 1 THEN 'XS/Small' WHEN 2 THEN 'S/Medium' WHEN 3 THEN 'M/Large' WHEN 4 THEN 'L/XL' WHEN 5 THEN 'XXL/Plus' END, (p.price + (s * 2.5))::NUMERIC, 5, p.promotion_type, p.promotion_value, p.promotion_from_date, p.promotion_to_date
     FROM (SELECT id, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date FROM products WHERE has_sizes = true AND business_id = key_business_id) p, GENERATE_SERIES(1, 5) s;
+
+    -- PRODUCT STOCK FOR SIZES
+    RAISE NOTICE 'Creating product stock for product sizes...';
+    INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, date_out, expiry_date, barcode, sku, location, status, is_expired, created_at, updated_at, created_by, updated_by)
+    SELECT
+        gen_random_uuid(),
+        key_business_id,
+        ps.product_id,
+        ps.id,
+        (80 + (ps_qty.stock_qty % 400))::INTEGER, -- quantity_on_hand: 80-480
+        (ps_qty.stock_qty % 15)::INTEGER, -- quantity_reserved: 0-15
+        ((80 + (ps_qty.stock_qty % 400)) - (ps_qty.stock_qty % 15))::INTEGER, -- quantity_available
+        (ps.price - 3.00)::NUMERIC(19,4), -- price_in (cost)
+        t - INTERVAL '30 days',
+        NULL,
+        t + INTERVAL '180 days', -- expiry_date
+        'BARCODE-' || ps.id::TEXT || '-' || ps_qty.stock_qty::TEXT, -- barcode
+        'SKU-SIZE-' || LPAD(ps_qty.stock_qty::TEXT, 8, '0'), -- sku
+        'Warehouse-' || CASE WHEN ps_qty.stock_qty % 5 = 0 THEN 'A' WHEN ps_qty.stock_qty % 5 = 1 THEN 'B' WHEN ps_qty.stock_qty % 5 = 2 THEN 'C' WHEN ps_qty.stock_qty % 5 = 3 THEN 'D' ELSE 'E' END, -- location
+        'ACTIVE',
+        false,
+        t,
+        t,
+        'system'::UUID,
+        'system'::UUID
+    FROM product_sizes ps, GENERATE_SERIES(1, 1) ps_qty(stock_qty)
+    WHERE ps.product_id IN (SELECT id FROM products WHERE business_id = key_business_id AND has_sizes = true);
+
+    RAISE NOTICE 'Product size stock created!';
 
     -- DELIVERY OPTIONS
     INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, business_id, name, description, image_url, price, status)
