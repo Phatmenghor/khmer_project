@@ -17,6 +17,7 @@ import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,12 +84,11 @@ public class ProductStockServiceImpl implements ProductStockService {
 
         long startTime = System.currentTimeMillis();
 
-        Pageable pageable = PaginationUtils.createPageable(
-                request.getPageNo(),
-                request.getPageSize(),
-                request.getSortBy(),
-                request.getSortDirection()
-        );
+        // Use unsorted Pageable since the native query has its own ORDER BY with NULLS LAST
+        int pageNo = (request.getPageNo() == null || request.getPageNo() <= 0) ? 0 : request.getPageNo() - 1;
+        int pageSize = (request.getPageSize() == null) ? 15 : request.getPageSize();
+        PaginationUtils.validatePagination(pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
 
         String status = request.getStatus() != null ? request.getStatus().name() : null;
         String search = (request.getSearch() != null && !request.getSearch().isBlank())
