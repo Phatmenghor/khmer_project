@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Minus, Trash2 } from "lucide-react";
+import { Plus, Minus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { formatCurrency } from "@/utils/common/currency-format";
@@ -62,13 +62,13 @@ export function CartItemCard({
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
-      {/* Delete Button - Top Right with hover effect */}
+      {/* Delete Button - Top Right with lower opacity */}
       <button
-        className="absolute top-3 right-3 h-10 w-10 rounded-lg flex items-center justify-center bg-red-500 text-white hover:bg-red-600 active:scale-95 transition-all duration-200 flex-shrink-0 shadow-md hover:shadow-lg"
+        className="absolute top-3 right-3 h-10 w-10 rounded-lg flex items-center justify-center bg-red-500 text-white hover:bg-red-600 active:scale-95 transition-all duration-200 flex-shrink-0 shadow-md hover:shadow-lg opacity-50 hover:opacity-100"
         onClick={onRemove}
         title="Remove item"
       >
-        <Trash2 className="h-5 w-5" />
+        <X className="h-5 w-5" />
       </button>
 
       <div className="flex gap-4">
@@ -108,7 +108,7 @@ export function CartItemCard({
           {/* Size Badge */}
           {sizeName && (
             <div className="mb-2">
-              <span className="text-xs font-medium text-slate-600 bg-blue-50 px-2.5 py-1 rounded-full flex-shrink-0 whitespace-nowrap inline-block border border-blue-200">
+              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full flex-shrink-0 whitespace-nowrap inline-block border border-primary/30">
                 {sizeName}
               </span>
             </div>
@@ -117,35 +117,35 @@ export function CartItemCard({
           {/* Price Info + Qty controls */}
           {showControls && (
             <div className="flex items-center justify-between gap-3">
-              {/* Price Display */}
-              <div className="flex items-baseline gap-2">
-                <span className="font-bold text-base text-slate-900">{formatCurrency(finalPrice)}</span>
-                {hasPromotion && currentPrice > finalPrice && (
-                  <span className="text-xs text-slate-500 line-through font-medium">{formatCurrency(currentPrice)}</span>
-                )}
-              </div>
-
-              {/* Quantity Controls */}
+              {/* Quantity Controls - Left Side */}
               <div className="flex items-center gap-1">
                 <CustomButton
                   size="icon"
-                  className="h-8 w-8 shrink-0 bg-slate-100 text-slate-700 hover:bg-red-500 hover:text-white transition-all duration-200 border-0"
+                  variant="outline"
+                  className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
                   onClick={() => onQuantityChange(Math.max(0, quantity - 1))}
-                  title="Decrease quantity"
                 >
-                  <Minus className="h-3.5 w-3.5" />
+                  <Minus className="h-3 w-3" />
                 </CustomButton>
-                <div className="flex-1 text-center h-8 w-12 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 font-bold text-sm rounded-lg border border-blue-300 flex items-center justify-center shadow-sm">
+                <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
                   {quantity}
                 </div>
                 <CustomButton
                   size="icon"
-                  className="h-8 w-8 shrink-0 bg-slate-100 text-slate-700 hover:bg-blue-500 hover:text-white transition-all duration-200 border-0"
+                  variant="outline"
+                  className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
                   onClick={() => onQuantityChange(quantity + 1)}
-                  title="Increase quantity"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+                  <Plus className="h-3 w-3" />
                 </CustomButton>
+              </div>
+
+              {/* Price Display - Right Side */}
+              <div className="flex items-baseline gap-2 text-right">
+                <span className="font-bold text-base text-slate-900">{formatCurrency(finalPrice)}</span>
+                {hasPromotion && currentPrice > finalPrice && (
+                  <span className="text-xs text-slate-500 line-through font-medium">{formatCurrency(currentPrice)}</span>
+                )}
               </div>
             </div>
           )}
