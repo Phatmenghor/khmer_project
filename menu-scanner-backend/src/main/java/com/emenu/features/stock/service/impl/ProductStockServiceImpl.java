@@ -83,7 +83,7 @@ public class ProductStockServiceImpl implements ProductStockService {
 
         long startTime = System.currentTimeMillis();
 
-        Pageable pageable = PaginationUtils.createPageableForNativeQuery(
+        Pageable pageable = PaginationUtils.createPageable(
                 request.getPageNo(),
                 request.getPageSize(),
                 request.getSortBy(),
