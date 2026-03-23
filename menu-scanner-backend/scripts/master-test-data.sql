@@ -362,11 +362,11 @@ BEGIN
     -- =====================================================
     RAISE NOTICE '📦 Creating products and inventory...';
 
-    INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, icon_url, image_url, display_order, is_active)
+    INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, icon_url, image_url, display_order, is_active)
     VALUES
-        (category_food, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Food', 'Delicious food items', NULL, photo1, 1, true),
-        (category_beverages, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Beverages', 'Drinks and beverages', NULL, photo2, 2, true),
-        (category_snacks, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Snacks', 'Light snacks', NULL, photo1, 3, true);
+        (category_food, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Food', NULL, photo1, 1, true),
+        (category_beverages, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Beverages', NULL, photo2, 2, true),
+        (category_snacks, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Snacks', NULL, photo1, 3, true);
 
     INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, image_url, price, discount_percentage, discount_price, is_active, is_top_seller, has_sizes, track_inventory, requires_expiry, has_barcodes, default_minimum_stock, is_available)
     VALUES
