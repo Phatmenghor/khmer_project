@@ -737,7 +737,7 @@ export default function PosPage() {
           </div>
 
           {/* Categories Horizontal Scroll */}
-          <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 py-1.5">
+          <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 h-10">
             {/* Left Arrow Button */}
             <Button
               variant="outline"
@@ -756,7 +756,7 @@ export default function PosPage() {
                 <button
                   onClick={() => setSelectedCategory(null)}
                   className={cn(
-                    "shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10",
+                    "shrink-0 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10 flex items-center",
                     selectedCategory === null
                       ? "bg-primary text-primary-foreground"
                       : "bg-white border border-border text-foreground hover:bg-muted"
@@ -776,7 +776,7 @@ export default function PosPage() {
                       key={category.id}
                       onClick={() => setSelectedCategory(category)}
                       className={cn(
-                        "shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10",
+                        "shrink-0 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10 flex items-center",
                         selectedCategory?.id === category.id
                           ? "bg-primary text-primary-foreground"
                           : "bg-white border border-border text-foreground hover:bg-muted"
