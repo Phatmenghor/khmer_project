@@ -310,13 +310,22 @@ export default function PosPage() {
       if (!viewport) return;
 
       // Support both mouse wheel (deltaY) and trackpad (deltaX)
-      const scrollLeft = Math.abs(e.deltaX) > Math.abs(e.deltaY)
-        ? e.deltaX
-        : (e.deltaY > 0 ? 150 : -150);
+      // Natural scrolling: scroll down = scroll right, scroll up = scroll left
+      let scrollAmount = 0;
+
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        // Trackpad horizontal swipe - use directly
+        scrollAmount = e.deltaX;
+      } else {
+        // Mouse wheel vertical - convert to horizontal
+        // Down (positive deltaY) → scroll right (positive)
+        // Up (negative deltaY) → scroll left (negative)
+        scrollAmount = e.deltaY > 0 ? 200 : -200;
+      }
 
       e.preventDefault();
       viewport.scrollBy({
-        left: scrollLeft,
+        left: scrollAmount,
         behavior: "smooth",
       });
     };
