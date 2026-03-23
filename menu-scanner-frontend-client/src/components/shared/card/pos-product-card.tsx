@@ -87,15 +87,15 @@ function POSProductCardComponent({
         )}
       </div>
 
-      {/* Content - Hidden on mobile, visible on md+ */}
-      <div className="hidden md:flex p-3 flex-col flex-1">
-        {/* Product Name */}
-        <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
+      {/* Content - Full on desktop, minimal controls on mobile */}
+      <div className="p-3 flex flex-col flex-1">
+        {/* Product Name - Hidden on mobile */}
+        <h3 className="hidden md:block font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
           {product.name}
         </h3>
 
-        {/* Prices */}
-        <div className="flex flex-col mb-2.5">
+        {/* Prices - Hidden on mobile */}
+        <div className="hidden md:flex flex-col mb-2.5">
           <span className={cn("text-xs text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
             {formatCurrency(product.displayOriginPrice)}
           </span>
@@ -104,32 +104,32 @@ function POSProductCardComponent({
           </span>
         </div>
 
-        {/* Add/Cart Controls */}
+        {/* Add/Cart Controls - Always visible */}
         {quantity > 0 ? (
-          <div className="flex items-center gap-1.5 w-full">
+          <div className="flex items-center gap-1 w-full md:gap-1.5">
             <CustomButton
               size="icon"
               variant="outline"
-              className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+              className="h-6 w-6 md:h-8 md:w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground p-0"
               onClick={handleDecrement}
             >
-              <Minus className="h-3 w-3" />
+              <Minus className="h-2.5 w-2.5 md:h-3 md:w-3" />
             </CustomButton>
-            <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
+            <div className="flex-1 text-center h-6 md:h-8 bg-primary/10 text-primary font-semibold text-xs md:text-sm rounded-lg border border-primary/20 flex items-center justify-center">
               {quantity}
             </div>
             <CustomButton
               size="icon"
               variant="outline"
-              className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+              className="h-6 w-6 md:h-8 md:w-8 shrink-0 hover:bg-primary hover:text-primary-foreground p-0"
               onClick={handleIncrement}
             >
-              <Plus className="h-3 w-3" />
+              <Plus className="h-2.5 w-2.5 md:h-3 md:w-3" />
             </CustomButton>
           </div>
         ) : (
           <CustomButton
-            className="w-full gap-1.5 h-8 text-xs font-semibold"
+            className="w-full gap-1 md:gap-1.5 h-6 md:h-8 text-[10px] md:text-xs font-semibold p-0 md:p-1"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -137,8 +137,8 @@ function POSProductCardComponent({
             }}
             size="sm"
           >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            Add to Cart
+            <ShoppingCart className="h-2.5 w-2.5 md:h-3.5 md:w-3.5" />
+            <span className="hidden sm:inline">Add</span>
           </CustomButton>
         )}
       </div>
