@@ -309,9 +309,14 @@ export default function PosPage() {
       ) as HTMLElement;
       if (!viewport) return;
 
+      // Support both mouse wheel (deltaY) and trackpad (deltaX)
+      const scrollLeft = Math.abs(e.deltaX) > Math.abs(e.deltaY)
+        ? e.deltaX
+        : (e.deltaY > 0 ? 150 : -150);
+
       e.preventDefault();
       viewport.scrollBy({
-        left: e.deltaY > 0 ? 150 : -150,
+        left: scrollLeft,
         behavior: "smooth",
       });
     };
@@ -741,7 +746,7 @@ export default function PosPage() {
             </Button>
 
             {/* Categories Scroll Area - Scrollable with wheel or drag */}
-            <ScrollArea className="flex-1" ref={categoryScrollRef}>
+            <ScrollArea className="flex-1 h-16" ref={categoryScrollRef}>
               <div className="flex gap-2 p-1">
                 {/* All Categories Button */}
                 <button
