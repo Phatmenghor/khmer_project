@@ -293,12 +293,13 @@ export default function PosPage() {
     if (!viewport) return;
 
     const scrollAmount = 250;
+    const currentPos = viewport.scrollLeft;
+    const targetPos = direction === "left"
+      ? Math.max(0, currentPos - scrollAmount)
+      : currentPos + scrollAmount;
 
-    // Use native scrollBy with smooth behavior for better browser compatibility
-    viewport.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
+    // Directly set scrollLeft for smooth-scrollbar compatibility
+    viewport.scrollLeft = targetPos;
   }, []);
 
   // ─── Initialize Smooth Scrollbar for Categories ───
