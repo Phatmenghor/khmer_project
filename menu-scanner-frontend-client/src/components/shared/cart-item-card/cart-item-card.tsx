@@ -63,13 +63,15 @@ export function CartItemCard({
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
       {/* Delete Button - Top Right with lower opacity */}
-      <button
-        className="absolute top-3 right-3 h-10 w-10 rounded-lg flex items-center justify-center bg-red-500 text-white hover:bg-red-600 active:scale-95 transition-all duration-200 flex-shrink-0 shadow-md hover:shadow-lg opacity-50 hover:opacity-100"
+      <CustomButton
+        size="icon"
+        variant="outline"
+        className="absolute top-3 right-3 h-8 w-8 shrink-0 text-red-600 hover:bg-red-100"
         onClick={onRemove}
         title="Remove item"
       >
-        <X className="h-5 w-5" />
-      </button>
+        <X className="h-4 w-4" />
+      </CustomButton>
 
       <div className="flex gap-4">
         {/* Thumbnail */}
