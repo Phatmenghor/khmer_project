@@ -457,14 +457,16 @@ export default function PosPage() {
   }, [cartItems]);
 
   // ─── Product Click Handler ───
-  const handleProductClick = (product: ProductDetailResponseModel) => {
-    const activeSizes = product.sizes?.filter((s) => s.id) || [];
-    if (product.hasSizes && activeSizes.length > 0) {
+  // ─── Handle Product Click - Show size modal for sized products ───
+  const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
+    // For sized products, always open the size picker modal first
+    if (product.hasSizes && product.sizes && product.sizes.length > 0) {
       setSizePickerProduct(product);
-    } else {
-      addToCart(product);
+      return;
     }
-  };
+    // For non-sized products, directly add to cart with quantity 1
+    addToCart(product, undefined, undefined, 1);
+  }, []);
 
   // ─── Get quantity in cart for a product ───
   const getProductCartQuantity = useCallback(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Check, Package, ChevronRight, Loader2, Trash2 } from "lucide-react";
 import {
   Dialog,
@@ -32,28 +32,38 @@ export function SizePickerModal({
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
 
+  // Initialize selected size when modal opens
+  useEffect(() => {
+    if (open && product?.sizes && product.sizes.length > 0) {
+      const activeSizes = product.sizes.filter((s) => s.id);
+      if (activeSizes.length > 0) {
+        setSelectedSize(activeSizes[0]);
+      }
+    }
+  }, [open, product?.id, product?.sizes]);
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!open) {
+      setSelectedSize(null);
+      setQuantity(1);
+    }
+  }, [open]);
+
   const handleSelectSize = useCallback(() => {
     if (product) {
       onSizeSelect(product, selectedSize || undefined, quantity);
-      setSelectedSize(null);
-      setQuantity(1);
       onOpenChange(false);
     }
   }, [product, selectedSize, quantity, onSizeSelect, onOpenChange]);
 
   const handleClose = useCallback(() => {
-    setSelectedSize(null);
-    setQuantity(1);
     onOpenChange(false);
   }, [onOpenChange]);
 
-  // Set initial size when modal opens
-  const activeSizes = product?.sizes?.filter((s) => s.id) || [];
-  if (open && product && activeSizes.length > 0 && !selectedSize) {
-    setSelectedSize(activeSizes[0]);
-  }
-
   if (!product) return null;
+
+  const activeSizes = product?.sizes?.filter((s) => s.id) || [];
 
   const displayPrice = selectedSize?.finalPrice || product.displayPrice || 0;
   const originalPrice = selectedSize?.hasPromotion

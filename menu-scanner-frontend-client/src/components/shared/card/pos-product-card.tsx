@@ -24,8 +24,8 @@ function POSProductCardComponent({
   const handleIncrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // For sized products, open modal to select which size to add more of
-    if (product.hasSizes) {
+    // For sized products, always open modal to select size
+    if (product.hasSizes && product.sizes && product.sizes.length > 0) {
       onAddClick(product);
       return;
     }
@@ -36,8 +36,8 @@ function POSProductCardComponent({
   const handleDecrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // For sized products, open modal to select which size to remove from
-    if (product.hasSizes) {
+    // For sized products, always open modal to select size
+    if (product.hasSizes && product.sizes && product.sizes.length > 0) {
       onAddClick(product);
       return;
     }
