@@ -311,7 +311,7 @@ export default function PosPage() {
 
       e.preventDefault();
       viewport.scrollBy({
-        left: e.deltaY > 0 ? 50 : -50,
+        left: e.deltaY > 0 ? 150 : -150,
         behavior: "smooth",
       });
     };
@@ -740,7 +740,7 @@ export default function PosPage() {
               <ChevronRight className="h-4 w-4 transform rotate-180" />
             </Button>
 
-            {/* Categories Scroll Area */}
+            {/* Categories Scroll Area - Scrollable with wheel or drag */}
             <ScrollArea className="flex-1" ref={categoryScrollRef}>
               <div className="flex gap-2 p-1">
                 {/* All Categories Button */}
