@@ -309,17 +309,17 @@ export default function PosPage() {
       ) as HTMLElement;
       if (!viewport) return;
 
-      // Mouse wheel: FAST, Trackpad: SLOW
+      // Smooth and responsive scrolling
       let scrollAmount = 0;
 
       if (Math.abs(e.deltaX) > 5) {
-        // Trackpad horizontal swipe - SLOW & smooth
-        scrollAmount = e.deltaX * 0.5; // Slow down trackpad (0.5x)
+        // Trackpad horizontal swipe - responsive
+        scrollAmount = e.deltaX * 1.2; // Smooth trackpad scrolling
       } else if (Math.abs(e.deltaY) > 0) {
-        // Mouse wheel vertical scroll - FAST
+        // Mouse wheel vertical scroll - fast
         // Down (positive deltaY) → scroll right (positive)
         // Up (negative deltaY) → scroll left (negative)
-        scrollAmount = e.deltaY > 0 ? 300 : -300; // Fast scroll (300px)
+        scrollAmount = e.deltaY > 0 ? 250 : -250; // Fast smooth scroll
       }
 
       if (scrollAmount !== 0) {
@@ -749,11 +749,11 @@ export default function PosPage() {
             <Button
               variant="outline"
               size="icon"
-              className="h-12 w-12 shrink-0 hover:bg-primary/10"
+              className="h-14 w-14 shrink-0 hover:bg-primary/10"
               onClick={() => scrollCategories("left")}
               title="Scroll left"
             >
-              <ChevronRight className="h-6 w-6 transform rotate-180" />
+              <ChevronRight className="h-7 w-7 transform rotate-180" />
             </Button>
 
             {/* Categories Scroll Area - Scrollable with wheel or drag */}
@@ -801,11 +801,11 @@ export default function PosPage() {
             <Button
               variant="outline"
               size="icon"
-              className="h-12 w-12 shrink-0 hover:bg-primary/10"
+              className="h-14 w-14 shrink-0 hover:bg-primary/10"
               onClick={() => scrollCategories("right")}
               title="Scroll right"
             >
-              <ChevronRight className="h-6 w-6" />
+              <ChevronRight className="h-7 w-7" />
             </Button>
           </div>
 
