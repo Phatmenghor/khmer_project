@@ -9,8 +9,6 @@ import {
   Trash2,
   ShoppingCart,
   X,
-  Maximize2,
-  Minimize2,
   ReceiptText,
   CreditCard,
   Banknote,
@@ -18,7 +16,6 @@ import {
   MoreHorizontal,
   Package,
   ChevronRight,
-  Clock,
   CheckCircle2,
   Loader2,
   ChevronsUpDown,
@@ -590,68 +587,12 @@ export default function PosPage() {
   };
 
   // ─── Current time display ───
-  const [currentTime, setCurrentTime] = useState(new Date());
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
-
   const containerClass = isFullscreen
     ? "fixed inset-0 z-[100] bg-background flex flex-col"
     : "flex flex-col h-screen -m-2 md:-m-4";
 
   return (
     <div className={containerClass}>
-      {/* ─── Top Bar ─── */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-card shrink-0 h-16">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div>
-              <h1 className="text-base font-bold leading-none">POS Terminal</h1>
-              <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1">
-                <Clock className="w-3 h-3" />
-                {currentTime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Cart toggle for mobile */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="lg:hidden relative"
-            onClick={() => setShowCart(!showCart)}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            {cartSummary.totalQuantity > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                {cartSummary.totalQuantity}
-              </span>
-            )}
-          </Button>
-
-          {/* Fullscreen toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            title={isFullscreen ? "Exit fullscreen (F11)" : "Fullscreen (F11)"}
-          >
-            {isFullscreen ? (
-              <Minimize2 className="w-4 h-4" />
-            ) : (
-              <Maximize2 className="w-4 h-4" />
-            )}
-          </Button>
-        </div>
-      </div>
-
       {/* ─── Main Content ─── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
