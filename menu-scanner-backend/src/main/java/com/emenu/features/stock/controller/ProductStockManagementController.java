@@ -34,9 +34,18 @@ public class ProductStockManagementController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductStockDto>>> getAllProductStocks(
             @Valid @RequestBody ProductStockFilterRequest request) {
-        log.info("Get all product stocks with filters - business: {}", request.getBusinessId());
-        PaginationResponse<ProductStockDto> response = productStockService.getAllProductStocks(request);
-        return ResponseEntity.ok(ApiResponse.success("Product stocks retrieved", response));
+        log.info("📥 INCOMING REQUEST - GET ALL PRODUCT STOCKS with filters");
+        log.info("   Business ID: {}", request.getBusinessId());
+
+        try {
+            PaginationResponse<ProductStockDto> response = productStockService.getAllProductStocks(request);
+            log.info("📤 RESPONSE SUCCESS - Total Records: {}, Current Page: {}",
+                    response.getTotalElements(), response.getPageNo());
+            return ResponseEntity.ok(ApiResponse.success("Product stocks retrieved", response));
+        } catch (Exception e) {
+            log.error("❌ ERROR - Failed to retrieve product stocks: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -46,9 +55,15 @@ public class ProductStockManagementController {
     @GetMapping("/{productStockId}")
     public ResponseEntity<ApiResponse<ProductStockDto>> getProductStockById(
             @PathVariable UUID productStockId) {
-        log.info("Get product stock: {}", productStockId);
-        ProductStockDto response = productStockService.getProductStockById(productStockId);
-        return ResponseEntity.ok(ApiResponse.success("Product stock retrieved", response));
+        log.info("📖 GET PRODUCT STOCK - ID: {}", productStockId);
+        try {
+            ProductStockDto response = productStockService.getProductStockById(productStockId);
+            log.info("✅ RETRIEVED - ID: {}, Quantity: {}", response.getId(), response.getQuantityOnHand());
+            return ResponseEntity.ok(ApiResponse.success("Product stock retrieved", response));
+        } catch (Exception e) {
+            log.error("❌ GET FAILED - ID: {}, Error: {}", productStockId, e.getMessage());
+            throw e;
+        }
     }
 
     /**
@@ -58,10 +73,17 @@ public class ProductStockManagementController {
     @PostMapping
     public ResponseEntity<ApiResponse<ProductStockDto>> createProductStock(
             @Valid @RequestBody ProductStockCreateRequest request) {
-        log.info("Create product stock for business: {}", request.getBusinessId());
-        ProductStockDto response = productStockService.createProductStock(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Product stock created", response));
+        log.info("📥 CREATE PRODUCT STOCK - Business: {}, Product: {}",
+                request.getBusinessId(), request.getProductId());
+        try {
+            ProductStockDto response = productStockService.createProductStock(request);
+            log.info("✅ CREATED - ID: {}, Quantity: {}", response.getId(), response.getQuantityOnHand());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Product stock created", response));
+        } catch (Exception e) {
+            log.error("❌ CREATE FAILED: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -72,9 +94,15 @@ public class ProductStockManagementController {
     public ResponseEntity<ApiResponse<ProductStockDto>> updateProductStock(
             @PathVariable UUID productStockId,
             @Valid @RequestBody ProductStockUpdateRequest request) {
-        log.info("Update product stock: {}", productStockId);
-        ProductStockDto response = productStockService.updateProductStock(productStockId, request);
-        return ResponseEntity.ok(ApiResponse.success("Product stock updated", response));
+        log.info("📝 UPDATE PRODUCT STOCK - ID: {}", productStockId);
+        try {
+            ProductStockDto response = productStockService.updateProductStock(productStockId, request);
+            log.info("✅ UPDATED - ID: {}, New Quantity: {}", response.getId(), response.getQuantityOnHand());
+            return ResponseEntity.ok(ApiResponse.success("Product stock updated", response));
+        } catch (Exception e) {
+            log.error("❌ UPDATE FAILED - ID: {}, Error: {}", productStockId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -84,8 +112,14 @@ public class ProductStockManagementController {
     @DeleteMapping("/{productStockId}")
     public ResponseEntity<ApiResponse<Void>> deleteProductStock(
             @PathVariable UUID productStockId) {
-        log.info("Delete product stock: {}", productStockId);
-        productStockService.deleteProductStock(productStockId);
-        return ResponseEntity.ok(ApiResponse.success("Product stock deleted", null));
+        log.info("🗑️  DELETE PRODUCT STOCK - ID: {}", productStockId);
+        try {
+            productStockService.deleteProductStock(productStockId);
+            log.info("✅ DELETED - ID: {}", productStockId);
+            return ResponseEntity.ok(ApiResponse.success("Product stock deleted", null));
+        } catch (Exception e) {
+            log.error("❌ DELETE FAILED - ID: {}, Error: {}", productStockId, e.getMessage(), e);
+            throw e;
+        }
     }
 }

@@ -38,7 +38,8 @@ public class ProductStockServiceImpl implements ProductStockService {
 
     @Override
     public ProductStockDto createProductStock(ProductStockCreateRequest request) {
-        log.info("Creating product stock for business: {}", request.getBusinessId());
+        log.info("📝 CREATE - Business: {}, Product: {}, Qty: {}",
+                request.getBusinessId(), request.getProductId(), request.getQuantityOnHand());
 
         ProductStock productStock = productStockMapper.toEntity(request);
         productStock.setBusinessId(request.getBusinessId());
@@ -51,7 +52,8 @@ public class ProductStockServiceImpl implements ProductStockService {
         productStock.setExpiryDate(toStartOfDay(request.getExpiryDate()));
 
         ProductStock savedProductStock = productStockRepository.save(productStock);
-        log.info("Product stock created: {}", savedProductStock.getId());
+        log.info("✅ CREATED - ID: {}, SKU: {}, Barcode: {}", savedProductStock.getId(),
+                savedProductStock.getSku(), savedProductStock.getBarcode());
 
         ProductStockDto dto = productStockMapper.toDto(savedProductStock);
         enrichWithProductInfo(dto, savedProductStock);
@@ -61,11 +63,25 @@ public class ProductStockServiceImpl implements ProductStockService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProductStockDto> getAllProductStocks(ProductStockFilterRequest request) {
-        log.info("Getting all product stocks with filters for business: {}", request.getBusinessId());
+        log.info("🔍 PRODUCT STOCK FILTER REQUEST - Business: {}", request.getBusinessId());
 
         if (request.getBusinessId() == null) {
             throw new ValidationException("Business ID is required");
         }
+
+        // Log all filter parameters
+        log.debug("📋 Applied Filters:");
+        log.debug("  - Product ID: {}", request.getProductId());
+        log.debug("  - Size ID: {}", request.getProductSizeId());
+        log.debug("  - Status: {}", request.getStatus());
+        log.debug("  - Low Stock Threshold: {}", request.getLowStockThreshold());
+        log.debug("  - Expired Before: {}", request.getExpiredBefore());
+        log.debug("  - Search: {}", request.getSearch());
+        log.debug("  - Pagination: page={}, size={}, sort={} {}",
+                request.getPageNo(), request.getPageSize(),
+                request.getSortBy(), request.getSortDirection());
+
+        long startTime = System.currentTimeMillis();
 
         Pageable pageable = PaginationUtils.createPageableForNativeQuery(
                 request.getPageNo(),
@@ -88,16 +104,26 @@ public class ProductStockServiceImpl implements ProductStockService {
                 search,
                 pageable
         );
+
+        long executionTime = System.currentTimeMillis() - startTime;
+        log.info("✅ PRODUCT STOCK FILTER COMPLETE - Total: {}, Returned: {}, Time: {}ms",
+                productStockPage.getTotalElements(), productStockPage.getNumberOfElements(), executionTime);
+
         return productStockMapper.toPaginationResponse(productStockPage, paginationMapper);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ProductStockDto getProductStockById(UUID productStockId) {
-        log.info("Getting product stock by ID: {}", productStockId);
+        log.debug("📖 GET by ID: {}", productStockId);
 
         ProductStock productStock = productStockRepository.findById(productStockId)
-                .orElseThrow(() -> new ValidationException("Product stock not found"));
+                .orElseThrow(() -> {
+                    log.warn("⚠️  NOT FOUND - ID: {}", productStockId);
+                    return new ValidationException("Product stock not found");
+                });
+
+        log.debug("✅ FOUND - SKU: {}, Qty: {}", productStock.getSku(), productStock.getQuantityOnHand());
 
         ProductStockDto dto = productStockMapper.toDto(productStock);
         enrichWithProductInfo(dto, productStock);
@@ -106,11 +132,15 @@ public class ProductStockServiceImpl implements ProductStockService {
 
     @Override
     public ProductStockDto updateProductStock(UUID productStockId, ProductStockUpdateRequest request) {
-        log.info("Updating product stock: {}", productStockId);
+        log.info("📝 UPDATE - ID: {}, New Qty: {}", productStockId, request.getQuantityOnHand());
 
         ProductStock productStock = productStockRepository.findById(productStockId)
-                .orElseThrow(() -> new ValidationException("Product stock not found"));
+                .orElseThrow(() -> {
+                    log.warn("⚠️  UPDATE NOT FOUND - ID: {}", productStockId);
+                    return new ValidationException("Product stock not found");
+                });
 
+        Integer oldQty = productStock.getQuantityOnHand();
         productStockMapper.updateEntityFromRequest(request, productStock);
 
         // Normalize expiryDate: strip time to 00:00:00 (date-only for now)
@@ -121,7 +151,8 @@ public class ProductStockServiceImpl implements ProductStockService {
 
         ProductStock updatedProductStock = productStockRepository.save(productStock);
 
-        log.info("Product stock updated: {}", updatedProductStock.getId());
+        log.info("✅ UPDATED - ID: {}, Qty: {} → {}", updatedProductStock.getId(),
+                oldQty, updatedProductStock.getQuantityOnHand());
         ProductStockDto dto = productStockMapper.toDto(updatedProductStock);
         enrichWithProductInfo(dto, updatedProductStock);
         return dto;
@@ -129,14 +160,19 @@ public class ProductStockServiceImpl implements ProductStockService {
 
     @Override
     public void deleteProductStock(UUID productStockId) {
-        log.info("Deleting product stock: {}", productStockId);
+        log.info("🗑️  DELETE - ID: {}", productStockId);
 
         ProductStock productStock = productStockRepository.findById(productStockId)
-                .orElseThrow(() -> new ValidationException("Product stock not found"));
+                .orElseThrow(() -> {
+                    log.warn("⚠️  DELETE NOT FOUND - ID: {}", productStockId);
+                    return new ValidationException("Product stock not found");
+                });
 
+        String sku = productStock.getSku();
+        Integer qty = productStock.getQuantityOnHand();
         productStockRepository.delete(productStock);
 
-        log.info("Product stock deleted: {}", productStockId);
+        log.info("✅ DELETED - ID: {}, SKU: {}, Previous Qty: {}", productStockId, sku, qty);
     }
 
     /**
