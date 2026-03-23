@@ -83,8 +83,8 @@ export function CartItemCard({
 
         {/* Info */}
         <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
-          {/* Product Name */}
-          <div className="min-w-0 mb-1">
+          {/* Product Name + Promotion Badge */}
+          <div className="flex items-center gap-2 min-w-0 mb-1">
             {showLink ? (
               <Link href={`/products/${productId}`}>
                 <h3 className="font-medium text-sm leading-snug hover:text-primary transition-colors line-clamp-1">
@@ -96,15 +96,6 @@ export function CartItemCard({
                 {productName}
               </h3>
             )}
-          </div>
-
-          {/* Size + Promotion Badge */}
-          <div className="flex items-center gap-2 min-w-0 mb-2">
-            {sizeName && (
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
-                {sizeName}
-              </span>
-            )}
             {hasPromotion && (
               <Badge variant="destructive" className="text-[10px] px-1.5 py-0 leading-none flex-shrink-0">
                 {promotionType === "PERCENTAGE"
@@ -113,6 +104,15 @@ export function CartItemCard({
               </Badge>
             )}
           </div>
+
+          {/* Size Badge */}
+          {sizeName && (
+            <div className="mb-2">
+              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap inline-block">
+                {sizeName}
+              </span>
+            </div>
+          )}
 
           {/* Qty controls + Price Info */}
           {showControls && (
