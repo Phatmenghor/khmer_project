@@ -159,11 +159,11 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     @Query(value = """
         SELECT * FROM product_stock ps
         WHERE ps.business_id = :businessId
-            AND (:productId IS NULL OR ps.product_id = :productId)
-            AND (:productSizeId IS NULL OR ps.product_size_id = :productSizeId)
+            AND (:productId::text IS NULL OR ps.product_id = CAST(:productId AS UUID))
+            AND (:productSizeId::text IS NULL OR ps.product_size_id = CAST(:productSizeId AS UUID))
             AND (:status IS NULL OR ps.status = :status)
             AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
-            AND (:expiredBefore::timestamp IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore::timestamp))
+            AND (CAST(:expiredBefore AS TIMESTAMP) IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= CAST(:expiredBefore AS TIMESTAMP)))
             AND (:search IS NULL
                 OR ps.barcode ILIKE '%' || :search || '%'
                 OR ps.sku ILIKE '%' || :search || '%')
@@ -172,11 +172,11 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     countQuery = """
         SELECT COUNT(*) FROM product_stock ps
         WHERE ps.business_id = :businessId
-            AND (:productId IS NULL OR ps.product_id = :productId)
-            AND (:productSizeId IS NULL OR ps.product_size_id = :productSizeId)
+            AND (:productId::text IS NULL OR ps.product_id = CAST(:productId AS UUID))
+            AND (:productSizeId::text IS NULL OR ps.product_size_id = CAST(:productSizeId AS UUID))
             AND (:status IS NULL OR ps.status = :status)
             AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
-            AND (:expiredBefore::timestamp IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore::timestamp))
+            AND (CAST(:expiredBefore AS TIMESTAMP) IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= CAST(:expiredBefore AS TIMESTAMP)))
             AND (:search IS NULL
                 OR ps.barcode ILIKE '%' || :search || '%'
                 OR ps.sku ILIKE '%' || :search || '%')
