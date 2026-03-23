@@ -42,24 +42,20 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
                 if (jwtGenerator.validateToken(token)) {
                     String username = jwtGenerator.getUsernameFromJWT(token);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                    try {
-                        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                        UsernamePasswordAuthenticationToken authenticationToken =
-                                new UsernamePasswordAuthenticationToken(
-                                        userDetails,
-                                        null,
-                                        userDetails.getAuthorities()
-                                );
-                        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    } catch (Exception e) {
-                        log.debug("User details not found, but token is valid: {}", username);
-                    }
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }
         } catch (Exception e) {
-            log.error("JWT authentication error: {}", e.getMessage());
+            log.error("Cannot set user authentication: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
