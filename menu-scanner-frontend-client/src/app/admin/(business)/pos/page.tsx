@@ -601,70 +601,10 @@ export default function PosPage() {
 
       {/* ─── Main Content ─── */}
       <div className="flex flex-1 overflow-hidden">
-        {/* ─── LEFT: Categories Sidebar ─── */}
-        <div className="hidden md:flex md:w-[140px] flex-col border-r bg-muted/30 shrink-0">
-          {/* Search Bar */}
-          <div className="relative p-3 border-b shrink-0">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              ref={searchInputRef}
-              type="search"
-              placeholder="Search..."
-              className="pl-10 h-8 text-xs"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          {/* Categories List */}
-          <ScrollArea className="flex-1">
-            <div className="px-2 py-3 space-y-1">
-              {/* All Categories */}
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={cn(
-                  "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  selectedCategory === null
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                )}
-              >
-                All Categories
-              </button>
-
-              {categoriesLoading ? (
-                <div className="flex justify-center py-4">
-                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                </div>
-              ) : categories.length === 0 ? (
-                <p className="text-xs text-muted-foreground px-3 py-2 text-center">
-                  No categories
-                </p>
-              ) : (
-                categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(category)}
-                    className={cn(
-                      "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
-                      selectedCategory?.id === category.id
-                        ? "bg-primary text-primary-foreground font-medium"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    )}
-                    title={category.name}
-                  >
-                    <span className="line-clamp-1">{category.name}</span>
-                  </button>
-                ))
-              )}
-            </div>
-          </ScrollArea>
-        </div>
-
-        {/* ─── CENTER: Product Section ─── */}
+        {/* ─── Product Section ─── */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search & Brand Filter Bar */}
-          <div className="flex flex-wrap items-end gap-2 p-3 border-b bg-muted/20 shrink-0 md:hidden">
+          <div className="flex flex-wrap items-end gap-2 p-3 border-b bg-muted/20 shrink-0">
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -675,26 +615,6 @@ export default function PosPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-            </div>
-          </div>
-
-          {/* Brand Filter & Search for Desktop */}
-          <div className="flex items-end gap-2 p-3 border-b bg-muted/20 shrink-0 hidden md:flex">
-            <div className="flex-1">
-              <Label className="text-xs text-muted-foreground mb-1 block">
-                Search Products
-              </Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  ref={searchInputRef}
-                  type="search"
-                  placeholder="Search..."
-                  className="pl-10 h-9 text-sm"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
             </div>
 
             {/* Brand Filter */}
@@ -759,6 +679,47 @@ export default function PosPage() {
               </PopoverContent>
             </Popover>
           </div>
+
+          {/* Categories Horizontal Scroll */}
+          <ScrollArea className="shrink-0 border-b bg-muted/10">
+            <div className="flex gap-2 p-3">
+              {/* All Categories Button */}
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={cn(
+                  "shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
+                  selectedCategory === null
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                )}
+              >
+                All
+              </button>
+
+              {/* Category Buttons */}
+              {categoriesLoading ? (
+                <div className="flex items-center gap-2 px-3">
+                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category)}
+                    className={cn(
+                      "shrink-0 px-4 py-2 rounded-lg text-sm transition-colors whitespace-nowrap",
+                      selectedCategory?.id === category.id
+                        ? "bg-primary text-primary-foreground font-medium"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                    )}
+                    title={category.name}
+                  >
+                    {category.name}
+                  </button>
+                ))
+              )}
+            </div>
+          </ScrollArea>
 
           {/* Product Grid */}
           <ScrollArea className="flex-1" ref={productGridRef}>
