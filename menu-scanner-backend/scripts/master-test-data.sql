@@ -307,16 +307,16 @@ BEGIN
         (v_size_fries_s, 0, v_now, v_now, 'system', 'system', false, v_prod_fries, 'Small', 3.00, 10, NULL, NULL, NULL, NULL),
         (v_size_fries_l, 0, v_now, v_now, 'system', 'system', false, v_prod_fries, 'Large', 4.50, 10, NULL, NULL, NULL, NULL);
 
-    -- Product Stock
-    INSERT INTO product_stock (business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, minimum_stock_level, price_in, price_out, cost_per_unit, date_in, expiry_date, barcode, sku, location, is_active, is_expired, track_inventory, created_at, updated_at, created_by, updated_by)
+    -- Product Stock (remove minimum_stock_level if column doesn't exist)
+    INSERT INTO product_stock (business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, price_out, cost_per_unit, date_in, expiry_date, barcode, sku, location, is_active, is_expired, track_inventory, created_at, updated_at, created_by, updated_by)
     VALUES
-        (v_business_id, v_prod_coffee, v_size_coffee_s, 150, 10, 140, 5, 1.50, 3.50, 1.50, v_now, v_now + INTERVAL '180 days', '1234567890001', 'SKU-COFFEE-S', 'Shelf A', true, false, true, v_now, v_now, 'system', 'system'),
-        (v_business_id, v_prod_coffee, v_size_coffee_m, 200, 15, 185, 5, 2.00, 4.00, 2.00, v_now, v_now + INTERVAL '180 days', '1234567890002', 'SKU-COFFEE-M', 'Shelf A', true, false, true, v_now, v_now, 'system', 'system'),
-        (v_business_id, v_prod_coffee, v_size_coffee_l, 100, 5, 95, 5, 2.50, 4.50, 2.50, v_now, v_now + INTERVAL '180 days', '1234567890003', 'SKU-COFFEE-L', 'Shelf A', true, false, true, v_now, v_now, 'system', 'system'),
-        (v_business_id, v_prod_tea, v_size_tea_s, 300, 20, 280, 5, 1.00, 2.50, 1.00, v_now, v_now + INTERVAL '180 days', '1234567890004', 'SKU-TEA-S', 'Shelf B', true, false, true, v_now, v_now, 'system', 'system'),
-        (v_business_id, v_prod_juice, v_size_juice_s, 250, 30, 220, 5, 2.00, 4.00, 2.00, v_now, v_now + INTERVAL '180 days', '1234567890006', 'SKU-JUICE-S', 'Shelf C', true, false, true, v_now, v_now, 'system', 'system'),
-        (v_business_id, v_prod_burger, NULL, 75, 10, 65, 10, 3.50, 6.50, 3.50, v_now, v_now + INTERVAL '90 days', NULL, 'SKU-BURGER', 'Cooler', true, false, true, v_now, v_now, 'system', 'system'),
-        (v_business_id, v_prod_fries, v_size_fries_s, 400, 40, 360, 10, 1.25, 3.00, 1.25, v_now, v_now + INTERVAL '90 days', '1234567890008', 'SKU-FRIES-S', 'Freezer', true, false, true, v_now, v_now, 'system', 'system');
+        (v_business_id, v_prod_coffee, v_size_coffee_s, 150, 10, 140, 1.50, 3.50, 1.50, v_now, v_now + INTERVAL '180 days', '1234567890001', 'SKU-COFFEE-S', 'Shelf A', true, false, true, v_now, v_now, 'system', 'system'),
+        (v_business_id, v_prod_coffee, v_size_coffee_m, 200, 15, 185, 2.00, 4.00, 2.00, v_now, v_now + INTERVAL '180 days', '1234567890002', 'SKU-COFFEE-M', 'Shelf A', true, false, true, v_now, v_now, 'system', 'system'),
+        (v_business_id, v_prod_coffee, v_size_coffee_l, 100, 5, 95, 2.50, 4.50, 2.50, v_now, v_now + INTERVAL '180 days', '1234567890003', 'SKU-COFFEE-L', 'Shelf A', true, false, true, v_now, v_now, 'system', 'system'),
+        (v_business_id, v_prod_tea, v_size_tea_s, 300, 20, 280, 1.00, 2.50, 1.00, v_now, v_now + INTERVAL '180 days', '1234567890004', 'SKU-TEA-S', 'Shelf B', true, false, true, v_now, v_now, 'system', 'system'),
+        (v_business_id, v_prod_juice, v_size_juice_s, 250, 30, 220, 2.00, 4.00, 2.00, v_now, v_now + INTERVAL '180 days', '1234567890006', 'SKU-JUICE-S', 'Shelf C', true, false, true, v_now, v_now, 'system', 'system'),
+        (v_business_id, v_prod_burger, NULL, 75, 10, 65, 3.50, 6.50, 3.50, v_now, v_now + INTERVAL '90 days', NULL, 'SKU-BURGER', 'Cooler', true, false, true, v_now, v_now, 'system', 'system'),
+        (v_business_id, v_prod_fries, v_size_fries_s, 400, 40, 360, 1.25, 3.00, 1.25, v_now, v_now + INTERVAL '90 days', '1234567890008', 'SKU-FRIES-S', 'Freezer', true, false, true, v_now, v_now, 'system', 'system');
 
     RAISE NOTICE '✓ Products and stock created!';
 
