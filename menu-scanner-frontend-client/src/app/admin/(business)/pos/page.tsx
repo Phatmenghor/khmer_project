@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import SmoothScrollbar from "smooth-scrollbar";
 import {
   Search,
   Plus,
@@ -110,7 +109,6 @@ export default function PosPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const productGridRef = useRef<HTMLDivElement>(null);
   const categoryScrollRef = useRef<HTMLDivElement>(null);
-  const scrollbarInstanceRef = useRef<any>(null);
 
   // ─── Fullscreen State ───
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -288,41 +286,22 @@ export default function PosPage() {
 
   // ─── Category Scroll Handler ───
   const scrollCategories = useCallback((direction: "left" | "right") => {
-    console.log("Scroll button clicked:", direction);
-
-    // Use smooth-scrollbar instance's API if available
-    if (scrollbarInstanceRef.current) {
-      const scrollAmount = 250;
-      const currentScroll = scrollbarInstanceRef.current.offset.x;
-      const targetScroll = direction === "left"
-        ? Math.max(0, currentScroll - scrollAmount)
-        : currentScroll + scrollAmount;
-
-      console.log("Using SmoothScrollbar API - from", currentScroll, "to", targetScroll);
-      // Use scrollTo method which is the correct API for smooth-scrollbar
-      scrollbarInstanceRef.current.scrollTo(targetScroll, 0, 400);
-      return;
-    }
-
-    // Fallback to direct viewport scrolling
     const viewport = categoryScrollRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]"
     ) as HTMLElement;
 
-    console.log("Fallback: Viewport found:", !!viewport);
     if (!viewport) return;
 
     const scrollAmount = 250;
-    const currentPos = viewport.scrollLeft;
-    const targetPos = direction === "left"
-      ? Math.max(0, currentPos - scrollAmount)
-      : currentPos + scrollAmount;
 
-    console.log("Direct scrollLeft - from", currentPos, "to", targetPos);
-    viewport.scrollLeft = targetPos;
+    // Use native scrollBy with smooth behavior
+    viewport.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
   }, []);
 
-  // ─── Initialize Smooth Scrollbar for Categories ───
+  // ─── Configure Category Scroll Styling ───
   useEffect(() => {
     const categoryContainer = categoryScrollRef.current;
     if (!categoryContainer) return;
@@ -330,10 +309,7 @@ export default function PosPage() {
     const viewport = categoryContainer.querySelector(
       "[data-radix-scroll-area-viewport]"
     ) as HTMLElement;
-    if (!viewport) {
-      console.warn("Viewport element not found for smooth-scrollbar");
-      return;
-    }
+    if (!viewport) return;
 
     // Ensure container and viewport are properly sized for horizontal-only scrolling
     Object.assign(categoryContainer.style, {
@@ -341,37 +317,15 @@ export default function PosPage() {
       height: "56px", // h-14 = 3.5rem = 56px
     });
 
-    // Hide vertical scrollbar for horizontal-only scrolling
+    // Configure viewport for smooth horizontal scrolling
     Object.assign(viewport.style, {
       overflowY: "hidden",
       overflowX: "auto",
+      scrollBehavior: "smooth",
       height: "56px",
       minHeight: "56px",
       maxHeight: "56px",
     });
-
-    try {
-      const scrollbar = SmoothScrollbar.init(viewport, {
-        damping: 0.08,
-        thumbMinSize: 20,
-        renderByPixels: true,
-        alwaysShowTracks: false,
-        continuousScrolling: true,
-        direction: "x", // Only horizontal scrolling
-      });
-
-      // Store instance for use in scroll handler
-      scrollbarInstanceRef.current = scrollbar;
-      console.log("SmoothScrollbar initialized:", scrollbar);
-
-      return () => {
-        scrollbarInstanceRef.current = null;
-        scrollbar.destroy();
-      };
-    } catch (error) {
-      // Fallback if smooth-scrollbar fails
-      console.warn("Smooth scrollbar initialization failed:", error);
-    }
   }, []);
 
 
