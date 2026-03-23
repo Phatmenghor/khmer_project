@@ -51,6 +51,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -793,16 +794,13 @@ export default function PosPage() {
         >
           {/* Cart Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="w-4 h-4 text-primary" />
-              <div>
-                <h2 className="font-semibold text-sm">Current Order</h2>
-                {cartItems.length > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    {cartItems.length} {cartItems.length === 1 ? "item" : "items"} • {cartSummary.totalQuantity} total quantity
-                  </p>
-                )}
-              </div>
+            <div>
+              <h2 className="font-semibold text-sm">Current Order</h2>
+              {cartItems.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {cartItems.length} {cartItems.length === 1 ? "item" : "items"} • {cartSummary.totalQuantity} total quantity
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-1">
               {cartItems.length > 0 && (
@@ -840,104 +838,40 @@ export default function PosPage() {
               </div>
             ) : (
               <ScrollArea className="flex-1 min-h-0">
-                <div className="space-y-2 p-3">
+                <div className="space-y-3 p-3">
                   {cartItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-card border rounded-xl p-3 hover:shadow-sm transition-shadow"
-                    >
-                      <div className="flex gap-3">
-                        {/* Product Image */}
-                        <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-muted border flex-shrink-0">
-                          <CustomAvatar
-                            imageUrl={item.productImageUrl}
-                            name={item.productName}
-                            size="sm"
-                            enableImagePreview={false}
-                          />
-                        </div>
-
-                        {/* Product Info & Controls */}
-                        <div className="flex-1 min-w-0 flex flex-col justify-between">
-                          {/* Product Name + Size + Promotion */}
-                          <div className="flex items-center gap-1.5 min-w-0 mb-1.5">
-                            <h3 className="font-medium text-xs leading-snug line-clamp-1">
-                              {item.productName}
-                            </h3>
-                            {item.sizeName && (
-                              <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
-                                {item.sizeName}
-                              </span>
-                            )}
-                            {item.hasActivePromotion && (
-                              <Badge variant="destructive" className="text-[9px] px-1 py-0 leading-none flex-shrink-0">
-                                -
-                              </Badge>
-                            )}
-                          </div>
-
-                          {/* Price Info */}
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-bold text-xs text-primary">
-                              {formatCurrency(item.finalPrice)}
-                            </span>
-                            {item.hasActivePromotion && item.currentPrice > item.finalPrice && (
-                              <span className="text-xs text-muted-foreground line-through">
-                                {formatCurrency(item.currentPrice)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Right Section: Qty + Total + Actions */}
-                        <div className="flex flex-col items-end gap-1.5 shrink-0">
-                          {/* Quantity Controls */}
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => updateQuantity(item.id, -1)}
-                            >
-                              <Minus className="w-2.5 h-2.5" />
-                            </Button>
-                            <span className="text-xs font-bold w-6 text-center">
-                              {item.quantity}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => updateQuantity(item.id, 1)}
-                            >
-                              <Plus className="w-2.5 h-2.5" />
-                            </Button>
-                          </div>
-
-                          {/* Item Total + Actions */}
-                          <div className="flex items-center gap-1.5">
-                            <p className="text-xs font-bold whitespace-nowrap">
-                              {formatCurrency(item.finalPrice * item.quantity)}
-                            </p>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6 text-muted-foreground hover:text-primary"
-                              onClick={() => handleEditCartItem(item)}
-                              title="Edit size"
-                            >
-                              <Pencil className="w-3 h-3" />
-                            </Button>
-                            <button
-                              className="h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all flex-shrink-0"
-                              onClick={() => removeItem(item.id)}
-                              title="Remove item"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                    <div key={item.id} className="group relative">
+                      <CartItemCard
+                        id={item.id}
+                        productId={item.productId}
+                        productName={item.productName}
+                        productImageUrl={item.productImageUrl}
+                        productSizeId={item.productSizeId}
+                        sizeName={item.sizeName}
+                        currentPrice={item.currentPrice}
+                        finalPrice={item.finalPrice}
+                        quantity={item.quantity}
+                        totalPrice={item.finalPrice * item.quantity}
+                        hasPromotion={item.hasActivePromotion}
+                        promotionType={item.promotionType}
+                        promotionValue={item.promotionValue}
+                        onQuantityChange={(newQuantity) =>
+                          updateQuantity(item.id, newQuantity - item.quantity)
+                        }
+                        onRemove={() => removeItem(item.id)}
+                        showLink={false}
+                        showControls={true}
+                      />
+                      {/* Edit Size Button - visible on hover */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-3 right-14 h-8 w-8 text-muted-foreground hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleEditCartItem(item)}
+                        title="Edit size"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
                     </div>
                   ))}
                 </div>
