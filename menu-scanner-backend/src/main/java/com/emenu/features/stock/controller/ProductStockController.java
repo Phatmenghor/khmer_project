@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/product-stock")
 @RequiredArgsConstructor
 @Slf4j
-public class ProductStockManagementController {
+public class ProductStockController {
 
     private final ProductStockService productStockService;
 

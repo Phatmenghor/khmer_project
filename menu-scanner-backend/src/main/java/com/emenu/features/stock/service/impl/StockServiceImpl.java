@@ -1,8 +1,6 @@
 package com.emenu.features.stock.service.impl;
 
-import com.emenu.features.stock.dto.request.StockAlertFilterRequest;
 import com.emenu.features.stock.dto.request.StockMovementFilterRequest;
-import com.emenu.features.stock.dto.response.StockAlertDto;
 import com.emenu.features.stock.dto.response.StockMovementDto;
 import com.emenu.features.stock.models.*;
 import com.emenu.features.stock.repository.*;
@@ -34,7 +32,6 @@ public class StockServiceImpl implements StockService {
 
     private final ProductStockRepository productStockRepository;
     private final StockMovementRepository stockMovementRepository;
-    private final StockAlertRepository stockAlertRepository;
     private final PaginationMapper paginationMapper;
 
     // ========== Stock Operations ==========
@@ -82,10 +79,6 @@ public class StockServiceImpl implements StockService {
             -quantity, previousQty, newQty,
             "ORDER", orderId, reason, getCurrentUserId(), orderId, stock.getPriceIn()
         );
-
-        if (newQty < 0) {
-            createOrUpdateAlert(businessId, stock, "NEGATIVE_STOCK");
-        }
 
         log.info("Stock deducted for order {}: {} units from batch {}", orderId, quantity, stock.getId());
         return mapToDto(movement);
@@ -177,45 +170,8 @@ public class StockServiceImpl implements StockService {
             null, null, reason, userId, null, stock.getPriceIn()
         );
 
-        createOrUpdateAlert(businessId, stock, "EXPIRED");
-
         log.info("Stock marked as expired: product {}", stock.getProductId());
         return mapToDto(movement);
-    }
-
-    // ========== Alerts ==========
-
-    @Override
-    @Transactional(readOnly = true)
-    public PaginationResponse<StockAlertDto> getAllAlerts(StockAlertFilterRequest request) {
-        if (request.getBusinessId() == null) {
-            throw new ValidationException("Business ID is required");
-        }
-
-        int pageNo = (request.getPageNo() == null || request.getPageNo() <= 0) ? 0 : request.getPageNo() - 1;
-        int pageSize = (request.getPageSize() == null) ? 15 : request.getPageSize();
-        PaginationUtils.validatePagination(pageNo, pageSize);
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-
-        Page<StockAlert> alertPage = stockAlertRepository.findWithFilters(
-            request.getBusinessId(),
-            request.getProductId(),
-            request.getAlertType(),
-            request.getStatus(),
-            pageable
-        );
-
-        List<StockAlertDto> dtos = alertPage.getContent().stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-
-        return paginationMapper.toPaginationResponse(alertPage, dtos);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Long countActiveAlerts(UUID businessId) {
-        return stockAlertRepository.countActiveAlerts(businessId);
     }
 
     // ========== Movements ==========
@@ -275,28 +231,6 @@ public class StockServiceImpl implements StockService {
         return stockMovementRepository.save(movement);
     }
 
-    private void createOrUpdateAlert(UUID businessId, ProductStock stock, String alertType) {
-        List<StockAlert> existingAlerts = stockAlertRepository.findByProductStockIdAndAlertTypeAndStatusOrderByCreatedAtDesc(stock.getId(), alertType, "ACTIVE");
-
-        if (existingAlerts.isEmpty()) {
-            StockAlert alert = new StockAlert();
-            alert.setBusinessId(businessId);
-            alert.setProductStockId(stock.getId());
-            alert.setAlertType(alertType);
-            alert.setProductId(stock.getProductId());
-            alert.setProductSizeId(stock.getProductSizeId());
-            alert.setCurrentQuantity(stock.getQuantityOnHand());
-            alert.setThreshold(0);
-            alert.setExpiryDate(stock.getExpiryDate());
-            alert.setDaysUntilExpiry(stock.getDaysUntilExpiry());
-            alert.setStatus("ACTIVE");
-            alert.setNotificationSent(false);
-            alert.setNotificationType("NONE");
-
-            stockAlertRepository.save(alert);
-        }
-    }
-
     private BigDecimal calculateCostImpact(Integer quantityChange, BigDecimal unitPrice) {
         if (quantityChange == null || unitPrice == null) {
             return BigDecimal.ZERO;
@@ -333,29 +267,6 @@ public class StockServiceImpl implements StockService {
         dto.setCostImpact(movement.getCostImpact());
         dto.setUnitPrice(movement.getUnitPrice());
         dto.setCreatedAt(movement.getCreatedAt());
-        return dto;
-    }
-
-    private StockAlertDto mapToDto(StockAlert alert) {
-        StockAlertDto dto = new StockAlertDto();
-        dto.setId(alert.getId());
-        dto.setBusinessId(alert.getBusinessId());
-        dto.setProductStockId(alert.getProductStockId());
-        dto.setAlertType(alert.getAlertType());
-        dto.setProductId(alert.getProductId());
-        dto.setProductSizeId(alert.getProductSizeId());
-        dto.setProductName(alert.getProductName());
-        dto.setCurrentQuantity(alert.getCurrentQuantity());
-        dto.setThreshold(alert.getThreshold());
-        dto.setExpiryDate(alert.getExpiryDate());
-        dto.setDaysUntilExpiry(alert.getDaysUntilExpiry());
-        dto.setStatus(alert.getStatus());
-        dto.setAcknowledgedBy(alert.getAcknowledgedBy());
-        dto.setAcknowledgedAt(alert.getAcknowledgedAt());
-        dto.setResolvedAt(alert.getResolvedAt());
-        dto.setNotificationSent(alert.getNotificationSent());
-        dto.setNotificationType(alert.getNotificationType());
-        dto.setCreatedAt(alert.getCreatedAt());
         return dto;
     }
 }
