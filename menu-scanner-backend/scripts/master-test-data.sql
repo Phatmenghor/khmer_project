@@ -23,11 +23,12 @@ DO $$ DECLARE
 
 BEGIN
     RAISE NOTICE '🚀 ULTIMATE TEST DATA GENERATION STARTED!';
+    RAISE NOTICE '📊 Progress: 0% - Initializing...';
 
     -- =====================================================
     -- CLEANUP
     -- =====================================================
-    RAISE NOTICE '🧹 Cleaning database...';
+    RAISE NOTICE '📊 Progress: 3% - 🧹 Cleaning database...';
 
     TRUNCATE TABLE product_stock CASCADE;
     TRUNCATE TABLE order_status_history CASCADE;
@@ -66,6 +67,7 @@ BEGIN
     -- =====================================================
     -- ROLES
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 6% - Creating roles...';
     INSERT INTO roles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, business_id, user_type)
     VALUES
         (role_admin, 0, t, t, 'system', 'system', false, NULL, NULL, 'PLATFORM_ADMIN', 'Platform Administrator', NULL, 'PLATFORM_USER'),
@@ -75,6 +77,7 @@ BEGIN
     -- =====================================================
     -- SUBSCRIPTION PLANS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 9% - Creating subscription plans...';
     INSERT INTO subscription_plans (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, price, duration_days, status)
     VALUES
         (plan1, 0, t, t, 'system', 'system', false, NULL, NULL, 'Basic Plan', 'Basic features', 99.99, 30, 'PUBLIC'),
@@ -84,6 +87,7 @@ BEGIN
     -- =====================================================
     -- 3 MAIN TEST USERS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 12% - Creating 3 main test users...';
     INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count)
     VALUES
         (platform_user_id, 0, t, t, 'system', 'system', false, NULL, NULL, 'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Platform', 'Admin', '+855 10 100 0001', photo1, 'PLATFORM_USER', 'ACTIVE', NULL, 'Platform Admin', 'Phnom Penh', 'Key Platform Admin', t - INTERVAL '1 day', t, 1);
@@ -93,6 +97,7 @@ BEGIN
     -- =====================================================
     -- KEY BUSINESS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 15% - Creating key business...';
     INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, owner_id, name, email, phone, address, description, status, is_subscription_active)
     VALUES (key_business_id, 0, t, t, 'system', 'system', false, NULL, NULL, platform_user_id, 'Phatmenghor MEGA Business', 'mega@test.com', '+855 23 9999999', 'Phnom Penh, Cambodia', 'Ultimate business with 180K products!', 'ACTIVE', true);
 
@@ -105,6 +110,7 @@ BEGIN
     -- =====================================================
     -- OTHER 2 MAIN USERS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 18% - Creating other 2 main users...';
     INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count)
     VALUES
         (business_user_id, 0, t, t, 'system', 'system', false, NULL, NULL, 'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Business', 'Manager', '+855 10 200 0001', photo2, 'BUSINESS_USER', 'ACTIVE', key_business_id, 'Business Manager', 'Phnom Penh', 'Key Business Manager', t - INTERVAL '2 days', t, 1),
@@ -115,7 +121,7 @@ BEGIN
     -- =====================================================
     -- 40,000 PLATFORM ADMINS
     -- =====================================================
-    RAISE NOTICE 'Creating 40,000 platform admins...';
+    RAISE NOTICE '📊 Progress: 21% - Creating 40,000 platform admins...';
     INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'admin' || n || '@platform.com', 'admin' || n || '@platform.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Admin' || n, 'User' || n, '+855 10 100 ' || LPAD((n % 10000)::TEXT, 4, '0'), CASE WHEN n % 2 = 0 THEN photo1 ELSE photo2 END, 'PLATFORM_USER', 'ACTIVE', NULL, 'Platform Admin', 'Phnom Penh', 'Admin ' || n, t - (RANDOM() * INTERVAL '90 days'), t - (RANDOM() * INTERVAL '7 days'), 1
     FROM GENERATE_SERIES(1, 40000) n;
@@ -125,6 +131,7 @@ BEGIN
     -- =====================================================
     -- 99 OTHER BUSINESSES
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 24% - Creating 99 other businesses...';
     INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, owner_id, name, email, phone, address, description, status, is_subscription_active)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT u.id FROM users u WHERE u.user_type = 'PLATFORM_USER' ORDER BY RANDOM() LIMIT 1), 'Business ' || n, 'business' || n || '@test.com', '+855 23 ' || LPAD((n % 10000)::TEXT, 4, '0'), 'Address ' || n || ', Phnom Penh', 'Business ' || n, 'ACTIVE', CASE WHEN n % 2 = 0 THEN true ELSE false END
     FROM GENERATE_SERIES(1, 99) n;
@@ -140,6 +147,7 @@ BEGIN
     -- =====================================================
     -- BUSINESS ROLES
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 27% - Creating business roles...';
     INSERT INTO roles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, business_id, user_type)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, CASE r WHEN 1 THEN 'Manager' WHEN 2 THEN 'Chef' WHEN 3 THEN 'Sous Chef' WHEN 4 THEN 'Waiter' WHEN 5 THEN 'Cashier' WHEN 6 THEN 'Delivery Driver' WHEN 7 THEN 'Kitchen Staff' WHEN 8 THEN 'Supervisor' WHEN 9 THEN 'Accountant' WHEN 10 THEN 'Marketing' WHEN 11 THEN 'HR Officer' WHEN 12 THEN 'Customer Service' END, 'Business Role ' || r, br.id, 'BUSINESS_USER'
     FROM businesses br, GENERATE_SERIES(1, 12) r;
@@ -147,7 +155,7 @@ BEGIN
     -- =====================================================
     -- 60,000 BUSINESS USERS
     -- =====================================================
-    RAISE NOTICE 'Creating 60,000 business users...';
+    RAISE NOTICE '📊 Progress: 30% - Creating 60,000 business users...';
     INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'staff' || b_idx || '-' || s || '@business.com', 'staff' || b_idx || '-' || s || '@business.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Staff', 'Member ' || b_idx || '-' || s, '+855 10 200 ' || LPAD((s)::TEXT, 4, '0'), CASE WHEN s % 2 = 0 THEN photo1 ELSE photo2 END, 'BUSINESS_USER', 'ACTIVE', (SELECT id FROM businesses WHERE id != key_business_id ORDER BY id OFFSET ((b_idx - 1) % 99) LIMIT 1), 'Position ' || s, 'Business Address', 'Staff ' || b_idx || '-' || s, t - (RANDOM() * INTERVAL '30 days'), t - (RANDOM() * INTERVAL '2 days'), 1
     FROM GENERATE_SERIES(1, 100) b_idx, GENERATE_SERIES(1, 600) s;
@@ -157,7 +165,7 @@ BEGIN
     -- =====================================================
     -- 120,000 CUSTOMERS
     -- =====================================================
-    RAISE NOTICE 'Creating 120,000 customers...';
+    RAISE NOTICE '📊 Progress: 33% - Creating 120,000 customers...';
     INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'customer' || n || '@test.com', 'customer' || n || '@test.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Customer' || n, 'User' || n, '+855 10 300 ' || LPAD((n % 10000)::TEXT, 4, '0'), CASE WHEN n % 2 = 0 THEN photo1 ELSE photo2 END, 'CUSTOMER', 'ACTIVE', NULL, NULL, 'Phnom Penh', 'Customer ' || n, t - (RANDOM() * INTERVAL '60 days'), t - (RANDOM() * INTERVAL '5 days'), 1
     FROM GENERATE_SERIES(1, 120000) n;
@@ -167,7 +175,7 @@ BEGIN
     -- =====================================================
     -- 240 CATEGORIES
     -- =====================================================
-    RAISE NOTICE 'Creating 240 categories...';
+    RAISE NOTICE '📊 Progress: 36% - Creating 240 categories...';
     INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, image_url, status)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Category ' || c || ' (' || CASE (c % 8) WHEN 0 THEN 'Premium' WHEN 1 THEN 'Budget' WHEN 2 THEN 'New' WHEN 3 THEN 'Popular' WHEN 4 THEN 'Sale' WHEN 5 THEN 'Seasonal' WHEN 6 THEN 'Limited' ELSE 'Exclusive' END || ')', CASE WHEN c % 2 = 0 THEN photo1 ELSE photo2 END, 'ACTIVE'
     FROM GENERATE_SERIES(1, 240) c;
@@ -175,6 +183,7 @@ BEGIN
     -- =====================================================
     -- 240 BRANDS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 39% - Creating 240 brands...';
     INSERT INTO brands (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, image_url, description, status)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Brand ' || br || ' - ' || CASE (br % 5) WHEN 0 THEN 'Premium' WHEN 1 THEN 'Standard' WHEN 2 THEN 'Economy' WHEN 3 THEN 'Luxury' ELSE 'Boutique' END, CASE WHEN br % 2 = 0 THEN photo1 ELSE photo2 END, 'Premium brand with quality products ' || br, 'ACTIVE'
     FROM GENERATE_SERIES(1, 240) br;
@@ -182,7 +191,7 @@ BEGIN
     -- =====================================================
     -- 180,000 PRODUCTS
     -- =====================================================
-    RAISE NOTICE 'Creating 180,000 products...';
+    RAISE NOTICE '📊 Progress: 42% - Creating 180,000 products...';
     INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, status, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, display_price, display_origin_price, display_promotion_type, display_promotion_value, display_promotion_from_date, display_promotion_to_date, has_sizes, has_active_promotion, view_count, favorite_count, main_image_url)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM categories WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), (SELECT id FROM brands WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), 'Premium Product ' || p || ' (' || CASE (p % 100) WHEN 0 THEN 'Bestseller' WHEN 1 THEN 'New' ELSE 'Popular' END || ')', 'High-quality product with comprehensive description - Item ' || p, 'ACTIVE', (15.00 + (p % 300))::NUMERIC, CASE WHEN p % 4 = 0 THEN CASE WHEN (p / 4) % 2 = 0 THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END, CASE WHEN p % 4 = 0 THEN CASE WHEN (p / 4) % 2 = 0 THEN (5 + (p % 40)) ELSE (2.00 + (p % 50)) END ELSE NULL END, CASE WHEN p % 4 = 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 4 = 0 THEN t + INTERVAL '90 days' ELSE NULL END, (15.00 + (p % 300))::NUMERIC, (15.00 + (p % 300))::NUMERIC, CASE WHEN p % 4 = 0 THEN CASE WHEN (p / 4) % 2 = 0 THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END, CASE WHEN p % 4 = 0 THEN CASE WHEN (p / 4) % 2 = 0 THEN (5 + (p % 40)) ELSE (2.00 + (p % 50)) END ELSE NULL END, CASE WHEN p % 4 = 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 4 = 0 THEN t + INTERVAL '90 days' ELSE NULL END, CASE WHEN p % 4 = 0 THEN true ELSE false END, CASE WHEN p % 4 = 0 THEN true ELSE false END, (p % 10000), (p % 1000), CASE WHEN p % 2 = 0 THEN photo1 ELSE photo2 END
     FROM GENERATE_SERIES(1, 180000) p;
@@ -191,7 +200,7 @@ BEGIN
     -- =====================================================
     -- 720,000+ PRODUCT IMAGES
     -- =====================================================
-    RAISE NOTICE 'Creating 720,000+ product images...';
+    RAISE NOTICE '📊 Progress: 45% - Creating 720,000+ product images...';
     INSERT INTO product_images (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, image_url)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, p.id, CASE WHEN (ROW_NUMBER() OVER (PARTITION BY p.id) - 1) % 2 = 0 THEN photo1 ELSE photo2 END
     FROM products p, GENERATE_SERIES(1, 4) img_num WHERE p.business_id = key_business_id;
@@ -200,6 +209,7 @@ BEGIN
     -- =====================================================
     -- PRODUCT SIZES
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 48% - Creating product sizes...';
     INSERT INTO product_sizes (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, name, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, p.id, CASE s WHEN 1 THEN 'XS/Small' WHEN 2 THEN 'S/Medium' WHEN 3 THEN 'M/Large' WHEN 4 THEN 'L/XL' WHEN 5 THEN 'XXL/Plus' END, (p.price + (s * 2.5))::NUMERIC, p.promotion_type, p.promotion_value, p.promotion_from_date, p.promotion_to_date
     FROM (SELECT id, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date FROM products WHERE has_sizes = true AND business_id = key_business_id) p, GENERATE_SERIES(1, 5) s;
@@ -207,7 +217,7 @@ BEGIN
     -- =====================================================
     -- PRODUCT STOCK (NEW - FOR ALL PRODUCTS)
     -- =====================================================
-    RAISE NOTICE 'Creating product stock for all 180,000 products...';
+    RAISE NOTICE '📊 Progress: 51% - Creating product stock for all 180,000 products...';
     INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, date_out, expiry_date, barcode, sku, location, status, is_expired, created_at, updated_at, created_by, updated_by)
     SELECT
         gen_random_uuid(),
@@ -236,6 +246,7 @@ BEGIN
     -- =====================================================
     -- PRODUCT STOCK FOR SIZES
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 54% - Creating product stock for sizes...';
     INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, date_out, expiry_date, barcode, sku, location, status, is_expired, created_at, updated_at, created_by, updated_by)
     SELECT
         gen_random_uuid(),
@@ -268,6 +279,7 @@ BEGIN
     -- =====================================================
     -- DELIVERY OPTIONS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 57% - Creating delivery options...';
     INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, image_url, price, status)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, CASE (d % 5) WHEN 0 THEN 'Standard Delivery' WHEN 1 THEN 'Express Delivery' WHEN 2 THEN 'Scheduled Delivery' WHEN 3 THEN 'Pickup' ELSE 'Dine-in' END, 'Delivery option ' || d, CASE WHEN d % 2 = 0 THEN photo1 ELSE photo2 END, CASE (d % 5) WHEN 0 THEN 2.00 WHEN 1 THEN 5.00 WHEN 2 THEN 2.50 ELSE 0.00 END, 'ACTIVE'
     FROM GENERATE_SERIES(1, 150) d;
@@ -275,6 +287,7 @@ BEGIN
     -- =====================================================
     -- PAYMENT OPTIONS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 60% - Creating payment options...';
     INSERT INTO payment_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, payment_option_type, status)
     VALUES
         -- CASH
@@ -314,7 +327,7 @@ BEGIN
     -- =====================================================
     -- PAYMENT OPTIONS FOR OTHER BUSINESSES
     -- =====================================================
-    RAISE NOTICE 'Creating payment options for 99 other businesses...';
+    RAISE NOTICE '📊 Progress: 63% - Creating payment options for 99 other businesses...';
     INSERT INTO payment_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, payment_option_type, status)
     SELECT
         gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, b.id, po_name, po_type, po_status
@@ -343,6 +356,7 @@ BEGIN
     -- =====================================================
     -- BANNERS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 66% - Creating banners...';
     INSERT INTO banners (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, image_url, link_url, status)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, CASE WHEN bn % 2 = 0 THEN photo1 ELSE photo2 END, '/menu?promo=' || bn, 'ACTIVE'
     FROM GENERATE_SERIES(1, 300) bn;
@@ -350,6 +364,7 @@ BEGIN
     -- =====================================================
     -- CUSTOMER ADDRESSES
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 69% - Creating customer addresses...';
     INSERT INTO customer_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, customer_user_id, 'Village ' || a, 'Commune ' || a, 'District ' || a, 'Phnom Penh', 'Cambodia', 'Street ' || a, 'House ' || a, 'Apt ' || a, 11.5564 + (a::NUMERIC / 1000), 104.9282 + (a::NUMERIC / 1000), a = 1
     FROM GENERATE_SERIES(1, 300) a;
@@ -361,7 +376,7 @@ BEGIN
     -- =====================================================
     -- CARTS & ITEMS
     -- =====================================================
-    RAISE NOTICE 'Creating carts and items...';
+    RAISE NOTICE '📊 Progress: 72% - Creating carts and items...';
     INSERT INTO carts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, business_id)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, u.id, key_business_id
     FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' ORDER BY RANDOM() LIMIT 120000) u;
@@ -381,7 +396,7 @@ BEGIN
     -- =====================================================
     -- ORDERS
     -- =====================================================
-    RAISE NOTICE 'Creating 200,000 orders...';
+    RAISE NOTICE '📊 Progress: 75% - Creating 200,000 orders...';
     INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
     SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '180 days'), t, 'system', 'system', false, NULL, NULL, key_business_id, customer_user_id, 'ORD-KCU-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(ord_n::TEXT, 6, '0'),
         CASE WHEN ord_n % 8 = 0 THEN 'PENDING'::VARCHAR WHEN ord_n % 8 = 1 THEN 'CONFIRMED' WHEN ord_n % 8 = 2 THEN 'PREPARING' WHEN ord_n % 8 = 3 THEN 'READY' WHEN ord_n % 8 = 4 THEN 'IN_TRANSIT' WHEN ord_n % 8 = 5 THEN 'COMPLETED' WHEN ord_n % 8 = 6 THEN 'CANCELLED' ELSE 'FAILED' END,
@@ -398,6 +413,7 @@ BEGIN
     -- =====================================================
     -- ORDER ITEMS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 78% - Creating order items...';
     INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, quantity, total_price, has_promotion)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders ORDER BY RANDOM() LIMIT 1), (SELECT id FROM products ORDER BY RANDOM() LIMIT 1), NULL, 'Item', photo1, 'Medium', 10.00, 10.00, 10.00, 1, 10.00, false
     FROM GENERATE_SERIES(1, 600000) oi_n;
@@ -405,6 +421,7 @@ BEGIN
     -- =====================================================
     -- ORDER PAYMENTS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 81% - Creating order payments...';
     INSERT INTO order_payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, order_id, payment_reference, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, status, customer_payment_method)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM orders ORDER BY RANDOM() LIMIT 1), 'PAY-' || LPAD(opay_n::TEXT, 10, '0'), 100.00, 10.00, 2.00, 5.00, 97.00, CASE (opay_n % 4) WHEN 0 THEN 'CASH' WHEN 1 THEN 'BANK_TRANSFER' WHEN 2 THEN 'ONLINE' ELSE 'OTHER' END, CASE (opay_n % 4) WHEN 0 THEN 'PENDING' WHEN 1 THEN 'COMPLETED' WHEN 2 THEN 'FAILED' ELSE 'CANCELLED' END, 'Cash'
     FROM GENERATE_SERIES(1, 200000) opay_n;
@@ -412,7 +429,7 @@ BEGIN
     -- =====================================================
     -- ORDER STATUS HISTORY
     -- =====================================================
-    RAISE NOTICE 'Creating order status history...';
+    RAISE NOTICE '📊 Progress: 84% - Creating order status history...';
     INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders ORDER BY RANDOM() LIMIT 1),
         CASE WHEN osh % 8 = 0 THEN 'PENDING'::VARCHAR WHEN osh % 8 = 1 THEN 'CONFIRMED' WHEN osh % 8 = 2 THEN 'PREPARING' WHEN osh % 8 = 3 THEN 'READY' WHEN osh % 8 = 4 THEN 'IN_TRANSIT' WHEN osh % 8 = 5 THEN 'COMPLETED' WHEN osh % 8 = 6 THEN 'CANCELLED' ELSE 'FAILED' END,
@@ -422,6 +439,7 @@ BEGIN
     -- =====================================================
     -- WORK SCHEDULES
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 87% - Creating work schedules...';
     INSERT INTO work_schedules (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, user_id, name, schedule_type_enum, start_time, end_time, break_start_time, break_end_time)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, business_user_id, 'Schedule ' || ws, CASE WHEN ws % 2 = 0 THEN 'MORNING_SHIFT' ELSE 'EVENING_SHIFT' END, '06:00'::TIME, '14:00'::TIME, '12:00'::TIME, '13:00'::TIME
     FROM GENERATE_SERIES(1, 500) ws;
@@ -429,6 +447,7 @@ BEGIN
     -- =====================================================
     -- ATTENDANCES
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 90% - Creating attendances...';
     INSERT INTO attendances (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, reference_number, user_id, business_id, work_schedule_id, attendance_date, status, remarks)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'ATT-' || gen_random_uuid()::TEXT, business_user_id, key_business_id, (SELECT id FROM work_schedules WHERE user_id = business_user_id LIMIT 1), (t - (INTERVAL '1 day' * (att % 365)))::DATE, CASE WHEN att % 15 = 0 THEN 'ABSENT' WHEN att % 15 = 1 THEN 'LATE' ELSE 'PRESENT' END, 'Attendance'
     FROM GENERATE_SERIES(1, 20000) att;
@@ -436,6 +455,7 @@ BEGIN
     -- =====================================================
     -- ATTENDANCE CHECK-INS
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 93% - Creating attendance check-ins...';
     INSERT INTO attendance_check_ins (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, reference_number, attendance_id, check_in_type, check_in_time, latitude, longitude, remarks)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'CHK-' || gen_random_uuid()::TEXT, (SELECT id FROM attendances WHERE user_id = business_user_id ORDER BY RANDOM() LIMIT 1), CASE WHEN aci % 2 = 0 THEN 'START' ELSE 'END' END, (t - (INTERVAL '1 day' * (aci % 365)))::TIMESTAMP, 11.5564, 104.9282, 'Check-in'
     FROM GENERATE_SERIES(1, 40000) aci;
@@ -443,6 +463,7 @@ BEGIN
     -- =====================================================
     -- EXCHANGE RATES
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 96% - Creating exchange rates...';
     INSERT INTO exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, usd_to_khr_rate, is_active, notes)
     VALUES (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 4100.0, true, 'USD to KHR rate');
 
@@ -450,10 +471,12 @@ BEGIN
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 4105.0, 35.45, 7.25, 24500.0, true, 'Exchange rates'
     FROM GENERATE_SERIES(1, 5) ber;
 
+    RAISE NOTICE '📊 Progress: 99% - Finalizing...';
     RAISE NOTICE '✅ SUCCESS: 180,000 products with 720,000+ images created!';
     RAISE NOTICE '✅ PRODUCT STOCK: All 180,000 products + sizes have stock!';
     RAISE NOTICE '✅ 200,000 orders created!';
     RAISE NOTICE '✅ TEST ACCOUNTS: phatmenghor19 / phatmenghor20 / phatmenghor21';
+    RAISE NOTICE '📊 Progress: 100% - COMPLETE! ✅';
 
 END $$;
 
