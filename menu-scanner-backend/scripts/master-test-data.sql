@@ -1,15 +1,12 @@
 -- ============================================================================
--- MASTER TEST DATA SCRIPT - FULLY CORRECTED & VERIFIED
+-- MASTER TEST DATA SCRIPT - DATA ONLY (No table creation)
 -- ============================================================================
--- Complete production-ready test data generation
--- Based on actual JPA entity definitions from backend
--- Includes all required columns and constraints
+-- Pure test data generation - tables already exist from JPA/Hibernate
+-- Just truncates and populates test data
 --
 -- Run with: psql -h localhost -U postgres -d emenu_db -f master-test-data.sql
 -- ============================================================================
 
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 SET synchronous_commit TO OFF;
 
 DO $$ DECLARE
@@ -57,139 +54,10 @@ DO $$ DECLARE
     v_cart_id UUID := gen_random_uuid();
 
 BEGIN
-    RAISE NOTICE '🚀 MASTER TEST DATA GENERATION STARTED AT %', v_now;
+    RAISE NOTICE '🚀 TEST DATA GENERATION STARTED AT %', v_now;
 
     -- =====================================================
-    -- PART 1: CREATE STOCK MANAGEMENT TABLES (if needed)
-    -- =====================================================
-    RAISE NOTICE '📋 Creating stock management tables...';
-
-    CREATE TABLE IF NOT EXISTS product_stock (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
-        product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-        product_size_id UUID REFERENCES product_sizes(id) ON DELETE CASCADE,
-        quantity_on_hand INT NOT NULL DEFAULT 0,
-        quantity_reserved INT NOT NULL DEFAULT 0,
-        quantity_available INT NOT NULL DEFAULT 0,
-        minimum_stock_level INT NOT NULL DEFAULT 5,
-        price_in DECIMAL(19, 4) NOT NULL DEFAULT 0.00,
-        price_out DECIMAL(19, 4) NOT NULL DEFAULT 0.00,
-        cost_per_unit DECIMAL(19, 4) NOT NULL DEFAULT 0.00,
-        date_in TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        date_out TIMESTAMP,
-        expiry_date DATE,
-        barcode VARCHAR(255) UNIQUE,
-        sku VARCHAR(255),
-        location VARCHAR(255),
-        is_active BOOLEAN NOT NULL DEFAULT true,
-        is_expired BOOLEAN NOT NULL DEFAULT false,
-        track_inventory BOOLEAN NOT NULL DEFAULT true,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        created_by UUID,
-        updated_by UUID,
-        CONSTRAINT product_stock_unique_variant UNIQUE (product_id, product_size_id, business_id),
-        CONSTRAINT price_validation CHECK (price_in >= 0 AND price_out >= 0)
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_product_stock_business_id ON product_stock(business_id);
-    CREATE INDEX IF NOT EXISTS idx_product_stock_product_id ON product_stock(product_id);
-    CREATE INDEX IF NOT EXISTS idx_product_stock_barcode ON product_stock(barcode);
-    CREATE INDEX IF NOT EXISTS idx_product_stock_is_expired ON product_stock(is_expired);
-
-    CREATE TABLE IF NOT EXISTS stock_movements (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
-        product_stock_id UUID NOT NULL REFERENCES product_stock(id) ON DELETE CASCADE,
-        movement_type VARCHAR(50) NOT NULL,
-        quantity_change INT NOT NULL,
-        previous_quantity INT NOT NULL,
-        new_quantity INT NOT NULL,
-        reference_type VARCHAR(50),
-        reference_id UUID,
-        order_id UUID REFERENCES orders(id) ON DELETE SET NULL,
-        order_item_id UUID,
-        notes TEXT,
-        initiated_by UUID,
-        initiated_by_name VARCHAR(255),
-        approved_by UUID,
-        cost_impact DECIMAL(19, 4) DEFAULT 0.00,
-        unit_price DECIMAL(19, 4) DEFAULT 0.00,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_stock_movements_business ON stock_movements(business_id);
-
-    CREATE TABLE IF NOT EXISTS stock_adjustments (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
-        product_stock_id UUID NOT NULL REFERENCES product_stock(id) ON DELETE CASCADE,
-        adjustment_type VARCHAR(50) NOT NULL,
-        previous_quantity INT NOT NULL,
-        adjusted_quantity INT NOT NULL,
-        quantity_difference INT NOT NULL,
-        requires_approval BOOLEAN NOT NULL DEFAULT false,
-        approved BOOLEAN NOT NULL DEFAULT false,
-        approved_by UUID,
-        approved_at TIMESTAMP,
-        reason VARCHAR(255) NOT NULL,
-        detail_notes TEXT,
-        adjusted_by UUID NOT NULL,
-        adjusted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_stock_adjustments_business ON stock_adjustments(business_id);
-
-    CREATE TABLE IF NOT EXISTS stock_alerts (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
-        product_stock_id UUID NOT NULL REFERENCES product_stock(id) ON DELETE CASCADE,
-        alert_type VARCHAR(50) NOT NULL,
-        product_id UUID NOT NULL,
-        product_size_id UUID,
-        product_name VARCHAR(255),
-        current_quantity INT,
-        threshold INT,
-        expiry_date DATE,
-        days_until_expiry INT,
-        status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
-        acknowledged_by UUID,
-        acknowledged_at TIMESTAMP,
-        resolved_at TIMESTAMP,
-        notification_sent BOOLEAN NOT NULL DEFAULT false,
-        notification_type VARCHAR(50) DEFAULT 'NONE',
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_stock_alerts_business ON stock_alerts(business_id);
-
-    CREATE TABLE IF NOT EXISTS barcode_mappings (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
-        product_stock_id UUID NOT NULL REFERENCES product_stock(id) ON DELETE CASCADE,
-        barcode VARCHAR(255) NOT NULL UNIQUE,
-        barcode_format VARCHAR(50),
-        barcode_image_url VARCHAR(500),
-        product_id UUID NOT NULL,
-        product_size_id UUID,
-        product_name VARCHAR(255),
-        active BOOLEAN NOT NULL DEFAULT true,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        created_by UUID,
-        CONSTRAINT barcode_unique_per_business UNIQUE (business_id, barcode)
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_barcode_mappings_business ON barcode_mappings(business_id);
-
-    RAISE NOTICE '✓ Stock tables created/verified!';
-
-    -- =====================================================
-    -- PART 2: CLEANUP - TRUNCATE ALL TABLES
+    -- CLEANUP - TRUNCATE ALL TABLES
     -- =====================================================
     RAISE NOTICE '🧹 Cleaning database...';
 
@@ -230,7 +98,7 @@ BEGIN
     RAISE NOTICE '✓ Database cleaned!';
 
     -- =====================================================
-    -- PART 3: CORE DATA - ROLES & USERS
+    -- PART 1: CORE DATA - ROLES & USERS
     -- =====================================================
     RAISE NOTICE '👤 Creating users and roles...';
 
@@ -275,7 +143,7 @@ BEGIN
     RAISE NOTICE '✓ Users and roles created!';
 
     -- =====================================================
-    -- PART 4: PRODUCTS & SIZES WITH PROMOTIONS
+    -- PART 2: PRODUCTS & SIZES WITH PROMOTIONS
     -- =====================================================
     RAISE NOTICE '📦 Creating products and inventory...';
 
@@ -307,7 +175,7 @@ BEGIN
         (v_size_fries_s, 0, v_now, v_now, 'system', 'system', false, v_prod_fries, 'Small', 3.00, 10, NULL, NULL, NULL, NULL),
         (v_size_fries_l, 0, v_now, v_now, 'system', 'system', false, v_prod_fries, 'Large', 4.50, 10, NULL, NULL, NULL, NULL);
 
-    -- Product Stock (remove minimum_stock_level if column doesn't exist)
+    -- Product Stock
     INSERT INTO product_stock (business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, price_out, cost_per_unit, date_in, expiry_date, barcode, sku, location, is_active, is_expired, track_inventory, created_at, updated_at, created_by, updated_by)
     VALUES
         (v_business_id, v_prod_coffee, v_size_coffee_s, 150, 10, 140, 1.50, 3.50, 1.50, v_now, v_now + INTERVAL '180 days', '1234567890001', 'SKU-COFFEE-S', 'Shelf A', true, false, true, v_now, v_now, 'system', 'system'),
@@ -321,7 +189,7 @@ BEGIN
     RAISE NOTICE '✓ Products and stock created!';
 
     -- =====================================================
-    -- PART 5: STOCK OPERATIONS
+    -- PART 3: STOCK OPERATIONS
     -- =====================================================
     RAISE NOTICE '📊 Creating stock movements...';
 
@@ -348,7 +216,7 @@ BEGIN
     RAISE NOTICE '✓ Stock operations created!';
 
     -- =====================================================
-    -- PART 6: BARCODE & ALERTS
+    -- PART 4: BARCODE & ALERTS
     -- =====================================================
     RAISE NOTICE '📱 Creating barcodes and alerts...';
 
@@ -366,9 +234,9 @@ BEGIN
     INSERT INTO stock_alerts (business_id, product_stock_id, alert_type, product_id, product_size_id, product_name, current_quantity, threshold, expiry_date, days_until_expiry, status, notification_sent, notification_type, created_at, updated_at)
     SELECT
         v_business_id, ps.id,
-        CASE WHEN ps.quantity_on_hand <= ps.minimum_stock_level THEN 'LOW_STOCK' ELSE 'NORMAL' END,
+        CASE WHEN ps.quantity_on_hand <= 50 THEN 'LOW_STOCK' ELSE 'NORMAL' END,
         ps.product_id, ps.product_size_id, p.name,
-        ps.quantity_on_hand, ps.minimum_stock_level,
+        ps.quantity_on_hand, 50,
         ps.expiry_date, EXTRACT(DAY FROM (ps.expiry_date - CURRENT_DATE))::INT,
         'ACTIVE', false, 'EMAIL',
         v_now, v_now
@@ -379,7 +247,7 @@ BEGIN
     RAISE NOTICE '✓ Barcodes and alerts created!';
 
     -- =====================================================
-    -- PART 7: ORDERS & ITEMS (with all required fields)
+    -- PART 5: ORDERS & ITEMS
     -- =====================================================
     RAISE NOTICE '🛒 Creating orders...';
 
@@ -399,7 +267,7 @@ BEGIN
         'Please ring the bell', NULL, NULL, NULL
     );
 
-    -- Order Items with ALL required fields
+    -- Order Items
     INSERT INTO order_items (
         id, version, created_at, updated_at, created_by, updated_by, is_deleted,
         order_id, product_id, product_size_id, product_name, product_image_url, size_name,
