@@ -315,7 +315,7 @@ export default function PosPage() {
 
   // ─── Cart Logic ───
   const addToCart = useCallback(
-    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string) => {
+    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string, quantity: number = 1) => {
       const cartId = size ? `${product.id}-${size.id}` : product.id;
       const currentPrice = size
         ? size.price
@@ -385,7 +385,7 @@ export default function PosPage() {
             currentPrice,
             finalPrice,
             hasActivePromotion: hasPromo,
-            quantity: 1,
+            quantity,
             promotionType:
               size?.promotionType || product.displayPromotionType || null,
             promotionValue:
@@ -1040,8 +1040,8 @@ export default function PosPage() {
             setEditingCartItemId(null);
           }
         }}
-        onSizeSelect={(product, size) => {
-          addToCart(product, size, editingCartItemId || undefined);
+        onSizeSelect={(product, size, qty) => {
+          addToCart(product, size, editingCartItemId || undefined, qty || 1);
           setSizePickerProduct(null);
           setEditingCartItemId(null);
         }}

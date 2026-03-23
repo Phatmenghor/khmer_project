@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Package, ChevronRight } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Check, Package, ChevronRight, Loader2, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/redux/features/business/store/models/response/product-response";
@@ -17,7 +18,7 @@ interface SizePickerModalProps {
   product: ProductDetailResponseModel | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSizeSelect: (product: ProductDetailResponseModel, size?: ProductSize) => void;
+  onSizeSelect: (product: ProductDetailResponseModel, size?: ProductSize, quantity?: number) => void;
   isEditing?: boolean;
 }
 
@@ -29,126 +30,173 @@ export function SizePickerModal({
   isEditing = false,
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
+  const [quantity, setQuantity] = useState(1);
 
-  const handleSelectSize = (size: ProductSize) => {
+  const handleSelectSize = useCallback(() => {
     if (product) {
-      onSizeSelect(product, size);
+      onSizeSelect(product, selectedSize || undefined, quantity);
       setSelectedSize(null);
+      setQuantity(1);
       onOpenChange(false);
     }
-  };
+  }, [product, selectedSize, quantity, onSizeSelect, onOpenChange]);
 
-  const handleSelectRegular = () => {
-    if (product) {
-      onSizeSelect(product);
-      setSelectedSize(null);
-      onOpenChange(false);
-    }
-  };
+  const handleClose = useCallback(() => {
+    setSelectedSize(null);
+    setQuantity(1);
+    onOpenChange(false);
+  }, [onOpenChange]);
+
+  // Set initial size when modal opens
+  const activeSizes = product?.sizes?.filter((s) => s.id) || [];
+  if (open && product && activeSizes.length > 0 && !selectedSize) {
+    setSelectedSize(activeSizes[0]);
+  }
 
   if (!product) return null;
 
-  const activeSizes = product.sizes?.filter((s) => s.id) || [];
+  const displayPrice = selectedSize?.finalPrice || product.displayPrice || 0;
+  const originalPrice = selectedSize?.hasPromotion
+    ? selectedSize.price
+    : product.hasActivePromotion
+    ? product.displayOriginPrice
+    : null;
+  const hasDiscount = selectedSize
+    ? selectedSize.hasPromotion
+    : product.hasActivePromotion;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-base flex items-center gap-2">
-            <Package className="w-5 h-5" />
-            {isEditing ? "Edit Size" : "Select Size"} - {product.name}
+          <DialogTitle className="text-lg font-bold">
+            {isEditing ? "Edit Size" : "Choose Size"}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Choose Size Label */}
+          {/* Product Info */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-              Choose Size
-            </p>
-
-            {/* Option: Add base product without size */}
-            {parseFloat(String(product.price || 0)) > 0 && (
-              <button
-                onClick={handleSelectRegular}
-                className={cn(
-                  "w-full relative border-2 rounded-xl px-4 py-3 text-left transition-all mb-2",
-                  !selectedSize
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-sm"
-                    : "border-border hover:border-primary/50 hover:bg-muted/40"
-                )}
-              >
-                {!selectedSize && (
-                  <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
-                    <Check className="h-2.5 w-2.5" />
-                  </div>
-                )}
-                <div className="font-semibold text-sm">Regular</div>
-                <div className="text-primary font-bold text-sm">
-                  {formatCurrency(
-                    product.displayPrice ||
-                      parseFloat(String(product.price || 0))
-                  )}
-                </div>
-              </button>
+            <h3 className="font-semibold text-sm line-clamp-2 mb-2">
+              {product.name}
+            </h3>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg font-bold text-primary">
+                {formatCurrency(displayPrice)}
+              </span>
+              {hasDiscount && originalPrice && (
+                <span className="text-xs text-muted-foreground line-through">
+                  {formatCurrency(originalPrice)}
+                </span>
+              )}
+            </div>
+            {hasDiscount && (
+              <Badge variant="destructive" className="text-xs">
+                {selectedSize?.hasPromotion
+                  ? `-${Math.round(
+                      ((selectedSize.price - selectedSize.finalPrice) /
+                        selectedSize.price) *
+                        100
+                    )}%`
+                  : product.displayPromotionType === "PERCENTAGE"
+                  ? `-${product.displayPromotionValue}%`
+                  : `-${formatCurrency(product.displayPromotionValue || 0)}`}
+              </Badge>
             )}
+          </div>
 
-            {/* Size options */}
-            <div className="flex flex-wrap gap-2">
-              {activeSizes.map((size) => {
-                const isActive = selectedSize?.id === size.id;
-                return (
-                  <button
-                    key={size.id}
-                    onClick={() => setSelectedSize(size)}
-                    className={cn(
-                      "relative border-2 rounded-xl px-4 py-2.5 text-left min-w-[76px] transition-all",
-                      isActive
-                        ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-sm"
-                        : "border-border hover:border-primary/50 hover:bg-muted/40"
-                    )}
-                  >
-                    {isActive && (
-                      <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
-                        <Check className="h-2.5 w-2.5" />
+          {/* Size Selection */}
+          {activeSizes.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                Choose Size
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {activeSizes.map((size) => {
+                  const isActive = selectedSize?.id === size.id;
+                  return (
+                    <button
+                      key={size.id}
+                      onClick={() => setSelectedSize(size)}
+                      className={cn(
+                        "relative border-2 rounded-lg px-3 py-2 transition-all cursor-pointer hover:border-primary",
+                        isActive
+                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                          : "border-border"
+                      )}
+                    >
+                      <div className="font-semibold text-xs">{size.name}</div>
+                      <div className="text-primary font-bold text-sm">
+                        {formatCurrency(size.finalPrice)}
                       </div>
-                    )}
-                    <div className="font-semibold text-sm">{size.name}</div>
-                    <div className="text-primary font-bold text-sm">
-                      {formatCurrency(size.finalPrice)}
-                    </div>
-                    {size.hasPromotion && (
-                      <div className="text-[10px] text-muted-foreground line-through">
-                        {formatCurrency(size.price)}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
+                      {size.hasPromotion && (
+                        <div className="text-xs text-muted-foreground line-through">
+                          {formatCurrency(size.price)}
+                        </div>
+                      )}
+                      {isActive && (
+                        <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
+                          <Check className="h-2.5 w-2.5" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Quantity Selector */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              Quantity
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="h-8 w-8 rounded-lg border border-border hover:bg-muted transition-colors flex items-center justify-center"
+              >
+                −
+              </button>
+              <input
+                type="number"
+                value={quantity}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value) || 1;
+                  setQuantity(Math.max(1, val));
+                }}
+                className="h-8 w-12 text-center border border-border rounded-lg"
+                min="1"
+              />
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="h-8 w-8 rounded-lg border border-border hover:bg-muted transition-colors flex items-center justify-center"
+              >
+                +
+              </button>
+              <div className="flex-1" />
+              <span className="text-sm font-semibold">
+                {formatCurrency(displayPrice * quantity)}
+              </span>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
-            <Button
+            <CustomButton
               variant="outline"
               className="flex-1"
-              onClick={() => onOpenChange(false)}
+              onClick={handleClose}
             >
               Cancel
-            </Button>
-            <Button
+            </CustomButton>
+            <CustomButton
               className="flex-1 gap-1.5"
-              disabled={!selectedSize}
-              onClick={() => {
-                if (selectedSize) {
-                  handleSelectSize(selectedSize);
-                }
-              }}
+              onClick={handleSelectSize}
             >
-              Select
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+              <Package className="h-4 w-4" />
+              Add to Cart
+            </CustomButton>
           </div>
         </div>
       </DialogContent>
