@@ -940,7 +940,7 @@ export default function PosPage() {
           </ScrollArea>
 
           {/* ─── Checkout Section ─── */}
-          <div className="border-t bg-muted/10 shrink-0">
+          <div className="border-t bg-muted/10 shrink-0 mt-auto">
             {/* Payment Method - Quick Select */}
             <div className="px-3 pt-3 pb-2">
               <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
