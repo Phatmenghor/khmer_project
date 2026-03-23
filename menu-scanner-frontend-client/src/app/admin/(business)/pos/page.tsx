@@ -293,11 +293,18 @@ export default function PosPage() {
     if (!viewport) return;
 
     const scrollAmount = 200;
-    const targetScroll =
-      viewport.scrollLeft + (direction === "left" ? -scrollAmount : scrollAmount);
+    const currentScroll = viewport.scrollLeft;
+    const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+
+    let targetScroll = direction === "left"
+      ? currentScroll - scrollAmount
+      : currentScroll + scrollAmount;
+
+    // Clamp target scroll to valid range
+    targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
 
     // Animate scroll using requestAnimationFrame for smooth motion
-    let current = viewport.scrollLeft;
+    let current = currentScroll;
     const target = targetScroll;
     const duration = 400; // milliseconds
     const startTime = Date.now();
