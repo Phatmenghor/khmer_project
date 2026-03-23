@@ -4,6 +4,7 @@ import {
   Database,
   LucideIcon,
   LucideBriefcaseBusiness,
+  ShoppingCart,
 } from "lucide-react";
 
 export const ROUTES = {
@@ -33,6 +34,7 @@ export const ROUTES = {
     PRODUCTS_PROMOTION: "/admin/product-promotions",
     ORDERS: "/admin/orders",
     ORDERS_CREATE: "/admin/orders/create",
+    POS: "/admin/pos",
   },
 
   HR: {
@@ -113,6 +115,11 @@ export const SIDEBAR_MENU: MenuItem[] = [
         href: ROUTES.ADMIN.PAYMENT_OPTIONS,
       },
     ],
+  },
+  {
+    title: "POS",
+    href: ROUTES.ADMIN.POS,
+    icon: ShoppingCart,
   },
   {
     title: "Business",
