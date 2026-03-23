@@ -314,7 +314,7 @@ export default function PosPage() {
     // Ensure container and viewport are properly sized for horizontal-only scrolling
     Object.assign(categoryContainer.style, {
       overflow: "hidden",
-      height: "56px", // h-14 = 3.5rem = 56px
+      height: "40px", // h-10 = 2.5rem = 40px
     });
 
     // Configure viewport for smooth horizontal scrolling
@@ -322,9 +322,9 @@ export default function PosPage() {
       overflowY: "hidden",
       overflowX: "auto",
       scrollBehavior: "smooth",
-      height: "56px",
-      minHeight: "56px",
-      maxHeight: "56px",
+      height: "40px",
+      minHeight: "40px",
+      maxHeight: "40px",
     });
   }, []);
 
@@ -737,21 +737,21 @@ export default function PosPage() {
           </div>
 
           {/* Categories Horizontal Scroll */}
-          <div className="shrink-0 border-b bg-muted/10 flex items-center justify-center gap-3 px-2 py-2">
+          <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 py-1.5">
             {/* Left Arrow Button */}
             <Button
               variant="outline"
               size="icon"
-              className="h-14 w-14 shrink-0 hover:bg-primary/10"
+              className="h-10 w-10 shrink-0 hover:bg-primary/10"
               onClick={() => scrollCategories("left")}
               title="Scroll left"
             >
-              <ChevronRight className="h-7 w-7 transform rotate-180" />
+              <ChevronRight className="h-5 w-5 transform rotate-180" />
             </Button>
 
             {/* Categories Scroll Area - Horizontal only scrolling */}
-            <ScrollArea className="flex-1 h-14 overflow-hidden" ref={categoryScrollRef}>
-              <div className="flex gap-3 px-2 h-14 items-center">
+            <ScrollArea className="flex-1 h-10 overflow-hidden" ref={categoryScrollRef}>
+              <div className="flex gap-3 px-2 h-10 items-center">
                 {/* All Categories Button */}
                 <button
                   onClick={() => setSelectedCategory(null)}
@@ -794,11 +794,11 @@ export default function PosPage() {
             <Button
               variant="outline"
               size="icon"
-              className="h-14 w-14 shrink-0 hover:bg-primary/10"
+              className="h-10 w-10 shrink-0 hover:bg-primary/10"
               onClick={() => scrollCategories("right")}
               title="Scroll right"
             >
-              <ChevronRight className="h-7 w-7" />
+              <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
 
