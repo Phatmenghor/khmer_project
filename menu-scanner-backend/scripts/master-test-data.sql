@@ -321,13 +321,15 @@ DROP INDEX IF EXISTS idx_product_stock_barcode;
 DROP INDEX IF EXISTS idx_product_stock_sku;
 DROP INDEX IF EXISTS idx_product_stock_status;
 
--- Create new indexes
-CREATE INDEX idx_product_stock_business_id ON product_stock(business_id) WHERE is_deleted = false;
-CREATE INDEX idx_product_stock_product_id ON product_stock(product_id) WHERE is_deleted = false;
-CREATE INDEX idx_product_stock_product_size_id ON product_stock(product_size_id) WHERE product_size_id IS NOT NULL AND is_deleted = false;
-CREATE UNIQUE INDEX idx_product_stock_barcode ON product_stock(barcode) WHERE is_deleted = false;
-CREATE UNIQUE INDEX idx_product_stock_sku ON product_stock(sku) WHERE is_deleted = false;
-CREATE INDEX idx_product_stock_status ON product_stock(status) WHERE is_deleted = false;
+-- Create new indexes (without is_deleted filter for product_stock)
+CREATE INDEX idx_product_stock_business_id ON product_stock(business_id);
+CREATE INDEX idx_product_stock_product_id ON product_stock(product_id);
+CREATE INDEX idx_product_stock_product_size_id ON product_stock(product_size_id) WHERE product_size_id IS NOT NULL;
+CREATE UNIQUE INDEX idx_product_stock_barcode ON product_stock(barcode);
+CREATE UNIQUE INDEX idx_product_stock_sku ON product_stock(sku);
+CREATE INDEX idx_product_stock_status ON product_stock(status);
 
 SELECT '✅ ALL INDEXES CREATED!' as status;
-SELECT '✅ Minimal test data ready!' as info;
+SELECT '✅ TEST DATA GENERATION COMPLETE!' as info;
+SELECT '✅ 10,000 Products Ready!' as products;
+SELECT '✅ 2000 Users Ready!' as users;
