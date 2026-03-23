@@ -795,7 +795,7 @@ export default function PosPage() {
 
           {/* Product Grid */}
           <ScrollArea className="flex-1" ref={productGridRef}>
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1 px-2 py-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 p-3 sm:p-4">
               {products.map((product) => (
                 <POSProductCard
                   key={product.id}
@@ -808,8 +808,8 @@ export default function PosPage() {
 
               {/* Skeleton Loaders while loading more - INSIDE grid */}
               {productsLoading && products.length > 0 &&
-                Array.from({ length: 8 }).map((_, i) => (
-                  <ProductCardSkeleton key={`skeleton-${i}`} compact />
+                Array.from({ length: 6 }).map((_, i) => (
+                  <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
 
               {/* Loading Button for more products - INSIDE grid */}
@@ -841,9 +841,9 @@ export default function PosPage() {
 
             {/* Initial Loading - OUTSIDE grid for better UX */}
             {productsLoading && products.length === 0 && (
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1">
-                {Array.from({ length: 16 }).map((_, i) => (
-                  <ProductCardSkeleton key={`initial-skeleton-${i}`} compact />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 p-3 sm:p-4">
+                {Array.from({ length: 20 }).map((_, i) => (
+                  <ProductCardSkeleton key={`initial-skeleton-${i}`} />
                 ))}
               </div>
             )}
