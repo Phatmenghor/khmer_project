@@ -14,6 +14,6 @@ echo "Starting backend..."
 docker compose -f $COMPOSE_FILE up -d backend
 
 echo "Starting Monitor logs..."
-docker logs -f emenu-backend
+docker logs -f menu-scanner-backend-backend
 
 echo "✅ Backend is running on port 9090"
