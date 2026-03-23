@@ -22,7 +22,10 @@ public class ProductUpdateDto {
     private BigDecimal price;
     
     private String mainImageUrl;
-    
+
+    private String barcode;
+    private String sku;
+
     private String promotionType;
     private BigDecimal promotionValue;
     private LocalDateTime promotionFromDate;

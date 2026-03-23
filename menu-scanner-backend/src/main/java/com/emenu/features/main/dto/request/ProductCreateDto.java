@@ -30,7 +30,10 @@ public class ProductCreateDto {
     private BigDecimal price;
     
     private String mainImageUrl;
-    
+
+    private String barcode;
+    private String sku;
+
     private PromotionType promotionType;
     private BigDecimal promotionValue;
     private LocalDateTime promotionFromDate;

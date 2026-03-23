@@ -25,6 +25,7 @@ import com.emenu.features.main.service.ProductService;
 import com.emenu.features.main.utils.ProductFavoriteQueryHelper;
 import com.emenu.features.main.utils.ProductUtils;
 import com.emenu.features.order.utils.CartQueryHelper;
+import com.emenu.features.stock.repository.ProductStockRepository;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
@@ -53,6 +54,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductUtils productUtils;
     private final ProductFavoriteQueryHelper favoriteQueryHelper;
     private final CartQueryHelper cartQueryHelper;
+    private final ProductStockRepository productStockRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -90,6 +92,8 @@ public class ProductServiceImpl implements ProductService {
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
         List<ProductListDto> dtoList = productMapper.toListDtos(productPage.getContent());
+
+        enrichTotalStock(dtoList, productPage.getContent());
 
         if (currentUser.isPresent()) {
             List<UUID> productIds = productPage.getContent().stream()
@@ -154,6 +158,8 @@ public class ProductServiceImpl implements ProductService {
         if (products.isEmpty()) {
             return dtoList;
         }
+
+        enrichTotalStock(dtoList, products);
 
         if (currentUser.isPresent()) {
             List<UUID> productIds = products.stream()
@@ -222,6 +228,8 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductListDto> dtoList = productMapper.toListDtos(productPage.getContent());
 
+        enrichTotalStock(dtoList, productPage.getContent());
+
         return paginationMapper.toPaginationResponse(productPage, dtoList);
     }
 
@@ -240,6 +248,7 @@ public class ProductServiceImpl implements ProductService {
         product.syncDisplayFieldsFromSizes();
 
         ProductDetailDto dto = productMapper.toDetailDto(product);
+        enrichTotalStockForDetail(dto, product.getId());
 
         populateUserFieldsForDetail(dto, currentUser, product);
 
@@ -258,6 +267,7 @@ public class ProductServiceImpl implements ProductService {
         product.syncDisplayFieldsFromSizes();
 
         ProductDetailDto dto = productMapper.toDetailDto(product);
+        enrichTotalStockForDetail(dto, product.getId());
 
         Optional<User> currentUser = securityUtils.getCurrentUserOptional();
         populateUserFieldsForDetail(dto, currentUser, product);
@@ -501,6 +511,26 @@ public class ProductServiceImpl implements ProductService {
     private void validateBusinessAccess(Product product, User user) {
         if (user.isBusinessUser() && !product.getBusinessId().equals(user.getBusinessId())) {
             throw new ValidationException("Access denied to product from different business");
+        }
+    }
+
+    private void enrichTotalStock(List<ProductListDto> dtoList, List<Product> products) {
+        List<UUID> productIds = products.stream().map(Product::getId).toList();
+        if (productIds.isEmpty()) return;
+
+        Map<UUID, Integer> stockMap = new HashMap<>();
+        productStockRepository.sumOnHandQuantityByProductIds(productIds)
+                .forEach(row -> stockMap.put((UUID) row[0], ((Number) row[1]).intValue()));
+
+        dtoList.forEach(dto -> dto.setTotalStock(stockMap.getOrDefault(dto.getId(), 0)));
+    }
+
+    private void enrichTotalStockForDetail(ProductDetailDto dto, UUID productId) {
+        List<Object[]> results = productStockRepository.sumOnHandQuantityByProductIds(List.of(productId));
+        if (!results.isEmpty()) {
+            dto.setTotalStock(((Number) results.get(0)[1]).intValue());
+        } else {
+            dto.setTotalStock(0);
         }
     }
 }

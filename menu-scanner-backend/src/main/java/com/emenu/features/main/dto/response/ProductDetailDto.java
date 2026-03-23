@@ -33,6 +33,11 @@ public class ProductDetailDto extends BaseAuditResponse {
     private Boolean hasSizes;
     private Boolean hasPromotion;
     private String mainImageUrl;
+
+    private String barcode;
+    private String sku;
+    private Integer totalStock;
+
     private Long viewCount;
     private Long favoriteCount;
     private Boolean isFavorited;

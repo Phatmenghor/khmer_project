@@ -108,6 +108,12 @@ public class Product extends BaseUUIDEntity {
     @Column(name = "minimum_stock_level", nullable = false, columnDefinition = "integer default 0")
     private Integer minimumStockLevel = 0;
 
+    @Column(name = "barcode")
+    private String barcode;
+
+    @Column(name = "sku")
+    private String sku;
+
     @Column(name = "main_image_url")
     private String mainImageUrl;
 
