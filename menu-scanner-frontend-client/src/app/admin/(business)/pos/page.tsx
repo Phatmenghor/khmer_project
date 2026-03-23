@@ -151,8 +151,9 @@ export default function PosPage() {
     try {
       setCategoriesLoading(true);
       const response = await axiosClientWithAuth.post(
-        "/api/v1/categories",
+        "/api/v1/categories/my-business/all",
         {
+          pageNo: 1,
           pageSize: 100,
           status: "ACTIVE",
         }
@@ -170,8 +171,9 @@ export default function PosPage() {
     try {
       setBrandsLoading(true);
       const response = await axiosClientWithAuth.post(
-        "/api/v1/brands",
+        "/api/v1/brands/my-business/all",
         {
+          pageNo: 1,
           pageSize: 100,
           status: "ACTIVE",
         }
