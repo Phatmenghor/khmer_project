@@ -22,6 +22,7 @@ import {
   Check,
   Ruler,
   Pencil,
+  Minimize2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -593,6 +594,19 @@ export default function PosPage() {
 
   return (
     <div className={containerClass}>
+      {/* ─── Fullscreen Exit Button ─── */}
+      {isFullscreen && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsFullscreen(false)}
+          title="Exit fullscreen (F11)"
+          className="fixed top-4 right-4 z-[101] h-10 w-10 rounded-lg hover:bg-primary/20"
+        >
+          <Minimize2 className="w-5 h-5" />
+        </Button>
+      )}
+
       {/* ─── Main Content ─── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
