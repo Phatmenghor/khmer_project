@@ -1,125 +1,73 @@
 package com.emenu.features.stock.models;
 
+import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-    name = "stock_alerts",
-    indexes = {
-        @Index(name = "idx_stock_alerts_business", columnList = "business_id"),
-        @Index(name = "idx_stock_alerts_status", columnList = "status"),
-        @Index(name = "idx_stock_alerts_type", columnList = "alert_type"),
-        @Index(name = "idx_stock_alerts_product_stock", columnList = "product_stock_id"),
-        @Index(name = "idx_stock_alerts_created", columnList = "created_at DESC"),
-        @Index(name = "idx_stock_alerts_business_status", columnList = "business_id,status")
-    }
-)
-@Getter
-@Setter
+@Table(name = "stock_alerts")
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class StockAlert {
+public class StockAlert extends BaseUUIDEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @Column(nullable = false)
+    @Column(name = "business_id", nullable = false)
     private UUID businessId;
 
-    @Column(nullable = false)
+    @Column(name = "product_stock_id", nullable = false)
     private UUID productStockId;
 
-    @Column(nullable = false)
-    private String alertType; // LOW_STOCK, OUT_OF_STOCK, EXPIRING_SOON, EXPIRED, NEGATIVE_STOCK, PRICE_ALERT, REORDER_DUE
+    @Column(name = "alert_type", nullable = false)
+    private String alertType; // LOW_STOCK, OUT_OF_STOCK, EXPIRING_SOON, EXPIRED, NEGATIVE_STOCK
 
-    // ========== Product Info (Snapshot) ==========
-    @Column(nullable = false)
+    // ========== Product Info ==========
+    @Column(name = "product_id", nullable = false)
     private UUID productId;
 
-    @Column(nullable = true)
+    @Column(name = "product_size_id")
     private UUID productSizeId;
 
-    @Column(nullable = true)
+    @Column(name = "product_name")
     private String productName;
 
-    @Column(nullable = true)
+    @Column(name = "current_quantity")
     private Integer currentQuantity;
 
-    @Column(nullable = true)
+    @Column(name = "threshold")
     private Integer threshold;
 
     // ========== Expiry Info ==========
-    @Column(nullable = true)
+    @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 
-    @Column(nullable = true)
+    @Column(name = "days_until_expiry")
     private Integer daysUntilExpiry;
 
     // ========== Status & Handling ==========
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private String status; // ACTIVE, ACKNOWLEDGED, RESOLVED
 
-    @Column(nullable = true)
+    @Column(name = "acknowledged_by")
     private UUID acknowledgedBy;
 
-    @Column(nullable = true)
+    @Column(name = "acknowledged_at")
     private LocalDateTime acknowledgedAt;
 
-    @Column(nullable = true)
+    @Column(name = "resolved_at")
     private LocalDateTime resolvedAt;
 
     // ========== Notification Status ==========
-    @Column(nullable = false)
+    @Column(name = "notification_sent", nullable = false)
     private Boolean notificationSent;
 
-    @Column(nullable = true)
+    @Column(name = "notification_type")
     private String notificationType; // NONE, LOG, EMAIL, SMS, PUSH
 
-    // ========== Audit ==========
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        if (status == null) {
-            status = "ACTIVE";
-        }
-        if (notificationSent == null) {
-            notificationSent = false;
-        }
-        if (notificationType == null) {
-            notificationType = "NONE";
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
     // ========== Calculated Methods ==========
-    public Boolean isActive() {
-        return "ACTIVE".equals(status);
-    }
-
-    public Boolean isResolved() {
-        return "RESOLVED".equals(status);
-    }
-
-    public Boolean isAcknowledged() {
-        return "ACKNOWLEDGED".equals(status);
-    }
-
     public String getDisplayType() {
         return switch (alertType) {
             case "LOW_STOCK" -> "Low Stock";
@@ -127,8 +75,6 @@ public class StockAlert {
             case "EXPIRING_SOON" -> "Expiring Soon";
             case "EXPIRED" -> "Expired";
             case "NEGATIVE_STOCK" -> "Negative Stock";
-            case "PRICE_ALERT" -> "Price Alert";
-            case "REORDER_DUE" -> "Reorder Due";
             default -> alertType;
         };
     }
@@ -137,8 +83,16 @@ public class StockAlert {
         return switch (alertType) {
             case "EXPIRED", "OUT_OF_STOCK", "NEGATIVE_STOCK" -> "CRITICAL";
             case "LOW_STOCK", "EXPIRING_SOON" -> "WARNING";
-            case "REORDER_DUE" -> "INFO";
             default -> "INFO";
         };
+    }
+
+    @PrePersist
+    @Override
+    public void prePersist() {
+        super.prePersist();
+        if (status == null) status = "ACTIVE";
+        if (notificationSent == null) notificationSent = false;
+        if (notificationType == null) notificationType = "NONE";
     }
 }

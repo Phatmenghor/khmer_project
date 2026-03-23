@@ -94,6 +94,23 @@ public interface StockAlertRepository extends JpaRepository<StockAlert, UUID> {
         Pageable pageable
     );
 
+    // ========== Filter Query ==========
+    @Query("""
+        SELECT sa FROM StockAlert sa
+        WHERE sa.businessId = :businessId
+            AND (:productId IS NULL OR sa.productId = :productId)
+            AND (:alertType IS NULL OR sa.alertType = :alertType)
+            AND (:status IS NULL OR sa.status = :status)
+        ORDER BY sa.createdAt DESC
+    """)
+    Page<StockAlert> findWithFilters(
+        @Param("businessId") UUID businessId,
+        @Param("productId") UUID productId,
+        @Param("alertType") String alertType,
+        @Param("status") String status,
+        Pageable pageable
+    );
+
     // ========== Notification Queries ==========
     @Query("""
         SELECT sa FROM StockAlert sa

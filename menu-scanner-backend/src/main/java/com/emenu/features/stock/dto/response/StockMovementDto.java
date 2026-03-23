@@ -24,19 +24,13 @@ public class StockMovementDto {
     private String referenceType;
     private UUID referenceId;
     private UUID orderId;
-    private UUID orderItemId;
 
     private String notes;
     private UUID initiatedBy;
     private String initiatedByName;
-    private UUID approvedBy;
 
     private BigDecimal costImpact;
     private BigDecimal unitPrice;
 
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    // Display values
-    private String displayType;
 }

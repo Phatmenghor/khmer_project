@@ -1,111 +1,80 @@
 package com.emenu.features.stock.models;
 
+import com.emenu.enums.product.ProductStatus;
+import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import com.emenu.enums.product.ProductStatus;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-    name = "product_stock",
-    indexes = {
-        @Index(name = "idx_product_stock_business_id", columnList = "business_id"),
-        @Index(name = "idx_product_stock_product_id", columnList = "product_id"),
-        @Index(name = "idx_product_stock_barcode", columnList = "barcode"),
-        @Index(name = "idx_product_stock_is_expired", columnList = "is_expired"),
-        @Index(name = "idx_product_stock_low_stock", columnList = "quantity_on_hand"),
-        @Index(name = "idx_product_stock_expiry", columnList = "expiry_date"),
-        @Index(name = "idx_product_stock_date_in", columnList = "date_in")
-    }
-)
-@Getter
-@Setter
+@Table(name = "product_stock")
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ProductStock {
+public class ProductStock extends BaseUUIDEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @Column(nullable = false)
+    @Column(name = "business_id", nullable = false)
     private UUID businessId;
 
-    @Column(nullable = false)
+    @Column(name = "product_id", nullable = false)
     private UUID productId;
 
-    @Column(nullable = true)
+    @Column(name = "product_size_id")
     private UUID productSizeId;
 
     // ========== Stock Quantities ==========
-    @Column(nullable = false)
+    @Column(name = "quantity_on_hand", nullable = false)
     private Integer quantityOnHand;
 
-    @Column(nullable = false)
+    @Column(name = "quantity_reserved", nullable = false)
     private Integer quantityReserved;
 
-    @Column(nullable = false)
+    @Column(name = "quantity_available", nullable = false)
     private Integer quantityAvailable;
 
-    // ========== Pricing (cost side only — selling price is on Product/ProductSize) ==========
-    @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal priceIn; // Cost price paid for this batch
+    // ========== Pricing (cost side only) ==========
+    @Column(name = "price_in", nullable = false, precision = 19, scale = 4)
+    private BigDecimal priceIn;
 
     // ========== Dates & Tracking ==========
-    @Column(nullable = true)
+    @Column(name = "date_in")
     private LocalDateTime dateIn;
 
-    @Column(nullable = true)
+    @Column(name = "date_out")
     private LocalDateTime dateOut;
 
-    @Column(nullable = true)
+    @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 
     // ========== Identifiers ==========
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(nullable = true, unique = true, columnDefinition = "varchar(255)")
+    @Column(name = "barcode", unique = true, columnDefinition = "varchar(255)")
     private String barcode;
 
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(nullable = true, columnDefinition = "varchar(255)")
+    @Column(name = "sku", columnDefinition = "varchar(255)")
     private String sku;
 
-    @Column(nullable = true)
+    @Column(name = "location")
     private String location;
 
     // ========== Status Flags ==========
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(name = "status")
     private ProductStatus status;
 
-    @Column(nullable = false)
+    @Column(name = "is_expired", nullable = false)
     private Boolean isExpired;
-
-    // ========== Audit ==========
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
-    @Column(nullable = true)
-    private UUID createdBy;
-
-    @Column(nullable = true)
-    private UUID updatedBy;
 
     // ========== Calculated Methods ==========
     public Boolean isOutOfStock() {
         return quantityOnHand <= 0;
-    }
-
-    public Boolean isOverSold() {
-        return quantityOnHand < 0;
     }
 
     public BigDecimal getInventoryValue() {
@@ -118,20 +87,22 @@ public class ProductStock {
     }
 
     @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+    @Override
+    public void prePersist() {
+        super.prePersist();
         if (quantityOnHand == null) quantityOnHand = 0;
         if (quantityReserved == null) quantityReserved = 0;
         if (quantityAvailable == null) quantityAvailable = 0;
         if (status == null) status = ProductStatus.ACTIVE;
+        if (isExpired == null) isExpired = false;
         updateQuantityAvailable();
         checkExpiry();
     }
 
     @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    @Override
+    public void preUpdate() {
+        super.preUpdate();
         updateQuantityAvailable();
         checkExpiry();
     }

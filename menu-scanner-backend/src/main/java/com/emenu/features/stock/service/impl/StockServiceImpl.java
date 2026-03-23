@@ -1,8 +1,8 @@
 package com.emenu.features.stock.service.impl;
 
 import com.emenu.features.stock.dto.request.StockAdjustmentRequest;
-import com.emenu.features.stock.dto.request.StockQueryRequest;
-import com.emenu.features.stock.dto.response.ProductStockDto;
+import com.emenu.features.stock.dto.request.StockAlertFilterRequest;
+import com.emenu.features.stock.dto.request.StockMovementFilterRequest;
 import com.emenu.features.stock.dto.response.StockAlertDto;
 import com.emenu.features.stock.dto.response.StockMovementDto;
 import com.emenu.features.stock.models.*;
@@ -10,6 +10,10 @@ import com.emenu.features.stock.repository.*;
 import com.emenu.features.stock.service.StockService;
 import com.emenu.exception.custom.ResourceNotFoundException;
 import com.emenu.exception.custom.InvalidOperationException;
+import com.emenu.exception.custom.ValidationException;
+import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.mapper.PaginationMapper;
+import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,119 +37,7 @@ public class StockServiceImpl implements StockService {
     private final StockMovementRepository stockMovementRepository;
     private final StockAdjustmentRepository stockAdjustmentRepository;
     private final StockAlertRepository stockAlertRepository;
-    private final BarcodeMappingRepository barcodeMappingRepository;
-
-    // ========== Stock Query Operations ==========
-
-    @Override
-    public ProductStockDto getStockByProductAndSize(UUID productId, UUID sizeId, UUID businessId) {
-        ProductStock stock = productStockRepository
-            .findByProductIdAndProductSizeIdAndBusinessId(productId, sizeId, businessId)
-            .orElseThrow(() -> new ResourceNotFoundException("Stock record not found"));
-        return mapToDto(stock);
-    }
-
-    @Override
-    public ProductStockDto getStockById(UUID stockId) {
-        ProductStock stock = productStockRepository.findById(stockId)
-            .orElseThrow(() -> new ResourceNotFoundException("Stock record not found"));
-        return mapToDto(stock);
-    }
-
-    @Override
-    public List<ProductStockDto> getAllStockByBusiness(UUID businessId) {
-        return productStockRepository.findByBusinessId(businessId)
-            .stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ProductStockDto> getLowStockProducts(UUID businessId) {
-        // Low stock is now determined by minimumStockLevel on Product/ProductSize.
-        // Return out-of-stock batches as a proxy until a cross-table query is implemented.
-        return productStockRepository.findOutOfStockProducts(businessId)
-            .stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ProductStockDto> getExpiredProducts(UUID businessId) {
-        return productStockRepository.findExpiredProducts(businessId)
-            .stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ProductStockDto> getExpiringProducts(UUID businessId, Integer daysAhead) {
-        LocalDateTime today = LocalDateTime.now();
-        LocalDateTime expiryEndDate = today.plusDays(daysAhead);
-        return productStockRepository.findByBusinessIdAndExpiryDateBetweenAndIsExpiredFalseAndQuantityOnHandGreaterThan(
-            businessId, today, expiryEndDate, 0)
-            .stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public Page<ProductStockDto> searchStock(StockQueryRequest request) {
-        Pageable pageable = PageRequest.of(
-            request.getPageNo() - 1,
-            request.getPageSize()
-        );
-
-        Page<ProductStock> stocks;
-
-        if (request.getSearchText() != null && !request.getSearchText().isEmpty()) {
-            stocks = productStockRepository.searchByBusinessIdAndNameOrBarcodeOrSku(
-                request.getBusinessId(),
-                request.getSearchText(),
-                pageable
-            );
-        } else {
-            stocks = productStockRepository.findByBusinessId(
-                request.getBusinessId(),
-                pageable
-            );
-        }
-
-        return stocks.map(this::mapToDto);
-    }
-
-    // ========== Stock Availability Checks ==========
-
-    @Override
-    public Boolean checkAvailability(UUID productId, UUID sizeId, Integer quantity, UUID businessId) {
-        Integer totalAvailable = productStockRepository.sumAvailableQuantity(productId, sizeId, businessId);
-        if (totalAvailable == null || totalAvailable == 0) {
-            return true; // No stock tracked = product not tracked, allow sale
-        }
-        return totalAvailable >= quantity;
-    }
-
-    @Override
-    public Map<UUID, Boolean> checkBulkAvailability(Map<UUID, Integer> productQuantities, UUID businessId) {
-        Map<UUID, Boolean> result = new HashMap<>();
-
-        for (Map.Entry<UUID, Integer> entry : productQuantities.entrySet()) {
-            UUID productId = entry.getKey();
-            Integer quantity = entry.getValue();
-
-            Optional<ProductStock> stock = productStockRepository
-                .findByProductIdAndProductSizeIdAndBusinessId(productId, null, businessId);
-
-            boolean available = stock.isEmpty() || (
-                !stock.get().getIsExpired() &&
-                stock.get().getQuantityAvailable() >= quantity
-            );
-
-            result.put(productId, available);
-        }
-
-        return result;
-    }
+    private final PaginationMapper paginationMapper;
 
     // ========== Stock Adjustment Operations ==========
 
@@ -163,44 +55,31 @@ public class StockServiceImpl implements StockService {
             throw new InvalidOperationException("Cannot reduce stock below 0");
         }
 
-        // Create adjustment record
-        StockAdjustment adjustment = StockAdjustment.builder()
-            .businessId(businessId)
-            .productStockId(stock.getId())
-            .adjustmentType(request.getAdjustmentType())
-            .previousQuantity(previousQty)
-            .adjustedQuantity(newQty)
-            .quantityDifference(request.getAdjustmentQuantity())
-            .reason(request.getReason())
-            .detailNotes(request.getDetailNotes())
-            .requiresApproval(request.getRequiresApproval() != null && request.getRequiresApproval())
-            .approved(false)
-            .adjustedBy(getCurrentUserId())
-            .adjustedAt(LocalDateTime.now())
-            .build();
+        StockAdjustment adjustment = new StockAdjustment();
+        adjustment.setBusinessId(businessId);
+        adjustment.setProductStockId(stock.getId());
+        adjustment.setAdjustmentType(request.getAdjustmentType());
+        adjustment.setPreviousQuantity(previousQty);
+        adjustment.setAdjustedQuantity(newQty);
+        adjustment.setQuantityDifference(request.getAdjustmentQuantity());
+        adjustment.setReason(request.getReason());
+        adjustment.setDetailNotes(request.getDetailNotes());
+        adjustment.setRequiresApproval(request.getRequiresApproval() != null && request.getRequiresApproval());
+        adjustment.setApproved(false);
+        adjustment.setAdjustedBy(getCurrentUserId());
+        adjustment.setAdjustedAt(LocalDateTime.now());
 
         stockAdjustmentRepository.save(adjustment);
 
-        // Update stock
         stock.setQuantityOnHand(newQty);
         stock.setDateIn(LocalDateTime.now());
-        stock.setUpdatedBy(getCurrentUserId());
         productStockRepository.save(stock);
 
-        // Create movement log
         StockMovement movement = createStockMovement(
-            businessId,
-            stock.getId(),
-            "ADJUSTMENT",
-            request.getAdjustmentQuantity(),
-            previousQty,
-            newQty,
-            "ADJUSTMENT",
-            adjustment.getId(),
-            request.getReason(),
-            getCurrentUserId(),
-            null,
-            null
+            businessId, stock.getId(), "ADJUSTMENT",
+            request.getAdjustmentQuantity(), previousQty, newQty,
+            "ADJUSTMENT", adjustment.getId(),
+            request.getReason(), getCurrentUserId(), null, null
         );
 
         log.info("Stock adjusted for product {}: {} -> {}", stock.getProductId(), previousQty, newQty);
@@ -219,22 +98,12 @@ public class StockServiceImpl implements StockService {
 
         stock.setQuantityOnHand(newQty);
         stock.setDateIn(LocalDateTime.now());
-        stock.setUpdatedBy(userId);
         productStockRepository.save(stock);
 
         StockMovement movement = createStockMovement(
-            businessId,
-            stock.getId(),
-            "STOCK_IN",
-            quantity,
-            previousQty,
-            newQty,
-            null,
-            null,
-            reason,
-            userId,
-            null,
-            stock.getPriceIn()
+            businessId, stock.getId(), "STOCK_IN",
+            quantity, previousQty, newQty,
+            null, null, reason, userId, null, stock.getPriceIn()
         );
 
         log.info("Stock added to product {}: {} units", stock.getProductId(), quantity);
@@ -253,22 +122,12 @@ public class StockServiceImpl implements StockService {
 
         stock.setQuantityOnHand(newQty);
         stock.setDateOut(LocalDateTime.now());
-        stock.setUpdatedBy(getCurrentUserId());
         productStockRepository.save(stock);
 
         StockMovement movement = createStockMovement(
-            businessId,
-            stock.getId(),
-            "STOCK_OUT",
-            -quantity,
-            previousQty,
-            newQty,
-            "ORDER",
-            orderId,
-            reason,
-            getCurrentUserId(),
-            orderId,
-            stock.getPriceIn()
+            businessId, stock.getId(), "STOCK_OUT",
+            -quantity, previousQty, newQty,
+            "ORDER", orderId, reason, getCurrentUserId(), orderId, stock.getPriceIn()
         );
 
         if (newQty < 0) {
@@ -280,7 +139,7 @@ public class StockServiceImpl implements StockService {
     }
 
     /**
-     * Deduct stock using FIFO — oldest batch first.
+     * Deduct stock using FIFO - oldest batch first.
      * Called when an order is confirmed to automatically cut stock across batches.
      */
     public void deductStockFIFO(UUID businessId, UUID productId, UUID sizeId, Integer quantity, UUID orderId, String reason) {
@@ -297,22 +156,12 @@ public class StockServiceImpl implements StockService {
 
             batch.setQuantityOnHand(newQty);
             batch.setDateOut(LocalDateTime.now());
-            batch.setUpdatedBy(getCurrentUserId());
             productStockRepository.save(batch);
 
             createStockMovement(
-                businessId,
-                batch.getId(),
-                "STOCK_OUT",
-                -deduct,
-                previousQty,
-                newQty,
-                "ORDER",
-                orderId,
-                reason,
-                getCurrentUserId(),
-                orderId,
-                batch.getPriceIn()
+                businessId, batch.getId(), "STOCK_OUT",
+                -deduct, previousQty, newQty,
+                "ORDER", orderId, reason, getCurrentUserId(), orderId, batch.getPriceIn()
             );
 
             remaining -= deduct;
@@ -326,7 +175,6 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public StockMovementDto returnStock(UUID businessId, UUID orderId, String reason) {
-        // Find all stock movements for this order
         List<StockMovement> orderMovements = stockMovementRepository.findByOrderId(orderId);
 
         if (orderMovements.isEmpty()) {
@@ -342,22 +190,12 @@ public class StockServiceImpl implements StockService {
                 Integer newQty = stock.getQuantityOnHand() + returnQuantity;
 
                 stock.setQuantityOnHand(newQty);
-                stock.setUpdatedBy(getCurrentUserId());
                 productStockRepository.save(stock);
 
                 createStockMovement(
-                    businessId,
-                    stock.getId(),
-                    "RETURN",
-                    returnQuantity,
-                    stock.getQuantityOnHand() - returnQuantity,
-                    newQty,
-                    "ORDER",
-                    orderId,
-                    reason,
-                    getCurrentUserId(),
-                    orderId,
-                    stock.getPriceIn()
+                    businessId, stock.getId(), "RETURN",
+                    returnQuantity, stock.getQuantityOnHand() - returnQuantity, newQty,
+                    "ORDER", orderId, reason, getCurrentUserId(), orderId, stock.getPriceIn()
                 );
             }
         }
@@ -379,22 +217,12 @@ public class StockServiceImpl implements StockService {
 
         stock.setIsExpired(true);
         stock.setQuantityAvailable(0);
-        stock.setUpdatedBy(userId);
         productStockRepository.save(stock);
 
         StockMovement movement = createStockMovement(
-            businessId,
-            stock.getId(),
-            "EXPIRY",
-            0,
-            stock.getQuantityOnHand(),
-            stock.getQuantityOnHand(),
-            null,
-            null,
-            reason,
-            userId,
-            null,
-            stock.getPriceIn()
+            businessId, stock.getId(), "EXPIRY",
+            0, stock.getQuantityOnHand(), stock.getQuantityOnHand(),
+            null, null, reason, userId, null, stock.getPriceIn()
         );
 
         createOrUpdateAlert(businessId, stock, "EXPIRED");
@@ -403,348 +231,94 @@ public class StockServiceImpl implements StockService {
         return mapToDto(movement);
     }
 
-    // ========== Barcode Operations ==========
-
-    @Override
-    public ProductStockDto getByBarcode(String barcode, UUID businessId) {
-        ProductStock stock = productStockRepository.findByBarcodeAndBusinessId(barcode, businessId)
-            .orElseThrow(() -> new ResourceNotFoundException("Barcode not found"));
-        return mapToDto(stock);
-    }
-
-    @Override
-    public ProductStockDto assignBarcode(UUID businessId, UUID productStockId, String barcode) {
-        ProductStock stock = productStockRepository.findById(productStockId)
-            .orElseThrow(() -> new ResourceNotFoundException("Stock record not found"));
-
-        validateBusinessOwnership(stock.getBusinessId(), businessId);
-
-        stock.setBarcode(barcode);
-        productStockRepository.save(stock);
-
-        BarcodeMapping mapping = BarcodeMapping.builder()
-            .businessId(businessId)
-            .productStockId(productStockId)
-            .barcode(barcode)
-            .barcodeFormat("CODE128")
-            .productId(stock.getProductId())
-            .productSizeId(stock.getProductSizeId())
-            .active(true)
-            .createdBy(getCurrentUserId())
-            .build();
-
-        barcodeMappingRepository.save(mapping);
-
-        log.info("Barcode assigned to product stock {}: {}", productStockId, barcode);
-        return mapToDto(stock);
-    }
-
-    @Override
-    public ProductStockDto removeBarcode(UUID businessId, UUID productStockId) {
-        ProductStock stock = productStockRepository.findById(productStockId)
-            .orElseThrow(() -> new ResourceNotFoundException("Stock record not found"));
-
-        validateBusinessOwnership(stock.getBusinessId(), businessId);
-
-        String barcode = stock.getBarcode();
-        stock.setBarcode(null);
-        productStockRepository.save(stock);
-
-        if (barcode != null) {
-            barcodeMappingRepository.findByBarcode(barcode).ifPresent(mapping -> {
-                mapping.setActive(false);
-                barcodeMappingRepository.save(mapping);
-            });
-        }
-
-        log.info("Barcode removed from product stock {}", productStockId);
-        return mapToDto(stock);
-    }
-
-    // ========== Stock Availability for Orders ==========
-
-    @Override
-    public List<ProductStockDto> validateOrderItems(UUID businessId, List<Map<String, Object>> orderItems) {
-        List<ProductStockDto> result = new ArrayList<>();
-
-        for (Map<String, Object> item : orderItems) {
-            UUID productId = UUID.fromString(item.get("productId").toString());
-            UUID sizeId = item.get("sizeId") != null ? UUID.fromString(item.get("sizeId").toString()) : null;
-            Integer quantity = Integer.parseInt(item.get("quantity").toString());
-
-            Optional<ProductStock> stockOpt = productStockRepository
-                .findByProductIdAndProductSizeIdAndBusinessId(productId, sizeId, businessId);
-
-            if (stockOpt.isPresent()) {
-                ProductStock stock = stockOpt.get();
-                ProductStockDto dto = mapToDto(stock);
-                dto.setQuantityAvailable(stock.getQuantityAvailable());
-                result.add(dto);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public void reserveStockForOrder(UUID businessId, UUID orderId, List<Map<String, Object>> orderItems) {
-        for (Map<String, Object> item : orderItems) {
-            UUID productId = UUID.fromString(item.get("productId").toString());
-            UUID sizeId = item.get("sizeId") != null ? UUID.fromString(item.get("sizeId").toString()) : null;
-            Integer quantity = Integer.parseInt(item.get("quantity").toString());
-
-            // Reserve across FIFO batches
-            List<ProductStock> batches = productStockRepository.findActiveBatchesFIFO(productId, sizeId, businessId);
-            int remaining = quantity;
-            for (ProductStock batch : batches) {
-                if (remaining <= 0) break;
-                int reserve = Math.min(remaining, batch.getQuantityAvailable());
-                batch.setQuantityReserved(batch.getQuantityReserved() + reserve);
-                productStockRepository.save(batch);
-                remaining -= reserve;
-            }
-        }
-    }
-
-    @Override
-    public void fulfillStockForOrder(UUID businessId, UUID orderId) {
-        List<StockMovement> movements = stockMovementRepository.findByOrderId(orderId);
-
-        for (StockMovement movement : movements) {
-            if ("RESERVED".equals(movement.getMovementType())) {
-                ProductStock stock = productStockRepository.findById(movement.getProductStockId()).orElse(null);
-                if (stock != null) {
-                    stock.setQuantityReserved(Math.max(0, stock.getQuantityReserved() - Math.abs(movement.getQuantityChange())));
-                    productStockRepository.save(stock);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void releaseStockForOrder(UUID businessId, UUID orderId) {
-        List<StockMovement> movements = stockMovementRepository.findByOrderId(orderId);
-
-        for (StockMovement movement : movements) {
-            if ("RESERVED".equals(movement.getMovementType())) {
-                ProductStock stock = productStockRepository.findById(movement.getProductStockId()).orElse(null);
-                if (stock != null) {
-                    stock.setQuantityReserved(Math.max(0, stock.getQuantityReserved() - Math.abs(movement.getQuantityChange())));
-                    productStockRepository.save(stock);
-                }
-            }
-        }
-    }
-
-    // ========== Stock History & Audit ==========
-
-    @Override
-    public List<StockMovementDto> getStockHistory(UUID productStockId, LocalDateTime from, LocalDateTime to) {
-        return stockMovementRepository.findByProductStockIdAndDateRange(productStockId, from, to)
-            .stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public Page<StockMovementDto> getStockHistoryPaginated(
-        UUID businessId,
-        UUID productStockId,
-        String movementType,
-        LocalDateTime from,
-        LocalDateTime to,
-        Integer pageNo,
-        Integer pageSize
-    ) {
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-
-        Page<StockMovement> movements;
-
-        if (productStockId != null) {
-            movements = stockMovementRepository.findByProductStockIdOrderByCreatedAtDesc(productStockId, pageable);
-        } else {
-            movements = stockMovementRepository.findByBusinessIdOrderByCreatedAtDesc(businessId, pageable);
-        }
-
-        return movements.map(this::mapToDto);
-    }
-
-    @Override
-    public List<StockMovementDto> getBusinessStockHistory(UUID businessId, LocalDateTime from, LocalDateTime to) {
-        return stockMovementRepository.findByBusinessIdAndDateRange(businessId, from, to, PageRequest.of(0, 1000))
-            .getContent()
-            .stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-    }
-
     // ========== Alerts ==========
 
     @Override
-    public List<StockAlertDto> getActiveAlerts(UUID businessId) {
-        return stockAlertRepository.findActiveAlerts(businessId)
-            .stream()
+    @Transactional(readOnly = true)
+    public PaginationResponse<StockAlertDto> getAllAlerts(StockAlertFilterRequest request) {
+        if (request.getBusinessId() == null) {
+            throw new ValidationException("Business ID is required");
+        }
+
+        int pageNo = (request.getPageNo() == null || request.getPageNo() <= 0) ? 0 : request.getPageNo() - 1;
+        int pageSize = (request.getPageSize() == null) ? 15 : request.getPageSize();
+        PaginationUtils.validatePagination(pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        Page<StockAlert> alertPage = stockAlertRepository.findWithFilters(
+            request.getBusinessId(),
+            request.getProductId(),
+            request.getAlertType(),
+            request.getStatus(),
+            pageable
+        );
+
+        List<StockAlertDto> dtos = alertPage.getContent().stream()
             .map(this::mapToDto)
             .collect(Collectors.toList());
+
+        return paginationMapper.toPaginationResponse(alertPage, dtos);
     }
 
     @Override
-    public List<StockAlertDto> getAlertsByType(UUID businessId, String alertType) {
-        return stockAlertRepository.findActiveAlertsByType(businessId, alertType)
-            .stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<StockAlertDto> getCriticalAlerts(UUID businessId) {
-        return stockAlertRepository.findCriticalAlerts(businessId)
-            .stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public StockAlertDto acknowledgeAlert(UUID businessId, UUID alertId, UUID userId) {
-        StockAlert alert = stockAlertRepository.findById(alertId)
-            .orElseThrow(() -> new ResourceNotFoundException("Alert not found"));
-
-        validateBusinessOwnership(alert.getBusinessId(), businessId);
-
-        alert.setStatus("ACKNOWLEDGED");
-        alert.setAcknowledgedBy(userId);
-        alert.setAcknowledgedAt(LocalDateTime.now());
-        stockAlertRepository.save(alert);
-
-        return mapToDto(alert);
-    }
-
-    @Override
-    public StockAlertDto resolveAlert(UUID businessId, UUID alertId) {
-        StockAlert alert = stockAlertRepository.findById(alertId)
-            .orElseThrow(() -> new ResourceNotFoundException("Alert not found"));
-
-        validateBusinessOwnership(alert.getBusinessId(), businessId);
-
-        alert.setStatus("RESOLVED");
-        alert.setResolvedAt(LocalDateTime.now());
-        stockAlertRepository.save(alert);
-
-        return mapToDto(alert);
-    }
-
-    @Override
+    @Transactional(readOnly = true)
     public Long countActiveAlerts(UUID businessId) {
         return stockAlertRepository.countActiveAlerts(businessId);
     }
 
-    // ========== Reports ==========
+    // ========== Movements ==========
 
     @Override
-    public Map<String, Object> getStockSummary(UUID businessId) {
-        List<ProductStock> stocks = productStockRepository.findByBusinessId(businessId);
+    @Transactional(readOnly = true)
+    public PaginationResponse<StockMovementDto> getAllMovements(StockMovementFilterRequest request) {
+        if (request.getBusinessId() == null) {
+            throw new ValidationException("Business ID is required");
+        }
 
-        Map<String, Object> summary = new HashMap<>();
-        summary.put("totalBatches", stocks.size());
-        summary.put("totalItems", stocks.stream().mapToInt(ProductStock::getQuantityOnHand).sum());
-        summary.put("outOfStockCount", stocks.stream().filter(ProductStock::isOutOfStock).count());
-        summary.put("expiredCount", stocks.stream().filter(ProductStock::getIsExpired).count());
-        summary.put("activeAlerts", countActiveAlerts(businessId));
+        int pageNo = (request.getPageNo() == null || request.getPageNo() <= 0) ? 0 : request.getPageNo() - 1;
+        int pageSize = (request.getPageSize() == null) ? 15 : request.getPageSize();
+        PaginationUtils.validatePagination(pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
 
-        Optional<BigDecimal> costValue = productStockRepository.getTotalInventoryValue(businessId);
+        Page<StockMovement> movementPage = stockMovementRepository.findWithFilters(
+            request.getBusinessId(),
+            request.getProductStockId(),
+            request.getProductId(),
+            request.getMovementType(),
+            request.getFromDate(),
+            request.getToDate(),
+            pageable
+        );
 
-        summary.put("totalCostValue", costValue.orElse(BigDecimal.ZERO));
+        List<StockMovementDto> dtos = movementPage.getContent().stream()
+            .map(this::mapToDto)
+            .collect(Collectors.toList());
 
-        return summary;
-    }
-
-    @Override
-    public Map<String, Object> getStockValuationReport(UUID businessId) {
-        List<ProductStock> stocks = productStockRepository.findByBusinessId(businessId);
-
-        Map<String, Object> report = new HashMap<>();
-
-        BigDecimal totalCost = stocks.stream()
-            .map(ProductStock::getInventoryValue)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        report.put("totalCostValue", totalCost);
-        report.put("totalItems", stocks.stream().mapToInt(ProductStock::getQuantityOnHand).sum());
-        report.put("totalBatches", stocks.size());
-
-        return report;
-    }
-
-    @Override
-    public Map<String, Object> getLowStockReport(UUID businessId) {
-        List<ProductStock> outOfStockBatches = productStockRepository.findOutOfStockProducts(businessId);
-
-        Map<String, Object> report = new HashMap<>();
-        report.put("outOfStockBatches", outOfStockBatches.size());
-        report.put("products", outOfStockBatches.stream().map(this::mapToDto).collect(Collectors.toList()));
-        return report;
-    }
-
-    @Override
-    public Map<String, Object> getExpiryReport(UUID businessId) {
-        Map<String, Object> report = new HashMap<>();
-
-        report.put("expired", getExpiredProducts(businessId));
-        report.put("expiring_7_days", getExpiringProducts(businessId, 7));
-        report.put("expiring_30_days", getExpiringProducts(businessId, 30));
-
-        return report;
-    }
-
-    @Override
-    public Map<String, Object> getMovementReport(UUID businessId, LocalDateTime from, LocalDateTime to) {
-        List<StockMovementDto> movements = getBusinessStockHistory(businessId, from, to);
-
-        Map<String, Object> report = new HashMap<>();
-        report.put("period_from", from);
-        report.put("period_to", to);
-        report.put("total_movements", movements.size());
-
-        long inbound = movements.stream().filter(m -> "STOCK_IN".equals(m.getMovementType())).count();
-        long outbound = movements.stream().filter(m -> "STOCK_OUT".equals(m.getMovementType())).count();
-
-        report.put("inbound_count", inbound);
-        report.put("outbound_count", outbound);
-
-        return report;
+        return paginationMapper.toPaginationResponse(movementPage, dtos);
     }
 
     // ========== Helper Methods ==========
 
     private StockMovement createStockMovement(
-        UUID businessId,
-        UUID productStockId,
-        String movementType,
-        Integer quantityChange,
-        Integer previousQuantity,
-        Integer newQuantity,
-        String referenceType,
-        UUID referenceId,
-        String notes,
-        UUID initiatedBy,
-        UUID orderId,
-        BigDecimal unitPrice
+        UUID businessId, UUID productStockId, String movementType,
+        Integer quantityChange, Integer previousQuantity, Integer newQuantity,
+        String referenceType, UUID referenceId, String notes,
+        UUID initiatedBy, UUID orderId, BigDecimal unitPrice
     ) {
-        StockMovement movement = StockMovement.builder()
-            .businessId(businessId)
-            .productStockId(productStockId)
-            .movementType(movementType)
-            .quantityChange(quantityChange)
-            .previousQuantity(previousQuantity)
-            .newQuantity(newQuantity)
-            .referenceType(referenceType)
-            .referenceId(referenceId)
-            .orderId(orderId)
-            .notes(notes)
-            .initiatedBy(initiatedBy)
-            .unitPrice(unitPrice != null ? unitPrice : BigDecimal.ZERO)
-            .costImpact(calculateCostImpact(quantityChange, unitPrice))
-            .build();
+        StockMovement movement = new StockMovement();
+        movement.setBusinessId(businessId);
+        movement.setProductStockId(productStockId);
+        movement.setMovementType(movementType);
+        movement.setQuantityChange(quantityChange);
+        movement.setPreviousQuantity(previousQuantity);
+        movement.setNewQuantity(newQuantity);
+        movement.setReferenceType(referenceType);
+        movement.setReferenceId(referenceId);
+        movement.setOrderId(orderId);
+        movement.setNotes(notes);
+        movement.setInitiatedBy(initiatedBy);
+        movement.setUnitPrice(unitPrice != null ? unitPrice : BigDecimal.ZERO);
+        movement.setCostImpact(calculateCostImpact(quantityChange, unitPrice));
 
         return stockMovementRepository.save(movement);
     }
@@ -753,20 +327,19 @@ public class StockServiceImpl implements StockService {
         List<StockAlert> existingAlerts = stockAlertRepository.findByProductStockIdAndAlertTypeAndStatusOrderByCreatedAtDesc(stock.getId(), alertType, "ACTIVE");
 
         if (existingAlerts.isEmpty()) {
-            StockAlert alert = StockAlert.builder()
-                .businessId(businessId)
-                .productStockId(stock.getId())
-                .alertType(alertType)
-                .productId(stock.getProductId())
-                .productSizeId(stock.getProductSizeId())
-                .currentQuantity(stock.getQuantityOnHand())
-                .threshold(0)
-                .expiryDate(stock.getExpiryDate())
-                .daysUntilExpiry(stock.getDaysUntilExpiry())
-                .status("ACTIVE")
-                .notificationSent(false)
-                .notificationType("NONE")
-                .build();
+            StockAlert alert = new StockAlert();
+            alert.setBusinessId(businessId);
+            alert.setProductStockId(stock.getId());
+            alert.setAlertType(alertType);
+            alert.setProductId(stock.getProductId());
+            alert.setProductSizeId(stock.getProductSizeId());
+            alert.setCurrentQuantity(stock.getQuantityOnHand());
+            alert.setThreshold(0);
+            alert.setExpiryDate(stock.getExpiryDate());
+            alert.setDaysUntilExpiry(stock.getDaysUntilExpiry());
+            alert.setStatus("ACTIVE");
+            alert.setNotificationSent(false);
+            alert.setNotificationType("NONE");
 
             stockAlertRepository.save(alert);
         }
@@ -790,32 +363,6 @@ public class StockServiceImpl implements StockService {
         return UUID.randomUUID();
     }
 
-    private ProductStockDto mapToDto(ProductStock stock) {
-        ProductStockDto dto = new ProductStockDto();
-        dto.setId(stock.getId());
-        dto.setBusinessId(stock.getBusinessId());
-        dto.setProductId(stock.getProductId());
-        dto.setProductSizeId(stock.getProductSizeId());
-        dto.setQuantityOnHand(stock.getQuantityOnHand());
-        dto.setQuantityReserved(stock.getQuantityReserved());
-        dto.setQuantityAvailable(stock.getQuantityAvailable());
-        dto.setPriceIn(stock.getPriceIn());
-        dto.setDateIn(stock.getDateIn());
-        dto.setExpiryDate(stock.getExpiryDate());
-        dto.setBarcode(stock.getBarcode());
-        dto.setSku(stock.getSku());
-        dto.setLocation(stock.getLocation());
-        dto.setStatus(stock.getStatus());
-        dto.setIsExpired(stock.getIsExpired());
-        dto.setIsOutOfStock(stock.isOutOfStock());
-        dto.setInventoryValue(stock.getInventoryValue());
-
-        dto.setCreatedAt(stock.getCreatedAt());
-        dto.setUpdatedAt(stock.getUpdatedAt());
-
-        return dto;
-    }
-
     private StockMovementDto mapToDto(StockMovement movement) {
         StockMovementDto dto = new StockMovementDto();
         dto.setId(movement.getId());
@@ -831,11 +378,9 @@ public class StockServiceImpl implements StockService {
         dto.setNotes(movement.getNotes());
         dto.setInitiatedBy(movement.getInitiatedBy());
         dto.setInitiatedByName(movement.getInitiatedByName());
-        dto.setApprovedBy(movement.getApprovedBy());
         dto.setCostImpact(movement.getCostImpact());
         dto.setUnitPrice(movement.getUnitPrice());
         dto.setCreatedAt(movement.getCreatedAt());
-
         return dto;
     }
 
@@ -859,7 +404,6 @@ public class StockServiceImpl implements StockService {
         dto.setNotificationSent(alert.getNotificationSent());
         dto.setNotificationType(alert.getNotificationType());
         dto.setCreatedAt(alert.getCreatedAt());
-
         return dto;
     }
 }

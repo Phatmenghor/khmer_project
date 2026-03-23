@@ -107,6 +107,29 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, UU
         @Param("to") LocalDateTime to
     );
 
+    // ========== Filter Query ==========
+    @Query("""
+        SELECT sm FROM StockMovement sm
+        WHERE sm.businessId = :businessId
+            AND (:productStockId IS NULL OR sm.productStockId = :productStockId)
+            AND (:productId IS NULL OR sm.productStockId IN (
+                SELECT ps.id FROM ProductStock ps WHERE ps.productId = :productId AND ps.businessId = :businessId
+            ))
+            AND (:movementType IS NULL OR sm.movementType = :movementType)
+            AND (:fromDate IS NULL OR sm.createdAt >= :fromDate)
+            AND (:toDate IS NULL OR sm.createdAt <= :toDate)
+        ORDER BY sm.createdAt DESC
+    """)
+    Page<StockMovement> findWithFilters(
+        @Param("businessId") UUID businessId,
+        @Param("productStockId") UUID productStockId,
+        @Param("productId") UUID productId,
+        @Param("movementType") String movementType,
+        @Param("fromDate") LocalDateTime fromDate,
+        @Param("toDate") LocalDateTime toDate,
+        Pageable pageable
+    );
+
     // ========== Summary Statistics ==========
     @Query("""
         SELECT COUNT(DISTINCT sm.productStockId)

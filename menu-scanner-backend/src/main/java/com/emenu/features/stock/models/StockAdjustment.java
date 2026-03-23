@@ -1,105 +1,69 @@
 package com.emenu.features.stock.models;
 
+import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-    name = "stock_adjustments",
-    indexes = {
-        @Index(name = "idx_stock_adjustments_business", columnList = "business_id"),
-        @Index(name = "idx_stock_adjustments_product_stock", columnList = "product_stock_id"),
-        @Index(name = "idx_stock_adjustments_requires_approval", columnList = "requires_approval,approved"),
-        @Index(name = "idx_stock_adjustments_adjusted_at", columnList = "adjusted_at DESC")
-    }
-)
-@Getter
-@Setter
+@Table(name = "stock_adjustments")
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class StockAdjustment {
+public class StockAdjustment extends BaseUUIDEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @Column(nullable = false)
+    @Column(name = "business_id", nullable = false)
     private UUID businessId;
 
-    @Column(nullable = false)
+    @Column(name = "product_stock_id", nullable = false)
     private UUID productStockId;
 
-    @Column(nullable = false)
+    @Column(name = "adjustment_type", nullable = false)
     private String adjustmentType; // RECOUNT, RECEIVED, DAMAGED, LOST, CORRECTION
 
-    @Column(nullable = false)
+    @Column(name = "previous_quantity", nullable = false)
     private Integer previousQuantity;
 
-    @Column(nullable = false)
+    @Column(name = "adjusted_quantity", nullable = false)
     private Integer adjustedQuantity;
 
-    @Column(nullable = false)
+    @Column(name = "quantity_difference", nullable = false)
     private Integer quantityDifference;
 
-    @Column(nullable = false)
+    @Column(name = "requires_approval", nullable = false)
     private Boolean requiresApproval;
 
-    @Column(nullable = false)
+    @Column(name = "approved", nullable = false)
     private Boolean approved;
 
-    @Column(nullable = true)
+    @Column(name = "approved_by")
     private UUID approvedBy;
 
-    @Column(nullable = true)
+    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    @Column(nullable = false)
+    @Column(name = "reason", nullable = false)
     private String reason;
 
-    @Column(nullable = true, columnDefinition = "TEXT")
+    @Column(name = "detail_notes", columnDefinition = "TEXT")
     private String detailNotes;
 
-    @Column(nullable = false)
+    @Column(name = "adjusted_by", nullable = false)
     private UUID adjustedBy;
 
-    @Column(nullable = false)
+    @Column(name = "adjusted_at", nullable = false)
     private LocalDateTime adjustedAt;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
     @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        if (adjustedAt == null) {
-            adjustedAt = LocalDateTime.now();
-        }
-        if (requiresApproval == null) {
-            requiresApproval = false;
-        }
-        if (approved == null) {
-            approved = false;
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    public Boolean isPending() {
-        return requiresApproval && !approved;
-    }
-
-    public Boolean canApprove() {
-        return requiresApproval && !approved;
+    @Override
+    public void prePersist() {
+        super.prePersist();
+        if (adjustedAt == null) adjustedAt = LocalDateTime.now();
+        if (requiresApproval == null) requiresApproval = false;
+        if (approved == null) approved = false;
     }
 
     public String getDisplayType() {
