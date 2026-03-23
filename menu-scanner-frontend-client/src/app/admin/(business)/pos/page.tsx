@@ -309,17 +309,17 @@ export default function PosPage() {
       ) as HTMLElement;
       if (!viewport) return;
 
-      // Smooth and responsive scrolling
+      // Fast horizontal scrolling (same speed as vertical)
       let scrollAmount = 0;
 
       if (Math.abs(e.deltaX) > 5) {
-        // Trackpad horizontal swipe - responsive
-        scrollAmount = e.deltaX * 1.2; // Smooth trackpad scrolling
+        // Trackpad horizontal swipe - same speed as vertical
+        scrollAmount = e.deltaX * 2; // Fast trackpad scrolling
       } else if (Math.abs(e.deltaY) > 0) {
-        // Mouse wheel vertical scroll - fast
+        // Mouse wheel vertical scroll - FAST like page scroll
         // Down (positive deltaY) → scroll right (positive)
         // Up (negative deltaY) → scroll left (negative)
-        scrollAmount = e.deltaY > 0 ? 250 : -250; // Fast smooth scroll
+        scrollAmount = e.deltaY > 0 ? 400 : -400; // Very fast scroll (like vertical)
       }
 
       if (scrollAmount !== 0) {
