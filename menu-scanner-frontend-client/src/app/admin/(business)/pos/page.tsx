@@ -310,24 +310,26 @@ export default function PosPage() {
       if (!viewport) return;
 
       // Support both mouse wheel (deltaY) and trackpad (deltaX)
-      // Natural scrolling: scroll down = scroll right, scroll up = scroll left
+      // Prioritize deltaX for better left/right scrolling
       let scrollAmount = 0;
 
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        // Trackpad horizontal swipe - use directly
-        scrollAmount = e.deltaX;
-      } else {
-        // Mouse wheel vertical - convert to horizontal
+      if (Math.abs(e.deltaX) > 5) {
+        // Trackpad horizontal swipe or mouse with tilt wheel
+        scrollAmount = e.deltaX * 1.5; // Amplify for better responsiveness
+      } else if (Math.abs(e.deltaY) > 0) {
+        // Mouse wheel vertical scroll
         // Down (positive deltaY) → scroll right (positive)
         // Up (negative deltaY) → scroll left (negative)
-        scrollAmount = e.deltaY > 0 ? 200 : -200;
+        scrollAmount = e.deltaY > 0 ? 150 : -150;
       }
 
-      e.preventDefault();
-      viewport.scrollBy({
-        left: scrollAmount,
-        behavior: "smooth",
-      });
+      if (scrollAmount !== 0) {
+        e.preventDefault();
+        viewport.scrollBy({
+          left: scrollAmount,
+          behavior: "smooth",
+        });
+      }
     };
 
     categoryContainer.addEventListener("wheel", handleWheel, { passive: false });
@@ -791,26 +793,26 @@ export default function PosPage() {
           </div>
 
           {/* Categories Horizontal Scroll */}
-          <div className="shrink-0 border-b bg-muted/10 flex items-center justify-center gap-1 px-2 py-1">
+          <div className="shrink-0 border-b bg-muted/10 flex items-center justify-center gap-3 px-2 py-2">
             {/* Left Arrow Button */}
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 shrink-0"
+              className="h-12 w-12 shrink-0 hover:bg-primary/10"
               onClick={() => scrollCategories("left")}
               title="Scroll left"
             >
-              <ChevronRight className="h-5 w-5 transform rotate-180" />
+              <ChevronRight className="h-6 w-6 transform rotate-180" />
             </Button>
 
             {/* Categories Scroll Area - Scrollable with wheel or drag */}
-            <ScrollArea className="flex-1 h-10" ref={categoryScrollRef}>
-              <div className="flex gap-1 p-0 h-full items-center">
+            <ScrollArea className="flex-1 h-11" ref={categoryScrollRef}>
+              <div className="flex gap-2 p-1 h-full items-center">
                 {/* All Categories Button */}
                 <button
                   onClick={() => setSelectedCategory(null)}
                   className={cn(
-                    "shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap",
+                    "shrink-0 px-3 py-1 rounded-md text-[11px] font-medium transition-colors whitespace-nowrap",
                     selectedCategory === null
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -830,7 +832,7 @@ export default function PosPage() {
                       key={category.id}
                       onClick={() => setSelectedCategory(category)}
                       className={cn(
-                        "shrink-0 px-3 py-1.5 rounded-lg text-xs transition-colors whitespace-nowrap",
+                        "shrink-0 px-3 py-1 rounded-md text-[11px] transition-colors whitespace-nowrap",
                         selectedCategory?.id === category.id
                           ? "bg-primary text-primary-foreground font-medium"
                           : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -848,11 +850,11 @@ export default function PosPage() {
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 shrink-0"
+              className="h-12 w-12 shrink-0 hover:bg-primary/10"
               onClick={() => scrollCategories("right")}
               title="Scroll right"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-6 w-6" />
             </Button>
           </div>
 
