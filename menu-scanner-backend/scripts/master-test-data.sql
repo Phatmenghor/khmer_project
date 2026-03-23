@@ -216,12 +216,12 @@ BEGIN
 
     -- CARTS & ITEMS
     RAISE NOTICE 'Creating carts and items...';
-    INSERT INTO carts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, customer_id, business_id, status, total_amount, total_discount)
+    INSERT INTO carts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, user_id, business_id, status, total_amount, total_discount)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, u.id, key_business_id, 'ACTIVE', 0, 0
     FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' ORDER BY RANDOM() LIMIT 120000) u;
 
     INSERT INTO cart_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, cart_id, product_id, product_size_id, quantity)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, (SELECT id FROM carts WHERE customer_id = customer_user_id LIMIT 1), (SELECT id FROM products ORDER BY RANDOM() LIMIT 1), NULL, (1 + (ci % 20))
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, (SELECT id FROM carts WHERE user_id = customer_user_id LIMIT 1), (SELECT id FROM products ORDER BY RANDOM() LIMIT 1), NULL, (1 + (ci % 20))
     FROM GENERATE_SERIES(1, 2000) ci;
 
     -- 200,000 ORDERS (with proper order_status enum)
