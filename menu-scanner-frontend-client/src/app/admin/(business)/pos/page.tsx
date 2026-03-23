@@ -289,7 +289,6 @@ export default function PosPage() {
   // ─── Category Scroll Handler ───
   const scrollCategories = useCallback((direction: "left" | "right") => {
     console.log("Scroll button clicked:", direction);
-    console.log("Scrollbar instance:", scrollbarInstanceRef.current);
 
     // Use smooth-scrollbar instance's API if available
     if (scrollbarInstanceRef.current) {
@@ -300,7 +299,8 @@ export default function PosPage() {
         : currentScroll + scrollAmount;
 
       console.log("Using SmoothScrollbar API - from", currentScroll, "to", targetScroll);
-      scrollbarInstanceRef.current.scrollLeft = targetScroll;
+      // Use scrollTo method which is the correct API for smooth-scrollbar
+      scrollbarInstanceRef.current.scrollTo(targetScroll, 0, 400);
       return;
     }
 
