@@ -288,6 +288,28 @@ export default function PosPage() {
     }
   }, []);
 
+  // ─── Enable Mouse Wheel Scroll for Categories ───
+  useEffect(() => {
+    const categoryContainer = categoryScrollRef.current;
+    if (!categoryContainer) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const viewport = categoryContainer.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      ) as HTMLElement;
+      if (!viewport) return;
+
+      e.preventDefault();
+      viewport.scrollBy({
+        left: e.deltaY > 0 ? 50 : -50,
+        behavior: "smooth",
+      });
+    };
+
+    categoryContainer.addEventListener("wheel", handleWheel, { passive: false });
+    return () => categoryContainer.removeEventListener("wheel", handleWheel);
+  }, []);
+
   // ─── Cart Logic ───
   const addToCart = useCallback(
     (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string) => {
