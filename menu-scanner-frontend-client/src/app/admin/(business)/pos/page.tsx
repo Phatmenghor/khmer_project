@@ -287,16 +287,33 @@ export default function PosPage() {
 
   // ─── Category Scroll Handler ───
   const scrollCategories = useCallback((direction: "left" | "right") => {
-    const viewport = categoryScrollRef.current?.querySelector(
+    const container = categoryScrollRef.current;
+    console.log("Scroll button clicked:", direction, "Container:", container);
+
+    if (!container) {
+      console.warn("Container ref not found");
+      return;
+    }
+
+    const viewport = container.querySelector(
       "[data-radix-scroll-area-viewport]"
     ) as HTMLElement;
-    if (!viewport) return;
+
+    console.log("Viewport found:", !!viewport, "Element:", viewport?.tagName);
+    if (!viewport) {
+      console.warn("Viewport not found, trying direct scroll");
+      // Fallback: try scrolling the container directly
+      container.scrollLeft = (container.scrollLeft || 0) + (direction === "left" ? -250 : 250);
+      return;
+    }
 
     const scrollAmount = 250;
     const currentPos = viewport.scrollLeft;
     const targetPos = direction === "left"
       ? Math.max(0, currentPos - scrollAmount)
       : currentPos + scrollAmount;
+
+    console.log("Scrolling from", currentPos, "to", targetPos);
 
     // Directly set scrollLeft for smooth-scrollbar compatibility
     viewport.scrollLeft = targetPos;
