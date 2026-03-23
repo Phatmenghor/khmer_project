@@ -598,20 +598,17 @@ export default function PosPage() {
 
   const containerClass = isFullscreen
     ? "fixed inset-0 z-[100] bg-background flex flex-col"
-    : "flex flex-col h-[calc(100vh-64px)] -m-2 md:-m-4";
+    : "flex flex-col h-screen -m-2 md:-m-4";
 
   return (
     <div className={containerClass}>
       {/* ─── Top Bar ─── */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b bg-card shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-card shrink-0 h-16">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <ReceiptText className="w-4 h-4 text-primary" />
-            </div>
             <div>
-              <h1 className="text-sm font-bold leading-none">POS Terminal</h1>
-              <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
+              <h1 className="text-base font-bold leading-none">POS Terminal</h1>
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1">
                 <Clock className="w-3 h-3" />
                 {currentTime.toLocaleTimeString([], {
                   hour: "2-digit",
