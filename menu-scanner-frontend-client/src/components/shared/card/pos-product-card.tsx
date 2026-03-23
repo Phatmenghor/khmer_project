@@ -39,11 +39,12 @@ function POSProductCardComponent({
       className={cn(
         "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer",
         quantity > 0 && "ring-1 ring-primary/30 border-primary/50",
-        product.hasActivePromotion && "ring-1 ring-amber-500/20"
+        product.hasActivePromotion && "ring-1 ring-amber-500/20",
+        "md:rounded-xl rounded-lg" // Smaller radius on mobile
       )}
     >
       {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden bg-muted/30">
+      <div className={cn("relative aspect-square overflow-hidden bg-muted/30")}>
         {product.mainImageUrl ? (
           <img
             src={product.mainImageUrl}
@@ -86,8 +87,8 @@ function POSProductCardComponent({
         )}
       </div>
 
-      {/* Content */}
-      <div className="p-3 flex flex-col flex-1">
+      {/* Content - Hidden on mobile, visible on md+ */}
+      <div className="hidden md:flex p-3 flex-col flex-1">
         {/* Product Name */}
         <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
           {product.name}
