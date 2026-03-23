@@ -32,6 +32,7 @@ export const ROUTES = {
     PRODUCTS: "/admin/products",
     PRODUCTS_PROMOTION: "/admin/product-promotions",
     ORDERS: "/admin/orders",
+    ORDERS_CREATE: "/admin/orders/create",
   },
 
   HR: {
