@@ -794,7 +794,7 @@ export default function PosPage() {
 
           {/* Product Grid */}
           <ScrollArea className="flex-1" ref={productGridRef}>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 p-2">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1 p-1">
               {products.map((product) => {
                 const qtyInCart = getProductCartQuantity(product.id);
                 return (
@@ -802,7 +802,7 @@ export default function PosPage() {
                     key={product.id}
                     onClick={() => handleProductClick(product)}
                     className={cn(
-                      "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer",
+                      "group relative bg-card rounded-lg border border-border hover:border-primary/30 hover:shadow-md overflow-hidden transition-all duration-300 flex flex-col cursor-pointer",
                       qtyInCart > 0 && "ring-1 ring-primary/30 border-primary/50",
                       product.hasActivePromotion && "ring-1 ring-amber-500/20"
                     )}
@@ -824,8 +824,8 @@ export default function PosPage() {
 
                       {/* Promotion Badge - Top Left */}
                       {product.hasActivePromotion && (
-                        <div className="absolute top-2 left-2 z-10 pointer-events-none">
-                          <Badge variant="destructive" className="text-xs font-bold px-2 py-0.5 shadow-md">
+                        <div className="absolute top-1 left-1 z-10 pointer-events-none">
+                          <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0 shadow-sm">
                             {product.displayPromotionType === "PERCENTAGE"
                               ? `-${product.displayPromotionValue}%`
                               : `-${formatCurrency(product.displayPromotionValue)}`}
@@ -835,86 +835,79 @@ export default function PosPage() {
 
                       {/* Sizes Badge - Bottom Left */}
                       {product.hasSizes && (
-                        <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
-                          <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
-                            <Ruler className="h-3 w-3" />
-                            Sizes
+                        <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
+                          <Badge variant="secondary" className="text-[8px] font-medium px-1 py-0 shadow-sm bg-background/90 backdrop-blur-sm gap-0.5">
+                            <Ruler className="h-2 w-2" />
+                            S
                           </Badge>
                         </div>
                       )}
 
                       {/* Quantity Badge - Top Right */}
                       {qtyInCart > 0 && (
-                        <div className="absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shadow-md">
+                        <div className="absolute -top-1 -right-1 z-20 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center shadow-sm">
                           {qtyInCart}
                         </div>
                       )}
                     </div>
 
                     {/* Content */}
-                    <div className="p-1.5 flex flex-col flex-1">
-                      {/* Product Name - Hidden on POS for space */}
-                      <h3 className="font-medium text-xs line-clamp-1 mb-1 leading-tight hidden">
-                        {product.name}
-                      </h3>
+                    <div className="p-1 flex flex-col flex-1">
+                      {/* Prices - Ultra Compact */}
+                      <div className="flex flex-col gap-0 mb-1">
+                        <span className={cn("text-[8px] text-muted-foreground line-through leading-none", !product.hasActivePromotion && "invisible")}>
+                          {formatCurrency(product.displayOriginPrice)}
+                        </span>
+                        <span className="text-[10px] font-bold text-primary leading-none">
+                          {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
+                        </span>
+                      </div>
 
-                      <div className="mt-auto">
-                        {/* Prices - Compact */}
-                        <div className="flex flex-col gap-0.5 mb-1.5">
-                          <span className={cn("text-[10px] text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
-                            {formatCurrency(product.displayOriginPrice)}
-                          </span>
-                          <span className="text-xs font-bold text-primary">
-                            {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
-                          </span>
-                        </div>
-
-                        {/* Add/Cart Controls - Compact */}
-                        {qtyInCart > 0 ? (
-                          <div className="flex items-center gap-0.5 w-full">
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="h-6 w-6 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                updateQuantity(`${product.id}`, -1);
-                              }}
-                            >
-                              <Minus className="h-2 w-2" />
-                            </Button>
-                            <div className="flex-1 text-center h-6 bg-primary/10 text-primary font-semibold text-[10px] rounded border border-primary/20 flex items-center justify-center">
-                              {qtyInCart}
-                            </div>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="h-6 w-6 shrink-0 hover:bg-primary hover:text-primary-foreground"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                updateQuantity(`${product.id}`, 1);
-                              }}
-                            >
-                              <Plus className="h-2 w-2" />
-                            </Button>
-                          </div>
-                        ) : (
+                      {/* Add/Cart Controls - Ultra Compact */}
+                      {qtyInCart > 0 ? (
+                        <div className="flex items-center gap-0.5 w-full">
                           <Button
-                            className="w-full gap-1 h-6 text-[10px] font-semibold"
+                            size="icon"
+                            variant="outline"
+                            className="h-5 w-5 shrink-0 hover:bg-destructive hover:text-destructive-foreground p-0"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              handleProductClick(product);
+                              updateQuantity(`${product.id}`, -1);
                             }}
-                            size="sm"
                           >
-                            <ShoppingCart className="h-2.5 w-2.5" />
-                            Add
+                            <Minus className="h-2 w-2" />
                           </Button>
-                        )}
-                      </div>
+                          <div className="flex-1 text-center h-5 bg-primary/10 text-primary font-semibold text-[9px] rounded border border-primary/20 flex items-center justify-center leading-none">
+                            {qtyInCart}
+                          </div>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-5 w-5 shrink-0 hover:bg-primary hover:text-primary-foreground p-0"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              updateQuantity(`${product.id}`, 1);
+                            }}
+                          >
+                            <Plus className="h-2 w-2" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          className="w-full gap-0.5 h-5 text-[8px] font-semibold p-0"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleProductClick(product);
+                          }}
+                          size="sm"
+                        >
+                          <ShoppingCart className="h-2 w-2" />
+                          Add
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );
@@ -924,7 +917,7 @@ export default function PosPage() {
             {/* Skeleton Loaders while loading more */}
             {productsLoading && products.length > 0 && (
               <>
-                {Array.from({ length: 6 }).map((_, i) => (
+                {Array.from({ length: 8 }).map((_, i) => (
                   <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
               </>
@@ -948,11 +941,11 @@ export default function PosPage() {
 
             {/* Initial Loading */}
             {productsLoading && products.length === 0 && (
-              <div className="col-span-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
-                {Array.from({ length: 12 }).map((_, i) => (
+              <>
+                {Array.from({ length: 16 }).map((_, i) => (
                   <ProductCardSkeleton key={`initial-skeleton-${i}`} />
                 ))}
-              </div>
+              </>
             )}
           </ScrollArea>
         </div>
