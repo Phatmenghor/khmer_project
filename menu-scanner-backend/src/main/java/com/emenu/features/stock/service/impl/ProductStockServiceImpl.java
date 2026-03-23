@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -109,7 +110,16 @@ public class ProductStockServiceImpl implements ProductStockService {
         log.info("✅ PRODUCT STOCK FILTER COMPLETE - Total: {}, Returned: {}, Time: {}ms",
                 productStockPage.getTotalElements(), productStockPage.getNumberOfElements(), executionTime);
 
-        return productStockMapper.toPaginationResponse(productStockPage, paginationMapper);
+        PaginationResponse<ProductStockDto> response = productStockMapper.toPaginationResponse(productStockPage, paginationMapper);
+
+        // Enrich each DTO with product name and size name
+        List<ProductStock> stocks = productStockPage.getContent();
+        List<ProductStockDto> dtos = response.getContent();
+        for (int i = 0; i < dtos.size(); i++) {
+            enrichWithProductInfo(dtos.get(i), stocks.get(i));
+        }
+
+        return response;
     }
 
     @Override
