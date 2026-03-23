@@ -287,16 +287,36 @@ export default function PosPage() {
 
   // ─── Category Scroll Handler ───
   const scrollCategories = useCallback((direction: "left" | "right") => {
-    const container = categoryScrollRef.current?.querySelector(
+    const viewport = categoryScrollRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]"
     ) as HTMLElement;
-    if (container) {
-      const scrollAmount = 200;
-      container.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
+    if (!viewport) return;
+
+    const scrollAmount = 200;
+    const targetScroll =
+      viewport.scrollLeft + (direction === "left" ? -scrollAmount : scrollAmount);
+
+    // Animate scroll using requestAnimationFrame for smooth motion
+    let current = viewport.scrollLeft;
+    const target = targetScroll;
+    const duration = 400; // milliseconds
+    const startTime = Date.now();
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Easing function (ease-out-quad)
+      const easeProgress = 1 - (1 - progress) * (1 - progress);
+
+      viewport.scrollLeft = current + (target - current) * easeProgress;
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
   }, []);
 
   // ─── Initialize Smooth Scrollbar for Categories ───
@@ -309,6 +329,10 @@ export default function PosPage() {
     ) as HTMLElement;
     if (!viewport) return;
 
+    // Hide vertical scrollbar for horizontal-only scrolling
+    viewport.style.overflowY = "hidden";
+    viewport.style.overflow = "hidden";
+
     try {
       const scrollbar = SmoothScrollbar.init(viewport, {
         damping: 0.08,
@@ -316,6 +340,7 @@ export default function PosPage() {
         renderByPixels: true,
         alwaysShowTracks: false,
         continuousScrolling: true,
+        direction: "x", // Only horizontal scrolling
       });
 
       return () => {
@@ -748,8 +773,8 @@ export default function PosPage() {
               <ChevronRight className="h-7 w-7 transform rotate-180" />
             </Button>
 
-            {/* Categories Scroll Area - Click & Drag to scroll */}
-            <ScrollArea className="flex-1 h-14" ref={categoryScrollRef}>
+            {/* Categories Scroll Area - Horizontal only scrolling */}
+            <ScrollArea className="flex-1 h-14 overflow-hidden" ref={categoryScrollRef}>
               <div className="flex gap-3 p-2 h-full items-center">
                 {/* All Categories Button */}
                 <button
