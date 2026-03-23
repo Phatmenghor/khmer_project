@@ -39,8 +39,7 @@ function POSProductCardComponent({
       className={cn(
         "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer",
         quantity > 0 && "ring-1 ring-primary/30 border-primary/50",
-        product.hasActivePromotion && "ring-1 ring-amber-500/20",
-        "md:rounded-xl rounded-lg" // Smaller radius on mobile
+        product.hasActivePromotion && "ring-1 ring-amber-500/20"
       )}
     >
       {/* Image Container */}
@@ -87,60 +86,62 @@ function POSProductCardComponent({
         )}
       </div>
 
-      {/* Content - Full on desktop, minimal controls on mobile */}
+      {/* Content - Same as ProductCard */}
       <div className="p-3 flex flex-col flex-1">
-        {/* Product Name - Hidden on mobile */}
-        <h3 className="hidden md:block font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
+        {/* Product Name */}
+        <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
           {product.name}
         </h3>
 
-        {/* Prices - Hidden on mobile */}
-        <div className="hidden md:flex flex-col mb-2.5">
-          <span className={cn("text-xs text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
-            {formatCurrency(product.displayOriginPrice)}
-          </span>
-          <span className="text-base font-bold text-primary">
-            {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
-          </span>
-        </div>
-
-        {/* Add/Cart Controls - Always visible */}
-        {quantity > 0 ? (
-          <div className="flex items-center gap-1 w-full md:gap-1.5">
-            <CustomButton
-              size="icon"
-              variant="outline"
-              className="h-6 w-6 md:h-8 md:w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground p-0"
-              onClick={handleDecrement}
-            >
-              <Minus className="h-2.5 w-2.5 md:h-3 md:w-3" />
-            </CustomButton>
-            <div className="flex-1 text-center h-6 md:h-8 bg-primary/10 text-primary font-semibold text-xs md:text-sm rounded-lg border border-primary/20 flex items-center justify-center">
-              {quantity}
-            </div>
-            <CustomButton
-              size="icon"
-              variant="outline"
-              className="h-6 w-6 md:h-8 md:w-8 shrink-0 hover:bg-primary hover:text-primary-foreground p-0"
-              onClick={handleIncrement}
-            >
-              <Plus className="h-2.5 w-2.5 md:h-3 md:w-3" />
-            </CustomButton>
+        <div className="mt-auto">
+          {/* Prices */}
+          <div className="flex flex-col mb-2.5">
+            <span className={cn("text-xs text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
+              {formatCurrency(product.displayOriginPrice)}
+            </span>
+            <span className="text-base font-bold text-primary">
+              {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
+            </span>
           </div>
-        ) : (
-          <CustomButton
-            className="w-full gap-1 md:gap-1.5 h-6 md:h-8 text-[10px] md:text-xs font-semibold p-0 md:p-1"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onAddClick(product);
-            }}
-            size="sm"
-          >
-            <ShoppingCart className="h-2.5 w-2.5 md:h-3.5 md:w-3.5" />
-            <span className="hidden sm:inline">Add</span>
-          </CustomButton>
-        )}
+
+          {/* Add/Cart Controls */}
+          {quantity > 0 ? (
+            <div className="flex items-center gap-1.5 w-full">
+              <CustomButton
+                size="icon"
+                variant="outline"
+                className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                onClick={handleDecrement}
+              >
+                <Minus className="h-3 w-3" />
+              </CustomButton>
+              <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
+                {quantity}
+              </div>
+              <CustomButton
+                size="icon"
+                variant="outline"
+                className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                onClick={handleIncrement}
+              >
+                <Plus className="h-3 w-3" />
+              </CustomButton>
+            </div>
+          ) : (
+            <CustomButton
+              className="w-full gap-1.5 h-8 text-xs font-semibold"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onAddClick(product);
+              }}
+              size="sm"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Add to Cart
+            </CustomButton>
+          )}
+        </div>
       </div>
     </div>
   );
