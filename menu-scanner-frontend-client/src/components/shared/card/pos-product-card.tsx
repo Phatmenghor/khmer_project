@@ -24,14 +24,26 @@ function POSProductCardComponent({
   const handleIncrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // For sized products, open modal to select which size to add more of
+    if (product.hasSizes) {
+      onAddClick(product);
+      return;
+    }
+    // For non-sized products, directly increment
     onQuantityChange(product.id, 1);
-  }, [product.id, onQuantityChange]);
+  }, [product, onAddClick, onQuantityChange]);
 
   const handleDecrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // For sized products, open modal to select which size to remove from
+    if (product.hasSizes) {
+      onAddClick(product);
+      return;
+    }
+    // For non-sized products, directly decrement
     onQuantityChange(product.id, -1);
-  }, [product.id, onQuantityChange]);
+  }, [product, onAddClick, onQuantityChange]);
 
   return (
     <div
