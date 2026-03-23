@@ -57,6 +57,8 @@ import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
+import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useAppDispatch } from "@/redux/store";
 import { axiosClientWithAuth } from "@/utils/axios";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -254,6 +256,13 @@ export default function PosPage() {
       );
     }
   };
+
+  // ─── Infinite Scroll Setup ───
+  const { observerTarget } = useInfiniteScroll({
+    onLoadMore: loadMoreProducts,
+    hasMore: hasMoreProducts,
+    isLoading: productsLoading,
+  });
 
   // ─── Keyboard shortcuts ───
   useEffect(() => {
@@ -785,7 +794,7 @@ export default function PosPage() {
 
           {/* Product Grid */}
           <ScrollArea className="flex-1" ref={productGridRef}>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 p-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 p-2">
               {products.map((product) => {
                 const qtyInCart = getProductCartQuantity(product.id);
                 return (
@@ -843,56 +852,57 @@ export default function PosPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-3 flex flex-col flex-1">
-                      <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
+                    <div className="p-1.5 flex flex-col flex-1">
+                      {/* Product Name - Hidden on POS for space */}
+                      <h3 className="font-medium text-xs line-clamp-1 mb-1 leading-tight hidden">
                         {product.name}
                       </h3>
 
                       <div className="mt-auto">
-                        {/* Prices */}
-                        <div className="flex flex-col mb-2.5">
-                          <span className={cn("text-xs text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
+                        {/* Prices - Compact */}
+                        <div className="flex flex-col gap-0.5 mb-1.5">
+                          <span className={cn("text-[10px] text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
                             {formatCurrency(product.displayOriginPrice)}
                           </span>
-                          <span className="text-base font-bold text-primary">
+                          <span className="text-xs font-bold text-primary">
                             {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
                           </span>
                         </div>
 
-                        {/* Add/Cart Controls */}
+                        {/* Add/Cart Controls - Compact */}
                         {qtyInCart > 0 ? (
-                          <div className="flex items-center gap-1.5 w-full">
+                          <div className="flex items-center gap-0.5 w-full">
                             <Button
                               size="icon"
                               variant="outline"
-                              className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                              className="h-6 w-6 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 updateQuantity(`${product.id}`, -1);
                               }}
                             >
-                              <Minus className="h-3 w-3" />
+                              <Minus className="h-2 w-2" />
                             </Button>
-                            <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
+                            <div className="flex-1 text-center h-6 bg-primary/10 text-primary font-semibold text-[10px] rounded border border-primary/20 flex items-center justify-center">
                               {qtyInCart}
                             </div>
                             <Button
                               size="icon"
                               variant="outline"
-                              className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                              className="h-6 w-6 shrink-0 hover:bg-primary hover:text-primary-foreground"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 updateQuantity(`${product.id}`, 1);
                               }}
                             >
-                              <Plus className="h-3 w-3" />
+                              <Plus className="h-2 w-2" />
                             </Button>
                           </div>
                         ) : (
                           <Button
-                            className="w-full gap-1.5 h-8 text-xs font-semibold"
+                            className="w-full gap-1 h-6 text-[10px] font-semibold"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -900,8 +910,8 @@ export default function PosPage() {
                             }}
                             size="sm"
                           >
-                            <ShoppingCart className="h-3.5 w-3.5" />
-                            Add to Cart
+                            <ShoppingCart className="h-2.5 w-2.5" />
+                            Add
                           </Button>
                         )}
                       </div>
@@ -911,25 +921,23 @@ export default function PosPage() {
               })}
             </div>
 
-            {/* Load More */}
-            {hasMoreProducts && (
-              <div className="flex justify-center p-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={loadMoreProducts}
-                  disabled={productsLoading}
-                >
-                  {productsLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : null}
-                  Load More Products
-                </Button>
-              </div>
+            {/* Skeleton Loaders while loading more */}
+            {productsLoading && products.length > 0 && (
+              <>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <ProductCardSkeleton key={`skeleton-${i}`} />
+                ))}
+              </>
             )}
 
+            {/* Infinite Scroll Sentinel */}
+            {hasMoreProducts && !productsLoading && (
+              <div ref={observerTarget} className="col-span-full h-4" />
+            )}
+
+            {/* Empty State */}
             {!productsLoading && products.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+              <div className="col-span-full flex flex-col items-center justify-center py-20 text-muted-foreground">
                 <Package className="w-16 h-16 mb-4 opacity-20" />
                 <p className="text-sm font-medium">No products found</p>
                 <p className="text-xs mt-1">
@@ -938,9 +946,12 @@ export default function PosPage() {
               </div>
             )}
 
+            {/* Initial Loading */}
             {productsLoading && products.length === 0 && (
-              <div className="flex justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              <div className="col-span-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <ProductCardSkeleton key={`initial-skeleton-${i}`} />
+                ))}
               </div>
             )}
           </ScrollArea>
