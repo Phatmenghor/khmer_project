@@ -833,10 +833,10 @@ export default function PosPage() {
           {/* Cart Items - scrollable with max height to show checkout */}
           <div className="overflow-hidden flex flex-col min-h-0">
             {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground flex-1">
-                <ShoppingCart className="w-12 h-12 mb-3 opacity-15" />
-                <p className="text-xs font-medium">No items yet</p>
-                <p className="text-[11px] mt-1 text-center px-4">
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground flex-1">
+                <ShoppingCart className="w-20 h-20 mb-4 opacity-20" />
+                <p className="text-base font-semibold">No items yet</p>
+                <p className="text-sm mt-2 text-center px-4 leading-relaxed">
                   Click on products to add them to the order
                 </p>
               </div>
