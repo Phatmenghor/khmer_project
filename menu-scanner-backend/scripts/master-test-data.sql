@@ -216,8 +216,8 @@ BEGIN
 
     -- CARTS & ITEMS
     RAISE NOTICE 'Creating carts and items...';
-    INSERT INTO carts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, user_id, business_id, status, total_amount, total_discount)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, u.id, key_business_id, 'ACTIVE', 0, 0
+    INSERT INTO carts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, user_id, business_id)
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, u.id, key_business_id
     FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' ORDER BY RANDOM() LIMIT 120000) u;
 
     INSERT INTO cart_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, cart_id, product_id, product_size_id, quantity)
