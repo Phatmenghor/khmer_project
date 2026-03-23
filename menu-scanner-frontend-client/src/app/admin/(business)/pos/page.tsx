@@ -12,17 +12,17 @@ import {
   Maximize2,
   Minimize2,
   ReceiptText,
-  Hash,
   CreditCard,
   Banknote,
   Smartphone,
   MoreHorizontal,
   Package,
   ChevronRight,
-  Grid3X3,
-  LayoutGrid,
   Clock,
   CheckCircle2,
+  Loader2,
+  ChevronsUpDown,
+  Check,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
@@ -56,9 +69,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
-import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
+import { cn } from "@/lib/utils";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 
 // ─── Local Cart Types ───
 interface PosCartItem {
@@ -94,12 +107,19 @@ export default function PosPage() {
   // ─── Fullscreen State ───
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // ─── Product State ───
+  // ─── Product & Filter State ───
   const [products, setProducts] = useState<ProductDetailResponseModel[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState<CategoriesResponseModel | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
+    null
+  );
+  const [categories, setCategories] = useState<CategoriesResponseModel[]>([]);
+  const [brands, setBrands] = useState<BrandResponseModel[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [brandsLoading, setBrandsLoading] = useState(true);
   const [productPage, setProductPage] = useState(1);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
   const debouncedSearch = useDebounce(searchTerm, 400);
@@ -123,8 +143,43 @@ export default function PosPage() {
     total: number;
   } | null>(null);
 
-  // ─── Grid Layout ───
-  const [gridCols, setGridCols] = useState<"compact" | "normal">("normal");
+  // ─── Brand Popover ───
+  const [brandOpen, setBrandOpen] = useState(false);
+
+  // ─── Fetch Categories ───
+  const fetchCategories = useCallback(async () => {
+    try {
+      setCategoriesLoading(true);
+      const response = await axiosClientWithAuth.get(
+        "/api/v1/categories?pageSize=100&status=ACTIVE"
+      );
+      setCategories(response.data.data?.content || []);
+    } catch {
+      showToast.error("Failed to load categories");
+    } finally {
+      setCategoriesLoading(false);
+    }
+  }, []);
+
+  // ─── Fetch Brands ───
+  const fetchBrands = useCallback(async () => {
+    try {
+      setBrandsLoading(true);
+      const response = await axiosClientWithAuth.get(
+        "/api/v1/brands?pageSize=100&status=ACTIVE"
+      );
+      setBrands(response.data.data?.content || []);
+    } catch {
+      showToast.error("Failed to load brands");
+    } finally {
+      setBrandsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchBrands();
+  }, [fetchCategories, fetchBrands]);
 
   // ─── Fetch Products ───
   const fetchProducts = useCallback(
@@ -132,6 +187,7 @@ export default function PosPage() {
       page: number,
       search: string,
       categoryId?: string,
+      brandId?: string,
       reset = false
     ) => {
       try {
@@ -141,6 +197,7 @@ export default function PosPage() {
           {
             search: search || undefined,
             categoryId: categoryId || undefined,
+            brandId: brandId || undefined,
             pageNo: page,
             pageSize: 30,
             status: "ACTIVE",
@@ -164,16 +221,27 @@ export default function PosPage() {
   );
 
   useEffect(() => {
-    fetchProducts(1, debouncedSearch, selectedCategory?.id, true);
-  }, [debouncedSearch, selectedCategory, fetchProducts]);
+    fetchProducts(
+      1,
+      debouncedSearch,
+      selectedCategory?.id,
+      selectedBrand?.id,
+      true
+    );
+  }, [debouncedSearch, selectedCategory, selectedBrand, fetchProducts]);
 
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
-      fetchProducts(productPage + 1, debouncedSearch, selectedCategory?.id);
+      fetchProducts(
+        productPage + 1,
+        debouncedSearch,
+        selectedCategory?.id,
+        selectedBrand?.id
+      );
     }
   };
 
-  // ─── Keyboard shortcut: F11 for fullscreen, F2 to focus search ───
+  // ─── Keyboard shortcuts ───
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "F11") {
@@ -243,7 +311,6 @@ export default function PosPage() {
         ];
       });
 
-      // Show cart on mobile when item added
       if (!showCart && window.innerWidth < 1024) {
         setShowCart(true);
       }
@@ -453,25 +520,6 @@ export default function PosPage() {
             )}
           </Button>
 
-          {/* Grid toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() =>
-              setGridCols(gridCols === "normal" ? "compact" : "normal")
-            }
-            title={
-              gridCols === "normal" ? "Compact grid" : "Normal grid"
-            }
-          >
-            {gridCols === "normal" ? (
-              <Grid3X3 className="w-4 h-4" />
-            ) : (
-              <LayoutGrid className="w-4 h-4" />
-            )}
-          </Button>
-
           {/* Fullscreen toggle */}
           <Button
             variant="ghost"
@@ -491,78 +539,204 @@ export default function PosPage() {
 
       {/* ─── Main Content ─── */}
       <div className="flex flex-1 overflow-hidden">
-        {/* ─── LEFT: Product Section ─── */}
+        {/* ─── LEFT: Categories Sidebar ─── */}
+        <div className="hidden md:flex md:w-[200px] flex-col border-r bg-muted/30 shrink-0">
+          {/* Search Bar */}
+          <div className="relative p-3 border-b shrink-0">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              ref={searchInputRef}
+              type="search"
+              placeholder="Search..."
+              className="pl-10 h-8 text-xs"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Categories List */}
+          <ScrollArea className="flex-1">
+            <div className="px-2 py-3 space-y-1">
+              {/* All Categories */}
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={cn(
+                  "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                  selectedCategory === null
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                All Categories
+              </button>
+
+              {categoriesLoading ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                </div>
+              ) : categories.length === 0 ? (
+                <p className="text-xs text-muted-foreground px-3 py-2 text-center">
+                  No categories
+                </p>
+              ) : (
+                categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category)}
+                    className={cn(
+                      "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                      selectedCategory?.id === category.id
+                        ? "bg-primary text-primary-foreground font-medium"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}
+                    title={category.name}
+                  >
+                    <span className="line-clamp-1">{category.name}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* ─── CENTER: Product Section ─── */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Search & Filter Bar */}
-          <div className="flex flex-wrap items-end gap-2 p-3 border-b bg-muted/20 shrink-0">
+          {/* Search & Brand Filter Bar */}
+          <div className="flex flex-wrap items-end gap-2 p-3 border-b bg-muted/20 shrink-0 md:hidden">
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 ref={searchInputRef}
                 type="search"
-                placeholder="Search products... (F2)"
+                placeholder="Search products..."
                 className="pl-10 h-9"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="w-auto flex-shrink-0 [&_.space-y-2]:!w-auto [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]">
-              <ComboboxSelectCategories
-                dataSelect={selectedCategory}
-                onChangeSelected={setSelectedCategory}
-                placeholder="All Categories"
-                showAllOption={true}
-                label=""
-              />
+          </div>
+
+          {/* Brand Filter & Search for Desktop */}
+          <div className="flex items-end gap-2 p-3 border-b bg-muted/20 shrink-0 hidden md:flex">
+            <div className="flex-1">
+              <Label className="text-xs text-muted-foreground mb-1 block">
+                Search Products
+              </Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  ref={searchInputRef}
+                  type="search"
+                  placeholder="Search..."
+                  className="pl-10 h-9 text-sm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
+
+            {/* Brand Filter */}
+            <Popover open={brandOpen} onOpenChange={setBrandOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={brandOpen}
+                  className="w-[200px] justify-between h-9 text-sm"
+                >
+                  {selectedBrand?.name || "All Brands"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="Search brands..." />
+                  <CommandEmpty>No brand found.</CommandEmpty>
+                  <CommandList>
+                    <CommandGroup>
+                      <CommandItem
+                        value=""
+                        onSelect={() => {
+                          setSelectedBrand(null);
+                          setBrandOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            selectedBrand === null ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        All Brands
+                      </CommandItem>
+                      {brands.map((brand) => (
+                        <CommandItem
+                          key={brand.id}
+                          value={brand.id}
+                          onSelect={() => {
+                            setSelectedBrand(brand);
+                            setBrandOpen(false);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedBrand?.id === brand.id
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {brand.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Product Grid */}
           <ScrollArea className="flex-1" ref={productGridRef}>
-            <div
-              className={`grid gap-2 p-3 ${
-                gridCols === "compact"
-                  ? "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10"
-                  : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
-              }`}
-            >
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 p-3">
               {products.map((product) => {
                 const qtyInCart = getProductCartQuantity(product.id);
                 return (
                   <button
                     key={product.id}
                     onClick={() => handleProductClick(product)}
-                    className={`relative flex flex-col items-center p-2 rounded-xl border bg-card hover:border-primary hover:shadow-lg transition-all duration-150 text-left group cursor-pointer active:scale-95 ${
+                    className={cn(
+                      "relative flex flex-col rounded-lg border bg-card overflow-hidden hover:border-primary hover:shadow-md transition-all duration-150 text-left group cursor-pointer active:scale-95",
                       qtyInCart > 0
                         ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20"
-                        : ""
-                    }`}
+                        : "border-border hover:border-primary"
+                    )}
                   >
-                    {/* Quantity badge */}
+                    {/* Quantity Badge */}
                     {qtyInCart > 0 && (
-                      <div className="absolute -top-1.5 -right-1.5 z-10 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center shadow-sm">
+                      <div className="absolute -top-2 -right-2 z-10 w-6 h-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shadow-md">
                         {qtyInCart}
                       </div>
                     )}
 
-                    {/* Promotion badge */}
+                    {/* Promotion Badge */}
                     {product.hasActivePromotion && (
-                      <div className="absolute top-1 left-1 z-10">
-                        <Badge
-                          variant="destructive"
-                          className="text-[8px] px-1 py-0 leading-tight"
-                        >
-                          SALE
+                      <div className="absolute top-2 left-2 z-10">
+                        <Badge variant="destructive" className="text-[10px]">
+                          Sale
                         </Badge>
                       </div>
                     )}
 
-                    <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted mb-1.5">
+                    {/* Image */}
+                    <div className="relative w-full aspect-square overflow-hidden bg-muted">
                       {product.mainImageUrl ? (
                         <img
                           src={product.mainImageUrl}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                           loading="lazy"
                         />
                       ) : (
@@ -571,36 +745,44 @@ export default function PosPage() {
                         </div>
                       )}
                     </div>
-                    <p className="text-[11px] font-medium line-clamp-2 w-full text-center leading-tight">
-                      {product.name}
-                    </p>
-                    <div className="flex items-center gap-1 mt-1">
-                      {product.hasActivePromotion ? (
-                        <>
-                          <span className="text-xs font-bold text-green-600">
-                            {formatCurrency(product.displayPrice)}
-                          </span>
-                          <span className="text-[9px] line-through text-muted-foreground">
-                            {formatCurrency(product.displayOriginPrice)}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-xs font-bold">
-                          {formatCurrency(
-                            product.displayPrice ||
-                              parseFloat(String(product.price || 0))
-                          )}
-                        </span>
+
+                    {/* Content */}
+                    <div className="p-2 flex-1 flex flex-col">
+                      <p className="text-xs font-semibold line-clamp-2 flex-1">
+                        {product.name}
+                      </p>
+
+                      {/* Sizes Badge */}
+                      {product.hasSizes && (
+                        <Badge
+                          variant="secondary"
+                          className="text-[9px] px-1.5 py-0 w-fit mb-1 mt-1"
+                        >
+                          Sizes
+                        </Badge>
                       )}
+
+                      {/* Price */}
+                      <div className="flex items-center gap-1 mt-1.5 pt-1.5 border-t">
+                        {product.hasActivePromotion ? (
+                          <>
+                            <span className="text-xs font-bold text-primary">
+                              {formatCurrency(product.displayPrice)}
+                            </span>
+                            <span className="text-[9px] line-through text-muted-foreground">
+                              {formatCurrency(product.displayOriginPrice)}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-xs font-bold text-foreground">
+                            {formatCurrency(
+                              product.displayPrice ||
+                                parseFloat(String(product.price || 0))
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    {product.hasSizes && (
-                      <Badge
-                        variant="outline"
-                        className="mt-1 text-[8px] px-1 py-0 h-4"
-                      >
-                        Sizes
-                      </Badge>
-                    )}
                   </button>
                 );
               })}
