@@ -96,11 +96,11 @@ BEGIN
         (customer_user_id, role_customer);
 
     -- =====================================================
-    -- 1 KEY BUSINESS
+    -- 1 KEY BUSINESS (OWNED BY phatmenghor20)
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 25%% - Creating key business...';
+    RAISE NOTICE '📊 Progress: 25%% - Creating key business owned by phatmenghor20...';
     INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, owner_id, name, email, phone, address, description, status, is_subscription_active)
-    VALUES (key_business_id, 0, t, t, 'system', 'system', false, NULL, NULL, platform_user_id, 'Phatmenghor Business', 'mega@test.com', '+855 23 9999999', 'Phnom Penh, Cambodia', 'Main business for testing', 'ACTIVE', true);
+    VALUES (key_business_id, 0, t, t, 'system', 'system', false, NULL, NULL, business_user_id, 'Phatmenghor Business', 'mega@test.com', '+855 23 9999999', 'Phnom Penh, Cambodia', 'Main business owned by phatmenghor20', 'ACTIVE', true);
 
     INSERT INTO business_settings (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, logo_url, banner_url, business_type, opening_time, closing_time, is_open_24_hours, working_days, timezone, currency, language, usd_to_khr_rate, contact_email, contact_phone, whatsapp_number, facebook_url, instagram_url, website_url, primary_color, secondary_color, email_notifications_enabled, sms_notifications_enabled, order_notifications_enabled, tax_rate, service_charge_percentage, min_order_amount, delivery_radius_km, estimated_delivery_time, terms_and_conditions, privacy_policy, refund_policy)
     VALUES (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, photo1, photo2, 'RESTAURANT', '06:00', '23:00', false, 'MONDAY-SUNDAY', 'Asia/Phnom_Penh', 'USD', 'en', 4100.0, 'mega@test.com', '+855 23 9999999', '+855 10 100 0001', photo1, photo2, photo1, '#FF6B6B', '#FFE66D', true, true, true, 0.0, 10.0, 5.0, 25.0, '30-45 minutes', 'Premium guarantee', 'Data protection', 'Full refund');
@@ -109,6 +109,9 @@ BEGIN
 
     INSERT INTO subscriptions (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, plan_id, start_date, end_date, auto_renew)
     VALUES (gen_random_uuid(), 0, t - INTERVAL '6 months', t, 'system', 'system', false, NULL, NULL, key_business_id, plan2, t - INTERVAL '6 months', t + INTERVAL '12 months', true);
+
+    -- Add phatmenghor20 to the business as owner/manager
+    UPDATE users SET business_id = key_business_id WHERE id = business_user_id;
 
     -- =====================================================
     -- 30 BUSINESS ROLES
@@ -288,13 +291,13 @@ BEGIN
     VALUES (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 4105.0, 35.45, 7.25, 24500.0, true, 'Exchange rates');
 
     RAISE NOTICE '✅ 3 MAIN USERS CREATED:';
-    RAISE NOTICE '   • phatmenghor19@gmail.com (Platform Admin - Owner)';
-    RAISE NOTICE '   • phatmenghor20@gmail.com (Business Manager)';
+    RAISE NOTICE '   • phatmenghor19@gmail.com (Platform Admin/Owner)';
+    RAISE NOTICE '   • phatmenghor20@gmail.com (Business Owner & Manager)';
     RAISE NOTICE '   • phatmenghor21@gmail.com (Customer)';
-    RAISE NOTICE '✅ BUSINESS DATA:';
-    RAISE NOTICE '   • 1 Business: Phatmenghor Business (owned by phatmenghor19)';
+    RAISE NOTICE '✅ BUSINESS DATA (All under phatmenghor20):';
+    RAISE NOTICE '   • 1 Business: Phatmenghor Business (owned by phatmenghor20)';
     RAISE NOTICE '   • 30 Business Roles';
-    RAISE NOTICE '   • 2000 Business Users (under phatmenghor20''s business)';
+    RAISE NOTICE '   • 2000 Business Users (staff under phatmenghor20''s business)';
     RAISE NOTICE '   • 500 Products with Sizes & Stock';
     RAISE NOTICE '   • 200 Orders with Items & Payments';
     RAISE NOTICE '   • 5 Delivery Options & 5 Payment Methods';
