@@ -23,6 +23,7 @@ import attendanceReducer from "../features/hr/store/slice/attendance-slice";
 
 import favoritesReducer from "../features/main/store/slice/favorite-slice";
 import productReducer from "../features/business/store/slice/product-slice";
+import orderAdminReducer from "../features/business/store/slice/order-admin-slice";
 import homeReducer from "../features/main/store/slice/home-slice";
 import publicProductReducer from "../features/main/store/slice/public-product-slice";
 import publicBrandsReducer from "../features/main/store/slice/public-brands-slice";
@@ -58,6 +59,7 @@ export const reducers = {
 
   // Business
   products: productReducer,
+  ordersAdmin: orderAdminReducer,
 
   // HR
   workScheduleType: workScheduleTypeReducer,

@@ -59,6 +59,27 @@ export const ORDER_STATUS_FILTER = [
   { value: Status.INACTIVE, label: "Draft" },
 ];
 
+export const ORDER_STATUS_ADMIN_FILTER = [
+  { value: "ALL", label: "All Status" },
+  { value: "PENDING", label: "Pending" },
+  { value: "CONFIRMED", label: "Confirmed" },
+  { value: "PREPARING", label: "Preparing" },
+  { value: "READY", label: "Ready" },
+  { value: "IN_TRANSIT", label: "In Transit" },
+  { value: "COMPLETED", label: "Completed" },
+  { value: "CANCELLED", label: "Cancelled" },
+  { value: "FAILED", label: "Failed" },
+];
+
+export const PAYMENT_STATUS_ADMIN_FILTER = [
+  { value: "ALL", label: "All Payment" },
+  { value: "PAID", label: "Paid" },
+  { value: "UNPAID", label: "Unpaid" },
+  { value: "PENDING", label: "Pending" },
+  { value: "REFUNDED", label: "Refunded" },
+  { value: "PARTIALLY_PAID", label: "Partially Paid" },
+];
+
 export const SUBSCRIPTION_PLAN_FILTER = [
   { value: SubscriptionPlanStatus.ALL, label: "All" },
   { value: SubscriptionPlanStatus.PUBLIC, label: "Public" },
