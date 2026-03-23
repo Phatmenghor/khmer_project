@@ -150,8 +150,12 @@ export default function PosPage() {
   const fetchCategories = useCallback(async () => {
     try {
       setCategoriesLoading(true);
-      const response = await axiosClientWithAuth.get(
-        "/api/v1/categories?pageSize=100&status=ACTIVE"
+      const response = await axiosClientWithAuth.post(
+        "/api/v1/categories",
+        {
+          pageSize: 100,
+          status: "ACTIVE",
+        }
       );
       setCategories(response.data.data?.content || []);
     } catch {
@@ -165,8 +169,12 @@ export default function PosPage() {
   const fetchBrands = useCallback(async () => {
     try {
       setBrandsLoading(true);
-      const response = await axiosClientWithAuth.get(
-        "/api/v1/brands?pageSize=100&status=ACTIVE"
+      const response = await axiosClientWithAuth.post(
+        "/api/v1/brands",
+        {
+          pageSize: 100,
+          status: "ACTIVE",
+        }
       );
       setBrands(response.data.data?.content || []);
     } catch {
