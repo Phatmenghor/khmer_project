@@ -298,41 +298,79 @@ export default function PosPage() {
     }
   }, []);
 
-  // ─── Enable Mouse Wheel Scroll for Categories ───
+  // ─── Enable Fast Click & Drag Scroll for Categories ───
   useEffect(() => {
     const categoryContainer = categoryScrollRef.current;
     if (!categoryContainer) return;
 
-    const handleWheel = (e: WheelEvent) => {
-      const viewport = categoryContainer.querySelector(
-        "[data-radix-scroll-area-viewport]"
-      ) as HTMLElement;
-      if (!viewport) return;
+    const viewport = categoryContainer.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLElement;
+    if (!viewport) return;
 
-      // Fast horizontal scrolling (same speed as vertical)
-      let scrollAmount = 0;
+    let isScrolling = false;
+    let startX = 0;
+    let scrollLeft = 0;
+    let velocity = 0;
+    let lastX = 0;
+    let lastTime = 0;
 
-      if (Math.abs(e.deltaX) > 5) {
-        // Trackpad horizontal swipe - same speed as vertical
-        scrollAmount = e.deltaX * 2; // Fast trackpad scrolling
-      } else if (Math.abs(e.deltaY) > 0) {
-        // Mouse wheel vertical scroll - FAST like page scroll
-        // Down (positive deltaY) → scroll right (positive)
-        // Up (negative deltaY) → scroll left (negative)
-        scrollAmount = e.deltaY > 0 ? 400 : -400; // Very fast scroll (like vertical)
+    const handleMouseDown = (e: MouseEvent) => {
+      isScrolling = true;
+      startX = e.pageX - viewport.getBoundingClientRect().left;
+      scrollLeft = viewport.scrollLeft;
+      lastX = e.pageX;
+      lastTime = Date.now();
+      viewport.style.cursor = "grabbing";
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isScrolling) return;
+      e.preventDefault();
+
+      const currentX = e.pageX;
+      const distance = currentX - startX;
+      viewport.scrollLeft = scrollLeft - distance;
+
+      // Calculate velocity for smooth dragging
+      const timeDiff = Date.now() - lastTime;
+      if (timeDiff > 0) {
+        velocity = (lastX - currentX) / timeDiff;
       }
+      lastX = currentX;
+      lastTime = Date.now();
+    };
 
-      if (scrollAmount !== 0) {
-        e.preventDefault();
-        viewport.scrollBy({
-          left: scrollAmount,
-          behavior: "smooth",
-        });
+    const handleMouseUp = () => {
+      if (!isScrolling) return;
+      isScrolling = false;
+      viewport.style.cursor = "grab";
+
+      // Momentum scrolling with velocity
+      if (Math.abs(velocity) > 0.1) {
+        let currentVelocity = velocity;
+        const deceleration = 0.95;
+
+        const momentumScroll = setInterval(() => {
+          if (Math.abs(currentVelocity) < 0.1) {
+            clearInterval(momentumScroll);
+            return;
+          }
+          viewport.scrollLeft += currentVelocity * 50;
+          currentVelocity *= deceleration;
+        }, 16);
       }
     };
 
-    categoryContainer.addEventListener("wheel", handleWheel, { passive: false });
-    return () => categoryContainer.removeEventListener("wheel", handleWheel);
+    viewport.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      viewport.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
   }, []);
 
 
@@ -756,17 +794,17 @@ export default function PosPage() {
               <ChevronRight className="h-7 w-7 transform rotate-180" />
             </Button>
 
-            {/* Categories Scroll Area - Scrollable with wheel or drag */}
-            <ScrollArea className="flex-1 h-11" ref={categoryScrollRef}>
-              <div className="flex gap-2 p-1 h-full items-center">
+            {/* Categories Scroll Area - Click & Drag to scroll */}
+            <ScrollArea className="flex-1 h-14" ref={categoryScrollRef}>
+              <div className="flex gap-3 p-2 h-full items-center">
                 {/* All Categories Button */}
                 <button
                   onClick={() => setSelectedCategory(null)}
                   className={cn(
-                    "shrink-0 px-3 py-1 rounded-md text-[11px] font-medium transition-colors whitespace-nowrap",
+                    "shrink-0 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer",
                     selectedCategory === null
                       ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                      : "bg-white border border-border text-foreground hover:bg-muted"
                   )}
                 >
                   All
@@ -783,10 +821,10 @@ export default function PosPage() {
                       key={category.id}
                       onClick={() => setSelectedCategory(category)}
                       className={cn(
-                        "shrink-0 px-3 py-1 rounded-md text-[11px] transition-colors whitespace-nowrap",
+                        "shrink-0 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer",
                         selectedCategory?.id === category.id
-                          ? "bg-primary text-primary-foreground font-medium"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-white border border-border text-foreground hover:bg-muted"
                       )}
                       title={category.name}
                     >
