@@ -159,27 +159,23 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     @Query(value = """
         SELECT * FROM product_stock ps
         WHERE ps.business_id = :businessId
-            AND (:productId IS NULL OR ps.product_id = :productId)
-            AND (:productSizeId IS NULL OR ps.product_size_id = :productSizeId)
-            AND (:status IS NULL OR ps.status = :status)
-            AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
-            AND (:expiredBefore IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore))
-            AND (:search IS NULL
-                OR ps.barcode ILIKE '%' || :search || '%'
-                OR ps.sku ILIKE '%' || :search || '%')
+            AND CASE WHEN :productId IS NULL THEN true ELSE ps.product_id = :productId END
+            AND CASE WHEN :productSizeId IS NULL THEN true ELSE ps.product_size_id = :productSizeId END
+            AND CASE WHEN :status IS NULL THEN true ELSE ps.status = :status END
+            AND CASE WHEN :lowStockThreshold IS NULL THEN true ELSE ps.quantity_on_hand < :lowStockThreshold END
+            AND CASE WHEN :expiredBefore IS NULL THEN true ELSE (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore) END
+            AND CASE WHEN :search IS NULL THEN true ELSE (ps.barcode ILIKE '%' || :search || '%' OR ps.sku ILIKE '%' || :search || '%') END
         ORDER BY ps.date_in DESC NULLS LAST, ps.created_at DESC
     """,
     countQuery = """
         SELECT COUNT(*) FROM product_stock ps
         WHERE ps.business_id = :businessId
-            AND (:productId IS NULL OR ps.product_id = :productId)
-            AND (:productSizeId IS NULL OR ps.product_size_id = :productSizeId)
-            AND (:status IS NULL OR ps.status = :status)
-            AND (:lowStockThreshold IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
-            AND (:expiredBefore IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore))
-            AND (:search IS NULL
-                OR ps.barcode ILIKE '%' || :search || '%'
-                OR ps.sku ILIKE '%' || :search || '%')
+            AND CASE WHEN :productId IS NULL THEN true ELSE ps.product_id = :productId END
+            AND CASE WHEN :productSizeId IS NULL THEN true ELSE ps.product_size_id = :productSizeId END
+            AND CASE WHEN :status IS NULL THEN true ELSE ps.status = :status END
+            AND CASE WHEN :lowStockThreshold IS NULL THEN true ELSE ps.quantity_on_hand < :lowStockThreshold END
+            AND CASE WHEN :expiredBefore IS NULL THEN true ELSE (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore) END
+            AND CASE WHEN :search IS NULL THEN true ELSE (ps.barcode ILIKE '%' || :search || '%' OR ps.sku ILIKE '%' || :search || '%') END
     """,
     nativeQuery = true)
     Page<ProductStock> findWithFilters(
