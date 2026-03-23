@@ -343,13 +343,13 @@ BEGIN
         (category_beverages, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Beverages', photo2, 'ACTIVE'),
         (category_snacks, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Snacks', photo1, 'ACTIVE');
 
-    INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, main_image_url, price, has_sizes, minimum_stock_level, status)
+    INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, main_image_url, price, has_sizes, minimum_stock_level, status, has_active_promotion, view_count, favorite_count)
     VALUES
-        (product_coffee, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Premium Coffee', 'Freshly brewed premium coffee', photo1, 3.50, true, 5, 'ACTIVE'),
-        (product_tea, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Green Tea', 'Fresh green tea', photo2, 2.50, true, 5, 'ACTIVE'),
-        (product_juice, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Fresh Orange Juice', 'Freshly squeezed orange juice', photo1, 4.00, true, 5, 'ACTIVE'),
-        (product_burger, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_food, NULL, 'Classic Burger', 'Juicy beef burger with lettuce and tomato', photo2, 6.50, false, 10, 'ACTIVE'),
-        (product_fries, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_snacks, NULL, 'Crispy Fries', 'Golden crispy french fries', photo1, 3.00, true, 10, 'ACTIVE');
+        (product_coffee, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Premium Coffee', 'Freshly brewed premium coffee', photo1, 3.50, true, 5, 'ACTIVE', false, 0, 0),
+        (product_tea, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Green Tea', 'Fresh green tea', photo2, 2.50, true, 5, 'ACTIVE', false, 0, 0),
+        (product_juice, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Fresh Orange Juice', 'Freshly squeezed orange juice', photo1, 4.00, true, 5, 'ACTIVE', false, 0, 0),
+        (product_burger, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_food, NULL, 'Classic Burger', 'Juicy beef burger with lettuce and tomato', photo2, 6.50, false, 10, 'ACTIVE', false, 0, 0),
+        (product_fries, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_snacks, NULL, 'Crispy Fries', 'Golden crispy french fries', photo1, 3.00, true, 10, 'ACTIVE', false, 0, 0);
 
     INSERT INTO product_sizes (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, name, price, minimum_stock_level)
     VALUES
