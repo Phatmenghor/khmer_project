@@ -776,7 +776,7 @@ export default function PosPage() {
 
                       <div className="mt-auto">
                         {/* Prices */}
-                        <div className="flex flex-col mb-2">
+                        <div className="flex flex-col mb-2.5">
                           <span className={cn("text-xs text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
                             {formatCurrency(product.displayOriginPrice)}
                           </span>
@@ -784,6 +784,52 @@ export default function PosPage() {
                             {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
                           </span>
                         </div>
+
+                        {/* Add/Cart Controls */}
+                        {qtyInCart > 0 ? (
+                          <div className="flex items-center gap-1.5 w-full">
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                updateQuantity(`${product.id}`, -1);
+                              }}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
+                              {qtyInCart}
+                            </div>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                updateQuantity(`${product.id}`, 1);
+                              }}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            className="w-full gap-1.5 h-8 text-xs font-semibold"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleProductClick(product);
+                            }}
+                            size="sm"
+                          >
+                            <ShoppingCart className="h-3.5 w-3.5" />
+                            Add to Cart
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </button>
