@@ -662,7 +662,7 @@ export default function PosPage() {
           </div>
 
           {/* Categories Horizontal Scroll */}
-          <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 h-10 mt-8">
+          <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 h-10 mt-2">
             {/* Left Arrow Button */}
             <Button
               variant="outline"
