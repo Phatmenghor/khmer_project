@@ -460,7 +460,8 @@ export default function PosPage() {
   // ─── Handle Product Click - Show size modal for sized products ───
   const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
     // For sized products, always open the size picker modal first
-    if (product.hasSizes && product.sizes && product.sizes.length > 0) {
+    // The modal will fetch full product details if sizes are not loaded
+    if (product.hasSizes) {
       setSizePickerProduct(product);
       return;
     }

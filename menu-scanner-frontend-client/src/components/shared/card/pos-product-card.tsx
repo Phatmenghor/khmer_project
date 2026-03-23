@@ -25,7 +25,8 @@ function POSProductCardComponent({
     e.preventDefault();
     e.stopPropagation();
     // For sized products, always open modal to select size
-    if (product.hasSizes && product.sizes && product.sizes.length > 0) {
+    // Modal will fetch full product details if sizes not loaded
+    if (product.hasSizes) {
       onAddClick(product);
       return;
     }
@@ -37,7 +38,8 @@ function POSProductCardComponent({
     e.preventDefault();
     e.stopPropagation();
     // For sized products, always open modal to select size
-    if (product.hasSizes && product.sizes && product.sizes.length > 0) {
+    // Modal will fetch full product details if sizes not loaded
+    if (product.hasSizes) {
       onAddClick(product);
       return;
     }

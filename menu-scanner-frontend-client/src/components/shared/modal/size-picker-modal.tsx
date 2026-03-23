@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Check, Package, ChevronRight, Loader2, Trash2 } from "lucide-react";
+import { Check, Package, ChevronRight, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,8 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/redux/features/business/store/models/response/product-response";
+import { showToast } from "@/components/shared/common/show-toast";
+import { axiosClientWithAuth } from "@/utils/axios";
 
 interface SizePickerModalProps {
   product: ProductDetailResponseModel | null;
@@ -31,31 +33,63 @@ export function SizePickerModal({
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [fullProduct, setFullProduct] = useState<ProductDetailResponseModel | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  // Initialize selected size when modal opens
+  // Use full product if available, otherwise use listing product
+  const displayProduct = fullProduct || product;
+
+  // Fetch full product details if sizes are missing
   useEffect(() => {
-    if (open && product?.sizes && product.sizes.length > 0) {
-      const activeSizes = product.sizes.filter((s) => s.id);
-      if (activeSizes.length > 0) {
-        setSelectedSize(activeSizes[0]);
+    if (open && product) {
+      // Check if we need to fetch full product details
+      const needsFetch = product.hasSizes && (!product.sizes || product.sizes.length === 0);
+
+      if (needsFetch) {
+        setIsLoadingDetail(true);
+        setFullProduct(null);
+        setSelectedSize(null);
+
+        // Fetch from POS product endpoint
+        axiosClientWithAuth
+          .get(`/api/v1/products/${product.id}`)
+          .then((response) => {
+            const detail = response.data.data;
+            setFullProduct(detail);
+            if (detail.sizes && detail.sizes.length > 0) {
+              setSelectedSize(detail.sizes[0]);
+            }
+          })
+          .catch(() => {
+            showToast.error("Failed to load product details");
+          })
+          .finally(() => {
+            setIsLoadingDetail(false);
+          });
+      } else {
+        setFullProduct(null);
+        if (product.sizes && product.sizes.length > 0) {
+          setSelectedSize(product.sizes[0]);
+        } else {
+          setSelectedSize(null);
+        }
       }
     }
-  }, [open, product?.id, product?.sizes]);
 
-  // Reset state when modal closes
-  useEffect(() => {
     if (!open) {
+      setFullProduct(null);
       setSelectedSize(null);
       setQuantity(1);
+      setIsLoadingDetail(false);
     }
-  }, [open]);
+  }, [open, product?.id, product?.hasSizes, product?.sizes?.length]);
 
   const handleSelectSize = useCallback(() => {
-    if (product) {
-      onSizeSelect(product, selectedSize || undefined, quantity);
+    if (displayProduct) {
+      onSizeSelect(displayProduct, selectedSize || undefined, quantity);
       onOpenChange(false);
     }
-  }, [product, selectedSize, quantity, onSizeSelect, onOpenChange]);
+  }, [displayProduct, selectedSize, quantity, onSizeSelect, onOpenChange]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
@@ -63,17 +97,17 @@ export function SizePickerModal({
 
   if (!product) return null;
 
-  const activeSizes = product?.sizes?.filter((s) => s.id) || [];
+  const activeSizes = displayProduct?.sizes?.filter((s) => s.id) || [];
 
-  const displayPrice = selectedSize?.finalPrice || product.displayPrice || 0;
+  const displayPrice = selectedSize?.finalPrice || displayProduct?.displayPrice || 0;
   const originalPrice = selectedSize?.hasPromotion
     ? selectedSize.price
-    : product.hasActivePromotion
-    ? product.displayOriginPrice
+    : displayProduct?.hasActivePromotion
+    ? displayProduct?.displayOriginPrice
     : null;
   const hasDiscount = selectedSize
     ? selectedSize.hasPromotion
-    : product.hasActivePromotion;
+    : displayProduct?.hasActivePromotion;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -85,10 +119,20 @@ export function SizePickerModal({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Product Info */}
-          <div>
-            <h3 className="font-semibold text-sm line-clamp-2 mb-2">
-              {product.name}
+          {/* Loading State */}
+          {isLoadingDetail ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
+              <p className="text-sm text-muted-foreground">
+                Loading product details...
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Product Info */}
+              <div>
+                <h3 className="font-semibold text-sm line-clamp-2 mb-2">
+                  {displayProduct?.name}
             </h3>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-lg font-bold text-primary">
@@ -191,23 +235,25 @@ export function SizePickerModal({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2 pt-2">
-            <CustomButton
-              variant="outline"
-              className="flex-1"
-              onClick={handleClose}
-            >
-              Cancel
-            </CustomButton>
-            <CustomButton
-              className="flex-1 gap-1.5"
-              onClick={handleSelectSize}
-            >
-              <Package className="h-4 w-4" />
-              Add to Cart
-            </CustomButton>
-          </div>
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2">
+                <CustomButton
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleClose}
+                >
+                  Cancel
+                </CustomButton>
+                <CustomButton
+                  className="flex-1 gap-1.5"
+                  onClick={handleSelectSize}
+                >
+                  <Package className="h-4 w-4" />
+                  Add to Cart
+                </CustomButton>
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
