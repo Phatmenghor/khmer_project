@@ -111,13 +111,24 @@ BEGIN
     VALUES (gen_random_uuid(), 0, t - INTERVAL '6 months', t, 'system', 'system', false, NULL, NULL, key_business_id, plan2, t - INTERVAL '6 months', t + INTERVAL '12 months', true);
 
     -- =====================================================
-    -- BUSINESS ROLES
+    -- 30 BUSINESS ROLES
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 30%% - Creating business roles...';
+    RAISE NOTICE '📊 Progress: 30%% - Creating 30 business roles...';
     INSERT INTO roles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, business_id, user_type)
-    VALUES
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'Manager', 'Manager', key_business_id, 'BUSINESS_USER'),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'Chef', 'Chef', key_business_id, 'BUSINESS_USER');
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, CASE r WHEN 1 THEN 'Manager' WHEN 2 THEN 'Chef' WHEN 3 THEN 'Sous Chef' WHEN 4 THEN 'Waiter' WHEN 5 THEN 'Cashier' WHEN 6 THEN 'Delivery Driver' WHEN 7 THEN 'Kitchen Staff' WHEN 8 THEN 'Supervisor' WHEN 9 THEN 'Accountant' WHEN 10 THEN 'Marketing' WHEN 11 THEN 'HR Officer' WHEN 12 THEN 'Customer Service' WHEN 13 THEN 'Security' WHEN 14 THEN 'Maintenance' WHEN 15 THEN 'Inventory' WHEN 16 THEN 'Quality Control' WHEN 17 THEN 'Trainer' WHEN 18 THEN 'Coordinator' WHEN 19 THEN 'Assistant Manager' WHEN 20 THEN 'Head Chef' WHEN 21 THEN 'Server' WHEN 22 THEN 'Host' WHEN 23 THEN 'Bartender' WHEN 24 THEN 'Cook' WHEN 25 THEN 'Dishwasher' WHEN 26 THEN 'Busser' WHEN 27 THEN 'Cleaner' WHEN 28 THEN 'Admin' WHEN 29 THEN 'Support' ELSE 'Specialist' END, 'Role ' || r, key_business_id, 'BUSINESS_USER'
+    FROM GENERATE_SERIES(1, 30) r;
+
+    -- =====================================================
+    -- 2000 BUSINESS USERS
+    -- =====================================================
+    RAISE NOTICE '📊 Progress: 35%% - Creating 2000 business users...';
+    INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count)
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, 'staff' || u || '@business.com', 'staff' || u || '@business.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Staff', 'User ' || u, '+855 10 ' || LPAD((u % 10000000)::TEXT, 8, '0'), CASE WHEN u % 2 = 0 THEN photo1 ELSE photo2 END, 'BUSINESS_USER', 'ACTIVE', key_business_id, 'Position ' || u, 'Business Address', 'Staff User ' || u, t - (RANDOM() * INTERVAL '30 days'), t - (RANDOM() * INTERVAL '2 days'), 1
+    FROM GENERATE_SERIES(1, 2000) u;
+
+    -- Assign roles to business users
+    INSERT INTO user_roles (user_id, role_id)
+    SELECT u.id, r.id FROM users u, (SELECT id FROM roles WHERE business_id = key_business_id) r WHERE u.business_id = key_business_id AND u.id != business_user_id LIMIT 2000;
 
     -- =====================================================
     -- 10 CATEGORIES
@@ -135,12 +146,12 @@ BEGIN
     FROM GENERATE_SERIES(1, 5) br;
 
     -- =====================================================
-    -- 100 PRODUCTS
+    -- 500 PRODUCTS
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 40%% - Creating 100 products...';
+    RAISE NOTICE '📊 Progress: 40%% - Creating 500 products...';
     INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, status, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, display_price, display_origin_price, display_promotion_type, display_promotion_value, display_promotion_from_date, display_promotion_to_date, has_sizes, has_active_promotion, view_count, favorite_count, main_image_url)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM categories WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), (SELECT id FROM brands WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), 'Product ' || p, 'Description for product ' || p, 'ACTIVE', (15.00 + (p % 100))::NUMERIC, CASE WHEN p % 3 = 0 THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN p % 3 = 0 THEN 10 ELSE NULL END, CASE WHEN p % 3 = 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 3 = 0 THEN t + INTERVAL '90 days' ELSE NULL END, (15.00 + (p % 100))::NUMERIC, (15.00 + (p % 100))::NUMERIC, CASE WHEN p % 3 = 0 THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN p % 3 = 0 THEN 10 ELSE NULL END, CASE WHEN p % 3 = 0 THEN t - INTERVAL '5 days' ELSE NULL END, CASE WHEN p % 3 = 0 THEN t + INTERVAL '90 days' ELSE NULL END, CASE WHEN p % 5 = 0 THEN true ELSE false END, CASE WHEN p % 3 = 0 THEN true ELSE false END, (p % 100), (p % 20), CASE WHEN p % 2 = 0 THEN photo1 ELSE photo2 END
-    FROM GENERATE_SERIES(1, 100) p;
+    FROM GENERATE_SERIES(1, 500) p;
     RAISE NOTICE 'Products created!';
 
     -- =====================================================
@@ -233,14 +244,14 @@ BEGIN
     FROM GENERATE_SERIES(1, 5) ON CONFLICT DO NOTHING;
 
     -- =====================================================
-    -- 20 ORDERS
+    -- 200 ORDERS
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 85%% - Creating orders...';
+    RAISE NOTICE '📊 Progress: 85%% - Creating 200 orders...';
     INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
     SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '30 days'), t, 'system', 'system', false, NULL, NULL, key_business_id, customer_user_id, 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(ord_n::TEXT, 6, '0'),
         CASE WHEN ord_n % 4 = 0 THEN 'PENDING'::VARCHAR WHEN ord_n % 4 = 1 THEN 'CONFIRMED' WHEN ord_n % 4 = 2 THEN 'COMPLETED' ELSE 'CANCELLED' END,
         '{"village":"Village 1"}', '{"name":"Standard"}', (50.00 + (ord_n % 100))::NUMERIC, 0, 2.00, 5.00, (55.00 + (ord_n % 100))::NUMERIC, 'CASH', 'PAID', 'Test order', 'Processing', t - (RANDOM() * INTERVAL '30 days'), CASE WHEN ord_n % 4 = 2 THEN t - INTERVAL '1 day' ELSE NULL END
-    FROM GENERATE_SERIES(1, 20) ord_n;
+    FROM GENERATE_SERIES(1, 200) ord_n;
     RAISE NOTICE 'Orders created!';
 
     -- =====================================================
@@ -249,14 +260,14 @@ BEGIN
     RAISE NOTICE '📊 Progress: 90%% - Creating order items...';
     INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, quantity, total_price, has_promotion)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders ORDER BY id OFFSET (oi_n - 1) LIMIT 1), (SELECT id FROM products WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), NULL, 'Item', photo1, 'Medium', 25.00, 25.00, 25.00, 2, 50.00, false
-    FROM GENERATE_SERIES(1, 20) oi_n;
+    FROM GENERATE_SERIES(1, 200) oi_n;
 
     -- =====================================================
     -- ORDER PAYMENTS
     -- =====================================================
     INSERT INTO order_payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, order_id, payment_reference, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, status, customer_payment_method)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM orders ORDER BY id OFFSET (opay_n - 1) LIMIT 1), 'PAY-' || LPAD(opay_n::TEXT, 10, '0'), 100.00, 0, 2.00, 5.00, 107.00, 'CASH', 'COMPLETED', 'Cash'
-    FROM GENERATE_SERIES(1, 20) opay_n;
+    FROM GENERATE_SERIES(1, 200) opay_n;
 
     -- =====================================================
     -- ORDER STATUS HISTORY
@@ -264,7 +275,7 @@ BEGIN
     RAISE NOTICE '📊 Progress: 95%% - Creating order status history...';
     INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders ORDER BY RANDOM() LIMIT 1), CASE WHEN osh % 2 = 0 THEN 'CONFIRMED'::VARCHAR ELSE 'COMPLETED' END, business_user_id, 'System', 'Status updated'
-    FROM GENERATE_SERIES(1, 20) osh;
+    FROM GENERATE_SERIES(1, 200) osh;
 
     -- =====================================================
     -- EXCHANGE RATES
@@ -277,12 +288,16 @@ BEGIN
     VALUES (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 4105.0, 35.45, 7.25, 24500.0, true, 'Exchange rates');
 
     RAISE NOTICE '✅ 3 MAIN USERS CREATED:';
-    RAISE NOTICE '   • phatmenghor19@gmail.com (Platform Admin)';
+    RAISE NOTICE '   • phatmenghor19@gmail.com (Platform Admin - Owner)';
     RAISE NOTICE '   • phatmenghor20@gmail.com (Business Manager)';
     RAISE NOTICE '   • phatmenghor21@gmail.com (Customer)';
-    RAISE NOTICE '✅ 1 BUSINESS: Phatmenghor Business';
-    RAISE NOTICE '✅ 100 PRODUCTS + SIZES + STOCK';
-    RAISE NOTICE '✅ 20 TEST ORDERS';
+    RAISE NOTICE '✅ BUSINESS DATA:';
+    RAISE NOTICE '   • 1 Business: Phatmenghor Business (owned by phatmenghor19)';
+    RAISE NOTICE '   • 30 Business Roles';
+    RAISE NOTICE '   • 2000 Business Users (under phatmenghor20''s business)';
+    RAISE NOTICE '   • 500 Products with Sizes & Stock';
+    RAISE NOTICE '   • 200 Orders with Items & Payments';
+    RAISE NOTICE '   • 5 Delivery Options & 5 Payment Methods';
     RAISE NOTICE '📊 Progress: 100%% - COMPLETE! ✅';
 
 END $$;
