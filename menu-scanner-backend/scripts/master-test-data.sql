@@ -1,11 +1,8 @@
 -- ============================================================================
 -- MASTER TEST DATA SCRIPT - ALL-IN-ONE
 -- ============================================================================
--- Complete end-to-end setup including:
--- - Stock management tables
--- - Core business data (users, roles, products)
--- - Full inventory management
--- - Orders and transactions
+-- Complete end-to-end setup with verified schema columns
+-- Includes all necessary test data for stock management, products, and orders
 --
 -- Run with: psql -h localhost -U postgres -d emenu_db -f master-test-data.sql
 -- ============================================================================
@@ -59,7 +56,6 @@ BEGIN
     -- =====================================================
     RAISE NOTICE '📋 Creating stock management tables...';
 
-    -- Create extensions
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
     -- TABLE 1: PRODUCT_STOCK - Core inventory
@@ -152,7 +148,6 @@ BEGIN
 
     CREATE INDEX IF NOT EXISTS idx_stock_movements_business ON stock_movements(business_id);
     CREATE INDEX IF NOT EXISTS idx_stock_movements_product_stock ON stock_movements(product_stock_id);
-    CREATE INDEX IF NOT EXISTS idx_stock_movements_type ON stock_movements(movement_type);
 
     -- TABLE 3: STOCK_ADJUSTMENTS - Manual adjustments
     CREATE TABLE IF NOT EXISTS stock_adjustments (
@@ -219,7 +214,6 @@ BEGIN
     );
 
     CREATE INDEX IF NOT EXISTS idx_stock_alerts_business ON stock_alerts(business_id);
-    CREATE INDEX IF NOT EXISTS idx_stock_alerts_status ON stock_alerts(status);
 
     -- TABLE 5: BARCODE_MAPPINGS - Scanner support
     CREATE TABLE IF NOT EXISTS barcode_mappings (
@@ -249,24 +243,6 @@ BEGIN
     );
 
     CREATE INDEX IF NOT EXISTS idx_barcode_mappings_business ON barcode_mappings(business_id);
-    CREATE INDEX IF NOT EXISTS idx_barcode_mappings_barcode ON barcode_mappings(barcode);
-
-    -- Update existing tables with stock columns
-    ALTER TABLE IF EXISTS orders ADD COLUMN IF NOT EXISTS stock_status VARCHAR(50) DEFAULT 'STOCK_NOT_CHECKED';
-    ALTER TABLE IF EXISTS orders ADD COLUMN IF NOT EXISTS stock_notes TEXT;
-    ALTER TABLE IF EXISTS orders ADD COLUMN IF NOT EXISTS require_stock_check BOOLEAN DEFAULT true;
-
-    ALTER TABLE IF EXISTS order_items ADD COLUMN IF NOT EXISTS quantity_reserved INT DEFAULT 0;
-    ALTER TABLE IF EXISTS order_items ADD COLUMN IF NOT EXISTS quantity_fulfilled INT DEFAULT 0;
-    ALTER TABLE IF EXISTS order_items ADD COLUMN IF NOT EXISTS stock_check_passed BOOLEAN DEFAULT false;
-
-    ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS track_inventory BOOLEAN DEFAULT true;
-    ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS requires_expiry BOOLEAN DEFAULT false;
-    ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS has_barcodes BOOLEAN DEFAULT false;
-    ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS default_minimum_stock INT DEFAULT 5;
-
-    ALTER TABLE IF EXISTS product_sizes ADD COLUMN IF NOT EXISTS barcode VARCHAR(255);
-    ALTER TABLE IF EXISTS product_sizes ADD COLUMN IF NOT EXISTS track_inventory BOOLEAN;
 
     RAISE NOTICE '✓ Stock tables created successfully!';
 
@@ -335,7 +311,6 @@ BEGIN
 
     INSERT INTO user_roles (user_id, role_id) VALUES (platform_user_id, role_admin);
 
-    -- Business
     INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, owner_id, name, email, phone, address, description, status, is_subscription_active)
     VALUES (key_business_id, 0, t, t, 'system', 'system', false, NULL, NULL, platform_user_id, 'Test Cafe & Restaurant', 'business@test.com', '+855 23 999 9999', 'Phnom Penh, Cambodia', 'Full-featured test business with complete inventory', 'ACTIVE', true);
 
@@ -362,31 +337,31 @@ BEGIN
     -- =====================================================
     RAISE NOTICE '📦 Creating products and inventory...';
 
-    INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, icon_url, image_url, display_order, is_active)
+    INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, image_url, status)
     VALUES
-        (category_food, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Food', NULL, photo1, 1, true),
-        (category_beverages, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Beverages', NULL, photo2, 2, true),
-        (category_snacks, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Snacks', NULL, photo1, 3, true);
+        (category_food, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Food', photo1, 'ACTIVE'),
+        (category_beverages, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Beverages', photo2, 'ACTIVE'),
+        (category_snacks, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Snacks', photo1, 'ACTIVE');
 
-    INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, image_url, price, discount_percentage, discount_price, is_active, is_top_seller, has_sizes, track_inventory, requires_expiry, has_barcodes, default_minimum_stock, is_available)
+    INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, main_image_url, price, has_sizes, minimum_stock_level, status)
     VALUES
-        (product_coffee, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Premium Coffee', 'Freshly brewed premium coffee', photo1, 3.50, 0, 3.50, true, true, true, true, false, true, 5, true),
-        (product_tea, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Green Tea', 'Fresh green tea', photo2, 2.50, 10, 2.25, true, false, true, true, false, true, 5, true),
-        (product_juice, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Fresh Orange Juice', 'Freshly squeezed orange juice', photo1, 4.00, 0, 4.00, true, true, true, true, false, true, 5, true),
-        (product_burger, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_food, NULL, 'Classic Burger', 'Juicy beef burger with lettuce and tomato', photo2, 6.50, 15, 5.53, true, true, false, true, false, false, 10, true),
-        (product_fries, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_snacks, NULL, 'Crispy Fries', 'Golden crispy french fries', photo1, 3.00, 0, 3.00, true, false, true, true, false, true, 10, true);
+        (product_coffee, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Premium Coffee', 'Freshly brewed premium coffee', photo1, 3.50, true, 5, 'ACTIVE'),
+        (product_tea, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Green Tea', 'Fresh green tea', photo2, 2.50, true, 5, 'ACTIVE'),
+        (product_juice, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_beverages, NULL, 'Fresh Orange Juice', 'Freshly squeezed orange juice', photo1, 4.00, true, 5, 'ACTIVE'),
+        (product_burger, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_food, NULL, 'Classic Burger', 'Juicy beef burger with lettuce and tomato', photo2, 6.50, false, 10, 'ACTIVE'),
+        (product_fries, 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, category_snacks, NULL, 'Crispy Fries', 'Golden crispy french fries', photo1, 3.00, true, 10, 'ACTIVE');
 
-    INSERT INTO product_sizes (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, business_id, name, description, size_value, unit, price, barcode, image_url, display_order, is_active, track_inventory)
+    INSERT INTO product_sizes (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, name, price, minimum_stock_level)
     VALUES
-        (product_size_small, 0, t, t, 'system', 'system', false, NULL, NULL, product_coffee, key_business_id, 'Small', 'Small coffee cup', '8', 'oz', 3.50, '1234567890001', photo1, 1, true, true),
-        (product_size_medium, 0, t, t, 'system', 'system', false, NULL, NULL, product_coffee, key_business_id, 'Medium', 'Medium coffee cup', '12', 'oz', 4.00, '1234567890002', photo2, 2, true, true),
-        (product_size_large, 0, t, t, 'system', 'system', false, NULL, NULL, product_coffee, key_business_id, 'Large', 'Large coffee cup', '16', 'oz', 4.50, '1234567890003', photo1, 3, true, true),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_tea, key_business_id, 'Small', 'Small tea cup', '8', 'oz', 2.50, '1234567890004', photo2, 1, true, true),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_tea, key_business_id, 'Large', 'Large tea cup', '16', 'oz', 3.00, '1234567890005', photo1, 2, true, true),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_juice, key_business_id, 'Small', 'Small juice', '8', 'oz', 4.00, '1234567890006', photo2, 1, true, true),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_juice, key_business_id, 'Large', 'Large juice', '16', 'oz', 5.00, '1234567890007', photo1, 2, true, true),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_fries, key_business_id, 'Small', 'Small fries', 'S', 'portion', 3.00, '1234567890008', photo2, 1, true, true),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_fries, key_business_id, 'Large', 'Large fries', 'L', 'portion', 4.50, '1234567890009', photo1, 2, true, true);
+        (product_size_small, 0, t, t, 'system', 'system', false, NULL, NULL, product_coffee, 'Small', 3.50, 5),
+        (product_size_medium, 0, t, t, 'system', 'system', false, NULL, NULL, product_coffee, 'Medium', 4.00, 5),
+        (product_size_large, 0, t, t, 'system', 'system', false, NULL, NULL, product_coffee, 'Large', 4.50, 5),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_tea, 'Small', 2.50, 5),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_tea, 'Large', 3.00, 5),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_juice, 'Small', 4.00, 5),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_juice, 'Large', 5.00, 5),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_fries, 'Small', 3.00, 10),
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, product_fries, 'Large', 4.50, 10);
 
     INSERT INTO product_stock (
         id, business_id, product_id, product_size_id,
@@ -532,36 +507,32 @@ BEGIN
 
     INSERT INTO orders (
         id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-        business_id, customer_id, order_code, order_status, payment_status, delivery_status,
-        total_amount, subtotal_amount, discount_amount, tax_amount, service_charge_amount, delivery_fee,
-        delivery_type, delivery_address, delivery_date, delivery_time,
-        customer_notes, special_instructions, estimated_delivery_time,
-        stock_status, stock_notes, require_stock_check
+        business_id, customer_id, order_number, order_status, payment_status, payment_method,
+        subtotal, discount_amount, delivery_fee, tax_amount, total_amount,
+        customer_note, business_note, confirmed_at, completed_at
     )
     VALUES (
         order_id, 0, t - INTERVAL '2 days', t - INTERVAL '2 days', customer_user_id, customer_user_id, false, NULL, NULL,
-        key_business_id, customer_user_id, 'ORD-' || TO_CHAR(t, 'YYYYMMDDHH24MISS'), 'PENDING', 'PENDING', 'PENDING',
-        25.50, 23.00, 2.50, 0, 2.30, 2.20,
-        'DELIVERY', 'Phnom Penh, Cambodia', t::DATE, '14:30',
-        'Please ring the bell', 'Extra napkins please', '45 minutes',
-        'STOCK_AVAILABLE', 'All items in stock', true
+        key_business_id, customer_user_id, 'ORD-' || TO_CHAR(t, 'YYYYMMDDHH24MISS'), 'PENDING', 'UNPAID', 'CASH',
+        23.00, 2.50, 2.20, 0.00, 25.50,
+        'Please ring the bell', NULL, NULL, NULL
     );
 
     INSERT INTO order_items (
         id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-        order_id, product_id, product_size_id, business_id, quantity, unit_price, total_price,
-        special_instructions, quantity_reserved, quantity_fulfilled, stock_check_passed
+        order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price,
+        quantity, total_price, special_instructions
     )
     VALUES
         (gen_random_uuid(), 0, t - INTERVAL '2 days', t - INTERVAL '2 days', customer_user_id, customer_user_id, false, NULL, NULL,
-         order_id, product_coffee, product_size_medium, key_business_id, 2, 4.00, 8.00,
-         'Extra hot', 2, 2, true),
+         order_id, product_coffee, product_size_medium, 'Premium Coffee', photo1, 'Medium', 4.00, 4.00, 4.00,
+         2, 8.00, 'Extra hot'),
         (gen_random_uuid(), 0, t - INTERVAL '2 days', t - INTERVAL '2 days', customer_user_id, customer_user_id, false, NULL, NULL,
-         order_id, product_burger, NULL, key_business_id, 1, 6.50, 6.50,
-         'No onions', 1, 1, true),
+         order_id, product_burger, NULL, 'Classic Burger', photo2, 'Standard', 6.50, 6.50, 6.50,
+         1, 6.50, 'No onions'),
         (gen_random_uuid(), 0, t - INTERVAL '2 days', t - INTERVAL '2 days', customer_user_id, customer_user_id, false, NULL, NULL,
-         order_id, product_fries, (SELECT id FROM product_sizes WHERE product_id = product_fries LIMIT 1), key_business_id, 2, 3.00, 6.00,
-         NULL, 2, 2, true);
+         order_id, product_fries, (SELECT id FROM product_sizes WHERE product_id = product_fries LIMIT 1), 'Crispy Fries', photo1, 'Small', 3.00, 3.00, 3.00,
+         2, 6.00, NULL);
 
     RAISE NOTICE '✓ Orders created!';
 
