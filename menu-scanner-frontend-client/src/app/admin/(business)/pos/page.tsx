@@ -912,35 +912,32 @@ export default function PosPage() {
                   </div>
                 );
               })}
-            </div>
 
-            {/* Skeleton Loaders while loading more */}
-            {productsLoading && products.length > 0 && (
-              <>
-                {Array.from({ length: 8 }).map((_, i) => (
+              {/* Skeleton Loaders while loading more - INSIDE grid */}
+              {productsLoading && products.length > 0 &&
+                Array.from({ length: 8 }).map((_, i) => (
                   <ProductCardSkeleton key={`skeleton-${i}`} compact />
                 ))}
-              </>
-            )}
 
-            {/* Loading Button for more products */}
-            {productsLoading && products.length > 0 && (
-              <div className="col-span-full flex items-center justify-center py-4">
-                <Button disabled className="gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading more products...
-                </Button>
-              </div>
-            )}
+              {/* Loading Button for more products - INSIDE grid */}
+              {productsLoading && products.length > 0 && (
+                <div className="col-span-full flex items-center justify-center py-4">
+                  <Button disabled className="gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading more products...
+                  </Button>
+                </div>
+              )}
+            </div>
 
-            {/* Infinite Scroll Sentinel */}
+            {/* Infinite Scroll Sentinel - OUTSIDE grid */}
             {hasMoreProducts && !productsLoading && (
-              <div ref={observerTarget} className="col-span-full h-1" />
+              <div ref={observerTarget} className="h-1" />
             )}
 
-            {/* Empty State */}
+            {/* Empty State - OUTSIDE grid */}
             {!productsLoading && products.length === 0 && (
-              <div className="col-span-full flex flex-col items-center justify-center py-20 text-muted-foreground">
+              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
                 <Package className="w-16 h-16 mb-4 opacity-20" />
                 <p className="text-sm font-medium">No products found</p>
                 <p className="text-xs mt-1">
@@ -949,13 +946,13 @@ export default function PosPage() {
               </div>
             )}
 
-            {/* Initial Loading */}
+            {/* Initial Loading - OUTSIDE grid for better UX */}
             {productsLoading && products.length === 0 && (
-              <>
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1">
                 {Array.from({ length: 16 }).map((_, i) => (
                   <ProductCardSkeleton key={`initial-skeleton-${i}`} compact />
                 ))}
-              </>
+              </div>
             )}
           </ScrollArea>
         </div>
