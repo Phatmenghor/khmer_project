@@ -711,11 +711,11 @@ export default function PosPage() {
 
           {/* Product Grid */}
           <ScrollArea className="flex-1" ref={productGridRef}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 p-3">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 p-3">
               {products.map((product) => {
                 const qtyInCart = getProductCartQuantity(product.id);
                 return (
-                  <button
+                  <div
                     key={product.id}
                     onClick={() => handleProductClick(product)}
                     className={cn(
@@ -832,7 +832,7 @@ export default function PosPage() {
                         )}
                       </div>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
