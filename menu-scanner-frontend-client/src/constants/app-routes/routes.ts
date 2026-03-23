@@ -131,32 +131,32 @@ export const SIDEBAR_MENU: MenuItem[] = [
       },
     ],
   },
-  {
-    title: "HR",
-    icon: Database,
-    items: [
-      {
-        title: "Work Schedule Types",
-        href: ROUTES.HR.WORK_SCHEDULE_TYPE,
-      },
-      {
-        title: "Leave Type",
-        href: ROUTES.HR.LEAVE_TYPE,
-      },
-      {
-        title: "Work Schedules",
-        href: ROUTES.HR.WORK_SCHEDULE,
-      },
-      {
-        title: "Leave",
-        href: ROUTES.HR.LEAVE,
-      },
-      {
-        title: "Attendance",
-        href: ROUTES.HR.ATTENDANCE,
-      },
-    ],
-  },
+  // {
+  //   title: "HR",
+  //   icon: Database,
+  //   items: [
+  //     {
+  //       title: "Work Schedule Types",
+  //       href: ROUTES.HR.WORK_SCHEDULE_TYPE,
+  //     },
+  //     {
+  //       title: "Leave Type",
+  //       href: ROUTES.HR.LEAVE_TYPE,
+  //     },
+  //     {
+  //       title: "Work Schedules",
+  //       href: ROUTES.HR.WORK_SCHEDULE,
+  //     },
+  //     {
+  //       title: "Leave",
+  //       href: ROUTES.HR.LEAVE,
+  //     },
+  //     {
+  //       title: "Attendance",
+  //       href: ROUTES.HR.ATTENDANCE,
+  //     },
+  //   ],
+  // },
 ];
 
 /**
