@@ -329,9 +329,20 @@ export default function PosPage() {
     ) as HTMLElement;
     if (!viewport) return;
 
+    // Ensure container and viewport are properly sized for horizontal-only scrolling
+    Object.assign(categoryContainer.style, {
+      overflow: "hidden",
+      height: "56px", // h-14 = 3.5rem = 56px
+    });
+
     // Hide vertical scrollbar for horizontal-only scrolling
-    viewport.style.overflowY = "hidden";
-    viewport.style.overflow = "hidden";
+    Object.assign(viewport.style, {
+      overflowY: "hidden",
+      overflowX: "auto",
+      height: "56px",
+      minHeight: "56px",
+      maxHeight: "56px",
+    });
 
     try {
       const scrollbar = SmoothScrollbar.init(viewport, {
@@ -775,12 +786,12 @@ export default function PosPage() {
 
             {/* Categories Scroll Area - Horizontal only scrolling */}
             <ScrollArea className="flex-1 h-14 overflow-hidden" ref={categoryScrollRef}>
-              <div className="flex gap-3 p-2 h-full items-center">
+              <div className="flex gap-3 px-2 h-14 items-center">
                 {/* All Categories Button */}
                 <button
                   onClick={() => setSelectedCategory(null)}
                   className={cn(
-                    "shrink-0 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer",
+                    "shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10",
                     selectedCategory === null
                       ? "bg-primary text-primary-foreground"
                       : "bg-white border border-border text-foreground hover:bg-muted"
@@ -791,7 +802,7 @@ export default function PosPage() {
 
                 {/* Category Buttons */}
                 {categoriesLoading ? (
-                  <div className="flex items-center gap-2 px-3">
+                  <div className="flex items-center gap-2 px-3 h-10">
                     <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                   </div>
                 ) : (
@@ -800,7 +811,7 @@ export default function PosPage() {
                       key={category.id}
                       onClick={() => setSelectedCategory(category)}
                       className={cn(
-                        "shrink-0 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer",
+                        "shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10",
                         selectedCategory?.id === category.id
                           ? "bg-primary text-primary-foreground"
                           : "bg-white border border-border text-foreground hover:bg-muted"
