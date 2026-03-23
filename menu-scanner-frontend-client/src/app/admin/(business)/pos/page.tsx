@@ -334,6 +334,55 @@ export default function PosPage() {
     return () => categoryContainer.removeEventListener("wheel", handleWheel);
   }, []);
 
+  // ─── Enable Click & Drag Scroll for Categories ───
+  useEffect(() => {
+    const categoryContainer = categoryScrollRef.current;
+    if (!categoryContainer) return;
+
+    const viewport = categoryContainer.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLElement;
+    if (!viewport) return;
+
+    let isScrolling = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      // Only allow scrolling with middle/wheel button or when hovering over scrollbar
+      if (e.button !== 1 && e.button !== 0) return; // 0 = left, 1 = middle
+
+      isScrolling = true;
+      startX = e.pageX - categoryContainer.offsetLeft;
+      scrollLeft = viewport.scrollLeft;
+      categoryContainer.style.cursor = "grabbing";
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isScrolling) return;
+      e.preventDefault();
+
+      const x = e.pageX - categoryContainer.offsetLeft;
+      const distance = (x - startX) * 0.5; // Slower drag for better control
+      viewport.scrollLeft = scrollLeft - distance;
+    };
+
+    const handleMouseUp = () => {
+      isScrolling = false;
+      categoryContainer.style.cursor = "grab";
+    };
+
+    viewport.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      viewport.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
   // ─── Cart Logic ───
   const addToCart = useCallback(
     (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string) => {
