@@ -123,7 +123,8 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                 React.Children.map(children, (child) => (
                   <div className="w-auto flex-shrink-0
                     [&>.space-y-2]:!w-auto
-                    [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]">
+                    [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
+                    [&_button.w-full]:!w-auto">
                     {child}
                   </div>
                 ))}
