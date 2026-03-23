@@ -1,6 +1,5 @@
 package com.emenu.features.stock.service.impl;
 
-import com.emenu.features.stock.dto.request.StockAdjustmentRequest;
 import com.emenu.features.stock.dto.request.StockAlertFilterRequest;
 import com.emenu.features.stock.dto.request.StockMovementFilterRequest;
 import com.emenu.features.stock.dto.response.StockAlertDto;
@@ -35,56 +34,10 @@ public class StockServiceImpl implements StockService {
 
     private final ProductStockRepository productStockRepository;
     private final StockMovementRepository stockMovementRepository;
-    private final StockAdjustmentRepository stockAdjustmentRepository;
     private final StockAlertRepository stockAlertRepository;
     private final PaginationMapper paginationMapper;
 
-    // ========== Stock Adjustment Operations ==========
-
-    @Override
-    public StockMovementDto adjustStock(UUID businessId, StockAdjustmentRequest request) {
-        ProductStock stock = productStockRepository.findById(request.getProductStockId())
-            .orElseThrow(() -> new ResourceNotFoundException("Stock record not found"));
-
-        validateBusinessOwnership(stock.getBusinessId(), businessId);
-
-        Integer previousQty = stock.getQuantityOnHand();
-        Integer newQty = previousQty + request.getAdjustmentQuantity();
-
-        if (newQty < 0) {
-            throw new InvalidOperationException("Cannot reduce stock below 0");
-        }
-
-        StockAdjustment adjustment = new StockAdjustment();
-        adjustment.setBusinessId(businessId);
-        adjustment.setProductStockId(stock.getId());
-        adjustment.setAdjustmentType(request.getAdjustmentType());
-        adjustment.setPreviousQuantity(previousQty);
-        adjustment.setAdjustedQuantity(newQty);
-        adjustment.setQuantityDifference(request.getAdjustmentQuantity());
-        adjustment.setReason(request.getReason());
-        adjustment.setDetailNotes(request.getDetailNotes());
-        adjustment.setRequiresApproval(request.getRequiresApproval() != null && request.getRequiresApproval());
-        adjustment.setApproved(false);
-        adjustment.setAdjustedBy(getCurrentUserId());
-        adjustment.setAdjustedAt(LocalDateTime.now());
-
-        stockAdjustmentRepository.save(adjustment);
-
-        stock.setQuantityOnHand(newQty);
-        stock.setDateIn(LocalDateTime.now());
-        productStockRepository.save(stock);
-
-        StockMovement movement = createStockMovement(
-            businessId, stock.getId(), "ADJUSTMENT",
-            request.getAdjustmentQuantity(), previousQty, newQty,
-            "ADJUSTMENT", adjustment.getId(),
-            request.getReason(), getCurrentUserId(), null, null
-        );
-
-        log.info("Stock adjusted for product {}: {} -> {}", stock.getProductId(), previousQty, newQty);
-        return mapToDto(movement);
-    }
+    // ========== Stock Operations ==========
 
     @Override
     public StockMovementDto addStock(UUID businessId, UUID productStockId, Integer quantity, String reason, UUID userId) {
@@ -140,7 +93,6 @@ public class StockServiceImpl implements StockService {
 
     /**
      * Deduct stock using FIFO - oldest batch first.
-     * Called when an order is confirmed to automatically cut stock across batches.
      */
     public void deductStockFIFO(UUID businessId, UUID productId, UUID sizeId, Integer quantity, UUID orderId, String reason) {
         List<ProductStock> batches = productStockRepository.findActiveBatchesFIFO(productId, sizeId, businessId);
@@ -165,7 +117,7 @@ public class StockServiceImpl implements StockService {
             );
 
             remaining -= deduct;
-            log.info("FIFO deducted {} units from batch {} (dateIn: {}), remaining: {}", deduct, batch.getId(), batch.getDateIn(), remaining);
+            log.info("FIFO deducted {} units from batch {}, remaining: {}", deduct, batch.getId(), remaining);
         }
 
         if (remaining > 0) {
