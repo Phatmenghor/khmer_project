@@ -74,7 +74,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
       <Card>
         <CardContent className="py-3 sm:py-5">
           {/* Title Section with Back Button */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-start mt-3">
+          <div className="flex items-center gap-2 mb-3">
             {(back || isMobile) && (
               <ActionButton
                 size="icon"
@@ -85,17 +85,15 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               />
             )}
             {title && (
-              <div className="flex flex-col">
-                <h1 className="text-sm sm:text-base font-bold mb-1">{title}</h1>
-              </div>
+              <h1 className="text-base sm:text-lg font-bold">{title}</h1>
             )}
           </div>
 
-          {/* Search and Actions Section */}
-          <div className="flex flex-col lg:flex-row lg:items-end lg:gap-2 lg:justify-start gap-2 sm:gap-4">
+          {/* Search, Filters, and Actions - single row that wraps */}
+          <div className="flex flex-wrap items-end gap-2">
             {/* Search input */}
             {onSearchChange && (
-              <div className="w-full lg:w-[280px] flex-shrink-0">
+              <div className="w-full sm:w-auto sm:min-w-[220px] sm:max-w-[280px] flex-shrink-0">
                 <div className="relative w-full group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   <Input
@@ -111,22 +109,24 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
 
             {/* Filters - Inline with labels */}
             {customSelect && (
-              <div className="flex flex-wrap lg:flex-nowrap gap-3 items-end
-                [&>*]:flex [&>*]:flex-row [&>*]:gap-1.5 [&>*]:items-center [&>*]:w-auto
-                [&>*>label]:whitespace-nowrap [&>*>label]:text-xs [&>*>label]:font-medium [&>*>label]:min-w-fit
-                [&>*>div]:bg-gray-800 [&>*>div]:border-gray-700 [&>*>div]:text-gray-200 [&>*>div]:w-auto">
+              <div className="flex flex-wrap gap-2 items-end
+                [&>*]:w-auto [&>*]:flex-shrink-0
+                [&>*>label]:whitespace-nowrap [&>*>label]:text-xs [&>*>label]:font-medium">
                 {customSelect}
               </div>
             )}
 
             {children && (
-              <div className="flex flex-wrap lg:flex-nowrap items-center gap-2 [&>*]:w-auto">
+              <div className="flex flex-wrap items-end gap-2
+                [&_.space-y-2]:!w-auto [&_.space-y-2]:flex-shrink-0
+                [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
+                [&_.w-full]:!w-auto">
                 {children}
               </div>
             )}
 
             {/* Right side buttons - push to right */}
-            <div className="flex flex-wrap lg:flex-nowrap gap-2 items-end lg:ml-auto">
+            <div className="flex flex-wrap gap-2 items-end ml-auto">
               {buttonText && buttonHref && (
                 <TooltipProvider>
                   <Tooltip>
