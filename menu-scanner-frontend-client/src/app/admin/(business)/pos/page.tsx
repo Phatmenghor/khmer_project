@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import SmoothScrollbar from "smooth-scrollbar";
 import {
   Search,
   Plus,
@@ -298,7 +299,7 @@ export default function PosPage() {
     }
   }, []);
 
-  // ─── Enable Smooth Click & Drag Scroll for Categories ───
+  // ─── Initialize Smooth Scrollbar for Categories ───
   useEffect(() => {
     const categoryContainer = categoryScrollRef.current;
     if (!categoryContainer) return;
@@ -308,79 +309,22 @@ export default function PosPage() {
     ) as HTMLElement;
     if (!viewport) return;
 
-    let isScrolling = false;
-    let startX = 0;
-    let scrollLeft = 0;
-    let velocity = 0;
-    let lastX = 0;
-    let lastTime = 0;
-    let animationId: number | null = null;
+    try {
+      const scrollbar = SmoothScrollbar.init(viewport, {
+        damping: 0.08,
+        thumbMinSize: 20,
+        renderByPixels: true,
+        alwaysShowTracks: false,
+        continuousScrolling: true,
+      });
 
-    const handleMouseDown = (e: MouseEvent) => {
-      // Cancel any ongoing animation
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-        animationId = null;
-      }
-
-      isScrolling = true;
-      startX = e.pageX - viewport.getBoundingClientRect().left;
-      scrollLeft = viewport.scrollLeft;
-      lastX = e.pageX;
-      lastTime = Date.now();
-      viewport.style.cursor = "grabbing";
-      velocity = 0;
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isScrolling) return;
-      e.preventDefault();
-
-      const currentX = e.pageX;
-      const distance = currentX - startX;
-      viewport.scrollLeft = scrollLeft - distance;
-
-      // Calculate velocity smoothly
-      const timeDiff = Date.now() - lastTime;
-      if (timeDiff > 0) {
-        const instantVelocity = (lastX - currentX) / timeDiff;
-        velocity = velocity * 0.7 + instantVelocity * 0.3; // Smooth velocity
-      }
-      lastX = currentX;
-      lastTime = Date.now();
-    };
-
-    const handleMouseUp = () => {
-      if (!isScrolling) return;
-      isScrolling = false;
-      viewport.style.cursor = "grab";
-
-      // Smooth momentum scrolling with requestAnimationFrame
-      if (Math.abs(velocity) > 0.01) {
-        const animate = () => {
-          viewport.scrollLeft += velocity * 20;
-          velocity *= 0.92; // Smooth deceleration
-
-          if (Math.abs(velocity) > 0.01) {
-            animationId = requestAnimationFrame(animate);
-          } else {
-            animationId = null;
-          }
-        };
-        animationId = requestAnimationFrame(animate);
-      }
-    };
-
-    viewport.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      if (animationId) cancelAnimationFrame(animationId);
-      viewport.removeEventListener("mousedown", handleMouseDown);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
+      return () => {
+        scrollbar.destroy();
+      };
+    } catch (error) {
+      // Fallback if smooth-scrollbar fails
+      console.warn("Smooth scrollbar initialization failed:", error);
+    }
   }, []);
 
 
