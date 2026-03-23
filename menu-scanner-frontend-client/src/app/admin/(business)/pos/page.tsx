@@ -24,6 +24,7 @@ import {
   ChevronsUpDown,
   Check,
   Ruler,
+  Pencil,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -137,6 +138,7 @@ export default function PosPage() {
   // ─── Size Picker Modal ───
   const [sizePickerProduct, setSizePickerProduct] =
     useState<ProductDetailResponseModel | null>(null);
+  const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
 
   // ─── Success Modal ───
   const [successOrder, setSuccessOrder] = useState<{
@@ -273,7 +275,7 @@ export default function PosPage() {
 
   // ─── Cart Logic ───
   const addToCart = useCallback(
-    (product: ProductDetailResponseModel, size?: ProductSize) => {
+    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string) => {
       const cartId = size ? `${product.id}-${size.id}` : product.id;
       const currentPrice = size
         ? size.price
@@ -285,6 +287,42 @@ export default function PosPage() {
       const hasPromo = size ? size.hasPromotion : product.hasActivePromotion;
 
       setCartItems((prev) => {
+        // If editing existing item, replace it
+        if (editingId) {
+          const existingItem = prev.find((item) => item.id === editingId);
+          if (existingItem) {
+            return prev.map((item) =>
+              item.id === editingId
+                ? {
+                    id: cartId,
+                    productId: product.id,
+                    productName: product.name,
+                    productImageUrl: product.mainImageUrl || "",
+                    productSizeId: size?.id || null,
+                    sizeName: size?.name || null,
+                    currentPrice,
+                    finalPrice,
+                    hasActivePromotion: hasPromo,
+                    quantity: existingItem.quantity,
+                    promotionType:
+                      size?.promotionType || product.displayPromotionType || null,
+                    promotionValue:
+                      size?.promotionValue || product.displayPromotionValue || null,
+                    promotionFromDate:
+                      size?.promotionFromDate ||
+                      product.displayPromotionFromDate ||
+                      null,
+                    promotionToDate:
+                      size?.promotionToDate ||
+                      product.displayPromotionToDate ||
+                      null,
+                  }
+                : item
+            );
+          }
+        }
+
+        // Check if same product/size combo already exists
         const existing = prev.find((item) => item.id === cartId);
         if (existing) {
           return prev.map((item) =>
@@ -293,6 +331,8 @@ export default function PosPage() {
               : item
           );
         }
+
+        // Add new item
         return [
           ...prev,
           {
@@ -325,6 +365,8 @@ export default function PosPage() {
       if (!showCart && window.innerWidth < 1024) {
         setShowCart(true);
       }
+
+      setEditingCartItemId(null);
     },
     [showCart]
   );
@@ -393,6 +435,15 @@ export default function PosPage() {
     },
     [cartItems]
   );
+
+  // ─── Edit Cart Item Handler ───
+  const handleEditCartItem = (cartItem: PosCartItem) => {
+    const product = products.find((p) => p.id === cartItem.productId);
+    if (product) {
+      setSizePickerProduct(product);
+      setEditingCartItemId(cartItem.id);
+    }
+  };
 
   // ─── Submit Order ───
   const handleSubmitOrder = async () => {
@@ -1000,12 +1051,24 @@ export default function PosPage() {
                       </p>
                     </div>
 
+                    {/* Edit */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-muted-foreground hover:text-primary shrink-0"
+                      onClick={() => handleEditCartItem(item)}
+                      title="Edit size"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+
                     {/* Remove */}
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
                       onClick={() => removeItem(item.id)}
+                      title="Remove item"
                     >
                       <X className="w-3 h-3" />
                     </Button>
@@ -1111,13 +1174,16 @@ export default function PosPage() {
       {/* ─── Size Picker Modal ─── */}
       <Dialog
         open={!!sizePickerProduct}
-        onOpenChange={() => setSizePickerProduct(null)}
+        onOpenChange={() => {
+          setSizePickerProduct(null);
+          setEditingCartItemId(null);
+        }}
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-sm flex items-center gap-2">
               <Package className="w-4 h-4" />
-              Select Size - {sizePickerProduct?.name}
+              {editingCartItemId ? "Edit Size" : "Select Size"} - {sizePickerProduct?.name}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
@@ -1128,7 +1194,7 @@ export default function PosPage() {
                   className="w-full flex items-center justify-between p-3 rounded-lg border hover:border-primary hover:bg-primary/5 transition-all active:scale-[0.98]"
                   onClick={() => {
                     if (sizePickerProduct) {
-                      addToCart(sizePickerProduct);
+                      addToCart(sizePickerProduct, undefined, editingCartItemId || undefined);
                       setSizePickerProduct(null);
                     }
                   }}
@@ -1154,7 +1220,7 @@ export default function PosPage() {
                   className="w-full flex items-center justify-between p-3 rounded-lg border hover:border-primary hover:bg-primary/5 transition-all active:scale-[0.98]"
                   onClick={() => {
                     if (sizePickerProduct) {
-                      addToCart(sizePickerProduct, size);
+                      addToCart(sizePickerProduct, size, editingCartItemId || undefined);
                       setSizePickerProduct(null);
                     }
                   }}
