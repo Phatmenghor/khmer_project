@@ -579,7 +579,7 @@ export default function PosPage() {
 
   // ─── Current time display ───
   return (
-    <div className="flex flex-col h-screen -m-2 md:-m-4">
+    <div className="flex flex-col h-full w-full">
       {/* ─── Main Content ─── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
