@@ -23,6 +23,7 @@ import {
   Loader2,
   ChevronsUpDown,
   Check,
+  Ruler,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -550,7 +551,7 @@ export default function PosPage() {
       {/* ─── Main Content ─── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ─── LEFT: Categories Sidebar ─── */}
-        <div className="hidden md:flex md:w-[200px] flex-col border-r bg-muted/30 shrink-0">
+        <div className="hidden md:flex md:w-[140px] flex-col border-r bg-muted/30 shrink-0">
           {/* Search Bar */}
           <div className="relative p-3 border-b shrink-0">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -718,35 +719,18 @@ export default function PosPage() {
                     key={product.id}
                     onClick={() => handleProductClick(product)}
                     className={cn(
-                      "relative flex flex-col rounded-lg border bg-card overflow-hidden hover:border-primary hover:shadow-md transition-all duration-150 text-left group cursor-pointer active:scale-95",
-                      qtyInCart > 0
-                        ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20"
-                        : "border-border hover:border-primary"
+                      "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer",
+                      qtyInCart > 0 && "ring-1 ring-primary/30 border-primary/50",
+                      product.hasActivePromotion && "ring-1 ring-amber-500/20"
                     )}
                   >
-                    {/* Quantity Badge */}
-                    {qtyInCart > 0 && (
-                      <div className="absolute -top-2 -right-2 z-10 w-6 h-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shadow-md">
-                        {qtyInCart}
-                      </div>
-                    )}
-
-                    {/* Promotion Badge */}
-                    {product.hasActivePromotion && (
-                      <div className="absolute top-2 left-2 z-10">
-                        <Badge variant="destructive" className="text-[10px]">
-                          Sale
-                        </Badge>
-                      </div>
-                    )}
-
-                    {/* Image */}
-                    <div className="relative w-full aspect-square overflow-hidden bg-muted">
+                    {/* Image Container */}
+                    <div className="relative aspect-square overflow-hidden bg-muted/30">
                       {product.mainImageUrl ? (
                         <img
                           src={product.mainImageUrl}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                          className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
                           loading="lazy"
                         />
                       ) : (
@@ -754,43 +738,52 @@ export default function PosPage() {
                           <Package className="w-8 h-8 opacity-30" />
                         </div>
                       )}
+
+                      {/* Promotion Badge - Top Left */}
+                      {product.hasActivePromotion && (
+                        <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                          <Badge variant="destructive" className="text-xs font-bold px-2 py-0.5 shadow-md">
+                            {product.displayPromotionType === "PERCENTAGE"
+                              ? `-${product.displayPromotionValue}%`
+                              : `-${formatCurrency(product.displayPromotionValue)}`}
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Sizes Badge - Bottom Left */}
+                      {product.hasSizes && (
+                        <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
+                          <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
+                            <Ruler className="h-3 w-3" />
+                            Sizes
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Quantity Badge - Top Right */}
+                      {qtyInCart > 0 && (
+                        <div className="absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shadow-md">
+                          {qtyInCart}
+                        </div>
+                      )}
                     </div>
 
                     {/* Content */}
-                    <div className="p-2 flex-1 flex flex-col">
-                      <p className="text-xs font-semibold line-clamp-2 flex-1">
+                    <div className="p-3 flex flex-col flex-1">
+                      <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
                         {product.name}
-                      </p>
+                      </h3>
 
-                      {/* Sizes Badge */}
-                      {product.hasSizes && (
-                        <Badge
-                          variant="secondary"
-                          className="text-[9px] px-1.5 py-0 w-fit mb-1 mt-1"
-                        >
-                          Sizes
-                        </Badge>
-                      )}
-
-                      {/* Price */}
-                      <div className="flex items-center gap-1 mt-1.5 pt-1.5 border-t">
-                        {product.hasActivePromotion ? (
-                          <>
-                            <span className="text-xs font-bold text-primary">
-                              {formatCurrency(product.displayPrice)}
-                            </span>
-                            <span className="text-[9px] line-through text-muted-foreground">
-                              {formatCurrency(product.displayOriginPrice)}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-xs font-bold text-foreground">
-                            {formatCurrency(
-                              product.displayPrice ||
-                                parseFloat(String(product.price || 0))
-                            )}
+                      <div className="mt-auto">
+                        {/* Prices */}
+                        <div className="flex flex-col mb-2">
+                          <span className={cn("text-xs text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
+                            {formatCurrency(product.displayOriginPrice)}
                           </span>
-                        )}
+                          <span className="text-base font-bold text-primary">
+                            {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </button>
