@@ -791,26 +791,26 @@ export default function PosPage() {
           </div>
 
           {/* Categories Horizontal Scroll */}
-          <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 py-2">
+          <div className="shrink-0 border-b bg-muted/10 flex items-center justify-center gap-1 px-2 py-1">
             {/* Left Arrow Button */}
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 shrink-0"
+              className="h-10 w-10 shrink-0"
               onClick={() => scrollCategories("left")}
               title="Scroll left"
             >
-              <ChevronRight className="h-4 w-4 transform rotate-180" />
+              <ChevronRight className="h-5 w-5 transform rotate-180" />
             </Button>
 
             {/* Categories Scroll Area - Scrollable with wheel or drag */}
-            <ScrollArea className="flex-1 h-16" ref={categoryScrollRef}>
-              <div className="flex gap-2 p-1">
+            <ScrollArea className="flex-1 h-10" ref={categoryScrollRef}>
+              <div className="flex gap-1 p-0 h-full items-center">
                 {/* All Categories Button */}
                 <button
                   onClick={() => setSelectedCategory(null)}
                   className={cn(
-                    "shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
+                    "shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap",
                     selectedCategory === null
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -830,7 +830,7 @@ export default function PosPage() {
                       key={category.id}
                       onClick={() => setSelectedCategory(category)}
                       className={cn(
-                        "shrink-0 px-4 py-2 rounded-lg text-sm transition-colors whitespace-nowrap",
+                        "shrink-0 px-3 py-1.5 rounded-lg text-xs transition-colors whitespace-nowrap",
                         selectedCategory?.id === category.id
                           ? "bg-primary text-primary-foreground font-medium"
                           : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -848,11 +848,11 @@ export default function PosPage() {
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 shrink-0"
+              className="h-10 w-10 shrink-0"
               onClick={() => scrollCategories("right")}
               title="Scroll right"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
 
