@@ -292,38 +292,13 @@ export default function PosPage() {
     ) as HTMLElement;
     if (!viewport) return;
 
-    const scrollAmount = 200;
-    const currentScroll = viewport.scrollLeft;
-    const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+    const scrollAmount = 250;
 
-    let targetScroll = direction === "left"
-      ? currentScroll - scrollAmount
-      : currentScroll + scrollAmount;
-
-    // Clamp target scroll to valid range
-    targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
-
-    // Animate scroll using requestAnimationFrame for smooth motion
-    let current = currentScroll;
-    const target = targetScroll;
-    const duration = 400; // milliseconds
-    const startTime = Date.now();
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      // Easing function (ease-out-quad)
-      const easeProgress = 1 - (1 - progress) * (1 - progress);
-
-      viewport.scrollLeft = current + (target - current) * easeProgress;
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
+    // Use native scrollBy with smooth behavior for better browser compatibility
+    viewport.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
   }, []);
 
   // ─── Initialize Smooth Scrollbar for Categories ───
