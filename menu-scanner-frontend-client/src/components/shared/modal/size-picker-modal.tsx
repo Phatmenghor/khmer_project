@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Check, Package, ChevronRight, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { Check, Package, Loader2, X, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,10 +11,12 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { QuantitySelector } from "@/components/shared/input/quantity-selector";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/redux/features/business/store/models/response/product-response";
 import { showToast } from "@/components/shared/common/show-toast";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 import { axiosClientWithAuth } from "@/utils/axios";
 
 interface SizePickerModalProps {
@@ -35,6 +38,7 @@ export function SizePickerModal({
   const [quantity, setQuantity] = useState(1);
   const [fullProduct, setFullProduct] = useState<ProductDetailResponseModel | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+  const [clearingSize, setClearingSize] = useState<string | null>(null);
 
   // Use full product if available, otherwise use listing product
   const displayProduct = fullProduct || product;
@@ -95,6 +99,20 @@ export function SizePickerModal({
     onOpenChange(false);
   }, [onOpenChange]);
 
+  const handleClearSize = useCallback(async () => {
+    if (!selectedSize) return;
+    setClearingSize(selectedSize.id);
+    try {
+      // Just reset UI for POS - no API call needed
+      setQuantity(1);
+      showToast.success("Size cleared");
+    } catch (error: any) {
+      showToast.error(error?.message || "Failed to clear size");
+    } finally {
+      setClearingSize(null);
+    }
+  }, [selectedSize]);
+
   if (!product) return null;
 
   const activeSizes = displayProduct?.sizes?.filter((s) => s.id) || [];
@@ -110,18 +128,19 @@ export function SizePickerModal({
     : displayProduct?.hasActivePromotion;
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="w-full sm:max-w-[480px] p-0 overflow-hidden">
+        {/* Header */}
+        <DialogHeader className="p-4 pb-0">
           <DialogTitle className="text-lg font-bold">
             {isEditing ? "Edit Size" : "Choose Size"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="p-4 pt-2">
           {/* Loading State */}
           {isLoadingDetail ? (
-            <div className="flex flex-col items-center justify-center py-8">
+            <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
               <p className="text-sm text-muted-foreground">
                 Loading product details...
@@ -130,125 +149,143 @@ export function SizePickerModal({
           ) : (
             <>
               {/* Product Info */}
-              <div>
-                <h3 className="font-semibold text-sm line-clamp-2 mb-2">
-                  {displayProduct?.name}
-            </h3>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg font-bold text-primary">
-                {formatCurrency(displayPrice)}
-              </span>
-              {hasDiscount && originalPrice && (
-                <span className="text-xs text-muted-foreground line-through">
-                  {formatCurrency(originalPrice)}
-                </span>
-              )}
-            </div>
-            {hasDiscount && (
-              <Badge variant="destructive" className="text-xs">
-                {selectedSize?.hasPromotion
-                  ? `-${Math.round(
-                      ((selectedSize.price - selectedSize.finalPrice) /
-                        selectedSize.price) *
-                        100
-                    )}%`
-                  : product.displayPromotionType === "PERCENTAGE"
-                  ? `-${product.displayPromotionValue}%`
-                  : `-${formatCurrency(product.displayPromotionValue || 0)}`}
-              </Badge>
-            )}
-          </div>
-
-          {/* Size Selection */}
-          {activeSizes.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                Choose Size
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {activeSizes.map((size) => {
-                  const isActive = selectedSize?.id === size.id;
-                  return (
-                    <button
-                      key={size.id}
-                      onClick={() => setSelectedSize(size)}
-                      className={cn(
-                        "relative border-2 rounded-lg px-3 py-2 transition-all cursor-pointer hover:border-primary",
-                        isActive
-                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                          : "border-border"
-                      )}
-                    >
-                      <div className="font-semibold text-xs">{size.name}</div>
-                      <div className="text-primary font-bold text-sm">
-                        {formatCurrency(size.finalPrice)}
-                      </div>
-                      {size.hasPromotion && (
-                        <div className="text-xs text-muted-foreground line-through">
-                          {formatCurrency(size.price)}
-                        </div>
-                      )}
-                      {isActive && (
-                        <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
-                          <Check className="h-2.5 w-2.5" />
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
+              <div className="flex gap-4 mb-4">
+                <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                  <Image
+                    src={displayProduct?.mainImageUrl || appImages.NoImage}
+                    alt={displayProduct?.name || "Product"}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm line-clamp-2 mb-1">
+                    {displayProduct?.name}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-primary">
+                      {formatCurrency(displayPrice)}
+                    </span>
+                    {hasDiscount && originalPrice && (
+                      <span className="text-xs text-muted-foreground line-through">
+                        {formatCurrency(originalPrice)}
+                      </span>
+                    )}
+                  </div>
+                  {hasDiscount && (
+                    <Badge variant="destructive" className="text-xs mt-1">
+                      {selectedSize?.hasPromotion
+                        ? `-${Math.round(
+                            ((selectedSize.price - selectedSize.finalPrice) /
+                              selectedSize.price) *
+                            100
+                          )}%`
+                        : displayProduct?.displayPromotionType === "PERCENTAGE"
+                        ? `-${displayProduct?.displayPromotionValue}%`
+                        : `-${formatCurrency(
+                            displayProduct?.displayPromotionValue || 0
+                          )}`}
+                    </Badge>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
 
-          {/* Quantity Selector */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-              Quantity
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="h-8 w-8 rounded-lg border border-border hover:bg-muted transition-colors flex items-center justify-center"
-              >
-                −
-              </button>
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value) || 1;
-                  setQuantity(Math.max(1, val));
-                }}
-                className="h-8 w-12 text-center border border-border rounded-lg"
-                min="1"
-              />
-              <button
-                onClick={() => setQuantity(quantity + 1)}
-                className="h-8 w-8 rounded-lg border border-border hover:bg-muted transition-colors flex items-center justify-center"
-              >
-                +
-              </button>
-              <div className="flex-1" />
-              <span className="text-sm font-semibold">
-                {formatCurrency(displayPrice * quantity)}
-              </span>
-            </div>
-          </div>
+              {/* Size Selection */}
+              {activeSizes.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="font-semibold mb-2 text-sm">Choose Size</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {activeSizes.map((size) => {
+                      const isActive = selectedSize?.id === size.id;
+                      return (
+                        <button
+                          key={size.id}
+                          onClick={() => setSelectedSize(size)}
+                          className={cn(
+                            "relative border-2 rounded-lg px-3 py-2 transition-all cursor-pointer hover:border-primary",
+                            isActive
+                              ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                              : "border-border"
+                          )}
+                        >
+                          <div className="font-semibold text-xs">{size.name}</div>
+                          <div className="text-primary font-bold text-sm">
+                            {formatCurrency(size.finalPrice)}
+                          </div>
+                          {size.hasPromotion && (
+                            <div className="text-xs text-muted-foreground line-through">
+                              {formatCurrency(size.price)}
+                            </div>
+                          )}
+                          {isActive && (
+                            <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-2.5 w-2.5" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Quantity Selector */}
+              <div className="mb-4">
+                <h4 className="font-semibold mb-2 text-sm">Quantity</h4>
+                <div className="flex items-center gap-2">
+                  <QuantitySelector
+                    value={quantity}
+                    onChange={setQuantity}
+                    min={1}
+                    size="sm"
+                  />
+                  {/* Clear button */}
+                  {quantity > 0 && (
+                    <CustomButton
+                      variant="outline"
+                      size="sm"
+                      className="h-8 px-2 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
+                      disabled={clearingSize === selectedSize?.id}
+                      onClick={handleClearSize}
+                    >
+                      {clearingSize === selectedSize?.id ? (
+                        <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5 mr-1" />
+                      )}
+                      Clear
+                    </CustomButton>
+                  )}
+                  <div className="flex-1" />
+                  <span className="text-sm font-semibold">
+                    {formatCurrency(displayPrice * quantity)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Total */}
+              <div className="flex justify-between items-center py-3 border-t mb-4">
+                <span className="text-muted-foreground">Total</span>
+                <span className="text-xl font-bold text-primary">
+                  {formatCurrency(displayPrice * quantity)}
+                </span>
+              </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-3">
                 <CustomButton
                   variant="outline"
                   className="flex-1"
                   onClick={handleClose}
                 >
+                  <X className="h-4 w-4 mr-1.5" />
                   Cancel
                 </CustomButton>
                 <CustomButton
-                  className="flex-1 gap-1.5"
+                  className="flex-1"
                   onClick={handleSelectSize}
                 >
-                  <Package className="h-4 w-4" />
+                  <Package className="h-4 w-4 mr-1.5" />
                   Add to Cart
                 </CustomButton>
               </div>
