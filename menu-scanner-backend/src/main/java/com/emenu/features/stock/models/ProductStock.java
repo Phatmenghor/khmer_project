@@ -4,9 +4,6 @@ import com.emenu.enums.product.ProductStatus;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -51,15 +48,6 @@ public class ProductStock extends BaseUUIDEntity {
 
     @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
-
-    // ========== Identifiers ==========
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "barcode", unique = true, columnDefinition = "varchar(255)")
-    private String barcode;
-
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "sku", columnDefinition = "varchar(255)")
-    private String sku;
 
     @Column(name = "location")
     private String location;

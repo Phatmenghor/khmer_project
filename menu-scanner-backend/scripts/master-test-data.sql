@@ -179,12 +179,12 @@ BEGIN
     -- PRODUCT STOCK (100 products + sizes)
     -- =====================================================
     RAISE NOTICE '📊 Progress: 55%% - Creating product stock...';
-    INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, date_out, expiry_date, barcode, sku, location, status, is_expired, created_at, updated_at, created_by, updated_by)
-    SELECT gen_random_uuid(), key_business_id, p.id, NULL, 100, 10, 90, (p.price - 5.00)::NUMERIC(19,4), t - INTERVAL '30 days', NULL, t + INTERVAL '180 days', 'BARCODE-' || p.id::TEXT, 'SKU-' || LPAD(ROW_NUMBER() OVER ()::TEXT, 8, '0'), 'Warehouse A', 'ACTIVE', false, t, t, NULL, NULL
+    INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, date_out, expiry_date, location, status, is_expired, created_at, updated_at, created_by, updated_by)
+    SELECT gen_random_uuid(), key_business_id, p.id, NULL, 100, 10, 90, (p.price - 5.00)::NUMERIC(19,4), t - INTERVAL '30 days', NULL, t + INTERVAL '180 days', 'Warehouse A', 'ACTIVE', false, t, t, NULL, NULL
     FROM products p WHERE p.business_id = key_business_id;
 
-    INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, date_out, expiry_date, barcode, sku, location, status, is_expired, created_at, updated_at, created_by, updated_by)
-    SELECT gen_random_uuid(), key_business_id, ps.product_id, ps.id, 50, 5, 45, (p.price + 2.5 - 5.00)::NUMERIC(19,4), t - INTERVAL '30 days', NULL, t + INTERVAL '180 days', 'BARCODE-SIZE-' || ps.id::TEXT, 'SKU-SIZE-' || LPAD(ROW_NUMBER() OVER ()::TEXT, 8, '0'), 'Warehouse A', 'ACTIVE', false, t, t, NULL, NULL
+    INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, date_out, expiry_date, location, status, is_expired, created_at, updated_at, created_by, updated_by)
+    SELECT gen_random_uuid(), key_business_id, ps.product_id, ps.id, 50, 5, 45, (p.price + 2.5 - 5.00)::NUMERIC(19,4), t - INTERVAL '30 days', NULL, t + INTERVAL '180 days', 'Warehouse A', 'ACTIVE', false, t, t, NULL, NULL
     FROM product_sizes ps
     JOIN products p ON p.id = ps.product_id
     WHERE p.business_id = key_business_id;
@@ -317,16 +317,12 @@ SELECT '✅ Creating production indexes...' as status;
 DROP INDEX IF EXISTS idx_product_stock_business_id;
 DROP INDEX IF EXISTS idx_product_stock_product_id;
 DROP INDEX IF EXISTS idx_product_stock_product_size_id;
-DROP INDEX IF EXISTS idx_product_stock_barcode;
-DROP INDEX IF EXISTS idx_product_stock_sku;
 DROP INDEX IF EXISTS idx_product_stock_status;
 
 -- Create new indexes (without is_deleted filter for product_stock)
 CREATE INDEX idx_product_stock_business_id ON product_stock(business_id);
 CREATE INDEX idx_product_stock_product_id ON product_stock(product_id);
 CREATE INDEX idx_product_stock_product_size_id ON product_stock(product_size_id) WHERE product_size_id IS NOT NULL;
-CREATE UNIQUE INDEX idx_product_stock_barcode ON product_stock(barcode);
-CREATE UNIQUE INDEX idx_product_stock_sku ON product_stock(sku);
 CREATE INDEX idx_product_stock_status ON product_stock(status);
 
 SELECT '✅ ALL INDEXES CREATED!' as status;

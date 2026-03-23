@@ -23,10 +23,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         UUID businessId
     );
 
-    Optional<ProductStock> findByBarcode(String barcode);
-
-    Optional<ProductStock> findByBarcodeAndBusinessId(String barcode, UUID businessId);
-
     List<ProductStock> findByBusinessId(UUID businessId);
 
     List<ProductStock> findByProductId(UUID productId);
@@ -139,32 +135,12 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     @Query(value = """
         SELECT * FROM product_stock ps
         WHERE ps.business_id = :businessId
-            AND (ps.barcode ILIKE '%' || :search || '%'
-                OR ps.sku ILIKE '%' || :search || '%')
-        ORDER BY ps.date_in DESC NULLS LAST, ps.created_at DESC
-    """,
-    countQuery = """
-        SELECT COUNT(*) FROM product_stock ps
-        WHERE ps.business_id = :businessId
-            AND (ps.barcode ILIKE '%' || :search || '%'
-                OR ps.sku ILIKE '%' || :search || '%')
-    """,
-    nativeQuery = true)
-    Page<ProductStock> searchByBusinessIdAndNameOrBarcodeOrSku(
-        @Param("businessId") UUID businessId,
-        @Param("search") String search,
-        Pageable pageable
-    );
-
-    @Query(value = """
-        SELECT * FROM product_stock ps
-        WHERE ps.business_id = :businessId
             AND (CAST(:productId AS uuid) IS NULL OR ps.product_id = :productId)
             AND (CAST(:productSizeId AS uuid) IS NULL OR ps.product_size_id = :productSizeId)
             AND (CAST(:status AS text) IS NULL OR ps.status = :status)
             AND (CAST(:lowStockThreshold AS integer) IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
             AND (CAST(:expiredBefore AS timestamp) IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore))
-            AND (CAST(:search AS text) IS NULL OR CAST(ps.sku AS text) ILIKE '%' || CAST(:search AS text) || '%')
+            AND (CAST(:search AS text) IS NULL OR CAST(ps.location AS text) ILIKE '%' || CAST(:search AS text) || '%')
         ORDER BY ps.date_in DESC NULLS LAST, ps.created_at DESC
     """,
     countQuery = """
@@ -175,7 +151,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             AND (CAST(:status AS text) IS NULL OR ps.status = :status)
             AND (CAST(:lowStockThreshold AS integer) IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
             AND (CAST(:expiredBefore AS timestamp) IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore))
-            AND (CAST(:search AS text) IS NULL OR CAST(ps.sku AS text) ILIKE '%' || CAST(:search AS text) || '%')
+            AND (CAST(:search AS text) IS NULL OR CAST(ps.location AS text) ILIKE '%' || CAST(:search AS text) || '%')
     """,
     nativeQuery = true)
     Page<ProductStock> findWithFilters(

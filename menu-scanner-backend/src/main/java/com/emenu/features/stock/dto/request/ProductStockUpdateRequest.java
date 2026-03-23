@@ -23,9 +23,5 @@ public class ProductStockUpdateRequest {
 
     private LocalDateTime expiryDate;
 
-    private String barcode;
-
-    private String sku;
-
     private String location;
 }

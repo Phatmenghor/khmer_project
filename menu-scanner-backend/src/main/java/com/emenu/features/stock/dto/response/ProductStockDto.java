@@ -59,14 +59,6 @@ public class ProductStockDto {
     /** Expiry date/time of this batch (null if product does not expire) */
     private LocalDateTime expiryDate;
 
-    // ========== Identifiers ==========
-
-    /** Barcode for scanning this stock item */
-    private String barcode;
-
-    /** Internal SKU code for inventory management */
-    private String sku;
-
     /** Physical storage location (e.g. "Shelf A1", "Warehouse B") */
     private String location;
 
