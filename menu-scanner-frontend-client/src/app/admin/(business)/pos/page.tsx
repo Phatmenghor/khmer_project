@@ -728,7 +728,7 @@ export default function PosPage() {
           </div>
 
           {/* Product Grid */}
-          <ScrollArea className="flex-1 w-full" ref={productGridRef}>
+          <ScrollArea className="flex-1 w-full overflow-hidden" ref={productGridRef}>
             <div className="w-full p-3 sm:p-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
               {products.map((product) => (
                 <POSProductCard
@@ -830,8 +830,8 @@ export default function PosPage() {
             </div>
           </div>
 
-          {/* Cart Items - fills remaining space before checkout */}
-          <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Cart Items - scrollable with max height to show checkout */}
+          <div className="overflow-hidden flex flex-col min-h-0">
             {cartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-muted-foreground flex-1">
                 <ShoppingCart className="w-12 h-12 mb-3 opacity-15" />
@@ -841,7 +841,7 @@ export default function PosPage() {
                 </p>
               </div>
             ) : (
-              <ScrollArea className="flex-1">
+              <ScrollArea className="flex-1 min-h-0">
               <div className="divide-y">
                 {cartItems.map((item, index) => (
                   <div
