@@ -183,6 +183,8 @@ export default function PosPage() {
   // ─── Fetch Products when filters/search change ───
   useEffect(() => {
     dispatch(setProductPage(1));
+    dispatch(setProducts([]));
+    dispatch(setProductsLoading(true));
     dispatch(
       fetchPOSPageProductsService({
         page: 1,
