@@ -10,23 +10,17 @@ import {
   CreditCard,
   Package,
   ChevronRight,
-  CheckCircle2,
   Loader2,
   ChevronsUpDown,
   Check,
-  Pencil,
   Truck,
   Tag,
-  Percent,
-  DollarSign,
-  MoreHorizontal,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -188,6 +182,7 @@ export default function PosPage() {
 
   // ─── Fetch Products when filters/search change ───
   useEffect(() => {
+    dispatch(setProductPage(1));
     dispatch(
       fetchPOSPageProductsService({
         page: 1,
@@ -734,9 +729,9 @@ export default function PosPage() {
                 Array.from({ length: 12 }).map((_, i) => (
                   <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <POSProductCard
-                  key={product.id}
+                  key={`${product.id}-${index}`}
                   product={product}
                   quantity={getProductCartQuantity(product.id)}
                   onAddClick={handleProductClick}
@@ -744,16 +739,9 @@ export default function PosPage() {
                 />
               ))}
               {productsLoading && products.length > 0 &&
-                Array.from({ length: 3 }).map((_, i) => (
+                Array.from({ length: 15 }).map((_, i) => (
                   <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
-              {productsLoading && products.length > 0 && (
-                <div className="col-span-full flex items-center justify-center py-4">
-                  <Button disabled className="bg-primary hover:bg-primary">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  </Button>
-                </div>
-              )}
             </div>
             {hasMoreProducts && !productsLoading && (
               <div ref={observerTarget} className="h-1" />
