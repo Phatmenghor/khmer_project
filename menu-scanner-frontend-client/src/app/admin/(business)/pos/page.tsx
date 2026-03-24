@@ -185,10 +185,6 @@ export default function PosPage() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchProducts(1, debouncedSearch, selectedCategory?.id, selectedBrand?.id, promotionFilter, true);
-  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, fetchProducts]);
-
   // ─── Fetch Products ───
   const fetchProducts = useCallback(
     async (
@@ -236,6 +232,7 @@ export default function PosPage() {
       debouncedSearch,
       selectedCategory?.id,
       selectedBrand?.id,
+      promotionFilter,
       true
     );
   }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, fetchProducts]);
