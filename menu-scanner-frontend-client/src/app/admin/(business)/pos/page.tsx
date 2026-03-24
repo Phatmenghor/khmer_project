@@ -820,8 +820,14 @@ export default function PosPage() {
           {/* Product Grid */}
           <ScrollArea className="flex-1 w-full overflow-hidden" ref={productGridRef}>
             <div className="w-full p-3 sm:p-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
-              {/* Show products when loaded */}
-              {!productsLoading && products.map((product) => (
+              {/* Full Page Skeleton on Initial Load */}
+              {productsLoading && products.length === 0 &&
+                Array.from({ length: 12 }).map((_, i) => (
+                  <ProductCardSkeleton key={`skeleton-${i}`} />
+                ))}
+
+              {/* Show all products (always visible, even while loading more) */}
+              {products.map((product) => (
                 <POSProductCard
                   key={product.id}
                   product={product}
@@ -830,12 +836,6 @@ export default function PosPage() {
                   onQuantityChange={updateQuantity}
                 />
               ))}
-
-              {/* Full Page Skeleton on Initial Load */}
-              {productsLoading && products.length === 0 &&
-                Array.from({ length: 12 }).map((_, i) => (
-                  <ProductCardSkeleton key={`skeleton-${i}`} />
-                ))}
 
               {/* Skeleton Loaders while loading more - when scrolling */}
               {productsLoading && products.length > 0 &&
