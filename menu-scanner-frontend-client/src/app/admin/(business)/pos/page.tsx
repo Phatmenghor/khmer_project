@@ -45,7 +45,8 @@ import {
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { POSCartItem, POSMoreOptionsModal } from "@/components/pos-custom";
+import { POSCartItem } from "@/components/pos-custom/pos-cart-item";
+import { POSMoreOptionsModal } from "@/components/pos-custom/pos-more-options-modal";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { POSProductCard } from "@/components/shared/card/pos-product-card";
