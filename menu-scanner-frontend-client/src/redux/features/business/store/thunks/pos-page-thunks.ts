@@ -72,7 +72,7 @@ export const fetchPOSPageProductsService = createAsyncThunk(
     try {
       const response = await axiosClientWithAuth.post<{
         data: ProductsResponse;
-      }>("/api/v1/products/admin/all", {
+      }>("/api/v1/products/admin/pos/all", {
         search: params.search || undefined,
         categoryId: params.categoryId || undefined,
         brandId: params.brandId || undefined,
