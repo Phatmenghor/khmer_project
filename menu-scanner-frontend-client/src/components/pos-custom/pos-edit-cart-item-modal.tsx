@@ -199,12 +199,12 @@ export function POSEditCartItemModal({
                 <Label htmlFor="promoType" className="text-xs text-muted-foreground mb-1">
                   Promotion Type
                 </Label>
-                <Select value={promotionType || ""} onValueChange={(value) => setPromotionType(value || null)}>
+                <Select value={promotionType || "NONE"} onValueChange={(value) => setPromotionType(value === "NONE" ? null : value)}>
                   <SelectTrigger id="promoType" className="text-sm">
                     <SelectValue placeholder="None" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="NONE">None</SelectItem>
                     <SelectItem value="PERCENTAGE">Percentage (%)</SelectItem>
                     <SelectItem value="FIXED">Fixed Amount</SelectItem>
                   </SelectContent>
