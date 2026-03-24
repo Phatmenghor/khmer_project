@@ -612,15 +612,10 @@ export default function PosPage() {
   // ─── Current time display ───
   return (
     <div className="flex flex-col h-full w-full" style={{
-      "--pos-scale": "0.8",
-    } as React.CSSProperties & { "--pos-scale": string }}>
+      zoom: "0.8",
+    }}>
       {/* ─── Main Content ─── */}
-      <div className="flex flex-1 overflow-hidden" style={{
-        transform: "scale(var(--pos-scale, 0.8))",
-        transformOrigin: "top left",
-        width: "calc(100% / 0.8)",
-        height: "calc(100% / 0.8)",
-      }}>
+      <div className="flex flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search & Brand Filter Bar */}
