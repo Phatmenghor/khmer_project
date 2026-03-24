@@ -142,7 +142,7 @@ export default function PosPage() {
   // ─── More Options Modal State ───
   const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
   // ─── Promotion Filter State ───
-  const [promotionFilter, setPromotionFilter] = useState<boolean>(true);
+  const [promotionFilter, setPromotionFilter] = useState<boolean | undefined>(undefined);
   const [promotionOpen, setPromotionOpen] = useState(false);
 
   // ─── Fetch Categories ───
@@ -677,16 +677,32 @@ export default function PosPage() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={promotionOpen}
-                  className="w-[120px] justify-between h-9 text-sm"
+                  className="w-[130px] justify-between h-9 text-sm"
                 >
-                  {promotionFilter ? "Promotion" : "Full"}
+                  {promotionFilter === undefined ? "All Products" : promotionFilter ? "Promotion" : "Full"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[120px] p-0">
+              <PopoverContent className="w-[130px] p-0">
                 <Command>
                   <CommandList>
                     <CommandGroup>
+                      <CommandItem
+                        value="all"
+                        onSelect={() => {
+                          setPromotionFilter(undefined);
+                          setPromotionOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            promotionFilter === undefined ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        All Products
+                      </CommandItem>
                       <CommandItem
                         value="promotion"
                         onSelect={() => {
@@ -725,22 +741,24 @@ export default function PosPage() {
               </PopoverContent>
             </Popover>
 
-            {/* Clear All Filter Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 text-sm text-slate-600 hover:text-slate-900"
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedCategory(null);
-                setSelectedBrand(null);
-                setPromotionFilter(true);
-                fetchProducts(1, "", undefined, undefined, true, true);
-              }}
-            >
-              <X className="w-4 h-4 mr-1" />
-              Clear All
-            </Button>
+            {/* Clear All Filter Button - Only visible when filters are active */}
+            {(searchTerm || selectedCategory || selectedBrand || promotionFilter !== undefined) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-red-500 hover:text-red-700 hover:bg-red-50"
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory(null);
+                  setSelectedBrand(null);
+                  setPromotionFilter(undefined);
+                  fetchProducts(1, "", undefined, undefined, undefined, true);
+                }}
+                title="Clear all filters"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
           </div>
 
           {/* Categories Horizontal Scroll */}
