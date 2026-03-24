@@ -839,16 +839,15 @@ export default function PosPage() {
 
               {/* Skeleton Loaders while loading more - when scrolling */}
               {productsLoading && products.length > 0 &&
-                Array.from({ length: 6 }).map((_, i) => (
+                Array.from({ length: 3 }).map((_, i) => (
                   <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
 
-              {/* Loading Button for more products - INSIDE grid */}
+              {/* Loading Icon Button for more products - INSIDE grid */}
               {productsLoading && products.length > 0 && (
                 <div className="col-span-full flex items-center justify-center py-4">
-                  <Button disabled className="gap-2">
+                  <Button disabled className="bg-primary hover:bg-primary">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading more products...
                   </Button>
                 </div>
               )}
