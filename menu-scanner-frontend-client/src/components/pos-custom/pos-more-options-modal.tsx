@@ -4,13 +4,6 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 import { X, Loader2, ChevronRight, Percent, DollarSign, Settings2 } from "lucide-react";
@@ -30,7 +23,6 @@ export function POSMoreOptionsModal({
 }: POSMoreOptionsModalProps) {
   const [showDiscount, setShowDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<"fixed" | "percentage">("fixed");
-  const [discountAppliedType, setDiscountAppliedType] = useState<"promotion" | "full">("promotion");
   const [discountValue, setDiscountValue] = useState("");
   const [discountReason, setDiscountReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -106,20 +98,6 @@ export function POSMoreOptionsModal({
             {/* Discount Form */}
             {showDiscount && (
               <div className="space-y-3 mt-2 p-3 border border-red-200 rounded bg-red-50">
-                {/* Applied Type Selection */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700">Applied to</label>
-                  <Select value={discountAppliedType} onValueChange={(value: any) => setDiscountAppliedType(value)}>
-                    <SelectTrigger className="h-8 text-xs border border-slate-300 focus:border-primary">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="promotion">Promotion</SelectItem>
-                      <SelectItem value="full">Full All</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 {/* Type Selection */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700">Type</label>
