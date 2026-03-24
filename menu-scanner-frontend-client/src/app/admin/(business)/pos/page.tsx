@@ -625,7 +625,7 @@ export default function PosPage() {
       }}
     >
       {/* ─── Main Content ─── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex max-md:flex-col md:flex-row flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search & Brand Filter Bar */}
@@ -919,8 +919,8 @@ export default function PosPage() {
         <div
           className={`${
             showCart ? "flex" : "hidden"
-          } lg:flex w-full lg:w-[380px] xl:w-[420px] h-full flex-col bg-card border-l shrink-0 overflow-hidden ${
-            showCart && "fixed inset-0 z-50 lg:relative lg:z-auto"
+          } md:flex w-full max-md:border-t md:border-l md:w-[380px] xl:w-[420px] max-md:h-1/3 md:h-full flex-col bg-card shrink-0 overflow-hidden ${
+            showCart && "fixed inset-0 z-50 md:relative md:z-auto max-md:bottom-0 max-md:w-full max-md:h-auto"
           }`}
         >
           {/* Cart Header */}
