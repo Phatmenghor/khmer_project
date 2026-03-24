@@ -21,6 +21,7 @@ const initialState: POSPageState = {
   selectedPaymentOption: null,
   products: [],
   productsLoading: true,
+  productsError: null,
   searchTerm: "",
   selectedCategory: null,
   selectedBrand: null,
@@ -64,6 +65,9 @@ const posPageSlice = createSlice({
     },
     setProductsLoading: (state, action: PayloadAction<boolean>) => {
       state.productsLoading = action.payload;
+    },
+    setProductsError: (state, action: PayloadAction<string | null>) => {
+      state.productsError = action.payload;
     },
     setSearchTerm: (state, action: PayloadAction<string>) => {
       state.searchTerm = action.payload;
@@ -181,6 +185,7 @@ const posPageSlice = createSlice({
     builder
       .addCase(fetchPOSPageProductsService.pending, (state) => {
         state.productsLoading = true;
+        state.productsError = null;
       })
       .addCase(fetchPOSPageProductsService.fulfilled, (state, action) => {
         if (state.productPage === 1) {
@@ -191,9 +196,13 @@ const posPageSlice = createSlice({
         state.hasMoreProducts = !action.payload.last;
         state.productPage = action.payload.pageNo;
         state.productsLoading = false;
+        state.productsError = null;
       })
-      .addCase(fetchPOSPageProductsService.rejected, (state) => {
+      .addCase(fetchPOSPageProductsService.rejected, (state, action) => {
         state.productsLoading = false;
+        state.productsError = action.payload as string || "Failed to load products";
+        // Stop infinite scroll on error
+        state.hasMoreProducts = false;
       });
 
     builder
@@ -223,6 +232,7 @@ export const {
   setProducts,
   appendProducts,
   setProductsLoading,
+  setProductsError,
   setSearchTerm,
   setSelectedCategory,
   setSelectedBrand,

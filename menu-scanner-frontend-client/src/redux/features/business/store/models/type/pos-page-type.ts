@@ -34,6 +34,7 @@ export interface POSPageState {
   // Products & Filters
   products: ProductDetailResponseModel[];
   productsLoading: boolean;
+  productsError: string | null;
   searchTerm: string;
   selectedCategory: CategoriesResponseModel | null;
   selectedBrand: BrandResponseModel | null;

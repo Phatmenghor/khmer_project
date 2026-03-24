@@ -67,6 +67,7 @@ import {
   setProducts,
   appendProducts,
   setProductsLoading,
+  setProductsError,
   setSearchTerm,
   setSelectedCategory,
   setSelectedBrand,
@@ -128,6 +129,7 @@ export default function PosPage() {
     selectedPaymentOption,
     products,
     productsLoading,
+    productsError,
     searchTerm,
     selectedCategory,
     selectedBrand,
@@ -750,9 +752,40 @@ export default function PosPage() {
             )}
             {!productsLoading && products.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                <Package className="w-16 h-16 mb-4 opacity-20" />
-                <p className="text-sm font-medium">No products found</p>
-                <p className="text-xs mt-1">Try adjusting your search or filter</p>
+                {productsError ? (
+                  <>
+                    <Package className="w-16 h-16 mb-4 opacity-20 text-destructive" />
+                    <p className="text-sm font-medium text-destructive">Failed to load products</p>
+                    <p className="text-xs mt-1">{productsError}</p>
+                    <CustomButton
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => {
+                        dispatch(setProducts([]));
+                        dispatch(setProductsLoading(true));
+                        dispatch(
+                          fetchPOSPageProductsService({
+                            page: 1,
+                            search: debouncedSearch,
+                            categoryId: selectedCategory?.id,
+                            brandId: selectedBrand?.id,
+                            hasPromotion: promotionFilter,
+                            reset: true,
+                          })
+                        );
+                      }}
+                    >
+                      Retry
+                    </CustomButton>
+                  </>
+                ) : (
+                  <>
+                    <Package className="w-16 h-16 mb-4 opacity-20" />
+                    <p className="text-sm font-medium">No products found</p>
+                    <p className="text-xs mt-1">Try adjusting your search or filter</p>
+                  </>
+                )}
               </div>
             )}
           </ScrollArea>
