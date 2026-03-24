@@ -171,14 +171,19 @@ export function SizePickerModal({
   const handleSelectSize = useCallback(() => {
     if (!product || !hasUnsavedChanges) return;
 
-    // For POS, just pass the currently selected size with its quantity
-    // (In real usage, would iterate through all modifiedSizes)
-    const currentQty = getDisplayQuantity(selectedSize?.id || "");
-    if (selectedSize && currentQty > 0) {
-      onSizeSelect(product, selectedSize, currentQty);
+    // Loop through ALL modified sizes and add each one to cart
+    for (const sizeId of modifiedSizes) {
+      const size = product.sizes?.find((s) => s.id === sizeId);
+      const qty = getDisplayQuantity(sizeId);
+
+      // Only add if quantity > 0
+      if (size && qty > 0) {
+        onSizeSelect(product, size, qty);
+      }
     }
+
     onOpenChange(false);
-  }, [product, selectedSize, hasUnsavedChanges, getDisplayQuantity, onSizeSelect, onOpenChange]);
+  }, [product, modifiedSizes, getDisplayQuantity, onSizeSelect, onOpenChange]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
