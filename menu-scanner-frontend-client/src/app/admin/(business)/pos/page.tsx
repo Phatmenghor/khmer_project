@@ -192,7 +192,7 @@ export default function PosPage() {
       search: string,
       categoryId?: string,
       brandId?: string,
-      hasPromotion: boolean | undefined = true,
+      hasPromotion: boolean | undefined = undefined,
       reset = false
     ) => {
       try {
