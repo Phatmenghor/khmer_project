@@ -161,7 +161,7 @@ export function POSMoreOptionsModal({
                       min="0"
                       max={discountType === "percentage" ? "100" : undefined}
                       step={discountType === "fixed" ? "0.01" : "1"}
-                      className="h-9 text-sm pr-8 border border-slate-300 focus:border-primary"
+                      className="h-10 text-sm pr-8 border border-slate-300 focus:border-primary"
                     />
                     {discountType === "fixed" ? (
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-500">$</span>
@@ -176,15 +176,18 @@ export function POSMoreOptionsModal({
                   <label htmlFor="discount-reason" className="text-xs font-semibold text-slate-700">
                     Reason
                   </label>
-                  <Input
+                  <Textarea
                     id="discount-reason"
-                    type="text"
                     placeholder="Loyalty, VIP, bulk..."
+                    rows={2}
                     value={discountReason}
                     onChange={(e) => setDiscountReason(e.target.value)}
-                    maxLength={40}
-                    className="h-9 text-sm border border-slate-300 focus:border-primary"
+                    maxLength={100}
+                    className="text-xs resize-none border border-slate-300 focus:border-primary"
                   />
+                  <div className="flex justify-end">
+                    <span className="text-xs text-muted-foreground">{discountReason.length} / 100</span>
+                  </div>
                 </div>
               </div>
             )}
