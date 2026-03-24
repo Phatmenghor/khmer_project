@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -46,9 +47,11 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
-import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
+import { sanitizeImageUrl } from "@/utils/common/common";
+import { appImages } from "@/constants/app-resource/icons/app-images";
+import { Plus, Minus, Edit2 } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { POSProductCard } from "@/components/shared/card/pos-product-card";
@@ -64,7 +67,6 @@ import {
 import { OrderStatus } from "@/enums/order-status.enum";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { TextField } from "@/components/shared/form-field/text-field";
-import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
@@ -894,38 +896,100 @@ export default function PosPage() {
               <ScrollArea className="flex-1 min-h-0">
                 <div className="space-y-3 p-3">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="group relative">
-                      <CartItemCard
-                        id={item.id}
-                        productId={item.productId}
-                        productName={item.productName}
-                        productImageUrl={item.productImageUrl}
-                        productSizeId={item.productSizeId}
-                        sizeName={item.sizeName}
-                        currentPrice={item.currentPrice}
-                        finalPrice={item.finalPrice}
-                        quantity={item.quantity}
-                        totalPrice={item.finalPrice * item.quantity}
-                        hasPromotion={item.hasActivePromotion}
-                        promotionType={item.promotionType}
-                        promotionValue={item.promotionValue}
-                        onQuantityChange={(newQuantity) =>
-                          updateQuantity(item.id, newQuantity - item.quantity)
-                        }
-                        onRemove={() => removeItem(item.id)}
-                        showLink={false}
-                        showControls={true}
-                      />
-                      {/* Edit Size Button - visible on hover */}
-                      <Button
-                        variant="ghost"
+                    <div key={item.id} className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
+                      {/* Delete Button - Top Right */}
+                      <CustomButton
                         size="icon"
-                        className="absolute top-3 right-14 h-8 w-8 text-muted-foreground hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                        variant="outline"
+                        className="absolute top-3 right-3 h-8 w-8 shrink-0 text-red-600 hover:bg-red-100"
+                        onClick={() => removeItem(item.id)}
+                        title="Remove item"
+                      >
+                        <X className="h-4 w-4" />
+                      </CustomButton>
+
+                      {/* Edit Size Button - visible on hover */}
+                      <CustomButton
+                        size="icon"
+                        variant="outline"
+                        className="absolute top-3 right-14 h-8 w-8 shrink-0 text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => handleEditCartItem(item)}
                         title="Edit size"
                       >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </CustomButton>
+
+                      <div className="flex gap-4">
+                        {/* Thumbnail */}
+                        <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm hover:shadow-md transition-shadow">
+                          <Image
+                            src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
+                            alt={item.productName}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
+                          {/* Product Name + Promotion Badge */}
+                          <div className="flex items-center gap-2 min-w-0 mb-2">
+                            <h3 className="font-semibold text-sm leading-tight text-slate-900 line-clamp-1">
+                              {item.productName}
+                            </h3>
+                            {item.hasActivePromotion && (
+                              <Badge className="text-[10px] px-2 py-0.5 leading-none flex-shrink-0 bg-red-100 text-red-700 border-0 font-semibold">
+                                {item.promotionType === "PERCENTAGE"
+                                  ? `-${item.promotionValue}%`
+                                  : `-${formatCurrency(item.promotionValue || 0)}`}
+                              </Badge>
+                            )}
+                          </div>
+
+                          {/* Size Badge */}
+                          {item.sizeName && (
+                            <div className="mb-2">
+                              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full flex-shrink-0 whitespace-nowrap inline-block border border-primary/30">
+                                {item.sizeName}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Price Info + Qty controls */}
+                          <div className="flex items-center justify-between gap-3">
+                            {/* Price Display - Left Side */}
+                            <div className="flex items-baseline gap-2">
+                              <span className="font-bold text-base text-slate-900">{formatCurrency(item.finalPrice)}</span>
+                              {item.hasActivePromotion && item.currentPrice > item.finalPrice && (
+                                <span className="text-xs text-slate-500 line-through font-medium">{formatCurrency(item.currentPrice)}</span>
+                              )}
+                            </div>
+
+                            {/* Quantity Controls - Right Side */}
+                            <div className="flex items-center gap-1">
+                              <CustomButton
+                                size="icon"
+                                variant="outline"
+                                className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                                onClick={() => updateQuantity(item.id, -1)}
+                              >
+                                <Minus className="h-3 w-3" />
+                              </CustomButton>
+                              <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
+                                {item.quantity}
+                              </div>
+                              <CustomButton
+                                size="icon"
+                                variant="outline"
+                                className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                                onClick={() => updateQuantity(item.id, 1)}
+                              >
+                                <Plus className="h-3 w-3" />
+                              </CustomButton>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
