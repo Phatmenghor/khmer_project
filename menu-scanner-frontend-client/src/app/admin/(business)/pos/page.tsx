@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -45,6 +45,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { POSProductCard } from "@/components/shared/card/pos-product-card";
 import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
+import { POSEditCartItemModal } from "@/components/pos-custom/pos-edit-cart-item-modal";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useAppDispatch } from "@/redux/store";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -159,6 +160,8 @@ export default function PosPage() {
 
   // ─── Debounce search ───
   const debouncedSearch = useDebounce(searchTerm, 400);
+  // ─── Edit Cart Item for Price/Promotion ───
+  const [editingItemForPrice, setEditingItemForPrice] = useState<PosCartItem | null>(null);
 
   // Mobile responsive zoom
   useEffect(() => {
@@ -417,6 +420,27 @@ export default function PosPage() {
     }
   };
 
+
+  // ─── Handle Edit Cart Item for Price/Promotion ───
+  const handleEditPriceItem = useCallback((item: PosCartItem) => {
+    setEditingItemForPrice(item);
+  }, []);
+
+  // ─── Save Cart Item Price Changes ───
+  const handleSaveItemChanges = useCallback((editData: any) => {
+    // For now, just update the local item state
+    // Backend integration will be done later
+    dispatch(
+      updateCartItem({
+        ...editData,
+        // Keep old values for history
+        oldPrice: editData.originalPrice,
+        oldQuantity: editData.originalQuantity,
+        oldPromotion: editData.originalPromotion,
+      })
+    );
+    showToast.success("Item updated (local changes only)");
+  }, [dispatch]);
   // ─── Submit Order ───
   const handleSubmitOrder = async () => {
     if (cartItems.length === 0) {
@@ -860,7 +884,7 @@ export default function PosPage() {
                       promotionValue={item.promotionValue}
                       onQuantityChange={(delta) => updateQuantity(item.id, delta)}
                       onRemove={() => removeItem(item.id)}
-                      onEdit={() => handleEditCartItem(item)}
+                      onEdit={() => handleEditPriceItem(item)}
                     />
                   ))}
                 </div>
@@ -1025,6 +1049,28 @@ export default function PosPage() {
         totalAmount={successOrder?.total || 0}
       />
 
+
+      {/* Edit Cart Item Modal for Price/Promotion */}
+      <POSEditCartItemModal
+        open={!!editingItemForPrice}
+        onOpenChange={(open) => {
+          if (!open) setEditingItemForPrice(null);
+        }}
+        item={
+          editingItemForPrice ? {
+            id: editingItemForPrice.id,
+            productName: editingItemForPrice.productName,
+            productImageUrl: editingItemForPrice.productImageUrl,
+            sizeName: editingItemForPrice.sizeName,
+            currentPrice: editingItemForPrice.currentPrice,
+            quantity: editingItemForPrice.quantity,
+            hasActivePromotion: editingItemForPrice.hasActivePromotion,
+            promotionType: editingItemForPrice.promotionType,
+            promotionValue: editingItemForPrice.promotionValue,
+          } : null
+        }
+        onSave={handleSaveItemChanges}
+      />
       <POSMoreOptionsModal
         open={showOrderDetailsModal}
         onOpenChange={(open) => dispatch(setShowOrderDetailsModal(open))}
