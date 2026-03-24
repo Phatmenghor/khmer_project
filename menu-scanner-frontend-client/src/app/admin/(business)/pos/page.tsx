@@ -62,7 +62,9 @@ import {
   ProductSize,
 } from "@/redux/features/business/store/models/response/product-response";
 import { OrderStatus } from "@/enums/order-status.enum";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { TextField } from "@/components/shared/form-field/text-field";
+import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
@@ -1122,67 +1124,67 @@ export default function PosPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ─── More Options Modal (Custom) ─── */}
+      {/* ─── More Options Modal (Clean & Custom) ─── */}
       <Dialog open={showOrderDetailsModal} onOpenChange={setShowOrderDetailsModal}>
-        <DialogContent className="w-full sm:max-w-[480px] p-0 overflow-hidden">
+        <DialogContent className="w-full sm:max-w-[440px] p-0 gap-0">
+          {/* Hidden Title for Accessibility */}
+          <DialogTitle className="sr-only">Order Options</DialogTitle>
+
           {/* Header */}
-          <div className="px-4 pt-4 pb-0 border-b">
-            <h2 className="text-lg font-bold">Order Options</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Add notes and discounts</p>
+          <div className="px-6 pt-6 pb-4 border-b">
+            <h2 className="text-lg font-semibold">Order Options</h2>
+            <p className="text-xs text-muted-foreground mt-1">Add notes and discounts</p>
           </div>
 
-          <div className="p-4 space-y-4">
-            {/* ─── ORDER NOTE SECTION ─── */}
-            <div>
-              <label className="text-sm font-semibold block mb-2 flex items-center gap-2">
-                <ReceiptText className="w-4 h-4 text-primary" />
-                Order Note
-              </label>
+          {/* Content */}
+          <div className="px-6 py-4 space-y-5 overflow-y-auto max-h-[calc(100vh-200px)]">
+            {/* ─── ORDER NOTE ─── */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <ReceiptText className="w-4 h-4 text-muted-foreground" />
+                <label className="text-sm font-medium">Order Note</label>
+              </div>
               <Textarea
                 value={customerNote}
                 onChange={(e) => setCustomerNote(e.target.value)}
-                placeholder="E.g., Special packaging, allergies, delivery instructions..."
-                rows={3}
+                placeholder="Special packaging, allergies, instructions..."
+                rows={2}
                 maxLength={150}
                 className="text-sm resize-none"
               />
-              <div className="flex justify-between items-center mt-1">
-                <p className="text-xs text-muted-foreground">{customerNote.length}/150</p>
-                {customerNote && (
-                  <Check className="w-4 h-4 text-green-500" />
-                )}
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-muted-foreground">{customerNote.length}/150</span>
+                {customerNote && <Check className="w-3.5 h-3.5 text-green-500" />}
               </div>
             </div>
 
-            {/* ─── DISCOUNT SECTION TOGGLE ─── */}
+            {/* ─── DISCOUNT BUTTON ─── */}
             <div className="pt-2 border-t">
               <button
                 type="button"
                 onClick={() => setShowDiscount(!showDiscount)}
                 className={cn(
-                  "w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all",
+                  "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all",
                   showDiscount
-                    ? "border-primary bg-primary/5"
-                    : "border-border bg-muted/30 hover:border-primary/50"
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
                 )}
               >
                 <div className="flex items-center gap-2">
-                  <Percent className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">Apply Discount</span>
+                  <Percent className="w-4 h-4" />
+                  <span className="text-sm font-medium">Apply Discount</span>
                 </div>
-                <Badge variant={showDiscount ? "default" : "secondary"} className="text-xs">
-                  {showDiscount ? "Active" : "Inactive"}
-                </Badge>
+                <ChevronRight className={cn("w-4 h-4 transition-transform", showDiscount && "rotate-90")} />
               </button>
             </div>
 
             {/* ─── DISCOUNT FIELDS (CONDITIONAL) ─── */}
             {showDiscount && (
-              <div className="space-y-4 p-4 border-2 border-primary/20 rounded-lg bg-primary/5">
-                {/* Discount Type Selection */}
-                <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase block mb-2">
-                    Discount Type
+              <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                {/* Type Selection */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Type
                   </label>
                   <div className="flex gap-2">
                     <button
@@ -1192,13 +1194,13 @@ export default function PosPage() {
                         setDiscountValue("");
                       }}
                       className={cn(
-                        "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
+                        "flex-1 px-3 py-2 rounded-md border text-xs font-medium transition-all flex items-center justify-center gap-1.5",
                         discountType === "fixed"
-                          ? "border-primary bg-white text-primary shadow-sm"
-                          : "border-border bg-background text-foreground hover:border-primary/50"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background hover:border-primary/50"
                       )}
                     >
-                      <DollarSign className="w-4 h-4" />
+                      <DollarSign className="w-3.5 h-3.5" />
                       Fixed
                     </button>
                     <button
@@ -1208,74 +1210,76 @@ export default function PosPage() {
                         setDiscountValue("");
                       }}
                       className={cn(
-                        "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
+                        "flex-1 px-3 py-2 rounded-md border text-xs font-medium transition-all flex items-center justify-center gap-1.5",
                         discountType === "percentage"
-                          ? "border-primary bg-white text-primary shadow-sm"
-                          : "border-border bg-background text-foreground hover:border-primary/50"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background hover:border-primary/50"
                       )}
                     >
-                      <Percent className="w-4 h-4" />
-                      Percentage
+                      <Percent className="w-3.5 h-3.5" />
+                      Percent
                     </button>
                   </div>
                 </div>
 
-                {/* Discount Amount */}
-                <div>
-                  <label htmlFor="discount-amount" className="text-sm font-semibold block mb-2">
-                    {discountType === "fixed" ? "Amount" : "Percentage"}{" "}
-                    {discountValue && (
-                      <span className="text-primary font-bold">
-                        ({discountType === "fixed" ? formatCurrency(parseFloat(discountValue) || 0) : discountValue + "%"})
-                      </span>
-                    )}
+                {/* Amount */}
+                <div className="space-y-1.5">
+                  <label htmlFor="discount-value" className="text-xs font-semibold text-muted-foreground">
+                    {discountType === "fixed" ? "Amount" : "Percentage"}
                   </label>
                   <Input
-                    id="discount-amount"
+                    id="discount-value"
                     type="number"
-                    placeholder={discountType === "fixed" ? "Enter amount" : "Enter percentage"}
+                    placeholder={discountType === "fixed" ? "0.00" : "0"}
                     value={discountValue}
                     onChange={(e) => setDiscountValue(e.target.value)}
                     min="0"
                     step={discountType === "fixed" ? "0.01" : "0.1"}
-                    className="h-10 text-sm"
+                    className="h-9 text-sm"
                   />
+                  {discountValue && (
+                    <p className="text-xs text-primary font-semibold">
+                      {discountType === "fixed"
+                        ? formatCurrency(parseFloat(discountValue) || 0)
+                        : `${discountValue}%`}
+                    </p>
+                  )}
                 </div>
 
-                {/* Discount Reason */}
-                <div>
-                  <label htmlFor="discount-reason" className="text-sm font-semibold block mb-2">
+                {/* Reason */}
+                <div className="space-y-1.5">
+                  <label htmlFor="discount-reason" className="text-xs font-semibold text-muted-foreground">
                     Reason
                   </label>
                   <Input
                     id="discount-reason"
                     type="text"
-                    placeholder="E.g., Loyalty, VIP customer, Bulk order..."
+                    placeholder="Loyalty, VIP, bulk order..."
                     value={discountReason}
                     onChange={(e) => setDiscountReason(e.target.value)}
                     maxLength={60}
-                    className="h-10 text-sm"
+                    className="h-9 text-sm"
                   />
-                  <p className="text-xs text-muted-foreground text-right mt-1">{discountReason.length}/60</p>
+                  <p className="text-xs text-muted-foreground text-right">{discountReason.length}/60</p>
                 </div>
 
-                {/* Discount Summary */}
+                {/* Summary */}
                 {discountValue && (
-                  <div className="rounded-lg border border-primary/30 bg-white p-3 space-y-2 mt-3">
-                    <p className="text-xs font-bold text-primary uppercase">Discount Summary</p>
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center text-sm">
+                  <div className="rounded-md border bg-primary/5 p-2.5 space-y-1">
+                    <p className="text-xs font-semibold text-primary">Summary</p>
+                    <div className="text-xs space-y-0.5">
+                      <div className="flex justify-between">
                         <span className="text-muted-foreground">Amount:</span>
-                        <span className="font-bold text-primary text-base">
+                        <span className="font-bold text-primary">
                           {discountType === "fixed"
                             ? formatCurrency(parseFloat(discountValue) || 0)
-                            : `${discountValue || "0"}%`}
+                            : `${discountValue}%`}
                         </span>
                       </div>
                       {discountReason && (
-                        <div className="flex justify-between items-center text-sm">
+                        <div className="flex justify-between">
                           <span className="text-muted-foreground">Reason:</span>
-                          <span className="font-medium truncate text-foreground">{discountReason}</span>
+                          <span className="truncate">{discountReason}</span>
                         </div>
                       )}
                     </div>
@@ -1285,21 +1289,21 @@ export default function PosPage() {
             )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="px-4 py-3 border-t bg-muted/30 flex gap-3">
+          {/* Footer */}
+          <div className="px-6 py-4 border-t bg-muted/30 flex gap-3">
             <CustomButton
               variant="outline"
+              size="sm"
               className="flex-1"
-              onClick={() => {
-                setShowOrderDetailsModal(false);
-              }}
+              onClick={() => setShowOrderDetailsModal(false)}
               disabled={isSubmittingModal}
             >
-              <X className="h-4 w-4 mr-1.5" />
+              <X className="w-3.5 h-3.5 mr-1" />
               Cancel
             </CustomButton>
             <CustomButton
-              className="flex-1 bg-primary hover:bg-primary/90"
+              size="sm"
+              className="flex-1"
               onClick={() => {
                 setIsSubmittingModal(true);
                 setTimeout(() => {
@@ -1311,13 +1315,13 @@ export default function PosPage() {
             >
               {isSubmittingModal ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                  Applying...
+                  <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                  Applying
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                  Apply Options
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                  Apply
                 </>
               )}
             </CustomButton>
