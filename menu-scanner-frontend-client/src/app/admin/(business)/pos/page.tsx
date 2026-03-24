@@ -136,8 +136,8 @@ export default function PosPage() {
   // ─── Brand Popover ───
   const [brandOpen, setBrandOpen] = useState(false);
 
-  // ─── Discount Modal State ───
-  const [showDiscountModal, setShowDiscountModal] = useState(false);
+  // ─── Order Details Modal State ───
+  const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
   const [discountType, setDiscountType] = useState<"fixed" | "percentage">("fixed");
   const [discountValue, setDiscountValue] = useState("");
   const [discountReason, setDiscountReason] = useState("special_customer");
@@ -949,26 +949,6 @@ export default function PosPage() {
                 </div>
               </div>
 
-              {/* Note — 1 row compact */}
-              <Textarea
-                value={customerNote}
-                onChange={(e) => setCustomerNote(e.target.value)}
-                placeholder="Order note (optional)..."
-                rows={1}
-                className="text-xs resize-none bg-background"
-              />
-
-              {/* Discount Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs h-9 gap-2"
-                onClick={() => setShowDiscountModal(true)}
-              >
-                <Tag className="w-3.5 h-3.5" />
-                {discountValue ? `Discount: ${discountType === "fixed" ? formatCurrency(parseFloat(discountValue)) : discountValue + "%"}` : "Add Discount"}
-              </Button>
-
               {/* Order Summary — inline, no extra header card */}
               <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 space-y-1.5">
                 <div className="flex justify-between text-xs">
@@ -1009,11 +989,11 @@ export default function PosPage() {
               </div>
             </div>
 
-            {/* Place Order — left info / right action card */}
-            <div className="px-3 pb-3">
-              <div className="rounded-xl overflow-hidden border border-border shadow-sm flex items-stretch">
-                {/* Left: summary */}
-                <div className="flex-1 px-3 py-2.5 bg-muted/30 min-w-0">
+            {/* Bottom Action Bar — left buttons + right order button */}
+            <div className="px-3 pb-3 space-y-2">
+              {/* Top: Info Card */}
+              <div className="rounded-lg border border-border shadow-sm bg-muted/30 px-3 py-2.5 flex items-center justify-between">
+                <div className="min-w-0">
                   <p className="text-[10px] text-muted-foreground font-medium">
                     {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
                     {selectedPaymentOption && (
@@ -1024,25 +1004,39 @@ export default function PosPage() {
                   </p>
                   <p className="text-lg font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
                 </div>
-                {/* Right: button */}
+              </div>
+
+              {/* Bottom: Action Buttons */}
+              <div className="flex gap-2">
+                {/* Left: Order Details Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs h-10 gap-2"
+                  onClick={() => setShowOrderDetailsModal(true)}
+                >
+                  <ReceiptText className="w-4 h-4" />
+                  Order Details
+                  {(customerNote || discountValue) && <span className="text-[10px] text-primary font-bold">●</span>}
+                </Button>
+
+                {/* Right: Place Order Button */}
                 <button
                   onClick={handleSubmitOrder}
                   disabled={cartItems.length === 0 || isSubmitting}
                   className={cn(
-                    "flex flex-col items-center justify-center px-5 gap-0.5 transition-all shrink-0",
+                    "flex-1 flex flex-col items-center justify-center gap-1 rounded-lg font-semibold text-sm transition-all h-10",
                     cartItems.length === 0 || isSubmitting
                       ? "bg-muted text-muted-foreground cursor-not-allowed"
                       : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer"
                   )}
                 >
                   {isSubmitting ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    <ReceiptText className="w-5 h-5" />
+                    <ReceiptText className="w-4 h-4" />
                   )}
-                  <span className="text-[11px] font-semibold whitespace-nowrap">
-                    {isSubmitting ? "Processing..." : "Place Order"}
-                  </span>
+                  {isSubmitting ? "Processing..." : "Place Order"}
                 </button>
               </div>
             </div>
@@ -1110,115 +1104,162 @@ export default function PosPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ─── Discount Modal ─── */}
-      <Dialog open={showDiscountModal} onOpenChange={setShowDiscountModal}>
-        <DialogContent className="max-w-sm">
-          <DialogTitle className="flex items-center gap-2">
-            <Tag className="w-5 h-5" />
-            Add Discount for Special Customer
+      {/* ─── Order Details Modal ─── */}
+      <Dialog open={showOrderDetailsModal} onOpenChange={setShowOrderDetailsModal}>
+        <DialogContent className="max-w-md">
+          <DialogTitle className="flex items-center gap-3 text-lg">
+            <ReceiptText className="w-5 h-5 text-primary" />
+            Order Details
           </DialogTitle>
 
-          <div className="space-y-4 py-4">
-            {/* Discount Type Selection */}
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold">Discount Type</Label>
-              <div className="flex gap-2">
-                <Button
-                  variant={discountType === "fixed" ? "default" : "outline"}
-                  size="sm"
-                  className="flex-1 gap-2"
-                  onClick={() => {
-                    setDiscountType("fixed");
-                    setDiscountValue("");
-                  }}
-                >
-                  <DollarSign className="w-4 h-4" />
-                  Fixed Amount
-                </Button>
-                <Button
-                  variant={discountType === "percentage" ? "default" : "outline"}
-                  size="sm"
-                  className="flex-1 gap-2"
-                  onClick={() => {
-                    setDiscountType("percentage");
-                    setDiscountValue("");
-                  }}
-                >
-                  <Percent className="w-4 h-4" />
-                  Percentage
-                </Button>
+          <div className="space-y-6 py-4">
+            {/* ─── SECTION 1: ORDER NOTE ─── */}
+            <div className="space-y-3 pb-6 border-b">
+              <div>
+                <Label htmlFor="order-note" className="text-sm font-semibold text-foreground block mb-2">
+                  Order Note
+                </Label>
+                <p className="text-xs text-muted-foreground mb-3">Add any special instructions or notes for this order.</p>
+                <Input
+                  id="order-note"
+                  type="text"
+                  placeholder="E.g., Special packaging, allergies, delivery instructions..."
+                  value={customerNote}
+                  onChange={(e) => setCustomerNote(e.target.value)}
+                  className="text-sm h-10"
+                  maxLength={200}
+                />
+                <p className="text-[10px] text-muted-foreground mt-2 text-right">{customerNote.length}/200</p>
               </div>
             </div>
 
-            {/* Discount Value Input */}
-            <div className="space-y-2">
-              <Label htmlFor="discount-value" className="text-sm font-semibold">
-                {discountType === "fixed" ? "Amount (in currency)" : "Percentage (%)"}
-              </Label>
-              <Input
-                id="discount-value"
-                type="number"
-                placeholder={discountType === "fixed" ? "0.00" : "0"}
-                value={discountValue}
-                onChange={(e) => setDiscountValue(e.target.value)}
-                min="0"
-                step={discountType === "fixed" ? "0.01" : "0.1"}
-                className="text-sm"
-              />
-            </div>
+            {/* ─── SECTION 2: DISCOUNT FOR SPECIAL CUSTOMER ─── */}
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-semibold text-foreground block mb-3">
+                  Discount for Special Customer
+                </Label>
 
-            {/* Discount Reason */}
-            <div className="space-y-2">
-              <Label htmlFor="discount-reason" className="text-sm font-semibold">Reason</Label>
-              <select
-                id="discount-reason"
-                value={discountReason}
-                onChange={(e) => setDiscountReason(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg text-sm bg-background"
-              >
-                <option value="special_customer">Special Customer</option>
-                <option value="loyalty">Loyalty Reward</option>
-                <option value="bulk_order">Bulk Order</option>
-                <option value="promotional">Promotional</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
+                {/* Discount Type Selection */}
+                <div className="space-y-2 mb-4">
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Type</Label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setDiscountType("fixed");
+                        setDiscountValue("");
+                      }}
+                      className={cn(
+                        "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
+                        discountType === "fixed"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-muted/50 text-muted-foreground hover:border-primary/50"
+                      )}
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      Fixed
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDiscountType("percentage");
+                        setDiscountValue("");
+                      }}
+                      className={cn(
+                        "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
+                        discountType === "percentage"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-muted/50 text-muted-foreground hover:border-primary/50"
+                      )}
+                    >
+                      <Percent className="w-4 h-4" />
+                      Percent
+                    </button>
+                  </div>
+                </div>
 
-            {/* Preview */}
-            {discountValue && (
-              <div className="rounded-lg bg-muted/50 p-3 space-y-1">
-                <p className="text-xs text-muted-foreground">Discount Preview:</p>
-                <p className="text-sm font-bold text-primary">
-                  {discountType === "fixed"
-                    ? formatCurrency(parseFloat(discountValue))
-                    : `${discountValue}% off`
-                  }
-                </p>
-                <p className="text-xs text-muted-foreground">Reason: {discountReason.replace(/_/g, " ").toUpperCase()}</p>
+                {/* Discount Value Input */}
+                <div className="space-y-2 mb-4">
+                  <Label htmlFor="discount-value" className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+                    {discountType === "fixed" ? "Amount" : "Percentage"}
+                  </Label>
+                  <Input
+                    id="discount-value"
+                    type="number"
+                    placeholder={discountType === "fixed" ? "0.00" : "0"}
+                    value={discountValue}
+                    onChange={(e) => setDiscountValue(e.target.value)}
+                    min="0"
+                    step={discountType === "fixed" ? "0.01" : "0.1"}
+                    className="text-sm h-10"
+                  />
+                </div>
+
+                {/* Discount Reason/Group */}
+                <div className="space-y-2">
+                  <Label htmlFor="discount-reason" className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+                    Group & Reason
+                  </Label>
+                  <select
+                    id="discount-reason"
+                    value={discountReason}
+                    onChange={(e) => setDiscountReason(e.target.value)}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-background hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  >
+                    <option value="special_customer">Special Customer</option>
+                    <option value="loyalty">Loyalty Reward</option>
+                    <option value="bulk_order">Bulk Order</option>
+                    <option value="vip">VIP Member</option>
+                    <option value="promotional">Promotional Campaign</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
               </div>
-            )}
+
+              {/* Discount Preview */}
+              {discountValue && (
+                <div className="rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-4 space-y-2 mt-4">
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wide">Discount Summary</p>
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-sm text-muted-foreground">Amount:</p>
+                    <p className="text-lg font-bold text-primary">
+                      {discountType === "fixed"
+                        ? formatCurrency(parseFloat(discountValue) || 0)
+                        : `${discountValue || "0"}%`
+                      }
+                    </p>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-sm text-muted-foreground">Reason:</p>
+                    <p className="text-sm font-medium text-foreground">{discountReason.replace(/_/g, " ")}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Action Buttons - Left aligned */}
-          <div className="flex gap-2 justify-start pt-2">
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-2">
             <Button
               variant="outline"
+              onClick={() => {
+                setShowOrderDetailsModal(false);
+              }}
+              className="flex-1"
+            >
+              Done
+            </Button>
+            <Button
               onClick={() => {
                 setDiscountValue("");
                 setDiscountType("fixed");
                 setDiscountReason("special_customer");
-                setShowDiscountModal(false);
+                setCustomerNote("");
+                setShowOrderDetailsModal(false);
               }}
+              variant="ghost"
+              className="flex-1"
             >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                setShowDiscountModal(false);
-              }}
-              disabled={!discountValue}
-            >
-              Apply Discount
+              Clear All
             </Button>
           </div>
         </DialogContent>
