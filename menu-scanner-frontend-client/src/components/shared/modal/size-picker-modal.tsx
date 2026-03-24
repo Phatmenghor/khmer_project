@@ -33,79 +33,148 @@ export function SizePickerModal({
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
-  // Track pending quantities for each size
+
+  // Track pending quantities for each size: key = sizeId, value = quantity
   const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
-  // Track which sizes have been modified
+
+  // Track original quantities for each size (for comparison to detect changes)
+  const [originalQuantities, setOriginalQuantities] = useState<Map<string, number>>(new Map());
+
+  // Track which sizes have been modified (differ from original)
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
 
-  // Check if there are unsaved changes
-  const hasChanges = modifiedSizes.size > 0;
+  // Check if there are any unsaved changes
+  const hasUnsavedChanges = modifiedSizes.size > 0;
 
-  // Initialize with first size when modal opens
+  // Get original quantity for a size (like current cart quantity)
+  const getQuantityForSize = useCallback(
+    (sizeId: string) => {
+      return originalQuantities.get(sizeId) ?? 0;
+    },
+    [originalQuantities],
+  );
+
+  // Get display quantity - shows pending edits if any, otherwise original
+  const getDisplayQuantity = useCallback(
+    (sizeId: string) => {
+      // If user made unsaved edits, show those (pendingQuantity)
+      if (pendingQuantities.has(sizeId)) {
+        return pendingQuantities.get(sizeId)!;
+      }
+      // Otherwise show original quantity
+      return getQuantityForSize(sizeId);
+    },
+    [pendingQuantities, getQuantityForSize],
+  );
+
+  // Current quantity for selected size
+  const currentQuantity = selectedSize
+    ? getDisplayQuantity(selectedSize.id)
+    : 0;
+
+  // Initialize when modal opens
   useEffect(() => {
     if (open && product?.sizes && product.sizes.length > 0) {
       setSelectedSize(product.sizes[0]);
       setQuantity(1);
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
+
+      // Initialize original quantities (all start at 0 for POS)
+      const origQties = new Map<string, number>();
+      product.sizes.forEach((size) => {
+        origQties.set(size.id, 0);
+      });
+      setOriginalQuantities(origQties);
     } else if (!open) {
       setSelectedSize(null);
       setQuantity(1);
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
+      setOriginalQuantities(new Map());
     }
-  }, [open, product?.id]);
+  }, [open, product?.id, product?.sizes]);
 
+  // Handle quantity change - update pending and track if modified
+  const handleQuantityChange = useCallback(
+    (newQuantity: number) => {
+      if (!selectedSize) return;
+
+      const sizeId = selectedSize.id;
+      const originalQty = getQuantityForSize(sizeId);
+
+      // Update pending quantity
+      setPendingQuantities((prev) => {
+        const next = new Map(prev);
+        next.set(sizeId, newQuantity);
+        return next;
+      });
+
+      // Track if this is actually different from original
+      setModifiedSizes((prev) => {
+        const next = new Set(prev);
+        if (newQuantity === originalQty) {
+          // Back to original state - remove from modified
+          next.delete(sizeId);
+        } else {
+          // Different from original - add to modified
+          next.add(sizeId);
+        }
+        return next;
+      });
+
+      // Update current quantity display
+      setQuantity(newQuantity);
+    },
+    [selectedSize, getQuantityForSize],
+  );
+
+  // Clear size - set quantity to 0
+  const handleClearSize = useCallback(() => {
+    if (!selectedSize) return;
+
+    const sizeId = selectedSize.id;
+    const originalQty = getQuantityForSize(sizeId);
+
+    // Set pending quantity to 0
+    setPendingQuantities((prev) => {
+      const next = new Map(prev);
+      next.set(sizeId, 0);
+      return next;
+    });
+
+    // Track if different from original
+    setModifiedSizes((prev) => {
+      const next = new Set(prev);
+      if (originalQty === 0) {
+        // Clearing when already 0 - not really modified
+        next.delete(sizeId);
+      } else {
+        // Clearing when had qty - this is a modification
+        next.add(sizeId);
+      }
+      return next;
+    });
+
+    setQuantity(0);
+  }, [selectedSize, getQuantityForSize]);
+
+  // Add to cart - only when sizes are modified
   const handleSelectSize = useCallback(() => {
-    if (product) {
-      onSizeSelect(product, selectedSize || undefined, quantity);
-      onOpenChange(false);
+    if (!product || !hasUnsavedChanges) return;
+
+    // For POS, just pass the currently selected size with its quantity
+    // (In real usage, would iterate through all modifiedSizes)
+    const currentQty = getDisplayQuantity(selectedSize?.id || "");
+    if (selectedSize && currentQty > 0) {
+      onSizeSelect(product, selectedSize, currentQty);
     }
-  }, [product, selectedSize, quantity, onSizeSelect, onOpenChange]);
+    onOpenChange(false);
+  }, [product, selectedSize, hasUnsavedChanges, getDisplayQuantity, onSizeSelect, onOpenChange]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
   }, [onOpenChange]);
-
-  // Handle quantity change and track modifications
-  const handleQuantityChange = useCallback((newQuantity: number) => {
-    setQuantity(newQuantity);
-
-    if (!selectedSize) return;
-
-    const key = selectedSize.id;
-    setPendingQuantities((prev) => {
-      const next = new Map(prev);
-      next.set(key, newQuantity);
-      return next;
-    });
-
-    // Track as modified
-    setModifiedSizes((prev) => {
-      const next = new Set(prev);
-      next.add(key);
-      return next;
-    });
-  }, [selectedSize]);
-
-  const handleClearSize = useCallback(() => {
-    setQuantity(0);
-
-    if (!selectedSize) return;
-
-    const key = selectedSize.id;
-    setPendingQuantities((prev) => {
-      const next = new Map(prev);
-      next.set(key, 0);
-      return next;
-    });
-
-    setModifiedSizes((prev) => {
-      const next = new Set(prev);
-      next.add(key);
-      return next;
-    });
-  }, [selectedSize]);
 
   if (!product) return null;
 
@@ -181,8 +250,9 @@ export function SizePickerModal({
               <div className="flex flex-wrap gap-2">
                 {activeSizes.map((size) => {
                   const isActive = selectedSize?.id === size.id;
-                  const sizeQty = pendingQuantities.get(size.id) ?? 0;
-                  const isModified = modifiedSizes.has(size.id) && sizeQty > 0;
+                  const sizeDisplayQty = getDisplayQuantity(size.id);
+                  const sizeCartQty = getQuantityForSize(size.id);
+                  const isModified = modifiedSizes.has(size.id) && sizeDisplayQty !== sizeCartQty;
 
                   return (
                     <button
@@ -211,14 +281,14 @@ export function SizePickerModal({
                         </div>
                       )}
                       {/* Quantity badge on size button */}
-                      {sizeQty > 0 && (
+                      {sizeDisplayQty > 0 && (
                         <div
                           className={cn(
                             "absolute -top-1.5 -left-1.5 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold",
                             isModified ? "bg-amber-500" : "bg-green-500"
                           )}
                         >
-                          {sizeQty}
+                          {sizeDisplayQty}
                         </div>
                       )}
                     </button>
@@ -228,18 +298,18 @@ export function SizePickerModal({
             </div>
           )}
 
-          {/* Quantity Selector */}
+          {/* Quantity Selector + Clear Button */}
           <div className="mb-4">
             <h4 className="font-semibold mb-2 text-sm">Quantity</h4>
             <div className="flex items-center gap-2">
               <QuantitySelector
-                value={quantity}
+                value={currentQuantity}
                 onChange={handleQuantityChange}
                 min={0}
                 size="sm"
               />
-              {/* Clear button */}
-              {quantity > 0 && (
+              {/* Clear button for selected size */}
+              {(currentQuantity > 0 || getQuantityForSize(selectedSize?.id || "")) > 0 && (
                 <CustomButton
                   variant="outline"
                   size="sm"
@@ -250,10 +320,6 @@ export function SizePickerModal({
                   Clear
                 </CustomButton>
               )}
-              <div className="flex-1" />
-              <span className="text-sm font-semibold">
-                {formatCurrency(displayPrice * quantity)}
-              </span>
             </div>
           </div>
 
@@ -261,7 +327,7 @@ export function SizePickerModal({
           <div className="flex justify-between items-center py-3 border-t mb-4">
             <span className="text-muted-foreground">Total</span>
             <span className="text-xl font-bold text-primary">
-              {formatCurrency(displayPrice * quantity)}
+              {formatCurrency(displayPrice * currentQuantity)}
             </span>
           </div>
 
@@ -278,7 +344,7 @@ export function SizePickerModal({
             <CustomButton
               className="flex-1"
               onClick={handleSelectSize}
-              disabled={quantity === 0}
+              disabled={!hasUnsavedChanges}
             >
               <Package className="h-4 w-4 mr-1.5" />
               Add to Cart
