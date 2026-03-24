@@ -142,7 +142,7 @@ export default function PosPage() {
   // ─── More Options Modal State ───
   const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
   // ─── Promotion Filter State ───
-  const [promotionFilter, setPromotionFilter] = useState<"all" | "promotion" | "full">("all");
+  const [promotionFilter, setPromotionFilter] = useState<"promotion" | "full">("promotion");
   const [promotionOpen, setPromotionOpen] = useState(false);
 
   // ─── Fetch Categories ───
@@ -186,9 +186,8 @@ export default function PosPage() {
   }, []);
 
   useEffect(() => {
-    fetchCategories();
-    fetchBrands();
-  }, [fetchCategories, fetchBrands]);
+    fetchProducts(1, debouncedSearch, selectedCategory?.id, selectedBrand?.id, promotionFilter, true);
+  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, fetchProducts]);
 
   // ─── Fetch Products ───
   const fetchProducts = useCallback(
@@ -197,6 +196,7 @@ export default function PosPage() {
       search: string,
       categoryId?: string,
       brandId?: string,
+      promotionType: "promotion" | "full" = "promotion",
       reset = false
     ) => {
       try {
@@ -207,6 +207,7 @@ export default function PosPage() {
             search: search || undefined,
             categoryId: categoryId || undefined,
             brandId: brandId || undefined,
+            promotionType: promotionType || undefined,
             pageNo: page,
             pageSize: 30,
             status: "ACTIVE",
@@ -237,16 +238,11 @@ export default function PosPage() {
       selectedBrand?.id,
       true
     );
-  }, [debouncedSearch, selectedCategory, selectedBrand, fetchProducts]);
+  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, fetchProducts]);
 
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
-      fetchProducts(
-        productPage + 1,
-        debouncedSearch,
-        selectedCategory?.id,
-        selectedBrand?.id
-      );
+      fetchProducts(productPage + 1, debouncedSearch, selectedCategory?.id, selectedBrand?.id, promotionFilter);
     }
   };
 
@@ -684,32 +680,16 @@ export default function PosPage() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={promotionOpen}
-                  className="w-[150px] justify-between h-9 text-sm"
+                  className="w-[120px] justify-between h-9 text-sm"
                 >
-                  {promotionFilter === "all" ? "All Items" : promotionFilter === "promotion" ? "Promotion" : "Full"}
+                  {promotionFilter === "promotion" ? "Promotion" : "Full"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[150px] p-0">
+              <PopoverContent className="w-[120px] p-0">
                 <Command>
                   <CommandList>
                     <CommandGroup>
-                      <CommandItem
-                        value="all"
-                        onSelect={() => {
-                          setPromotionFilter("all");
-                          setPromotionOpen(false);
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            promotionFilter === "all" ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        All Items
-                      </CommandItem>
                       <CommandItem
                         value="promotion"
                         onSelect={() => {
@@ -747,7 +727,23 @@ export default function PosPage() {
                 </Command>
               </PopoverContent>
             </Popover>
-          </div>
+
+            {/* Clear All Filter Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 text-sm text-slate-600 hover:text-slate-900"
+              onClick={() => {
+                setSearchTerm("");
+                setSelectedCategory(null);
+                setSelectedBrand(null);
+                setPromotionFilter("promotion");
+                fetchProducts(1, "", undefined, undefined, "promotion", true);
+              }}
+            >
+              <X className="w-4 h-4 mr-1" />
+              Clear All
+            </Button>
 
           {/* Categories Horizontal Scroll */}
           <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 h-10 mt-2">
