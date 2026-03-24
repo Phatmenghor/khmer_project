@@ -70,14 +70,7 @@ import { DeliveryOptionsResponseModel } from "@/redux/features/master-data/store
 import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { FormHeader } from "@/components/shared/form-field/form-header";
-import { FormBody } from "@/components/shared/form-field/form-body";
-import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { TextField } from "@/components/shared/form-field/text-field";
-import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { SelectField } from "@/components/shared/form-field/select-field";
-import { CancelButton } from "@/components/shared/form-field/cancel-button";
-import { SubmitButton } from "@/components/shared/form-field/submid-button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 
 // ─── Order Options Schema ───
 const orderOptionsSchema = z.object({
@@ -159,31 +152,13 @@ export default function PosPage() {
   // ─── Brand Popover ───
   const [brandOpen, setBrandOpen] = useState(false);
 
-  // ─── Order Options Modal State ───
+  // ─── More Options Modal State ───
   const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-    watch,
-    setValue,
-    formState: { errors, isDirty, isSubmitting },
-  } = useForm<OrderOptionsFormData>({
-    resolver: zodResolver(orderOptionsSchema),
-    defaultValues: {
-      customerNote: customerNote || "",
-      addDiscount: false,
-      discountType: "fixed",
-      discountValue: "",
-      discountReason: "",
-    },
-    mode: "onChange",
-  });
-
-  const addDiscount = watch("addDiscount");
-  const discountType = watch("discountType");
-  const discountValue = watch("discountValue");
+  const [showDiscount, setShowDiscount] = useState(false);
+  const [discountType, setDiscountType] = useState<"fixed" | "percentage">("fixed");
+  const [discountValue, setDiscountValue] = useState("");
+  const [discountReason, setDiscountReason] = useState("");
+  const [isSubmittingModal, setIsSubmittingModal] = useState(false);
 
   // ─── Fetch Categories ───
   const fetchCategories = useCallback(async () => {
@@ -1147,161 +1122,206 @@ export default function PosPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ─── More Options Modal ─── */}
+      {/* ─── More Options Modal (Custom) ─── */}
       <Dialog open={showOrderDetailsModal} onOpenChange={setShowOrderDetailsModal}>
-        <DialogContent className="max-w-md">
-          <FormHeader
-            title="Order Options"
-            description="Add notes and apply discounts"
-            isCreate={true}
-          />
+        <DialogContent className="w-full sm:max-w-[480px] p-0 overflow-hidden">
+          {/* Header */}
+          <div className="px-4 pt-4 pb-0 border-b">
+            <h2 className="text-lg font-bold">Order Options</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Add notes and discounts</p>
+          </div>
 
-          <form
-            onSubmit={handleSubmit((data) => {
-              setCustomerNote(data.customerNote);
-              setShowOrderDetailsModal(false);
-            })}
-            className="flex flex-col flex-1 overflow-hidden"
-          >
-            <FormBody>
-              <div className="space-y-6">
-                {/* ─── ORDER NOTE SECTION ─── */}
+          <div className="p-4 space-y-4">
+            {/* ─── ORDER NOTE SECTION ─── */}
+            <div>
+              <label className="text-sm font-semibold block mb-2 flex items-center gap-2">
+                <ReceiptText className="w-4 h-4 text-primary" />
+                Order Note
+              </label>
+              <Textarea
+                value={customerNote}
+                onChange={(e) => setCustomerNote(e.target.value)}
+                placeholder="E.g., Special packaging, allergies, delivery instructions..."
+                rows={3}
+                maxLength={150}
+                className="text-sm resize-none"
+              />
+              <div className="flex justify-between items-center mt-1">
+                <p className="text-xs text-muted-foreground">{customerNote.length}/150</p>
+                {customerNote && (
+                  <Check className="w-4 h-4 text-green-500" />
+                )}
+              </div>
+            </div>
+
+            {/* ─── DISCOUNT SECTION TOGGLE ─── */}
+            <div className="pt-2 border-t">
+              <button
+                type="button"
+                onClick={() => setShowDiscount(!showDiscount)}
+                className={cn(
+                  "w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all",
+                  showDiscount
+                    ? "border-primary bg-primary/5"
+                    : "border-border bg-muted/30 hover:border-primary/50"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Percent className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold">Apply Discount</span>
+                </div>
+                <Badge variant={showDiscount ? "default" : "secondary"} className="text-xs">
+                  {showDiscount ? "Active" : "Inactive"}
+                </Badge>
+              </button>
+            </div>
+
+            {/* ─── DISCOUNT FIELDS (CONDITIONAL) ─── */}
+            {showDiscount && (
+              <div className="space-y-4 p-4 border-2 border-primary/20 rounded-lg bg-primary/5">
+                {/* Discount Type Selection */}
                 <div>
-                  <TextareaField
-                    control={control}
-                    name="customerNote"
-                    label="Order Note"
-                    placeholder="E.g., Special packaging, allergies, delivery instructions..."
-                    rows={3}
-                    disabled={isSubmitting}
-                    error={errors.customerNote}
-                  />
-                  <p className="text-xs text-muted-foreground text-right mt-1">
-                    {watch("customerNote").length}/150
-                  </p>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase block mb-2">
+                    Discount Type
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDiscountType("fixed");
+                        setDiscountValue("");
+                      }}
+                      className={cn(
+                        "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
+                        discountType === "fixed"
+                          ? "border-primary bg-white text-primary shadow-sm"
+                          : "border-border bg-background text-foreground hover:border-primary/50"
+                      )}
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      Fixed
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDiscountType("percentage");
+                        setDiscountValue("");
+                      }}
+                      className={cn(
+                        "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
+                        discountType === "percentage"
+                          ? "border-primary bg-white text-primary shadow-sm"
+                          : "border-border bg-background text-foreground hover:border-primary/50"
+                      )}
+                    >
+                      <Percent className="w-4 h-4" />
+                      Percentage
+                    </button>
+                  </div>
                 </div>
 
-                {/* ─── DISCOUNT SECTION ─── */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="addDiscount"
-                      checked={addDiscount}
-                      onChange={(e) => setValue("addDiscount", e.target.checked, { shouldDirty: true })}
-                      className="w-4 h-4 rounded cursor-pointer"
-                    />
-                    <label htmlFor="addDiscount" className="text-sm font-medium cursor-pointer">
-                      Apply Discount
-                    </label>
-                  </div>
+                {/* Discount Amount */}
+                <div>
+                  <label htmlFor="discount-amount" className="text-sm font-semibold block mb-2">
+                    {discountType === "fixed" ? "Amount" : "Percentage"}{" "}
+                    {discountValue && (
+                      <span className="text-primary font-bold">
+                        ({discountType === "fixed" ? formatCurrency(parseFloat(discountValue) || 0) : discountValue + "%"})
+                      </span>
+                    )}
+                  </label>
+                  <Input
+                    id="discount-amount"
+                    type="number"
+                    placeholder={discountType === "fixed" ? "Enter amount" : "Enter percentage"}
+                    value={discountValue}
+                    onChange={(e) => setDiscountValue(e.target.value)}
+                    min="0"
+                    step={discountType === "fixed" ? "0.01" : "0.1"}
+                    className="h-10 text-sm"
+                  />
+                </div>
 
-                  {/* ─── DISCOUNT FIELDS (CONDITIONAL) ─── */}
-                  {addDiscount && (
-                    <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
-                      {/* Discount Type Selection */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium block">Discount Type</label>
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setValue("discountType", "fixed", { shouldDirty: true })}
-                            className={cn(
-                              "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
-                              discountType === "fixed"
-                                ? "border-primary bg-primary/10 text-primary"
-                                : "border-border bg-background text-foreground hover:border-primary/50"
-                            )}
-                          >
-                            <DollarSign className="w-4 h-4" />
-                            Fixed
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setValue("discountType", "percentage", { shouldDirty: true })}
-                            className={cn(
-                              "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
-                              discountType === "percentage"
-                                ? "border-primary bg-primary/10 text-primary"
-                                : "border-border bg-background text-foreground hover:border-primary/50"
-                            )}
-                          >
-                            <Percent className="w-4 h-4" />
-                            Percentage
-                          </button>
-                        </div>
+                {/* Discount Reason */}
+                <div>
+                  <label htmlFor="discount-reason" className="text-sm font-semibold block mb-2">
+                    Reason
+                  </label>
+                  <Input
+                    id="discount-reason"
+                    type="text"
+                    placeholder="E.g., Loyalty, VIP customer, Bulk order..."
+                    value={discountReason}
+                    onChange={(e) => setDiscountReason(e.target.value)}
+                    maxLength={60}
+                    className="h-10 text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground text-right mt-1">{discountReason.length}/60</p>
+                </div>
+
+                {/* Discount Summary */}
+                {discountValue && (
+                  <div className="rounded-lg border border-primary/30 bg-white p-3 space-y-2 mt-3">
+                    <p className="text-xs font-bold text-primary uppercase">Discount Summary</p>
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground">Amount:</span>
+                        <span className="font-bold text-primary text-base">
+                          {discountType === "fixed"
+                            ? formatCurrency(parseFloat(discountValue) || 0)
+                            : `${discountValue || "0"}%`}
+                        </span>
                       </div>
-
-                      {/* Discount Amount */}
-                      <TextField
-                        control={control}
-                        name="discountValue"
-                        label={discountType === "fixed" ? "Amount" : "Percentage"}
-                        type="number"
-                        placeholder={discountType === "fixed" ? "Enter amount" : "Enter percentage"}
-                        disabled={isSubmitting}
-                        error={errors.discountValue}
-                        min="0"
-                        step={discountType === "fixed" ? "0.01" : "0.1"}
-                      />
-
-                      {/* Discount Reason */}
-                      <TextField
-                        control={control}
-                        name="discountReason"
-                        label="Reason"
-                        placeholder="E.g., Loyalty, VIP customer, Bulk order..."
-                        disabled={isSubmitting}
-                        error={errors.discountReason}
-                      />
-                      <p className="text-xs text-muted-foreground text-right">
-                        {watch("discountReason").length}/60
-                      </p>
-
-                      {/* Discount Preview */}
-                      {discountValue && (
-                        <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 space-y-2 mt-2">
-                          <p className="text-xs font-semibold text-primary uppercase">Summary</p>
-                          <div className="space-y-1 text-xs">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Amount:</span>
-                              <span className="font-bold text-primary">
-                                {discountType === "fixed"
-                                  ? formatCurrency(parseFloat(discountValue) || 0)
-                                  : `${discountValue || "0"}%`}
-                              </span>
-                            </div>
-                            {watch("discountReason") && (
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Reason:</span>
-                                <span className="font-medium truncate">{watch("discountReason")}</span>
-                              </div>
-                            )}
-                          </div>
+                      {discountReason && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground">Reason:</span>
+                          <span className="font-medium truncate text-foreground">{discountReason}</span>
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            </FormBody>
+            )}
+          </div>
 
-            <FormFooter
-              isSubmitting={isSubmitting}
-              isDirty={isDirty}
-              isCreate={true}
-              noChangesMessage="No changes"
+          {/* Action Buttons */}
+          <div className="px-4 py-3 border-t bg-muted/30 flex gap-3">
+            <CustomButton
+              variant="outline"
+              className="flex-1"
+              onClick={() => {
+                setShowOrderDetailsModal(false);
+              }}
+              disabled={isSubmittingModal}
             >
-              <CancelButton
-                onClick={() => {
-                  reset();
+              <X className="h-4 w-4 mr-1.5" />
+              Cancel
+            </CustomButton>
+            <CustomButton
+              className="flex-1 bg-primary hover:bg-primary/90"
+              onClick={() => {
+                setIsSubmittingModal(true);
+                setTimeout(() => {
                   setShowOrderDetailsModal(false);
-                }}
-                disabled={isSubmitting}
-              />
-              <SubmitButton isSubmitting={isSubmitting} label="Apply" />
-            </FormFooter>
-          </form>
+                  setIsSubmittingModal(false);
+                }, 300);
+              }}
+              disabled={isSubmittingModal}
+            >
+              {isSubmittingModal ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                  Applying...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                  Apply Options
+                </>
+              )}
+            </CustomButton>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
