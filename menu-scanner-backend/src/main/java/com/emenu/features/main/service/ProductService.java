@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface ProductService {
     ProductDetailDto createProduct(ProductCreateDto request);
     PaginationResponse<ProductListDto> getAllProductsAdmin(ProductFilterDto filter);
+    PaginationResponse<ProductDetailDto> getAllProductsAdminPos(ProductFilterDto filter);
     PaginationResponse<ProductListDto> getAllProducts(ProductFilterDto filter);
     List<ProductListDto> getAllDataProducts(ProductFilterDto filter);
     ProductDetailDto getProductById(UUID id);

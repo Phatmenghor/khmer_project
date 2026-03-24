@@ -97,6 +97,8 @@ public interface ProductMapper {
     @Mapping(target = "isFavorited", constant = "false")
     ProductDetailDto toDetailDto(Product product);
 
+    List<ProductDetailDto> toDetailDtos(List<Product> products);
+
     @Named("stringToPromotionType")
     default PromotionType stringToPromotionType(String promotionType) {
 if (promotionType == null || promotionType.trim().isEmpty()) {

@@ -235,6 +235,48 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    public PaginationResponse<ProductDetailDto> getAllProductsAdminPos(ProductFilterDto filter) {
+        Optional<User> currentUser = securityUtils.getCurrentUserOptional();
+        if (currentUser.isPresent() && currentUser.get().isBusinessUser() && filter.getBusinessId() == null) {
+            filter.setBusinessId(currentUser.get().getBusinessId());
+        }
+
+        Pageable pageable = PaginationUtils.createPageable(
+                filter.getPageNo(),
+                filter.getPageSize(),
+                filter.getSortBy(),
+                filter.getSortDirection()
+        );
+
+        Page<Product> productPage = productRepository.findAllWithFilters(
+                filter.getBusinessId(),
+                filter.getCategoryId(),
+                filter.getBrandId(),
+                (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
+                Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
+                Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
+                filter.getMinPrice(),
+                filter.getMaxPrice(),
+                filter.getSearch(),
+                pageable
+        );
+
+        if (productPage.getContent().isEmpty()) {
+            return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
+        }
+
+        // Recalculate display fields from current sizes
+        productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
+
+        List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
+
+        enrichTotalStockForDetails(dtoList, productPage.getContent());
+
+        return paginationMapper.toPaginationResponse(productPage, dtoList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public ProductDetailDto getProductById(UUID id) {
         Product product = productRepository.findByIdWithAllDetails(id)
                 .orElseThrow(() -> new NotFoundException("Product not found: " + id));
@@ -532,5 +574,16 @@ public class ProductServiceImpl implements ProductService {
         } else {
             dto.setTotalStock(0);
         }
+    }
+
+    private void enrichTotalStockForDetails(List<ProductDetailDto> dtoList, List<Product> products) {
+        List<UUID> productIds = products.stream().map(Product::getId).toList();
+        if (productIds.isEmpty()) return;
+
+        Map<UUID, Integer> stockMap = new HashMap<>();
+        productStockRepository.sumOnHandQuantityByProductIds(productIds)
+                .forEach(row -> stockMap.put((UUID) row[0], ((Number) row[1]).intValue()));
+
+        dtoList.forEach(dto -> dto.setTotalStock(stockMap.getOrDefault(dto.getId(), 0)));
     }
 }

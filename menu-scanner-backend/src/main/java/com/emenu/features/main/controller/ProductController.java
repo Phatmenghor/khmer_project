@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -46,6 +47,20 @@ public class ProductController {
         log.info("Get products by admin - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
 
         PaginationResponse<ProductListDto> products = productService.getAllProductsAdmin(filter);
+
+        return ResponseEntity.ok(ApiResponse.success(
+                String.format("Found %d products", products.getTotalElements()),
+                products
+        ));
+    }
+
+    @PostMapping("/admin/pos/all")
+    public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdminPos(
+            @Valid @RequestBody ProductFilterDto filter) {
+
+        log.info("Get products by admin for POS - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
+
+        PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdminPos(filter);
 
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Found %d products", products.getTotalElements()),
