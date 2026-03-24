@@ -95,6 +95,26 @@ export default function PosPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const productGridRef = useRef<HTMLDivElement>(null);
   const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const posPageRef = useRef<HTMLDivElement>(null);
+
+  // Mobile responsive zoom
+  useEffect(() => {
+    const applyResponsiveZoom = () => {
+      if (posPageRef.current) {
+        if (window.innerWidth < 768) {
+          // Mobile: no zoom
+          posPageRef.current.style.zoom = "1";
+        } else {
+          // Tablet & Desktop: 0.8 zoom
+          posPageRef.current.style.zoom = "0.8";
+        }
+      }
+    };
+
+    applyResponsiveZoom();
+    window.addEventListener("resize", applyResponsiveZoom);
+    return () => window.removeEventListener("resize", applyResponsiveZoom);
+  }, []);
 
   // ─── Payment & Delivery Options State ───
   const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<DeliveryOptionsResponseModel | null>(null);
@@ -597,22 +617,26 @@ export default function PosPage() {
 
   // ─── Current time display ───
   return (
-    <div className="flex flex-col h-full w-full" style={{
-      zoom: "0.8",
-    }}>
+    <div
+      ref={posPageRef}
+      className="flex flex-col h-full w-full max-md:p-1"
+      style={{
+        zoom: "0.8", // Default, will be adjusted by useEffect for mobile
+      }}
+    >
       {/* ─── Main Content ─── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search & Brand Filter Bar */}
-          <div className="flex flex-wrap items-end gap-2 p-3 border-b bg-muted/20 shrink-0">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-wrap items-end gap-2 max-md:gap-1 max-md:p-2 md:p-3 border-b bg-muted/20 shrink-0">
+            <div className="relative flex-1 max-md:min-w-[140px] md:min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 max-md:h-3.5 max-md:w-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 ref={searchInputRef}
                 type="search"
-                placeholder="Search products..."
-                className="pl-10 h-9"
+                placeholder="Search..."
+                className="max-md:pl-8 max-md:h-8 max-md:text-xs pl-10 h-9"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -625,7 +649,7 @@ export default function PosPage() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={brandOpen}
-                  className="w-[200px] justify-between h-9 text-sm"
+                  className="max-md:w-[120px] md:w-[200px] justify-between h-9 text-sm"
                 >
                   {selectedBrand?.name || "All Brands"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -687,7 +711,7 @@ export default function PosPage() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={promotionOpen}
-                  className="w-[130px] justify-between h-9 text-sm"
+                  className="max-md:w-[100px] md:w-[130px] justify-between h-9 text-sm max-md:text-xs"
                 >
                   {promotionFilter === undefined ? "All Products" : "Promotion"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -823,7 +847,14 @@ export default function PosPage() {
 
           {/* Product Grid */}
           <ScrollArea className="flex-1 w-full overflow-hidden" ref={productGridRef}>
-            <div className="w-full p-3 sm:p-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
+            <div
+              className="w-full max-md:p-2 md:p-4"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                gap: '0.75rem'
+              }}
+            >
               {/* Full Page Skeleton on Initial Load */}
               {productsLoading && products.length === 0 &&
                 Array.from({ length: 12 }).map((_, i) => (
