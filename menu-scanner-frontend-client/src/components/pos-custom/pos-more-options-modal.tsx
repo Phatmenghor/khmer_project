@@ -4,11 +4,9 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { formatCurrency } from "@/utils/common/currency-format";
 import { cn } from "@/lib/utils";
-import { X, CheckCircle2, Loader2, ChevronRight, ReceiptText, Percent, DollarSign, Check, AlertCircle } from "lucide-react";
+import { X, Loader2, ChevronRight, Percent, DollarSign } from "lucide-react";
 
 interface POSMoreOptionsModalProps {
   open: boolean;
@@ -43,81 +41,59 @@ export function POSMoreOptionsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full sm:max-w-[500px] p-0 gap-0">
+      <DialogContent className="w-full sm:max-w-[400px] p-0 gap-0">
         {/* Hidden Title for Accessibility */}
         <DialogTitle className="sr-only">Order Options</DialogTitle>
 
         {/* Header */}
-        <div className="px-6 pt-6 pb-3 border-b bg-gradient-to-r from-slate-50 to-white">
-          <h2 className="text-xl font-bold text-slate-900">Order Options</h2>
-          <p className="text-xs text-muted-foreground mt-1">Customize your order details</p>
+        <div className="px-4 pt-4 pb-2 border-b">
+          <h2 className="text-lg font-bold text-slate-900">Order Options</h2>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-5 space-y-6 overflow-y-auto max-h-[calc(100vh-200px)]">
+        <div className="px-4 py-3 space-y-4 overflow-y-auto max-h-[calc(100vh-200px)]">
           {/* ─── Order Note Section ─── */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-blue-100 rounded-lg">
-                <ReceiptText className="w-4 h-4 text-blue-600" />
-              </div>
-              <div>
-                <label className="text-sm font-semibold text-slate-900 block">Order Note</label>
-                <p className="text-xs text-muted-foreground">Add special instructions for this order</p>
-              </div>
-            </div>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-900 block">Order Note</label>
             <Textarea
               value={customerNote}
               onChange={(e) => onNoteChange(e.target.value)}
-              placeholder="E.g., Special packaging, allergies, delivery instructions..."
-              rows={3}
-              maxLength={150}
-              className="text-sm resize-none border-slate-200 focus:border-blue-400"
+              placeholder="Special instructions..."
+              rows={2}
+              maxLength={100}
+              className="text-xs resize-none border-slate-200 focus:border-primary"
             />
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted-foreground">{customerNote.length} / 150</span>
-              {customerNote && (
-                <div className="flex items-center gap-1 text-green-600">
-                  <Check className="w-3.5 h-3.5" />
-                  <span className="text-xs font-medium">Added</span>
-                </div>
-              )}
+            <div className="flex justify-end">
+              <span className="text-xs text-muted-foreground">{customerNote.length} / 100</span>
             </div>
           </div>
 
           {/* ─── Discount Section ─── */}
-          <div className="space-y-3 border-t pt-4">
+          <div className="space-y-2 border-t pt-3">
             {/* Toggle Button */}
             <button
               type="button"
               onClick={() => setShowDiscount(!showDiscount)}
               className={cn(
-                "w-full flex items-center justify-between px-4 py-3 rounded-lg border-2 transition-all duration-200",
+                "w-full flex items-center justify-between px-3 py-2 rounded text-sm transition-all",
                 showDiscount
-                  ? "border-orange-300 bg-orange-50 text-orange-900 shadow-sm"
-                  : "border-slate-200 bg-white text-slate-700 hover:border-orange-200 hover:bg-orange-50/30"
+                  ? "border border-red-400 bg-red-50 text-red-700"
+                  : "border border-slate-200 bg-white text-slate-700 hover:border-red-200 hover:bg-red-50/20"
               )}
             >
-              <div className="flex items-center gap-3">
-                <div className={cn("p-2 rounded-lg transition-colors", showDiscount ? "bg-orange-200" : "bg-slate-100")}>
-                  <Percent className={cn("w-4 h-4", showDiscount ? "text-orange-600" : "text-slate-600")} />
-                </div>
-                <div className="text-left">
-                  <span className="text-sm font-semibold block">Apply Discount</span>
-                  <span className="text-xs text-muted-foreground">Offer special pricing</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <Percent className={cn("w-3.5 h-3.5", showDiscount ? "text-red-600" : "text-slate-600")} />
+                <span className="font-medium">Discount</span>
               </div>
-              <ChevronRight className={cn("w-5 h-5 transition-transform duration-200", showDiscount && "rotate-90")} />
+              <ChevronRight className={cn("w-4 h-4 transition-transform", showDiscount && "rotate-90")} />
             </button>
 
             {/* Discount Form */}
             {showDiscount && (
-              <div className="space-y-4 mt-4 p-4 border-2 border-orange-200 rounded-xl bg-gradient-to-br from-orange-50 to-white">
+              <div className="space-y-3 mt-2 p-3 border border-red-200 rounded bg-red-50">
                 {/* Type Selection */}
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                    Discount Type
-                  </label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Type</label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
@@ -126,14 +102,14 @@ export function POSMoreOptionsModal({
                         setDiscountValue("");
                       }}
                       className={cn(
-                        "px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
+                        "px-2 py-1.5 rounded text-xs font-medium transition-all flex items-center justify-center gap-1",
                         discountType === "fixed"
-                          ? "border-orange-400 bg-white text-orange-600 shadow-md"
-                          : "border-orange-200 bg-orange-50/50 text-slate-600 hover:border-orange-300"
+                          ? "border border-red-400 bg-white text-red-600"
+                          : "border border-red-200 bg-white text-slate-600 hover:border-red-300"
                       )}
                     >
-                      <DollarSign className="w-4 h-4" />
-                      Fixed Amount
+                      <DollarSign className="w-3 h-3" />
+                      Fixed
                     </button>
                     <button
                       type="button"
@@ -142,22 +118,22 @@ export function POSMoreOptionsModal({
                         setDiscountValue("");
                       }}
                       className={cn(
-                        "px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
+                        "px-2 py-1.5 rounded text-xs font-medium transition-all flex items-center justify-center gap-1",
                         discountType === "percentage"
-                          ? "border-orange-400 bg-white text-orange-600 shadow-md"
-                          : "border-orange-200 bg-orange-50/50 text-slate-600 hover:border-orange-300"
+                          ? "border border-red-400 bg-white text-red-600"
+                          : "border border-red-200 bg-white text-slate-600 hover:border-red-300"
                       )}
                     >
-                      <Percent className="w-4 h-4" />
-                      Percentage
+                      <Percent className="w-3 h-3" />
+                      %
                     </button>
                   </div>
                 </div>
 
                 {/* Amount Input */}
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label htmlFor="discount-value" className="text-xs font-semibold text-slate-700">
-                    {discountType === "fixed" ? "Discount Amount" : "Discount Percentage"}
+                    {discountType === "fixed" ? "Amount" : "Percentage (0-100%)"}
                   </label>
                   <div className="relative">
                     <Input
@@ -165,102 +141,74 @@ export function POSMoreOptionsModal({
                       type="number"
                       placeholder={discountType === "fixed" ? "0.00" : "0"}
                       value={discountValue}
-                      onChange={(e) => setDiscountValue(e.target.value)}
+                      onChange={(e) => {
+                        if (discountType === "percentage") {
+                          const val = parseFloat(e.target.value) || 0;
+                          if (val <= 100) {
+                            setDiscountValue(e.target.value);
+                          }
+                        } else {
+                          setDiscountValue(e.target.value);
+                        }
+                      }}
                       min="0"
-                      step={discountType === "fixed" ? "0.01" : "0.1"}
-                      className="h-10 text-sm pr-12 border-slate-300 focus:border-orange-400"
+                      max={discountType === "percentage" ? "100" : undefined}
+                      step={discountType === "fixed" ? "0.01" : "1"}
+                      className="h-8 text-xs pr-8 border border-slate-300 focus:border-primary"
                     />
                     {discountType === "fixed" ? (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">$</span>
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-500">$</span>
                     ) : (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">%</span>
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-500">%</span>
                     )}
                   </div>
-                  {discountValue && (
-                    <div className="flex items-center gap-1.5 text-sm font-semibold text-orange-600">
-                      <AlertCircle className="w-3.5 h-3.5" />
-                      Discount: {discountType === "fixed"
-                        ? formatCurrency(parseFloat(discountValue) || 0)
-                        : `${discountValue}%`}
-                    </div>
-                  )}
                 </div>
 
                 {/* Reason Input */}
-                <div className="space-y-2 border-t border-orange-200 pt-4">
+                <div className="space-y-1.5">
                   <label htmlFor="discount-reason" className="text-xs font-semibold text-slate-700">
-                    Reason for Discount
+                    Reason
                   </label>
                   <Input
                     id="discount-reason"
                     type="text"
-                    placeholder="E.g., Loyalty program, VIP customer, bulk order..."
+                    placeholder="Loyalty, VIP, bulk..."
                     value={discountReason}
                     onChange={(e) => setDiscountReason(e.target.value)}
-                    maxLength={60}
-                    className="h-10 text-sm border-slate-300 focus:border-orange-400"
+                    maxLength={40}
+                    className="h-8 text-xs border border-slate-300 focus:border-primary"
                   />
-                  <p className="text-xs text-muted-foreground text-right">{discountReason.length} / 60</p>
                 </div>
-
-                {/* Summary Card */}
-                {discountValue && (
-                  <div className="rounded-lg border-2 border-orange-300 bg-white p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-slate-900">Discount Summary</span>
-                      <Badge className="bg-orange-100 text-orange-700 border-0">Applied</Badge>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Amount:</span>
-                        <span className="font-bold text-orange-600 text-base">
-                          {discountType === "fixed"
-                            ? formatCurrency(parseFloat(discountValue) || 0)
-                            : `${discountValue}%`}
-                        </span>
-                      </div>
-                      {discountReason && (
-                        <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-                          <span className="text-muted-foreground">Reason:</span>
-                          <span className="font-medium text-slate-900 text-right max-w-[200px] truncate">{discountReason}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t bg-gradient-to-r from-slate-50 to-white flex gap-3">
+        <div className="px-4 py-2 border-t flex gap-2">
           <CustomButton
             variant="outline"
             size="sm"
-            className="flex-1 border-slate-300 hover:bg-slate-100"
+            className="flex-1 text-xs h-8 border-slate-300"
             onClick={handleClose}
             disabled={isSubmitting}
           >
-            <X className="w-4 h-4 mr-1.5" />
+            <X className="w-3 h-3 mr-1" />
             Cancel
           </CustomButton>
           <CustomButton
             size="sm"
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            className="flex-1 text-xs h-8 bg-primary hover:bg-primary/90 text-white"
             onClick={handleApply}
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                 Saving
               </>
             ) : (
-              <>
-                <CheckCircle2 className="w-4 h-4 mr-1.5" />
-                Apply Changes
-              </>
+              <span>Apply</span>
             )}
           </CustomButton>
         </div>
