@@ -18,6 +18,8 @@ import {
   Pencil,
   Truck,
   Tag,
+  Percent,
+  DollarSign,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -133,6 +135,12 @@ export default function PosPage() {
 
   // ─── Brand Popover ───
   const [brandOpen, setBrandOpen] = useState(false);
+
+  // ─── Discount Modal State ───
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [discountType, setDiscountType] = useState<"fixed" | "percentage">("fixed");
+  const [discountValue, setDiscountValue] = useState("");
+  const [discountReason, setDiscountReason] = useState("special_customer");
 
   // ─── Fetch Categories ───
   const fetchCategories = useCallback(async () => {
@@ -419,6 +427,22 @@ export default function PosPage() {
 
   const clearCart = () => setCartItems([]);
 
+  // ─── Calculate Additional Discount ───
+  const calculateAdditionalDiscount = useCallback(() => {
+    if (!discountValue) return 0;
+    const value = parseFloat(discountValue);
+    if (discountType === "fixed") {
+      return value;
+    } else {
+      // Percentage of subtotal
+      let subtotal = 0;
+      cartItems.forEach((item) => {
+        subtotal += item.finalPrice * item.quantity;
+      });
+      return (subtotal * value) / 100;
+    }
+  }, [discountValue, discountType, cartItems]);
+
   // ─── Cart Calculations ───
   const cartSummary = useMemo(() => {
     let totalItems = cartItems.length;
@@ -437,9 +461,11 @@ export default function PosPage() {
     });
 
     const deliveryFee = selectedDeliveryOption?.price || 0;
+    const additionalDiscount = calculateAdditionalDiscount();
+    const totalDiscountAmount = totalDiscount + additionalDiscount;
     const taxRate = 0; // 0% tax for now
     const taxAmount = (subtotal + deliveryFee) * taxRate;
-    const finalTotal = subtotal + deliveryFee + taxAmount;
+    const finalTotal = Math.max(0, subtotal - additionalDiscount + deliveryFee + taxAmount);
 
     return {
       totalItems,
@@ -447,12 +473,14 @@ export default function PosPage() {
       subtotalBeforeDiscount,
       subtotal,
       totalDiscount,
+      additionalDiscount,
+      totalDiscountAmount,
       deliveryFee,
       taxRate,
       taxAmount,
       finalTotal,
     };
-  }, [cartItems, selectedDeliveryOption]);
+  }, [cartItems, selectedDeliveryOption, calculateAdditionalDiscount]);
 
   // ─── Product Click Handler ───
   // ─── Handle Product Click - Show size modal for sized products ───
@@ -583,9 +611,16 @@ export default function PosPage() {
 
   // ─── Current time display ───
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full" style={{
+      "--pos-scale": "0.8",
+    } as React.CSSProperties & { "--pos-scale": string }}>
       {/* ─── Main Content ─── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden" style={{
+        transform: "scale(var(--pos-scale, 0.8))",
+        transformOrigin: "top left",
+        width: "calc(100% / 0.8)",
+        height: "calc(100% / 0.8)",
+      }}>
         {/* ─── Product Section ─── */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search & Brand Filter Bar */}
@@ -928,6 +963,17 @@ export default function PosPage() {
                 className="text-xs resize-none bg-background"
               />
 
+              {/* Discount Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs h-9 gap-2"
+                onClick={() => setShowDiscountModal(true)}
+              >
+                <Tag className="w-3.5 h-3.5" />
+                {discountValue ? `Discount: ${discountType === "fixed" ? formatCurrency(parseFloat(discountValue)) : discountValue + "%"}` : "Add Discount"}
+              </Button>
+
               {/* Order Summary — inline, no extra header card */}
               <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 space-y-1.5">
                 <div className="flex justify-between text-xs">
@@ -937,10 +983,10 @@ export default function PosPage() {
                   <span className="font-medium">{formatCurrency(cartSummary.subtotalBeforeDiscount)}</span>
                 </div>
 
-                {cartSummary.totalDiscount > 0 && (
+                {cartSummary.totalDiscountAmount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-red-500 font-medium">Discount</span>
-                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.totalDiscount)}</span>
+                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.totalDiscountAmount)}</span>
                   </div>
                 )}
 
@@ -1065,6 +1111,120 @@ export default function PosPage() {
                 New Order
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── Discount Modal ─── */}
+      <Dialog open={showDiscountModal} onOpenChange={setShowDiscountModal}>
+        <DialogContent className="max-w-sm">
+          <DialogTitle className="flex items-center gap-2">
+            <Tag className="w-5 h-5" />
+            Add Discount for Special Customer
+          </DialogTitle>
+
+          <div className="space-y-4 py-4">
+            {/* Discount Type Selection */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Discount Type</Label>
+              <div className="flex gap-2">
+                <Button
+                  variant={discountType === "fixed" ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1 gap-2"
+                  onClick={() => {
+                    setDiscountType("fixed");
+                    setDiscountValue("");
+                  }}
+                >
+                  <DollarSign className="w-4 h-4" />
+                  Fixed Amount
+                </Button>
+                <Button
+                  variant={discountType === "percentage" ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1 gap-2"
+                  onClick={() => {
+                    setDiscountType("percentage");
+                    setDiscountValue("");
+                  }}
+                >
+                  <Percent className="w-4 h-4" />
+                  Percentage
+                </Button>
+              </div>
+            </div>
+
+            {/* Discount Value Input */}
+            <div className="space-y-2">
+              <Label htmlFor="discount-value" className="text-sm font-semibold">
+                {discountType === "fixed" ? "Amount (in currency)" : "Percentage (%)"}
+              </Label>
+              <Input
+                id="discount-value"
+                type="number"
+                placeholder={discountType === "fixed" ? "0.00" : "0"}
+                value={discountValue}
+                onChange={(e) => setDiscountValue(e.target.value)}
+                min="0"
+                step={discountType === "fixed" ? "0.01" : "0.1"}
+                className="text-sm"
+              />
+            </div>
+
+            {/* Discount Reason */}
+            <div className="space-y-2">
+              <Label htmlFor="discount-reason" className="text-sm font-semibold">Reason</Label>
+              <select
+                id="discount-reason"
+                value={discountReason}
+                onChange={(e) => setDiscountReason(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg text-sm bg-background"
+              >
+                <option value="special_customer">Special Customer</option>
+                <option value="loyalty">Loyalty Reward</option>
+                <option value="bulk_order">Bulk Order</option>
+                <option value="promotional">Promotional</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            {/* Preview */}
+            {discountValue && (
+              <div className="rounded-lg bg-muted/50 p-3 space-y-1">
+                <p className="text-xs text-muted-foreground">Discount Preview:</p>
+                <p className="text-sm font-bold text-primary">
+                  {discountType === "fixed"
+                    ? formatCurrency(parseFloat(discountValue))
+                    : `${discountValue}% off`
+                  }
+                </p>
+                <p className="text-xs text-muted-foreground">Reason: {discountReason.replace(/_/g, " ").toUpperCase()}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons - Left aligned */}
+          <div className="flex gap-2 justify-start pt-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDiscountValue("");
+                setDiscountType("fixed");
+                setDiscountReason("special_customer");
+                setShowDiscountModal(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowDiscountModal(false);
+              }}
+              disabled={!discountValue}
+            >
+              Apply Discount
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
