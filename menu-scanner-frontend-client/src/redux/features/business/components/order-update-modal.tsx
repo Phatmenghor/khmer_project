@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   selectOrderAdminIsFetchingDetail,
@@ -16,19 +19,23 @@ import { clearSelectedOrder } from "../store/slice/order-admin-slice";
 import { showToast } from "@/components/shared/common/show-toast";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
+import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { SelectField } from "@/components/shared/form-field/select-field";
+import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { OrderStatus } from "@/enums/order-status.enum";
-import { Loader2 } from "lucide-react";
+import { Loading } from "@/components/shared/common/loading";
+
+// Define the form schema
+const updateOrderSchema = z.object({
+  orderStatus: z.string().min(1, "Order status is required"),
+  paymentStatus: z.string().min(1, "Payment status is required"),
+  paymentMethod: z.string().min(1, "Payment method is required"),
+  businessNote: z.string().optional(),
+});
+
+type UpdateOrderFormData = z.infer<typeof updateOrderSchema>;
 
 interface OrderUpdateModalProps {
   orderId: string;
@@ -72,10 +79,21 @@ export function OrderUpdateModal({
   const operations = useAppSelector(selectOrderAdminOperations);
   const orderData = useAppSelector(selectSelectedOrder);
 
-  const [orderStatus, setOrderStatus] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [businessNote, setBusinessNote] = useState("");
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty },
+  } = useForm<UpdateOrderFormData>({
+    resolver: zodResolver(updateOrderSchema),
+    defaultValues: {
+      orderStatus: "",
+      paymentStatus: "",
+      paymentMethod: "",
+      businessNote: "",
+    },
+    mode: "onChange",
+  });
 
   useEffect(() => {
     if (!orderId || !isOpen) return;
@@ -84,28 +102,31 @@ export function OrderUpdateModal({
 
   useEffect(() => {
     if (orderData) {
-      setOrderStatus(orderData.orderStatus || "");
-      setPaymentStatus(orderData.payment?.paymentStatus || "");
-      setPaymentMethod(orderData.payment?.paymentMethod || "");
-      setBusinessNote(orderData.businessNote || "");
+      reset({
+        orderStatus: orderData.orderStatus || "",
+        paymentStatus: orderData.payment?.paymentStatus || "",
+        paymentMethod: orderData.payment?.paymentMethod || "",
+        businessNote: orderData.businessNote || "",
+      });
     }
-  }, [orderData]);
+  }, [orderData, reset]);
 
   const handleClose = () => {
+    reset();
     dispatch(clearSelectedOrder());
     onClose();
   };
 
-  const handleSubmit = async () => {
+  const onSubmit = async (data: UpdateOrderFormData) => {
     try {
       await dispatch(
         updateOrderAdminService({
           orderId,
           orderData: {
-            orderStatus: orderStatus || undefined,
-            paymentStatus: paymentStatus || undefined,
-            paymentMethod: paymentMethod || undefined,
-            businessNote: businessNote || undefined,
+            orderStatus: data.orderStatus || undefined,
+            paymentStatus: data.paymentStatus || undefined,
+            paymentMethod: data.paymentMethod || undefined,
+            businessNote: data.businessNote || undefined,
           },
         })
       ).unwrap();
@@ -119,98 +140,83 @@ export function OrderUpdateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-0">
-        <FormHeader title="Update Order" onClose={handleClose} />
+      <DialogContent className="max-w-md">
+        <FormHeader
+          title="Update Order"
+          description={
+            orderData ? `Order #${orderData.orderNumber}` : "Loading order..."
+          }
+          isCreate={false}
+        />
 
         {isFetchingDetail ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Loading />
           </div>
         ) : (
-          <FormBody>
-            <div className="space-y-4 px-6 pb-6">
-              {orderData && (
-                <p className="text-sm text-muted-foreground">
-                  Order #{orderData.orderNumber}
-                </p>
-              )}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col flex-1 overflow-hidden"
+          >
+            <FormBody>
+              <div className="space-y-4">
+                <SelectField
+                  control={control}
+                  name="orderStatus"
+                  label="Order Status"
+                  placeholder="Select order status"
+                  options={ORDER_STATUS_OPTIONS}
+                  required
+                  disabled={operations.isUpdating}
+                  error={errors.orderStatus}
+                />
 
-              {/* Order Status */}
-              <div className="space-y-2">
-                <Label>Order Status</Label>
-                <Select value={orderStatus} onValueChange={setOrderStatus}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ORDER_STATUS_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <SelectField
+                  control={control}
+                  name="paymentMethod"
+                  label="Payment Method"
+                  placeholder="Select payment method"
+                  options={PAYMENT_METHOD_OPTIONS}
+                  required
+                  disabled={operations.isUpdating}
+                  error={errors.paymentMethod}
+                />
 
-              {/* Payment Method */}
-              <div className="space-y-2">
-                <Label>Payment Method</Label>
-                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PAYMENT_METHOD_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <SelectField
+                  control={control}
+                  name="paymentStatus"
+                  label="Payment Status"
+                  placeholder="Select payment status"
+                  options={PAYMENT_STATUS_OPTIONS}
+                  required
+                  disabled={operations.isUpdating}
+                  error={errors.paymentStatus}
+                />
 
-              {/* Payment Status */}
-              <div className="space-y-2">
-                <Label>Payment Status</Label>
-                <Select
-                  value={paymentStatus}
-                  onValueChange={setPaymentStatus}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select payment status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PAYMENT_STATUS_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Business Note */}
-              <div className="space-y-2">
-                <Label>Business Note</Label>
-                <Textarea
-                  value={businessNote}
-                  onChange={(e) => setBusinessNote(e.target.value)}
-                  placeholder="Add a note..."
-                  rows={3}
+                <TextareaField
+                  control={control}
+                  name="businessNote"
+                  label="Business Note"
+                  placeholder="Add any notes about this order..."
+                  disabled={operations.isUpdating}
+                  error={errors.businessNote}
                 />
               </div>
+            </FormBody>
 
-              {/* Actions */}
-              <div className="flex justify-end gap-2 pt-4">
-                <CancelButton onClick={handleClose} />
-                <SubmitButton
-                  onClick={handleSubmit}
-                  isSubmitting={operations.isUpdating}
-                  label="Update Order"
-                />
-              </div>
-            </div>
-          </FormBody>
+            <FormFooter
+              isSubmitting={operations.isUpdating}
+              isDirty={isDirty}
+              isCreate={false}
+              updateMessage="Updating order..."
+            >
+              <CancelButton onClick={handleClose} disabled={operations.isUpdating} />
+              <SubmitButton
+                isSubmitting={operations.isUpdating}
+                label="Update"
+              />
+            </FormFooter>
+          </form>
         )}
       </DialogContent>
     </Dialog>
