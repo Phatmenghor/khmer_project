@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
-import { X, Loader2, ChevronRight, Percent, DollarSign } from "lucide-react";
+import { X, Loader2, ChevronRight, Percent, DollarSign, Settings2 } from "lucide-react";
 
 interface POSMoreOptionsModalProps {
   open: boolean;
@@ -46,8 +46,15 @@ export function POSMoreOptionsModal({
         <DialogTitle className="sr-only">Order Options</DialogTitle>
 
         {/* Header */}
-        <div className="px-4 py-3.5 bg-gradient-to-r from-primary to-primary/90 border-b border-primary/20">
-          <h2 className="text-base font-bold text-white">Order Options</h2>
+        <div className="px-6 pt-6 pb-4 border-b flex-shrink-0">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-primary/10 rounded-lg shrink-0">
+              <Settings2 className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex flex-col gap-1.5 flex-1">
+              <h2 className="text-lg font-semibold text-slate-900">Order Options</h2>
+            </div>
+          </div>
         </div>
 
         {/* Content */}
@@ -154,7 +161,7 @@ export function POSMoreOptionsModal({
                       min="0"
                       max={discountType === "percentage" ? "100" : undefined}
                       step={discountType === "fixed" ? "0.01" : "1"}
-                      className="h-8 text-xs pr-8 border border-slate-300 focus:border-primary"
+                      className="h-9 text-sm pr-8 border border-slate-300 focus:border-primary"
                     />
                     {discountType === "fixed" ? (
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-500">$</span>
@@ -176,7 +183,7 @@ export function POSMoreOptionsModal({
                     value={discountReason}
                     onChange={(e) => setDiscountReason(e.target.value)}
                     maxLength={40}
-                    className="h-8 text-xs border border-slate-300 focus:border-primary"
+                    className="h-9 text-sm border border-slate-300 focus:border-primary"
                   />
                 </div>
               </div>
