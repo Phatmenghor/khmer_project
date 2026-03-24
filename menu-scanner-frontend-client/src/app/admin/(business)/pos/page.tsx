@@ -56,7 +56,7 @@ import {
   ProductSize,
 } from "@/redux/features/business/store/models/response/product-response";
 import { OrderStatus } from "@/enums/order-status.enum";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
@@ -883,168 +883,126 @@ export default function PosPage() {
             )}
           </div>
 
-          {/* ─── Checkout Section ─── */}
-          <div className="border-t bg-card shrink-0 mt-auto">
-            <ScrollArea className="max-h-[calc(100vh-280px)]">
-              <div className="p-3 space-y-3">
+          {/* ─── Checkout Section (always visible, never scrolls) ─── */}
+          <div className="border-t bg-card shrink-0">
+            <div className="p-3 space-y-2">
 
-                {/* Delivery Option */}
-                <div className="space-y-1.5">
+              {/* Delivery + Payment — same row */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1 min-w-0">
                   <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
-                    <Truck className="w-3 h-3" />
-                    Delivery Option
+                    <Truck className="w-3 h-3 shrink-0" />
+                    Delivery
                   </Label>
                   <ComboboxSelectDelivery
                     dataSelect={selectedDeliveryOption as any}
                     onChangeSelected={(item) => setSelectedDeliveryOption(item as any)}
-                    placeholder="Select delivery option..."
+                    placeholder="Delivery..."
                     label=""
                     businessId={AppDefault.BUSINESS_ID}
                     statuses={["ACTIVE"]}
                   />
                 </div>
-
-                {/* Payment Method */}
-                <div className="space-y-1.5">
+                <div className="space-y-1 min-w-0">
                   <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
-                    <CreditCard className="w-3 h-3" />
-                    Payment Method
+                    <CreditCard className="w-3 h-3 shrink-0" />
+                    Payment
                   </Label>
                   <ComboboxSelectPayment
                     dataSelect={selectedPaymentOption as any}
                     onChangeSelected={(item) => setSelectedPaymentOption(item as any)}
-                    placeholder="Select payment method..."
+                    placeholder="Payment..."
                     label=""
                     businessId={AppDefault.BUSINESS_ID}
                     statuses={["ACTIVE"]}
                   />
                 </div>
+              </div>
 
-                {/* Note */}
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-                    Order Note
-                  </Label>
-                  <Textarea
-                    value={customerNote}
-                    onChange={(e) => setCustomerNote(e.target.value)}
-                    placeholder="Add order note..."
-                    rows={2}
-                    className="text-xs resize-none bg-background"
-                  />
+              {/* Note — 1 row compact */}
+              <Textarea
+                value={customerNote}
+                onChange={(e) => setCustomerNote(e.target.value)}
+                placeholder="Order note (optional)..."
+                rows={1}
+                className="text-xs resize-none bg-background"
+              />
+
+              {/* Order Summary — inline, no extra header card */}
+              <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    Subtotal ({cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"})
+                  </span>
+                  <span className="font-medium">{formatCurrency(cartSummary.subtotalBeforeDiscount)}</span>
                 </div>
 
-                {/* Order Summary Card */}
-                <div className="rounded-xl border border-border bg-muted/20 overflow-hidden">
-                  <div className="px-3 py-2 border-b border-border/50 bg-muted/30">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Order Summary
-                    </span>
+                {cartSummary.totalDiscount > 0 && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-red-500 font-medium">Discount</span>
+                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.totalDiscount)}</span>
                   </div>
-                  <div className="px-3 py-2 space-y-2">
-                    {/* Subtotal */}
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">
-                        Subtotal ({cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"})
-                      </span>
-                      <span className="font-medium">
-                        {formatCurrency(cartSummary.subtotalBeforeDiscount)}
-                      </span>
-                    </div>
+                )}
 
-                    {/* Discount */}
-                    {cartSummary.totalDiscount > 0 && (
-                      <div className="flex justify-between text-xs">
-                        <span className="text-red-500 font-medium">Discount</span>
-                        <span className="text-red-500 font-semibold">
-                          -{formatCurrency(cartSummary.totalDiscount)}
-                        </span>
-                      </div>
-                    )}
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Delivery Fee</span>
+                  <span className="font-medium text-primary">
+                    {cartSummary.deliveryFee > 0 ? `+${formatCurrency(cartSummary.deliveryFee)}` : "Free"}
+                  </span>
+                </div>
 
-                    {/* Delivery Fee */}
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground flex items-center gap-1">
-                        <Truck className="w-3 h-3" />
-                        Delivery Fee
-                      </span>
-                      <span className="font-medium text-primary">
-                        {cartSummary.deliveryFee > 0
-                          ? `+${formatCurrency(cartSummary.deliveryFee)}`
-                          : "Free"}
-                      </span>
-                    </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    Tax
+                    <span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
+                  </span>
+                  <span className="font-medium">{formatCurrency(cartSummary.taxAmount)}</span>
+                </div>
 
-                    {/* Tax */}
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground flex items-center gap-1">
-                        <Tag className="w-3 h-3" />
-                        Tax
-                        <span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
-                      </span>
-                      <span className="font-medium">
-                        {formatCurrency(cartSummary.taxAmount)}
-                      </span>
-                    </div>
+                <Separator />
 
-                    <Separator className="my-1" />
-
-                    {/* Total */}
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-bold">Total</span>
-                      <span className="text-lg font-bold text-primary">
-                        {formatCurrency(cartSummary.finalTotal)}
-                      </span>
-                    </div>
-
-                    {cartSummary.totalDiscount > 0 && (
-                      <p className="text-[10px] text-red-500 text-right font-medium">
-                        You save {formatCurrency(cartSummary.totalDiscount)}
-                      </p>
-                    )}
-                  </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold">Total</span>
+                  <span className="text-base font-bold text-primary">{formatCurrency(cartSummary.finalTotal)}</span>
                 </div>
               </div>
-            </ScrollArea>
+            </div>
 
-            {/* Place Order - Card Design */}
-            <div className="p-3 pt-0">
-              <div className="rounded-xl border border-border bg-card shadow-md overflow-hidden">
-                <div className="flex items-stretch">
-                  {/* Left: Order info */}
-                  <div className="flex-1 px-3 py-3 border-r border-border">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
-                      {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
-                    </p>
-                    <p className="text-base font-bold text-primary leading-tight">
-                      {formatCurrency(cartSummary.finalTotal)}
-                    </p>
+            {/* Place Order — left info / right action card */}
+            <div className="px-3 pb-3">
+              <div className="rounded-xl overflow-hidden border border-border shadow-sm flex items-stretch">
+                {/* Left: summary */}
+                <div className="flex-1 px-3 py-2.5 bg-muted/30 min-w-0">
+                  <p className="text-[10px] text-muted-foreground font-medium">
+                    {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
                     {selectedPaymentOption && (
-                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                        {selectedPaymentOption.name || selectedPaymentOption.paymentOptionType}
-                      </p>
+                      <span className="ml-1 text-muted-foreground/70">
+                        · {selectedPaymentOption.name || selectedPaymentOption.paymentOptionType}
+                      </span>
                     )}
-                  </div>
-                  {/* Right: Place Order button */}
-                  <button
-                    className={`flex flex-col items-center justify-center px-4 py-3 gap-1 font-bold text-sm transition-all
-                      ${cartItems.length === 0 || isSubmitting
-                        ? "bg-muted text-muted-foreground cursor-not-allowed"
-                        : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer"
-                      }`}
-                    onClick={handleSubmitOrder}
-                    disabled={cartItems.length === 0 || isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <ReceiptText className="w-5 h-5" />
-                    )}
-                    <span className="text-[11px] font-semibold">
-                      {isSubmitting ? "Processing..." : "Place Order"}
-                    </span>
-                  </button>
+                  </p>
+                  <p className="text-lg font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
                 </div>
+                {/* Right: button */}
+                <button
+                  onClick={handleSubmitOrder}
+                  disabled={cartItems.length === 0 || isSubmitting}
+                  className={cn(
+                    "flex flex-col items-center justify-center px-5 gap-0.5 transition-all shrink-0",
+                    cartItems.length === 0 || isSubmitting
+                      ? "bg-muted text-muted-foreground cursor-not-allowed"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer"
+                  )}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <ReceiptText className="w-5 h-5" />
+                  )}
+                  <span className="text-[11px] font-semibold whitespace-nowrap">
+                    {isSubmitting ? "Processing..." : "Place Order"}
+                  </span>
+                </button>
               </div>
             </div>
           </div>
@@ -1075,6 +1033,7 @@ export default function PosPage() {
         onOpenChange={() => setSuccessOrder(null)}
       >
         <DialogContent className="max-w-xs text-center">
+          <DialogTitle className="sr-only">Order Created</DialogTitle>
           <div className="flex flex-col items-center py-4">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
               <CheckCircle2 className="w-10 h-10 text-green-600" />
