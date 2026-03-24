@@ -985,22 +985,38 @@ export default function PosPage() {
       </div>
 
       {/* ─── Modals ─── */}
-      <SizePickerModal
-        product={sizePickerProduct}
-        open={!!sizePickerProduct}
-        onOpenChange={(open) => {
-          if (!open) {
-            dispatch(setSizePickerProduct(null));
-            dispatch(setEditingCartItemId(null));
-          }
-        }}
-        onSizeSelect={(product, size, qty) => {
-          addToCart(product, size, editingCartItemId || undefined, qty || 1);
-          dispatch(setSizePickerProduct(null));
-          dispatch(setEditingCartItemId(null));
-        }}
-        isEditing={!!editingCartItemId}
-      />
+      {/* Calculate initial quantities when opening modal - show current cart quantities */}
+      {(() => {
+        const initialQties = new Map<string, number>();
+        if (sizePickerProduct && cartItems.length > 0) {
+          // Get all cart items for this product and build a map of size -> quantity
+          cartItems
+            .filter((item) => item.productId === sizePickerProduct.id)
+            .forEach((item) => {
+              const sizeId = item.productSizeId || "no_size";
+              initialQties.set(sizeId, item.quantity);
+            });
+        }
+        return (
+          <SizePickerModal
+            product={sizePickerProduct}
+            open={!!sizePickerProduct}
+            onOpenChange={(open) => {
+              if (!open) {
+                dispatch(setSizePickerProduct(null));
+                dispatch(setEditingCartItemId(null));
+              }
+            }}
+            onSizeSelect={(product, size, qty) => {
+              addToCart(product, size, editingCartItemId || undefined, qty || 1);
+              dispatch(setSizePickerProduct(null));
+              dispatch(setEditingCartItemId(null));
+            }}
+            isEditing={!!editingCartItemId}
+            initialQuantities={initialQties}
+          />
+        );
+      })()}
 
       <POSOrderSuccessModal
         open={!!successOrder}

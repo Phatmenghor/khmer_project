@@ -22,6 +22,8 @@ interface SizePickerModalProps {
   onOpenChange: (open: boolean) => void;
   onSizeSelect: (product: ProductDetailResponseModel, size?: ProductSize, quantity?: number) => void;
   isEditing?: boolean;
+  // Initial quantities for each size (e.g., when editing existing cart item)
+  initialQuantities?: Map<string, number>;
 }
 
 export function SizePickerModal({
@@ -30,6 +32,7 @@ export function SizePickerModal({
   onOpenChange,
   onSizeSelect,
   isEditing = false,
+  initialQuantities,
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -76,16 +79,21 @@ export function SizePickerModal({
   useEffect(() => {
     if (open && product?.sizes && product.sizes.length > 0) {
       setSelectedSize(product.sizes[0]);
-      setQuantity(1);
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
 
-      // Initialize original quantities (all start at 0 for POS)
+      // Initialize original quantities from prop or default to 0
       const origQties = new Map<string, number>();
       product.sizes.forEach((size) => {
-        origQties.set(size.id, 0);
+        // Use initialQuantities if provided (when editing existing item)
+        const initialQty = initialQuantities?.get(size.id) ?? 0;
+        origQties.set(size.id, initialQty);
       });
       setOriginalQuantities(origQties);
+
+      // Set initial quantity to first size's existing quantity
+      const firstSizeQty = initialQuantities?.get(product.sizes[0].id) ?? 0;
+      setQuantity(firstSizeQty);
     } else if (!open) {
       setSelectedSize(null);
       setQuantity(1);
@@ -93,7 +101,7 @@ export function SizePickerModal({
       setModifiedSizes(new Set());
       setOriginalQuantities(new Map());
     }
-  }, [open, product?.id, product?.sizes]);
+  }, [open, product?.id, product?.sizes, initialQuantities]);
 
   // Handle quantity change - update pending and track if modified
   const handleQuantityChange = useCallback(
