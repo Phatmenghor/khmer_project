@@ -101,10 +101,34 @@ export function POSCartItem({
             )}
           </div>
 
+          {/* Quantity Controls */}
+          <div className="flex items-center gap-1.5">
+            <CustomButton
+              size="icon"
+              variant="outline"
+              className="h-8 w-8 shrink-0 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
+              onClick={() => onQuantityChange(-1)}
+              title="Decrease quantity"
+            >
+              <Minus className="h-3 w-3" />
+            </CustomButton>
+            <div className="w-10 h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
+              {quantity}
+            </div>
+            <CustomButton
+              size="icon"
+              variant="outline"
+              className="h-8 w-8 shrink-0 text-primary border-primary/30 hover:bg-primary hover:text-primary-foreground"
+              onClick={() => onQuantityChange(1)}
+              title="Increase quantity"
+            >
+              <Plus className="h-3 w-3" />
+            </CustomButton>
+          </div>
         </div>
       </div>
 
-      {/* Delete Button */}
+      {/* Delete Button - Always Visible on Right */}
       <CustomButton
         size="icon"
         variant="outline"
@@ -114,31 +138,6 @@ export function POSCartItem({
       >
         <X className="h-4 w-4" />
       </CustomButton>
-
-      {/* Quantity Controls - Far Right */}
-      <div className="flex items-center gap-1.5">
-        <CustomButton
-          size="icon"
-          variant="outline"
-          className="h-8 w-8 shrink-0 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
-          onClick={() => onQuantityChange(-1)}
-          title="Decrease quantity"
-        >
-          <Minus className="h-3 w-3" />
-        </CustomButton>
-        <div className="w-10 h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
-          {quantity}
-        </div>
-        <CustomButton
-          size="icon"
-          variant="outline"
-          className="h-8 w-8 shrink-0 text-primary border-primary/30 hover:bg-primary hover:text-primary-foreground"
-          onClick={() => onQuantityChange(1)}
-          title="Increase quantity"
-        >
-          <Plus className="h-3 w-3" />
-        </CustomButton>
-      </div>
     </div>
   );
 }
