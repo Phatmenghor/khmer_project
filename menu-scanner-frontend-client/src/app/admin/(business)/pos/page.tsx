@@ -141,6 +141,9 @@ export default function PosPage() {
 
   // ─── More Options Modal State ───
   const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
+  // ─── Promotion Filter State ───
+  const [promotionFilter, setPromotionFilter] = useState<"all" | "promotion" | "full">("all");
+  const [promotionOpen, setPromotionOpen] = useState(false);
 
   // ─── Fetch Categories ───
   const fetchCategories = useCallback(async () => {
@@ -668,6 +671,77 @@ export default function PosPage() {
                           {brand.name}
                         </CommandItem>
                       ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+
+            {/* Promotion Filter */}
+            <Popover open={promotionOpen} onOpenChange={setPromotionOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={promotionOpen}
+                  className="w-[150px] justify-between h-9 text-sm"
+                >
+                  {promotionFilter === "all" ? "All Items" : promotionFilter === "promotion" ? "Promotion" : "Full"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[150px] p-0">
+                <Command>
+                  <CommandList>
+                    <CommandGroup>
+                      <CommandItem
+                        value="all"
+                        onSelect={() => {
+                          setPromotionFilter("all");
+                          setPromotionOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            promotionFilter === "all" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        All Items
+                      </CommandItem>
+                      <CommandItem
+                        value="promotion"
+                        onSelect={() => {
+                          setPromotionFilter("promotion");
+                          setPromotionOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            promotionFilter === "promotion" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Promotion
+                      </CommandItem>
+                      <CommandItem
+                        value="full"
+                        onSelect={() => {
+                          setPromotionFilter("full");
+                          setPromotionOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            promotionFilter === "full" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Full
+                      </CommandItem>
                     </CommandGroup>
                   </CommandList>
                 </Command>
