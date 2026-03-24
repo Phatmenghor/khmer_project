@@ -1,10 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -49,9 +45,7 @@ import {
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { sanitizeImageUrl } from "@/utils/common/common";
-import { appImages } from "@/constants/app-resource/icons/app-images";
-import { Plus, Minus, Edit2 } from "lucide-react";
+import { POSCartItem, POSMoreOptionsModal } from "@/components/pos-custom";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { POSProductCard } from "@/components/shared/card/pos-product-card";
@@ -65,8 +59,6 @@ import {
   ProductSize,
 } from "@/redux/features/business/store/models/response/product-response";
 import { OrderStatus } from "@/enums/order-status.enum";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { TextField } from "@/components/shared/form-field/text-field";
 import { cn } from "@/lib/utils";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
@@ -75,17 +67,6 @@ import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
-
-// ─── Order Options Schema ───
-const orderOptionsSchema = z.object({
-  customerNote: z.string().max(150, "Order note must be 150 characters or less"),
-  addDiscount: z.boolean().default(false),
-  discountType: z.enum(["fixed", "percentage"]).default("fixed"),
-  discountValue: z.string().default(""),
-  discountReason: z.string().max(60, "Reason must be 60 characters or less"),
-});
-
-type OrderOptionsFormData = z.infer<typeof orderOptionsSchema>;
 
 // ─── Local Cart Types ───
 interface PosCartItem {
@@ -158,11 +139,6 @@ export default function PosPage() {
 
   // ─── More Options Modal State ───
   const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
-  const [showDiscount, setShowDiscount] = useState(false);
-  const [discountType, setDiscountType] = useState<"fixed" | "percentage">("fixed");
-  const [discountValue, setDiscountValue] = useState("");
-  const [discountReason, setDiscountReason] = useState("");
-  const [isSubmittingModal, setIsSubmittingModal] = useState(false);
 
   // ─── Fetch Categories ───
   const fetchCategories = useCallback(async () => {
@@ -896,101 +872,22 @@ export default function PosPage() {
               <ScrollArea className="flex-1 min-h-0">
                 <div className="space-y-3 p-3">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
-                      {/* Delete Button - Top Right */}
-                      <CustomButton
-                        size="icon"
-                        variant="outline"
-                        className="absolute top-3 right-3 h-8 w-8 shrink-0 text-red-600 hover:bg-red-100"
-                        onClick={() => removeItem(item.id)}
-                        title="Remove item"
-                      >
-                        <X className="h-4 w-4" />
-                      </CustomButton>
-
-                      {/* Edit Size Button - visible on hover */}
-                      <CustomButton
-                        size="icon"
-                        variant="outline"
-                        className="absolute top-3 right-14 h-8 w-8 shrink-0 text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleEditCartItem(item)}
-                        title="Edit size"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </CustomButton>
-
-                      <div className="flex gap-4">
-                        {/* Thumbnail */}
-                        <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm hover:shadow-md transition-shadow">
-                          <Image
-                            src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
-                            alt={item.productName}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
-                          {/* Product Name + Promotion Badge */}
-                          <div className="flex items-center gap-2 min-w-0 mb-2">
-                            <h3 className="font-semibold text-sm leading-tight text-slate-900 line-clamp-1">
-                              {item.productName}
-                            </h3>
-                            {item.hasActivePromotion && (
-                              <Badge className="text-[10px] px-2 py-0.5 leading-none flex-shrink-0 bg-red-100 text-red-700 border-0 font-semibold">
-                                {item.promotionType === "PERCENTAGE"
-                                  ? `-${item.promotionValue}%`
-                                  : `-${formatCurrency(item.promotionValue || 0)}`}
-                              </Badge>
-                            )}
-                          </div>
-
-                          {/* Size Badge */}
-                          {item.sizeName && (
-                            <div className="mb-2">
-                              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full flex-shrink-0 whitespace-nowrap inline-block border border-primary/30">
-                                {item.sizeName}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Price Info + Qty controls */}
-                          <div className="flex items-center justify-between gap-3">
-                            {/* Price Display - Left Side */}
-                            <div className="flex items-baseline gap-2">
-                              <span className="font-bold text-base text-slate-900">{formatCurrency(item.finalPrice)}</span>
-                              {item.hasActivePromotion && item.currentPrice > item.finalPrice && (
-                                <span className="text-xs text-slate-500 line-through font-medium">{formatCurrency(item.currentPrice)}</span>
-                              )}
-                            </div>
-
-                            {/* Quantity Controls - Right Side */}
-                            <div className="flex items-center gap-1">
-                              <CustomButton
-                                size="icon"
-                                variant="outline"
-                                className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
-                                onClick={() => updateQuantity(item.id, -1)}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </CustomButton>
-                              <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
-                                {item.quantity}
-                              </div>
-                              <CustomButton
-                                size="icon"
-                                variant="outline"
-                                className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
-                                onClick={() => updateQuantity(item.id, 1)}
-                              >
-                                <Plus className="h-3 w-3" />
-                              </CustomButton>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <POSCartItem
+                      key={item.id}
+                      id={item.id}
+                      productName={item.productName}
+                      productImageUrl={item.productImageUrl}
+                      sizeName={item.sizeName}
+                      currentPrice={item.currentPrice}
+                      finalPrice={item.finalPrice}
+                      quantity={item.quantity}
+                      hasPromotion={item.hasActivePromotion}
+                      promotionType={item.promotionType}
+                      promotionValue={item.promotionValue}
+                      onQuantityChange={(delta) => updateQuantity(item.id, delta)}
+                      onRemove={() => removeItem(item.id)}
+                      onEdit={() => handleEditCartItem(item)}
+                    />
                   ))}
                 </div>
               </ScrollArea>
@@ -1188,210 +1085,13 @@ export default function PosPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ─── More Options Modal (Clean & Custom) ─── */}
-      <Dialog open={showOrderDetailsModal} onOpenChange={setShowOrderDetailsModal}>
-        <DialogContent className="w-full sm:max-w-[440px] p-0 gap-0">
-          {/* Hidden Title for Accessibility */}
-          <DialogTitle className="sr-only">Order Options</DialogTitle>
-
-          {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b">
-            <h2 className="text-lg font-semibold">Order Options</h2>
-            <p className="text-xs text-muted-foreground mt-1">Add notes and discounts</p>
-          </div>
-
-          {/* Content */}
-          <div className="px-6 py-4 space-y-5 overflow-y-auto max-h-[calc(100vh-200px)]">
-            {/* ─── ORDER NOTE ─── */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <ReceiptText className="w-4 h-4 text-muted-foreground" />
-                <label className="text-sm font-medium">Order Note</label>
-              </div>
-              <Textarea
-                value={customerNote}
-                onChange={(e) => setCustomerNote(e.target.value)}
-                placeholder="Special packaging, allergies, instructions..."
-                rows={2}
-                maxLength={150}
-                className="text-sm resize-none"
-              />
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-muted-foreground">{customerNote.length}/150</span>
-                {customerNote && <Check className="w-3.5 h-3.5 text-green-500" />}
-              </div>
-            </div>
-
-            {/* ─── DISCOUNT BUTTON ─── */}
-            <div className="pt-2 border-t">
-              <button
-                type="button"
-                onClick={() => setShowDiscount(!showDiscount)}
-                className={cn(
-                  "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all",
-                  showDiscount
-                    ? "border-primary bg-primary/5 text-primary"
-                    : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <Percent className="w-4 h-4" />
-                  <span className="text-sm font-medium">Apply Discount</span>
-                </div>
-                <ChevronRight className={cn("w-4 h-4 transition-transform", showDiscount && "rotate-90")} />
-              </button>
-            </div>
-
-            {/* ─── DISCOUNT FIELDS (CONDITIONAL) ─── */}
-            {showDiscount && (
-              <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-                {/* Type Selection */}
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Type
-                  </label>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDiscountType("fixed");
-                        setDiscountValue("");
-                      }}
-                      className={cn(
-                        "flex-1 px-3 py-2 rounded-md border text-xs font-medium transition-all flex items-center justify-center gap-1.5",
-                        discountType === "fixed"
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-background hover:border-primary/50"
-                      )}
-                    >
-                      <DollarSign className="w-3.5 h-3.5" />
-                      Fixed
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDiscountType("percentage");
-                        setDiscountValue("");
-                      }}
-                      className={cn(
-                        "flex-1 px-3 py-2 rounded-md border text-xs font-medium transition-all flex items-center justify-center gap-1.5",
-                        discountType === "percentage"
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-background hover:border-primary/50"
-                      )}
-                    >
-                      <Percent className="w-3.5 h-3.5" />
-                      Percent
-                    </button>
-                  </div>
-                </div>
-
-                {/* Amount */}
-                <div className="space-y-1.5">
-                  <label htmlFor="discount-value" className="text-xs font-semibold text-muted-foreground">
-                    {discountType === "fixed" ? "Amount" : "Percentage"}
-                  </label>
-                  <Input
-                    id="discount-value"
-                    type="number"
-                    placeholder={discountType === "fixed" ? "0.00" : "0"}
-                    value={discountValue}
-                    onChange={(e) => setDiscountValue(e.target.value)}
-                    min="0"
-                    step={discountType === "fixed" ? "0.01" : "0.1"}
-                    className="h-9 text-sm"
-                  />
-                  {discountValue && (
-                    <p className="text-xs text-primary font-semibold">
-                      {discountType === "fixed"
-                        ? formatCurrency(parseFloat(discountValue) || 0)
-                        : `${discountValue}%`}
-                    </p>
-                  )}
-                </div>
-
-                {/* Reason */}
-                <div className="space-y-1.5">
-                  <label htmlFor="discount-reason" className="text-xs font-semibold text-muted-foreground">
-                    Reason
-                  </label>
-                  <Input
-                    id="discount-reason"
-                    type="text"
-                    placeholder="Loyalty, VIP, bulk order..."
-                    value={discountReason}
-                    onChange={(e) => setDiscountReason(e.target.value)}
-                    maxLength={60}
-                    className="h-9 text-sm"
-                  />
-                  <p className="text-xs text-muted-foreground text-right">{discountReason.length}/60</p>
-                </div>
-
-                {/* Summary */}
-                {discountValue && (
-                  <div className="rounded-md border bg-primary/5 p-2.5 space-y-1">
-                    <p className="text-xs font-semibold text-primary">Summary</p>
-                    <div className="text-xs space-y-0.5">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Amount:</span>
-                        <span className="font-bold text-primary">
-                          {discountType === "fixed"
-                            ? formatCurrency(parseFloat(discountValue) || 0)
-                            : `${discountValue}%`}
-                        </span>
-                      </div>
-                      {discountReason && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Reason:</span>
-                          <span className="truncate">{discountReason}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="px-6 py-4 border-t bg-muted/30 flex gap-3">
-            <CustomButton
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={() => setShowOrderDetailsModal(false)}
-              disabled={isSubmittingModal}
-            >
-              <X className="w-3.5 h-3.5 mr-1" />
-              Cancel
-            </CustomButton>
-            <CustomButton
-              size="sm"
-              className="flex-1"
-              onClick={() => {
-                setIsSubmittingModal(true);
-                setTimeout(() => {
-                  setShowOrderDetailsModal(false);
-                  setIsSubmittingModal(false);
-                }, 300);
-              }}
-              disabled={isSubmittingModal}
-            >
-              {isSubmittingModal ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
-                  Applying
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                  Apply
-                </>
-              )}
-            </CustomButton>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* ─── More Options Modal ─── */}
+      <POSMoreOptionsModal
+        open={showOrderDetailsModal}
+        onOpenChange={setShowOrderDetailsModal}
+        customerNote={customerNote}
+        onNoteChange={setCustomerNote}
+      />
     </div>
   );
 }
