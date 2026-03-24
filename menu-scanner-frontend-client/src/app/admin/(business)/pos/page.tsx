@@ -196,6 +196,10 @@ export default function PosPage() {
       reset = false
     ) => {
       try {
+        // Clear products immediately on reset for skeleton to show
+        if (reset) {
+          setProducts([]);
+        }
         setProductsLoading(true);
         const response = await axiosClientWithAuth.post(
           "/api/v1/products/admin/all",
