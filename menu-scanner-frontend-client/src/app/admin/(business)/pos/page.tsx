@@ -47,6 +47,7 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { POSCartItem } from "@/components/pos-custom/pos-cart-item";
 import { POSMoreOptionsModal } from "@/components/pos-custom/pos-more-options-modal";
+import { POSOrderSuccessModal } from "@/components/pos-custom/pos-order-success-modal";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { POSProductCard } from "@/components/shared/card/pos-product-card";
@@ -426,22 +427,6 @@ export default function PosPage() {
 
   const clearCart = () => setCartItems([]);
 
-  // ─── Calculate Additional Discount ───
-  const calculateAdditionalDiscount = useCallback(() => {
-    if (!discountValue) return 0;
-    const value = parseFloat(discountValue);
-    if (discountType === "fixed") {
-      return value;
-    } else {
-      // Percentage of subtotal
-      let subtotal = 0;
-      cartItems.forEach((item) => {
-        subtotal += item.finalPrice * item.quantity;
-      });
-      return (subtotal * value) / 100;
-    }
-  }, [discountValue, discountType, cartItems]);
-
   // ─── Cart Calculations ───
   const cartSummary = useMemo(() => {
     let totalItems = cartItems.length;
@@ -460,11 +445,9 @@ export default function PosPage() {
     });
 
     const deliveryFee = selectedDeliveryOption?.price || 0;
-    const additionalDiscount = calculateAdditionalDiscount();
-    const totalDiscountAmount = totalDiscount + additionalDiscount;
     const taxRate = 0; // 0% tax for now
     const taxAmount = (subtotal + deliveryFee) * taxRate;
-    const finalTotal = Math.max(0, subtotal - additionalDiscount + deliveryFee + taxAmount);
+    const finalTotal = Math.max(0, subtotal + deliveryFee + taxAmount);
 
     return {
       totalItems,
@@ -472,14 +455,12 @@ export default function PosPage() {
       subtotalBeforeDiscount,
       subtotal,
       totalDiscount,
-      additionalDiscount,
-      totalDiscountAmount,
       deliveryFee,
       taxRate,
       taxAmount,
       finalTotal,
     };
-  }, [cartItems, selectedDeliveryOption, calculateAdditionalDiscount]);
+  }, [cartItems, selectedDeliveryOption]);
 
   // ─── Product Click Handler ───
   // ─── Handle Product Click - Show size modal for sized products ───
@@ -1045,46 +1026,12 @@ export default function PosPage() {
       />
 
       {/* ─── Order Success Modal ─── */}
-      <Dialog
+      <POSOrderSuccessModal
         open={!!successOrder}
-        onOpenChange={() => setSuccessOrder(null)}
-      >
-        <DialogContent className="max-w-xs text-center">
-          <DialogTitle className="sr-only">Order Created</DialogTitle>
-          <div className="flex flex-col items-center py-4">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-              <CheckCircle2 className="w-10 h-10 text-green-600" />
-            </div>
-            <h3 className="text-lg font-bold text-green-600 mb-1">
-              Order Created!
-            </h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              Order #{successOrder?.orderNumber}
-            </p>
-            <p className="text-2xl font-bold mb-6">
-              {successOrder && formatCurrency(successOrder.total)}
-            </p>
-            <div className="flex gap-2 w-full">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => {
-                  setSuccessOrder(null);
-                  router.push(ROUTES.ADMIN.ORDERS);
-                }}
-              >
-                View Orders
-              </Button>
-              <Button
-                className="flex-1"
-                onClick={() => setSuccessOrder(null)}
-              >
-                New Order
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+        onClose={() => setSuccessOrder(null)}
+        orderNumber={successOrder?.orderNumber || ""}
+        totalAmount={successOrder?.total || 0}
+      />
 
       {/* ─── More Options Modal ─── */}
       <POSMoreOptionsModal
