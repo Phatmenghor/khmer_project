@@ -1,14 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, X } from "lucide-react";
+import { Loader2, Edit } from "lucide-react";
 import Image from "next/image";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +18,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { FormBody } from "@/components/shared/form-field/form-body";
+import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { CancelButton } from "@/components/shared/form-field/cancel-button";
+import { SubmitButton } from "@/components/shared/form-field/submid-button";
 
 interface CartItemEditData {
   id: string;
@@ -123,22 +123,31 @@ export function POSEditCartItemModal({
 
   if (!item) return null;
 
-  const calculatedFinalPrice =
-    parseFloat(newPrice) || item.currentPrice;
+  const calculatedFinalPrice = parseFloat(newPrice) || item.currentPrice;
   const calculatedQuantity = parseInt(newQuantity) || item.quantity;
   const calculatedTotal = calculatedFinalPrice * calculatedQuantity;
+  const isDirty = reason.trim() !== "" ||
+    newPrice !== item.currentPrice.toString() ||
+    newQuantity !== item.quantity.toString() ||
+    promotionType !== item.promotionType ||
+    (promotionValue !== (item.promotionValue?.toString() || ""));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Cart Item</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="w-full sm:max-w-[600px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+        {/* Header */}
+        <FormHeader
+          title="Edit Cart Item"
+          description={item.productName}
+          isCreate={false}
+          showAvatar={false}
+        />
 
-        <div className="space-y-6">
-          {/* Product Info */}
-          <div className="flex gap-4 pb-4 border-b">
-            <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+        {/* Body */}
+        <FormBody contentClassName="space-y-6">
+          {/* Product Info Card */}
+          <div className="flex gap-4 p-4 bg-muted/30 rounded-lg border">
+            <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-white border flex-shrink-0">
               <Image
                 src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
                 alt={item.productName}
@@ -147,30 +156,28 @@ export function POSEditCartItemModal({
               />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-sm mb-1">{item.productName}</h3>
+              <h4 className="font-semibold text-sm mb-1">{item.productName}</h4>
               {item.sizeName && (
                 <p className="text-xs text-muted-foreground mb-2">
                   Size: <span className="font-medium">{item.sizeName}</span>
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
-                Current Price: <span className="font-semibold text-primary">{formatCurrency(item.currentPrice)}</span>
+                Original Price: <span className="font-semibold text-primary">{formatCurrency(item.currentPrice)}</span>
               </p>
             </div>
           </div>
 
           {/* Price Section */}
           <div className="space-y-3">
-            <h4 className="font-semibold text-sm">Price</h4>
+            <Label className="text-sm font-semibold">Price</Label>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-xs text-muted-foreground mb-1">
                   Original Price
                 </Label>
-                <div className="p-3 bg-muted/50 rounded-lg border">
-                  <p className="font-semibold text-sm">
-                    {formatCurrency(item.currentPrice)}
-                  </p>
+                <div className="p-3 bg-muted/50 rounded-lg border text-sm font-semibold">
+                  {formatCurrency(item.currentPrice)}
                 </div>
               </div>
               <div>
@@ -193,7 +200,7 @@ export function POSEditCartItemModal({
 
           {/* Promotion Section */}
           <div className="space-y-3">
-            <h4 className="font-semibold text-sm">Promotion (Optional)</h4>
+            <Label className="text-sm font-semibold">Promotion (Optional)</Label>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="promoType" className="text-xs text-muted-foreground mb-1">
@@ -232,14 +239,14 @@ export function POSEditCartItemModal({
 
           {/* Quantity Section */}
           <div className="space-y-3">
-            <h4 className="font-semibold text-sm">Quantity</h4>
+            <Label className="text-sm font-semibold">Quantity</Label>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-xs text-muted-foreground mb-1">
                   Original Quantity
                 </Label>
-                <div className="p-3 bg-muted/50 rounded-lg border">
-                  <p className="font-semibold text-sm">{item.quantity}</p>
+                <div className="p-3 bg-muted/50 rounded-lg border text-sm font-semibold">
+                  {item.quantity}
                 </div>
               </div>
               <div>
@@ -261,7 +268,7 @@ export function POSEditCartItemModal({
 
           {/* Reason Section */}
           <div className="space-y-3">
-            <h4 className="font-semibold text-sm">Reason for Change (Optional)</h4>
+            <Label className="text-sm font-semibold">Reason for Change (Optional)</Label>
             <Textarea
               placeholder="e.g., Customer complaint, price adjustment, promotion applied, etc."
               value={reason}
@@ -300,34 +307,26 @@ export function POSEditCartItemModal({
               </div>
             </div>
           </div>
+        </FormBody>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t">
-            <CustomButton
-              variant="outline"
-              className="flex-1"
-              onClick={() => onOpenChange(false)}
-              disabled={isSaving}
-            >
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </CustomButton>
-            <CustomButton
-              className="flex-1"
-              onClick={handleSave}
-              disabled={isSaving || !newPrice || !newQuantity}
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </CustomButton>
-          </div>
-        </div>
+        {/* Footer */}
+        <FormFooter
+          isSubmitting={isSaving}
+          isDirty={isDirty}
+          isCreate={false}
+          createMessage="Creating..."
+          updateMessage="Saving changes..."
+          noChangesMessage="No changes made"
+        >
+          <CancelButton onClick={() => onOpenChange(false)} disabled={isSaving} />
+          <SubmitButton
+            onClick={handleSave}
+            isLoading={isSaving}
+            disabled={!newPrice || !newQuantity}
+            text="Save Changes"
+            loadingText="Saving..."
+          />
+        </FormFooter>
       </DialogContent>
     </Dialog>
   );
