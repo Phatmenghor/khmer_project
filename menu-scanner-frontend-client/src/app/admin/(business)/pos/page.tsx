@@ -226,6 +226,12 @@ export default function PosPage() {
     []
   );
 
+  // ─── Initialize Categories and Brands on Mount ───
+  useEffect(() => {
+    fetchCategories();
+    fetchBrands();
+  }, [fetchCategories, fetchBrands]);
+
   useEffect(() => {
     fetchProducts(
       1,
