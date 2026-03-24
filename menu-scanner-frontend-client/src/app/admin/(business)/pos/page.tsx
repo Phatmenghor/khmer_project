@@ -744,6 +744,7 @@ export default function PosPage() {
               <X className="w-4 h-4 mr-1" />
               Clear All
             </Button>
+          </div>
 
           {/* Categories Horizontal Scroll */}
           <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 h-10 mt-2">
