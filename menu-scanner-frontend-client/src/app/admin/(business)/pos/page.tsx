@@ -142,7 +142,7 @@ export default function PosPage() {
   // ─── More Options Modal State ───
   const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
   // ─── Promotion Filter State ───
-  const [promotionFilter, setPromotionFilter] = useState<"promotion" | "full">("promotion");
+  const [promotionFilter, setPromotionFilter] = useState<boolean>(true);
   const [promotionOpen, setPromotionOpen] = useState(false);
 
   // ─── Fetch Categories ───
@@ -196,7 +196,7 @@ export default function PosPage() {
       search: string,
       categoryId?: string,
       brandId?: string,
-      promotionType: "promotion" | "full" = "promotion",
+      hasPromotion: boolean | undefined = true,
       reset = false
     ) => {
       try {
@@ -207,7 +207,7 @@ export default function PosPage() {
             search: search || undefined,
             categoryId: categoryId || undefined,
             brandId: brandId || undefined,
-            promotionType: promotionType || undefined,
+            hasPromotion: hasPromotion,
             pageNo: page,
             pageSize: 30,
             status: "ACTIVE",
@@ -682,7 +682,7 @@ export default function PosPage() {
                   aria-expanded={promotionOpen}
                   className="w-[120px] justify-between h-9 text-sm"
                 >
-                  {promotionFilter === "promotion" ? "Promotion" : "Full"}
+                  {promotionFilter ? "Promotion" : "Full"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -693,7 +693,7 @@ export default function PosPage() {
                       <CommandItem
                         value="promotion"
                         onSelect={() => {
-                          setPromotionFilter("promotion");
+                          setPromotionFilter(true);
                           setPromotionOpen(false);
                         }}
                         className="cursor-pointer"
@@ -701,7 +701,7 @@ export default function PosPage() {
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            promotionFilter === "promotion" ? "opacity-100" : "opacity-0"
+                            promotionFilter === true ? "opacity-100" : "opacity-0"
                           )}
                         />
                         Promotion
@@ -709,7 +709,7 @@ export default function PosPage() {
                       <CommandItem
                         value="full"
                         onSelect={() => {
-                          setPromotionFilter("full");
+                          setPromotionFilter(false);
                           setPromotionOpen(false);
                         }}
                         className="cursor-pointer"
@@ -717,7 +717,7 @@ export default function PosPage() {
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            promotionFilter === "full" ? "opacity-100" : "opacity-0"
+                            promotionFilter === false ? "opacity-100" : "opacity-0"
                           )}
                         />
                         Full
@@ -737,8 +737,8 @@ export default function PosPage() {
                 setSearchTerm("");
                 setSelectedCategory(null);
                 setSelectedBrand(null);
-                setPromotionFilter("promotion");
-                fetchProducts(1, "", undefined, undefined, "promotion", true);
+                setPromotionFilter(true);
+                fetchProducts(1, "", undefined, undefined, true, true);
               }}
             >
               <X className="w-4 h-4 mr-1" />
