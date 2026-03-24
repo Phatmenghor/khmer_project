@@ -921,10 +921,10 @@ export default function PosPage() {
                   <span className="font-medium">{formatCurrency(cartSummary.subtotalBeforeDiscount)}</span>
                 </div>
 
-                {cartSummary.totalDiscountAmount > 0 && (
+                {cartSummary.totalDiscount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-red-500 font-medium">Discount</span>
-                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.totalDiscountAmount)}</span>
+                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.totalDiscount)}</span>
                   </div>
                 )}
 
