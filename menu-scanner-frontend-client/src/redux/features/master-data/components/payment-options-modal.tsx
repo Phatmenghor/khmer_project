@@ -1,30 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { TextField } from "@/components/shared/form-field/text-field";
+import { SelectField } from "@/components/shared/form-field/select-field";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { FormBody } from "@/components/shared/form-field/form-body";
+import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { CancelButton } from "@/components/shared/form-field/cancel-button";
+import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { showToast } from "@/components/shared/common/show-toast";
-import { ModalMode, Status } from "@/constants/status/status";
-import { PaymentOptionType } from "../store/models/response/payment-option-response";
+import { ModalMode } from "@/constants/status/status";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   createPaymentOptionService,
@@ -33,13 +22,28 @@ import {
 } from "../store/thunks/payment-options-thunks";
 import { selectSelectedPaymentOption } from "../store/selectors/payment-options-selectors";
 import { clearSelectedPaymentOption } from "../store/slice/payment-options-slice";
-
 import {
   createPaymentOptionSchema,
   updatePaymentOptionSchema,
 } from "../store/models/schema/payment-options-schema";
 
 type PaymentOptionFormData = z.infer<typeof createPaymentOptionSchema>;
+
+const PAYMENT_TYPE_OPTIONS = [
+  { value: "CASH", label: "Cash" },
+  { value: "BANK_TRANSFER", label: "Bank Transfer" },
+  { value: "CREDIT_CARD", label: "Credit Card" },
+  { value: "DEBIT_CARD", label: "Debit Card" },
+  { value: "MOBILE_WALLET", label: "Mobile Wallet" },
+  { value: "CRYPTO", label: "Cryptocurrency" },
+  { value: "CHECK", label: "Check" },
+  { value: "OTHER", label: "Other" },
+];
+
+const STATUS_OPTIONS = [
+  { value: "ACTIVE", label: "Active" },
+  { value: "INACTIVE", label: "Inactive" },
+];
 
 interface PaymentOptionsModalProps {
   isOpen: boolean;
@@ -56,43 +60,45 @@ export default function PaymentOptionsModal({
 }: PaymentOptionsModalProps) {
   const dispatch = useAppDispatch();
   const selectedOption = useAppSelector(selectSelectedPaymentOption);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isCreate = mode === ModalMode.CREATE_MODE;
 
-  const form = useForm<PaymentOptionFormData>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty, isSubmitting },
+  } = useForm<PaymentOptionFormData>({
     resolver: zodResolver(
-      mode === ModalMode.CREATE_MODE
-        ? createPaymentOptionSchema
-        : updatePaymentOptionSchema
+      isCreate ? createPaymentOptionSchema : updatePaymentOptionSchema
     ),
     defaultValues: {
       name: "",
       paymentOptionType: "",
       status: "ACTIVE",
     },
+    mode: "onChange",
   });
 
-  // Fetch payment option details if in edit mode
   useEffect(() => {
-    if (mode === ModalMode.UPDATE_MODE && paymentOptionId && isOpen) {
+    if (isCreate || !isOpen) return;
+    if (paymentOptionId) {
       dispatch(fetchPaymentOptionByIdService(paymentOptionId));
     }
-  }, [mode, paymentOptionId, isOpen, dispatch]);
+  }, [isCreate, paymentOptionId, isOpen, dispatch]);
 
-  // Populate form with selected option data
   useEffect(() => {
-    if (selectedOption && mode === ModalMode.UPDATE_MODE) {
-      form.reset({
+    if (selectedOption && !isCreate) {
+      reset({
         name: selectedOption.name,
         paymentOptionType: selectedOption.paymentOptionType,
         status: selectedOption.status,
       });
     }
-  }, [selectedOption, mode, form]);
+  }, [selectedOption, isCreate, reset]);
 
   const onSubmit = async (data: PaymentOptionFormData) => {
-    setIsSubmitting(true);
     try {
-      if (mode === ModalMode.CREATE_MODE) {
+      if (isCreate) {
         await dispatch(createPaymentOptionService(data)).unwrap();
         showToast.success("Payment option created successfully");
       } else {
@@ -104,126 +110,77 @@ export default function PaymentOptionsModal({
         ).unwrap();
         showToast.success("Payment option updated successfully");
       }
-      form.reset();
+      reset();
       dispatch(clearSelectedPaymentOption());
       onClose();
     } catch (error: any) {
       showToast.error(error || "Failed to save payment option");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    form.reset();
+    reset();
     dispatch(clearSelectedPaymentOption());
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            {mode === ModalMode.CREATE_MODE
-              ? "Create Payment Option"
-              : "Edit Payment Option"}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-md">
+        <FormHeader
+          title={isCreate ? "Create Payment Option" : "Edit Payment Option"}
+          description={isCreate ? "Add a new payment method" : "Update payment method details"}
+          isCreate={isCreate}
+        />
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Payment Method Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., Cash, ABA, ACE, Khmer Bank"
-                      {...field}
-                      disabled={isSubmitting}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="paymentOptionType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Payment Type</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select payment type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="CASH">Cash</SelectItem>
-                      <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
-                      <SelectItem value="CREDIT_CARD">Credit Card</SelectItem>
-                      <SelectItem value="DEBIT_CARD">Debit Card</SelectItem>
-                      <SelectItem value="MOBILE_WALLET">Mobile Wallet</SelectItem>
-                      <SelectItem value="CRYPTO">Cryptocurrency</SelectItem>
-                      <SelectItem value="CHECK">Check</SelectItem>
-                      <SelectItem value="OTHER">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="ACTIVE">Active</SelectItem>
-                      <SelectItem value="INACTIVE">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+          <FormBody>
+            <div className="space-y-4">
+              <TextField
+                control={control}
+                name="name"
+                label="Payment Method Name"
+                placeholder="e.g., Cash, ABA, ACE, Khmer Bank"
+                required
                 disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
-              </Button>
+                error={errors.name}
+              />
+
+              <SelectField
+                control={control}
+                name="paymentOptionType"
+                label="Payment Type"
+                placeholder="Select payment type"
+                options={PAYMENT_TYPE_OPTIONS}
+                required
+                disabled={isSubmitting}
+                error={errors.paymentOptionType}
+              />
+
+              <SelectField
+                control={control}
+                name="status"
+                label="Status"
+                placeholder="Select status"
+                options={STATUS_OPTIONS}
+                required
+                disabled={isSubmitting}
+                error={errors.status}
+              />
             </div>
-          </form>
-        </Form>
+          </FormBody>
+
+          <FormFooter
+            isSubmitting={isSubmitting}
+            isDirty={isDirty}
+            isCreate={isCreate}
+            createMessage="Creating payment option..."
+            updateMessage="Updating payment option..."
+          >
+            <CancelButton onClick={handleClose} disabled={isSubmitting} />
+            <SubmitButton isSubmitting={isSubmitting} label={isCreate ? "Create" : "Update"} />
+          </FormFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
