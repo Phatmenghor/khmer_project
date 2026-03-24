@@ -17,6 +17,8 @@ export const selectSelectedPaymentOption = (state: RootState) =>
 export const selectProducts = (state: RootState) => state.posPage.products;
 export const selectProductsLoading = (state: RootState) =>
   state.posPage.productsLoading;
+export const selectProductsError = (state: RootState) =>
+  state.posPage.productsError;
 export const selectSearchTerm = (state: RootState) => state.posPage.searchTerm;
 export const selectSelectedCategory = (state: RootState) =>
   state.posPage.selectedCategory;

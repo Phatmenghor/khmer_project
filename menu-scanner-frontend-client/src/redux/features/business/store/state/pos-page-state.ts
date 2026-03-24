@@ -9,6 +9,7 @@ import {
   selectSelectedPaymentOption,
   selectProducts,
   selectProductsLoading,
+  selectProductsError,
   selectSearchTerm,
   selectSelectedCategory,
   selectSelectedBrand,
@@ -39,6 +40,7 @@ export const usePOSPageState = () => {
   const selectedPaymentOption = useAppSelector(selectSelectedPaymentOption);
   const products = useAppSelector(selectProducts);
   const productsLoading = useAppSelector(selectProductsLoading);
+  const productsError = useAppSelector(selectProductsError);
   const searchTerm = useAppSelector(selectSearchTerm);
   const selectedCategory = useAppSelector(selectSelectedCategory);
   const selectedBrand = useAppSelector(selectSelectedBrand);
@@ -67,6 +69,7 @@ export const usePOSPageState = () => {
     selectedPaymentOption,
     products,
     productsLoading,
+    productsError,
     searchTerm,
     selectedCategory,
     selectedBrand,
