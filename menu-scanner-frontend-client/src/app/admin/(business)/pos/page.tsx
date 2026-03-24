@@ -679,7 +679,7 @@ export default function PosPage() {
                   aria-expanded={promotionOpen}
                   className="w-[130px] justify-between h-9 text-sm"
                 >
-                  {promotionFilter === undefined ? "All Products" : promotionFilter ? "Promotion" : "Full"}
+                  {promotionFilter === undefined ? "All Products" : "Promotion"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -718,22 +718,6 @@ export default function PosPage() {
                           )}
                         />
                         Promotion
-                      </CommandItem>
-                      <CommandItem
-                        value="full"
-                        onSelect={() => {
-                          setPromotionFilter(false);
-                          setPromotionOpen(false);
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            promotionFilter === false ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        Full
                       </CommandItem>
                     </CommandGroup>
                   </CommandList>
