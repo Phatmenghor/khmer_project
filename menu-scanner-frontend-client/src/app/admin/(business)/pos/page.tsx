@@ -949,16 +949,6 @@ export default function PosPage() {
                 </div>
               </div>
 
-              {/* Note — 1 row compact */}
-              <Input
-                type="text"
-                value={customerNote}
-                onChange={(e) => setCustomerNote(e.target.value)}
-                placeholder="Order note (optional)..."
-                className="text-xs h-9"
-                maxLength={100}
-              />
-
               {/* Order Summary — inline, no extra header card */}
               <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 space-y-1.5">
                 <div className="flex justify-between text-xs">
@@ -1116,60 +1106,71 @@ export default function PosPage() {
 
       {/* ─── More Options Modal ─── */}
       <Dialog open={showOrderDetailsModal} onOpenChange={setShowOrderDetailsModal}>
-        <DialogContent className="max-w-md">
-          <DialogTitle className="flex items-center gap-3 text-lg">
-            <Tag className="w-5 h-5 text-primary" />
-            More Options
-          </DialogTitle>
+        <DialogContent className="max-w-sm">
+          <DialogTitle className="text-base font-bold">More Options</DialogTitle>
 
-          <div className="space-y-6 py-4">
-            {/* ─── SECTION: DISCOUNT FOR SPECIAL CUSTOMER ─── */}
-            <div className="space-y-3">
+          <div className="space-y-5 py-2">
+            {/* ─── ORDER NOTE SECTION ─── */}
+            <div className="space-y-2">
+              <Label htmlFor="order-note" className="text-sm font-semibold">
+                Order Note
+              </Label>
+              <Input
+                id="order-note"
+                type="text"
+                placeholder="Special instructions, allergies..."
+                value={customerNote}
+                onChange={(e) => setCustomerNote(e.target.value)}
+                maxLength={150}
+                className="text-sm h-10"
+              />
+              <p className="text-[11px] text-muted-foreground text-right">{customerNote.length}/150</p>
+            </div>
+
+            {/* ─── DISCOUNT SECTION ─── */}
+            <div className="space-y-3 pt-2">
               <div>
-                <Label className="text-sm font-semibold text-foreground block mb-3">
-                  Discount for Special Customer
+                <Label className="text-sm font-semibold block mb-3">
+                  Add Discount
                 </Label>
 
-                {/* Discount Type Selection */}
-                <div className="space-y-2 mb-4">
-                  <Label className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Type</Label>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setDiscountType("fixed");
-                        setDiscountValue("");
-                      }}
-                      className={cn(
-                        "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
-                        discountType === "fixed"
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-muted/50 text-muted-foreground hover:border-primary/50"
-                      )}
-                    >
-                      <DollarSign className="w-4 h-4" />
-                      Fixed
-                    </button>
-                    <button
-                      onClick={() => {
-                        setDiscountType("percentage");
-                        setDiscountValue("");
-                      }}
-                      className={cn(
-                        "flex-1 px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium flex items-center justify-center gap-2",
-                        discountType === "percentage"
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-muted/50 text-muted-foreground hover:border-primary/50"
-                      )}
-                    >
-                      <Percent className="w-4 h-4" />
-                      Percent
-                    </button>
-                  </div>
+                {/* Discount Type Buttons */}
+                <div className="flex gap-2 mb-3">
+                  <button
+                    onClick={() => {
+                      setDiscountType("fixed");
+                      setDiscountValue("");
+                    }}
+                    className={cn(
+                      "flex-1 px-3 py-2 rounded-md border transition-all text-xs font-medium flex items-center justify-center gap-1.5",
+                      discountType === "fixed"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-background text-foreground hover:bg-muted"
+                    )}
+                  >
+                    <DollarSign className="w-3.5 h-3.5" />
+                    Fixed
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDiscountType("percentage");
+                      setDiscountValue("");
+                    }}
+                    className={cn(
+                      "flex-1 px-3 py-2 rounded-md border transition-all text-xs font-medium flex items-center justify-center gap-1.5",
+                      discountType === "percentage"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-background text-foreground hover:bg-muted"
+                    )}
+                  >
+                    <Percent className="w-3.5 h-3.5" />
+                    Percent
+                  </button>
                 </div>
 
-                {/* Discount Value Input */}
-                <div className="space-y-2 mb-4">
-                  <Label htmlFor="discount-value" className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+                {/* Discount Value */}
+                <div className="mb-3">
+                  <Label htmlFor="discount-value" className="text-xs text-muted-foreground font-medium block mb-1.5">
                     {discountType === "fixed" ? "Amount" : "Percentage"}
                   </Label>
                   <Input
@@ -1184,44 +1185,40 @@ export default function PosPage() {
                   />
                 </div>
 
-                {/* Discount Reason/Group */}
-                <div className="space-y-2">
-                  <Label htmlFor="discount-reason" className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                    Group & Reason
+                {/* Reason as Text Input */}
+                <div>
+                  <Label htmlFor="discount-reason" className="text-xs text-muted-foreground font-medium block mb-1.5">
+                    Reason
                   </Label>
-                  <select
+                  <Input
                     id="discount-reason"
+                    type="text"
+                    placeholder="E.g., Special customer, Loyalty, VIP..."
                     value={discountReason}
                     onChange={(e) => setDiscountReason(e.target.value)}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-background hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  >
-                    <option value="special_customer">Special Customer</option>
-                    <option value="loyalty">Loyalty Reward</option>
-                    <option value="bulk_order">Bulk Order</option>
-                    <option value="vip">VIP Member</option>
-                    <option value="promotional">Promotional Campaign</option>
-                    <option value="other">Other</option>
-                  </select>
+                    maxLength={50}
+                    className="text-sm h-10"
+                  />
                 </div>
               </div>
 
-              {/* Discount Preview */}
+              {/* Discount Summary */}
               {discountValue && (
-                <div className="rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-4 space-y-2 mt-4">
-                  <p className="text-xs font-semibold text-primary uppercase tracking-wide">Discount Summary</p>
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-sm text-muted-foreground">Amount:</p>
-                    <p className="text-lg font-bold text-primary">
+                <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-muted-foreground">Amount:</span>
+                    <span className="text-sm font-bold text-primary">
                       {discountType === "fixed"
                         ? formatCurrency(parseFloat(discountValue) || 0)
-                        : `${discountValue || "0"}%`
-                      }
-                    </p>
+                        : `${discountValue || "0"}%`}
+                    </span>
                   </div>
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-sm text-muted-foreground">Reason:</p>
-                    <p className="text-sm font-medium text-foreground">{discountReason.replace(/_/g, " ")}</p>
-                  </div>
+                  {discountReason && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-muted-foreground">Reason:</span>
+                      <span className="text-xs font-medium text-foreground">{discountReason}</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1230,10 +1227,8 @@ export default function PosPage() {
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4">
             <Button
-              onClick={() => {
-                setShowOrderDetailsModal(false);
-              }}
-              className="flex-1"
+              onClick={() => setShowOrderDetailsModal(false)}
+              className="flex-1 h-10"
             >
               Done
             </Button>
@@ -1241,12 +1236,12 @@ export default function PosPage() {
               onClick={() => {
                 setDiscountValue("");
                 setDiscountType("fixed");
-                setDiscountReason("special_customer");
+                setDiscountReason("");
               }}
               variant="outline"
-              className="flex-1"
+              className="flex-1 h-10"
             >
-              Reset Discount
+              Clear
             </Button>
           </div>
         </DialogContent>
