@@ -949,6 +949,16 @@ export default function PosPage() {
                 </div>
               </div>
 
+              {/* Note — 1 row compact */}
+              <Input
+                type="text"
+                value={customerNote}
+                onChange={(e) => setCustomerNote(e.target.value)}
+                placeholder="Order note (optional)..."
+                className="text-xs h-9"
+                maxLength={100}
+              />
+
               {/* Order Summary — inline, no extra header card */}
               <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 space-y-1.5">
                 <div className="flex justify-between text-xs">
@@ -989,54 +999,54 @@ export default function PosPage() {
               </div>
             </div>
 
-            {/* Bottom Action Bar — left buttons + right order button */}
-            <div className="px-3 pb-3 space-y-2">
-              {/* Top: Info Card */}
-              <div className="rounded-lg border border-border shadow-sm bg-muted/30 px-3 py-2.5 flex items-center justify-between">
-                <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground font-medium">
-                    {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
-                    {selectedPaymentOption && (
-                      <span className="ml-1 text-muted-foreground/70">
-                        · {selectedPaymentOption.name || selectedPaymentOption.paymentOptionType}
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-lg font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
-                </div>
-              </div>
-
-              {/* Bottom: Action Buttons */}
-              <div className="flex gap-2">
-                {/* Left: Order Details Button */}
+            {/* Place Order — left info / right action card */}
+            <div className="px-3 pb-3">
+              <div className="rounded-xl overflow-hidden border border-border shadow-sm flex items-stretch">
+                {/* Left: More Button */}
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  className="flex-1 text-xs h-10 gap-2"
+                  className="h-auto px-3 gap-2 text-xs font-semibold border-r border-border hover:bg-muted/50"
                   onClick={() => setShowOrderDetailsModal(true)}
                 >
-                  <ReceiptText className="w-4 h-4" />
-                  Order Details
-                  {(customerNote || discountValue) && <span className="text-[10px] text-primary font-bold">●</span>}
+                  <Tag className="w-3.5 h-3.5" />
+                  More
                 </Button>
 
-                {/* Right: Place Order Button */}
+                {/* Middle: summary */}
+                <div className="flex-1 px-3 py-2.5 bg-muted/30 min-w-0 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground font-medium">
+                      {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
+                      {selectedPaymentOption && (
+                        <span className="ml-1 text-muted-foreground/70">
+                          · {selectedPaymentOption.name || selectedPaymentOption.paymentOptionType}
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-lg font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
+                  </div>
+                </div>
+
+                {/* Right: button */}
                 <button
                   onClick={handleSubmitOrder}
                   disabled={cartItems.length === 0 || isSubmitting}
                   className={cn(
-                    "flex-1 flex flex-col items-center justify-center gap-1 rounded-lg font-semibold text-sm transition-all h-10",
+                    "flex flex-col items-center justify-center px-5 gap-0.5 transition-all shrink-0",
                     cartItems.length === 0 || isSubmitting
                       ? "bg-muted text-muted-foreground cursor-not-allowed"
                       : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer"
                   )}
                 >
                   {isSubmitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    <ReceiptText className="w-4 h-4" />
+                    <ReceiptText className="w-5 h-5" />
                   )}
-                  {isSubmitting ? "Processing..." : "Place Order"}
+                  <span className="text-[11px] font-semibold whitespace-nowrap">
+                    {isSubmitting ? "Processing..." : "Place Order"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -1104,36 +1114,16 @@ export default function PosPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ─── Order Details Modal ─── */}
+      {/* ─── More Options Modal ─── */}
       <Dialog open={showOrderDetailsModal} onOpenChange={setShowOrderDetailsModal}>
         <DialogContent className="max-w-md">
           <DialogTitle className="flex items-center gap-3 text-lg">
-            <ReceiptText className="w-5 h-5 text-primary" />
-            Order Details
+            <Tag className="w-5 h-5 text-primary" />
+            More Options
           </DialogTitle>
 
           <div className="space-y-6 py-4">
-            {/* ─── SECTION 1: ORDER NOTE ─── */}
-            <div className="space-y-3 pb-6 border-b">
-              <div>
-                <Label htmlFor="order-note" className="text-sm font-semibold text-foreground block mb-2">
-                  Order Note
-                </Label>
-                <p className="text-xs text-muted-foreground mb-3">Add any special instructions or notes for this order.</p>
-                <Input
-                  id="order-note"
-                  type="text"
-                  placeholder="E.g., Special packaging, allergies, delivery instructions..."
-                  value={customerNote}
-                  onChange={(e) => setCustomerNote(e.target.value)}
-                  className="text-sm h-10"
-                  maxLength={200}
-                />
-                <p className="text-[10px] text-muted-foreground mt-2 text-right">{customerNote.length}/200</p>
-              </div>
-            </div>
-
-            {/* ─── SECTION 2: DISCOUNT FOR SPECIAL CUSTOMER ─── */}
+            {/* ─── SECTION: DISCOUNT FOR SPECIAL CUSTOMER ─── */}
             <div className="space-y-3">
               <div>
                 <Label className="text-sm font-semibold text-foreground block mb-3">
@@ -1238,9 +1228,8 @@ export default function PosPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-2 pt-4">
             <Button
-              variant="outline"
               onClick={() => {
                 setShowOrderDetailsModal(false);
               }}
@@ -1253,13 +1242,11 @@ export default function PosPage() {
                 setDiscountValue("");
                 setDiscountType("fixed");
                 setDiscountReason("special_customer");
-                setCustomerNote("");
-                setShowOrderDetailsModal(false);
               }}
-              variant="ghost"
+              variant="outline"
               className="flex-1"
             >
-              Clear All
+              Reset Discount
             </Button>
           </div>
         </DialogContent>
