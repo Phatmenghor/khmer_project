@@ -1,12 +1,6 @@
 /**
- * useFilterURLSync Hook
+ * useFilterURLSync Hook - SIMPLIFIED & FIXED
  * Syncs POS filters with URL query parameters
- *
- * Example URLs:
- * /admin/pos
- * /admin/pos?search=coffee
- * /admin/pos?search=coffee&categoryId=1&brandId=2
- * /admin/pos?search=coffee&categoryId=1&brandId=2&promotion=true
  */
 
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,11 +13,10 @@ import {
 import {
   selectSearchTerm,
   selectPromotionFilter,
+  selectSelectedCategory,
+  selectSelectedBrand,
 } from "@/redux/features/business/store/selectors/pos-page-selector";
 
-/**
- * Filter state interface
- */
 export interface FilterState {
   search: string;
   categoryId: string | null;
@@ -31,44 +24,13 @@ export interface FilterState {
   hasPromotion: boolean;
 }
 
-/**
- * Hook options
- */
 interface UseFilterURLSyncOptions {
-  /**
-   * Enable/disable URL sync
-   * @default true
-   */
   enabled?: boolean;
-
-  /**
-   * Debounce time before updating URL (ms)
-   * @default 800
-   */
   debounceMs?: number;
-
-  /**
-   * Callback when filters loaded from URL
-   */
   onFiltersLoaded?: (filters: FilterState) => void;
-
-  /**
-   * Callback when filters changed
-   */
   onFiltersChanged?: (filters: FilterState) => void;
 }
 
-/**
- * Hook that syncs filters with URL query parameters
- *
- * Features:
- * - Load filters from URL on mount
- * - Sync filter changes to URL
- * - Debounced URL updates
- * - Browser back/forward support
- * - Shareable filter links
- * - URL-based state management
- */
 export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
   const {
     enabled = true,
@@ -81,15 +43,17 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
 
+  // Get ALL filter values from Redux
   const searchTerm = useAppSelector(selectSearchTerm);
   const promotionFilter = useAppSelector(selectPromotionFilter);
+  const selectedCategory = useAppSelector(selectSelectedCategory);
+  const selectedBrand = useAppSelector(selectSelectedBrand);
 
-  // Track initialization
   const isInitializedRef = useRef(false);
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout>();
 
   // ─────────────────────────────────────────────────────────────
-  // LOAD filters from URL on mount (ONCE ONLY)
+  // STEP 1: Load from URL on mount
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!enabled || isInitializedRef.current) return;
@@ -97,111 +61,125 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
     isInitializedRef.current = true;
 
     try {
-      // Get filters from URL
       const search = searchParams.get("search") || "";
-      const promotionParam = searchParams.get("promotion");
-      const hasPromotion = promotionParam === "true";
+      const promotion = searchParams.get("promotion") === "true";
+
+      console.log(`📍 useFilterURLSync: Loading from URL`);
+      console.log(`  - search: ${search}`);
+      console.log(`  - promotion: ${promotion}`);
 
       // Update Redux with URL values
       if (search) {
         dispatch(setSearchTerm(search));
-        console.log(`🔍 Loaded search from URL: "${search}"`);
       }
 
-      if (hasPromotion) {
+      if (promotion) {
         dispatch(setPromotionFilter(true));
-        console.log(`🎁 Loaded promotion filter from URL`);
       }
 
-      // Build current filters object
-      const currentFilters: FilterState = {
+      const filters: FilterState = {
         search,
         categoryId: searchParams.get("categoryId"),
         brandId: searchParams.get("brandId"),
-        hasPromotion,
+        hasPromotion: promotion,
       };
 
-      // Notify callback
-      if (onFiltersLoaded) {
-        onFiltersLoaded(currentFilters);
-      }
+      console.log(`✅ Loaded filters:`, JSON.stringify(filters));
 
-      console.log(
-        `✅ Filters loaded from URL:`,
-        JSON.stringify(currentFilters)
-      );
+      if (onFiltersLoaded) {
+        onFiltersLoaded(filters);
+      }
     } catch (error) {
-      console.error("Error loading filters from URL:", error);
+      console.error("❌ Error loading filters from URL:", error);
     }
-  }, [enabled, searchParams, dispatch, onFiltersLoaded]);
+  }, []);
 
   // ─────────────────────────────────────────────────────────────
-  // SAVE filters to URL when they change (DEBOUNCED)
+  // STEP 2: Save to URL when filters change
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    // Don't sync if not initialized or disabled
     if (!enabled || !isInitializedRef.current) return;
 
-    // Clear previous timeout
+    // Clear old timeout
     if (urlUpdateTimeoutRef.current) {
       clearTimeout(urlUpdateTimeoutRef.current);
     }
 
-    // Debounce the URL update
+    // Debounce the update
     urlUpdateTimeoutRef.current = setTimeout(() => {
       try {
-        // Build URL params
+        // Build URL params from ALL filter sources
         const params = new URLSearchParams();
 
         if (searchTerm) {
           params.set("search", searchTerm);
         }
 
+        if (selectedCategory?.id) {
+          params.set("categoryId", selectedCategory.id);
+        }
+
+        if (selectedBrand?.id) {
+          params.set("brandId", selectedBrand.id);
+        }
+
         if (promotionFilter) {
           params.set("promotion", "true");
         }
 
-        // Update URL
+        // Build new URL
         const queryString = params.toString();
         const newUrl = queryString ? `?${queryString}` : "";
 
-        // Only update if URL actually changed
-        if (newUrl !== window.location.search) {
-          router.push(newUrl);
-          console.log(`📍 Updated URL:`, newUrl || "(no filters)");
+        // Check if URL actually changed
+        const currentUrl = window.location.search;
+        if (newUrl !== currentUrl) {
+          console.log(`📍 Updating URL: ${newUrl || "(no filters)"}`);
 
-          // Build current filters object
-          const currentFilters: FilterState = {
+          // Use window.history for more reliable navigation
+          window.history.pushState(
+            null,
+            "",
+            newUrl ? `/admin/pos${newUrl}` : "/admin/pos"
+          );
+
+          const filters: FilterState = {
             search: searchTerm,
-            categoryId: searchParams.get("categoryId"),
-            brandId: searchParams.get("brandId"),
+            categoryId: selectedCategory?.id || null,
+            brandId: selectedBrand?.id || null,
             hasPromotion: promotionFilter || false,
           };
 
+          console.log(`✅ Filters synced:`, JSON.stringify(filters));
+
           if (onFiltersChanged) {
-            onFiltersChanged(currentFilters);
+            onFiltersChanged(filters);
           }
         }
       } catch (error) {
-        console.error("Error updating URL with filters:", error);
+        console.error("❌ Error updating URL:", error);
       }
     }, debounceMs);
 
-    // Cleanup
     return () => {
       if (urlUpdateTimeoutRef.current) {
         clearTimeout(urlUpdateTimeoutRef.current);
       }
     };
-  }, [searchTerm, promotionFilter, enabled, router, searchParams, debounceMs, onFiltersChanged]);
+  }, [
+    searchTerm,
+    selectedCategory?.id,
+    selectedBrand?.id,
+    promotionFilter,
+    enabled,
+    debounceMs,
+    onFiltersChanged,
+  ]);
 
   // ─────────────────────────────────────────────────────────────
   // PUBLIC API
   // ─────────────────────────────────────────────────────────────
 
-  /**
-   * Get current filters from URL
-   */
   const getFiltersFromURL = useCallback((): FilterState => {
     return {
       search: searchParams.get("search") || "",
@@ -211,84 +189,39 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
     };
   }, [searchParams]);
 
-  /**
-   * Clear all filters from URL
-   */
   const clearFilters = useCallback(() => {
     try {
-      router.push("");
+      window.history.pushState(null, "", "/admin/pos");
       dispatch(setSearchTerm(""));
       dispatch(setPromotionFilter(undefined));
-      console.log(`🗑️ All filters cleared from URL`);
+      console.log(`🗑️ Filters cleared`);
     } catch (error) {
       console.error("Error clearing filters:", error);
     }
-  }, [router, dispatch]);
+  }, [dispatch]);
 
-  /**
-   * Update URL with filters manually
-   */
-  const updateURL = useCallback(
-    (filters: Partial<FilterState>) => {
-      try {
-        const params = new URLSearchParams();
-
-        if (filters.search) {
-          params.set("search", filters.search);
-        }
-        if (filters.categoryId) {
-          params.set("categoryId", filters.categoryId);
-        }
-        if (filters.brandId) {
-          params.set("brandId", filters.brandId);
-        }
-        if (filters.hasPromotion) {
-          params.set("promotion", "true");
-        }
-
-        const queryString = params.toString();
-        const newUrl = queryString ? `?${queryString}` : "";
-        router.push(newUrl);
-
-        console.log(`📍 Manually updated URL:`, newUrl || "(no filters)");
-      } catch (error) {
-        console.error("Error updating URL:", error);
-      }
-    },
-    [router]
-  );
-
-  /**
-   * Get shareable filter link
-   */
   const getShareableLink = useCallback((): string => {
-    const filters = getFiltersFromURL();
     const params = new URLSearchParams();
 
-    if (filters.search) params.set("search", filters.search);
-    if (filters.categoryId) params.set("categoryId", filters.categoryId);
-    if (filters.brandId) params.set("brandId", filters.brandId);
-    if (filters.hasPromotion) params.set("promotion", "true");
+    if (searchTerm) params.set("search", searchTerm);
+    if (selectedCategory?.id) params.set("categoryId", selectedCategory.id);
+    if (selectedBrand?.id) params.set("brandId", selectedBrand.id);
+    if (promotionFilter) params.set("promotion", "true");
 
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-    const path = "/admin/pos";
     const queryString = params.toString();
 
-    return `${baseUrl}${path}${queryString ? "?" + queryString : ""}`;
-  }, [getFiltersFromURL]);
+    return `${baseUrl}/admin/pos${queryString ? "?" + queryString : ""}`;
+  }, [searchTerm, selectedCategory?.id, selectedBrand?.id, promotionFilter]);
 
   return {
     isInitialized: isInitializedRef.current,
     getFiltersFromURL,
     clearFilters,
-    updateURL,
     getShareableLink,
   };
 }
 
-/**
- * Simple version with minimal options
- */
 export function useSimpleFilterURLSync() {
   return useFilterURLSync({
     enabled: true,
