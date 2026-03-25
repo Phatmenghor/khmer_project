@@ -4,6 +4,7 @@
  */
 
 import { OrderStatus } from '@/enums/order-status.enum';
+import { OrderSource } from '@/enums/order-source.enum';
 
 export interface OrderStatusHistoryUserInfo {
   userId: string;
@@ -96,6 +97,7 @@ export interface OrderResponse {
   deliveryAddress: OrderDeliveryAddressDto;
   deliveryOption: OrderDeliveryOptionDto;
   orderStatus: OrderStatus;
+  source: OrderSource;  // NEW: Track if order is from POS or Public
   customerNote: string;
   businessNote: string | null;
   pricing: OrderPricingInfo;

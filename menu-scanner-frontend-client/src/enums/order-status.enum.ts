@@ -1,6 +1,7 @@
 // Order Status Enum - matches backend OrderStatus enum
 export enum OrderStatus {
   PENDING = 'PENDING',
+  PENDING_POS_CONFIRMATION = 'PENDING_POS_CONFIRMATION',  // Added: waiting for admin confirmation of POS changes
   CONFIRMED = 'CONFIRMED',
   PREPARING = 'PREPARING',
   READY = 'READY',
@@ -16,6 +17,11 @@ export const OrderStatusConfig = {
     label: 'Pending',
     description: 'Order placed, awaiting business confirmation',
     color: 'warning',
+  },
+  [OrderStatus.PENDING_POS_CONFIRMATION]: {
+    label: 'Pending POS Confirmation',
+    description: 'Admin made changes in POS, waiting for confirmation',
+    color: 'danger',
   },
   [OrderStatus.CONFIRMED]: {
     label: 'Confirmed',
