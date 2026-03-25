@@ -1,10 +1,10 @@
 /**
  * POS Page State Persistence Hook
  * Manages URL params for filters and localStorage for cart
- * Clean, single-responsibility hook for easy integration
+ * FIXED: Prevents infinite loops with proper initialization control
  */
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   loadPersistedFilters,
@@ -57,6 +57,11 @@ interface UsePOSStatePersistenceOptions {
 /**
  * Main hook for POS state persistence
  * Handles automatic sync between Redux, URL params, and localStorage
+ *
+ * FIXED INFINITE LOOP:
+ * - Uses ref to track initialization (run once on mount)
+ * - Prevents saving during initial load
+ * - Proper debouncing to prevent circular updates
  */
 export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = {}) {
   const {
@@ -74,134 +79,194 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
 
   const persistence = usePOSPersistence();
 
-  // ────────────────────────────────────────────────────────────
-  // INITIALIZATION - Load persisted state on mount
-  // ────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // Load from URL params
-    if (enableUrlPersistence) {
-      const filters = persistence.loadFiltersFromUrl();
-      if (Object.values(filters).some((v) => v)) {
-        dispatch(loadPersistedFilters(filters));
-      }
-    }
-
-    // Load from localStorage
-    if (enableCartPersistence) {
-      const cart = persistence.loadCartFromStorage();
-      if (cart.length > 0) {
-        dispatch(loadPersistedCart(cart));
-      }
-    }
-
-    // Notify that persistence is initialized
-    if (onStateLoaded) {
-      onStateLoaded({
-        filters: persistence.loadFiltersFromUrl(),
-        cart: persistence.loadCartFromStorage(),
-      });
-    }
-
-    persistence.setInitialized(true);
-  }, [dispatch, enableUrlPersistence, enableCartPersistence, persistence, onStateLoaded]);
+  // Use ref to track initialization - prevents infinite loops
+  const initRef = useRef(false);
+  const filterTimeoutRef = useRef<NodeJS.Timeout>();
+  const cartTimeoutRef = useRef<NodeJS.Timeout>();
 
   // ────────────────────────────────────────────────────────────
-  // FILTER SYNC - Save filters to URL when they change
+  // STEP 1: Initialize (Load from persistence)
+  // Run ONCE on mount only - empty dependency array
   // ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!enableUrlPersistence || !persistence.isInitialized) return;
+    if (typeof window === "undefined" || initRef.current) return;
 
-    const timeoutId = setTimeout(() => {
-      persistence.saveFiltersToUrl({
-        search: searchTerm,
-        hasPromotion: promotionFilter || false,
-      });
+    initRef.current = true;
+
+    try {
+      // Load from URL params
+      if (enableUrlPersistence) {
+        const filters = persistence.loadFiltersFromUrl();
+        if (Object.values(filters).some((v) => v)) {
+          dispatch(loadPersistedFilters(filters));
+        }
+      }
+
+      // Load from localStorage
+      if (enableCartPersistence) {
+        const cart = persistence.loadCartFromStorage();
+        if (cart.length > 0) {
+          dispatch(loadPersistedCart(cart));
+        }
+      }
+
+      // Callback
+      if (onStateLoaded) {
+        onStateLoaded({
+          filters: persistence.loadFiltersFromUrl(),
+          cart: persistence.loadCartFromStorage(),
+        });
+      }
+
+      persistence.setInitialized(true);
+    } catch (error) {
+      console.error("Error loading persisted state:", error);
+      persistence.setInitialized(true);
+    }
+  }, []); // Empty array - RUN ONLY ONCE on mount
+
+  // ────────────────────────────────────────────────────────────
+  // STEP 2: Save filters (ONLY after initialized)
+  // Debounce 800ms to prevent excessive updates
+  // ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    // Skip if disabled or not initialized yet
+    if (!enableUrlPersistence || !persistence.isInitialized || !initRef.current) {
+      return;
+    }
+
+    // Clear old timeout
+    if (filterTimeoutRef.current) {
+      clearTimeout(filterTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced save
+    filterTimeoutRef.current = setTimeout(() => {
+      try {
+        persistence.saveFiltersToUrl({
+          search: searchTerm,
+          hasPromotion: promotionFilter || false,
+        });
+      } catch (error) {
+        console.error("Error saving filters:", error);
+      }
     }, filterSaveDebounceMs);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      if (filterTimeoutRef.current) {
+        clearTimeout(filterTimeoutRef.current);
+      }
+    };
   }, [searchTerm, promotionFilter, enableUrlPersistence, persistence, filterSaveDebounceMs]);
 
   // ────────────────────────────────────────────────────────────
-  // CART SYNC - Save cart to localStorage when it changes
+  // STEP 3: Save cart (ONLY after initialized)
+  // Debounce 1000ms to prevent excessive updates
   // ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!enableCartPersistence || !persistence.isInitialized) return;
+    // Skip if disabled or not initialized yet
+    if (!enableCartPersistence || !persistence.isInitialized || !initRef.current) {
+      return;
+    }
 
-    const timeoutId = setTimeout(() => {
-      if (cartItems.length > 0) {
-        persistence.saveCartToStorage(cartItems);
-      } else {
-        persistence.clearCartFromStorage();
+    // Clear old timeout
+    if (cartTimeoutRef.current) {
+      clearTimeout(cartTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced save
+    cartTimeoutRef.current = setTimeout(() => {
+      try {
+        if (cartItems.length > 0) {
+          persistence.saveCartToStorage(cartItems);
+        } else {
+          persistence.clearCartFromStorage();
+        }
+      } catch (error) {
+        console.error("Error saving cart:", error);
       }
     }, cartSaveDebounceMs);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      if (cartTimeoutRef.current) {
+        clearTimeout(cartTimeoutRef.current);
+      }
+    };
   }, [cartItems, enableCartPersistence, persistence, cartSaveDebounceMs]);
 
   // ────────────────────────────────────────────────────────────
   // PUBLIC API
   // ────────────────────────────────────────────────────────────
 
-  /**
-   * Clear all persisted state (filters + cart)
-   */
   const clearAllPersistence = useCallback(() => {
-    persistence.clearAll();
+    try {
+      persistence.clearAll();
+    } catch (error) {
+      console.error("Error clearing persistence:", error);
+    }
   }, [persistence]);
 
-  /**
-   * Clear only filters
-   */
   const clearFilters = useCallback(() => {
-    persistence.clearFiltersInUrl();
-    dispatch(setSearchTerm(""));
-    dispatch(setPromotionFilter(undefined));
+    try {
+      persistence.clearFiltersInUrl();
+      dispatch(setSearchTerm(""));
+      dispatch(setPromotionFilter(undefined));
+    } catch (error) {
+      console.error("Error clearing filters:", error);
+    }
   }, [persistence, dispatch]);
 
-  /**
-   * Clear only cart
-   */
   const clearCart = useCallback(() => {
-    persistence.clearCartFromStorage();
+    try {
+      persistence.clearCartFromStorage();
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
   }, [persistence]);
 
-  /**
-   * Export current state (for debugging or sharing)
-   */
   const exportState = useCallback(() => {
-    return {
-      filters: persistence.loadFiltersFromUrl(),
-      cart: persistence.loadCartFromStorage(),
-      timestamp: new Date().toISOString(),
-      url: window.location.href,
-    };
+    try {
+      return {
+        filters: persistence.loadFiltersFromUrl(),
+        cart: persistence.loadCartFromStorage(),
+        timestamp: new Date().toISOString(),
+        url: typeof window !== "undefined" ? window.location.href : "N/A",
+      };
+    } catch (error) {
+      console.error("Error exporting state:", error);
+      return {
+        filters: { search: "", categoryId: null, brandId: null, hasPromotion: false },
+        cart: [],
+        timestamp: new Date().toISOString(),
+        url: typeof window !== "undefined" ? window.location.href : "N/A",
+      };
+    }
   }, [persistence]);
 
-  /**
-   * Check if there's any persisted state
-   */
   const hasPersistedState = useCallback(
-    () => persistence.hasPersistedState(),
+    () => {
+      try {
+        return persistence.hasPersistedState();
+      } catch {
+        return false;
+      }
+    },
     [persistence]
   );
 
-  /**
-   * Reset to clean state (clear URL and localStorage)
-   */
   const resetToDefault = useCallback(() => {
-    clearAllPersistence();
-    dispatch(setSearchTerm(""));
-    dispatch(setPromotionFilter(undefined));
+    try {
+      clearAllPersistence();
+      dispatch(setSearchTerm(""));
+      dispatch(setPromotionFilter(undefined));
+    } catch (error) {
+      console.error("Error resetting to default:", error);
+    }
   }, [clearAllPersistence, dispatch]);
 
   return {
-    // State status
-    isInitialized: persistence.isInitialized,
+    isInitialized: initRef.current,
     hasPersistedState: hasPersistedState(),
-
-    // Actions
     clearAllPersistence,
     clearFilters,
     clearCart,
@@ -212,7 +277,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
 
 /**
  * Hook to track filter changes for debugging
- * Useful for development
  */
 export function usePOSFilterSync() {
   const persistence = usePOSPersistence();
@@ -221,8 +285,8 @@ export function usePOSFilterSync() {
 
   const currentFilters: POSFilterState = {
     search: searchTerm,
-    categoryId: null, // Loaded via URL params separately
-    brandId: null, // Loaded via URL params separately
+    categoryId: null,
+    brandId: null,
     hasPromotion: promotionFilter || false,
   };
 
