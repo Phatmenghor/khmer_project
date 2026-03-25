@@ -59,6 +59,7 @@ import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { usePOSStatePersistence } from "@/utils/persistence/use-pos-state-persistence";
 
 // ─── Redux Imports ───
 import { usePOSPageState } from "@/redux/features/business/store/state/pos-page-state";
@@ -152,6 +153,14 @@ export default function PosPage() {
     promotionFilter,
     promotionOpen,
   } = usePOSPageState();
+
+  // ─── Persistence Layer ───
+  usePOSStatePersistence({
+    enableUrlPersistence: true,      // Save filters to URL
+    enableCartPersistence: true,     // Save cart to localStorage
+    cartSaveDebounceMs: 1000,        // Debounce cart saves
+    filterSaveDebounceMs: 800,       // Debounce filter saves
+  });
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const productGridRef = useRef<HTMLDivElement>(null);

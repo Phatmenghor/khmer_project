@@ -15,6 +15,7 @@ import { ProductDetailResponseModel } from "../models/response/product-response"
 import { DeliveryOptionsResponseModel } from "@/redux/features/master-data/store/models/response/delivery-options-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import type { POSFilterState } from "@/utils/persistence/use-pos-persistence";
 
 const initialState: POSPageState = {
   selectedDeliveryOption: null,
@@ -153,6 +154,18 @@ const posPageSlice = createSlice({
       state.promotionOpen = action.payload;
     },
 
+    // ─── Persistence ───
+    loadPersistedFilters: (state, action: PayloadAction<POSFilterState>) => {
+      const filters = action.payload;
+      state.searchTerm = filters.search;
+      state.promotionFilter = filters.hasPromotion ? true : undefined;
+      // Category and Brand will be loaded separately via their IDs
+      // since we store IDs but Redux holds the full objects
+    },
+    loadPersistedCart: (state, action: PayloadAction<PosPageCartItem[]>) => {
+      state.cartItems = action.payload;
+    },
+
     // ─── Reset ───
     resetPOSPageState: () => initialState,
   },
@@ -257,6 +270,8 @@ export const {
   setBrandOpen,
   setPromotionFilter,
   setPromotionOpen,
+  loadPersistedFilters,
+  loadPersistedCart,
   resetPOSPageState,
 } = posPageSlice.actions;
 
