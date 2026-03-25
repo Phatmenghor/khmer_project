@@ -138,11 +138,13 @@ export function POSEditCartItemModal({
   const calculatedTotal = calculatedFinalPrice * calculatedQuantity;
 
   // Check if form is dirty (with null safety)
-  const isDirty = reason.trim() !== "" ||
-    newPrice !== item.currentPrice.toString() ||
-    newQuantity !== item.quantity.toString() ||
-    promotionType !== item.promotionType ||
-    (promotionValue !== (item.promotionValue?.toString() || ""));
+  const isDirty = !item ? false : (
+    reason.trim() !== "" ||
+    newPrice !== (item.currentPrice?.toString() || "") ||
+    newQuantity !== (item.quantity?.toString() || "") ||
+    promotionType !== (item.promotionType || null) ||
+    promotionValue !== (item.promotionValue?.toString() || "")
+  );
 
   const isValid = newPrice && newQuantity && parseInt(newQuantity) >= 1;
 

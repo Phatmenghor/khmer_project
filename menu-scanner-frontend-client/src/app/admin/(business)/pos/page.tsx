@@ -461,19 +461,39 @@ export default function PosPage() {
 
   // ─── Save Cart Item Price Changes ───
   const handleSaveItemChanges = useCallback((editData: any) => {
-    // For now, just update the local item state
-    // Backend integration will be done later
-    dispatch(
-      updateCartItem({
-        ...editData,
-        // Keep old values for history
-        oldPrice: editData.originalPrice,
-        oldQuantity: editData.originalQuantity,
-        oldPromotion: editData.originalPromotion,
-      })
-    );
-    showToast.success("Item updated (local changes only)");
-  }, [dispatch]);
+    if (!editingItemForPrice) return;
+
+    // Calculate final price based on promotion
+    let finalPrice = editData.newPrice;
+    if (editData.newPromotion.type) {
+      if (editData.newPromotion.type === "PERCENTAGE") {
+        finalPrice = editData.newPrice * (1 - (editData.newPromotion.value || 0) / 100);
+      } else if (editData.newPromotion.type === "FIXED") {
+        finalPrice = Math.max(0, editData.newPrice - (editData.newPromotion.value || 0));
+      }
+    }
+
+    // Create updated cart item with mapped fields
+    const updatedItem: PosPageCartItem = {
+      id: editingItemForPrice.id,
+      productId: editingItemForPrice.productId,
+      productName: editingItemForPrice.productName,
+      productImageUrl: editingItemForPrice.productImageUrl,
+      productSizeId: editingItemForPrice.productSizeId,
+      sizeName: editingItemForPrice.sizeName,
+      currentPrice: editData.newPrice,
+      finalPrice: finalPrice,
+      quantity: editData.newQuantity,
+      hasActivePromotion: !!editData.newPromotion.type,
+      promotionType: editData.newPromotion.type,
+      promotionValue: editData.newPromotion.value,
+      promotionFromDate: editingItemForPrice.promotionFromDate,
+      promotionToDate: editingItemForPrice.promotionToDate,
+    };
+
+    dispatch(updateCartItem(updatedItem));
+    showToast.success("Item updated successfully");
+  }, [dispatch, editingItemForPrice]);
   // ─── Submit Order ───
   const handleSubmitOrder = async () => {
     if (cartItems.length === 0) {
