@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Edit } from "lucide-react";
+import { Loader2, Edit, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CustomButton } from "@/components/shared/button/custom-button";
@@ -182,9 +182,99 @@ export function POSEditCartItemModal({
             </div>
           </div>
 
-          {/* Price Section */}
+          {/* Quantity Section - FIRST */}
           <div className="space-y-3">
-            <Label className="text-sm font-semibold">Price</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-xs text-muted-foreground mb-2 block">
+                  Original Qty
+                </Label>
+                <div className="h-10 p-2.5 bg-muted/50 rounded-lg border text-sm font-semibold flex items-center">
+                  {item.quantity}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground mb-2 block">
+                  New Qty *
+                </Label>
+                <div className="flex items-center gap-2 h-10">
+                  {/* Minus Button */}
+                  <CustomButton
+                    size="icon"
+                    variant="outline"
+                    className="h-10 w-10 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                    onClick={() => {
+                      const current = parseInt(newQuantity) || 1;
+                      if (current > 1) {
+                        setNewQuantity((current - 1).toString());
+                      }
+                    }}
+                  >
+                    <Minus className="h-3 w-3" />
+                  </CustomButton>
+
+                  {/* Quantity Display */}
+                  <div className="flex-1 text-center h-10 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
+                    {newQuantity || item.quantity}
+                  </div>
+
+                  {/* Plus Button */}
+                  <CustomButton
+                    size="icon"
+                    variant="outline"
+                    className="h-10 w-10 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                    onClick={() => {
+                      const current = parseInt(newQuantity) || item.quantity;
+                      setNewQuantity((current + 1).toString());
+                    }}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </CustomButton>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Promotion Section - SECOND */}
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="promoType" className="text-xs text-muted-foreground mb-2 block">
+                  Promo Type
+                </Label>
+                <Select value={promotionType || "NONE"} onValueChange={(value) => setPromotionType(value === "NONE" ? null : value)}>
+                  <SelectTrigger id="promoType" className="text-sm h-10">
+                    <SelectValue placeholder="None" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NONE">None</SelectItem>
+                    <SelectItem value="PERCENTAGE">Percentage (%)</SelectItem>
+                    <SelectItem value="FIXED">Fixed Amount</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {promotionType && (
+                <div>
+                  <Label htmlFor="promoValue" className="text-xs text-muted-foreground mb-2 block">
+                    Promo Value
+                  </Label>
+                  <Input
+                    id="promoValue"
+                    type="number"
+                    placeholder={promotionType === "PERCENTAGE" ? "e.g., 10" : "e.g., 5.00"}
+                    value={promotionValue}
+                    onChange={(e) => setPromotionValue(e.target.value)}
+                    step="0.01"
+                    min="0"
+                    className="text-sm h-10"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Price Section - THIRD */}
+          <div className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-xs text-muted-foreground mb-2 block">
@@ -206,80 +296,6 @@ export function POSEditCartItemModal({
                   onChange={(e) => setNewPrice(e.target.value)}
                   step="0.01"
                   min="0"
-                  className="text-sm h-10"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Promotion Section */}
-          <div className="space-y-3">
-            <Label className="text-sm font-semibold">Promotion (Optional)</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="promoType" className="text-xs text-muted-foreground mb-2 block">
-                  Promotion Type
-                </Label>
-                <Select value={promotionType || "NONE"} onValueChange={(value) => setPromotionType(value === "NONE" ? null : value)}>
-                  <SelectTrigger id="promoType" className="text-sm h-10">
-                    <SelectValue placeholder="None" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="NONE">None</SelectItem>
-                    <SelectItem value="PERCENTAGE">Percentage (%)</SelectItem>
-                    <SelectItem value="FIXED">Fixed Amount</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {promotionType && (
-                <div>
-                  <Label htmlFor="promoValue" className="text-xs text-muted-foreground mb-2 block">
-                    Promotion Value
-                  </Label>
-                  <Input
-                    id="promoValue"
-                    type="number"
-                    placeholder={promotionType === "PERCENTAGE" ? "e.g., 10" : "e.g., 5.00"}
-                    value={promotionValue}
-                    onChange={(e) => setPromotionValue(e.target.value)}
-                    step="0.01"
-                    min="0"
-                    className="text-sm h-10"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Quantity Section */}
-          <div className="space-y-3">
-            <Label className="text-sm font-semibold">Quantity</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs text-muted-foreground mb-2 block">
-                  Original Quantity
-                </Label>
-                <div className="h-10 p-2.5 bg-muted/50 rounded-lg border text-sm font-semibold flex items-center">
-                  {item.quantity}
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="newQuantity" className="text-xs text-muted-foreground mb-2 block">
-                  New Quantity * (min 1)
-                </Label>
-                <Input
-                  id="newQuantity"
-                  type="number"
-                  placeholder="Enter new quantity"
-                  value={newQuantity}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    // Allow empty string or values >= 1
-                    if (value === "" || parseInt(value) >= 1) {
-                      setNewQuantity(value);
-                    }
-                  }}
-                  min="1"
                   className="text-sm h-10"
                 />
               </div>
