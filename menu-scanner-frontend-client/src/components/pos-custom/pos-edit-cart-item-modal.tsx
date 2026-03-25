@@ -29,14 +29,12 @@ interface CartItemEditData {
   productName: string;
   productImageUrl: string;
   sizeName: string | null;
-  // Original values (keep for history)
   originalPrice: number;
   originalQuantity: number;
   originalPromotion: {
     type: string | null;
     value: number | null;
   };
-  // New values (for editing)
   newPrice: number;
   newQuantity: number;
   newPromotion: {
@@ -88,7 +86,14 @@ export function POSEditCartItemModal({
   }, [open, item]);
 
   const handleSave = async () => {
-    if (!item) return;
+    if (!item || !newPrice || !newQuantity) return;
+
+    // Validate quantity is at least 1
+    const qty = parseInt(newQuantity);
+    if (qty < 1) {
+      alert("Quantity must be at least 1");
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -97,16 +102,14 @@ export function POSEditCartItemModal({
         productName: item.productName,
         productImageUrl: item.productImageUrl,
         sizeName: item.sizeName,
-        // Original values (keep for history)
         originalPrice: item.currentPrice,
         originalQuantity: item.quantity,
         originalPromotion: {
           type: item.promotionType,
           value: item.promotionValue,
         },
-        // New values (for this change)
         newPrice: parseFloat(newPrice) || item.currentPrice,
-        newQuantity: parseInt(newQuantity) || item.quantity,
+        newQuantity: qty,
         newPromotion: {
           type: promotionType,
           value: promotionValue ? parseFloat(promotionValue) : null,
@@ -116,6 +119,9 @@ export function POSEditCartItemModal({
 
       onSave(editData);
       onOpenChange(false);
+    } catch (error) {
+      console.error("Error saving cart item:", error);
+      alert("Error saving changes. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -123,14 +129,22 @@ export function POSEditCartItemModal({
 
   if (!item) return null;
 
-  const calculatedFinalPrice = parseFloat(newPrice) || item.currentPrice;
-  const calculatedQuantity = parseInt(newQuantity) || item.quantity;
+  // Safe calculations
+  const parsedPrice = newPrice ? parseFloat(newPrice) : item.currentPrice;
+  const parsedQuantity = newQuantity ? parseInt(newQuantity) : item.quantity;
+
+  const calculatedFinalPrice = isNaN(parsedPrice) ? item.currentPrice : parsedPrice;
+  const calculatedQuantity = isNaN(parsedQuantity) ? item.quantity : Math.max(1, parsedQuantity);
   const calculatedTotal = calculatedFinalPrice * calculatedQuantity;
+
+  // Check if form is dirty (with null safety)
   const isDirty = reason.trim() !== "" ||
     newPrice !== item.currentPrice.toString() ||
     newQuantity !== item.quantity.toString() ||
     promotionType !== item.promotionType ||
     (promotionValue !== (item.promotionValue?.toString() || ""));
+
+  const isValid = newPrice && newQuantity && parseInt(newQuantity) >= 1;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -173,15 +187,15 @@ export function POSEditCartItemModal({
             <Label className="text-sm font-semibold">Price</Label>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-xs text-muted-foreground mb-1">
+                <Label className="text-xs text-muted-foreground mb-2 block">
                   Original Price
                 </Label>
-                <div className="p-3 bg-muted/50 rounded-lg border text-sm font-semibold">
+                <div className="h-10 p-2.5 bg-muted/50 rounded-lg border text-sm font-semibold flex items-center">
                   {formatCurrency(item.currentPrice)}
                 </div>
               </div>
               <div>
-                <Label htmlFor="newPrice" className="text-xs text-muted-foreground mb-1">
+                <Label htmlFor="newPrice" className="text-xs text-muted-foreground mb-2 block">
                   New Price *
                 </Label>
                 <Input
@@ -192,7 +206,7 @@ export function POSEditCartItemModal({
                   onChange={(e) => setNewPrice(e.target.value)}
                   step="0.01"
                   min="0"
-                  className="text-sm"
+                  className="text-sm h-10"
                 />
               </div>
             </div>
@@ -203,11 +217,11 @@ export function POSEditCartItemModal({
             <Label className="text-sm font-semibold">Promotion (Optional)</Label>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="promoType" className="text-xs text-muted-foreground mb-1">
+                <Label htmlFor="promoType" className="text-xs text-muted-foreground mb-2 block">
                   Promotion Type
                 </Label>
                 <Select value={promotionType || "NONE"} onValueChange={(value) => setPromotionType(value === "NONE" ? null : value)}>
-                  <SelectTrigger id="promoType" className="text-sm">
+                  <SelectTrigger id="promoType" className="text-sm h-10">
                     <SelectValue placeholder="None" />
                   </SelectTrigger>
                   <SelectContent>
@@ -219,7 +233,7 @@ export function POSEditCartItemModal({
               </div>
               {promotionType && (
                 <div>
-                  <Label htmlFor="promoValue" className="text-xs text-muted-foreground mb-1">
+                  <Label htmlFor="promoValue" className="text-xs text-muted-foreground mb-2 block">
                     Promotion Value
                   </Label>
                   <Input
@@ -230,7 +244,7 @@ export function POSEditCartItemModal({
                     onChange={(e) => setPromotionValue(e.target.value)}
                     step="0.01"
                     min="0"
-                    className="text-sm"
+                    className="text-sm h-10"
                   />
                 </div>
               )}
@@ -242,25 +256,31 @@ export function POSEditCartItemModal({
             <Label className="text-sm font-semibold">Quantity</Label>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-xs text-muted-foreground mb-1">
+                <Label className="text-xs text-muted-foreground mb-2 block">
                   Original Quantity
                 </Label>
-                <div className="p-3 bg-muted/50 rounded-lg border text-sm font-semibold">
+                <div className="h-10 p-2.5 bg-muted/50 rounded-lg border text-sm font-semibold flex items-center">
                   {item.quantity}
                 </div>
               </div>
               <div>
-                <Label htmlFor="newQuantity" className="text-xs text-muted-foreground mb-1">
-                  New Quantity *
+                <Label htmlFor="newQuantity" className="text-xs text-muted-foreground mb-2 block">
+                  New Quantity * (min 1)
                 </Label>
                 <Input
                   id="newQuantity"
                   type="number"
                   placeholder="Enter new quantity"
                   value={newQuantity}
-                  onChange={(e) => setNewQuantity(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow empty string or values >= 1
+                    if (value === "" || parseInt(value) >= 1) {
+                      setNewQuantity(value);
+                    }
+                  }}
                   min="1"
-                  className="text-sm"
+                  className="text-sm h-10"
                 />
               </div>
             </div>
@@ -322,7 +342,7 @@ export function POSEditCartItemModal({
           <SubmitButton
             onClick={handleSave}
             isLoading={isSaving}
-            disabled={!newPrice || !newQuantity}
+            disabled={!isValid}
             text="Save Changes"
             loadingText="Saving..."
           />
