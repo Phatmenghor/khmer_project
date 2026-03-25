@@ -60,6 +60,7 @@ import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-sel
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { useLocalStorageSync } from "@/hooks/useLocalStorageSync";
+import { useFilterURLSync } from "@/hooks/useFilterURLSync";
 
 // ─── Redux Imports ───
 import { usePOSPageState } from "@/redux/features/business/store/state/pos-page-state";
@@ -154,7 +155,7 @@ export default function PosPage() {
     promotionOpen,
   } = usePOSPageState();
 
-  // ─── localStorage Sync with Redux ───
+  // ─── localStorage Sync with Redux (Cart) ───
   const { isInitialized, itemCount, getStorageInfo } = useLocalStorageSync({
     storageKey: "pos:cart",
     debounceMs: 1000,
@@ -164,6 +165,24 @@ export default function PosPage() {
     },
     onCartSaved: (items) => {
       console.log(`💾 Cart saved to localStorage: ${items.length} items`);
+    },
+  });
+
+  // ─── URL Sync with Redux (Filters) ───
+  const { getShareableLink } = useFilterURLSync({
+    enabled: true,
+    debounceMs: 800,
+    onFiltersLoaded: (filters) => {
+      console.log(
+        `🔍 Filters loaded from URL:`,
+        JSON.stringify(filters)
+      );
+    },
+    onFiltersChanged: (filters) => {
+      console.log(
+        `📍 Filters synced to URL:`,
+        JSON.stringify(filters)
+      );
     },
   });
 
