@@ -403,9 +403,9 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
             config.method.toLowerCase()
           )
         ) {
-          // Add additional structured logging for mutation operations
+          // Add additional structured logging for mutation operations (dev only)
           const dataSize = JSON.stringify(config.data).length;
-          logger.warn(
+          logger.log(
             `Mutation operation: ${config.method.toUpperCase()} ${config.url}`,
             {
               payloadSize: `${dataSize} bytes`,
@@ -416,12 +416,12 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           );
         }
       } else {
-        // Log when there's no request body but method typically has one
+        // Log when there's no request body but method typically has one (dev only)
         if (
           config.method &&
           ["post", "put", "patch"].includes(config.method.toLowerCase())
         ) {
-          logger.warn(
+          logger.log(
             `Empty request body for ${config.method.toUpperCase()} ${
               config.url
             }`,
