@@ -463,13 +463,17 @@ export default function PosPage() {
   const handleSaveItemChanges = useCallback((editData: any) => {
     if (!editingItemForPrice) return;
 
+    // Parse new values to proper types
+    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.currentPrice;
+    const newQuantity = parseInt(editData.newQuantity) || editingItemForPrice.quantity;
+
     // Calculate final price based on promotion
-    let finalPrice = editData.newPrice;
+    let finalPrice = newPrice;
     if (editData.newPromotion.type) {
       if (editData.newPromotion.type === "PERCENTAGE") {
-        finalPrice = editData.newPrice * (1 - (editData.newPromotion.value || 0) / 100);
+        finalPrice = newPrice * (1 - (editData.newPromotion.value || 0) / 100);
       } else if (editData.newPromotion.type === "FIXED") {
-        finalPrice = Math.max(0, editData.newPrice - (editData.newPromotion.value || 0));
+        finalPrice = Math.max(0, newPrice - (editData.newPromotion.value || 0));
       }
     }
 
@@ -481,12 +485,12 @@ export default function PosPage() {
       productImageUrl: editingItemForPrice.productImageUrl,
       productSizeId: editingItemForPrice.productSizeId,
       sizeName: editingItemForPrice.sizeName,
-      currentPrice: editData.newPrice,
+      currentPrice: newPrice,
       finalPrice: finalPrice,
-      quantity: editData.newQuantity,
+      quantity: newQuantity,
       hasActivePromotion: !!editData.newPromotion.type,
       promotionType: editData.newPromotion.type,
-      promotionValue: editData.newPromotion.value,
+      promotionValue: editData.newPromotion.value ? parseFloat(editData.newPromotion.value) : null,
       promotionFromDate: editingItemForPrice.promotionFromDate,
       promotionToDate: editingItemForPrice.promotionToDate,
     };
