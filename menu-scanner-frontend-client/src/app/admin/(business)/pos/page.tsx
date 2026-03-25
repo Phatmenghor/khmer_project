@@ -155,9 +155,11 @@ export default function PosPage() {
   } = usePOSPageState();
 
   // ─── Persistence Layer ───
+  // IMPORTANT: URL persistence disabled (causes infinite router loops)
+  // Only localStorage for cart - safer and avoids Next.js routing issues
   usePOSStatePersistence({
-    enableUrlPersistence: true,      // Save filters to URL
-    enableCartPersistence: true,     // Save cart to localStorage
+    enableUrlPersistence: false,     // Disabled - causes router.push() loops
+    enableCartPersistence: true,     // Save cart to localStorage only
     cartSaveDebounceMs: 1000,        // Debounce cart saves
     filterSaveDebounceMs: 800,       // Debounce filter saves
   });
