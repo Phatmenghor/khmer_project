@@ -59,6 +59,7 @@ import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { useLocalStorageSync } from "@/hooks/useLocalStorageSync";
 
 // ─── Redux Imports ───
 import { usePOSPageState } from "@/redux/features/business/store/state/pos-page-state";
@@ -152,6 +153,19 @@ export default function PosPage() {
     promotionFilter,
     promotionOpen,
   } = usePOSPageState();
+
+  // ─── localStorage Sync with Redux ───
+  const { isInitialized, itemCount, getStorageInfo } = useLocalStorageSync({
+    storageKey: "pos:cart",
+    debounceMs: 1000,
+    enabled: true,
+    onCartLoaded: (items) => {
+      console.log(`🔄 Cart loaded from localStorage: ${items.length} items`);
+    },
+    onCartSaved: (items) => {
+      console.log(`💾 Cart saved to localStorage: ${items.length} items`);
+    },
+  });
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const productGridRef = useRef<HTMLDivElement>(null);
