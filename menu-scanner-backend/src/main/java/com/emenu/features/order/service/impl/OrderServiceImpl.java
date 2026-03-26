@@ -353,12 +353,21 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
-    private void createOrderItemsFromCartSummary(UUID orderId, POSCheckoutRequest.CartSummary cartSummary,
+    private void createOrderItemsFromCartSummary(UUID orderId, Object cartSummary,
                                                   POSCheckoutRequest.PricingInfo pricingInfo) {
-        log.debug("🛒 [CART SUMMARY] Processing {} items for order: {}", cartSummary.getItems().size(), orderId);
+        // Handle both CartSummaryResponse and POSCheckoutRequest.CartSummary
+        if (!(cartSummary instanceof com.emenu.features.order.dto.response.CartSummaryResponse)) {
+            log.warn("Invalid cart summary type: {}", cartSummary.getClass().getName());
+            return;
+        }
 
-        BigDecimal subtotal = cartSummary.getSubtotal() != null ? cartSummary.getSubtotal() : BigDecimal.ZERO;
-        BigDecimal discountAmount = cartSummary.getTotalDiscount() != null ? cartSummary.getTotalDiscount() : BigDecimal.ZERO;
+        com.emenu.features.order.dto.response.CartSummaryResponse cartResponse =
+                (com.emenu.features.order.dto.response.CartSummaryResponse) cartSummary;
+
+        log.debug("🛒 [CART SUMMARY] Processing {} items for order: {}", cartResponse.getItems().size(), orderId);
+
+        BigDecimal subtotal = cartResponse.getSubtotal() != null ? cartResponse.getSubtotal() : BigDecimal.ZERO;
+        BigDecimal discountAmount = cartResponse.getTotalDiscount() != null ? cartResponse.getTotalDiscount() : BigDecimal.ZERO;
 
         log.debug("💰 [PRICING] Subtotal: {}, Discount: {}", subtotal, discountAmount);
 
@@ -371,7 +380,7 @@ public class OrderServiceImpl implements OrderService {
         log.debug("✅ [ORDER LOADED] Order ID: {}, Items List: {}", orderId, order.getItems() != null ? "initialized" : "null");
 
         int itemCount = 0;
-        for (var item : cartSummary.getItems()) {
+        for (var item : cartResponse.getItems()) {
             itemCount++;
 
             // Use after snapshot for final pricing if available (new audit trail structure)
