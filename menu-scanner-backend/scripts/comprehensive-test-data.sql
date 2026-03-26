@@ -262,7 +262,7 @@ SELECT
     (SELECT id FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i % 20)),
     (SELECT id FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i % 20)),
     'Product ' || i::text, 'Description for product ' || i::text, (15 + (i % 100))::numeric,
-    CASE WHEN (i % 2) = 0 THEN 'PERCENTAGE' ELSE 'NONE' END,
+    CASE WHEN (i % 2) = 0 THEN 'PERCENTAGE' ELSE NULL END,
     CASE WHEN (i % 2) = 0 THEN 10 ELSE 0 END,
     CASE WHEN (i % 2) = 0 THEN NOW() ELSE NULL END,
     CASE WHEN (i % 2) = 0 THEN NOW() + INTERVAL '30 days' ELSE NULL END,
@@ -282,7 +282,7 @@ SELECT
     p.id,
     CASE WHEN (t.size % 3) = 0 THEN 'Small' WHEN (t.size % 3) = 1 THEN 'Medium' ELSE 'Large' END,
     (p.price + t.size)::numeric,
-    CASE WHEN (t.size % 2) = 0 THEN 'FIXED_AMOUNT' ELSE 'NONE' END,
+    CASE WHEN (t.size % 2) = 0 THEN 'FIXED_AMOUNT' ELSE NULL END,
     CASE WHEN (t.size % 2) = 0 THEN 1 ELSE 0 END,
     NOW(), NOW() + INTERVAL '30 days', 5
 FROM (SELECT id, price FROM products WHERE has_sizes = true LIMIT 30) p
@@ -452,7 +452,7 @@ SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     o.id, (SELECT id FROM products LIMIT 1), NULL, 'Product',  'https://example.com/product.jpg',
     'Medium', 20::numeric, CASE WHEN (t.item_num % 3) = 0 THEN 18::numeric ELSE 20::numeric END, 20::numeric,
-    (t.item_num % 3) = 0, CASE WHEN (t.item_num % 3) = 0 THEN 'PERCENTAGE' ELSE 'NONE' END, CASE WHEN (t.item_num % 3) = 0 THEN 10 ELSE 0 END,
+    (t.item_num % 3) = 0, CASE WHEN (t.item_num % 3) = 0 THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN (t.item_num % 3) = 0 THEN 10 ELSE 0 END,
     NOW(), NOW() + INTERVAL '30 days',
     2, CASE WHEN (t.item_num % 3) = 0 THEN 36::numeric ELSE 40::numeric END,
     'Special notes', false, 'No changes'
@@ -467,9 +467,9 @@ INSERT INTO order_item_pricing_snapshots (id, version, created_at, updated_at, c
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     id, current_price, final_price, has_promotion, (current_price - final_price)::numeric, total_price,
-    CASE WHEN has_promotion THEN 'PERCENTAGE' ELSE 'NONE' END, CASE WHEN has_promotion THEN 10 ELSE 0 END, NOW(), NOW() + INTERVAL '30 days',
+    CASE WHEN has_promotion THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN has_promotion THEN 10 ELSE 0 END, NOW(), NOW() + INTERVAL '30 days',
     current_price, final_price, has_promotion, (current_price - final_price)::numeric, total_price,
-    CASE WHEN has_promotion THEN 'PERCENTAGE' ELSE 'NONE' END, CASE WHEN has_promotion THEN 10 ELSE 0 END, NOW(), NOW() + INTERVAL '30 days'
+    CASE WHEN has_promotion THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN has_promotion THEN 10 ELSE 0 END, NOW(), NOW() + INTERVAL '30 days'
 FROM order_items;
 
 -- ============================================================================
