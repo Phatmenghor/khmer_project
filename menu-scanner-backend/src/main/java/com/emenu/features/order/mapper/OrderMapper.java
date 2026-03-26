@@ -285,10 +285,12 @@ public interface OrderMapper {
                            subtotalAfterDiscount.add(deliveryFee).add(taxAmount))
                 .build();
 
+        boolean hadChange = order.getHadOrderLevelChangeFromPOS() != null && order.getHadOrderLevelChangeFromPOS();
+
         return OrderPricingInfo.builder()
                 .before(before)
-                .hadOrderLevelChangeFromPOS(order.getHadOrderLevelChangeFromPOS() != null ? order.getHadOrderLevelChangeFromPOS() : false)
-                .after(after)
+                .hadOrderLevelChangeFromPOS(hadChange)
+                .after(hadChange ? after : null)  // Only include after if there were changes
                 .reason(order.getOrderLevelChangeReason() != null ? order.getOrderLevelChangeReason() : "No order-level changes")
                 .build();
     }

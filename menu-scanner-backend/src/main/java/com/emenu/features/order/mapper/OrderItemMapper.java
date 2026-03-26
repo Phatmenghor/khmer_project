@@ -18,7 +18,7 @@ public interface OrderItemMapper {
     @Mapping(target = "product", expression = "java(mapProductInfo(orderItem))")
     @Mapping(target = "before", expression = "java(deserializeBeforeSnapshot(orderItem))")
     @Mapping(target = "hadChangeFromPOS", expression = "java(orderItem.getHadChangeFromPOS() != null ? orderItem.getHadChangeFromPOS() : false)")
-    @Mapping(target = "after", expression = "java(deserializeAfterSnapshot(orderItem))")
+    @Mapping(target = "after", expression = "java(orderItem.getHadChangeFromPOS() != null && orderItem.getHadChangeFromPOS() ? deserializeAfterSnapshot(orderItem) : null)")
     OrderItemResponse toResponse(OrderItem orderItem);
 
     List<OrderItemResponse> toResponseList(List<OrderItem> orderItems);

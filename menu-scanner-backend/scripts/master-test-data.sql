@@ -277,6 +277,65 @@ SELECT
 FROM generate_series(1, 3000) AS t(i);
 
 -- ============================================================================
+-- ORDER STATUS HISTORY - Track all order status changes
+-- ============================================================================
+-- For each order, create initial status history entry (when created)
+INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, order_id, order_status, changed_by_user_id, changed_by_name, note)
+SELECT
+    gen_random_uuid(),
+    0,
+    o.created_at,
+    o.created_at,
+    'system@emenu.com',
+    'system@emenu.com',
+    FALSE,
+    o.id,
+    o.order_status,
+    CASE WHEN o.source = 'POS' THEN (SELECT id FROM users WHERE email = 'phatmenghor20@gmail.com' LIMIT 1)
+         ELSE '550e8400-e29b-41d4-a716-446655550001'::uuid END,
+    CASE WHEN o.source = 'POS' THEN 'POS Staff' ELSE 'Customer' END,
+    'Order created with status: ' || o.order_status::text
+FROM orders o
+WHERE NOT EXISTS (
+    SELECT 1 FROM order_status_history h WHERE h.order_id = o.id
+);
+
+-- For orders with status changes, add additional history entries
+INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, order_id, order_status, changed_by_user_id, changed_by_name, note)
+SELECT
+    gen_random_uuid(),
+    0,
+    o.created_at + INTERVAL '1 minute' * (random() * 60)::int,
+    o.created_at + INTERVAL '1 minute' * (random() * 60)::int,
+    'system@emenu.com',
+    'system@emenu.com',
+    FALSE,
+    o.id,
+    CASE o.order_status
+        WHEN 'PENDING' THEN 'CONFIRMED'
+        WHEN 'CONFIRMED' THEN 'PREPARING'
+        WHEN 'PREPARING' THEN 'COMPLETED'
+        WHEN 'COMPLETED' THEN 'COMPLETED'
+        WHEN 'CANCELLED' THEN 'CANCELLED'
+        ELSE o.order_status
+    END,
+    CASE WHEN o.source = 'POS' THEN (SELECT id FROM users WHERE email = 'phatmenghor20@gmail.com' LIMIT 1)
+         ELSE '550e8400-e29b-41d4-a716-446655550001'::uuid END,
+    CASE WHEN o.source = 'POS' THEN 'Admin' ELSE 'System' END,
+    'Status updated from ' || o.order_status::text || ' to ' ||
+    CASE o.order_status
+        WHEN 'PENDING' THEN 'CONFIRMED'
+        WHEN 'CONFIRMED' THEN 'PREPARING'
+        WHEN 'PREPARING' THEN 'COMPLETED'
+        WHEN 'COMPLETED' THEN 'COMPLETED'
+        WHEN 'CANCELLED' THEN 'CANCELLED'
+        ELSE o.order_status
+    END::text
+FROM orders o
+WHERE o.order_status IN ('PENDING', 'CONFIRMED', 'PREPARING')
+AND random() > 0.3;  -- 70% of these orders get a status change
+
+-- ============================================================================
 -- COMPLETION SUMMARY
 -- ============================================================================
 SELECT '✅ COMPREHENSIVE TEST DATA WITH FULL AUDIT TRAILS LOADED!' AS completion_status;
