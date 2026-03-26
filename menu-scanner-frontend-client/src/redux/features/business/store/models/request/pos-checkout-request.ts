@@ -1,6 +1,8 @@
 /**
  * POS Checkout Request/Response Models
- * Similar to customer checkout but with admin capabilities
+ *
+ * For coffee shop POS: Order is COMPLETE when created
+ * All details filled in by shop staff → Ready to prepare immediately
  */
 
 export interface POSCheckoutItemRequest {
@@ -28,11 +30,11 @@ export interface POSCheckoutAddressRequest {
 export interface POSCheckoutRequest {
   // Order basics
   businessId: string;
-  customerId?: string;  // Optional - admin can create for existing customer
+  customerId?: string;  // Optional - for registered customer
   customerName?: string;
   customerPhone?: string;
 
-  // Items with POS pricing control
+  // Items with admin pricing control
   items: POSCheckoutItemRequest[];
 
   // Delivery
@@ -47,9 +49,7 @@ export interface POSCheckoutRequest {
   customerNote?: string;
   businessNote?: string;
 
-  // POS-specific options
-  adminId?: string;  // Who created this order from POS
-  autoConfirmStatus?: boolean;  // If true, status goes CONFIRMED, else PENDING
+  // Optional
   discountAmount?: number;
   taxAmount?: number;
 }
@@ -58,8 +58,9 @@ export interface POSCheckoutResponse {
   id: string;
   orderNumber: string;
   total: number;
-  orderStatus: string;
-  source: 'POS';  // Always POS for this endpoint
+  orderStatus: 'COMPLETED';   // All order data is complete/finalized
+  source: 'POS';              // Always POS
   createdBy: string;
   createdAt: string;
 }
+

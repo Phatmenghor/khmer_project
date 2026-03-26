@@ -1,21 +1,60 @@
-# POS Order System - Simplified Architecture
+# POS Order System - Coffee Shop Edition
 
 ## Overview
 
-The POS order system is simplified to focus on order creation and management:
+POS orders are **in-shop orders** (like coffee shop counter orders):
 
-1. **Order Creation:** One endpoint for POS checkout (admin creates complete orders)
-2. **Order Management:** One endpoint for retrieving/updating orders (handles both POS and customer orders)
-3. **Source Tracking:** All orders have a `source` field (POS vs PUBLIC)
+1. **Shop staff takes order at POS register**
+   - Scans items, sets quantities
+   - Applies discounts if needed
+   - Gets payment
+   - Submits order
+
+2. **Order is COMPLETE when submitted**
+   - All details finalized
+   - Ready to prepare immediately
+   - Starts as `CONFIRMED` status
+   - Goes straight to `PREPARING` → `READY` → pickup
 
 ---
 
-## Key Principle
+## Key Differences: POS vs Customer Orders
 
-✅ **POS orders are "complete" when created** - No separate update/confirm workflow needed
-- Admin configures everything before submitting in POS
-- Once created, order proceeds directly to fulfillment
-- Both POS and customer orders managed through same endpoints
+| Aspect | POS (In-Shop) | Customer (Online) |
+|--------|---------------|------------------|
+| **Who creates** | Shop staff at register | Customer online |
+| **Data entry** | All done at counter | Customer enters details |
+| **Status at creation** | `COMPLETED` (all data finalized) | `PENDING` (awaiting confirmation) |
+| **Next step** | Order data is complete | Admin confirms & prepares |
+| **Payment** | Usually already paid | May be pending |
+| **Endpoint** | `/checkout-from-pos` | `/checkout` |
+| **Delivery** | Pickup or delivery | Delivery only |
+
+---
+
+## How It Works (Coffee Shop Example)
+
+**Shop Staff at Counter:**
+```
+1. Customer orders: "2 cappuccino, 1 latte"
+2. Staff enters into POS
+3. POS shows: Items, Prices, Total = 15,000 Riel
+4. Customer pays
+5. Staff clicks "Submit"
+   ↓
+6. Order created with status: COMPLETED
+   (All order data is finalized, ready for fulfillment)
+7. Kitchen/Barista sees: "ORDER #POS-001 - COMPLETED"
+   - 2 cappuccino
+   - 1 latte
+8. Barista starts preparing
+9. Ready? → Hand to customer
+```
+
+**Status = COMPLETED** means "all order information is complete and finalized"
+- Not awaiting confirmation (staff did it already)
+- Ready for immediate fulfillment
+- All payment/details settled
 
 ---
 
@@ -84,15 +123,17 @@ The POS order system is simplified to focus on order creation and management:
   id: string;
   orderNumber: string;
   total: number;
-  orderStatus: string;           // 'PENDING' or 'CONFIRMED'
+  orderStatus: 'CONFIRMED';      // Always CONFIRMED (ready for kitchen)
   source: 'POS';                 // Always 'POS' for this endpoint
-  createdBy: string;
+  createdBy: string;             // Staff who created it
   createdAt: string;
 }
 ```
 
 **Status After Creation:**
-- Order immediately becomes: `PENDING` or `CONFIRMED` (as configured)
+- Order immediately becomes: `CONFIRMED` (ready to prepare)
+- Staff verified all details at counter
+- Kitchen immediately sees the order
 - Proceeds to: `PREPARING` → `READY` → `IN_TRANSIT` → `COMPLETED`
 
 ---
