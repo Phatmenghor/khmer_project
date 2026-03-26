@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -35,4 +36,17 @@ public class CartItemResponse {
     private BigDecimal promotionValue;
     private LocalDateTime promotionFromDate;
     private LocalDateTime promotionToDate;
+
+    // ===== AUDIT TRAIL: Before/After snapshots for POS orders =====
+    // Snapshot BEFORE any POS modifications (original product price)
+    private OrderItemPricingSnapshot before;
+
+    // Was the item modified from POS?
+    private Boolean hadChangeFromPOS;
+
+    // Snapshot AFTER POS modifications
+    private OrderItemPricingSnapshot after;
+
+    // Detailed audit metadata (if changed)
+    private Map<String, Object> auditMetadata;
 }
