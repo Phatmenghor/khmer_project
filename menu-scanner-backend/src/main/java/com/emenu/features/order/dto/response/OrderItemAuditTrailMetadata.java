@@ -1,6 +1,6 @@
 package com.emenu.features.order.dto.response;
 
-import com.emenu.shared.enums.DiscountType;
+import com.emenu.enums.product.PromotionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,8 +21,8 @@ public class OrderItemAuditTrailMetadata {
     // Type of change: PRICE_OVERRIDE, PROMOTION_APPLIED, QUANTITY_CHANGED, COMBINED
     private ChangeType changeType;
 
-    // Type of discount applied: FIXED_AMOUNT or PERCENTAGE
-    private DiscountType discountType;
+    // Type of discount applied: PERCENTAGE or FIXED_AMOUNT
+    private PromotionType discountType;
 
     // Discount value: $ amount or % value
     private BigDecimal discountValue;

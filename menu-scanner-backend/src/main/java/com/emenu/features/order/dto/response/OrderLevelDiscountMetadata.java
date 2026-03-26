@@ -1,6 +1,6 @@
 package com.emenu.features.order.dto.response;
 
-import com.emenu.shared.enums.DiscountType;
+import com.emenu.enums.product.PromotionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderLevelDiscountMetadata {
-    // Type of discount: FIXED_AMOUNT or PERCENTAGE
-    private DiscountType discountType;
+    // Type of discount: PERCENTAGE or FIXED_AMOUNT
+    private PromotionType discountType;
 
     // Discount value: $ amount or % value
     private BigDecimal discountValue;
