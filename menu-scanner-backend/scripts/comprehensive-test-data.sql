@@ -395,7 +395,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, confirmed_at, completed_at)
 SELECT
     gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', NULL, false, NULL, NULL,
-    '550cad56-cafd-4aba-baef-c4dcd53940d0', '550e8400-e29b-41d4-a716-446655550002',
+    '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, '550e8400-e29b-41d4-a716-446655550002'::uuid,
     'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-WEB-' || LPAD(i::text, 4, '0'),
     CASE WHEN (i % 5) = 0 THEN 'PENDING' WHEN (i % 5) = 1 THEN 'CONFIRMED' WHEN (i % 5) = 2 THEN 'PREPARING' WHEN (i % 5) = 3 THEN 'COMPLETED' ELSE 'CANCELLED' END,
     'PUBLIC', (50 + (i % 100))::numeric, CASE WHEN (i % 8) = 0 THEN 5::numeric ELSE 0::numeric END, 2::numeric, 5::numeric,
@@ -409,7 +409,7 @@ FROM generate_series(1, 100) AS t(i);
 INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, confirmed_at, completed_at)
 SELECT
     gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', NULL, false, NULL, NULL,
-    '550cad56-cafd-4aba-baef-c4dcd53940d0', CASE WHEN (i % 3) = 0 THEN '550e8400-e29b-41d4-a716-446655550002' ELSE NULL END,
+    '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, CASE WHEN (i % 3) = 0 THEN '550e8400-e29b-41d4-a716-446655550002'::uuid ELSE NULL END,
     'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-POS-' || LPAD(i::text, 4, '0'),
     'COMPLETED', 'POS', (45 + (i % 100))::numeric, CASE WHEN (i % 5) = 0 THEN 3::numeric ELSE 0::numeric END, 0::numeric, 4::numeric,
     (45 + (i % 100) - CASE WHEN (i % 5) = 0 THEN 3::numeric ELSE 0::numeric END + 4::numeric)::numeric,
