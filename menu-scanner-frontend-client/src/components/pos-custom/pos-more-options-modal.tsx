@@ -13,11 +13,18 @@ interface POSMoreOptionsModalProps {
   onOpenChange: (open: boolean) => void;
   customerNote: string;
   onNoteChange: (note: string) => void;
-  // Discount callbacks
+  // Current order total for audit trail (before discount)
+  currentOrderTotal?: number;
+  // Discount callbacks - includes complete before/after audit trail
   onDiscountApply?: (discount: {
     type: "fixed" | "percentage";
     value: number;
     reason: string;
+    // ✅ AUDIT TRAIL: Complete before/after snapshot
+    beforeTotal: number;           // Order total BEFORE discount
+    afterTotal: number;            // Order total AFTER discount
+    discountAmount: number;        // Actual discount amount applied
+    appliedAt: string;             // ISO timestamp of when applied
   }) => void;
 }
 
@@ -26,6 +33,7 @@ export function POSMoreOptionsModal({
   onOpenChange,
   customerNote,
   onNoteChange,
+  currentOrderTotal = 0,
   onDiscountApply,
 }: POSMoreOptionsModalProps) {
   const [showDiscount, setShowDiscount] = useState(false);
@@ -34,17 +42,37 @@ export function POSMoreOptionsModal({
   const [discountReason, setDiscountReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Calculate discount amount based on type
+  const calculateDiscountAmount = (): number => {
+    const value = parseFloat(discountValue) || 0;
+    if (discountType === "fixed") {
+      return value;
+    } else {
+      // Percentage: calculate as percentage of current total
+      return (currentOrderTotal * value) / 100;
+    }
+  };
+
   const handleApply = () => {
     setIsSubmitting(true);
 
     // Apply discount if enabled
     if (showDiscount && discountValue && onDiscountApply) {
-      const discountAmount = parseFloat(discountValue);
-      if (discountAmount > 0) {
+      const discountAmountValue = calculateDiscountAmount();
+      if (discountAmountValue > 0) {
+        // Calculate before/after for complete audit trail
+        const beforeTotal = currentOrderTotal;
+        const afterTotal = Math.max(0, currentOrderTotal - discountAmountValue);
+
         onDiscountApply({
           type: discountType,
-          value: discountAmount,
+          value: parseFloat(discountValue),
           reason: discountReason || "Manual discount applied at POS",
+          // ✅ AUDIT TRAIL: Complete snapshot
+          beforeTotal,
+          afterTotal,
+          discountAmount: discountAmountValue,
+          appliedAt: new Date().toISOString(),
         });
       }
     }
@@ -213,6 +241,31 @@ export function POSMoreOptionsModal({
                     <span className="text-xs text-muted-foreground">{discountReason.length} / 100</span>
                   </div>
                 </div>
+
+                {/* Preview: Before/After Calculation */}
+                {discountValue && (
+                  <div className="space-y-2 border-t pt-3 mt-3">
+                    <p className="text-xs font-semibold text-slate-700">Audit Trail Preview</p>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="p-2 bg-white rounded border border-slate-200">
+                        <p className="text-muted-foreground">Before</p>
+                        <p className="font-semibold text-slate-900">${currentOrderTotal.toFixed(2)}</p>
+                      </div>
+                      <div className="p-2 bg-white rounded border border-red-200">
+                        <p className="text-muted-foreground">Discount</p>
+                        <p className="font-semibold text-red-600">
+                          -{calculateDiscountAmount().toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="p-2 bg-white rounded border border-green-200">
+                        <p className="text-muted-foreground">After</p>
+                        <p className="font-semibold text-green-600">
+                          ${Math.max(0, currentOrderTotal - calculateDiscountAmount()).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

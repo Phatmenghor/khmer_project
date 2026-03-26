@@ -201,6 +201,11 @@ export default function PosPage() {
     type: "fixed" | "percentage";
     value: number;
     reason: string;
+    // ✅ AUDIT TRAIL: Complete before/after snapshot
+    beforeTotal: number;           // Order total BEFORE discount
+    afterTotal: number;            // Order total AFTER discount
+    discountAmount: number;        // Actual discount amount applied
+    appliedAt: string;             // ISO timestamp of when applied
   } | null>(null);
 
   // Mobile responsive zoom
@@ -513,13 +518,14 @@ export default function PosPage() {
     type: "fixed" | "percentage";
     value: number;
     reason: string;
+    // ✅ AUDIT TRAIL: Complete before/after snapshot
+    beforeTotal: number;
+    afterTotal: number;
+    discountAmount: number;
+    appliedAt: string;
   }) => {
     setOrderDiscount(discount);
-    showToast.success(`✅ Discount applied: ${
-      discount.type === "fixed" 
-        ? `$${discount.value.toFixed(2)}` 
-        : `${discount.value}%`
-    } - ${discount.reason}`);
+    showToast.success(`✅ Discount applied: Before: $${discount.beforeTotal.toFixed(2)} → After: $${discount.afterTotal.toFixed(2)} (Saved: $${discount.discountAmount.toFixed(2)})`);
   };
 
   // ─── Submit Order ───
@@ -639,7 +645,7 @@ export default function PosPage() {
       // Notes
       customerNote: customerNote || "",
       businessNote: orderDiscount
-        ? `Created via POS System | Discount Applied: ${orderDiscount.type === "fixed" ? `$${orderDiscount.value.toFixed(2)}` : `${orderDiscount.value}%`} | Reason: ${orderDiscount.reason}`
+        ? `AUDIT TRAIL - Order-Level Discount Applied | Before Total: $${orderDiscount.beforeTotal.toFixed(2)} | Discount: ${orderDiscount.type === "fixed" ? `$${orderDiscount.value.toFixed(2)}` : `${orderDiscount.value}%`} (Saved: $${orderDiscount.discountAmount.toFixed(2)}) | After Total: $${orderDiscount.afterTotal.toFixed(2)} | Reason: ${orderDiscount.reason} | Applied At: ${orderDiscount.appliedAt}`
         : "Created via POS System",
       orderStatus: OrderStatus.PENDING,
     };
@@ -1218,6 +1224,7 @@ export default function PosPage() {
         onOpenChange={(open) => dispatch(setShowOrderDetailsModal(open))}
         customerNote={customerNote}
         onNoteChange={(note) => dispatch(setCustomerNote(note))}
+        currentOrderTotal={cartSummary.finalTotal}
         onDiscountApply={handleDiscountApply}
       />
     </div>
