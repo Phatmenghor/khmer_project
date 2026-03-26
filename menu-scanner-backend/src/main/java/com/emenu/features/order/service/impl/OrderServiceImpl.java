@@ -1,6 +1,7 @@
 package com.emenu.features.order.service.impl;
 
 import com.emenu.enums.order.OrderStatus;
+import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.User;
@@ -497,7 +498,7 @@ public class OrderServiceImpl implements OrderService {
             order.setOrderStatus(OrderStatus.COMPLETED); // POS orders are always completed
             order.setSource("POS"); // Mark as POS order
             order.setPaymentMethod(PaymentMethod.CASH);
-            order.setPaymentStatus("PAID");
+            order.setPaymentStatus(PaymentStatus.PAID);
             order.setDeliveryFee(deliveryOption.getPrice() != null ? deliveryOption.getPrice() : BigDecimal.ZERO);
             order.setCustomerNote(request.getCustomerNote());
             order.setBusinessNote(request.getBusinessNote());
@@ -591,8 +592,8 @@ public class OrderServiceImpl implements OrderService {
             payment.setOrderId(updatedOrder.getId());
             payment.setBusinessId(request.getBusinessId());
             payment.setPaymentMethod(PaymentMethod.CASH);
-            payment.setPaymentStatus("PAID");
-            payment.setPaymentReference(paymentReferenceGenerator.generatePaymentReference());
+            payment.setStatus(PaymentStatus.PAID);
+            payment.setPaymentReference(paymentReferenceGenerator.generateUniqueReference());
             payment.setSubtotal(updatedOrder.getSubtotal());
             payment.setDiscountAmount(updatedOrder.getDiscountAmount());
             payment.setDeliveryFee(updatedOrder.getDeliveryFee());

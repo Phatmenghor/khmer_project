@@ -56,6 +56,9 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus = OrderStatus.PENDING;
 
+    @Column(name = "source", nullable = false, length = 50)
+    private String source = "PUBLIC"; // PUBLIC or POS
+
     @Column(name = "customer_note", columnDefinition = "TEXT")
     private String customerNote;
 
