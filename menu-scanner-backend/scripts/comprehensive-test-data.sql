@@ -443,14 +443,31 @@ FROM orders;
 INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date, quantity, total_price, special_instructions, had_change_from_pos, change_reason)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    o.id, (SELECT id FROM products LIMIT 1), NULL, 'Product',  'https://example.com/product.jpg',
-    'Medium', 20::numeric, CASE WHEN (t.item_num % 3) = 0 THEN 18::numeric ELSE 20::numeric END, 20::numeric,
-    (t.item_num % 3) = 0, CASE WHEN (t.item_num % 3) = 0 THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN (t.item_num % 3) = 0 THEN 10 ELSE 0 END,
+    o.id,
+    p.id,
+    NULL,
+    p.name,
+    p.main_image_url,
+    'Medium',
+    p.price,
+    CASE WHEN (t.item_num % 3) = 0 THEN ROUND(p.price * 0.9, 2) ELSE p.price END,
+    p.price,
+    (t.item_num % 3) = 0,
+    CASE WHEN (t.item_num % 3) = 0 THEN 'PERCENTAGE' ELSE NULL END,
+    CASE WHEN (t.item_num % 3) = 0 THEN 10 ELSE 0 END,
     NOW(), NOW() + INTERVAL '30 days',
-    2, CASE WHEN (t.item_num % 3) = 0 THEN 36::numeric ELSE 40::numeric END,
+    2,
+    CASE WHEN (t.item_num % 3) = 0 THEN ROUND(p.price * 0.9 * 2, 2) ELSE ROUND(p.price * 2, 2) END,
     'Special notes', false, 'No changes'
 FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY id) as rn FROM orders) o
-CROSS JOIN (SELECT 1 as item_num UNION SELECT 2 UNION SELECT 3) t;
+CROSS JOIN (SELECT 1 as item_num UNION SELECT 2 UNION SELECT 3) t
+JOIN LATERAL (
+    SELECT id, name, main_image_url, price
+    FROM products
+    WHERE status = 'ACTIVE'
+    ORDER BY id
+    LIMIT 1 OFFSET ((o.rn + t.item_num) % 100)
+) p ON true;
 
 -- ============================================================================
 -- 27. ORDER ITEM PRICING SNAPSHOTS
