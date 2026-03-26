@@ -109,27 +109,19 @@ export function TelegramLoginButton({
   children,
 }: TelegramLoginButtonProps) {
   const handleClick = useCallback(() => {
-    console.log("[TelegramLogin] Button clicked", { disabled, loading });
     if (disabled || loading) return;
 
-    // Open Telegram login popup
     const width = 550;
     const height = 470;
     const left = window.screenX + (window.outerWidth - width) / 2;
     const top = window.screenY + (window.outerHeight - height) / 2;
 
-    // Use botId if provided, otherwise use botName
     const telegramBotId = botId || botName;
 
-    // return_to causes Telegram to redirect the popup back to our domain
-    // with tgAuthResult in the URL — we then read it via same-origin access
+    // Use embed=1 so Telegram sends auth data via postMessage to the opener
     const authUrl = `https://oauth.telegram.org/auth?bot_id=${telegramBotId}&origin=${encodeURIComponent(
       window.location.origin
-    )}&embed=1&request_access=write&return_to=${encodeURIComponent(
-      window.location.href
-    )}`;
-
-    console.log("[TelegramLogin] Opening popup:", authUrl);
+    )}&embed=1&request_access=write`;
 
     const popup = window.open(
       authUrl,
@@ -137,44 +129,61 @@ export function TelegramLoginButton({
       `width=${width},height=${height},left=${left},top=${top},status=no,location=no,menubar=no,toolbar=no`
     );
 
-    console.log("[TelegramLogin] Popup opened:", popup ? "success" : "BLOCKED by browser");
+    if (!popup) {
+      console.error("[TelegramLogin] Popup blocked by browser");
+      return;
+    }
 
-    // Poll popup URL — throws cross-origin error while on oauth.telegram.org,
-    // succeeds once Telegram redirects back to our domain with tgAuthResult
+    let resolved = false;
+
+    // Primary: catch postMessage from oauth.telegram.org (embed=1 approach)
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== "https://oauth.telegram.org") return;
+
+      try {
+        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        console.log("[TelegramLogin] postMessage received:", data);
+
+        if (data?.event === "auth_result" && data?.result) {
+          resolved = true;
+          cleanup();
+          onAuth(data.result as TelegramAuthData);
+        }
+      } catch {
+        // ignore malformed messages
+      }
+    };
+
+    // Fallback: poll popup URL for tgAuthResult (redirect approach)
     const checkPopup = setInterval(() => {
       if (!popup || popup.closed) {
-        console.log("[TelegramLogin] Popup closed without auth");
-        clearInterval(checkPopup);
+        if (!resolved) console.log("[TelegramLogin] Popup closed without auth");
+        cleanup();
         return;
       }
 
       try {
-        const popupUrl = popup.location.href;
-        console.log("[TelegramLogin] Popup URL (same-origin):", popupUrl);
-
-        const url = new URL(popupUrl);
+        const url = new URL(popup.location.href);
         const tgAuthResult = url.searchParams.get("tgAuthResult");
-
         if (tgAuthResult) {
-          clearInterval(checkPopup);
+          resolved = true;
+          cleanup();
           popup.close();
-
-          try {
-            const authData = JSON.parse(atob(tgAuthResult));
-            console.log("[TelegramLogin] Auth data decoded:", authData);
-            onAuth(authData as TelegramAuthData);
-          } catch (parseErr) {
-            console.error("[TelegramLogin] Failed to decode tgAuthResult:", parseErr);
-          }
+          const authData = JSON.parse(atob(tgAuthResult));
+          console.log("[TelegramLogin] Auth data (URL fallback):", authData);
+          onAuth(authData as TelegramAuthData);
         }
       } catch {
-        // Cross-origin error — popup still on oauth.telegram.org, keep polling
+        // Cross-origin — popup still on oauth.telegram.org, keep polling
       }
-    }, 500);
+    }, 300);
 
-    return () => {
+    const cleanup = () => {
+      window.removeEventListener("message", onMessage);
       clearInterval(checkPopup);
     };
+
+    window.addEventListener("message", onMessage);
   }, [botName, botId, onAuth, disabled, loading]);
 
   return (
