@@ -117,6 +117,7 @@ export default function LoginPage() {
           src={appImages.CpBank}
           alt="CPBank Background"
           fill
+          sizes="50vw"
           className="object-cover"
           priority
         />
