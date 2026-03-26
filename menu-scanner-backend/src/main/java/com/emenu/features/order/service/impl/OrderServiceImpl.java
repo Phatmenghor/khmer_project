@@ -334,6 +334,10 @@ public class OrderServiceImpl implements OrderService {
             OrderItemCreateHelper helper = orderMapper.buildOrderItemHelperFromCartItem(cartItem, orderId);
             OrderItem orderItem = orderMapper.createOrderItemFromHelper(helper);
             orderItem.calculateTotalPrice();
+
+            // Set default audit trail values for cart items (no POS changes)
+            orderItem.setHadChangeFromPOS(false);
+
             subtotal = subtotal.add(orderItem.getTotalPrice());
             // Accumulate discount = base price - final price per item * quantity
             BigDecimal itemDiscount = cartItem.getCurrentPrice().subtract(cartItem.getFinalPrice())
@@ -346,6 +350,10 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId).orElseThrow();
         order.setSubtotal(subtotal);
         order.setDiscountAmount(discountAmount);
+
+        // Set default audit trail values for cart orders (no POS changes)
+        order.setHadOrderLevelChangeFromPOS(false);
+        order.setOrderLevelChangeReason("No order-level changes - regular cart order");
 
         BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
         BigDecimal taxAmount = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
@@ -413,13 +421,14 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
                     finalPrice.multiply(new BigDecimal(item.getQuantity())));
 
-            // Store audit trail if item has changes
+            // Store audit trail - always set hadChangeFromPOS (true/false, never null)
+            orderItem.setHadChangeFromPOS(item.getHadChangeFromPOS() != null && item.getHadChangeFromPOS());
+
             if (item.getHadChangeFromPOS() != null && item.getHadChangeFromPOS()) {
                 try {
                     if (item.getBefore() != null) {
                         orderItem.setBeforeSnapshot(objectMapper.writeValueAsString(item.getBefore()));
                     }
-                    orderItem.setHadChangeFromPOS(true);
                     if (item.getAfter() != null) {
                         orderItem.setAfterSnapshot(objectMapper.writeValueAsString(item.getAfter()));
                     }
@@ -428,6 +437,16 @@ public class OrderServiceImpl implements OrderService {
                     }
                 } catch (Exception e) {
                     log.warn("Failed to serialize audit trail for item {}: {}", item.getProductName(), e.getMessage());
+                }
+            } else {
+                // No changes from POS - set before/after as same snapshot if available
+                try {
+                    if (item.getBefore() != null) {
+                        orderItem.setBeforeSnapshot(objectMapper.writeValueAsString(item.getBefore()));
+                        orderItem.setAfterSnapshot(objectMapper.writeValueAsString(item.getBefore()));
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to serialize no-change audit trail for item {}: {}", item.getProductName(), e.getMessage());
                 }
             }
 
@@ -450,17 +469,19 @@ public class OrderServiceImpl implements OrderService {
                 if (pricingInfo.getBefore() != null) {
                     order.setPricingBeforeSnapshot(objectMapper.writeValueAsString(pricingInfo.getBefore()));
                 }
-                if (pricingInfo.getHadOrderLevelChangeFromPOS() != null) {
-                    order.setHadOrderLevelChangeFromPOS(pricingInfo.getHadOrderLevelChangeFromPOS());
-                }
+                // Always set hadOrderLevelChangeFromPOS (true/false, never null)
+                order.setHadOrderLevelChangeFromPOS(pricingInfo.getHadOrderLevelChangeFromPOS() != null && pricingInfo.getHadOrderLevelChangeFromPOS());
                 if (pricingInfo.getAfter() != null) {
                     order.setPricingAfterSnapshot(objectMapper.writeValueAsString(pricingInfo.getAfter()));
                 }
                 if (pricingInfo.getDiscountMetadata() != null) {
                     order.setOrderDiscountMetadata(objectMapper.writeValueAsString(pricingInfo.getDiscountMetadata()));
                 }
-                if (pricingInfo.getOrderLevelChangeReason() != null) {
+                if (pricingInfo.getOrderLevelChangeReason() != null && !pricingInfo.getOrderLevelChangeReason().isEmpty()) {
                     order.setOrderLevelChangeReason(pricingInfo.getOrderLevelChangeReason());
+                } else if (!order.getHadOrderLevelChangeFromPOS()) {
+                    // Set default reason if no change occurred
+                    order.setOrderLevelChangeReason("No order-level changes from POS");
                 }
             } catch (Exception e) {
                 log.warn("Failed to serialize order-level pricing audit trail: {}", e.getMessage());
