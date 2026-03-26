@@ -35,6 +35,7 @@ public class UserResponse extends BaseAuditResponse {
     private String telegramUsername;
     private String telegramFirstName;
     private String telegramLastName;
+    private String telegramPhotoUrl;
     private LocalDateTime telegramSyncedAt;
     private boolean telegramSynced;
 }

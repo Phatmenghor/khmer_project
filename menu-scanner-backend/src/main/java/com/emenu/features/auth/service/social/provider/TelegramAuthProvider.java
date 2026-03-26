@@ -32,7 +32,8 @@ public class TelegramAuthProvider {
             String username = data.has("username") ? data.get("username").asText() : null;
             String firstName = data.has("first_name") ? data.get("first_name").asText() : null;
             String lastName = data.has("last_name") ? data.get("last_name").asText() : null;
-            
+            String photoUrl = data.has("photo_url") ? data.get("photo_url").asText() : null;
+
             String hash = data.has("hash") ? data.get("hash").asText() : null;
             if (hash != null && !botToken.isEmpty()) {
                 verifyTelegramAuth(data, hash);
@@ -44,6 +45,7 @@ public class TelegramAuthProvider {
                     .email(null)
                     .firstName(firstName)
                     .lastName(lastName)
+                    .photoUrl(photoUrl)
                     .build();
         } catch (Exception e) {
             log.error("Failed to parse Telegram auth data", e);

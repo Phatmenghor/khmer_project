@@ -92,6 +92,9 @@ public class User extends BaseUUIDEntity {
     @Column(name = "telegram_synced_at")
     private java.time.LocalDateTime telegramSyncedAt;
 
+    @Column(name = "telegram_photo_url")
+    private String telegramPhotoUrl;
+
     // Google OAuth integration fields
     @Column(name = "google_id")
     private String googleId;
@@ -135,11 +138,12 @@ public class User extends BaseUUIDEntity {
         return UserType.CUSTOMER.equals(userType);
     }
 
-    public void syncTelegram(Long telegramId, String telegramUsername, String telegramFirstName, String telegramLastName) {
+    public void syncTelegram(Long telegramId, String telegramUsername, String telegramFirstName, String telegramLastName, String telegramPhotoUrl) {
         this.telegramId = telegramId;
         this.telegramUsername = telegramUsername;
         this.telegramFirstName = telegramFirstName;
         this.telegramLastName = telegramLastName;
+        this.telegramPhotoUrl = telegramPhotoUrl;
         this.telegramSyncedAt = java.time.LocalDateTime.now();
     }
 
@@ -148,6 +152,7 @@ public class User extends BaseUUIDEntity {
         this.telegramUsername = null;
         this.telegramFirstName = null;
         this.telegramLastName = null;
+        this.telegramPhotoUrl = null;
         this.telegramSyncedAt = null;
     }
 

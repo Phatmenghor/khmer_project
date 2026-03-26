@@ -94,12 +94,24 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         syncSocialData(user, provider, userInfo);
         userRepository.save(user);
 
-        return SocialSyncResponse.builder()
+        SocialSyncResponse.SocialSyncResponseBuilder builder = SocialSyncResponse.builder()
                 .success(true)
                 .message(provider.getDisplayName() + " account synced successfully")
                 .provider(provider.getProviderKey())
-                .syncedAt(java.time.LocalDateTime.now())
-                .build();
+                .syncedAt(java.time.LocalDateTime.now());
+
+        if (provider == SocialAuthProvider.TELEGRAM) {
+            builder.telegramId(Long.parseLong(userInfo.getId()))
+                    .telegramUsername(userInfo.getUsername())
+                    .telegramFirstName(userInfo.getFirstName())
+                    .telegramLastName(userInfo.getLastName())
+                    .telegramPhotoUrl(userInfo.getPhotoUrl());
+        } else if (provider == SocialAuthProvider.GOOGLE) {
+            builder.googleId(userInfo.getId())
+                    .googleEmail(userInfo.getEmail());
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -199,7 +211,8 @@ public class SocialAuthServiceImpl implements SocialAuthService {
                     Long.parseLong(userInfo.getId()),
                     userInfo.getUsername(),
                     userInfo.getFirstName(),
-                    userInfo.getLastName()
+                    userInfo.getLastName(),
+                    userInfo.getPhotoUrl()
             );
             case GOOGLE -> user.syncGoogle(userInfo.getId(), userInfo.getEmail());
         }

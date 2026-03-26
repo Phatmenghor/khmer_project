@@ -11,7 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Link2, Unlink, Check } from "lucide-react";
+import { Loader2, Link2, Unlink, Check, Hash } from "lucide-react";
+import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { TelegramIcon, TelegramLoginButton } from "./telegram-login-widget";
 import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
 import { SocialSyncResponse } from "@/redux/features/auth/store/models/response/social-auth-response";
@@ -97,28 +98,56 @@ export function TelegramSyncCard({
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              {/* Telegram Icon */}
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  isTelegramConnected ? "bg-[#0088cc]" : "bg-gray-200"
-                }`}
-              >
-                <TelegramIcon
-                  className={`h-6 w-6 ${
-                    isTelegramConnected ? "text-white" : "text-gray-500"
-                  }`}
-                />
+              {/* Telegram Icon / Avatar */}
+              <div className="relative flex-shrink-0">
+                {isTelegramConnected && socialSync?.telegramPhotoUrl ? (
+                  <CustomAvatar
+                    src={socialSync.telegramPhotoUrl}
+                    name={socialSync.telegramFirstName || socialSync.telegramUsername || "T"}
+                    size="md"
+                    className="w-12 h-12"
+                  />
+                ) : (
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      isTelegramConnected ? "bg-[#0088cc]" : "bg-gray-200"
+                    }`}
+                  >
+                    <TelegramIcon
+                      className={`h-6 w-6 ${
+                        isTelegramConnected ? "text-white" : "text-gray-500"
+                      }`}
+                    />
+                  </div>
+                )}
+                {isTelegramConnected && (
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0088cc] rounded-full flex items-center justify-center">
+                    <Check className="h-3 w-3 text-white" />
+                  </div>
+                )}
               </div>
 
               {/* Connection Info */}
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-semibold text-foreground">Telegram</h3>
                 {isTelegramConnected ? (
-                  <div className="flex items-center gap-2 mt-1">
-                    <Check className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-muted-foreground">
-                      Connected as @{socialSync?.telegramUsername}
-                    </span>
+                  <div className="mt-1 space-y-0.5">
+                    {(socialSync?.telegramFirstName || socialSync?.telegramLastName) && (
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {[socialSync.telegramFirstName, socialSync.telegramLastName]
+                          .filter(Boolean)
+                          .join(" ")}
+                      </p>
+                    )}
+                    {socialSync?.telegramUsername && (
+                      <p className="text-sm text-muted-foreground">
+                        @{socialSync.telegramUsername}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Hash className="h-3 w-3" />
+                      <span>Chat ID: {socialSync?.telegramId}</span>
+                    </div>
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground mt-1">

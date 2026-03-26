@@ -26,6 +26,9 @@ public class SocialSyncResponse {
 
     private Long telegramId;
     private String telegramUsername;
+    private String telegramFirstName;
+    private String telegramLastName;
+    private String telegramPhotoUrl;
 
     private String googleId;
     private String googleEmail;
