@@ -572,31 +572,31 @@ export default function PosPage() {
         businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
         businessName: products[0]?.businessName || "",
         items: cartItems.map((item) => ({
-          id: item.id,
+          // Required fields
           productId: item.productId,
-          productSizeId: item.productSizeId || null,
           quantity: item.quantity,
 
           // Display fields
           productName: item.productName,
           productImageUrl: item.productImageUrl,
+          productSizeId: item.productSizeId || null,
           sizeName: item.sizeName || null,
           status: "ACTIVE",
 
           // Price history for audit trail
-          originalPrice: item.originalPrice || item.currentPrice, // Product original price before any override
+          originalPrice: item.originalPrice || item.currentPrice, // Product baseline before override
           currentPrice: item.currentPrice,                         // After admin override (if any)
           finalPrice: item.finalPrice,                             // After promotion (if any)
           hasActivePromotion: item.hasActivePromotion,
 
           // Admin overrides & custom promotions
-          overridePrice: item.currentPrice !== item.finalPrice ? item.finalPrice : undefined,
+          overridePrice: item.originalPrice && item.currentPrice !== item.originalPrice ? item.currentPrice : undefined,
           promotionType: item.hasActivePromotion && item.promotionType ? item.promotionType : null,
           promotionValue: item.hasActivePromotion && item.promotionValue ? item.promotionValue : null,
 
           // Totals for each item
-          totalBeforeDiscount: item.currentPrice * item.quantity,
-          discountAmount: (item.currentPrice - item.finalPrice) * item.quantity,
+          totalBeforeDiscount: item.originalPrice * item.quantity,
+          discountAmount: (item.originalPrice - item.finalPrice) * item.quantity,
           totalPrice: item.finalPrice * item.quantity,
 
           // Audit trail - single snapshot: original → final (with override & promotion)
