@@ -17,32 +17,38 @@ TRUNCATE TABLE roles CASCADE;
 -- ============================================================================
 -- 1. ROLES
 -- ============================================================================
-INSERT INTO roles (id, name, description, created_at, updated_at) VALUES
-('550e8400-e29b-41d4-a716-446655440000', 'ADMIN', 'Platform Administrator', NOW(), NOW()),
-('550e8400-e29b-41d4-a716-446655440001', 'MANAGER', 'Business Manager', NOW(), NOW()),
-('550e8400-e29b-41d4-a716-446655440002', 'STAFF', 'Business Staff', NOW(), NOW()),
-('550e8400-e29b-41d4-a716-446655440003', 'CUSTOMER', 'Customer Role', NOW(), NOW());
+INSERT INTO roles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, business_id, user_type) VALUES
+('550e8400-e29b-41d4-a716-446655440000', 0, NOW(), NOW(), NULL, NULL, FALSE, NULL, NULL, 'ADMIN', 'Platform Administrator', NULL, NULL),
+('550e8400-e29b-41d4-a716-446655440001', 0, NOW(), NOW(), NULL, NULL, FALSE, NULL, NULL, 'MANAGER', 'Business Manager', NULL, NULL),
+('550e8400-e29b-41d4-a716-446655440002', 0, NOW(), NOW(), NULL, NULL, FALSE, NULL, NULL, 'STAFF', 'Business Staff', NULL, NULL),
+('550e8400-e29b-41d4-a716-446655440003', 0, NOW(), NOW(), NULL, NULL, FALSE, NULL, NULL, 'CUSTOMER', 'Customer Role', NULL, NULL);
 
 -- ============================================================================
 -- 2. MAIN BUSINESS
 -- ============================================================================
-INSERT INTO businesses (id, name, email, phone, address, description, owner_id, status, is_subscription_active, created_at, updated_at) VALUES
-('550cad56-cafd-4aba-baef-c4dcd53940d0', 'Phatmenghor Business', 'phatmenghor20@gmail.com', '+855 23 9999999', 'Phnom Penh, Cambodia', 'Main business with comprehensive testing - 1000+ products, 2000+ orders with full audit trails', '550e8400-e29b-41d4-a716-446655550001', 'ACTIVE', TRUE, NOW(), NOW());
+INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, name, email, phone, address, description, owner_id, status, is_subscription_active) VALUES
+('550cad56-cafd-4aba-baef-c4dcd53940d0', 0, NOW(), NOW(), NULL, NULL, FALSE, 'Phatmenghor Business', 'phatmenghor20@gmail.com', '+855 23 9999999', 'Phnom Penh, Cambodia', 'Main business with comprehensive testing - 1000+ products, 2000+ orders with full audit trails', '550e8400-e29b-41d4-a716-446655550001', 'ACTIVE', TRUE);
 
 -- ============================================================================
 -- 3. THREE MAIN USERS
 -- ============================================================================
-INSERT INTO users (id, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, created_at, updated_at) VALUES
-('550e8400-e29b-41d4-a716-446655550000', 'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', 'hashed_password_19', 'Platform', 'Admin', '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop', 'PLATFORM_USER', 'ACTIVE', NULL, 'Platform Admin', 'Phnom Penh', 'Key Platform Admin', NOW(), NOW()),
-('550e8400-e29b-41d4-a716-446655550001', 'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', 'hashed_password_20', 'Business', 'Manager', '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop', 'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Business Manager', 'Phnom Penh', 'Key Business Owner', NOW(), NOW()),
-('550e8400-e29b-41d4-a716-446655550002', 'phatmenghor21@gmail.com', 'phatmenghor21@gmail.com', 'hashed_password_21', 'Customer', 'User', '+855 10 300 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop', 'CUSTOMER', 'ACTIVE', NULL, 'Regular Customer', 'Phnom Penh', 'Key Customer', NOW(), NOW());
+INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes) VALUES
+('550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), NULL, NULL, FALSE, 'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', 'hashed_password_19', 'Platform', 'Admin', '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop', 'PLATFORM_USER', 'ACTIVE', NULL, 'Platform Admin', 'Phnom Penh', 'Key Platform Admin'),
+('550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), NULL, NULL, FALSE, 'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', 'hashed_password_20', 'Business', 'Manager', '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop', 'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Business Manager', 'Phnom Penh', 'Key Business Owner'),
+('550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), NULL, NULL, FALSE, 'phatmenghor21@gmail.com', 'phatmenghor21@gmail.com', 'hashed_password_21', 'Customer', 'User', '+855 10 300 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop', 'CUSTOMER', 'ACTIVE', NULL, 'Regular Customer', 'Phnom Penh', 'Key Customer');
 
 -- ============================================================================
 -- 4. 500 BUSINESS USERS (STAFF) - PostgreSQL Compatible
 -- ============================================================================
-INSERT INTO users (id, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, created_at, updated_at)
+INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes)
 SELECT
     gen_random_uuid(),
+    0,
+    NOW(),
+    NOW(),
+    NULL,
+    NULL,
+    FALSE,
     'staff' || i::text || '@business.com',
     'staff' || i::text || '@business.com',
     'hashed_password',
@@ -55,44 +61,56 @@ SELECT
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Position_' || i::text,
     'Business Address, Phnom Penh',
-    'Staff Member ' || i::text,
-    NOW(),
-    NOW()
+    'Staff Member ' || i::text
 FROM generate_series(1, 500) AS t(i);
 
 -- ============================================================================
 -- 5. CATEGORIES (20 TOTAL) - PostgreSQL Compatible
 -- ============================================================================
-INSERT INTO categories (id, business_id, name, image_url, status, created_at, updated_at)
+INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, business_id, name, image_url, status)
 SELECT
     gen_random_uuid(),
+    0,
+    NOW(),
+    NOW(),
+    NULL,
+    NULL,
+    FALSE,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Category ' || i::text,
     CASE WHEN i % 2 = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop' END,
-    'ACTIVE',
-    NOW(),
-    NOW()
+    'ACTIVE'
 FROM generate_series(1, 20) AS t(i);
 
 -- ============================================================================
 -- 6. BRANDS (20 TOTAL) - PostgreSQL Compatible
 -- ============================================================================
-INSERT INTO brands (id, name, description, image_url, created_at, updated_at)
+INSERT INTO brands (id, version, created_at, updated_at, created_by, updated_by, is_deleted, name, description, image_url)
 SELECT
     gen_random_uuid(),
+    0,
+    NOW(),
+    NOW(),
+    NULL,
+    NULL,
+    FALSE,
     'Brand ' || i::text,
     'High quality brand number ' || i::text,
-    CASE WHEN i % 2 = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop' END,
-    NOW(),
-    NOW()
+    CASE WHEN i % 2 = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop' END
 FROM generate_series(1, 20) AS t(i);
 
 -- ============================================================================
 -- 7. 1,000 PRODUCTS WITH ACTIVE PROMOTIONS - PostgreSQL Compatible
 -- ============================================================================
-INSERT INTO products (id, business_id, category_id, brand_id, name, description, status, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, display_price, display_origin_price, display_promotion_type, display_promotion_value, display_promotion_from_date, display_promotion_to_date, has_sizes, has_active_promotion, main_image_url, created_at, updated_at)
+INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, business_id, category_id, brand_id, name, description, status, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, display_price, display_origin_price, display_promotion_type, display_promotion_value, display_promotion_from_date, display_promotion_to_date, has_sizes, has_active_promotion, main_image_url)
 SELECT
     gen_random_uuid(),
+    0,
+    NOW(),
+    NOW(),
+    NULL,
+    NULL,
+    FALSE,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     (SELECT id FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY RANDOM() LIMIT 1),
     (SELECT id FROM brands ORDER BY RANDOM() LIMIT 1),
@@ -112,9 +130,7 @@ SELECT
     CASE WHEN i % 4 IN (0,1) THEN NOW() + INTERVAL '90 days' ELSE NULL END,
     CASE WHEN i % 5 = 0 THEN TRUE ELSE FALSE END,
     CASE WHEN i % 4 IN (0,1) THEN TRUE ELSE FALSE END,
-    CASE WHEN i % 2 = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop' END,
-    NOW(),
-    NOW()
+    CASE WHEN i % 2 = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop' END
 FROM generate_series(1, 1000) AS t(i);
 
 -- ============================================================================
@@ -122,9 +138,15 @@ FROM generate_series(1, 1000) AS t(i);
 -- ============================================================================
 
 -- 1,000 PUBLIC Orders
-INSERT INTO orders (id, order_number, customer_id, business_id, delivery_address_snapshot, delivery_option_snapshot, order_status, source, customer_note, business_note, had_order_level_change_from_pos, order_discount_metadata, order_level_change_reason, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, confirmed_at, completed_at, created_at, updated_at)
+INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, order_number, customer_id, business_id, delivery_address_snapshot, delivery_option_snapshot, order_status, source, customer_note, business_note, had_order_level_change_from_pos, order_discount_metadata, order_level_change_reason, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, confirmed_at, completed_at)
 SELECT
     gen_random_uuid(),
+    0,
+    NOW(),
+    NOW(),
+    NULL,
+    NULL,
+    FALSE,
     'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-PUB-' || LPAD(i::text, 6, '0'),
     '550e8400-e29b-41d4-a716-446655550002',
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -145,15 +167,19 @@ SELECT
     'CASH',
     'PAID',
     NOW() - INTERVAL '1 day' * (RANDOM() * 90)::int,
-    CASE WHEN i % 5 = 3 THEN NOW() - INTERVAL '1 day' * (RANDOM() * 7)::int ELSE NULL END,
-    NOW() - INTERVAL '1 day' * (RANDOM() * 90)::int,
-    NOW()
+    CASE WHEN i % 5 = 3 THEN NOW() - INTERVAL '1 day' * (RANDOM() * 7)::int ELSE NULL END
 FROM generate_series(1, 1000) AS t(i);
 
 -- 1,000 POS Orders
-INSERT INTO orders (id, order_number, customer_id, business_id, delivery_address_snapshot, delivery_option_snapshot, order_status, source, customer_note, business_note, had_order_level_change_from_pos, order_discount_metadata, order_level_change_reason, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, confirmed_at, completed_at, created_at, updated_at)
+INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, order_number, customer_id, business_id, delivery_address_snapshot, delivery_option_snapshot, order_status, source, customer_note, business_note, had_order_level_change_from_pos, order_discount_metadata, order_level_change_reason, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, confirmed_at, completed_at)
 SELECT
     gen_random_uuid(),
+    0,
+    NOW(),
+    NOW(),
+    NULL,
+    NULL,
+    FALSE,
     'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-POS-' || LPAD(i::text, 6, '0'),
     CASE WHEN i % 3 = 0 THEN '550e8400-e29b-41d4-a716-446655550002' ELSE NULL END,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -174,9 +200,7 @@ SELECT
     'CASH',
     'PAID',
     NOW() - INTERVAL '1 day' * (RANDOM() * 90)::int,
-    NOW() - INTERVAL '1 day' * (RANDOM() * 7)::int,
-    NOW() - INTERVAL '1 day' * (RANDOM() * 90)::int,
-    NOW()
+    NOW() - INTERVAL '1 day' * (RANDOM() * 7)::int
 FROM generate_series(1, 1000) AS t(i);
 
 -- ============================================================================
@@ -184,9 +208,15 @@ FROM generate_series(1, 1000) AS t(i);
 -- ============================================================================
 
 -- PUBLIC order items (3,000 items)
-INSERT INTO order_items (id, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, quantity, total_price, special_instructions, before_snapshot, had_change_from_pos, after_snapshot, audit_metadata, change_reason, created_at, updated_at)
+INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, quantity, total_price, special_instructions, before_snapshot, had_change_from_pos, after_snapshot, audit_metadata, change_reason)
 SELECT
     gen_random_uuid(),
+    0,
+    NOW(),
+    NOW(),
+    NULL,
+    NULL,
+    FALSE,
     (SELECT id FROM orders WHERE source = 'PUBLIC' ORDER BY id LIMIT 1 OFFSET ((i-1) / 3)),
     (SELECT id FROM products WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY RANDOM() LIMIT 1),
     NULL,
@@ -206,15 +236,19 @@ SELECT
     CASE WHEN i % 5 = 0 THEN TRUE ELSE FALSE END,
     jsonb_build_object('currentPrice', (20.00 + (i % 30))::numeric, 'finalPrice', ROUND((CASE WHEN i % 5 = 0 THEN (20.00 + (i % 30))::numeric * 0.9 ELSE (20.00 + (i % 30))::numeric END), 2), 'hasActivePromotion', CASE WHEN i % 5 = 0 THEN TRUE ELSE FALSE END, 'quantity', CASE WHEN i % 3 = 0 THEN 1 ELSE 2 END, 'totalBeforeDiscount', ROUND(((20.00 + (i % 30))::numeric * (CASE WHEN i % 3 = 0 THEN 1 ELSE 2 END)), 2), 'discountAmount', ROUND((CASE WHEN i % 5 = 0 THEN ((20.00 + (i % 30))::numeric * 0.1) * (CASE WHEN i % 3 = 0 THEN 1 ELSE 2 END) ELSE 0 END), 2), 'totalPrice', ROUND((CASE WHEN i % 5 = 0 THEN (20.00 + (i % 30))::numeric * 0.9 * (CASE WHEN i % 3 = 0 THEN 1 ELSE 2 END) ELSE (20.00 + (i % 30))::numeric * (CASE WHEN i % 3 = 0 THEN 1 ELSE 2 END) END), 2)),
     jsonb_build_object('changeType', CASE WHEN i % 5 = 0 THEN 'PROMOTION_APPLIED' ELSE 'NONE' END, 'source', 'SYSTEM', 'reason', 'Item audit trail #' || i::text),
-    CASE WHEN i % 5 = 0 THEN 'Auto promotion applied to item' ELSE 'No item-level changes' END,
-    NOW(),
-    NOW()
+    CASE WHEN i % 5 = 0 THEN 'Auto promotion applied to item' ELSE 'No item-level changes' END
 FROM generate_series(1, 3000) AS t(i);
 
 -- POS order items (3,000 items)
-INSERT INTO order_items (id, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, quantity, total_price, special_instructions, before_snapshot, had_change_from_pos, after_snapshot, audit_metadata, change_reason, created_at, updated_at)
+INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, quantity, total_price, special_instructions, before_snapshot, had_change_from_pos, after_snapshot, audit_metadata, change_reason)
 SELECT
     gen_random_uuid(),
+    0,
+    NOW(),
+    NOW(),
+    NULL,
+    NULL,
+    FALSE,
     (SELECT id FROM orders WHERE source = 'POS' ORDER BY id LIMIT 1 OFFSET ((i-1) / 3)),
     (SELECT id FROM products WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY RANDOM() LIMIT 1),
     NULL,
@@ -234,9 +268,7 @@ SELECT
     CASE WHEN i % 6 IN (0, 2, 4) THEN TRUE ELSE FALSE END,
     jsonb_build_object('currentPrice', CASE WHEN i % 5 = 0 THEN 4.50 WHEN i % 5 = 1 THEN 5.00 WHEN i % 5 = 2 THEN 5.50 WHEN i % 5 = 3 THEN 6.00 ELSE 5.25 END, 'finalPrice', ROUND(((CASE WHEN i % 7 = 0 THEN 3.60 WHEN i % 7 = 1 THEN 4.00 WHEN i % 7 = 2 THEN 4.40 WHEN i % 7 = 3 THEN 4.80 WHEN i % 7 = 4 THEN 4.20 WHEN i % 7 = 5 THEN 5.00 ELSE 5.25 END)::numeric * (CASE WHEN i % 6 IN (0, 2, 4) THEN 0.8 ELSE 1 END)), 2), 'hasActivePromotion', CASE WHEN i % 6 IN (0, 2, 4) THEN TRUE ELSE FALSE END, 'quantity', CASE WHEN i % 3 = 0 THEN 1 ELSE 2 END, 'totalBeforeDiscount', ROUND((((CASE WHEN i % 5 = 0 THEN 4.50 WHEN i % 5 = 1 THEN 5.00 WHEN i % 5 = 2 THEN 5.50 WHEN i % 5 = 3 THEN 6.00 ELSE 5.25 END)::numeric * (CASE WHEN i % 3 = 0 THEN 1 ELSE 2 END))), 2), 'discountAmount', ROUND((CASE WHEN i % 6 IN (0, 2, 4) THEN (((CASE WHEN i % 5 = 0 THEN 4.50 WHEN i % 5 = 1 THEN 5.00 WHEN i % 5 = 2 THEN 5.50 WHEN i % 5 = 3 THEN 6.00 ELSE 5.25 END)::numeric * 0.2) * (CASE WHEN i % 3 = 0 THEN 1 ELSE 2 END)) ELSE 0 END), 2), 'totalPrice', ROUND(((CASE WHEN i % 7 = 0 THEN 3.60 WHEN i % 7 = 1 THEN 4.00 WHEN i % 7 = 2 THEN 4.40 WHEN i % 7 = 3 THEN 4.80 WHEN i % 7 = 4 THEN 4.20 WHEN i % 7 = 5 THEN 5.00 ELSE 5.25 END)::numeric * (CASE WHEN i % 3 = 0 THEN 1 ELSE 2 END)), 2)),
     jsonb_build_object('changeType', CASE WHEN i % 6 IN (0, 2, 4) THEN 'PROMOTION_APPLIED' WHEN i % 7 = 0 THEN 'PRICE_OVERRIDE' ELSE 'NONE' END, 'source', 'POS', 'reason', 'POS item audit #' || i::text, 'adminApproved', CASE WHEN i % 7 = 0 THEN TRUE ELSE FALSE END),
-    CASE WHEN i % 6 IN (0, 2, 4) THEN 'POS promotion applied' WHEN i % 7 = 0 THEN 'POS admin price override' ELSE 'Regular POS item - no changes' END,
-    NOW(),
-    NOW()
+    CASE WHEN i % 6 IN (0, 2, 4) THEN 'POS promotion applied' WHEN i % 7 = 0 THEN 'POS admin price override' ELSE 'Regular POS item - no changes' END
 FROM generate_series(1, 3000) AS t(i);
 
 -- ============================================================================
