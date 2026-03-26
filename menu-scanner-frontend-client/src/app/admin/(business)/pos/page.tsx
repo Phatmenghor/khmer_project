@@ -100,7 +100,7 @@ import {
   fetchPOSPageCategoriesService,
   fetchPOSPageBrandsService,
   fetchPOSPageProductsService,
-  createPOSPageOrderService,
+  createPOSCheckoutOrderService,
 } from "@/redux/features/business/store/thunks/pos-page-thunks";
 import { AppDispatch } from "@/redux/store";
 import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
@@ -505,8 +505,32 @@ export default function PosPage() {
       return;
     }
 
+    if (!selectedDeliveryOption) {
+      showToast.error("Please select a delivery option");
+      return;
+    }
+
+    // Build POSCheckoutRequest payload matching backend structure
     const payload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
+
+      // Items array with product details and pricing overrides
+      items: cartItems.map((item) => ({
+        productId: item.productId,
+        productSizeId: item.productSizeId || undefined,
+        quantity: item.quantity,
+        overridePrice: item.currentPrice !== item.finalPrice
+          ? item.finalPrice
+          : item.currentPrice,
+        promotionType: item.hasActivePromotion && item.promotionType ? item.promotionType : null,
+        promotionValue: item.hasActivePromotion && item.promotionValue ? item.promotionValue : null,
+        productName: item.productName,
+        productImageUrl: item.productImageUrl,
+        sizeName: item.sizeName || null,
+      })),
+
+      // Delivery details
+      deliveryOptionId: selectedDeliveryOption.id,
       deliveryAddress: {
         village: "",
         commune: "",
@@ -518,63 +542,28 @@ export default function PosPage() {
         latitude: 0,
         longitude: 0,
       },
-      deliveryOption: selectedDeliveryOption
-        ? {
-            name: selectedDeliveryOption.name,
-            description: selectedDeliveryOption.description || "POS Order",
-            imageUrl: selectedDeliveryOption.imageUrl || "",
-            price: selectedDeliveryOption.price || 0,
-          }
-        : {
-            name: "In-Store",
-            description: "POS Order - In Store",
-            imageUrl: "",
-            price: 0,
-          },
-      cart: {
-        businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
-        businessName: products[0]?.businessName || "",
-        items: cartItems.map((item) => ({
-          id: item.id,
-          productId: item.productId,
-          productName: item.productName,
-          productImageUrl: item.productImageUrl,
-          productSizeId: item.productSizeId,
-          sizeName: item.sizeName || "",
-          status: "ACTIVE",
-          currentPrice: item.currentPrice,
-          finalPrice: item.finalPrice,
-          hasActivePromotion: item.hasActivePromotion,
-          quantity: item.quantity,
-          totalBeforeDiscount: item.currentPrice * item.quantity,
-          discountAmount: (item.currentPrice - item.finalPrice) * item.quantity,
-          totalPrice: item.finalPrice * item.quantity,
-          promotionType: item.promotionType || "",
-          promotionValue: item.promotionValue || 0,
-          promotionFromDate: item.promotionFromDate || "",
-          promotionToDate: item.promotionToDate || "",
-        })),
-        totalItems: cartSummary.totalItems,
-        totalQuantity: cartSummary.totalQuantity,
-        subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
-        subtotal: cartSummary.subtotal,
-        totalDiscount: cartSummary.totalDiscount,
-        finalTotal: cartSummary.finalTotal,
-      },
-      payment: {
-        paymentMethod: selectedPaymentOption?.paymentOptionType || "CASH",
-        paymentStatus: "PAID" as const,
-      },
+
+      // Payment (CASH only)
+      paymentMethod: "CASH",
+
+      // Order totals
+      subtotal: cartSummary.subtotal,
+      discountAmount: cartSummary.totalDiscount,
+      deliveryFee: cartSummary.deliveryFee,
+      taxAmount: cartSummary.taxAmount,
+      totalAmount: cartSummary.finalTotal,
+
+      // Notes
       customerNote: customerNote || "",
-      orderStatus: OrderStatus.CONFIRMED,
+      businessNote: "",
     };
 
     dispatch(setIsSubmitting(true));
     try {
-      const result = await dispatch(createPOSPageOrderService(payload) as any);
+      const result = await dispatch(createPOSCheckoutOrderService(payload) as any);
       if (result.payload) {
         const order = result.payload;
-        dispatch(setSuccessOrder({ orderNumber: order.orderNumber, total: cartSummary.finalTotal }));
+        dispatch(setSuccessOrder({ orderNumber: order.orderNumber, total: order.totalAmount }));
         dispatch(clearCartItems());
         dispatch(setCustomerNote(""));
         showToast.success("Order created successfully");

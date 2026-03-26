@@ -7,12 +7,16 @@
 
 export interface POSCheckoutItemRequest {
   productId: string;
-  sizeId?: string | null;
+  productSizeId?: string | null;
   quantity: number;
   // Admin can override pricing
   overridePrice?: number;
   promotionType?: string | null;
   promotionValue?: number | null;
+  // Display fields
+  productName?: string;
+  productImageUrl?: string;
+  sizeName?: string | null;
 }
 
 export interface POSCheckoutAddressRequest {
@@ -20,8 +24,8 @@ export interface POSCheckoutAddressRequest {
   commune: string;
   district: string;
   province: string;
-  streetNumber: string;
-  houseNumber: string;
+  streetNumber?: string;
+  houseNumber?: string;
   note?: string;
   latitude?: number;
   longitude?: number;
@@ -41,26 +45,36 @@ export interface POSCheckoutRequest {
   deliveryOptionId: string;
   deliveryAddress: POSCheckoutAddressRequest;
 
-  // Payment
-  paymentMethodId: string;
-  paymentStatus?: 'PENDING' | 'PAID' | 'UNPAID' | 'PARTIALLY_PAID';
+  // Payment (CASH only)
+  paymentMethod: string;
+
+  // Order totals
+  subtotal?: number;
+  discountAmount?: number;
+  deliveryFee?: number;
+  taxAmount?: number;
+  totalAmount?: number;
 
   // Notes
   customerNote?: string;
   businessNote?: string;
-
-  // Optional
-  discountAmount?: number;
-  taxAmount?: number;
 }
 
 export interface POSCheckoutResponse {
   id: string;
   orderNumber: string;
-  total: number;
-  orderStatus: 'COMPLETED';   // All order data is complete/finalized
-  source: 'POS';              // Always POS
+  subtotal: number;
+  discountAmount: number;
+  deliveryFee: number;
+  taxAmount: number;
+  totalAmount: number;
+  orderStatus: string;
+  source: string;
+  paymentMethod: string;
+  paymentStatus: string;
   createdBy: string;
   createdAt: string;
+  customerName?: string;
+  customerPhone?: string;
 }
 
