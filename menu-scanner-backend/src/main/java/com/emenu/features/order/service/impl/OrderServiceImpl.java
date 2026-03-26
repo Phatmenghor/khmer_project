@@ -99,7 +99,8 @@ public class OrderServiceImpl implements OrderService {
             // Create order items from cart summary (frontend) or database cart
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
                 log.info("📋 [STEP 4/7] Processing {} items from frontend cart summary", request.getCart().getItems().size());
-                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart(), request.getPricing());
+                // Only POSCheckoutRequest has pricing info, OrderCreateRequest doesn't
+                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart(), null);
             } else {
                 log.info("📋 [STEP 4/7] Processing items from database cart");
                 Cart cart = cartRepository.findByUserIdAndBusinessIdWithItems(currentUser.getId(), request.getBusinessId())
@@ -122,7 +123,8 @@ public class OrderServiceImpl implements OrderService {
             OrderResponse response = getOrderById(savedOrder.getId());
             log.info("🎉 [CHECKOUT COMPLETE] Order #{} - Total: {}, Items: {}",
                 response.getOrderNumber(),
-                response.getPricing() != null ? response.getPricing().getFinalTotal() : "N/A",
+                response.getPricing() != null && response.getPricing().getAfter() != null ?
+                    response.getPricing().getAfter().getFinalTotal() : "N/A",
                 response.getItems().size());
             return response;
         } catch (Exception e) {
@@ -393,8 +395,8 @@ public class OrderServiceImpl implements OrderService {
                     .promotionType(item.getAfter() != null && item.getAfter().getPromotionType() != null ?
                             item.getAfter().getPromotionType() : item.getPromotionType())
                     .promotionValue(item.getAfter() != null ? item.getAfter().getPromotionValue() : item.getPromotionValue())
-                    .promotionFromDate(item.getAfter() != null ? item.getAfter().getPromotionFromDate() : item.getPromotionFromDate())
-                    .promotionToDate(item.getAfter() != null ? item.getAfter().getPromotionToDate() : item.getPromotionToDate())
+                    .promotionFromDate(item.getAfter() != null ? item.getAfter().getPromotionFromDate() : null)
+                    .promotionToDate(item.getAfter() != null ? item.getAfter().getPromotionToDate() : null)
                     .quantity(item.getQuantity())
                     .build();
 

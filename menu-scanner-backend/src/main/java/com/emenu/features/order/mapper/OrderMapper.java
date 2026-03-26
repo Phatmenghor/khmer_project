@@ -230,7 +230,7 @@ public interface OrderMapper {
     }
 
     /**
-     * Map pricing details to nested pricing info object
+     * Map pricing details to nested pricing info object with before/after snapshots
      */
     default OrderPricingInfo mapPricingInfo(Order order) {
         if (order == null) {
@@ -240,15 +240,37 @@ public interface OrderMapper {
         BigDecimal subtotalBeforeDiscount = calculateSubtotalBeforeDiscount(order);
         BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
         BigDecimal subtotalAfterDiscount = subtotalBeforeDiscount.subtract(discount);
+        BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
+        BigDecimal taxAmount = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
 
-        return OrderPricingInfo.builder()
+        // Build before snapshot (before order-level changes)
+        OrderPricingSnapshot before = OrderPricingSnapshot.builder()
                 .totalItems(calculateTotalItems(order))
                 .subtotalBeforeDiscount(subtotalBeforeDiscount)
-                .subtotal(subtotalAfterDiscount)
+                .subtotal(subtotalBeforeDiscount)  // Before discount
+                .totalDiscount(BigDecimal.ZERO)
+                .deliveryFee(deliveryFee)
+                .taxAmount(taxAmount)
+                .finalTotal(subtotalBeforeDiscount.add(deliveryFee).add(taxAmount))
+                .build();
+
+        // Build after snapshot (after order-level changes if any)
+        OrderPricingSnapshot after = OrderPricingSnapshot.builder()
+                .totalItems(calculateTotalItems(order))
+                .subtotalBeforeDiscount(subtotalBeforeDiscount)
+                .subtotal(subtotalAfterDiscount)  // After discount
                 .totalDiscount(discount)
-                .deliveryFee(order.getDeliveryFee())
-                .taxAmount(order.getTaxAmount())
-                .finalTotal(order.getTotalAmount())
+                .deliveryFee(deliveryFee)
+                .taxAmount(taxAmount)
+                .finalTotal(order.getTotalAmount() != null ? order.getTotalAmount() :
+                           subtotalAfterDiscount.add(deliveryFee).add(taxAmount))
+                .build();
+
+        return OrderPricingInfo.builder()
+                .before(before)
+                .hadOrderLevelChangeFromPOS(order.getHadOrderLevelChangeFromPOS() != null ? order.getHadOrderLevelChangeFromPOS() : false)
+                .after(after)
+                .orderLevelChangeReason(order.getOrderLevelChangeReason())
                 .build();
     }
 
