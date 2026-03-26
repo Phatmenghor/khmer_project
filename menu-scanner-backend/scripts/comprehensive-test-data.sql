@@ -426,7 +426,7 @@ SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     id, 'Village ' || (ROW_NUMBER() OVER() % 50)::text, 'Commune ' || (ROW_NUMBER() OVER() % 25)::text,
     'District ' || (ROW_NUMBER() OVER() % 12)::text, 'Phnom Penh', LPAD((ROW_NUMBER() OVER() % 500)::text, 3, '0'),
-    'Building ' || CHR(65 + (ROW_NUMBER() OVER() % 26)), 'Delivery note ' || (ROW_NUMBER() OVER())::text,
+    'Building ' || CHR((65 + (ROW_NUMBER() OVER() % 26))::int), 'Delivery note ' || (ROW_NUMBER() OVER())::text,
     11.5564::numeric, 104.9282::numeric
 FROM orders;
 
