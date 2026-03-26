@@ -1,5 +1,6 @@
 package com.emenu.features.order.dto.request;
 
+import com.emenu.features.order.dto.response.OrderPricingSnapshot;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -103,13 +104,13 @@ public class POSCheckoutRequest {
     @AllArgsConstructor
     public static class PricingInfo {
         // Snapshot BEFORE any order-level modifications
-        private java.util.Map<String, Object> before;  // OrderPricingSnapshot as JSON
+        private OrderPricingSnapshot before;
 
         // Was order total modified?
         private Boolean hadOrderLevelChangeFromPOS;
 
         // Snapshot AFTER order-level modifications
-        private java.util.Map<String, Object> after;   // OrderPricingSnapshot as JSON
+        private OrderPricingSnapshot after;
 
         // Reason for order-level change
         private String orderLevelChangeReason;

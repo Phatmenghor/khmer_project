@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -69,7 +68,4 @@ public class POSCheckoutItemRequest {
     private BigDecimal discountAmount;     // quantity * (originalPrice - finalPrice)
     private BigDecimal totalPrice;         // quantity * finalPrice
 
-    // Audit trail - shows single modification snapshot (original → final)
-    @SuppressWarnings("all")
-    private Map<String, Object> auditTrail;
 }
