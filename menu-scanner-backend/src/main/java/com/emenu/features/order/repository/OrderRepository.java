@@ -69,19 +69,37 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     long countByBusinessIdAndOrderStatus(@Param("businessId") UUID businessId, @Param("orderStatus") OrderStatus orderStatus);
 
     /**
-     * Finds paginated non-deleted orders by customer ID, ordered by creation date descending
+     * Finds paginated non-deleted orders by customer ID with eager loading of related entities
+     * Uses JOIN FETCH to prevent N+1 query problem
+     * NOTE: statusHistory is loaded separately to avoid MultipleBagFetchException
      */
-    @Query("SELECT o FROM Order o WHERE o.customerId = :customerId AND o.isDeleted = false ORDER BY o.createdAt DESC")
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "LEFT JOIN FETCH o.business b " +
+           "LEFT JOIN FETCH o.customer c " +
+           "WHERE o.customerId = :customerId AND o.isDeleted = false " +
+           "ORDER BY o.createdAt DESC")
     Page<Order> findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(@Param("customerId") UUID customerId, Pageable pageable);
 
     /**
-     * Find all non-deleted orders with optional filters for business, order status, payment method, and payment status
+     * Find all non-deleted orders with optional filters and eager loading of related entities
+     * Supports filtering by:
+     * - businessId (required for business users, optional for admin)
+     * - orderStatus
+     * - paymentMethod
+     * - paymentStatus
+     *
+     * Uses JOIN FETCH to prevent N+1 query problem
+     * NOTE: statusHistory is loaded separately to avoid MultipleBagFetchException
      */
-    @Query("SELECT o FROM Order o WHERE o.isDeleted = false " +
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "LEFT JOIN FETCH o.business b " +
+           "LEFT JOIN FETCH o.customer c " +
+           "WHERE o.isDeleted = false " +
            "AND (:businessId IS NULL OR o.businessId = :businessId) " +
            "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
            "AND (:paymentMethod IS NULL OR o.paymentMethod = :paymentMethod) " +
-           "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus)")
+           "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) " +
+           "ORDER BY o.createdAt DESC")
     Page<Order> findAllWithFilters(
             @Param("businessId") UUID businessId,
             @Param("orderStatus") OrderStatus orderStatus,

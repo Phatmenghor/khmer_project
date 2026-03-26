@@ -136,15 +136,38 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<OrderResponse> getCustomerOrderHistory(OrderFilterRequest filter) {
+        long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(null);  // Clear any business filter for customer orders
+
+        log.info("📋 [CUSTOMER ORDER HISTORY] Fetching orders for customer: {} | Page: {}, Size: {}",
+                currentUser.getId(), filter.getPageNo(), filter.getPageSize());
 
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
+        log.debug("🔍 [DB QUERY] Executing paginated query with eager loading of business and customer...");
         Page<Order> page = orderRepository.findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(currentUser.getId(), pageable);
-        return orderMapper.toPaginationResponse(page, paginationMapper);
+        log.debug("✅ [DB QUERY COMPLETE] Retrieved {} orders from database", page.getNumberOfElements());
+
+        // Eagerly load statusHistory for all orders to prevent lazy loading during mapping
+        log.debug("📌 [LOADING STATUS HISTORY] Loading status history for {} orders...", page.getNumberOfElements());
+        page.getContent().forEach(order -> {
+            List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(order.getId());
+            order.setStatusHistory(statusHistory);
+            log.debug("   - Order {}: {} status history records", order.getOrderNumber(), statusHistory.size());
+        });
+
+        log.debug("🔄 [MAPPING] Converting {} orders to response DTOs...", page.getNumberOfElements());
+        PaginationResponse<OrderResponse> response = orderMapper.toPaginationResponse(page, paginationMapper);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("✅ [CUSTOMER ORDER HISTORY COMPLETE] Retrieved {} orders in {} ms | Total: {} | Page: {}/{}",
+                page.getNumberOfElements(), duration, page.getTotalElements(),
+                page.getNumber() + 1, page.getTotalPages());
+
+        return response;
     }
 
     @Override
@@ -164,18 +187,30 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<OrderResponse> getAllOrders(OrderFilterRequest filter) {
+        long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
+
+        log.info("📊 [GET ALL ORDERS] Starting retrieval | User: {} | Role: {}",
+                currentUser.getId(), currentUser.getRole());
 
         // If user is a business user and no businessId filter is provided, restrict to their business
         if (currentUser.isBusinessUser() && filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.getBusinessId());
+            log.debug("🔐 [AUTO-FILTER] Business user detected - auto-filtering to business: {}", currentUser.getBusinessId());
         }
+
+        log.debug("🔍 [FILTER PARAMETERS] BusinessId: {}, OrderStatus: {}, PaymentMethod: {}, PaymentStatus: {}",
+                filter.getBusinessId(), filter.getOrderStatus(), filter.getPaymentMethod(), filter.getPaymentStatus());
 
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
+        log.debug("📑 [PAGINATION] PageNo: {}, PageSize: {}, SortBy: {}, Direction: {}",
+                filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
 
         // Apply filters: businessId, orderStatus, paymentMethod, paymentStatus
+        log.debug("🗄️  [DB QUERY START] Executing filtered query with eager loading...");
+        long queryStartTime = System.currentTimeMillis();
         Page<Order> page = orderRepository.findAllWithFilters(
                 filter.getBusinessId(),
                 filter.getOrderStatus(),
@@ -183,12 +218,33 @@ public class OrderServiceImpl implements OrderService {
                 filter.getPaymentStatus(),
                 pageable
         );
+        long queryDuration = System.currentTimeMillis() - queryStartTime;
+        log.info("✅ [DB QUERY COMPLETE] Retrieved {} orders (query took {} ms) | Total: {} | Pages: {}",
+                page.getNumberOfElements(), queryDuration, page.getTotalElements(), page.getTotalPages());
 
-        log.info("Retrieved {} orders with filters - BusinessId: {}, OrderStatus: {}, PaymentMethod: {}, PaymentStatus: {}",
-                page.getTotalElements(), filter.getBusinessId(), filter.getOrderStatus(),
-                filter.getPaymentMethod(), filter.getPaymentStatus());
+        // Eagerly load statusHistory for all orders to prevent lazy loading during mapping
+        log.debug("📌 [LOADING STATUS HISTORY] Loading status history for {} orders...", page.getNumberOfElements());
+        int historyCount = 0;
+        for (Order order : page.getContent()) {
+            List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(order.getId());
+            order.setStatusHistory(statusHistory);
+            historyCount += statusHistory.size();
+            log.debug("   - Order {}: {} status history records", order.getOrderNumber(), statusHistory.size());
+        }
+        log.debug("✅ [STATUS HISTORY LOADED] Total history records: {}", historyCount);
 
-        return orderMapper.toPaginationResponse(page, paginationMapper);
+        log.debug("🔄 [MAPPING] Converting {} orders to response DTOs...", page.getNumberOfElements());
+        long mappingStartTime = System.currentTimeMillis();
+        PaginationResponse<OrderResponse> response = orderMapper.toPaginationResponse(page, paginationMapper);
+        long mappingDuration = System.currentTimeMillis() - mappingStartTime;
+        log.debug("✅ [MAPPING COMPLETE] Conversion took {} ms", mappingDuration);
+
+        long totalDuration = System.currentTimeMillis() - startTime;
+        log.info("✅ [GET ALL ORDERS COMPLETE] Total time: {} ms | Orders: {} | Total records: {} | Pages: {}/{}",
+                totalDuration, page.getNumberOfElements(), page.getTotalElements(),
+                page.getNumber() + 1, page.getTotalPages());
+
+        return response;
     }
 
     @Override
