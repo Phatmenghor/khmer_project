@@ -289,7 +289,7 @@ public interface OrderMapper {
                 .before(before)
                 .hadOrderLevelChangeFromPOS(order.getHadOrderLevelChangeFromPOS() != null ? order.getHadOrderLevelChangeFromPOS() : false)
                 .after(after)
-                .orderLevelChangeReason(order.getOrderLevelChangeReason() != null ? order.getOrderLevelChangeReason() : "No order-level changes")
+                .reason(order.getOrderLevelChangeReason() != null ? order.getOrderLevelChangeReason() : "No order-level changes")
                 .build();
     }
 

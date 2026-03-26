@@ -28,7 +28,7 @@ public class OrderPricingInfo {
     @Valid
     private OrderPricingSnapshot after;
 
-    // Reason for order-level change (if any)
-    private String orderLevelChangeReason;
+    // Reason for change (POS order-level modifications)
+    private String reason;
 }
 
