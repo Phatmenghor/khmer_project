@@ -34,8 +34,16 @@ public class OrderController {
      */
     @PostMapping("/checkout")
     public ResponseEntity<ApiResponse<OrderResponse>> createOrderFromCart(@Valid @RequestBody OrderCreateRequest request) {
-        log.info("Creating order from cart for business: {}", request.getBusinessId());
+        long startTime = System.currentTimeMillis();
+        log.info("🛒 [API REQUEST] POST /api/v1/orders/checkout | Business: {}", request.getBusinessId());
+        log.debug("📋 [REQUEST DETAILS] Items in cart, OrderStatus: {}", request.getOrderStatus());
+
         OrderResponse order = orderService.createOrderFromCart(request);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("✅ [ORDER CREATED] Order #{} in {} ms | Total: {}",
+                order.getOrderNumber(), duration, order.getPricing().getAfter().getFinalTotal());
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Order created successfully", order));
     }
@@ -46,8 +54,18 @@ public class OrderController {
      */
     @PostMapping("/checkout-from-pos")
     public ResponseEntity<ApiResponse<POSCheckoutResponse>> createPOSCheckoutOrder(@Valid @RequestBody POSCheckoutRequest request) {
-        log.info("🎯 Creating POS order for business: {}, Items: {}", request.getBusinessId(), request.getCart().getItems().size());
+        long startTime = System.currentTimeMillis();
+        log.info("🎯 [API REQUEST] POST /api/v1/orders/checkout-from-pos | Business: {}, Items: {}",
+                request.getBusinessId(), request.getCart().getItems().size());
+        log.debug("📋 [REQUEST DETAILS] Customer: {}, PaymentMethod: {}, Items: {}",
+                request.getCustomerId(), request.getPayment().getPaymentMethod(), request.getCart().getItems().size());
+
         POSCheckoutResponse order = orderService.createPOSCheckoutOrder(request);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("✅ [POS ORDER CREATED] Order #{} in {} ms | Total: {} | Status: {}",
+                order.getOrderNumber(), duration, order.getTotalAmount(), order.getOrderStatus());
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("POS order created successfully", order));
     }
@@ -121,8 +139,15 @@ public class OrderController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrderById(@PathVariable UUID id) {
-        log.info("Getting order by ID: {}", id);
+        long startTime = System.currentTimeMillis();
+        log.info("🔍 [API REQUEST] GET /api/v1/orders/{} | Order ID: {}", id, id);
+
         OrderResponse order = orderService.getOrderById(id);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("✅ [ORDER RETRIEVED] Order #{} in {} ms | Status: {} | Total: {}",
+                order.getOrderNumber(), duration, order.getOrderStatus(), order.getPricing().getAfter() != null ? order.getPricing().getAfter().getFinalTotal() : order.getPricing().getBefore().getFinalTotal());
+
         return ResponseEntity.ok(ApiResponse.success("Order retrieved successfully", order));
     }
 
@@ -133,8 +158,17 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderResponse>> updateOrder(
             @PathVariable UUID id,
             @Valid @RequestBody OrderUpdateRequest request) {
-        log.info("Updating order: {}", id);
+        long startTime = System.currentTimeMillis();
+        log.info("✏️ [API REQUEST] PUT /api/v1/orders/{} | Order ID: {}", id, id);
+        log.debug("📋 [UPDATE DETAILS] Status: {}, PaymentStatus: {}, DeliveryStatus: {}, Notes: {}",
+                request.getOrderStatus(), request.getPaymentStatus(), request.getDeliveryStatus(), request.getBusinessNote() != null);
+
         OrderResponse order = orderService.updateOrder(id, request);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("✅ [ORDER UPDATED] Order #{} in {} ms | NewStatus: {} | Total: {}",
+                order.getOrderNumber(), duration, order.getOrderStatus(), order.getPricing().getAfter() != null ? order.getPricing().getAfter().getFinalTotal() : order.getPricing().getBefore().getFinalTotal());
+
         return ResponseEntity.ok(ApiResponse.success("Order updated successfully", order));
     }
 
@@ -143,8 +177,15 @@ public class OrderController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderResponse>> deleteOrder(@PathVariable UUID id) {
-        log.info("Deleting order: {}", id);
+        long startTime = System.currentTimeMillis();
+        log.info("🗑️ [API REQUEST] DELETE /api/v1/orders/{} | Order ID: {}", id, id);
+
         OrderResponse orderResponse = orderService.deleteOrder(id);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("✅ [ORDER DELETED] Order #{} in {} ms | Status: {}",
+                orderResponse.getOrderNumber(), duration, orderResponse.getOrderStatus());
+
         return ResponseEntity.ok(ApiResponse.success("Order deleted successfully", orderResponse));
     }
 }
