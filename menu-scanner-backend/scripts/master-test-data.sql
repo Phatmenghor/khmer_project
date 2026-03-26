@@ -104,7 +104,7 @@ FROM generate_series(1, 20) AS t(i);
 -- ============================================================================
 -- 7. 1,000 PRODUCTS WITH ACTIVE PROMOTIONS - PostgreSQL Compatible
 -- ============================================================================
-INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, business_id, category_id, brand_id, name, description, status, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, display_price, display_origin_price, display_promotion_type, display_promotion_value, display_promotion_from_date, display_promotion_to_date, has_sizes, has_active_promotion, main_image_url)
+INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, business_id, category_id, brand_id, name, description, status, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, display_price, display_origin_price, display_promotion_type, display_promotion_value, display_promotion_from_date, display_promotion_to_date, has_sizes, has_active_promotion, view_count, favorite_count, minimum_stock_level, main_image_url)
 SELECT
     gen_random_uuid(),
     0,
@@ -132,6 +132,9 @@ SELECT
     CASE WHEN i % 4 IN (0,1) THEN NOW() + INTERVAL '90 days' ELSE NULL END,
     CASE WHEN i % 5 = 0 THEN TRUE ELSE FALSE END,
     CASE WHEN i % 4 IN (0,1) THEN TRUE ELSE FALSE END,
+    0,
+    0,
+    0,
     CASE WHEN i % 2 = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop' END
 FROM generate_series(1, 1000) AS t(i);
 
