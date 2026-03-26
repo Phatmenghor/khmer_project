@@ -530,11 +530,11 @@ public class OrderServiceImpl implements OrderService {
             Order savedOrder = orderRepository.save(order);
 
             // Create order items and calculate totals
-            log.debug("📦 [STEP 4/6] Creating order items ({} items)...", request.getItems().size());
+            log.debug("📦 [STEP 4/6] Creating order items ({} items)...", request.getCart().getItems().size());
             BigDecimal subtotal = BigDecimal.ZERO;
             BigDecimal totalDiscount = BigDecimal.ZERO;
 
-            for (POSCheckoutItemRequest itemRequest : request.getItems()) {
+            for (POSCheckoutItemRequest itemRequest : request.getCart().getItems()) {
                 Product product = productRepository.findById(itemRequest.getProductId())
                         .orElseThrow(() -> new NotFoundException("Product not found: " + itemRequest.getProductId()));
 
@@ -591,7 +591,7 @@ public class OrderServiceImpl implements OrderService {
             OrderPayment payment = new OrderPayment();
             payment.setOrderId(updatedOrder.getId());
             payment.setBusinessId(request.getBusinessId());
-            payment.setPaymentMethod(PaymentMethod.CASH);
+            payment.setPaymentMethod(PaymentMethod.valueOf(request.getPayment().getPaymentMethod()));
             payment.setStatus(PaymentStatus.PAID);
             payment.setPaymentReference(paymentReferenceGenerator.generateUniqueReference());
             payment.setSubtotal(updatedOrder.getSubtotal());

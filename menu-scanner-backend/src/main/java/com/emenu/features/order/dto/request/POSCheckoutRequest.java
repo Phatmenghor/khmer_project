@@ -12,6 +12,16 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Unified POS checkout request - matches both PUBLIC (customer) and POS (admin) orders
+ * Includes full audit trail for all item modifications and order-level discounts
+ *
+ * Frontend → Backend mapping:
+ * - deliveryAddress: full address object
+ * - deliveryOption: full delivery option object (includes price)
+ * - cart: CartSummary with items array and totals
+ * - payment: PaymentInfo object
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,31 +36,71 @@ public class POSCheckoutRequest {
     private String customerName;
     private String customerPhone;
 
-    // Order items
-    @NotEmpty(message = "Order must have at least one item")
-    @Valid
-    private List<POSCheckoutItemRequest> items;
-
-    // Delivery
-    @NotNull(message = "Delivery option ID is required")
-    private UUID deliveryOptionId;
-
+    // Delivery address
     @NotNull(message = "Delivery address is required")
     @Valid
     private POSCheckoutAddressRequest deliveryAddress;
 
-    // Payment
-    @NotNull(message = "Payment method is required")
-    private String paymentMethod; // CASH (only option now)
+    // Delivery option (full object with price, not just ID)
+    @Valid
+    private DeliveryOptionInfo deliveryOption;
 
-    // Order totals
-    private BigDecimal subtotal;
-    private BigDecimal discountAmount;
-    private BigDecimal deliveryFee;
-    private BigDecimal taxAmount;
-    private BigDecimal totalAmount;
+    // Cart summary with all items and totals
+    @Valid
+    private CartSummary cart;
 
-    // Notes
+    // Payment information
+    @Valid
+    private PaymentInfo payment;
+
+    // Order status
+    private String orderStatus; // PENDING, CONFIRMED, COMPLETED, etc.
+
+    // Notes for tracking
     private String customerNote;
-    private String businessNote;
+    private String businessNote; // Includes discount reason and audit info
+
+    // ─── Nested Classes ───
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeliveryOptionInfo {
+        private String name;
+        private String description;
+        private String imageUrl;
+        private BigDecimal price;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CartSummary {
+        private UUID businessId;
+        private String businessName;
+
+        @NotEmpty(message = "Order must have at least one item")
+        @Valid
+        private List<POSCheckoutItemRequest> items;
+
+        // Totals
+        private Integer totalItems;
+        private Integer totalQuantity;
+        private BigDecimal subtotalBeforeDiscount;  // Sum of all original prices
+        private BigDecimal subtotal;                // After product-level discounts
+        private BigDecimal totalDiscount;           // Total discount from promotions
+        private BigDecimal finalTotal;              // After order-level discount applied
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PaymentInfo {
+        @NotNull(message = "Payment method is required")
+        private String paymentMethod;  // CASH
+
+        private String paymentStatus;  // PAID, UNPAID, etc.
+    }
 }
