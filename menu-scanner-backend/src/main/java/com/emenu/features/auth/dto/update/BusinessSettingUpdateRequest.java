@@ -28,10 +28,6 @@ public class BusinessSettingUpdateRequest {
     private String primaryColor;
     private String secondaryColor;
 
-    private Boolean emailNotificationsEnabled;
-    private Boolean smsNotificationsEnabled;
-    private Boolean orderNotificationsEnabled;
-
     @DecimalMin(value = "0.0")
     @DecimalMax(value = "100.0")
     private Double taxPercentage;

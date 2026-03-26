@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, Bell, ChevronRight, UserCircle, Maximize2 } from "lucide-react";
+import { LogOut, Menu, ChevronRight, UserCircle, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -111,16 +111,6 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
               <Maximize2 className="h-4 w-4" />
             </Button>
           )}
-
-          {/* Notification bell */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors relative"
-            aria-label="Notifications"
-          >
-            <Bell className="h-4 w-4" />
-          </Button>
 
           {/* Profile Dropdown Menu */}
           {profile && (

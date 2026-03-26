@@ -237,7 +237,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
    *
    * When quantity reaches 0:
    * - Redux removes item immediately
-   * - Toast notification shown
+   * - Success message displayed
    * - Debounced API call sends quantity=0 to backend
    * - Backend deletes cart item
    */
@@ -272,7 +272,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       })
     );
 
-    // Show removal notification when reaching 0
+    // Show removal message when reaching 0
     if (quantity === 1) {
       showToast.success("Removed from cart");
     }

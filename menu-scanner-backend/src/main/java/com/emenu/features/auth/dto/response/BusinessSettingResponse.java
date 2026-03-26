@@ -29,9 +29,6 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private String bannerUrl;
     private String primaryColor;
     private String secondaryColor;
-    private Boolean emailNotificationsEnabled;
-    private Boolean smsNotificationsEnabled;
-    private Boolean orderNotificationsEnabled;
     private Double taxPercentage;
     private Double serviceChargePercentage;
     private Double minOrderAmount;

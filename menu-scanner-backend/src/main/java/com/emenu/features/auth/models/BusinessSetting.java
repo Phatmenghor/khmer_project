@@ -94,16 +94,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "track_inventory")
     private Boolean trackInventory = true;
 
-    // Notification Settings
-    @Column(name = "email_notifications_enabled")
-    private Boolean emailNotificationsEnabled = true;
-
-    @Column(name = "sms_notifications_enabled")
-    private Boolean smsNotificationsEnabled = false;
-
-    @Column(name = "order_notifications_enabled")
-    private Boolean orderNotificationsEnabled = true;
-
     // Business Policies
     @Column(name = "tax_rate")
     private Double taxRate = 0.0;

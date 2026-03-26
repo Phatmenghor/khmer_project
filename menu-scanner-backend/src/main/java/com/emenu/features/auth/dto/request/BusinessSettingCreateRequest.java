@@ -30,9 +30,6 @@ public class BusinessSettingCreateRequest {
     private String bannerUrl;
     private String primaryColor;
     private String secondaryColor;
-    private Boolean emailNotificationsEnabled = true;
-    private Boolean smsNotificationsEnabled = false;
-    private Boolean orderNotificationsEnabled = true;
 
     @DecimalMin(value = "0.0")
     @DecimalMax(value = "100.0")
