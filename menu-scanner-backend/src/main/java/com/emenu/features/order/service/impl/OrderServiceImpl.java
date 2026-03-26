@@ -515,12 +515,7 @@ public class OrderServiceImpl implements OrderService {
 
             // Set delivery option as JSON snapshot
             try {
-                String deliveryOptionJson = objectMapper.writeValueAsString(
-                    new Object() {
-                        public UUID id = deliveryOption.getId();
-                        public String name = deliveryOption.getName();
-                    }
-                );
+                String deliveryOptionJson = objectMapper.writeValueAsString(request.getDeliveryOption());
                 order.setDeliveryOptionSnapshot(deliveryOptionJson);
             } catch (Exception e) {
                 log.warn("Failed to serialize delivery option: {}", e.getMessage());
