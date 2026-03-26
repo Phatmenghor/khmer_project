@@ -161,7 +161,7 @@ SELECT
     'Staff_' || i::text, 'User_' || i::text, '+855 10 ' || LPAD((i % 10000000)::text, 7, '0'),
     CASE WHEN (i % 2) = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584' END,
     'BUSINESS_USER', CASE WHEN (i % 100) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END,
-    CASE WHEN (i <= 250) THEN '550cad56-cafd-4aba-baef-c4dcd53940d0' ELSE '550cad56-cafd-4aba-baef-c4dcd53940d1' END,
+    CASE WHEN (i <= 250) THEN '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid ELSE '550cad56-cafd-4aba-baef-c4dcd53940d1'::uuid END,
     CASE WHEN (i % 5) = 0 THEN 'Manager' WHEN (i % 5) = 1 THEN 'Chef' WHEN (i % 5) = 2 THEN 'Waiter' WHEN (i % 5) = 3 THEN 'Cashier' ELSE 'Kitchen Staff' END,
     'Phnom Penh Street ' || i::text, 'Staff member ' || i::text, 0
 FROM generate_series(1, 500) AS t(i);
