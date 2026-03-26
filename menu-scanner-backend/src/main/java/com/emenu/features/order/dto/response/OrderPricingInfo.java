@@ -28,10 +28,6 @@ public class OrderPricingInfo {
     @Valid
     private OrderPricingSnapshot after;
 
-    // Detailed discount metadata (if applied)
-    @Valid
-    private OrderLevelDiscountMetadata discountMetadata;
-
     // Reason for order-level change (if any)
     private String orderLevelChangeReason;
 }
