@@ -111,9 +111,6 @@ public class POSCheckoutRequest {
         // Snapshot AFTER order-level modifications
         private java.util.Map<String, Object> after;   // OrderPricingSnapshot as JSON
 
-        // Detailed discount metadata (if applied)
-        private java.util.Map<String, Object> discountMetadata;  // OrderLevelDiscountMetadata as JSON
-
         // Reason for order-level change
         private String orderLevelChangeReason;
     }

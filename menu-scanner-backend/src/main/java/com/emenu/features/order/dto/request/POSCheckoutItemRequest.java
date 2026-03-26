@@ -1,7 +1,6 @@
 package com.emenu.features.order.dto.request;
 
 import com.emenu.features.order.dto.response.OrderItemPricingSnapshot;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -50,10 +49,6 @@ public class POSCheckoutItemRequest {
     // Snapshot AFTER POS modifications
     @Valid
     private OrderItemPricingSnapshot after;
-
-    // Detailed audit metadata (if changed)
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private Map<String, Object> auditMetadata;
 
     // ===== DEPRECATED - Kept for backward compatibility =====
     // Price history for audit trail

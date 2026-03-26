@@ -46,7 +46,4 @@ public class CartItemResponse {
 
     // Snapshot AFTER POS modifications
     private OrderItemPricingSnapshot after;
-
-    // Detailed audit metadata (if changed)
-    private Map<String, Object> auditMetadata;
 }
