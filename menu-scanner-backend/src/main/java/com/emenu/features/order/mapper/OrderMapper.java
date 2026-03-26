@@ -62,8 +62,6 @@ public interface OrderMapper {
      * Helper to build OrderCreateHelper for checkout order
      */
     default OrderCreateHelper buildOrderHelper(OrderCreateRequest request, UUID customerId, String orderNumber) {
-        com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
-
         var builder = OrderCreateHelper.builder()
                 .orderNumber(orderNumber)
                 .customerId(customerId)
@@ -77,22 +75,25 @@ public interface OrderMapper {
                 // Initialize businessNote as empty (will be set later if provided)
                 .businessNote("");
 
-        // Serialize full delivery address object as JSON snapshot
+        // Set delivery address fields (no JSON serialization)
         if (request.getDeliveryAddress() != null) {
-            try {
-                builder.deliveryAddressSnapshot(objectMapper.writeValueAsString(request.getDeliveryAddress()));
-            } catch (Exception e) {
-                builder.deliveryAddressSnapshot(null);
-            }
+            builder.deliveryVillage(request.getDeliveryAddress().getVillage());
+            builder.deliveryCommune(request.getDeliveryAddress().getCommune());
+            builder.deliveryDistrict(request.getDeliveryAddress().getDistrict());
+            builder.deliveryProvince(request.getDeliveryAddress().getProvince());
+            builder.deliveryStreetNumber(request.getDeliveryAddress().getStreetNumber());
+            builder.deliveryHouseNumber(request.getDeliveryAddress().getHouseNumber());
+            builder.deliveryNote(request.getDeliveryAddress().getNote());
+            builder.deliveryLatitude(request.getDeliveryAddress().getLatitude());
+            builder.deliveryLongitude(request.getDeliveryAddress().getLongitude());
         }
 
-        // Serialize full delivery option object as JSON snapshot
+        // Set delivery option fields (no JSON serialization)
         if (request.getDeliveryOption() != null) {
-            try {
-                builder.deliveryOptionSnapshot(objectMapper.writeValueAsString(request.getDeliveryOption()));
-            } catch (Exception e) {
-                builder.deliveryOptionSnapshot(null);
-            }
+            builder.deliveryOptionName(request.getDeliveryOption().getName());
+            builder.deliveryOptionDescription(request.getDeliveryOption().getDescription());
+            builder.deliveryOptionImageUrl(request.getDeliveryOption().getImageUrl());
+            builder.deliveryOptionPrice(request.getDeliveryOption().getPrice());
             builder.deliveryFee(request.getDeliveryOption().getPrice());
         }
 
@@ -139,59 +140,57 @@ public interface OrderMapper {
     }
 
     /**
-     * Deserialize delivery address JSON snapshot to OrderDeliveryAddressDto
+     * Map delivery address fields from Order to DTO
+     * No JSON deserialization needed - data is stored in proper columns
      */
     default com.emenu.features.order.dto.response.OrderDeliveryAddressDto mapDeliveryAddress(Order order) {
         if (order == null) {
             return null;
         }
 
-        String snapshot = order.getDeliveryAddressSnapshot();
-
-        // Return null if no snapshot
-        if (snapshot == null || snapshot.isBlank() || snapshot.equals("{}")) {
+        // Check if any delivery address field is populated
+        if (order.getDeliveryVillage() == null && order.getDeliveryCommune() == null &&
+            order.getDeliveryDistrict() == null && order.getDeliveryProvince() == null &&
+            order.getDeliveryStreetNumber() == null && order.getDeliveryHouseNumber() == null &&
+            order.getDeliveryNote() == null && order.getDeliveryLatitude() == null &&
+            order.getDeliveryLongitude() == null) {
             return null;
         }
 
-        try {
-            com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            com.emenu.features.order.dto.response.OrderDeliveryAddressDto address = objectMapper.readValue(
-                    snapshot,
-                    com.emenu.features.order.dto.response.OrderDeliveryAddressDto.class
-            );
-            return address;
-        } catch (Exception e) {
-            // Log error but don't crash
-            return null;
-        }
+        return com.emenu.features.order.dto.response.OrderDeliveryAddressDto.builder()
+                .village(order.getDeliveryVillage())
+                .commune(order.getDeliveryCommune())
+                .district(order.getDeliveryDistrict())
+                .province(order.getDeliveryProvince())
+                .streetNumber(order.getDeliveryStreetNumber())
+                .houseNumber(order.getDeliveryHouseNumber())
+                .note(order.getDeliveryNote())
+                .latitude(order.getDeliveryLatitude())
+                .longitude(order.getDeliveryLongitude())
+                .build();
     }
 
     /**
-     * Deserialize delivery option JSON snapshot to OrderDeliveryOptionDto
+     * Map delivery option fields from Order to DTO
+     * No JSON deserialization needed - data is stored in proper columns
      */
     default com.emenu.features.order.dto.response.OrderDeliveryOptionDto mapDeliveryOption(Order order) {
         if (order == null) {
             return null;
         }
 
-        String snapshot = order.getDeliveryOptionSnapshot();
-
-        // Return null if no snapshot
-        if (snapshot == null || snapshot.isBlank() || snapshot.equals("{}")) {
+        // Check if any delivery option field is populated
+        if (order.getDeliveryOptionName() == null && order.getDeliveryOptionDescription() == null &&
+            order.getDeliveryOptionImageUrl() == null && order.getDeliveryOptionPrice() == null) {
             return null;
         }
 
-        try {
-            com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            com.emenu.features.order.dto.response.OrderDeliveryOptionDto option = objectMapper.readValue(
-                    snapshot,
-                    com.emenu.features.order.dto.response.OrderDeliveryOptionDto.class
-            );
-            return option;
-        } catch (Exception e) {
-            // Log error but don't crash
-            return null;
-        }
+        return com.emenu.features.order.dto.response.OrderDeliveryOptionDto.builder()
+                .name(order.getDeliveryOptionName())
+                .description(order.getDeliveryOptionDescription())
+                .imageUrl(order.getDeliveryOptionImageUrl())
+                .price(order.getDeliveryOptionPrice())
+                .build();
     }
 
 

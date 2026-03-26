@@ -268,24 +268,25 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        // Update delivery address snapshot if provided
+        // Update delivery address fields if provided
         if (request.getDeliveryAddress() != null) {
-            try {
-                order.setDeliveryAddressSnapshot(objectMapper.writeValueAsString(request.getDeliveryAddress()));
-            } catch (Exception e) {
-                log.warn("Failed to serialize delivery address snapshot", e);
-            }
+            order.setDeliveryVillage(request.getDeliveryAddress().getVillage());
+            order.setDeliveryCommune(request.getDeliveryAddress().getCommune());
+            order.setDeliveryDistrict(request.getDeliveryAddress().getDistrict());
+            order.setDeliveryProvince(request.getDeliveryAddress().getProvince());
+            order.setDeliveryStreetNumber(request.getDeliveryAddress().getStreetNumber());
+            order.setDeliveryHouseNumber(request.getDeliveryAddress().getHouseNumber());
+            order.setDeliveryNote(request.getDeliveryAddress().getNote());
+            order.setDeliveryLatitude(request.getDeliveryAddress().getLatitude());
+            order.setDeliveryLongitude(request.getDeliveryAddress().getLongitude());
         }
 
-        // Update delivery option snapshot if provided
+        // Update delivery option fields if provided
         if (request.getDeliveryOption() != null) {
-            try {
-                order.setDeliveryOptionSnapshot(objectMapper.writeValueAsString(request.getDeliveryOption()));
-            } catch (Exception e) {
-                log.warn("Failed to serialize delivery option snapshot", e);
-            }
+            order.setDeliveryOptionName(request.getDeliveryOption().getName());
+            order.setDeliveryOptionDescription(request.getDeliveryOption().getDescription());
+            order.setDeliveryOptionImageUrl(request.getDeliveryOption().getImageUrl());
+            order.setDeliveryOptionPrice(request.getDeliveryOption().getPrice());
             order.setDeliveryFee(request.getDeliveryOption().getPrice());
 
             // Recalculate total with new delivery fee
@@ -654,22 +655,25 @@ public class OrderServiceImpl implements OrderService {
             order.setCustomerNote(request.getCustomerNote());
             order.setBusinessNote(request.getBusinessNote());
 
-            // Set delivery address as JSON snapshot
-            try {
-                String deliveryAddressJson = objectMapper.writeValueAsString(request.getDeliveryAddress());
-                order.setDeliveryAddressSnapshot(deliveryAddressJson);
-            } catch (Exception e) {
-                log.warn("Failed to serialize delivery address: {}", e.getMessage());
-                order.setDeliveryAddressSnapshot("{}");
+            // Set delivery address fields
+            if (request.getDeliveryAddress() != null) {
+                order.setDeliveryVillage(request.getDeliveryAddress().getVillage());
+                order.setDeliveryCommune(request.getDeliveryAddress().getCommune());
+                order.setDeliveryDistrict(request.getDeliveryAddress().getDistrict());
+                order.setDeliveryProvince(request.getDeliveryAddress().getProvince());
+                order.setDeliveryStreetNumber(request.getDeliveryAddress().getStreetNumber());
+                order.setDeliveryHouseNumber(request.getDeliveryAddress().getHouseNumber());
+                order.setDeliveryNote(request.getDeliveryAddress().getNote());
+                order.setDeliveryLatitude(request.getDeliveryAddress().getLatitude());
+                order.setDeliveryLongitude(request.getDeliveryAddress().getLongitude());
             }
 
-            // Set delivery option as JSON snapshot
-            try {
-                String deliveryOptionJson = objectMapper.writeValueAsString(request.getDeliveryOption());
-                order.setDeliveryOptionSnapshot(deliveryOptionJson);
-            } catch (Exception e) {
-                log.warn("Failed to serialize delivery option: {}", e.getMessage());
-                order.setDeliveryOptionSnapshot("{}");
+            // Set delivery option fields
+            if (request.getDeliveryOption() != null) {
+                order.setDeliveryOptionName(request.getDeliveryOption().getName());
+                order.setDeliveryOptionDescription(request.getDeliveryOption().getDescription());
+                order.setDeliveryOptionImageUrl(request.getDeliveryOption().getImageUrl());
+                order.setDeliveryOptionPrice(request.getDeliveryOption().getPrice());
             }
 
             log.debug("💾 [STEP 3/6] Saving order...");

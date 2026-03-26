@@ -12,6 +12,7 @@ import java.util.UUID;
 
 /**
  * Helper DTO for creating Order via MapStruct
+ * Uses proper fields instead of JSON snapshots
  */
 @Data
 @Builder
@@ -26,9 +27,22 @@ public class OrderCreateHelper {
     private String customerNote;
     private String businessNote;
 
-    // Delivery snapshots - full JSON from frontend
-    private String deliveryAddressSnapshot;
-    private String deliveryOptionSnapshot;
+    // ===== Delivery Address Fields =====
+    private String deliveryVillage;
+    private String deliveryCommune;
+    private String deliveryDistrict;
+    private String deliveryProvince;
+    private String deliveryStreetNumber;
+    private String deliveryHouseNumber;
+    private String deliveryNote;
+    private Double deliveryLatitude;
+    private Double deliveryLongitude;
+
+    // ===== Delivery Option Fields =====
+    private String deliveryOptionName;
+    private String deliveryOptionDescription;
+    private String deliveryOptionImageUrl;
+    private BigDecimal deliveryOptionPrice;
     private BigDecimal deliveryFee;
 
     // Pricing - initialized with defaults, updated after items are processed

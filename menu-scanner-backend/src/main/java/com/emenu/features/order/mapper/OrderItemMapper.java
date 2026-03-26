@@ -41,31 +41,52 @@ public interface OrderItemMapper {
     }
 
     default OrderItemPricingSnapshot deserializeBeforeSnapshot(OrderItem orderItem) {
-        // Try to deserialize from stored JSON snapshot first
-        if (orderItem.getBeforeSnapshot() != null) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                return mapper.readValue(orderItem.getBeforeSnapshot(), OrderItemPricingSnapshot.class);
-            } catch (Exception e) {
-                // Fall back to building from current data
-            }
+        // Use proper fields instead of JSON deserialization
+        if (orderItem.getBeforeCurrentPrice() != null) {
+            return OrderItemPricingSnapshot.builder()
+                    .currentPrice(orderItem.getBeforeCurrentPrice())
+                    .finalPrice(orderItem.getBeforeFinalPrice())
+                    .hasActivePromotion(orderItem.getBeforeHasActivePromotion())
+                    .quantity(orderItem.getQuantity())
+                    .totalBeforeDiscount(calculateTotalBeforeDiscount(orderItem.getBeforeCurrentPrice(), orderItem.getQuantity()))
+                    .discountAmount(orderItem.getBeforeDiscountAmount())
+                    .totalPrice(orderItem.getBeforeTotalPrice())
+                    .promotionType(orderItem.getBeforePromotionType())
+                    .promotionValue(orderItem.getBeforePromotionValue())
+                    .promotionFromDate(orderItem.getBeforePromotionFromDate())
+                    .promotionToDate(orderItem.getBeforePromotionToDate())
+                    .build();
         }
-        // Build before snapshot from current pricing if no stored snapshot
+        // Fall back to building from current pricing if no before data
         return buildDefaultBeforeSnapshot(orderItem);
     }
 
     default OrderItemPricingSnapshot deserializeAfterSnapshot(OrderItem orderItem) {
-        // Try to deserialize from stored JSON snapshot first
-        if (orderItem.getAfterSnapshot() != null) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                return mapper.readValue(orderItem.getAfterSnapshot(), OrderItemPricingSnapshot.class);
-            } catch (Exception e) {
-                // Fall back to building from current data
-            }
+        // Use proper fields instead of JSON deserialization
+        if (orderItem.getAfterCurrentPrice() != null) {
+            return OrderItemPricingSnapshot.builder()
+                    .currentPrice(orderItem.getAfterCurrentPrice())
+                    .finalPrice(orderItem.getAfterFinalPrice())
+                    .hasActivePromotion(orderItem.getAfterHasActivePromotion())
+                    .quantity(orderItem.getQuantity())
+                    .totalBeforeDiscount(calculateTotalBeforeDiscount(orderItem.getAfterCurrentPrice(), orderItem.getQuantity()))
+                    .discountAmount(orderItem.getAfterDiscountAmount())
+                    .totalPrice(orderItem.getAfterTotalPrice())
+                    .promotionType(orderItem.getAfterPromotionType())
+                    .promotionValue(orderItem.getAfterPromotionValue())
+                    .promotionFromDate(orderItem.getAfterPromotionFromDate())
+                    .promotionToDate(orderItem.getAfterPromotionToDate())
+                    .build();
         }
-        // Build after snapshot from current pricing if no stored snapshot
+        // Fall back to building from current pricing if no after data
         return buildDefaultAfterSnapshot(orderItem);
+    }
+
+    default BigDecimal calculateTotalBeforeDiscount(BigDecimal price, Integer quantity) {
+        if (price == null || quantity == null) {
+            return BigDecimal.ZERO;
+        }
+        return price.multiply(new BigDecimal(quantity));
     }
 
     default OrderItemPricingSnapshot buildDefaultBeforeSnapshot(OrderItem orderItem) {
