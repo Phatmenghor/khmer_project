@@ -330,7 +330,6 @@ public class OrderServiceImpl implements OrderService {
                 item.setPromotionValue(itemRequest.getPromotionValue());
                 item.setPromotionFromDate(itemRequest.getPromotionFromDate());
                 item.setPromotionToDate(itemRequest.getPromotionToDate());
-                item.setSpecialInstructions(itemRequest.getSpecialInstructions());
                 item.setOrder(order);
 
                 order.getItems().add(item);

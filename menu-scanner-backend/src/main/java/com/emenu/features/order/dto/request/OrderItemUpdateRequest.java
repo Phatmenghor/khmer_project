@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /**
  * Item update for order update request - clean payload for modifying order items
- * Follows the same structure as response for consistency
+ * Follows checkout style structure for consistency with order creation
  */
 @Data
 public class OrderItemUpdateRequest {
@@ -21,7 +21,7 @@ public class OrderItemUpdateRequest {
     // Pricing
     private BigDecimal currentPrice;  // Base price
     private BigDecimal finalPrice;    // Price after discount
-    private BigDecimal unitPrice;     // Same as finalPrice for compat
+    private BigDecimal unitPrice;     // Same as finalPrice
     private Boolean hasPromotion;
 
     // Promotion details
@@ -31,5 +31,4 @@ public class OrderItemUpdateRequest {
     private LocalDateTime promotionToDate;
 
     private Integer quantity;
-    private String specialInstructions;
 }
