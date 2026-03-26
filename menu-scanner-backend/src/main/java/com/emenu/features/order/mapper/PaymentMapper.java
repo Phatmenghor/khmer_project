@@ -83,7 +83,7 @@ return paginationMapper.toPaginationResponse(paymentPage, this::toResponseList);
                 .planId(subscription.getPlanId())
                 .subscriptionId(subscription.getId())
                 .amount(request.getRefundAmount().negate())
-                .paymentMethod(PaymentMethod.OTHER)
+                .paymentMethod(PaymentMethod.CASH)
                 .paymentType(PaymentType.REFUND)
                 .status(PaymentStatus.COMPLETED)
                 .notes("Refund for cancelled subscription")
