@@ -280,10 +280,6 @@ export default function UserBusinessPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
-            { label: "Platform Users", href: "" },
-          ]}
           title="Business Users"
           searchValue={filters.search}
           searchPlaceholder="Search users business..."

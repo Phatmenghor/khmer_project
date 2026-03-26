@@ -1,13 +1,5 @@
 "use client";
 // components/CardHeaderSection.tsx
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,13 +16,7 @@ import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/redux/store/use-mobile";
 import { ActionButton } from "../shared/button/action-button";
 
-interface BreadcrumbItemType {
-  label: string;
-  href?: string;
-}
-
 interface CardHeaderSectionProps {
-  breadcrumbs?: BreadcrumbItemType[];
   title?: string;
   searchPlaceholder?: string;
   searchValue?: string;
@@ -49,7 +35,6 @@ interface CardHeaderSectionProps {
 }
 
 export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
-  breadcrumbs,
   title,
   searchPlaceholder = "Search...",
   searchValue,
@@ -93,7 +78,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
           <div className="flex flex-wrap items-end gap-2">
             {/* Search input - stays left */}
             {onSearchChange && (
-              <div className="w-full sm:w-auto sm:min-w-[220px] sm:max-w-[280px] flex-shrink-0">
+              <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
                 <div className="relative w-full group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   <Input
