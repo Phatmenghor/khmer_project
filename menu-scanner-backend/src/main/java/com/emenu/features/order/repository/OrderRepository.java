@@ -73,4 +73,19 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
      */
     @Query("SELECT o FROM Order o WHERE o.customerId = :customerId AND o.isDeleted = false ORDER BY o.createdAt DESC")
     Page<Order> findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(@Param("customerId") UUID customerId, Pageable pageable);
+
+    /**
+     * Find all non-deleted orders with optional filters for business, order status, payment method, and payment status
+     */
+    @Query("SELECT o FROM Order o WHERE o.isDeleted = false " +
+           "AND (:businessId IS NULL OR o.businessId = :businessId) " +
+           "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
+           "AND (:paymentMethod IS NULL OR o.paymentMethod = :paymentMethod) " +
+           "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus)")
+    Page<Order> findAllWithFilters(
+            @Param("businessId") UUID businessId,
+            @Param("orderStatus") OrderStatus orderStatus,
+            @Param("paymentMethod") com.emenu.enums.payment.PaymentMethod paymentMethod,
+            @Param("paymentStatus") com.emenu.enums.payment.PaymentStatus paymentStatus,
+            Pageable pageable);
 }

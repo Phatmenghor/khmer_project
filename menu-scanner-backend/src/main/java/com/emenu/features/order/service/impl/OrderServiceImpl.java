@@ -166,6 +166,7 @@ public class OrderServiceImpl implements OrderService {
     public PaginationResponse<OrderResponse> getAllOrders(OrderFilterRequest filter) {
         User currentUser = securityUtils.getCurrentUser();
 
+        // If user is a business user and no businessId filter is provided, restrict to their business
         if (currentUser.isBusinessUser() && filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.getBusinessId());
         }
@@ -174,7 +175,19 @@ public class OrderServiceImpl implements OrderService {
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
-        Page<Order> page = orderRepository.findAll(pageable);
+        // Apply filters: businessId, orderStatus, paymentMethod, paymentStatus
+        Page<Order> page = orderRepository.findAllWithFilters(
+                filter.getBusinessId(),
+                filter.getOrderStatus(),
+                filter.getPaymentMethod(),
+                filter.getPaymentStatus(),
+                pageable
+        );
+
+        log.info("Retrieved {} orders with filters - BusinessId: {}, OrderStatus: {}, PaymentMethod: {}, PaymentStatus: {}",
+                page.getTotalElements(), filter.getBusinessId(), filter.getOrderStatus(),
+                filter.getPaymentMethod(), filter.getPaymentStatus());
+
         return orderMapper.toPaginationResponse(page, paginationMapper);
     }
 
