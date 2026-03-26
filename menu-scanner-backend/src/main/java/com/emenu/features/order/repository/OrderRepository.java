@@ -18,15 +18,18 @@ import java.util.UUID;
 public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     /**
-     * Finds a non-deleted order by ID with items, products, sizes, business, and customer eagerly fetched
+     * Finds a non-deleted order by ID with items, products, sizes, business, customer, and delivery snapshots eagerly fetched
      * NOTE: statusHistory is loaded lazily to avoid MultipleBagFetchException with multiple collections
      */
     @Query("SELECT o FROM Order o " +
            "LEFT JOIN FETCH o.items oi " +
            "LEFT JOIN FETCH oi.product p " +
            "LEFT JOIN FETCH oi.productSize ps " +
+           "LEFT JOIN FETCH oi.pricingSnapshot " +
            "LEFT JOIN FETCH o.business " +
            "LEFT JOIN FETCH o.customer " +
+           "LEFT JOIN FETCH o.deliveryAddress " +
+           "LEFT JOIN FETCH o.deliveryOption " +
            "WHERE o.id = :id AND o.isDeleted = false")
     Optional<Order> findByIdWithDetails(@Param("id") UUID id);
 
@@ -76,6 +79,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("SELECT DISTINCT o FROM Order o " +
            "LEFT JOIN FETCH o.business b " +
            "LEFT JOIN FETCH o.customer c " +
+           "LEFT JOIN FETCH o.deliveryAddress " +
+           "LEFT JOIN FETCH o.deliveryOption " +
            "WHERE o.customerId = :customerId AND o.isDeleted = false " +
            "ORDER BY o.createdAt DESC")
     Page<Order> findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(@Param("customerId") UUID customerId, Pageable pageable);
@@ -94,6 +99,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("SELECT DISTINCT o FROM Order o " +
            "LEFT JOIN FETCH o.business b " +
            "LEFT JOIN FETCH o.customer c " +
+           "LEFT JOIN FETCH o.deliveryAddress " +
+           "LEFT JOIN FETCH o.deliveryOption " +
            "WHERE o.isDeleted = false " +
            "AND (:businessId IS NULL OR o.businessId = :businessId) " +
            "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +

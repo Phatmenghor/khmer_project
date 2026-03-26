@@ -26,10 +26,16 @@ import com.emenu.features.order.models.OrderPayment;
 import com.emenu.features.order.models.Cart;
 import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderItem;
+import com.emenu.features.order.models.OrderDeliveryAddress;
+import com.emenu.features.order.models.OrderDeliveryOption;
+import com.emenu.features.order.models.OrderItemPricingSnapshot;
 import com.emenu.features.order.repository.OrderPaymentRepository;
 import com.emenu.features.order.repository.CartRepository;
 import com.emenu.features.order.repository.OrderRepository;
 import com.emenu.features.order.repository.OrderStatusHistoryRepository;
+import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
+import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
+import com.emenu.features.order.repository.OrderItemPricingSnapshotRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
 import com.emenu.features.order.service.OrderService;
 import com.emenu.features.stock.service.impl.StockServiceImpl;
@@ -62,6 +68,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final DeliveryOptionRepository deliveryOptionRepository;
     private final ProductRepository productRepository;
+    private final OrderDeliveryAddressRepository orderDeliveryAddressRepository;
+    private final OrderDeliveryOptionRepository orderDeliveryOptionRepository;
+    private final OrderItemPricingSnapshotRepository orderItemPricingSnapshotRepository;
     private final OrderMapper orderMapper;
     private final OrderPaymentMapper paymentMapper;
     private final SecurityUtils securityUtils;
@@ -89,6 +98,37 @@ public class OrderServiceImpl implements OrderService {
             log.debug("📋 [STEP 3/6] Saving base order...");
             Order savedOrder = orderRepository.save(order);
             log.info("✅ [ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
+
+            // Create delivery snapshots from request
+            if (request.getDeliveryAddress() != null) {
+                OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
+                deliveryAddress.setOrderId(savedOrder.getId());
+                deliveryAddress.setVillage(request.getDeliveryAddress().getVillage());
+                deliveryAddress.setCommune(request.getDeliveryAddress().getCommune());
+                deliveryAddress.setDistrict(request.getDeliveryAddress().getDistrict());
+                deliveryAddress.setProvince(request.getDeliveryAddress().getProvince());
+                deliveryAddress.setStreetNumber(request.getDeliveryAddress().getStreetNumber());
+                deliveryAddress.setHouseNumber(request.getDeliveryAddress().getHouseNumber());
+                deliveryAddress.setNote(request.getDeliveryAddress().getNote());
+                deliveryAddress.setLatitude(request.getDeliveryAddress().getLatitude());
+                deliveryAddress.setLongitude(request.getDeliveryAddress().getLongitude());
+                orderDeliveryAddressRepository.save(deliveryAddress);
+                log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for order: {}", savedOrder.getId());
+            }
+
+            if (request.getDeliveryOption() != null) {
+                OrderDeliveryOption deliveryOption = new OrderDeliveryOption();
+                deliveryOption.setOrderId(savedOrder.getId());
+                deliveryOption.setName(request.getDeliveryOption().getName());
+                deliveryOption.setDescription(request.getDeliveryOption().getDescription());
+                deliveryOption.setImageUrl(request.getDeliveryOption().getImageUrl());
+                deliveryOption.setPrice(request.getDeliveryOption().getPrice());
+                orderDeliveryOptionRepository.save(deliveryOption);
+                log.debug("✅ [DELIVERY OPTION SNAPSHOT] Created for order: {}", savedOrder.getId());
+
+                // Update delivery fee in order
+                savedOrder.setDeliveryFee(request.getDeliveryOption().getPrice());
+            }
 
             // Create initial order status history to track when order was created
             log.debug("📋 [STEP 3.5/6] Creating initial status history...");
@@ -266,25 +306,34 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        // Update delivery address fields if provided
+        // Update delivery address snapshot if provided
         if (request.getDeliveryAddress() != null) {
-            order.setDeliveryVillage(request.getDeliveryAddress().getVillage());
-            order.setDeliveryCommune(request.getDeliveryAddress().getCommune());
-            order.setDeliveryDistrict(request.getDeliveryAddress().getDistrict());
-            order.setDeliveryProvince(request.getDeliveryAddress().getProvince());
-            order.setDeliveryStreetNumber(request.getDeliveryAddress().getStreetNumber());
-            order.setDeliveryHouseNumber(request.getDeliveryAddress().getHouseNumber());
-            order.setDeliveryNote(request.getDeliveryAddress().getNote());
-            order.setDeliveryLatitude(request.getDeliveryAddress().getLatitude());
-            order.setDeliveryLongitude(request.getDeliveryAddress().getLongitude());
+            OrderDeliveryAddress deliveryAddress = orderDeliveryAddressRepository.findByOrderId(orderId)
+                    .orElse(new OrderDeliveryAddress());
+            deliveryAddress.setOrderId(orderId);
+            deliveryAddress.setVillage(request.getDeliveryAddress().getVillage());
+            deliveryAddress.setCommune(request.getDeliveryAddress().getCommune());
+            deliveryAddress.setDistrict(request.getDeliveryAddress().getDistrict());
+            deliveryAddress.setProvince(request.getDeliveryAddress().getProvince());
+            deliveryAddress.setStreetNumber(request.getDeliveryAddress().getStreetNumber());
+            deliveryAddress.setHouseNumber(request.getDeliveryAddress().getHouseNumber());
+            deliveryAddress.setNote(request.getDeliveryAddress().getNote());
+            deliveryAddress.setLatitude(request.getDeliveryAddress().getLatitude());
+            deliveryAddress.setLongitude(request.getDeliveryAddress().getLongitude());
+            orderDeliveryAddressRepository.save(deliveryAddress);
         }
 
-        // Update delivery option fields if provided
+        // Update delivery option snapshot if provided
         if (request.getDeliveryOption() != null) {
-            order.setDeliveryOptionName(request.getDeliveryOption().getName());
-            order.setDeliveryOptionDescription(request.getDeliveryOption().getDescription());
-            order.setDeliveryOptionImageUrl(request.getDeliveryOption().getImageUrl());
-            order.setDeliveryOptionPrice(request.getDeliveryOption().getPrice());
+            OrderDeliveryOption deliveryOption = orderDeliveryOptionRepository.findByOrderId(orderId)
+                    .orElse(new OrderDeliveryOption());
+            deliveryOption.setOrderId(orderId);
+            deliveryOption.setName(request.getDeliveryOption().getName());
+            deliveryOption.setDescription(request.getDeliveryOption().getDescription());
+            deliveryOption.setImageUrl(request.getDeliveryOption().getImageUrl());
+            deliveryOption.setPrice(request.getDeliveryOption().getPrice());
+            orderDeliveryOptionRepository.save(deliveryOption);
+
             order.setDeliveryFee(request.getDeliveryOption().getPrice());
 
             // Recalculate total with new delivery fee
@@ -491,34 +540,43 @@ public class OrderServiceImpl implements OrderService {
             // Store audit trail - always set hadChangeFromPOS (true/false, never null)
             orderItem.setHadChangeFromPOS(item.getHadChangeFromPOS() != null && item.getHadChangeFromPOS());
 
+            orderItem.setOrder(order);
+            order.getItems().add(orderItem);
+
+            // Save the order item first to get its ID for creating the pricing snapshot
+            orderRepository.save(order);
+
+            // Create pricing snapshot with before/after snapshots
+            OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
+            snapshot.setOrderItemId(orderItem.getId());
+
             // Store before snapshot fields
             if (item.getBefore() != null) {
-                orderItem.setBeforeCurrentPrice(item.getBefore().getCurrentPrice());
-                orderItem.setBeforeFinalPrice(item.getBefore().getFinalPrice());
-                orderItem.setBeforeHasActivePromotion(item.getBefore().getHasActivePromotion());
-                orderItem.setBeforeDiscountAmount(item.getBefore().getDiscountAmount());
-                orderItem.setBeforeTotalPrice(item.getBefore().getTotalPrice());
-                orderItem.setBeforePromotionType(item.getBefore().getPromotionType());
-                orderItem.setBeforePromotionValue(item.getBefore().getPromotionValue());
-                orderItem.setBeforePromotionFromDate(item.getBefore().getPromotionFromDate());
-                orderItem.setBeforePromotionToDate(item.getBefore().getPromotionToDate());
+                snapshot.setBeforeCurrentPrice(item.getBefore().getCurrentPrice());
+                snapshot.setBeforeFinalPrice(item.getBefore().getFinalPrice());
+                snapshot.setBeforeHasActivePromotion(item.getBefore().getHasActivePromotion());
+                snapshot.setBeforeDiscountAmount(item.getBefore().getDiscountAmount());
+                snapshot.setBeforeTotalPrice(item.getBefore().getTotalPrice());
+                snapshot.setBeforePromotionType(item.getBefore().getPromotionType());
+                snapshot.setBeforePromotionValue(item.getBefore().getPromotionValue());
+                snapshot.setBeforePromotionFromDate(item.getBefore().getPromotionFromDate());
+                snapshot.setBeforePromotionToDate(item.getBefore().getPromotionToDate());
             }
 
             // Store after snapshot fields
             if (item.getAfter() != null && item.getHadChangeFromPOS() != null && item.getHadChangeFromPOS()) {
-                orderItem.setAfterCurrentPrice(item.getAfter().getCurrentPrice());
-                orderItem.setAfterFinalPrice(item.getAfter().getFinalPrice());
-                orderItem.setAfterHasActivePromotion(item.getAfter().getHasActivePromotion());
-                orderItem.setAfterDiscountAmount(item.getAfter().getDiscountAmount());
-                orderItem.setAfterTotalPrice(item.getAfter().getTotalPrice());
-                orderItem.setAfterPromotionType(item.getAfter().getPromotionType());
-                orderItem.setAfterPromotionValue(item.getAfter().getPromotionValue());
-                orderItem.setAfterPromotionFromDate(item.getAfter().getPromotionFromDate());
-                orderItem.setAfterPromotionToDate(item.getAfter().getPromotionToDate());
+                snapshot.setAfterCurrentPrice(item.getAfter().getCurrentPrice());
+                snapshot.setAfterFinalPrice(item.getAfter().getFinalPrice());
+                snapshot.setAfterHasActivePromotion(item.getAfter().getHasActivePromotion());
+                snapshot.setAfterDiscountAmount(item.getAfter().getDiscountAmount());
+                snapshot.setAfterTotalPrice(item.getAfter().getTotalPrice());
+                snapshot.setAfterPromotionType(item.getAfter().getPromotionType());
+                snapshot.setAfterPromotionValue(item.getAfter().getPromotionValue());
+                snapshot.setAfterPromotionFromDate(item.getAfter().getPromotionFromDate());
+                snapshot.setAfterPromotionToDate(item.getAfter().getPromotionToDate());
             }
 
-            orderItem.setOrder(order);
-            order.getItems().add(orderItem);
+            orderItemPricingSnapshotRepository.save(snapshot);
             log.debug("✅ [ITEM ADDED] Item {} added to order, total items now: {}", itemCount, order.getItems().size());
         }
 
@@ -550,6 +608,35 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.save(order);
         log.info("✅ [ORDER ITEMS SAVED] Successfully saved {} items for order: {}", order.getItems().size(), orderId);
+
+        // Create delivery address snapshot if exists in the cart summary
+        if (cartResponse.getDeliveryAddress() != null) {
+            OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
+            deliveryAddress.setOrderId(orderId);
+            deliveryAddress.setVillage(cartResponse.getDeliveryAddress().getVillage());
+            deliveryAddress.setCommune(cartResponse.getDeliveryAddress().getCommune());
+            deliveryAddress.setDistrict(cartResponse.getDeliveryAddress().getDistrict());
+            deliveryAddress.setProvince(cartResponse.getDeliveryAddress().getProvince());
+            deliveryAddress.setStreetNumber(cartResponse.getDeliveryAddress().getStreetNumber());
+            deliveryAddress.setHouseNumber(cartResponse.getDeliveryAddress().getHouseNumber());
+            deliveryAddress.setNote(cartResponse.getDeliveryAddress().getNote());
+            deliveryAddress.setLatitude(cartResponse.getDeliveryAddress().getLatitude());
+            deliveryAddress.setLongitude(cartResponse.getDeliveryAddress().getLongitude());
+            orderDeliveryAddressRepository.save(deliveryAddress);
+            log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for order: {}", orderId);
+        }
+
+        // Create delivery option snapshot if exists in the cart summary
+        if (cartResponse.getDeliveryOption() != null) {
+            OrderDeliveryOption deliveryOption = new OrderDeliveryOption();
+            deliveryOption.setOrderId(orderId);
+            deliveryOption.setName(cartResponse.getDeliveryOption().getName());
+            deliveryOption.setDescription(cartResponse.getDeliveryOption().getDescription());
+            deliveryOption.setImageUrl(cartResponse.getDeliveryOption().getImageUrl());
+            deliveryOption.setPrice(cartResponse.getDeliveryOption().getPrice());
+            orderDeliveryOptionRepository.save(deliveryOption);
+            log.debug("✅ [DELIVERY OPTION SNAPSHOT] Created for order: {}", orderId);
+        }
     }
 
     private void createPaymentRecord(Order order) {

@@ -97,61 +97,9 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "change_reason", columnDefinition = "TEXT")
     private String changeReason;
 
-    // ===== Before Snapshot Fields =====
-    @Column(name = "before_current_price", precision = 19, scale = 2)
-    private BigDecimal beforeCurrentPrice;
-
-    @Column(name = "before_final_price", precision = 19, scale = 2)
-    private BigDecimal beforeFinalPrice;
-
-    @Column(name = "before_has_active_promotion")
-    private Boolean beforeHasActivePromotion;
-
-    @Column(name = "before_discount_amount", precision = 19, scale = 2)
-    private BigDecimal beforeDiscountAmount;
-
-    @Column(name = "before_total_price", precision = 19, scale = 2)
-    private BigDecimal beforeTotalPrice;
-
-    @Column(name = "before_promotion_type", length = 50)
-    private String beforePromotionType;
-
-    @Column(name = "before_promotion_value", precision = 19, scale = 2)
-    private BigDecimal beforePromotionValue;
-
-    @Column(name = "before_promotion_from_date")
-    private java.time.LocalDateTime beforePromotionFromDate;
-
-    @Column(name = "before_promotion_to_date")
-    private java.time.LocalDateTime beforePromotionToDate;
-
-    // ===== NEW: After Snapshot Fields (replacing JSON) =====
-    @Column(name = "after_current_price", precision = 19, scale = 2)
-    private BigDecimal afterCurrentPrice;
-
-    @Column(name = "after_final_price", precision = 19, scale = 2)
-    private BigDecimal afterFinalPrice;
-
-    @Column(name = "after_has_active_promotion")
-    private Boolean afterHasActivePromotion;
-
-    @Column(name = "after_discount_amount", precision = 19, scale = 2)
-    private BigDecimal afterDiscountAmount;
-
-    @Column(name = "after_total_price", precision = 19, scale = 2)
-    private BigDecimal afterTotalPrice;
-
-    @Column(name = "after_promotion_type", length = 50)
-    private String afterPromotionType;
-
-    @Column(name = "after_promotion_value", precision = 19, scale = 2)
-    private BigDecimal afterPromotionValue;
-
-    @Column(name = "after_promotion_from_date")
-    private java.time.LocalDateTime afterPromotionFromDate;
-
-    @Column(name = "after_promotion_to_date")
-    private java.time.LocalDateTime afterPromotionToDate;
+    // ===== Pricing Snapshot (Before/After) =====
+    @OneToOne(mappedBy = "orderItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private OrderItemPricingSnapshot pricingSnapshot;
 
     // Business Methods
     public void calculateTotalPrice() {

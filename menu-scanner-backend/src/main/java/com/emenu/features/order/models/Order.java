@@ -45,46 +45,12 @@ public class Order extends BaseUUIDEntity {
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
     private Business business;
 
-    // ===== Delivery Address Fields =====
-    @Column(name = "delivery_village")
-    private String deliveryVillage;
+    // ===== Delivery Address & Option Snapshots =====
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private OrderDeliveryAddress deliveryAddress;
 
-    @Column(name = "delivery_commune")
-    private String deliveryCommune;
-
-    @Column(name = "delivery_district")
-    private String deliveryDistrict;
-
-    @Column(name = "delivery_province")
-    private String deliveryProvince;
-
-    @Column(name = "delivery_street_number")
-    private String deliveryStreetNumber;
-
-    @Column(name = "delivery_house_number")
-    private String deliveryHouseNumber;
-
-    @Column(name = "delivery_note", columnDefinition = "TEXT")
-    private String deliveryNote;
-
-    @Column(name = "delivery_latitude", precision = 10, scale = 8)
-    private BigDecimal deliveryLatitude;
-
-    @Column(name = "delivery_longitude", precision = 11, scale = 8)
-    private BigDecimal deliveryLongitude;
-
-    // ===== NEW: Delivery Option Fields (replacing JSON snapshot) =====
-    @Column(name = "delivery_option_name")
-    private String deliveryOptionName;
-
-    @Column(name = "delivery_option_description", columnDefinition = "TEXT")
-    private String deliveryOptionDescription;
-
-    @Column(name = "delivery_option_image_url")
-    private String deliveryOptionImageUrl;
-
-    @Column(name = "delivery_option_price", precision = 19, scale = 2)
-    private BigDecimal deliveryOptionPrice;
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private OrderDeliveryOption deliveryOption;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)

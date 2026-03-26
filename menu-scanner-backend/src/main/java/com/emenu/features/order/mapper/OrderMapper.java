@@ -140,56 +140,58 @@ public interface OrderMapper {
     }
 
     /**
-     * Map delivery address fields from Order to DTO
-     * No JSON deserialization needed - data is stored in proper columns
+     * Map delivery address from OrderDeliveryAddress snapshot entity to DTO
      */
     default com.emenu.features.order.dto.response.OrderDeliveryAddressDto mapDeliveryAddress(Order order) {
-        if (order == null) {
+        if (order == null || order.getDeliveryAddress() == null) {
             return null;
         }
 
+        var deliveryAddress = order.getDeliveryAddress();
+
         // Check if any delivery address field is populated
-        if (order.getDeliveryVillage() == null && order.getDeliveryCommune() == null &&
-            order.getDeliveryDistrict() == null && order.getDeliveryProvince() == null &&
-            order.getDeliveryStreetNumber() == null && order.getDeliveryHouseNumber() == null &&
-            order.getDeliveryNote() == null && order.getDeliveryLatitude() == null &&
-            order.getDeliveryLongitude() == null) {
+        if (deliveryAddress.getVillage() == null && deliveryAddress.getCommune() == null &&
+            deliveryAddress.getDistrict() == null && deliveryAddress.getProvince() == null &&
+            deliveryAddress.getStreetNumber() == null && deliveryAddress.getHouseNumber() == null &&
+            deliveryAddress.getNote() == null && deliveryAddress.getLatitude() == null &&
+            deliveryAddress.getLongitude() == null) {
             return null;
         }
 
         return com.emenu.features.order.dto.response.OrderDeliveryAddressDto.builder()
-                .village(order.getDeliveryVillage())
-                .commune(order.getDeliveryCommune())
-                .district(order.getDeliveryDistrict())
-                .province(order.getDeliveryProvince())
-                .streetNumber(order.getDeliveryStreetNumber())
-                .houseNumber(order.getDeliveryHouseNumber())
-                .note(order.getDeliveryNote())
-                .latitude(order.getDeliveryLatitude())
-                .longitude(order.getDeliveryLongitude())
+                .village(deliveryAddress.getVillage())
+                .commune(deliveryAddress.getCommune())
+                .district(deliveryAddress.getDistrict())
+                .province(deliveryAddress.getProvince())
+                .streetNumber(deliveryAddress.getStreetNumber())
+                .houseNumber(deliveryAddress.getHouseNumber())
+                .note(deliveryAddress.getNote())
+                .latitude(deliveryAddress.getLatitude())
+                .longitude(deliveryAddress.getLongitude())
                 .build();
     }
 
     /**
-     * Map delivery option fields from Order to DTO
-     * No JSON deserialization needed - data is stored in proper columns
+     * Map delivery option from OrderDeliveryOption snapshot entity to DTO
      */
     default com.emenu.features.order.dto.response.OrderDeliveryOptionDto mapDeliveryOption(Order order) {
-        if (order == null) {
+        if (order == null || order.getDeliveryOption() == null) {
             return null;
         }
 
+        var deliveryOption = order.getDeliveryOption();
+
         // Check if any delivery option field is populated
-        if (order.getDeliveryOptionName() == null && order.getDeliveryOptionDescription() == null &&
-            order.getDeliveryOptionImageUrl() == null && order.getDeliveryOptionPrice() == null) {
+        if (deliveryOption.getName() == null && deliveryOption.getDescription() == null &&
+            deliveryOption.getImageUrl() == null && deliveryOption.getPrice() == null) {
             return null;
         }
 
         return com.emenu.features.order.dto.response.OrderDeliveryOptionDto.builder()
-                .name(order.getDeliveryOptionName())
-                .description(order.getDeliveryOptionDescription())
-                .imageUrl(order.getDeliveryOptionImageUrl())
-                .price(order.getDeliveryOptionPrice())
+                .name(deliveryOption.getName())
+                .description(deliveryOption.getDescription())
+                .imageUrl(deliveryOption.getImageUrl())
+                .price(deliveryOption.getPrice())
                 .build();
     }
 

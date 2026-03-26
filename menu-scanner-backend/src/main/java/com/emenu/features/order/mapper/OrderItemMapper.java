@@ -40,20 +40,21 @@ public interface OrderItemMapper {
     }
 
     default OrderItemPricingSnapshot deserializeBeforeSnapshot(OrderItem orderItem) {
-        // Use proper fields instead of JSON deserialization
-        if (orderItem.getBeforeCurrentPrice() != null) {
+        // Load from pricing snapshot entity if available
+        if (orderItem.getPricingSnapshot() != null && orderItem.getPricingSnapshot().getBeforeCurrentPrice() != null) {
+            var snapshot = orderItem.getPricingSnapshot();
             return OrderItemPricingSnapshot.builder()
-                    .currentPrice(orderItem.getBeforeCurrentPrice())
-                    .finalPrice(orderItem.getBeforeFinalPrice())
-                    .hasActivePromotion(orderItem.getBeforeHasActivePromotion())
+                    .currentPrice(snapshot.getBeforeCurrentPrice())
+                    .finalPrice(snapshot.getBeforeFinalPrice())
+                    .hasActivePromotion(snapshot.getBeforeHasActivePromotion())
                     .quantity(orderItem.getQuantity())
-                    .totalBeforeDiscount(calculateTotalBeforeDiscount(orderItem.getBeforeCurrentPrice(), orderItem.getQuantity()))
-                    .discountAmount(orderItem.getBeforeDiscountAmount())
-                    .totalPrice(orderItem.getBeforeTotalPrice())
-                    .promotionType(orderItem.getBeforePromotionType())
-                    .promotionValue(orderItem.getBeforePromotionValue())
-                    .promotionFromDate(orderItem.getBeforePromotionFromDate())
-                    .promotionToDate(orderItem.getBeforePromotionToDate())
+                    .totalBeforeDiscount(calculateTotalBeforeDiscount(snapshot.getBeforeCurrentPrice(), orderItem.getQuantity()))
+                    .discountAmount(snapshot.getBeforeDiscountAmount())
+                    .totalPrice(snapshot.getBeforeTotalPrice())
+                    .promotionType(snapshot.getBeforePromotionType())
+                    .promotionValue(snapshot.getBeforePromotionValue())
+                    .promotionFromDate(snapshot.getBeforePromotionFromDate())
+                    .promotionToDate(snapshot.getBeforePromotionToDate())
                     .build();
         }
         // Fall back to building from current pricing if no before data
@@ -61,20 +62,21 @@ public interface OrderItemMapper {
     }
 
     default OrderItemPricingSnapshot deserializeAfterSnapshot(OrderItem orderItem) {
-        // Use proper fields instead of JSON deserialization
-        if (orderItem.getAfterCurrentPrice() != null) {
+        // Load from pricing snapshot entity if available
+        if (orderItem.getPricingSnapshot() != null && orderItem.getPricingSnapshot().getAfterCurrentPrice() != null) {
+            var snapshot = orderItem.getPricingSnapshot();
             return OrderItemPricingSnapshot.builder()
-                    .currentPrice(orderItem.getAfterCurrentPrice())
-                    .finalPrice(orderItem.getAfterFinalPrice())
-                    .hasActivePromotion(orderItem.getAfterHasActivePromotion())
+                    .currentPrice(snapshot.getAfterCurrentPrice())
+                    .finalPrice(snapshot.getAfterFinalPrice())
+                    .hasActivePromotion(snapshot.getAfterHasActivePromotion())
                     .quantity(orderItem.getQuantity())
-                    .totalBeforeDiscount(calculateTotalBeforeDiscount(orderItem.getAfterCurrentPrice(), orderItem.getQuantity()))
-                    .discountAmount(orderItem.getAfterDiscountAmount())
-                    .totalPrice(orderItem.getAfterTotalPrice())
-                    .promotionType(orderItem.getAfterPromotionType())
-                    .promotionValue(orderItem.getAfterPromotionValue())
-                    .promotionFromDate(orderItem.getAfterPromotionFromDate())
-                    .promotionToDate(orderItem.getAfterPromotionToDate())
+                    .totalBeforeDiscount(calculateTotalBeforeDiscount(snapshot.getAfterCurrentPrice(), orderItem.getQuantity()))
+                    .discountAmount(snapshot.getAfterDiscountAmount())
+                    .totalPrice(snapshot.getAfterTotalPrice())
+                    .promotionType(snapshot.getAfterPromotionType())
+                    .promotionValue(snapshot.getAfterPromotionValue())
+                    .promotionFromDate(snapshot.getAfterPromotionFromDate())
+                    .promotionToDate(snapshot.getAfterPromotionToDate())
                     .build();
         }
         // Fall back to building from current pricing if no after data
