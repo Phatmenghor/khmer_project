@@ -3,14 +3,17 @@ package com.emenu.features.order.dto.update;
 import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.payment.PaymentStatus;
-import com.emenu.features.order.dto.helper.OrderItemCreateHelper;
 import com.emenu.features.order.dto.request.DeliveryAddressRequest;
 import com.emenu.features.order.dto.request.DeliveryOptionRequest;
+import com.emenu.features.order.dto.request.OrderItemUpdateRequest;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Clean order update request - mirrors response structure but only with necessary fields
+ */
 @Data
 public class OrderUpdateRequest {
     private OrderStatus orderStatus;
@@ -21,11 +24,11 @@ public class OrderUpdateRequest {
     private String customerNote;
     private String businessNote;
 
-    // Full update fields
+    // Pricing adjustments
     private BigDecimal discountAmount;
     private BigDecimal taxAmount;
     private BigDecimal deliveryFee;
 
     // Items update - allows adding/modifying items
-    private List<OrderItemCreateHelper> items;
+    private List<OrderItemUpdateRequest> items;
 }

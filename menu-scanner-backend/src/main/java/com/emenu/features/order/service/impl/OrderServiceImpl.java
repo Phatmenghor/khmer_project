@@ -312,25 +312,25 @@ public class OrderServiceImpl implements OrderService {
             order.getItems().clear();
 
             // Create new items from the request
-            for (OrderItemCreateHelper itemHelper : request.getItems()) {
+            for (com.emenu.features.order.dto.request.OrderItemUpdateRequest itemRequest : request.getItems()) {
                 OrderItem item = new OrderItem();
                 item.setOrderId(orderId);
-                item.setProductId(itemHelper.getProductId());
-                item.setProductSizeId(itemHelper.getProductSizeId());
-                item.setProductName(itemHelper.getProductName());
-                item.setProductImageUrl(itemHelper.getProductImageUrl());
-                item.setSizeName(itemHelper.getSizeName());
-                item.setCurrentPrice(itemHelper.getCurrentPrice());
-                item.setFinalPrice(itemHelper.getFinalPrice());
-                item.setUnitPrice(itemHelper.getUnitPrice());
-                item.setQuantity(itemHelper.getQuantity());
-                item.setTotalPrice(itemHelper.getFinalPrice().multiply(new BigDecimal(itemHelper.getQuantity())));
-                item.setHasPromotion(itemHelper.getHasPromotion());
-                item.setPromotionType(itemHelper.getPromotionType());
-                item.setPromotionValue(itemHelper.getPromotionValue());
-                item.setPromotionFromDate(itemHelper.getPromotionFromDate());
-                item.setPromotionToDate(itemHelper.getPromotionToDate());
-                item.setSpecialInstructions(itemHelper.getSpecialInstructions());
+                item.setProductId(itemRequest.getProductId());
+                item.setProductSizeId(itemRequest.getProductSizeId());
+                item.setProductName(itemRequest.getProductName());
+                item.setProductImageUrl(itemRequest.getProductImageUrl());
+                item.setSizeName(itemRequest.getSizeName());
+                item.setCurrentPrice(itemRequest.getCurrentPrice());
+                item.setFinalPrice(itemRequest.getFinalPrice());
+                item.setUnitPrice(itemRequest.getUnitPrice());
+                item.setQuantity(itemRequest.getQuantity());
+                item.setTotalPrice(itemRequest.getFinalPrice().multiply(new BigDecimal(itemRequest.getQuantity())));
+                item.setHasPromotion(itemRequest.getHasPromotion());
+                item.setPromotionType(itemRequest.getPromotionType());
+                item.setPromotionValue(itemRequest.getPromotionValue());
+                item.setPromotionFromDate(itemRequest.getPromotionFromDate());
+                item.setPromotionToDate(itemRequest.getPromotionToDate());
+                item.setSpecialInstructions(itemRequest.getSpecialInstructions());
                 item.setOrder(order);
 
                 order.getItems().add(item);
