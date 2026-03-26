@@ -130,9 +130,11 @@ export function TelegramLoginButton({
     );
 
     if (!popup) {
-      console.error("[TelegramLogin] Popup blocked by browser");
+      console.error("## [TELEGRAM POPUP] ✗ Popup blocked by browser — allow popups for this site");
       return;
     }
+
+    console.log("## [TELEGRAM POPUP] ✓ Popup opened successfully");
 
     let resolved = false;
 
@@ -140,24 +142,37 @@ export function TelegramLoginButton({
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== "https://oauth.telegram.org") return;
 
+      console.log("## [TELEGRAM POPUP] 📨 postMessage received from oauth.telegram.org:", event.data);
+
       try {
         const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-        console.log("[TelegramLogin] postMessage received:", data);
 
         if (data?.event === "auth_result" && data?.result) {
+          console.log("## [TELEGRAM POPUP] ✓ auth_result received:", {
+            id: data.result.id,
+            username: data.result.username,
+            first_name: data.result.first_name,
+            last_name: data.result.last_name,
+            has_photo: !!data.result.photo_url,
+            auth_date: data.result.auth_date,
+          });
           resolved = true;
           cleanup();
           onAuth(data.result as TelegramAuthData);
+        } else {
+          console.warn("## [TELEGRAM POPUP] ⚠ Unexpected postMessage event:", data?.event);
         }
-      } catch {
-        // ignore malformed messages
+      } catch (err) {
+        console.error("## [TELEGRAM POPUP] ✗ Failed to parse postMessage:", err);
       }
     };
 
     // Fallback: poll popup URL for tgAuthResult (redirect approach)
     const checkPopup = setInterval(() => {
       if (!popup || popup.closed) {
-        if (!resolved) console.log("[TelegramLogin] Popup closed without auth");
+        if (!resolved) {
+          console.warn("## [TELEGRAM POPUP] ⚠ Popup closed without receiving auth data");
+        }
         cleanup();
         return;
       }
@@ -166,11 +181,16 @@ export function TelegramLoginButton({
         const url = new URL(popup.location.href);
         const tgAuthResult = url.searchParams.get("tgAuthResult");
         if (tgAuthResult) {
+          console.log("## [TELEGRAM POPUP] ✓ tgAuthResult found in URL (redirect fallback)");
           resolved = true;
           cleanup();
           popup.close();
           const authData = JSON.parse(atob(tgAuthResult));
-          console.log("[TelegramLogin] Auth data (URL fallback):", authData);
+          console.log("## [TELEGRAM POPUP] ✓ Auth data decoded:", {
+            id: authData.id,
+            username: authData.username,
+            first_name: authData.first_name,
+          });
           onAuth(authData as TelegramAuthData);
         }
       } catch {

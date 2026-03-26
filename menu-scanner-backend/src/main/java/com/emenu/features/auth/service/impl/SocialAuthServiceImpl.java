@@ -85,14 +85,22 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     @Override
     public SocialSyncResponse syncSocialAccount(SocialAuthRequest request) {
         UUID currentUserId = securityUtils.getCurrentUserId();
+        log.info("## [SYNC SERVICE] ▶ Starting sync: userId={}, provider={}", currentUserId, request.getProvider());
+
         User user = userRepository.findByIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> new ValidationException("User not found"));
+        log.info("## [SYNC SERVICE] ✓ Found user: identifier={}, userType={}", user.getUserIdentifier(), user.getUserType());
 
         SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(request.getProvider());
+        log.info("## [SYNC SERVICE] ▶ Fetching user info from provider: {}", provider);
         SocialUserInfo userInfo = fetchUserInfo(provider, request.getAccessToken());
+        log.info("## [SYNC SERVICE] ✓ Provider info fetched: id={}, username={}", userInfo.getId(), userInfo.getUsername());
 
+        log.info("## [SYNC SERVICE] ▶ Syncing social data to user entity...");
         syncSocialData(user, provider, userInfo);
         userRepository.save(user);
+        log.info("## [SYNC SERVICE] ✓ User saved: telegramId={}, telegramUsername={}, hasPhoto={}",
+                user.getTelegramId(), user.getTelegramUsername(), user.getTelegramPhotoUrl() != null);
 
         SocialSyncResponse.SocialSyncResponseBuilder builder = SocialSyncResponse.builder()
                 .success(true)
@@ -117,18 +125,28 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     @Override
     public SocialSyncResponse unsyncSocialAccount(String providerKey) {
         UUID currentUserId = securityUtils.getCurrentUserId();
+        log.info("## [UNSYNC SERVICE] ▶ Starting unsync: userId={}, provider={}", currentUserId, providerKey);
+
         User user = userRepository.findByIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> new ValidationException("User not found"));
+        log.info("## [UNSYNC SERVICE] ✓ Found user: identifier={}", user.getUserIdentifier());
 
         SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(providerKey);
 
         switch (provider) {
-            case TELEGRAM -> user.unsyncTelegram();
-            case GOOGLE -> user.unsyncGoogle();
+            case TELEGRAM -> {
+                log.info("## [UNSYNC SERVICE] ▶ Clearing Telegram fields (was telegramId={})", user.getTelegramId());
+                user.unsyncTelegram();
+            }
+            case GOOGLE -> {
+                log.info("## [UNSYNC SERVICE] ▶ Clearing Google fields (was googleId={})", user.getGoogleId());
+                user.unsyncGoogle();
+            }
             default -> throw new ValidationException("Unsupported provider: " + provider);
         }
 
         userRepository.save(user);
+        log.info("## [UNSYNC SERVICE] ✓ User saved, {} unsynced successfully", providerKey);
 
         return SocialSyncResponse.builder()
                 .success(true)

@@ -102,10 +102,18 @@ export const syncTelegramAccountService = createApiThunk<
     businessId: null,
   };
 
+  console.log("## [TELEGRAM SYNC THUNK] ▶ POST /api/v1/auth/social/sync", {
+    provider: request.provider,
+    userType: request.userType,
+    accessTokenPreview: request.accessToken.substring(0, 80) + "...",
+  });
+
   const response = await axiosClientWithAuth.post(
     "/api/v1/auth/social/sync",
     request
   );
+
+  console.log("## [TELEGRAM SYNC THUNK] ✓ Response:", response.data);
   return response.data.data;
 });
 
