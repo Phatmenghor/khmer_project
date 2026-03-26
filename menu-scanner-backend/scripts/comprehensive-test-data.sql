@@ -347,11 +347,11 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 
 INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, price, status) VALUES
-('d1', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Pickup', 'Quick pickup', 0.00::numeric, 'ACTIVE'),
-('d2', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Standard', 'Standard delivery', 2.00::numeric, 'ACTIVE'),
-('d3', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Express', 'Express delivery', 5.00::numeric, 'ACTIVE'),
-('d4', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Same Day', 'Same day delivery', 3.50::numeric, 'ACTIVE'),
-('d5', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Door Step', 'Door step delivery', 1.50::numeric, 'ACTIVE');
+('00000001-0000-0000-0000-000000000001'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Pickup', 'Quick pickup', 0.00::numeric, 'ACTIVE'),
+('00000001-0000-0000-0000-000000000002'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Standard', 'Standard delivery', 2.00::numeric, 'ACTIVE'),
+('00000001-0000-0000-0000-000000000003'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Express', 'Express delivery', 5.00::numeric, 'ACTIVE'),
+('00000001-0000-0000-0000-000000000004'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Same Day', 'Same day delivery', 3.50::numeric, 'ACTIVE'),
+('00000001-0000-0000-0000-000000000005'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Door Step', 'Door step delivery', 1.50::numeric, 'ACTIVE');
 
 -- ============================================================================
 -- 20. PAYMENT OPTIONS
