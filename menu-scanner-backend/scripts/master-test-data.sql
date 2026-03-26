@@ -252,9 +252,9 @@ BEGIN
     FROM GENERATE_SERIES(1, 5) ON CONFLICT DO NOTHING;
 
     -- =====================================================
-    -- 10,000 PUBLIC ORDERS (Customer-created)
+    -- 1,000 PUBLIC ORDERS (Customer-created)
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 85%% - Creating 10,000 PUBLIC orders (customer-created)...';
+    RAISE NOTICE '📊 Progress: 85%% - Creating 1,000 PUBLIC orders (customer-created)...';
     INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
     SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '90 days'), t, 'system', 'system', false, NULL, NULL, key_business_id, customer_user_id, 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(ord_n::TEXT, 6, '0'),
         CASE WHEN ord_n % 4 = 0 THEN 'PENDING'::VARCHAR WHEN ord_n % 4 = 1 THEN 'CONFIRMED' WHEN ord_n % 4 = 2 THEN 'COMPLETED' ELSE 'CANCELLED' END,
@@ -272,17 +272,17 @@ BEGIN
         'Processing',
         t - (RANDOM() * INTERVAL '90 days'),
         CASE WHEN ord_n % 4 = 2 THEN t - (RANDOM() * INTERVAL '7 days') ELSE NULL END
-    FROM GENERATE_SERIES(1, 10000) ord_n;
+    FROM GENERATE_SERIES(1, 1000) ord_n;
     RAISE NOTICE 'PUBLIC orders created!';
 
     -- =====================================================
-    -- 10,000 POS ORDERS (Admin-created, all COMPLETED)
+    -- 1,000 POS ORDERS (Admin-created, all COMPLETED)
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 87%% - Creating 10,000 POS orders (admin-created, all COMPLETED)...';
+    RAISE NOTICE '📊 Progress: 87%% - Creating 1,000 POS orders (admin-created, all COMPLETED)...';
     INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
     SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '90 days'), t, business_user_id, business_user_id, false, NULL, NULL, key_business_id,
         CASE WHEN pos_n % 3 = 0 THEN customer_user_id ELSE NULL END,
-        'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD((10000 + pos_n)::TEXT, 6, '0'),
+        'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD((1000 + pos_n)::TEXT, 6, '0'),
         'COMPLETED'::VARCHAR,
         'POS'::VARCHAR,
         '{"village":"POS Counter","commune":"Downtown","district":"Daun Penh","province":"Phnom Penh","streetNumber":"1","houseNumber":"Shop"}',
@@ -298,15 +298,15 @@ BEGIN
         'Staff order',
         t - (RANDOM() * INTERVAL '90 days'),
         t - (RANDOM() * INTERVAL '7 days')
-    FROM GENERATE_SERIES(1, 10000) pos_n;
+    FROM GENERATE_SERIES(1, 1000) pos_n;
     RAISE NOTICE 'POS orders created!';
 
     -- =====================================================
-    -- ORDER ITEMS (3 items per order: 10,000 PUBLIC + 10,000 POS = 60,000 items)
+    -- ORDER ITEMS (3 items per order: 1,000 PUBLIC + 1,000 POS = 6,000 items)
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 90%% - Creating order items (60,000 total)...';
+    RAISE NOTICE '📊 Progress: 90%% - Creating order items (6,000 total)...';
 
-    -- Items for PUBLIC orders (10,000 orders × 3 items = 30,000 items)
+    -- Items for PUBLIC orders (1,000 orders × 3 items = 3,000 items)
     INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, quantity, total_price, has_promotion)
     SELECT
         gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL,
@@ -322,9 +322,9 @@ BEGIN
         CASE WHEN oi_n % 3 = 0 THEN 1 ELSE 2 END,
         ((20.00 + (oi_n % 30)) * CASE WHEN oi_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC,
         false
-    FROM GENERATE_SERIES(1, 30000) oi_n;
+    FROM GENERATE_SERIES(1, 3000) oi_n;
 
-    -- Items for POS orders (10,000 orders × 3 items = 30,000 items)
+    -- Items for POS orders (1,000 orders × 3 items = 3,000 items)
     INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, quantity, total_price, has_promotion)
     SELECT
         gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL,
@@ -340,29 +340,29 @@ BEGIN
         CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END,
         CASE WHEN pos_item_n % 5 = 0 THEN ((4.50 * 0.9) * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC WHEN pos_item_n % 5 = 1 THEN (5.00 * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC WHEN pos_item_n % 5 = 2 THEN ((5.50 * 0.85) * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC WHEN pos_item_n % 5 = 3 THEN (6.00 * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC ELSE (5.25 * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC END,
         CASE WHEN pos_item_n % 5 IN (0, 2) THEN true ELSE false END
-    FROM GENERATE_SERIES(1, 30000) pos_item_n;
+    FROM GENERATE_SERIES(1, 3000) pos_item_n;
 
     -- =====================================================
-    -- ORDER PAYMENTS (20,000 total: 10,000 PUBLIC + 10,000 POS)
+    -- ORDER PAYMENTS (2,000 total: 1,000 PUBLIC + 1,000 POS)
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 92%% - Creating order payments (20,000 total)...';
+    RAISE NOTICE '📊 Progress: 92%% - Creating order payments (2,000 total)...';
     INSERT INTO order_payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, order_id, payment_reference, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, status, customer_payment_method)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM orders ORDER BY id OFFSET (opay_n - 1) LIMIT 1), 'PAY-' || LPAD(opay_n::TEXT, 10, '0'), (50.00 + (opay_n % 100))::NUMERIC, CASE WHEN opay_n % 10 = 0 THEN (opay_n % 30)::NUMERIC ELSE 0 END, CASE WHEN opay_n % 3 = 2 THEN 0 ELSE 2 END, (5.00 + (opay_n % 15))::NUMERIC, (55.00 + (opay_n % 100))::NUMERIC, 'CASH', 'COMPLETED', 'Cash Payment'
-    FROM GENERATE_SERIES(1, 20000) opay_n;
+    FROM GENERATE_SERIES(1, 2000) opay_n;
 
     -- =====================================================
-    -- ORDER STATUS HISTORY (20,000 total: 10,000 PUBLIC + 10,000 POS)
+    -- ORDER STATUS HISTORY (2,000 total: 1,000 PUBLIC + 1,000 POS)
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 94%% - Creating order status history (20,000 total)...';
-    -- PUBLIC orders status history (10,000 orders)
+    RAISE NOTICE '📊 Progress: 94%% - Creating order status history (2,000 total)...';
+    -- PUBLIC orders status history (1,000 orders)
     INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders WHERE source = 'PUBLIC' ORDER BY id OFFSET ((osh - 1) % 10000) LIMIT 1), CASE WHEN osh % 4 = 0 THEN 'PENDING'::VARCHAR WHEN osh % 4 = 1 THEN 'CONFIRMED' WHEN osh % 4 = 2 THEN 'COMPLETED' ELSE 'CANCELLED' END, business_user_id, 'System', 'Order status transition'
-    FROM GENERATE_SERIES(1, 10000) osh;
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders WHERE source = 'PUBLIC' ORDER BY id OFFSET ((osh - 1) % 1000) LIMIT 1), CASE WHEN osh % 4 = 0 THEN 'PENDING'::VARCHAR WHEN osh % 4 = 1 THEN 'CONFIRMED' WHEN osh % 4 = 2 THEN 'COMPLETED' ELSE 'CANCELLED' END, business_user_id, 'System', 'Order status transition'
+    FROM GENERATE_SERIES(1, 1000) osh;
 
-    -- POS orders status history (10,000 orders - all start as COMPLETED)
+    -- POS orders status history (1,000 orders - all start as COMPLETED)
     INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders WHERE source = 'POS' ORDER BY id OFFSET ((pos_osh - 1) % 10000) LIMIT 1), 'COMPLETED'::VARCHAR, business_user_id, 'POS System', 'Order created via POS - completed'
-    FROM GENERATE_SERIES(1, 10000) pos_osh;
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders WHERE source = 'POS' ORDER BY id OFFSET ((pos_osh - 1) % 1000) LIMIT 1), 'COMPLETED'::VARCHAR, business_user_id, 'POS System', 'Order created via POS - completed'
+    FROM GENERATE_SERIES(1, 1000) pos_osh;
 
     -- =====================================================
     -- EXCHANGE RATES
@@ -384,12 +384,12 @@ BEGIN
     RAISE NOTICE '   • 2000 Business Users (staff under phatmenghor20''s business)';
     RAISE NOTICE '   • 28 Categories & 28 Brands';
     RAISE NOTICE '   • 10,000 Products with Sizes & Stock';
-    RAISE NOTICE '✅ ORDER DATA (20,000 TOTAL ORDERS!):';
-    RAISE NOTICE '   • 10,000 PUBLIC orders (customer-created, varied statuses)';
-    RAISE NOTICE '   • 10,000 POS orders (admin-created by phatmenghor20, all COMPLETED)';
-    RAISE NOTICE '   • 60,000 Order Items (3 per order)';
-    RAISE NOTICE '   • 20,000 Order Payments (all payment methods)';
-    RAISE NOTICE '   • 20,000 Order Status History records';
+    RAISE NOTICE '✅ ORDER DATA (2,000 TOTAL ORDERS!):';
+    RAISE NOTICE '   • 1,000 PUBLIC orders (customer-created, varied statuses)';
+    RAISE NOTICE '   • 1,000 POS orders (admin-created by phatmenghor20, all COMPLETED)';
+    RAISE NOTICE '   • 6,000 Order Items (3 per order)';
+    RAISE NOTICE '   • 2,000 Order Payments (all payment methods)';
+    RAISE NOTICE '   • 2,000 Order Status History records';
     RAISE NOTICE '✅ OTHER DATA:';
     RAISE NOTICE '   • 5 Delivery Options & 5 Payment Methods';
     RAISE NOTICE '   • 3 Banners & 2 Customer Addresses';
@@ -399,16 +399,23 @@ BEGIN
     -- =====================================================
     RAISE NOTICE '🚀 Adding Enhanced POS Test Data with Audit Trails (NO NULLS)...';
 
-    -- Define image URLs to use (2 images rotate)
+    -- Define image URLs and product IDs for AUDIT scenarios
     DECLARE
       img1 TEXT := 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop';
       img2 TEXT := 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop';
+      product1_id UUID;
+      product2_id UUID;
+      product3_id UUID;
       audit_order_1 UUID;
       audit_order_2 UUID;
       audit_order_3 UUID;
       audit_order_4 UUID;
       audit_order_5 UUID;
     BEGIN
+      -- Fetch the first 3 products for use in AUDIT scenarios
+      SELECT id INTO product1_id FROM products WHERE business_id = key_business_id ORDER BY id LIMIT 1;
+      SELECT id INTO product2_id FROM products WHERE business_id = key_business_id ORDER BY id LIMIT 1 OFFSET 1;
+      SELECT id INTO product3_id FROM products WHERE business_id = key_business_id ORDER BY id LIMIT 1 OFFSET 2;
 
     -- SCENARIO 1: PRICE OVERRIDE (Employee Discount)
     RAISE NOTICE '📝 Scenario 1: Price Override (Employee Discount)...';
