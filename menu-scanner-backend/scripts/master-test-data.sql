@@ -1,6 +1,7 @@
 -- ============================================================================
--- MINIMAL TEST DATA - 3 MAIN USERS + 1 BUSINESS
+-- MINIMAL TEST DATA - 3 MAIN USERS + 1 BUSINESS + POS ORDERS
 -- Focused dataset for phatmenghor19, phatmenghor20, phatmenghor21
+-- Plus: 30 POS orders with realistic coffee shop data
 -- ============================================================================
 
 SET synchronous_commit TO OFF;
@@ -247,38 +248,122 @@ BEGIN
     FROM GENERATE_SERIES(1, 5) ON CONFLICT DO NOTHING;
 
     -- =====================================================
-    -- 200 ORDERS
+    -- 200 PUBLIC ORDERS (Customer-created)
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 85%% - Creating 200 orders...';
-    INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
+    RAISE NOTICE '📊 Progress: 85%% - Creating 200 PUBLIC orders (customer-created)...';
+    INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
     SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '30 days'), t, 'system', 'system', false, NULL, NULL, key_business_id, customer_user_id, 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(ord_n::TEXT, 6, '0'),
         CASE WHEN ord_n % 4 = 0 THEN 'PENDING'::VARCHAR WHEN ord_n % 4 = 1 THEN 'CONFIRMED' WHEN ord_n % 4 = 2 THEN 'COMPLETED' ELSE 'CANCELLED' END,
+        'PUBLIC'::VARCHAR,
         '{"village":"Village 1"}', '{"name":"Standard"}', (50.00 + (ord_n % 100))::NUMERIC, 0, 2.00, 5.00, (55.00 + (ord_n % 100))::NUMERIC, 'CASH', 'PAID', 'Test order', 'Processing', t - (RANDOM() * INTERVAL '30 days'), CASE WHEN ord_n % 4 = 2 THEN t - INTERVAL '1 day' ELSE NULL END
     FROM GENERATE_SERIES(1, 200) ord_n;
-    RAISE NOTICE 'Orders created!';
+    RAISE NOTICE 'PUBLIC orders created!';
 
     -- =====================================================
-    -- ORDER ITEMS
+    -- 30 POS ORDERS (Admin-created, all COMPLETED)
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 90%% - Creating order items...';
+    RAISE NOTICE '📊 Progress: 87%% - Creating 30 POS orders (admin-created, all COMPLETED)...';
+    INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
+    SELECT gen_random_uuid(), 0, t - (RANDOM() * INTERVAL '7 days'), t, business_user_id, business_user_id, false, NULL, NULL, key_business_id,
+        CASE WHEN pos_n % 2 = 0 THEN customer_user_id ELSE NULL END,
+        'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD((200 + pos_n)::TEXT, 6, '0'),
+        'COMPLETED'::VARCHAR,
+        'POS'::VARCHAR,
+        '{"village":"POS Counter","commune":"Downtown","district":"Daun Penh","province":"Phnom Penh","streetNumber":"1","houseNumber":"Shop 1"}',
+        '{"id":"' || (SELECT id::TEXT FROM delivery_options WHERE business_id = key_business_id AND name = 'Pickup' LIMIT 1) || '","name":"Pickup"}',
+        (CASE WHEN pos_n % 3 = 0 THEN 45.00 WHEN pos_n % 3 = 1 THEN 65.50 ELSE 85.25 END)::NUMERIC,
+        CASE WHEN pos_n % 5 = 0 THEN (CASE WHEN pos_n % 3 = 0 THEN 4.50 WHEN pos_n % 3 = 1 THEN 6.55 ELSE 8.53 END)::NUMERIC ELSE 0 END,
+        0.00,
+        CASE WHEN pos_n % 4 = 0 THEN 5.00 ELSE 0 END,
+        (CASE WHEN pos_n % 3 = 0 THEN 40.50 WHEN pos_n % 3 = 1 THEN 59.00 ELSE 76.72 END)::NUMERIC,
+        CASE WHEN pos_n % 3 = 0 THEN 'CASH' WHEN pos_n % 3 = 1 THEN 'WING_MOBILE' ELSE 'BANK_TRANSFER' END,
+        'PAID',
+        'POS order - ' || CASE WHEN pos_n % 2 = 0 THEN 'For customer' ELSE 'Walkup' END,
+        'Order by staff ' || (pos_n % 10),
+        t - (RANDOM() * INTERVAL '7 days'),
+        t - (RANDOM() * INTERVAL '6 days')
+    FROM GENERATE_SERIES(1, 30) pos_n;
+    RAISE NOTICE 'POS orders created!';
+
+    -- =====================================================
+    -- ORDER ITEMS (3 items per order: 200 PUBLIC + 30 POS = 690 items)
+    -- =====================================================
+    RAISE NOTICE '📊 Progress: 90%% - Creating order items (690 total)...';
+
+    -- Items for PUBLIC orders (200 orders × 3 items = 600 items)
     INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, quantity, total_price, has_promotion)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders ORDER BY id OFFSET (oi_n - 1) LIMIT 1), (SELECT id FROM products WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1), NULL, 'Item', photo1, 'Medium', 25.00, 25.00, 25.00, 2, 50.00, false
-    FROM GENERATE_SERIES(1, 200) oi_n;
+    SELECT
+        gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL,
+        (SELECT id FROM orders WHERE source = 'PUBLIC' ORDER BY id OFFSET ((oi_n - 1) / 3) LIMIT 1),
+        (SELECT id FROM products WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1),
+        NULL,
+        'Product Item ' || (oi_n % 10),
+        photo1,
+        'Medium',
+        (20.00 + (oi_n % 30))::NUMERIC,
+        (20.00 + (oi_n % 30))::NUMERIC,
+        (20.00 + (oi_n % 30))::NUMERIC,
+        CASE WHEN oi_n % 3 = 0 THEN 1 ELSE 2 END,
+        ((20.00 + (oi_n % 30)) * CASE WHEN oi_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC,
+        false
+    FROM GENERATE_SERIES(1, 600) oi_n;
+
+    -- Items for POS orders (30 orders × 2-3 items = 90 items)
+    -- POS orders often have overridden prices and promotions
+    INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, quantity, total_price, has_promotion)
+    SELECT
+        gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL,
+        (SELECT id FROM orders WHERE source = 'POS' ORDER BY id OFFSET ((pos_item_n - 1) / 3) LIMIT 1),
+        (SELECT id FROM products WHERE business_id = key_business_id ORDER BY RANDOM() LIMIT 1),
+        NULL,
+        'Coffee ' || CASE WHEN pos_item_n % 4 = 1 THEN 'Cappuccino' WHEN pos_item_n % 4 = 2 THEN 'Latte' WHEN pos_item_n % 4 = 3 THEN 'Espresso' ELSE 'Americano' END,
+        photo2,
+        CASE WHEN pos_item_n % 2 = 0 THEN 'Large' ELSE 'Medium' END,
+        -- Current price (with possible override)
+        CASE WHEN pos_item_n % 5 = 0 THEN 4.50 WHEN pos_item_n % 5 = 1 THEN 5.00 WHEN pos_item_n % 5 = 2 THEN 5.50 WHEN pos_item_n % 5 = 3 THEN 6.00 ELSE 5.25 END,
+        -- Final price (after promotion if applied)
+        CASE
+            WHEN pos_item_n % 5 = 0 THEN (4.50 * 0.9)::NUMERIC  -- 10% off
+            WHEN pos_item_n % 5 = 1 THEN 5.00
+            WHEN pos_item_n % 5 = 2 THEN (5.50 * 0.85)::NUMERIC -- 15% off
+            WHEN pos_item_n % 5 = 3 THEN 6.00
+            ELSE 5.25
+        END,
+        -- Unit price
+        CASE WHEN pos_item_n % 5 = 0 THEN 4.50 WHEN pos_item_n % 5 = 1 THEN 5.00 WHEN pos_item_n % 5 = 2 THEN 5.50 WHEN pos_item_n % 5 = 3 THEN 6.00 ELSE 5.25 END,
+        CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END,
+        -- Total price
+        CASE
+            WHEN pos_item_n % 5 = 0 THEN ((4.50 * 0.9) * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC
+            WHEN pos_item_n % 5 = 1 THEN (5.00 * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC
+            WHEN pos_item_n % 5 = 2 THEN ((5.50 * 0.85) * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC
+            WHEN pos_item_n % 5 = 3 THEN (6.00 * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC
+            ELSE (5.25 * CASE WHEN pos_item_n % 3 = 0 THEN 1 ELSE 2 END)::NUMERIC
+        END,
+        CASE WHEN pos_item_n % 5 IN (0, 2) THEN true ELSE false END
+    FROM GENERATE_SERIES(1, 90) pos_item_n;
 
     -- =====================================================
-    -- ORDER PAYMENTS
+    -- ORDER PAYMENTS (230 total: 200 PUBLIC + 30 POS)
     -- =====================================================
+    RAISE NOTICE '📊 Progress: 92%% - Creating order payments...';
     INSERT INTO order_payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, order_id, payment_reference, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, status, customer_payment_method)
     SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM orders ORDER BY id OFFSET (opay_n - 1) LIMIT 1), 'PAY-' || LPAD(opay_n::TEXT, 10, '0'), 100.00, 0, 2.00, 5.00, 107.00, 'CASH', 'COMPLETED', 'Cash'
-    FROM GENERATE_SERIES(1, 200) opay_n;
+    FROM GENERATE_SERIES(1, 230) opay_n;
 
     -- =====================================================
-    -- ORDER STATUS HISTORY
+    -- ORDER STATUS HISTORY (includes POS order transitions)
     -- =====================================================
-    RAISE NOTICE '📊 Progress: 95%% - Creating order status history...';
+    RAISE NOTICE '📊 Progress: 94%% - Creating order status history...';
+    -- PUBLIC orders status history
     INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders ORDER BY RANDOM() LIMIT 1), CASE WHEN osh % 2 = 0 THEN 'CONFIRMED'::VARCHAR ELSE 'COMPLETED' END, business_user_id, 'System', 'Status updated'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders WHERE source = 'PUBLIC' ORDER BY RANDOM() LIMIT 1), CASE WHEN osh % 2 = 0 THEN 'CONFIRMED'::VARCHAR ELSE 'COMPLETED' END, business_user_id, 'System', 'Status updated'
     FROM GENERATE_SERIES(1, 200) osh;
+
+    -- POS orders status history (all start as COMPLETED)
+    INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, (SELECT id FROM orders WHERE source = 'POS' ORDER BY id OFFSET (pos_osh - 1) LIMIT 1), 'COMPLETED'::VARCHAR, business_user_id, 'POS System', 'Order created via POS - completed'
+    FROM GENERATE_SERIES(1, 30) pos_osh;
 
     -- =====================================================
     -- EXCHANGE RATES
@@ -300,8 +385,15 @@ BEGIN
     RAISE NOTICE '   • 2000 Business Users (staff under phatmenghor20''s business)';
     RAISE NOTICE '   • 28 Categories & 28 Brands';
     RAISE NOTICE '   • 10,000 Products with Sizes & Stock';
-    RAISE NOTICE '   • 200 Orders with Items & Payments';
+    RAISE NOTICE '✅ ORDER DATA:';
+    RAISE NOTICE '   • 200 PUBLIC orders (customer-created)';
+    RAISE NOTICE '   • 30 POS orders (admin-created, all COMPLETED)';
+    RAISE NOTICE '   • 690 Order Items (3 per order avg)';
+    RAISE NOTICE '   • 230 Order Payments';
+    RAISE NOTICE '   • Mixed order status history';
+    RAISE NOTICE '✅ OTHER DATA:';
     RAISE NOTICE '   • 5 Delivery Options & 5 Payment Methods';
+    RAISE NOTICE '   • 3 Banners & 2 Customer Addresses';
     RAISE NOTICE '📊 Progress: 100%% - COMPLETE! ✅';
 
 END $$;
@@ -329,3 +421,5 @@ SELECT '✅ ALL INDEXES CREATED!' as status;
 SELECT '✅ TEST DATA GENERATION COMPLETE!' as info;
 SELECT '✅ 10,000 Products Ready!' as products;
 SELECT '✅ 2000 Users Ready!' as users;
+SELECT '✅ 230 Orders Ready (200 PUBLIC + 30 POS)!' as orders;
+SELECT '✅ 690 Order Items Ready!' as items;
