@@ -142,15 +142,15 @@ INSERT INTO business_settings (id, version, created_at, updated_at, created_by, 
 -- ============================================================================
 
 INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count) VALUES
-('550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', 'hashed_password_19', 'Platform', 'Admin', '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200', 'PLATFORM_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Administrator', 'Phnom Penh', 'Platform admin', NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes', 1),
-('550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', 'hashed_password_20', 'Business', 'Manager', '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200', 'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Manager', 'Phnom Penh', 'Business manager', NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour', 2),
-('550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor21@gmail.com', 'phatmenghor21@gmail.com', 'hashed_password_21', 'Customer', 'User', '+855 10 300 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200', 'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', NULL, 'Phnom Penh', 'Test customer', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '45 minutes', 1);
+('550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Platform', 'Admin', '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200', 'PLATFORM_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Administrator', 'Phnom Penh', 'Platform admin', NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes', 1),
+('550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Business', 'Manager', '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200', 'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Manager', 'Phnom Penh', 'Business manager', NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour', 2),
+('550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor21@gmail.com', 'phatmenghor21@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Customer', 'User', '+855 10 300 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200', 'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', NULL, 'Phnom Penh', 'Test customer', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '45 minutes', 1);
 
 -- 500 STAFF MEMBERS
 INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, active_sessions_count)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'staff' || i::text || '@business.com', 'staff' || i::text || '@business.com', 'hashed_password',
+    'staff' || i::text || '@business.com', 'staff' || i::text || '@business.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'Staff_' || i::text, 'User_' || i::text, '+855 10 ' || LPAD((i % 10000000)::text, 7, '0'),
     CASE WHEN (i % 2) = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584' END,
     'BUSINESS_USER', CASE WHEN (i % 100) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END,
@@ -163,7 +163,7 @@ FROM generate_series(1, 500) AS t(i);
 INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, last_login_at, last_active_at, active_sessions_count)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'customer' || i::text || '@example.com', 'customer' || i::text || '@example.com', 'hashed_password',
+    'customer' || i::text || '@example.com', 'customer' || i::text || '@example.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'Customer_' || i::text, 'User_' || i::text, '+855 96 ' || LPAD((i % 10000000)::text, 7, '0'),
     CASE WHEN (i % 2) = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584' END,
     'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -186,6 +186,13 @@ SELECT u.id, '550e8400-e29b-41d4-a716-446655440002'
 FROM users u
 WHERE u.user_type = 'BUSINESS_USER'
   AND u.user_identifier LIKE 'staff%@business.com';
+
+-- Assign CUSTOMER role to all generated customers
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, '550e8400-e29b-41d4-a716-446655440003'
+FROM users u
+WHERE u.user_type = 'CUSTOMER'
+  AND u.user_identifier LIKE 'customer%@example.com';
 
 -- ============================================================================
 -- 8. USER SESSIONS
