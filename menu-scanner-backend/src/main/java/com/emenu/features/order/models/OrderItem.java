@@ -109,7 +109,7 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "change_reason", columnDefinition = "TEXT")
     private String changeReason;
 
-    // ===== NEW: Before Snapshot Fields (replacing JSON) =====
+    // ===== Before Snapshot Fields =====
     @Column(name = "before_current_price", precision = 19, scale = 2)
     private BigDecimal beforeCurrentPrice;
 

@@ -45,14 +45,7 @@ public class Order extends BaseUUIDEntity {
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
     private Business business;
 
-    // Delivery info - full JSON snapshots from frontend (no IDs) - DEPRECATED, use proper columns below
-    @Column(name = "delivery_address_snapshot", columnDefinition = "TEXT")
-    private String deliveryAddressSnapshot;
-
-    @Column(name = "delivery_option_snapshot", columnDefinition = "TEXT")
-    private String deliveryOptionSnapshot;
-
-    // ===== NEW: Delivery Address Fields (replacing JSON snapshot) =====
+    // ===== Delivery Address Fields =====
     @Column(name = "delivery_village")
     private String deliveryVillage;
 
@@ -75,10 +68,10 @@ public class Order extends BaseUUIDEntity {
     private String deliveryNote;
 
     @Column(name = "delivery_latitude", precision = 10, scale = 8)
-    private Double deliveryLatitude;
+    private BigDecimal deliveryLatitude;
 
     @Column(name = "delivery_longitude", precision = 11, scale = 8)
-    private Double deliveryLongitude;
+    private BigDecimal deliveryLongitude;
 
     // ===== NEW: Delivery Option Fields (replacing JSON snapshot) =====
     @Column(name = "delivery_option_name")
@@ -106,22 +99,10 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "business_note", columnDefinition = "TEXT")
     private String businessNote;
 
-    // ===== AUDIT TRAIL: Order-level discount snapshot =====
-    // Snapshot BEFORE order-level modifications (after item-level pricing)
-    @Column(name = "pricing_before_snapshot", columnDefinition = "TEXT")
-    private String pricingBeforeSnapshot; // JSON: OrderPricingSnapshot
-
+    // ===== AUDIT TRAIL: Order-level changes =====
     // Was the order total modified from POS?
     @Column(name = "had_order_level_change_from_pos")
     private Boolean hadOrderLevelChangeFromPOS = false;
-
-    // Snapshot AFTER order-level modifications
-    @Column(name = "pricing_after_snapshot", columnDefinition = "TEXT")
-    private String pricingAfterSnapshot; // JSON: OrderPricingSnapshot
-
-    // Detailed order-level discount metadata (if applied)
-    @Column(name = "order_discount_metadata", columnDefinition = "TEXT")
-    private String orderDiscountMetadata; // JSON: OrderLevelDiscountMetadata
 
     // Reason for order-level change (if any)
     @Column(name = "order_level_change_reason", columnDefinition = "TEXT")

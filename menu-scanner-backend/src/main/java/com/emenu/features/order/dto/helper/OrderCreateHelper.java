@@ -35,8 +35,8 @@ public class OrderCreateHelper {
     private String deliveryStreetNumber;
     private String deliveryHouseNumber;
     private String deliveryNote;
-    private Double deliveryLatitude;
-    private Double deliveryLongitude;
+    private BigDecimal deliveryLatitude;
+    private BigDecimal deliveryLongitude;
 
     // ===== Delivery Option Fields =====
     private String deliveryOptionName;
