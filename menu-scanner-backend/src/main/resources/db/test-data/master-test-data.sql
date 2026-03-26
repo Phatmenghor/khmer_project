@@ -1,7 +1,34 @@
 -- ============================================
 -- TEST DATA FOR KHMER E-MENU PLATFORM
 -- Complete sample data for development and testing
+-- Using NEW SCHEMA (Normalized Snapshot Tables)
 -- ============================================
+
+-- ============================================
+-- CLEANUP: Disable foreign key checks
+-- ============================================
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ============================================
+-- TRUNCATE TABLES (Clear existing data)
+-- ============================================
+TRUNCATE TABLE order_payments;
+TRUNCATE TABLE order_status_history;
+TRUNCATE TABLE order_item_pricing_snapshots;
+TRUNCATE TABLE order_delivery_options;
+TRUNCATE TABLE order_delivery_addresses;
+TRUNCATE TABLE order_items;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE cart_items;
+TRUNCATE TABLE carts;
+TRUNCATE TABLE delivery_options;
+TRUNCATE TABLE product_sizes;
+TRUNCATE TABLE products;
+TRUNCATE TABLE businesses;
+TRUNCATE TABLE users;
+
+-- Re-enable foreign key checks
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================
 -- 1. USERS (Customers and Business Owners)
@@ -45,36 +72,30 @@ INSERT INTO delivery_options (id, business_id, name, description, price, image_u
 ('850e8400-e29b-41d4-a716-446655440005', '550e8400-e29b-41d4-a716-446655550002', 'Delivery', 'Delivery available', 1.50, 'https://example.com/delivery.jpg', false, NOW(), NOW());
 
 -- ============================================
--- 5. ORDERS
+-- 5. ORDERS (NEW SCHEMA - No old denormalized columns)
 -- ============================================
 INSERT INTO orders (id, business_id, customer_id, order_number, order_status, source, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, is_deleted, created_by, updated_by, created_at, updated_at) VALUES
--- Order 1: Sokha Restaurant - Completed
+-- Order 1: Sokha Restaurant - Completed (Web Order)
 ('950e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655550001', '550e8400-e29b-41d4-a716-446655440001', 'ORD-2026-00001', 'COMPLETED', 'WEB', 11.50, 1.15, 0.00, 0.00, 10.35, 'CARD', 'PAID', 'No spicy please', 'Prepared with care', false, 'No changes', false, '550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440003', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
--- Order 2: Sokha Restaurant - Pending
+-- Order 2: Sokha Restaurant - Pending (Web Order)
 ('950e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655550001', '550e8400-e29b-41d4-a716-446655440002', 'ORD-2026-00002', 'PENDING', 'WEB', 6.00, 0.00, 0.00, 0.00, 6.00, 'CASH', 'PENDING', NULL, NULL, false, 'No changes', false, '550e8400-e29b-41d4-a716-446655440002', NULL, DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
--- Order 3: Mealtime Cafe - Completed (POS)
+-- Order 3: Mealtime Cafe - Completed (POS Order)
 ('950e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655550002', '550e8400-e29b-41d4-a716-446655440001', 'ORD-2026-00003', 'COMPLETED', 'POS', 4.30, 0.00, 1.50, 0.00, 5.80, 'CASH', 'PAID', NULL, NULL, false, 'No changes', false, '550e8400-e29b-41d4-a716-446655440004', NULL, NOW(), NOW());
 
 -- ============================================
--- 6. ORDER DELIVERY ADDRESSES (Snapshots)
+-- 6. ORDER DELIVERY ADDRESSES (Snapshot Table)
 -- ============================================
 INSERT INTO order_delivery_addresses (id, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude, created_at, updated_at) VALUES
--- Order 1 delivery address
 ('a50e8400-e29b-41d4-a716-446655440001', '950e8400-e29b-41d4-a716-446655440001', 'Chbar Ampov', 'Chbar Ampov', 'Chbar Ampov', 'Phnom Penh', '123', 'A', 'Gate near pharmacy', 11.5731, 104.9367, NOW(), NOW()),
--- Order 2 delivery address
 ('a50e8400-e29b-41d4-a716-446655440002', '950e8400-e29b-41d4-a716-446655440002', 'Tuol Kouk', 'Tuol Kouk', 'Tuol Kouk', 'Phnom Penh', '456', 'B', 'Apartment 4th floor', 11.5548, 104.9282, NOW(), NOW()),
--- Order 3 delivery address
 ('a50e8400-e29b-41d4-a716-446655440003', '950e8400-e29b-41d4-a716-446655440003', 'Sangkat Toul Svay Prey', 'Boeng Trabek', 'Chhamnuak', 'Phnom Penh', '789', 'C', 'Office building reception', 11.5398, 104.8978, NOW(), NOW());
 
 -- ============================================
--- 7. ORDER DELIVERY OPTIONS (Snapshots)
+-- 7. ORDER DELIVERY OPTIONS (Snapshot Table)
 -- ============================================
 INSERT INTO order_delivery_options (id, order_id, name, description, image_url, price, created_at, updated_at) VALUES
--- Order 1: Free delivery within 3km
 ('b50e8400-e29b-41d4-a716-446655440001', '950e8400-e29b-41d4-a716-446655440001', 'Delivery (Within 3km)', 'Free delivery within 3km', 'https://example.com/delivery.jpg', 0.00, NOW(), NOW()),
--- Order 2: Delivery 3-5km
 ('b50e8400-e29b-41d4-a716-446655440002', '950e8400-e29b-41d4-a716-446655440002', 'Delivery (3-5km)', 'Delivery fee for 3-5km', 'https://example.com/delivery.jpg', 2.00, NOW(), NOW()),
--- Order 3: Pickup at cafe
 ('b50e8400-e29b-41d4-a716-446655440003', '950e8400-e29b-41d4-a716-446655440003', 'Pickup', 'Pickup at cafe', 'https://example.com/pickup.jpg', 0.00, NOW(), NOW());
 
 -- ============================================
@@ -89,7 +110,7 @@ INSERT INTO order_items (id, order_id, product_id, product_size_id, product_name
 ('c50e8400-e29b-41d4-a716-446655440003', '950e8400-e29b-41d4-a716-446655440003', '650e8400-e29b-41d4-a716-446655440003', '750e8400-e29b-41d4-a716-446655440003', 'Iced Coffee', 'https://example.com/coffee.jpg', 'Small Cup', 2.50, 2.00, 2.00, 2, true, 'FIXED_AMOUNT', 0.50, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY), 4.00, false, NULL, NULL, false, NOW(), NOW());
 
 -- ============================================
--- 9. ORDER ITEM PRICING SNAPSHOTS
+-- 9. ORDER ITEM PRICING SNAPSHOTS (Snapshot Table)
 -- ============================================
 -- Order 1, Item 1: Amok Fish with discount
 INSERT INTO order_item_pricing_snapshots (id, order_item_id,
@@ -153,17 +174,18 @@ INSERT INTO carts (id, user_id, business_id, is_deleted, created_at, updated_at)
 ('560e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655550002', false, NOW(), NOW());
 
 -- ============================================
--- SUMMARY OF TEST DATA
+-- TEST DATA SUMMARY
 -- ============================================
 -- Users: 4 (2 customers, 2 business owners)
 -- Businesses: 2
 -- Products: 4 (with sizes and promotions)
 -- Delivery Options: 5
 -- Orders: 3 (different statuses, sources)
--- Order Items: 3 (with different pricing scenarios)
--- Pricing Snapshots: 3 (tracking before/after pricing)
+-- Order Items: 3 (different pricing scenarios)
+-- Pricing Snapshots: 3 (before/after pricing)
 -- Status History: 5 records
 -- Payments: 3
 -- Delivery Addresses: 3
 -- Delivery Options (Snapshots): 3
+-- Carts: 2
 -- ============================================
