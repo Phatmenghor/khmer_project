@@ -262,11 +262,37 @@ public interface OrderMapper {
                            subtotalAfterDiscount.add(deliveryFee).add(taxAmount))
                 .build();
 
+        // Deserialize discount metadata if available
+        OrderLevelDiscountMetadata discountMetadata = null;
+        if (order.getOrderDiscountMetadata() != null) {
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                discountMetadata = objectMapper.readValue(order.getOrderDiscountMetadata(), OrderLevelDiscountMetadata.class);
+            } catch (Exception e) {
+                // If deserialization fails, create default metadata
+                discountMetadata = OrderLevelDiscountMetadata.builder()
+                        .discountType("NONE")
+                        .discountValue(BigDecimal.ZERO)
+                        .discountPercentage(0)
+                        .reason("No order-level discount")
+                        .build();
+            }
+        } else {
+            // Create default metadata if not present
+            discountMetadata = OrderLevelDiscountMetadata.builder()
+                    .discountType("NONE")
+                    .discountValue(BigDecimal.ZERO)
+                    .discountPercentage(0)
+                    .reason("No order-level discount applied")
+                    .build();
+        }
+
         return OrderPricingInfo.builder()
                 .before(before)
                 .hadOrderLevelChangeFromPOS(order.getHadOrderLevelChangeFromPOS() != null ? order.getHadOrderLevelChangeFromPOS() : false)
                 .after(after)
-                .orderLevelChangeReason(order.getOrderLevelChangeReason())
+                .discountMetadata(discountMetadata)
+                .orderLevelChangeReason(order.getOrderLevelChangeReason() != null ? order.getOrderLevelChangeReason() : "No order-level changes")
                 .build();
     }
 

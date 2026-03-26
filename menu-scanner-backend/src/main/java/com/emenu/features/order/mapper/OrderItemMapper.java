@@ -3,20 +3,23 @@ package com.emenu.features.order.mapper;
 import com.emenu.features.order.dto.response.OrderItemPricingSnapshot;
 import com.emenu.features.order.dto.response.OrderItemResponse;
 import com.emenu.features.order.models.OrderItem;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface OrderItemMapper {
 
     @Mapping(target = "product", expression = "java(mapProductInfo(orderItem))")
-    @Mapping(target = "before", expression = "java(mapBeforeSnapshot(orderItem))")
-    @Mapping(target = "after", expression = "java(mapAfterSnapshot(orderItem))")
-    @Mapping(target = "auditMetadata", ignore = true)  // Stored as JSON string, handle separately if needed
+    @Mapping(target = "before", expression = "java(deserializeBeforeSnapshot(orderItem))")
+    @Mapping(target = "hadChangeFromPOS", expression = "java(orderItem.getHadChangeFromPOS() != null ? orderItem.getHadChangeFromPOS() : false)")
+    @Mapping(target = "after", expression = "java(deserializeAfterSnapshot(orderItem))")
+    @Mapping(target = "auditMetadata", expression = "java(deserializeAuditMetadata(orderItem))")
     OrderItemResponse toResponse(OrderItem orderItem);
 
     List<OrderItemResponse> toResponseList(List<OrderItem> orderItems);
@@ -38,7 +41,47 @@ public interface OrderItemMapper {
         return info;
     }
 
-    default OrderItemPricingSnapshot mapBeforeSnapshot(OrderItem orderItem) {
+    default OrderItemPricingSnapshot deserializeBeforeSnapshot(OrderItem orderItem) {
+        // Try to deserialize from stored JSON snapshot first
+        if (orderItem.getBeforeSnapshot() != null) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                return mapper.readValue(orderItem.getBeforeSnapshot(), OrderItemPricingSnapshot.class);
+            } catch (Exception e) {
+                // Fall back to building from current data
+            }
+        }
+        // Build before snapshot from current pricing if no stored snapshot
+        return buildDefaultBeforeSnapshot(orderItem);
+    }
+
+    default OrderItemPricingSnapshot deserializeAfterSnapshot(OrderItem orderItem) {
+        // Try to deserialize from stored JSON snapshot first
+        if (orderItem.getAfterSnapshot() != null) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                return mapper.readValue(orderItem.getAfterSnapshot(), OrderItemPricingSnapshot.class);
+            } catch (Exception e) {
+                // Fall back to building from current data
+            }
+        }
+        // Build after snapshot from current pricing if no stored snapshot
+        return buildDefaultAfterSnapshot(orderItem);
+    }
+
+    default Map<String, Object> deserializeAuditMetadata(OrderItem orderItem) {
+        if (orderItem.getAuditMetadata() == null) {
+            return null;
+        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(orderItem.getAuditMetadata(), Map.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    default OrderItemPricingSnapshot buildDefaultBeforeSnapshot(OrderItem orderItem) {
         // Build before snapshot from current pricing
         // For orders without explicit audit trail, use current prices as before state
         OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
@@ -56,7 +99,7 @@ public interface OrderItemMapper {
         return snapshot;
     }
 
-    default OrderItemPricingSnapshot mapAfterSnapshot(OrderItem orderItem) {
+    default OrderItemPricingSnapshot buildDefaultAfterSnapshot(OrderItem orderItem) {
         // Build after snapshot with final pricing
         OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
         snapshot.setCurrentPrice(orderItem.getCurrentPrice() != null ? orderItem.getCurrentPrice() : BigDecimal.ZERO);
