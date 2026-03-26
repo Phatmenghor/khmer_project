@@ -13,6 +13,9 @@
 -- - Audit & Logging (1 table)
 -- - Reference Data (2 tables)
 -- ============================================================================
+-- DEFAULT PASSWORD FOR ALL USERS (508 users):
+--   BCrypt Hash : $2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK
+-- ============================================================================
 
 -- ============================================================================
 -- TRUNCATE ALL TABLES (preserve order of cascade)
