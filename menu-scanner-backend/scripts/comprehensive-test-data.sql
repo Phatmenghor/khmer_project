@@ -497,7 +497,7 @@ FROM orders;
 -- 30. PAYMENTS (SUBSCRIPTION & GENERAL)
 -- ============================================================================
 
-INSERT INTO payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, imageUrl, business_id, plan_id, subscription_id, amount, amount_khr, payment_method, status, payment_type, reference_number, notes)
+INSERT INTO payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, image_url, business_id, plan_id, subscription_id, amount, amount_khr, payment_method, status, payment_type, reference_number, notes)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     'https://example.com/image.jpg', '550cad56-cafd-4aba-baef-c4dcd53940d0', NULL, NULL,
