@@ -1,23 +1,8 @@
-# Test Data Scripts
-
-## Overview
-
-This directory contains test data SQL scripts for the Khmer E-Menu platform. Choose the appropriate script based on your testing needs.
-
-### Available Scripts
-
-| Script | Tables | Records | Use Case |
-|--------|--------|---------|----------|
-| **comprehensive-test-data.sql** | ALL 47 tables | 2,500+ | Full system testing, all features |
-| **master-test-data.sql** | 14 core tables | 1,900+ | Order management testing |
-
----
+# Test Data Script
 
 ## comprehensive-test-data.sql
 
-**NEW - RECOMMENDED FOR FULL SYSTEM TESTING**
-
-Complete test data for all 47 database tables with end-to-end data coverage.
+**Complete test data for all 47 database tables** - this is the ONLY test data script you need.
 
 ### Comprehensive Test Data Coverage
 
@@ -171,13 +156,9 @@ Cross-Cutting Tables:
 
 ---
 
-## master-test-data.sql
+### Schema Compatibility
 
-Focused test data for order management and core features.
-
-### Features
-
-- **200 Orders Total**: 100 WEB orders + 100 POS orders
+This script is designed for the normalized snapshot schema introduced in V7 migrations:
 
 - **Snapshot Tables**:
   - `order_delivery_addresses` - Immutable delivery address snapshots
