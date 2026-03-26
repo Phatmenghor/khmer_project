@@ -36,9 +36,99 @@ OrderStatus.PENDING_POS_CONFIRMATION = 'PENDING_POS_CONFIRMATION'
 
 ## API Endpoints
 
-### 1. Update Order from POS
+### 1. Create Order from POS (Checkout)
 
-**Endpoint:** `POST /api/v1/orders/{orderId}/update-from-pos`
+**Endpoint:** `POST /api/v1/orders/checkout-from-pos`
+
+**Access:** Admin only (POS)
+
+**Description:** Create a complete new order from POS with full admin capabilities
+
+**Request Body:**
+```typescript
+{
+  businessId: string;
+  customerId?: string;           // Optional - existing customer ID
+  customerName?: string;         // Optional - new customer name
+  customerPhone?: string;        // Optional - new customer phone
+  items: [
+    {
+      productId: string;
+      sizeId?: string | null;
+      quantity: number;
+      overridePrice?: number;    // Admin can set custom price
+      promotionType?: string;    // 'PERCENTAGE' | 'FIXED' | null
+      promotionValue?: number;   // Discount value
+    }
+  ];
+  deliveryOptionId: string;
+  deliveryAddress: {
+    village: string;
+    commune: string;
+    district: string;
+    province: string;
+    streetNumber: string;
+    houseNumber: string;
+    note?: string;
+    latitude?: number;
+    longitude?: number;
+  };
+  paymentMethodId: string;
+  paymentStatus?: 'PENDING' | 'PAID' | 'UNPAID' | 'PARTIALLY_PAID';
+  customerNote?: string;
+  businessNote?: string;
+  adminId?: string;              // Who created this order
+  autoConfirmStatus?: boolean;   // Auto confirm to CONFIRMED (default: true)
+  discountAmount?: number;       // Additional discount
+  taxAmount?: number;            // Custom tax
+}
+```
+
+**Response:**
+```typescript
+{
+  id: string;
+  orderNumber: string;
+  total: number;
+  orderStatus: string;
+  source: 'POS';
+  createdBy: string;
+  createdAt: string;
+}
+```
+
+**Status:** Order automatically created with:
+- `source: 'POS'` - Marked as POS order
+- `status: 'CONFIRMED'` (if autoConfirmStatus: true) or `'PENDING'` (if false)
+
+**Example:**
+```typescript
+const order = await createPOSOrder({
+  businessId: 'biz-123',
+  customerName: 'Mr. Khmer',
+  customerPhone: '012345678',
+  items: [
+    {
+      productId: 'prod-1',
+      quantity: 2,
+      overridePrice: 5500,      // Override product price
+      promotionType: 'PERCENTAGE',
+      promotionValue: 10        // 10% discount
+    }
+  ],
+  deliveryOptionId: 'delivery-1',
+  deliveryAddress: { ... },
+  paymentMethodId: 'payment-1',
+  autoConfirmStatus: true,      // Skip confirmation, go direct to CONFIRMED
+});
+// Order created as: POS → CONFIRMED → PREPARING → ...
+```
+
+---
+
+### 2. Update Existing Order Items from POS
+
+**Endpoint:** `POST /api/v1/orders/{orderId}/update-items`
 
 **Access:** Admin only (POS)
 
@@ -129,7 +219,7 @@ const response = await updateOrderFromPOSService(request);
 
 ---
 
-### 2. Confirm/Reject POS Changes
+### 3. Confirm/Reject POS Changes to Existing Order
 
 **Endpoint:** `POST /api/v1/orders/{orderId}/confirm-pos-changes`
 
@@ -184,7 +274,7 @@ const response = await confirmPOSOrderChangesService(request);
 
 ---
 
-### 3. Get Order Update History
+### 4. Get Order Update History
 
 **Endpoint:** `GET /api/v1/orders/{orderId}/update-history`
 

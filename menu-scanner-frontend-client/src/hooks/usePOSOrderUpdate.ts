@@ -1,17 +1,18 @@
 /**
  * usePOSOrderUpdate Hook
- * Manages order updates from POS with confirmation workflow
+ * Manages updates to existing orders from POS
+ * For creating NEW orders from POS, use usePOSCheckout instead
  */
 
 import { useCallback, useState } from 'react';
 import { useAppDispatch } from '@/redux/store';
 import {
-  updateOrderFromPOSService,
+  updateOrderItemsFromPOSService,
   confirmPOSOrderChangesService,
   fetchOrderUpdateHistoryService,
 } from '@/redux/features/business/store/thunks/order-admin-thunks';
 import {
-  UpdateOrderFromPOSRequest,
+  UpdateOrderItemsFromPOSRequest,
   ConfirmPOSOrderChangesRequest,
   POSOrderItemUpdate,
 } from '@/redux/features/main/store/models/request/order-pos-update-request';
@@ -34,10 +35,11 @@ export function usePOSOrderUpdate() {
   });
 
   /**
-   * Update order items from POS
+   * Update items on an existing order from POS
    * Supports updating prices, quantities, and promotions
+   * For creating NEW orders, use usePOSCheckout instead
    */
-  const updateOrderFromPOS = useCallback(
+  const updateOrderItems = useCallback(
     async (
       orderId: string,
       itemUpdates: POSOrderItemUpdate[],
@@ -53,14 +55,14 @@ export function usePOSOrderUpdate() {
           throw new Error('No items to update');
         }
 
-        const request: UpdateOrderFromPOSRequest = {
+        const request: UpdateOrderItemsFromPOSRequest = {
           orderId,
           itemUpdates,
           reason: options?.reason,
           shouldAutoConfirm: options?.shouldAutoConfirm ?? false,
         };
 
-        const response = await dispatch(updateOrderFromPOSService(request)).unwrap();
+        const response = await dispatch(updateOrderItemsFromPOSService(request)).unwrap();
 
         showToast.success('Order updated successfully');
 
@@ -183,9 +185,9 @@ export function usePOSOrderUpdate() {
     isLoading: state.isUpdating || state.isConfirming || state.isFetchingHistory,
 
     // Methods
-    updateOrderFromPOS,
-    confirmPOSChanges,
-    fetchUpdateHistory,
-    buildItemUpdate,
+    updateOrderItems,        // Update items on existing order
+    confirmPOSChanges,       // Confirm/reject pending changes
+    fetchUpdateHistory,      // Get modification history
+    buildItemUpdate,         // Helper to build item updates
   };
 }

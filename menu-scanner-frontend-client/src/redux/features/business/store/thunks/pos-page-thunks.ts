@@ -7,6 +7,7 @@ import { axiosClientWithAuth } from "@/utils/axios";
 import { ProductDetailResponseModel } from "../models/response/product-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { POSCheckoutRequest, POSCheckoutResponse } from "../models/request/pos-checkout-request";
 
 interface FetchProductsParams {
   page: number;
@@ -118,6 +119,31 @@ export const createPOSPageOrderService = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create order"
+      );
+    }
+  }
+);
+
+// ─── POS Checkout (Admin Order Creation with Full Control) ───
+/**
+ * Create order from POS with admin capabilities
+ * - Can set custom prices (override product prices)
+ * - Can set promotions for items
+ * - Can set delivery and payment details
+ * - Orders automatically marked as from POS source
+ * - Admin can control auto-confirmation
+ */
+export const createPOSCheckoutOrderService = createAsyncThunk(
+  "posPage/createPOSCheckoutOrder",
+  async (params: POSCheckoutRequest, { rejectWithValue }) => {
+    try {
+      const response = await axiosClientWithAuth.post<{
+        data: POSCheckoutResponse;
+      }>("/api/v1/orders/checkout-from-pos", params);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create POS order"
       );
     }
   }

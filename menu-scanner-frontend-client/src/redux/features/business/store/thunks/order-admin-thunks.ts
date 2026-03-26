@@ -5,7 +5,7 @@ import {
   UpdateOrderParams,
 } from "../models/request/order-admin-request";
 import {
-  UpdateOrderFromPOSRequest,
+  UpdateOrderItemsFromPOSRequest,
   ConfirmPOSOrderChangesRequest,
 } from "@/redux/features/main/store/models/request/order-pos-update-request";
 
@@ -54,15 +54,16 @@ export const deleteOrderAdminService = createApiThunk<any, string>(
 // ─── POS Order Update Services ───
 
 /**
- * Update order items from POS (price, quantity, promotion)
+ * Update items on an existing order from POS
+ * Separate endpoint for creating new orders: createPOSCheckoutOrderService
  * Sets order to PENDING_POS_CONFIRMATION if shouldAutoConfirm is false
  */
-export const updateOrderFromPOSService = createApiThunk<
+export const updateOrderItemsFromPOSService = createApiThunk<
   any,
-  UpdateOrderFromPOSRequest
->("ordersAdmin/updateFromPOS", async (request) => {
+  UpdateOrderItemsFromPOSRequest
+>("ordersAdmin/updateItemsFromPOS", async (request) => {
   const response = await axiosClientWithAuth.post(
-    `/api/v1/orders/${request.orderId}/update-from-pos`,
+    `/api/v1/orders/${request.orderId}/update-items`,
     request
   );
   return response.data.data;
