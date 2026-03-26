@@ -17,7 +17,7 @@ TRUNCATE TABLE roles CASCADE;
 -- ============================================================================
 -- 1. ROLES (4 records)
 -- ============================================================================
-INSERT INTO roles (id, created_at, updated_at, is_deleted, name, description, business_id, user_type) VALUES
+INSERT INTO roles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, business_id, user_type) VALUES
 ('550e8400-e29b-41d4-a716-446655440000', NOW(), NOW(), false, 'ADMIN', 'Platform Administrator', NULL, 'PLATFORM'),
 ('550e8400-e29b-41d4-a716-446655440001', NOW(), NOW(), false, 'MANAGER', 'Business Manager', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS'),
 ('550e8400-e29b-41d4-a716-446655440002', NOW(), NOW(), false, 'STAFF', 'Business Staff', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS'),
@@ -26,13 +26,13 @@ INSERT INTO roles (id, created_at, updated_at, is_deleted, name, description, bu
 -- ============================================================================
 -- 2. MAIN BUSINESS
 -- ============================================================================
-INSERT INTO businesses (id, created_at, updated_at, is_deleted, name, phone_number, email, address, description) VALUES
+INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, phone_number, email, address, description) VALUES
 ('550cad56-cafd-4aba-baef-c4dcd53940d0', NOW(), NOW(), false, 'Phatmenghor Business', '+855 23 9999999', 'phatmenghor20@gmail.com', 'Phnom Penh, Cambodia', 'Main business with comprehensive testing - 1000+ products, 2000+ orders with full audit trails');
 
 -- ============================================================================
 -- 3. THREE MAIN USERS
 -- ============================================================================
-INSERT INTO users (id, created_at, updated_at, is_deleted, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id) VALUES
+INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id) VALUES
 ('550e8400-e29b-41d4-a716-446655550000', NOW(), NOW(), false, 'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', 'hashed_password_19', 'Platform', 'Admin', '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop', 'PLATFORM', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0'),
 ('550e8400-e29b-41d4-a716-446655550001', NOW(), NOW(), false, 'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', 'hashed_password_20', 'Business', 'Manager', '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop', 'BUSINESS', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0'),
 ('550e8400-e29b-41d4-a716-446655550002', NOW(), NOW(), false, 'phatmenghor21@gmail.com', 'phatmenghor21@gmail.com', 'hashed_password_21', 'Customer', 'User', '+855 10 300 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop', 'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0');
@@ -40,7 +40,7 @@ INSERT INTO users (id, created_at, updated_at, is_deleted, user_identifier, emai
 -- ============================================================================
 -- 4. 500 BUSINESS STAFF MEMBERS
 -- ============================================================================
-INSERT INTO users (id, created_at, updated_at, is_deleted, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id)
+INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id)
 SELECT
     gen_random_uuid(),
     NOW(),
@@ -61,7 +61,7 @@ FROM generate_series(1, 500) AS t(i);
 -- ============================================================================
 -- 5. 20 CATEGORIES
 -- ============================================================================
-INSERT INTO categories (id, created_at, updated_at, is_deleted, business_id, name, image_url)
+INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, image_url)
 SELECT
     gen_random_uuid(),
     NOW(),
@@ -75,7 +75,7 @@ FROM generate_series(1, 20) AS t(i);
 -- ============================================================================
 -- 6. 20 BRANDS
 -- ============================================================================
-INSERT INTO brands (id, created_at, updated_at, is_deleted, business_id, name, description, image_url)
+INSERT INTO brands (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, image_url)
 SELECT
     gen_random_uuid(),
     NOW(),
@@ -90,7 +90,7 @@ FROM generate_series(1, 20) AS t(i);
 -- ============================================================================
 -- 7. 1,000 PRODUCTS
 -- ============================================================================
-INSERT INTO products (id, created_at, updated_at, is_deleted, business_id, category_id, brand_id, name, description, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, has_active_promotion, main_image_url)
+INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, has_active_promotion, main_image_url)
 SELECT
     gen_random_uuid(),
     NOW(),
@@ -113,7 +113,7 @@ FROM generate_series(1, 1000) AS t(i);
 -- ============================================================================
 -- 8. DELIVERY OPTIONS
 -- ============================================================================
-INSERT INTO delivery_options (id, created_at, updated_at, is_deleted, business_id, name, description, price, image_url) VALUES
+INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, price, image_url) VALUES
 ('d1-e29b-41d4-a716-446655440001', NOW(), NOW(), false, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Pickup', 'Quick pickup at our location', 0.00, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop'),
 ('d1-e29b-41d4-a716-446655440002', NOW(), NOW(), false, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Standard Delivery', 'Standard delivery within 24 hours', 2.00, 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop'),
 ('d1-e29b-41d4-a716-446655440003', NOW(), NOW(), false, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Express Delivery', 'Express delivery within 2 hours', 5.00, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop'),
@@ -123,7 +123,7 @@ INSERT INTO delivery_options (id, created_at, updated_at, is_deleted, business_i
 -- ============================================================================
 -- 9. 2,000 ORDERS (1,000 WEB + 1,000 POS)
 -- ============================================================================
-INSERT INTO orders (id, created_at, updated_at, is_deleted, business_id, customer_id, order_number, order_status, source, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason)
+INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason)
 SELECT
     gen_random_uuid(),
     NOW() - (random() * 90)::int * INTERVAL '1 day',
@@ -148,7 +148,7 @@ SELECT
 FROM generate_series(1, 1000) AS t(i);
 
 -- POS Orders
-INSERT INTO orders (id, created_at, updated_at, is_deleted, business_id, customer_id, order_number, order_status, source, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason)
+INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason)
 SELECT
     gen_random_uuid(),
     NOW() - (random() * 90)::int * INTERVAL '1 day',
@@ -175,7 +175,7 @@ FROM generate_series(1, 1000) AS t(i);
 -- ============================================================================
 -- 10. ORDER DELIVERY ADDRESSES
 -- ============================================================================
-INSERT INTO order_delivery_addresses (id, created_at, updated_at, is_deleted, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude)
+INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude)
 SELECT
     gen_random_uuid(),
     NOW(),
@@ -196,7 +196,7 @@ FROM orders;
 -- ============================================================================
 -- 11. ORDER DELIVERY OPTIONS
 -- ============================================================================
-INSERT INTO order_delivery_options (id, created_at, updated_at, is_deleted, order_id, name, description, image_url, price)
+INSERT INTO order_delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, name, description, image_url, price)
 SELECT
     gen_random_uuid(),
     NOW(),
@@ -218,7 +218,7 @@ FROM orders;
 -- ============================================================================
 -- 12. ORDER ITEMS (3 per order = 6,000 items)
 -- ============================================================================
-INSERT INTO order_items (id, created_at, updated_at, is_deleted, order_id, product_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, quantity, total_price, special_instructions, had_change_from_pos, change_reason)
+INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, quantity, total_price, special_instructions, had_change_from_pos, change_reason)
 SELECT
     gen_random_uuid(),
     NOW(),
@@ -247,7 +247,7 @@ ORDER BY o.rn, t.item_num;
 -- ============================================================================
 -- 13. ORDER ITEM PRICING SNAPSHOTS
 -- ============================================================================
-INSERT INTO order_item_pricing_snapshots (id, created_at, updated_at, is_deleted, order_item_id, before_current_price, before_final_price, before_has_active_promotion, before_discount_amount, before_total_price, before_promotion_type, before_promotion_value, before_promotion_from_date, before_promotion_to_date, after_current_price, after_final_price, after_has_active_promotion, after_discount_amount, after_total_price, after_promotion_type, after_promotion_value, after_promotion_from_date, after_promotion_to_date)
+INSERT INTO order_item_pricing_snapshots (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_item_id, before_current_price, before_final_price, before_has_active_promotion, before_discount_amount, before_total_price, before_promotion_type, before_promotion_value, before_promotion_from_date, before_promotion_to_date, after_current_price, after_final_price, after_has_active_promotion, after_discount_amount, after_total_price, after_promotion_type, after_promotion_value, after_promotion_from_date, after_promotion_to_date)
 SELECT
     gen_random_uuid(),
     NOW(),
@@ -277,7 +277,7 @@ FROM order_items;
 -- ============================================================================
 -- 14. ORDER STATUS HISTORY
 -- ============================================================================
-INSERT INTO order_status_history (id, created_at, updated_at, is_deleted, order_id, order_status, changed_by_user_id, changed_by_name, note)
+INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
 SELECT
     gen_random_uuid(),
     created_at,
@@ -293,7 +293,7 @@ FROM orders;
 -- ============================================================================
 -- 15. ORDER PAYMENTS
 -- ============================================================================
-INSERT INTO order_payments (id, created_at, updated_at, is_deleted, business_id, order_id, payment_reference, status, payment_method, subtotal, discount_amount, delivery_fee, tax_amount, total_amount)
+INSERT INTO order_payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, order_id, payment_reference, status, payment_method, subtotal, discount_amount, delivery_fee, tax_amount, total_amount)
 SELECT
     gen_random_uuid(),
     created_at,
