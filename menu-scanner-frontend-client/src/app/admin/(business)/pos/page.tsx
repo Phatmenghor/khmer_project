@@ -196,6 +196,13 @@ export default function PosPage() {
   // ─── Edit Cart Item for Price/Promotion ───
   const [editingItemForPrice, setEditingItemForPrice] = useState<PosCartItem | null>(null);
 
+  // ─── Order-Level Discount ───
+  const [orderDiscount, setOrderDiscount] = useState<{
+    type: "fixed" | "percentage";
+    value: number;
+    reason: string;
+  } | null>(null);
+
   // Mobile responsive zoom
   useEffect(() => {
     const applyResponsiveZoom = () => {
@@ -500,6 +507,21 @@ export default function PosPage() {
     dispatch(updateCartItem(updatedItem));
     showToast.success("Item updated successfully");
   }, [dispatch, editingItemForPrice]);
+
+  // ─── Handle Order-Level Discount ───
+  const handleDiscountApply = (discount: {
+    type: "fixed" | "percentage";
+    value: number;
+    reason: string;
+  }) => {
+    setOrderDiscount(discount);
+    showToast.success(`✅ Discount applied: ${
+      discount.type === "fixed" 
+        ? `$${discount.value.toFixed(2)}` 
+        : `${discount.value}%`
+    } - ${discount.reason}`);
+  };
+
   // ─── Submit Order ───
   const handleSubmitOrder = async () => {
     if (cartItems.length === 0) {
@@ -586,13 +608,26 @@ export default function PosPage() {
             : [],
         })),
 
-        // Cart totals
+        // Cart totals (with order-level discount if applied)
         totalItems: cartSummary.totalItems,
         totalQuantity: cartSummary.totalQuantity,
         subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
         subtotal: cartSummary.subtotal,
         totalDiscount: cartSummary.totalDiscount,
-        finalTotal: cartSummary.finalTotal,
+        finalTotal: (() => {
+          let total = cartSummary.finalTotal;
+          
+          // Apply order-level discount if set
+          if (orderDiscount) {
+            if (orderDiscount.type === "fixed") {
+              total = Math.max(0, total - orderDiscount.value);
+            } else if (orderDiscount.type === "percentage") {
+              total = total * (1 - (orderDiscount.value / 100));
+            }
+          }
+          
+          return total;
+        })(),
       },
 
       // Payment info (CASH only)
@@ -603,7 +638,9 @@ export default function PosPage() {
 
       // Notes
       customerNote: customerNote || "",
-      businessNote: "Created via POS System",
+      businessNote: orderDiscount
+        ? `Created via POS System | Discount Applied: ${orderDiscount.type === "fixed" ? `$${orderDiscount.value.toFixed(2)}` : `${orderDiscount.value}%`} | Reason: ${orderDiscount.reason}`
+        : "Created via POS System",
       orderStatus: OrderStatus.PENDING,
     };
 
@@ -1059,11 +1096,21 @@ export default function PosPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-auto px-3 gap-2 text-xs font-semibold border-r border-border hover:bg-muted/50"
+                  className={cn(
+                    "h-auto px-3 gap-2 text-xs font-semibold border-r border-border hover:bg-muted/50",
+                    orderDiscount && "text-green-600 hover:bg-green-50"
+                  )}
                   onClick={() => dispatch(setShowOrderDetailsModal(true))}
                 >
                   <Tag className="w-3.5 h-3.5" />
                   More
+                  {orderDiscount && (
+                    <span className="ml-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                      {orderDiscount.type === "fixed" 
+                        ? `-$${orderDiscount.value.toFixed(2)}` 
+                        : `-${orderDiscount.value}%`}
+                    </span>
+                  )}
                 </Button>
                 <div className="flex-1 px-3 py-2.5 bg-muted/30 min-w-0 flex items-center justify-between">
                   <div>
@@ -1171,6 +1218,7 @@ export default function PosPage() {
         onOpenChange={(open) => dispatch(setShowOrderDetailsModal(open))}
         customerNote={customerNote}
         onNoteChange={(note) => dispatch(setCustomerNote(note))}
+        onDiscountApply={handleDiscountApply}
       />
     </div>
   );

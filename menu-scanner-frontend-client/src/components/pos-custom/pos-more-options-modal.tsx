@@ -13,6 +13,12 @@ interface POSMoreOptionsModalProps {
   onOpenChange: (open: boolean) => void;
   customerNote: string;
   onNoteChange: (note: string) => void;
+  // Discount callbacks
+  onDiscountApply?: (discount: {
+    type: "fixed" | "percentage";
+    value: number;
+    reason: string;
+  }) => void;
 }
 
 export function POSMoreOptionsModal({
@@ -20,6 +26,7 @@ export function POSMoreOptionsModal({
   onOpenChange,
   customerNote,
   onNoteChange,
+  onDiscountApply,
 }: POSMoreOptionsModalProps) {
   const [showDiscount, setShowDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<"fixed" | "percentage">("fixed");
@@ -29,7 +36,24 @@ export function POSMoreOptionsModal({
 
   const handleApply = () => {
     setIsSubmitting(true);
+
+    // Apply discount if enabled
+    if (showDiscount && discountValue && onDiscountApply) {
+      const discountAmount = parseFloat(discountValue);
+      if (discountAmount > 0) {
+        onDiscountApply({
+          type: discountType,
+          value: discountAmount,
+          reason: discountReason || "Manual discount applied at POS",
+        });
+      }
+    }
+
     setTimeout(() => {
+      // Reset discount form
+      setShowDiscount(false);
+      setDiscountValue("");
+      setDiscountReason("");
       onOpenChange(false);
       setIsSubmitting(false);
     }, 300);
