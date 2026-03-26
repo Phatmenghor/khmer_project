@@ -32,8 +32,8 @@ INSERT INTO roles (id, version, created_at, updated_at, created_by, updated_by, 
 -- ============================================================================
 -- 2. BUSINESS
 -- ============================================================================
-INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, phone_number, email, address, description) VALUES
-('550cad56-cafd-4aba-baef-c4dcd53940d0', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'Phatmenghor Business', '+855 23 9999999', 'phatmenghor20@gmail.com', 'Phnom Penh, Cambodia', 'Main business with comprehensive testing');
+INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, phone, email, address, description, status, owner_id, is_subscription_active) VALUES
+('550cad56-cafd-4aba-baef-c4dcd53940d0', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'Phatmenghor Business', '+855 23 9999999', 'phatmenghor20@gmail.com', 'Phnom Penh, Cambodia', 'Main business with comprehensive testing', 'ACTIVE', '550e8400-e29b-41d4-a716-446655550001', true);
 
 -- ============================================================================
 -- 3. USERS (3 main + 500 staff)
