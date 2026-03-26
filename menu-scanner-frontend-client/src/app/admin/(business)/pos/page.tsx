@@ -597,21 +597,18 @@ export default function PosPage() {
           discountAmount: (item.currentPrice - item.finalPrice) * item.quantity,
           totalPrice: item.finalPrice * item.quantity,
 
-          // Audit trail - shows full modification history
+          // Audit trail - single snapshot: original → final (with override & promotion)
           auditTrail: (item.originalPrice && item.originalPrice !== item.currentPrice) ||
                       (item.currentPrice !== item.finalPrice)
-            ? [
-                {
-                  originalPrice: item.originalPrice || item.currentPrice,
-                  overriddenPrice: item.currentPrice,
-                  appliedPromotion: item.hasActivePromotion
-                    ? { type: item.promotionType, value: item.promotionValue }
-                    : null,
-                  modifiedAt: new Date().toISOString(),
-                  reason: "POS Admin Override",
-                },
-              ]
-            : [],
+            ? {
+                originalPrice: item.originalPrice || item.currentPrice,
+                currentPrice: item.currentPrice,
+                finalPrice: item.finalPrice,
+                promotionType: item.hasActivePromotion ? item.promotionType : null,
+                promotionValue: item.hasActivePromotion ? item.promotionValue : null,
+                reason: "POS Admin Override",
+              }
+            : null,
         })),
 
         // Cart totals (with order-level discount if applied)
