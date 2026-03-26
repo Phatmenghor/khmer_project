@@ -190,8 +190,8 @@ public class OrderServiceImpl implements OrderService {
         long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
 
-        log.info("📊 [GET ALL ORDERS] Starting retrieval | User: {} | Role: {}",
-                currentUser.getId(), currentUser.getRole());
+        log.info("📊 [GET ALL ORDERS] Starting retrieval | User: {}",
+                currentUser.getId());
 
         // If user is a business user and no businessId filter is provided, restrict to their business
         if (currentUser.isBusinessUser() && filter.getBusinessId() == null) {
