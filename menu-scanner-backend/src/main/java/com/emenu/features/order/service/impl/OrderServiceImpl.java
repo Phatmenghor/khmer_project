@@ -53,6 +53,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -608,35 +609,7 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.save(order);
         log.info("✅ [ORDER ITEMS SAVED] Successfully saved {} items for order: {}", order.getItems().size(), orderId);
-
-        // Create delivery address snapshot if exists in the cart summary
-        if (cartResponse.getDeliveryAddress() != null) {
-            OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
-            deliveryAddress.setOrderId(orderId);
-            deliveryAddress.setVillage(cartResponse.getDeliveryAddress().getVillage());
-            deliveryAddress.setCommune(cartResponse.getDeliveryAddress().getCommune());
-            deliveryAddress.setDistrict(cartResponse.getDeliveryAddress().getDistrict());
-            deliveryAddress.setProvince(cartResponse.getDeliveryAddress().getProvince());
-            deliveryAddress.setStreetNumber(cartResponse.getDeliveryAddress().getStreetNumber());
-            deliveryAddress.setHouseNumber(cartResponse.getDeliveryAddress().getHouseNumber());
-            deliveryAddress.setNote(cartResponse.getDeliveryAddress().getNote());
-            deliveryAddress.setLatitude(cartResponse.getDeliveryAddress().getLatitude());
-            deliveryAddress.setLongitude(cartResponse.getDeliveryAddress().getLongitude());
-            orderDeliveryAddressRepository.save(deliveryAddress);
-            log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for order: {}", orderId);
-        }
-
-        // Create delivery option snapshot if exists in the cart summary
-        if (cartResponse.getDeliveryOption() != null) {
-            OrderDeliveryOption deliveryOption = new OrderDeliveryOption();
-            deliveryOption.setOrderId(orderId);
-            deliveryOption.setName(cartResponse.getDeliveryOption().getName());
-            deliveryOption.setDescription(cartResponse.getDeliveryOption().getDescription());
-            deliveryOption.setImageUrl(cartResponse.getDeliveryOption().getImageUrl());
-            deliveryOption.setPrice(cartResponse.getDeliveryOption().getPrice());
-            orderDeliveryOptionRepository.save(deliveryOption);
-            log.debug("✅ [DELIVERY OPTION SNAPSHOT] Created for order: {}", orderId);
-        }
+    }
     }
 
     private void createPaymentRecord(Order order) {
@@ -730,34 +703,44 @@ public class OrderServiceImpl implements OrderService {
             order.setCustomerNote(request.getCustomerNote());
             order.setBusinessNote(request.getBusinessNote());
 
-            // Set delivery address fields
-            if (request.getDeliveryAddress() != null) {
-                order.setDeliveryVillage(request.getDeliveryAddress().getVillage());
-                order.setDeliveryCommune(request.getDeliveryAddress().getCommune());
-                order.setDeliveryDistrict(request.getDeliveryAddress().getDistrict());
-                order.setDeliveryProvince(request.getDeliveryAddress().getProvince());
-                order.setDeliveryStreetNumber(request.getDeliveryAddress().getStreetNumber());
-                order.setDeliveryHouseNumber(request.getDeliveryAddress().getHouseNumber());
-                order.setDeliveryNote(request.getDeliveryAddress().getNote());
-                order.setDeliveryLatitude(request.getDeliveryAddress().getLatitude());
-                order.setDeliveryLongitude(request.getDeliveryAddress().getLongitude());
-            }
-
-            // Set delivery option fields
-            if (request.getDeliveryOption() != null) {
-                order.setDeliveryOptionName(request.getDeliveryOption().getName());
-                order.setDeliveryOptionDescription(request.getDeliveryOption().getDescription());
-                order.setDeliveryOptionImageUrl(request.getDeliveryOption().getImageUrl());
-                order.setDeliveryOptionPrice(request.getDeliveryOption().getPrice());
-            }
 
             log.debug("💾 [STEP 3/6] Saving order...");
             Order savedOrder = orderRepository.save(order);
+
+            // Create delivery address snapshot
+            if (request.getDeliveryAddress() != null) {
+                OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
+                deliveryAddress.setOrderId(savedOrder.getId());
+                deliveryAddress.setVillage(request.getDeliveryAddress().getVillage());
+                deliveryAddress.setCommune(request.getDeliveryAddress().getCommune());
+                deliveryAddress.setDistrict(request.getDeliveryAddress().getDistrict());
+                deliveryAddress.setProvince(request.getDeliveryAddress().getProvince());
+                deliveryAddress.setStreetNumber(request.getDeliveryAddress().getStreetNumber());
+                deliveryAddress.setHouseNumber(request.getDeliveryAddress().getHouseNumber());
+                deliveryAddress.setNote(request.getDeliveryAddress().getNote());
+                deliveryAddress.setLatitude(request.getDeliveryAddress().getLatitude());
+                deliveryAddress.setLongitude(request.getDeliveryAddress().getLongitude());
+                orderDeliveryAddressRepository.save(deliveryAddress);
+                log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for POS order: {}", savedOrder.getId());
+            }
+
+            // Create delivery option snapshot
+            if (request.getDeliveryOption() != null) {
+                OrderDeliveryOption deliveryOption = new OrderDeliveryOption();
+                deliveryOption.setOrderId(savedOrder.getId());
+                deliveryOption.setName(request.getDeliveryOption().getName());
+                deliveryOption.setDescription(request.getDeliveryOption().getDescription());
+                deliveryOption.setImageUrl(request.getDeliveryOption().getImageUrl());
+                deliveryOption.setPrice(request.getDeliveryOption().getPrice());
+                orderDeliveryOptionRepository.save(deliveryOption);
+                log.debug("✅ [DELIVERY OPTION SNAPSHOT] Created for POS order: {}", savedOrder.getId());
+            }
 
             // Create order items and calculate totals
             log.debug("📦 [STEP 4/6] Creating order items ({} items)...", request.getCart().getItems().size());
             BigDecimal subtotal = BigDecimal.ZERO;
             BigDecimal totalDiscount = BigDecimal.ZERO;
+            List<OrderItem> createdItems = new java.util.ArrayList<>();
 
             for (POSCheckoutItemRequest itemRequest : request.getCart().getItems()) {
                 Product product = productRepository.findById(itemRequest.getProductId())
@@ -771,6 +754,7 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setProductImageUrl(itemRequest.getProductImageUrl() != null ? itemRequest.getProductImageUrl() : product.getMainImageUrl());
                 orderItem.setSizeName(itemRequest.getSizeName());
                 orderItem.setQuantity(itemRequest.getQuantity());
+                orderItem.setHadChangeFromPOS(false); // No POS changes in regular POS checkout
 
                 // Determine current price
                 BigDecimal currentPrice = itemRequest.getOverridePrice() != null ?
@@ -780,6 +764,12 @@ public class OrderServiceImpl implements OrderService {
 
                 // Apply promotion if specified
                 BigDecimal finalPrice = currentPrice;
+                Boolean hasPromotion = false;
+                String promotionType = null;
+                BigDecimal promotionValue = null;
+                LocalDateTime promotionFromDate = null;
+                LocalDateTime promotionToDate = null;
+
                 if (itemRequest.getPromotionType() != null && itemRequest.getPromotionValue() != null) {
                     if ("PERCENTAGE".equals(itemRequest.getPromotionType())) {
                         BigDecimal discountPercent = itemRequest.getPromotionValue().divide(BigDecimal.valueOf(100));
@@ -787,14 +777,50 @@ public class OrderServiceImpl implements OrderService {
                     } else if ("FIXED_AMOUNT".equals(itemRequest.getPromotionType())) {
                         finalPrice = currentPrice.subtract(itemRequest.getPromotionValue());
                     }
-                    orderItem.setHasPromotion(true);
+                    hasPromotion = true;
+                    promotionType = itemRequest.getPromotionType();
+                    promotionValue = itemRequest.getPromotionValue();
+                    promotionFromDate = itemRequest.getPromotionFromDate();
+                    promotionToDate = itemRequest.getPromotionToDate();
                 }
 
+                orderItem.setHasPromotion(hasPromotion);
+                orderItem.setPromotionType(promotionType);
+                orderItem.setPromotionValue(promotionValue);
+                orderItem.setPromotionFromDate(promotionFromDate);
+                orderItem.setPromotionToDate(promotionToDate);
                 orderItem.setFinalPrice(finalPrice);
                 orderItem.calculateTotalPrice();
 
+                savedOrder.getItems().add(orderItem);
+                createdItems.add(orderItem);
+
                 subtotal = subtotal.add(currentPrice.multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
                 totalDiscount = totalDiscount.add(currentPrice.subtract(finalPrice).multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
+            }
+
+            // Save order with items
+            orderRepository.save(savedOrder);
+
+            // Create pricing snapshots for each item
+            for (OrderItem item : createdItems) {
+                OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
+                snapshot.setOrderItemId(item.getId());
+                // Store current pricing as before snapshot (no previous state in POS)
+                snapshot.setBeforeCurrentPrice(item.getCurrentPrice());
+                snapshot.setBeforeFinalPrice(item.getFinalPrice());
+                snapshot.setBeforeHasActivePromotion(item.getHasPromotion());
+                snapshot.setBeforePromotionType(item.getPromotionType());
+                snapshot.setBeforePromotionValue(item.getPromotionValue());
+                snapshot.setBeforePromotionFromDate(item.getPromotionFromDate());
+                snapshot.setBeforePromotionToDate(item.getPromotionToDate());
+
+                BigDecimal discountAmount = item.getCurrentPrice().subtract(item.getFinalPrice()).multiply(BigDecimal.valueOf(item.getQuantity()));
+                snapshot.setBeforeDiscountAmount(discountAmount);
+                snapshot.setBeforeTotalPrice(item.getTotalPrice());
+
+                orderItemPricingSnapshotRepository.save(snapshot);
+                log.debug("✅ [PRICING SNAPSHOT] Created for POS item: {}", item.getId());
             }
 
             // Update order totals
