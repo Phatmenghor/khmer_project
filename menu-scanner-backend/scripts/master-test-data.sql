@@ -110,7 +110,7 @@ SELECT
     CASE WHEN (i % 5) = 0 THEN 'PENDING' WHEN (i % 5) = 1 THEN 'CONFIRMED' WHEN (i % 5) = 2 THEN 'PREPARING' WHEN (i % 5) = 3 THEN 'COMPLETED' ELSE 'CANCELLED' END,
     'WEB', (50 + (i % 100))::numeric, CASE WHEN (i % 8) = 0 THEN 5::numeric ELSE 0::numeric END, 2::numeric, 5::numeric,
     (50 + (i % 100) - CASE WHEN (i % 8) = 0 THEN 5::numeric ELSE 0::numeric END + 2::numeric + 5::numeric)::numeric,
-    'CARD', CASE WHEN (i % 5) IN (3,4) THEN 'PAID' ELSE 'PENDING' END,
+    'CASH', CASE WHEN (i % 5) IN (3,4) THEN 'PAID' ELSE 'PENDING' END,
     'Note ' || i::text, 'Processing ' || i::text, (i % 8) = 0, CASE WHEN (i % 8) = 0 THEN 'Discount applied' ELSE 'No changes' END
 FROM generate_series(1, 100) AS t(i);
 
