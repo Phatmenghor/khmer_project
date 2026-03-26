@@ -16,6 +16,7 @@ public interface OrderItemMapper {
     @Mapping(target = "product", expression = "java(mapProductInfo(orderItem))")
     @Mapping(target = "before", expression = "java(mapBeforeSnapshot(orderItem))")
     @Mapping(target = "after", expression = "java(mapAfterSnapshot(orderItem))")
+    @Mapping(target = "auditMetadata", ignore = true)  // Stored as JSON string, handle separately if needed
     OrderItemResponse toResponse(OrderItem orderItem);
 
     List<OrderItemResponse> toResponseList(List<OrderItem> orderItems);
