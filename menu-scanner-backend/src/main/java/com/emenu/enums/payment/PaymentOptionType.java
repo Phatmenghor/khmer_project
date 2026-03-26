@@ -1,14 +1,7 @@
 package com.emenu.enums.payment;
 
 public enum PaymentOptionType {
-    CASH("Cash"),
-    BANK_TRANSFER("Bank Transfer"),
-    CREDIT_CARD("Credit Card"),
-    DEBIT_CARD("Debit Card"),
-    MOBILE_WALLET("Mobile Wallet"),
-    CRYPTO("Cryptocurrency"),
-    CHECK("Check"),
-    OTHER("Other");
+    CASH("Cash");
 
     private final String displayName;
 

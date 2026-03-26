@@ -215,11 +215,7 @@ BEGIN
     RAISE NOTICE '📊 Progress: 65%% - Creating payment options...';
     INSERT INTO payment_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, payment_option_type, status)
     VALUES
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Cash', 'CASH', 'ACTIVE'),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Bank Transfer', 'BANK_TRANSFER', 'ACTIVE'),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Visa', 'CREDIT_CARD', 'ACTIVE'),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'MasterCard', 'CREDIT_CARD', 'ACTIVE'),
-        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Wing Mobile', 'MOBILE_WALLET', 'ACTIVE');
+        (gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, 'Cash', 'CASH', 'ACTIVE');
 
     -- =====================================================
     -- BANNERS
@@ -270,7 +266,7 @@ BEGIN
         CASE WHEN ord_n % 3 = 2 THEN 0.00 ELSE 2.00 END,
         (5.00 + (ord_n % 15))::NUMERIC,
         (55.00 + (ord_n % 150))::NUMERIC,
-        CASE WHEN ord_n % 3 = 0 THEN 'CASH' WHEN ord_n % 3 = 1 THEN 'BANK_TRANSFER' ELSE 'MOBILE_WALLET' END,
+        'CASH',
         'PAID',
         'Customer order #' || ord_n,
         'Processing',
@@ -296,7 +292,7 @@ BEGIN
         0.00,
         CASE WHEN pos_n % 4 = 0 THEN 5.00 ELSE 0 END,
         (CASE WHEN pos_n % 3 = 0 THEN 40.50 WHEN pos_n % 3 = 1 THEN 59.00 ELSE 76.72 END)::NUMERIC,
-        CASE WHEN pos_n % 3 = 0 THEN 'CASH' WHEN pos_n % 3 = 1 THEN 'MOBILE_WALLET' ELSE 'BANK_TRANSFER' END,
+        'CASH',
         'PAID',
         'POS order',
         'Staff order',
@@ -351,7 +347,7 @@ BEGIN
     -- =====================================================
     RAISE NOTICE '📊 Progress: 92%% - Creating order payments (20,000 total)...';
     INSERT INTO order_payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, order_id, payment_reference, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, status, customer_payment_method)
-    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM orders ORDER BY id OFFSET (opay_n - 1) LIMIT 1), 'PAY-' || LPAD(opay_n::TEXT, 10, '0'), (50.00 + (opay_n % 100))::NUMERIC, CASE WHEN opay_n % 10 = 0 THEN (opay_n % 30)::NUMERIC ELSE 0 END, CASE WHEN opay_n % 3 = 2 THEN 0 ELSE 2 END, (5.00 + (opay_n % 15))::NUMERIC, (55.00 + (opay_n % 100))::NUMERIC, CASE WHEN opay_n % 3 = 0 THEN 'CASH' WHEN opay_n % 3 = 1 THEN 'BANK_TRANSFER' ELSE 'MOBILE_WALLET' END, 'COMPLETED', 'Multiple Methods'
+    SELECT gen_random_uuid(), 0, t, t, 'system', 'system', false, NULL, NULL, key_business_id, (SELECT id FROM orders ORDER BY id OFFSET (opay_n - 1) LIMIT 1), 'PAY-' || LPAD(opay_n::TEXT, 10, '0'), (50.00 + (opay_n % 100))::NUMERIC, CASE WHEN opay_n % 10 = 0 THEN (opay_n % 30)::NUMERIC ELSE 0 END, CASE WHEN opay_n % 3 = 2 THEN 0 ELSE 2 END, (5.00 + (opay_n % 15))::NUMERIC, (55.00 + (opay_n % 100))::NUMERIC, 'CASH', 'COMPLETED', 'Cash Payment'
     FROM GENERATE_SERIES(1, 20000) opay_n;
 
     -- =====================================================

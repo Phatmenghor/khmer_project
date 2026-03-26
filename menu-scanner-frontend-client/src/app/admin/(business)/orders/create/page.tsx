@@ -56,9 +56,6 @@ interface PosCartItem {
 
 const PAYMENT_METHODS = [
   { value: "CASH", label: "Cash" },
-  { value: "BANK_TRANSFER", label: "Bank Transfer" },
-  { value: "ONLINE", label: "Online" },
-  { value: "OTHER", label: "Other" },
 ];
 
 export default function PosOrderPage() {
