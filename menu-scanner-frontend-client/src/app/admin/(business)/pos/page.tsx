@@ -146,30 +146,12 @@ export default function PosPage() {
     storageKey: "pos:cart",
     debounceMs: 1000,
     enabled: true,
-    onCartLoaded: (items) => {
-      console.log(`🔄 Cart loaded from localStorage: ${items.length} items`);
-    },
-    onCartSaved: (items) => {
-      console.log(`💾 Cart saved to localStorage: ${items.length} items`);
-    },
   });
 
   // ─── URL Sync with Redux (Filters) ───
   useFilterURLSync({
     enabled: true,
     debounceMs: 800,
-    onFiltersLoaded: (filters) => {
-      console.log(
-        `🔍 Filters loaded from URL:`,
-        JSON.stringify(filters)
-      );
-    },
-    onFiltersChanged: (filters) => {
-      console.log(
-        `📍 Filters synced to URL:`,
-        JSON.stringify(filters)
-      );
-    },
   });
 
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -461,15 +443,6 @@ export default function PosPage() {
     },
     [cartItems]
   );
-
-  // ─── Edit Cart Item ───
-  const handleEditCartItem = (cartItem: PosPageCartItem) => {
-    const product = products.find((p) => p.id === cartItem.productId);
-    if (product) {
-      dispatch(setSizePickerProduct(product));
-      dispatch(setEditingCartItemId(cartItem.id));
-    }
-  };
 
   // ─── Handle Edit Cart Item for Price/Promotion ───
   const handleEditPriceItem = useCallback((item: PosPageCartItem) => {
