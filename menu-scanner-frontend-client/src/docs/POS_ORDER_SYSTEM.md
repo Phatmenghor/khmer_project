@@ -42,19 +42,22 @@ POS orders are **in-shop orders** (like coffee shop counter orders):
 4. Customer pays
 5. Staff clicks "Submit"
    ↓
-6. Order created with status: COMPLETED
-   (All order data is finalized, ready for fulfillment)
-7. Kitchen/Barista sees: "ORDER #POS-001 - COMPLETED"
+6. Order CREATED
+   - Order ID: Generated same as public orders
+   - Order Number: #ORD-2024-0001 (same sequence as public)
+   - Status: COMPLETED
+   - Source: POS (differentiator)
+7. Kitchen/Barista sees: "ORDER #ORD-2024-0001 - COMPLETED - [POS]"
    - 2 cappuccino
    - 1 latte
 8. Barista starts preparing
 9. Ready? → Hand to customer
 ```
 
-**Status = COMPLETED** means "all order information is complete and finalized"
-- Not awaiting confirmation (staff did it already)
-- Ready for immediate fulfillment
-- All payment/details settled
+**Key Point:**
+- ✅ Order ID generated same as public orders
+- ✅ Order number sequence same as public orders (#ORD-2024-0001, 0002, etc.)
+- ✅ Only difference: `source: 'POS'` tag to identify origin
 
 ---
 
@@ -384,7 +387,9 @@ PREPARING → READY → IN_TRANSIT → COMPLETED
 | **Created by** | Admin in POS | Customer online |
 | **Source** | `'POS'` | `'PUBLIC'` |
 | **Admin control** | Full (prices, promotions, etc.) | None |
-| **Initial status** | Configurable | Always `PENDING` |
+| **Initial status** | Always `COMPLETED` | Always `PENDING` |
+| **Order ID generation** | Same as customer orders | Same as POS orders |
+| **Order number sequence** | Shared with customer orders | Shared with POS orders |
 | **Creation endpoint** | `/checkout-from-pos` | `/checkout` |
 | **Update endpoint** | Same `/orders/{id}` PUT | Same (notes only) |
 | **Audit trail** | Admin who created | Customer who created |
@@ -425,4 +430,31 @@ PREPARING → READY → IN_TRANSIT → COMPLETED
 - ✅ Easier to maintain
 - ✅ Same powerful functionality
 - ✅ Clear source tracking
+
+
+---
+
+## ⭐ Critical: ID & Number Generation
+
+**POS and PUBLIC orders MUST use the SAME ID generation:**
+
+```
+Both use:
+✅ Same UUID generation for order ID
+✅ Same auto-increment sequence for order numbers
+✅ Shared counter: #ORD-2024-0001, 0002, 0003, etc.
+
+Example sequence (mixed):
+#ORD-2024-0001 ← PUBLIC (customer online)
+#ORD-2024-0002 ← POS (from counter)
+#ORD-2024-0003 ← PUBLIC (customer online)
+#ORD-2024-0004 ← POS (from counter)
+
+Only difference:
+source: 'POS' or source: 'PUBLIC'
+```
+
+**NO separate ID prefixes like #POS-0001 or #CS-0001**
+- Use same numbering system
+- Source field differentiates them
 
