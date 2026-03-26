@@ -112,8 +112,9 @@ interface PosCartItem {
   productImageUrl: string;
   productSizeId: string | null;
   sizeName: string | null;
-  currentPrice: number;
-  finalPrice: number;
+  originalPrice: number;           // Product original price (before admin override)
+  currentPrice: number;            // After admin override (if any)
+  finalPrice: number;              // After promotion (if any)
   hasActivePromotion: boolean;
   quantity: number;
   promotionType: string | null;
@@ -582,9 +583,10 @@ export default function PosPage() {
           sizeName: item.sizeName || null,
           status: "ACTIVE",
 
-          // Original/current prices
-          currentPrice: item.currentPrice,
-          finalPrice: item.finalPrice,
+          // Price history for audit trail
+          originalPrice: item.originalPrice || item.currentPrice, // Product original price before any override
+          currentPrice: item.currentPrice,                         // After admin override (if any)
+          finalPrice: item.finalPrice,                             // After promotion (if any)
           hasActivePromotion: item.hasActivePromotion,
 
           // Admin overrides & custom promotions
