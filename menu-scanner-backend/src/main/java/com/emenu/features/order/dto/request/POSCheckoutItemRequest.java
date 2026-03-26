@@ -1,5 +1,8 @@
 package com.emenu.features.order.dto.request;
 
+import com.emenu.features.order.dto.response.OrderItemPricingSnapshot;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -12,8 +15,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Item in POS checkout with full price history and audit trail
- * Captures: original → override → final price for accountability
+ * Item in POS checkout with complete before/after audit trail
+ * Captures: before snapshot → after snapshot with detailed metadata
  */
 @Data
 @Builder
@@ -36,6 +39,23 @@ public class POSCheckoutItemRequest {
     private String sizeName;
     private String status; // ACTIVE
 
+    // ===== AUDIT TRAIL: Before/After snapshots =====
+    // Snapshot BEFORE any POS modifications
+    @Valid
+    private OrderItemPricingSnapshot before;
+
+    // Was the item modified?
+    private Boolean hadChangeFromPOS;
+
+    // Snapshot AFTER POS modifications
+    @Valid
+    private OrderItemPricingSnapshot after;
+
+    // Detailed audit metadata (if changed)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private Map<String, Object> auditMetadata;
+
+    // ===== DEPRECATED - Kept for backward compatibility =====
     // Price history for audit trail
     private BigDecimal originalPrice;      // Product original price
     private BigDecimal currentPrice;       // After admin override (if any)
@@ -55,7 +75,6 @@ public class POSCheckoutItemRequest {
     private BigDecimal totalPrice;         // quantity * finalPrice
 
     // Audit trail - shows single modification snapshot (original → final)
-    // Contains: originalPrice, currentPrice, finalPrice, promotionType, promotionValue, reason
     @SuppressWarnings("all")
     private Map<String, Object> auditTrail;
 }

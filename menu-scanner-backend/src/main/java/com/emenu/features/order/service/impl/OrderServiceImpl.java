@@ -99,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
             // Create order items from cart summary (frontend) or database cart
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
                 log.info("📋 [STEP 4/7] Processing {} items from frontend cart summary", request.getCart().getItems().size());
-                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart());
+                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart(), request.getPricing());
             } else {
                 log.info("📋 [STEP 4/7] Processing items from database cart");
                 Cart cart = cartRepository.findByUserIdAndBusinessIdWithItems(currentUser.getId(), request.getBusinessId())
@@ -351,7 +351,8 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
-    private void createOrderItemsFromCartSummary(UUID orderId, com.emenu.features.order.dto.response.CartSummaryResponse cartSummary) {
+    private void createOrderItemsFromCartSummary(UUID orderId, POSCheckoutRequest.CartSummary cartSummary,
+                                                  POSCheckoutRequest.PricingInfo pricingInfo) {
         log.debug("🛒 [CART SUMMARY] Processing {} items for order: {}", cartSummary.getItems().size(), orderId);
 
         BigDecimal subtotal = cartSummary.getSubtotal() != null ? cartSummary.getSubtotal() : BigDecimal.ZERO;
@@ -370,8 +371,12 @@ public class OrderServiceImpl implements OrderService {
         int itemCount = 0;
         for (var item : cartSummary.getItems()) {
             itemCount++;
-            log.debug("📦 [ITEM {}] Product: {} (ID: {}), Qty: {}, Price: {}",
-                itemCount, item.getProductName(), item.getProductId(), item.getQuantity(), item.getFinalPrice());
+
+            // Use after snapshot for final pricing if available (new audit trail structure)
+            BigDecimal finalPrice = item.getAfter() != null ? item.getAfter().getFinalPrice() : item.getFinalPrice();
+
+            log.debug("📦 [ITEM {}] Product: {} (ID: {}), Qty: {}, Price: {}, HasChangeFromPOS: {}",
+                itemCount, item.getProductName(), item.getProductId(), item.getQuantity(), finalPrice, item.getHadChangeFromPOS());
 
             OrderItemCreateHelper helper = OrderItemCreateHelper.builder()
                     .orderId(orderId)
@@ -380,19 +385,41 @@ public class OrderServiceImpl implements OrderService {
                     .productName(item.getProductName())
                     .productImageUrl(item.getProductImageUrl())
                     .sizeName(item.getSizeName())
-                    .currentPrice(item.getCurrentPrice())
-                    .finalPrice(item.getFinalPrice())
-                    .unitPrice(item.getFinalPrice())
-                    .hasPromotion(item.getHasActivePromotion())
-                    .promotionType(item.getPromotionType())
-                    .promotionValue(item.getPromotionValue())
-                    .promotionFromDate(item.getPromotionFromDate())
-                    .promotionToDate(item.getPromotionToDate())
+                    // Use before snapshot for current price if available
+                    .currentPrice(item.getBefore() != null ? item.getBefore().getCurrentPrice() : item.getCurrentPrice())
+                    .finalPrice(finalPrice)
+                    .unitPrice(finalPrice)
+                    .hasPromotion(item.getAfter() != null ? item.getAfter().getHasActivePromotion() : item.getHasActivePromotion())
+                    .promotionType(item.getAfter() != null && item.getAfter().getPromotionType() != null ?
+                            item.getAfter().getPromotionType() : item.getPromotionType())
+                    .promotionValue(item.getAfter() != null ? item.getAfter().getPromotionValue() : item.getPromotionValue())
+                    .promotionFromDate(item.getAfter() != null ? item.getAfter().getPromotionFromDate() : item.getPromotionFromDate())
+                    .promotionToDate(item.getAfter() != null ? item.getAfter().getPromotionToDate() : item.getPromotionToDate())
                     .quantity(item.getQuantity())
                     .build();
 
             OrderItem orderItem = orderMapper.createOrderItemFromHelper(helper);
-            orderItem.setTotalPrice(item.getTotalPrice());
+            orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
+                    finalPrice.multiply(new BigDecimal(item.getQuantity())));
+
+            // Store audit trail if item has changes
+            if (item.getHadChangeFromPOS() != null && item.getHadChangeFromPOS()) {
+                try {
+                    if (item.getBefore() != null) {
+                        orderItem.setBeforeSnapshot(objectMapper.writeValueAsString(item.getBefore()));
+                    }
+                    orderItem.setHadChangeFromPOS(true);
+                    if (item.getAfter() != null) {
+                        orderItem.setAfterSnapshot(objectMapper.writeValueAsString(item.getAfter()));
+                    }
+                    if (item.getAuditMetadata() != null) {
+                        orderItem.setAuditMetadata(objectMapper.writeValueAsString(item.getAuditMetadata()));
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to serialize audit trail for item {}: {}", item.getProductName(), e.getMessage());
+                }
+            }
+
             orderItem.setOrder(order);
             order.getItems().add(orderItem);
             log.debug("✅ [ITEM ADDED] Item {} added to order, total items now: {}", itemCount, order.getItems().size());
@@ -405,6 +432,29 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal taxAmount = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
         BigDecimal totalAmount = subtotal.subtract(discountAmount).add(deliveryFee).add(taxAmount);
         order.setTotalAmount(totalAmount);
+
+        // Store order-level pricing audit trail if provided
+        if (pricingInfo != null) {
+            try {
+                if (pricingInfo.getBefore() != null) {
+                    order.setPricingBeforeSnapshot(objectMapper.writeValueAsString(pricingInfo.getBefore()));
+                }
+                if (pricingInfo.getHadOrderLevelChangeFromPOS() != null) {
+                    order.setHadOrderLevelChangeFromPOS(pricingInfo.getHadOrderLevelChangeFromPOS());
+                }
+                if (pricingInfo.getAfter() != null) {
+                    order.setPricingAfterSnapshot(objectMapper.writeValueAsString(pricingInfo.getAfter()));
+                }
+                if (pricingInfo.getDiscountMetadata() != null) {
+                    order.setOrderDiscountMetadata(objectMapper.writeValueAsString(pricingInfo.getDiscountMetadata()));
+                }
+                if (pricingInfo.getOrderLevelChangeReason() != null) {
+                    order.setOrderLevelChangeReason(pricingInfo.getOrderLevelChangeReason());
+                }
+            } catch (Exception e) {
+                log.warn("Failed to serialize order-level pricing audit trail: {}", e.getMessage());
+            }
+        }
 
         log.info("💾 [SAVING ORDER] Order ID: {}, Items: {}, Total: {} (Subtotal: {}, Discount: {}, Delivery: {}, Tax: {})",
             orderId, order.getItems().size(), totalAmount, subtotal, discountAmount, deliveryFee, taxAmount);

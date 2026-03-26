@@ -49,6 +49,10 @@ public class POSCheckoutRequest {
     @Valid
     private CartSummary cart;
 
+    // Pricing information with audit trail (order-level discounts)
+    @Valid
+    private PricingInfo pricing;
+
     // Payment information
     @Valid
     private PaymentInfo payment;
@@ -91,6 +95,27 @@ public class POSCheckoutRequest {
         private BigDecimal subtotal;                // After product-level discounts
         private BigDecimal totalDiscount;           // Total discount from promotions
         private BigDecimal finalTotal;              // After order-level discount applied
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PricingInfo {
+        // Snapshot BEFORE any order-level modifications
+        private java.util.Map<String, Object> before;  // OrderPricingSnapshot as JSON
+
+        // Was order total modified?
+        private Boolean hadOrderLevelChangeFromPOS;
+
+        // Snapshot AFTER order-level modifications
+        private java.util.Map<String, Object> after;   // OrderPricingSnapshot as JSON
+
+        // Detailed discount metadata (if applied)
+        private java.util.Map<String, Object> discountMetadata;  // OrderLevelDiscountMetadata as JSON
+
+        // Reason for order-level change
+        private String orderLevelChangeReason;
     }
 
     @Data
