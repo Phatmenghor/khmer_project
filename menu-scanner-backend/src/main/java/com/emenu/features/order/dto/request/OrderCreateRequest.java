@@ -1,7 +1,6 @@
 package com.emenu.features.order.dto.request;
 
 import com.emenu.enums.order.OrderStatus;
-import com.emenu.features.order.dto.response.CartSummaryResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -19,7 +18,7 @@ public class OrderCreateRequest {
     private DeliveryOptionRequest deliveryOption;
 
     // Cart summary - complete cart data from frontend (can be edited locally before submit)
-    private CartSummaryResponse cart;
+    private CartSummaryRequest cart;
 
     @Valid
     @NotNull(message = "Payment info is required")
