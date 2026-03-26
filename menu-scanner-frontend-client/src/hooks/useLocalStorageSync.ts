@@ -91,7 +91,7 @@ export function useLocalStorageSync(
               item.productId &&
               item.productName &&
               typeof item.quantity === "number" &&
-              typeof item.currentPrice === "number"
+              typeof item.before?.currentPrice === "number"
           );
 
           if (isValid) {
@@ -235,7 +235,7 @@ export function useLocalStorageSync(
       exportedAt: new Date().toISOString(),
       itemCount: cartItems.length,
       totalPrice: cartItems.reduce(
-        (sum, item) => sum + item.finalPrice * item.quantity,
+        (sum, item) => sum + item.after.finalPrice * item.quantity,
         0
       ),
     };

@@ -142,7 +142,7 @@ export default function PosPage() {
   } = usePOSPageState();
 
   // ─── localStorage Sync with Redux (Cart) ───
-  const { isInitialized, itemCount, getStorageInfo } = useLocalStorageSync({
+  useLocalStorageSync({
     storageKey: "pos:cart",
     debounceMs: 1000,
     enabled: true,
@@ -155,7 +155,7 @@ export default function PosPage() {
   });
 
   // ─── URL Sync with Redux (Filters) ───
-  const { getShareableLink } = useFilterURLSync({
+  useFilterURLSync({
     enabled: true,
     debounceMs: 800,
     onFiltersLoaded: (filters) => {
