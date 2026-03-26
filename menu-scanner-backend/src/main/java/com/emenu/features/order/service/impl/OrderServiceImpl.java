@@ -474,20 +474,21 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public POSCheckoutResponse createPOSCheckoutOrder(POSCheckoutRequest request) {
         log.info("🎯 [POS CHECKOUT START] Creating POS order - Business: {}, Items: {}",
-            request.getBusinessId(), request.getItems().size());
+            request.getBusinessId(), request.getCart().getItems().size());
 
         User currentUser = securityUtils.getCurrentUser();
         String createdBy = currentUser != null ? currentUser.getFullName() : "System";
 
         try {
             // Validate input
-            if (request.getItems() == null || request.getItems().isEmpty()) {
+            if (request.getCart() == null || request.getCart().getItems() == null || request.getCart().getItems().isEmpty()) {
                 throw new ValidationException("Order must contain at least one item");
             }
 
             log.debug("🔍 [STEP 1/6] Validating delivery option...");
-            DeliveryOption deliveryOption = deliveryOptionRepository.findById(request.getDeliveryOptionId())
-                    .orElseThrow(() -> new NotFoundException("Delivery option not found"));
+            // Delivery option is passed as full object, not ID
+            BigDecimal deliveryPrice = request.getDeliveryOption() != null ?
+                request.getDeliveryOption().getPrice() : BigDecimal.ZERO;
 
             // Create order
             log.debug("📝 [STEP 2/6] Creating order entity...");
@@ -499,7 +500,7 @@ public class OrderServiceImpl implements OrderService {
             order.setSource("POS"); // Mark as POS order
             order.setPaymentMethod(PaymentMethod.CASH);
             order.setPaymentStatus(PaymentStatus.PAID);
-            order.setDeliveryFee(deliveryOption.getPrice() != null ? deliveryOption.getPrice() : BigDecimal.ZERO);
+            order.setDeliveryFee(deliveryPrice);
             order.setCustomerNote(request.getCustomerNote());
             order.setBusinessNote(request.getBusinessNote());
 
@@ -574,8 +575,10 @@ public class OrderServiceImpl implements OrderService {
 
             // Update order totals
             log.debug("💰 [STEP 5/6] Calculating totals...");
-            BigDecimal discountAmount = request.getDiscountAmount() != null ? request.getDiscountAmount() : totalDiscount;
-            BigDecimal taxAmount = request.getTaxAmount() != null ? request.getTaxAmount() : BigDecimal.ZERO;
+            // Get discount from cart or use calculated item-level discount
+            BigDecimal discountAmount = request.getCart().getTotalDiscount() != null ?
+                request.getCart().getTotalDiscount() : totalDiscount;
+            BigDecimal taxAmount = BigDecimal.ZERO; // Tax not used in POS, reserved for future
             BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
 
             savedOrder.setSubtotal(subtotal);

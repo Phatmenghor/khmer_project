@@ -393,7 +393,39 @@ BEGIN
     RAISE NOTICE '✅ OTHER DATA:';
     RAISE NOTICE '   • 5 Delivery Options & 5 Payment Methods';
     RAISE NOTICE '   • 3 Banners & 2 Customer Addresses';
-    RAISE NOTICE '📊 Progress: 100%% - COMPLETE! ✅ (20,000 Orders Ready!)';
+
+    -- =====================================================
+    -- ENHANCED POS TEST DATA - REAL-WORLD SCENARIOS WITH AUDIT TRAILS
+    -- =====================================================
+    RAISE NOTICE '🚀 Adding Enhanced POS Test Data with Audit Trails...';
+
+    -- SCENARIO 1: PRICE OVERRIDE (Employee Discount)
+    RAISE NOTICE '📝 Scenario 1: Price Override (Employee Discount)...';
+    INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
+    VALUES (gen_random_uuid(), 0, t - INTERVAL '2 days', t - INTERVAL '2 days', business_user_id, business_user_id, false, NULL, NULL, key_business_id, customer_user_id, 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-AUDIT001', 'COMPLETED'::VARCHAR, 'POS'::VARCHAR, '{"village":"POS Counter","commune":"Downtown","district":"Daun Penh","province":"Phnom Penh"}', '{"name":"Pickup"}', 8.50, 0.75, 0.00, 0.00, 7.75, 'CASH', 'PAID', 'Employee coffee', 'AUDIT TRAIL: Admin Override Applied | Original Price: $5.00 × 1 = $5.00 → Overridden to: $4.25 × 1 = $4.25 | Reason: Employee 15% discount | No Promotion Applied | Final Total: $7.75', t - INTERVAL '2 days', t - INTERVAL '2 days');
+
+    -- SCENARIO 2: PROMOTION APPLIED
+    RAISE NOTICE '📝 Scenario 2: Promotion Applied (20%% OFF)...';
+    INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
+    VALUES (gen_random_uuid(), 0, t - INTERVAL '3 days', t - INTERVAL '3 days', business_user_id, business_user_id, false, NULL, NULL, key_business_id, customer_user_id, 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-AUDIT002', 'COMPLETED'::VARCHAR, 'POS'::VARCHAR, '{"village":"POS Counter","commune":"Downtown","district":"Daun Penh","province":"Phnom Penh"}', '{"name":"Pickup"}', 20.00, 4.00, 0.00, 0.00, 16.00, 'CASH', 'PAID', 'Promotion special', 'AUDIT TRAIL: Auto Promotion Applied | Original Price: $10.00 × 2 = $20.00 | Promotion: 20% OFF (PERCENTAGE) = $4.00 discount | Final Price After Promotion: $8.00 × 2 = $16.00 | No Admin Override', t - INTERVAL '3 days', t - INTERVAL '3 days');
+
+    -- SCENARIO 3: PRICE OVERRIDE + PROMOTION (Stacked)
+    RAISE NOTICE '📝 Scenario 3: Price Override + Promotion (Stacked)...';
+    INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
+    VALUES (gen_random_uuid(), 0, t - INTERVAL '1 day', t - INTERVAL '1 day', business_user_id, business_user_id, false, NULL, NULL, key_business_id, customer_user_id, 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-AUDIT003', 'COMPLETED'::VARCHAR, 'POS'::VARCHAR, '{"village":"POS Counter","commune":"Downtown","district":"Daun Penh","province":"Phnom Penh"}', '{"name":"Pickup"}', 12.50, 3.75, 0.00, 0.00, 8.75, 'CASH', 'PAID', 'Bulk order special', 'AUDIT TRAIL: Admin Override + Promotion Applied | Original Price: $6.25 × 2 = $12.50 | Admin Override: $5.00/each → $4.00 total reduction | Auto Promotion Applied: 30% OFF items (PERCENTAGE) = $3.75 discount | Final Price: $3.13 × 2 = $6.25 → Order Total: $8.75', t - INTERVAL '1 day', t - INTERVAL '1 day');
+
+    -- SCENARIO 4: ORDER-LEVEL FIXED DISCOUNT (VIP)
+    RAISE NOTICE '📝 Scenario 4: Order-Level Fixed Discount ($5 VIP)...';
+    INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
+    VALUES (gen_random_uuid(), 0, NOW(), NOW(), business_user_id, business_user_id, false, NULL, NULL, key_business_id, customer_user_id, 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-AUDIT004', 'COMPLETED'::VARCHAR, 'POS'::VARCHAR, '{"village":"POS Counter","commune":"Downtown","district":"Daun Penh","province":"Phnom Penh"}', '{"name":"Pickup"}', 28.00, 5.00, 0.00, 0.00, 23.00, 'CASH', 'PAID', 'Regular customer here', 'AUDIT TRAIL: Order-Level Discount Applied | Subtotal Before Discount: $28.00 | Order-Level Discount: FIXED $5.00 (Type: fixed_amount) | Reason: VIP Customer Loyalty Discount | Final Total: $23.00', NOW(), NOW());
+
+    -- SCENARIO 5: ORDER-LEVEL PERCENTAGE DISCOUNT (Bulk)
+    RAISE NOTICE '📝 Scenario 5: Order-Level Percentage Discount (15%% Bulk)...';
+    INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, delivery_address_snapshot, delivery_option_snapshot, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, confirmed_at, completed_at)
+    VALUES (gen_random_uuid(), 0, NOW() - INTERVAL '12 hours', NOW() - INTERVAL '12 hours', business_user_id, business_user_id, false, NULL, NULL, key_business_id, customer_user_id, 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-AUDIT005', 'COMPLETED'::VARCHAR, 'POS'::VARCHAR, '{"village":"POS Counter","commune":"Downtown","district":"Daun Penh","province":"Phnom Penh"}', '{"name":"Pickup"}', 50.00, 7.50, 0.00, 0.00, 42.50, 'CASH', 'PAID', 'Office catering order', 'AUDIT TRAIL: Order-Level Percentage Discount Applied | Subtotal Before Discount: $50.00 | Order-Level Discount: 15% (Type: percentage) = $7.50 discount | Reason: Bulk Order Discount (5+ items) | Final Total: $42.50', NOW() - INTERVAL '12 hours', NOW() - INTERVAL '12 hours');
+
+    RAISE NOTICE '✅ Enhanced POS Test Data (5 audit trail scenarios) Created!';
+    RAISE NOTICE '📊 Progress: 100%% - COMPLETE! ✅ (20,005 Orders Ready with Audit Trails!)';
 
 END $$;
 
