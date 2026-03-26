@@ -157,7 +157,7 @@ SELECT
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     jsonb_build_object('village', 'Village ' || (i % 50), 'commune', 'Commune ' || (i % 25), 'district', 'District ' || (i % 12), 'province', 'Phnom Penh', 'streetNumber', LPAD((i % 500)::text, 3, '0'), 'houseNumber', 'Building ' || CHR(65 + (i % 26)), 'note', 'Delivery location #' || i, 'latitude', 11.5564 + ((i % 100)::numeric / 10000), 'longitude', 104.9282 + ((i % 100)::numeric / 10000)),
     jsonb_build_object('name', CASE WHEN i % 3 = 0 THEN 'Standard' WHEN i % 3 = 1 THEN 'Express' ELSE 'Pickup' END, 'description', CASE WHEN i % 3 = 0 THEN 'Standard delivery within 24 hours' WHEN i % 3 = 1 THEN 'Express delivery within 2 hours' ELSE 'Quick pickup at our location' END, 'imageUrl', CASE WHEN i % 2 = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop' END, 'price', CASE WHEN i % 3 = 2 THEN 0 ELSE ROUND((2 + ((i % 5)::numeric * 0.5))::numeric, 2) END),
-    CASE WHEN i % 5 = 0 THEN 'PENDING' WHEN i % 5 = 1 THEN 'CONFIRMED' WHEN i % 5 = 2 THEN 'PROCESSING' WHEN i % 5 = 3 THEN 'COMPLETED' ELSE 'CANCELLED' END,
+    CASE WHEN i % 5 = 0 THEN 'PENDING' WHEN i % 5 = 1 THEN 'CONFIRMED' WHEN i % 5 = 2 THEN 'PREPARING' WHEN i % 5 = 3 THEN 'COMPLETED' ELSE 'CANCELLED' END,
     'PUBLIC',
     'Customer order note #' || i,
     'Processing order - Audit trail enabled. Customer order via app. Delivery preferences set.',
