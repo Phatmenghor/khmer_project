@@ -24,9 +24,9 @@ TRUNCATE TABLE roles CASCADE;
 -- 1. ROLES
 -- ============================================================================
 INSERT INTO roles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, business_id, user_type) VALUES
-('550e8400-e29b-41d4-a716-446655440000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'ADMIN', 'Platform Administrator', NULL, 'PLATFORM'),
-('550e8400-e29b-41d4-a716-446655440001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'MANAGER', 'Business Manager', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS'),
-('550e8400-e29b-41d4-a716-446655440002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'STAFF', 'Business Staff', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS'),
+('550e8400-e29b-41d4-a716-446655440000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'ADMIN', 'Platform Administrator', NULL, 'PLATFORM_USER'),
+('550e8400-e29b-41d4-a716-446655440001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'MANAGER', 'Business Manager', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS_USER'),
+('550e8400-e29b-41d4-a716-446655440002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'STAFF', 'Business Staff', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS_USER'),
 ('550e8400-e29b-41d4-a716-446655440003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'CUSTOMER', 'Customer Role', NULL, 'CUSTOMER');
 
 -- ============================================================================
@@ -39,8 +39,8 @@ INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated
 -- 3. USERS (3 main + 500 staff)
 -- ============================================================================
 INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id) VALUES
-('550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', 'hashed_password_19', 'Platform', 'Admin', '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200', 'PLATFORM', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0'),
-('550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', 'hashed_password_20', 'Business', 'Manager', '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200', 'BUSINESS', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0'),
+('550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', 'hashed_password_19', 'Platform', 'Admin', '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200', 'PLATFORM_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0'),
+('550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', 'hashed_password_20', 'Business', 'Manager', '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200', 'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0'),
 ('550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor21@gmail.com', 'phatmenghor21@gmail.com', 'hashed_password_21', 'Customer', 'User', '+855 10 300 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200', 'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
 -- 500 STAFF MEMBERS
@@ -50,7 +50,7 @@ SELECT
     'staff' || i::text || '@business.com', 'staff' || i::text || '@business.com', 'hashed_password',
     'Staff_' || i::text, 'User_' || i::text, '+855 10 ' || LPAD((i % 10000000)::text, 7, '0'),
     CASE WHEN (i % 2) = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584' END,
-    'BUSINESS', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0'
+    'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0'
 FROM generate_series(1, 500) AS t(i);
 
 -- ============================================================================
