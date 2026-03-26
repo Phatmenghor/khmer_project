@@ -3,7 +3,9 @@ package com.emenu.features.order.controller;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.order.dto.filter.OrderFilterRequest;
 import com.emenu.features.order.dto.request.OrderCreateRequest;
+import com.emenu.features.order.dto.request.POSCheckoutRequest;
 import com.emenu.features.order.dto.response.OrderResponse;
+import com.emenu.features.order.dto.response.POSCheckoutResponse;
 import com.emenu.features.order.dto.update.OrderUpdateRequest;
 import com.emenu.features.order.service.OrderService;
 import com.emenu.security.SecurityUtils;
@@ -36,6 +38,18 @@ public class OrderController {
         OrderResponse order = orderService.createOrderFromCart(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Order created successfully", order));
+    }
+
+    /**
+     * Create POS order directly (Admin/Staff only) - Order is created with COMPLETED status
+     * Allows admin to create orders with full control over items, prices, and promotions
+     */
+    @PostMapping("/checkout-from-pos")
+    public ResponseEntity<ApiResponse<POSCheckoutResponse>> createPOSCheckoutOrder(@Valid @RequestBody POSCheckoutRequest request) {
+        log.info("🎯 Creating POS order for business: {}, Items: {}", request.getBusinessId(), request.getItems().size());
+        POSCheckoutResponse order = orderService.createPOSCheckoutOrder(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("POS order created successfully", order));
     }
 
     /**

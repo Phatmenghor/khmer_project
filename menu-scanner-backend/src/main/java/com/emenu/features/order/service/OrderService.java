@@ -2,7 +2,9 @@ package com.emenu.features.order.service;
 
 import com.emenu.features.order.dto.filter.OrderFilterRequest;
 import com.emenu.features.order.dto.request.OrderCreateRequest;
+import com.emenu.features.order.dto.request.POSCheckoutRequest;
 import com.emenu.features.order.dto.response.OrderResponse;
+import com.emenu.features.order.dto.response.POSCheckoutResponse;
 import com.emenu.features.order.dto.update.OrderUpdateRequest;
 import com.emenu.shared.dto.PaginationResponse;
 
@@ -20,4 +22,7 @@ public interface OrderService {
     PaginationResponse<OrderResponse> getAllOrders(OrderFilterRequest filter);
     OrderResponse updateOrder(UUID orderId, OrderUpdateRequest request);
     OrderResponse deleteOrder(UUID orderId);
+
+    // POS Operations (Admin)
+    POSCheckoutResponse createPOSCheckoutOrder(POSCheckoutRequest request);
 }

@@ -9,8 +9,16 @@ import com.emenu.features.order.dto.helper.OrderPaymentCreateHelper;
 import com.emenu.features.order.dto.helper.OrderCreateHelper;
 import com.emenu.features.order.dto.helper.OrderItemCreateHelper;
 import com.emenu.features.order.dto.request.OrderCreateRequest;
+import com.emenu.features.order.dto.request.POSCheckoutRequest;
+import com.emenu.features.order.dto.request.POSCheckoutItemRequest;
 import com.emenu.features.order.dto.response.OrderResponse;
+import com.emenu.features.order.dto.response.POSCheckoutResponse;
 import com.emenu.features.order.dto.update.OrderUpdateRequest;
+import com.emenu.enums.payment.PaymentMethod;
+import com.emenu.features.order.models.DeliveryOption;
+import com.emenu.features.order.repository.DeliveryOptionRepository;
+import com.emenu.features.product.models.Product;
+import com.emenu.features.product.repository.ProductRepository;
 import com.emenu.features.order.mapper.OrderPaymentMapper;
 import com.emenu.features.order.mapper.OrderMapper;
 import com.emenu.features.order.models.OrderPayment;
@@ -52,6 +60,8 @@ public class OrderServiceImpl implements OrderService {
     private final CartRepository cartRepository;
     private final OrderPaymentRepository paymentRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
+    private final DeliveryOptionRepository deliveryOptionRepository;
+    private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
     private final OrderPaymentMapper paymentMapper;
     private final SecurityUtils securityUtils;
@@ -59,6 +69,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentReferenceGenerator paymentReferenceGenerator;
     private final PaginationMapper paginationMapper;
     private final StockServiceImpl stockService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
@@ -457,6 +468,169 @@ public class OrderServiceImpl implements OrderService {
 
     private String generateOrderNumber() {
         return referenceNumberGenerator.generateOrderNumber();
+    }
+
+    @Override
+    public POSCheckoutResponse createPOSCheckoutOrder(POSCheckoutRequest request) {
+        log.info("🎯 [POS CHECKOUT START] Creating POS order - Business: {}, Items: {}",
+            request.getBusinessId(), request.getItems().size());
+
+        User currentUser = securityUtils.getCurrentUser();
+        String createdBy = currentUser != null ? currentUser.getFullName() : "System";
+
+        try {
+            // Validate input
+            if (request.getItems() == null || request.getItems().isEmpty()) {
+                throw new ValidationException("Order must contain at least one item");
+            }
+
+            log.debug("🔍 [STEP 1/6] Validating delivery option...");
+            DeliveryOption deliveryOption = deliveryOptionRepository.findById(request.getDeliveryOptionId())
+                    .orElseThrow(() -> new NotFoundException("Delivery option not found"));
+
+            // Create order
+            log.debug("📝 [STEP 2/6] Creating order entity...");
+            Order order = new Order();
+            order.setBusinessId(request.getBusinessId());
+            order.setCustomerId(request.getCustomerId());
+            order.setOrderNumber(generateOrderNumber());
+            order.setOrderStatus(OrderStatus.COMPLETED); // POS orders are always completed
+            order.setSource("POS"); // Mark as POS order
+            order.setPaymentMethod(PaymentMethod.CASH);
+            order.setPaymentStatus("PAID");
+            order.setDeliveryFee(deliveryOption.getPrice() != null ? deliveryOption.getPrice() : BigDecimal.ZERO);
+            order.setCustomerNote(request.getCustomerNote());
+            order.setBusinessNote(request.getBusinessNote());
+
+            // Set delivery address as JSON snapshot
+            try {
+                String deliveryAddressJson = objectMapper.writeValueAsString(request.getDeliveryAddress());
+                order.setDeliveryAddressSnapshot(deliveryAddressJson);
+            } catch (Exception e) {
+                log.warn("Failed to serialize delivery address: {}", e.getMessage());
+                order.setDeliveryAddressSnapshot("{}");
+            }
+
+            // Set delivery option as JSON snapshot
+            try {
+                String deliveryOptionJson = objectMapper.writeValueAsString(
+                    new Object() {
+                        public UUID id = deliveryOption.getId();
+                        public String name = deliveryOption.getName();
+                    }
+                );
+                order.setDeliveryOptionSnapshot(deliveryOptionJson);
+            } catch (Exception e) {
+                log.warn("Failed to serialize delivery option: {}", e.getMessage());
+                order.setDeliveryOptionSnapshot("{}");
+            }
+
+            log.debug("💾 [STEP 3/6] Saving order...");
+            Order savedOrder = orderRepository.save(order);
+
+            // Create order items and calculate totals
+            log.debug("📦 [STEP 4/6] Creating order items ({} items)...", request.getItems().size());
+            BigDecimal subtotal = BigDecimal.ZERO;
+            BigDecimal totalDiscount = BigDecimal.ZERO;
+
+            for (POSCheckoutItemRequest itemRequest : request.getItems()) {
+                Product product = productRepository.findById(itemRequest.getProductId())
+                        .orElseThrow(() -> new NotFoundException("Product not found: " + itemRequest.getProductId()));
+
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrderId(savedOrder.getId());
+                orderItem.setProductId(product.getId());
+                orderItem.setProductSizeId(itemRequest.getProductSizeId());
+                orderItem.setProductName(itemRequest.getProductName() != null ? itemRequest.getProductName() : product.getName());
+                orderItem.setProductImageUrl(itemRequest.getProductImageUrl() != null ? itemRequest.getProductImageUrl() : product.getMainImageUrl());
+                orderItem.setSizeName(itemRequest.getSizeName());
+                orderItem.setQuantity(itemRequest.getQuantity());
+
+                // Determine current price
+                BigDecimal currentPrice = itemRequest.getOverridePrice() != null ?
+                    itemRequest.getOverridePrice() : product.getPrice();
+                orderItem.setCurrentPrice(currentPrice);
+                orderItem.setUnitPrice(currentPrice);
+
+                // Apply promotion if specified
+                BigDecimal finalPrice = currentPrice;
+                if (itemRequest.getPromotionType() != null && itemRequest.getPromotionValue() != null) {
+                    if ("PERCENTAGE".equals(itemRequest.getPromotionType())) {
+                        BigDecimal discountPercent = itemRequest.getPromotionValue().divide(BigDecimal.valueOf(100));
+                        finalPrice = currentPrice.multiply(BigDecimal.ONE.subtract(discountPercent));
+                    } else if ("FIXED_AMOUNT".equals(itemRequest.getPromotionType())) {
+                        finalPrice = currentPrice.subtract(itemRequest.getPromotionValue());
+                    }
+                    orderItem.setHasPromotion(true);
+                }
+
+                orderItem.setFinalPrice(finalPrice);
+                orderItem.calculateTotalPrice();
+
+                subtotal = subtotal.add(currentPrice.multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
+                totalDiscount = totalDiscount.add(currentPrice.subtract(finalPrice).multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
+            }
+
+            // Update order totals
+            log.debug("💰 [STEP 5/6] Calculating totals...");
+            BigDecimal discountAmount = request.getDiscountAmount() != null ? request.getDiscountAmount() : totalDiscount;
+            BigDecimal taxAmount = request.getTaxAmount() != null ? request.getTaxAmount() : BigDecimal.ZERO;
+            BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
+
+            savedOrder.setSubtotal(subtotal);
+            savedOrder.setDiscountAmount(discountAmount);
+            savedOrder.setTaxAmount(taxAmount);
+            savedOrder.setDeliveryFee(deliveryFee);
+            savedOrder.setTotalAmount(subtotal.subtract(discountAmount).add(taxAmount).add(deliveryFee));
+
+            Order updatedOrder = orderRepository.save(savedOrder);
+
+            // Create order payment record
+            log.debug("💳 [STEP 5.5/6] Creating payment record...");
+            OrderPayment payment = new OrderPayment();
+            payment.setOrderId(updatedOrder.getId());
+            payment.setBusinessId(request.getBusinessId());
+            payment.setPaymentMethod(PaymentMethod.CASH);
+            payment.setPaymentStatus("PAID");
+            payment.setPaymentReference(paymentReferenceGenerator.generatePaymentReference());
+            payment.setSubtotal(updatedOrder.getSubtotal());
+            payment.setDiscountAmount(updatedOrder.getDiscountAmount());
+            payment.setDeliveryFee(updatedOrder.getDeliveryFee());
+            payment.setTaxAmount(updatedOrder.getTaxAmount());
+            payment.setTotalAmount(updatedOrder.getTotalAmount());
+            payment.setCustomerPaymentMethod("Cash");
+            paymentRepository.save(payment);
+
+            // Create initial status history
+            log.debug("📋 [STEP 6/6] Creating status history...");
+            createInitialOrderStatusHistory(updatedOrder, currentUser != null ? currentUser.getId() : UUID.randomUUID());
+
+            log.info("✅ [POS ORDER CREATED] Order #{} completed with ID: {} - Total: {}",
+                updatedOrder.getOrderNumber(), updatedOrder.getId(), updatedOrder.getTotalAmount());
+
+            // Build response
+            return POSCheckoutResponse.builder()
+                    .id(updatedOrder.getId())
+                    .orderNumber(updatedOrder.getOrderNumber())
+                    .subtotal(updatedOrder.getSubtotal())
+                    .discountAmount(updatedOrder.getDiscountAmount())
+                    .deliveryFee(updatedOrder.getDeliveryFee())
+                    .taxAmount(updatedOrder.getTaxAmount())
+                    .totalAmount(updatedOrder.getTotalAmount())
+                    .orderStatus("COMPLETED")
+                    .source("POS")
+                    .paymentMethod("CASH")
+                    .paymentStatus("PAID")
+                    .createdBy(createdBy)
+                    .createdAt(updatedOrder.getCreatedAt())
+                    .customerName(request.getCustomerName())
+                    .customerPhone(request.getCustomerPhone())
+                    .build();
+
+        } catch (Exception e) {
+            log.error("❌ [POS CHECKOUT ERROR] Failed to create POS order: {}", e.getMessage(), e);
+            throw new ValidationException("Failed to create POS order: " + e.getMessage());
+        }
     }
 
     /**
