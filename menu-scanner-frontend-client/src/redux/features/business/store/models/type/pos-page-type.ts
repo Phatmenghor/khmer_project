@@ -58,18 +58,18 @@ export interface PosPageCartItem {
   productSizeId: string | null;
   sizeName: string | null;
 
+  // Top-level quantity for UI controls (mirrors after.quantity)
+  quantity: number;
+
   // ===== AUDIT TRAIL =====
-  // Before: Original pricing from product
+  // Before: Original pricing from product (immutable once set)
   before: ItemPricingSnapshot;
 
   // Was item modified from POS?
   hadChangeFromPOS: boolean;
 
-  // After: Final pricing after all POS changes
+  // After: Current pricing after all POS changes
   after: ItemPricingSnapshot;
-
-  // Detailed audit metadata (if changed)
-  auditMetadata?: ItemAuditTrailMetadata;
 }
 
 // ─── Order Pricing Snapshot (before or after) ───

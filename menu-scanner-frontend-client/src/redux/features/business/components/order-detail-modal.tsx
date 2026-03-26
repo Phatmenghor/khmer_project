@@ -111,48 +111,66 @@ export function OrderDetailModal({
 
           {/* Pricing Information */}
           <DetailSection title="Pricing">
-            <DetailRow
-              label="Total Items"
-              value={String(orderData.pricing?.totalItems || 0)}
-            />
-            <DetailRow
-              label="Subtotal (Before Discount)"
-              value={formatCurrency(
-                orderData.pricing?.subtotalBeforeDiscount || 0
-              )}
-            />
-            {(orderData.pricing?.totalDiscount ?? 0) > 0 && (
-              <DetailRow
-                label="Discount"
-                value={
-                  <span className="text-red-500">
-                    -{formatCurrency(orderData.pricing.totalDiscount)}
-                  </span>
-                }
-              />
-            )}
-            <DetailRow
-              label="Subtotal"
-              value={formatCurrency(orderData.pricing?.subtotal || 0)}
-            />
-            <DetailRow
-              label="Delivery Fee"
-              value={formatCurrency(orderData.pricing?.deliveryFee || 0)}
-            />
-            {(orderData.pricing?.taxAmount ?? 0) > 0 && (
-              <DetailRow
-                label="Tax"
-                value={formatCurrency(orderData.pricing.taxAmount)}
-              />
-            )}
-            <DetailRow
-              label="Final Total"
-              value={
-                <span className="text-lg font-semibold text-green-600">
-                  {formatCurrency(orderData.pricing?.finalTotal || 0)}
-                </span>
-              }
-            />
+            {(() => {
+              const snapshot = orderData.pricing?.after ?? orderData.pricing?.before;
+              return (
+                <>
+                  <DetailRow
+                    label="Total Items"
+                    value={String(snapshot?.totalItems || 0)}
+                  />
+                  <DetailRow
+                    label="Subtotal (Before Discount)"
+                    value={formatCurrency(snapshot?.subtotalBeforeDiscount || 0)}
+                  />
+                  {(snapshot?.totalDiscount ?? 0) > 0 && (
+                    <DetailRow
+                      label="Discount"
+                      value={
+                        <span className="text-red-500">
+                          -{formatCurrency(snapshot!.totalDiscount)}
+                        </span>
+                      }
+                    />
+                  )}
+                  <DetailRow
+                    label="Subtotal"
+                    value={formatCurrency(snapshot?.subtotal || 0)}
+                  />
+                  <DetailRow
+                    label="Delivery Fee"
+                    value={formatCurrency(snapshot?.deliveryFee || 0)}
+                  />
+                  {(snapshot?.taxAmount ?? 0) > 0 && (
+                    <DetailRow
+                      label="Tax"
+                      value={formatCurrency(snapshot!.taxAmount)}
+                    />
+                  )}
+                  <DetailRow
+                    label="Final Total"
+                    value={
+                      <span className="text-lg font-semibold text-green-600">
+                        {formatCurrency(snapshot?.finalTotal || 0)}
+                      </span>
+                    }
+                  />
+                  {orderData.pricing?.hadOrderLevelChangeFromPOS && orderData.pricing.before && (
+                    <DetailRow
+                      label="Original Total"
+                      value={
+                        <span className="text-muted-foreground line-through text-sm">
+                          {formatCurrency(orderData.pricing.before.finalTotal)}
+                        </span>
+                      }
+                    />
+                  )}
+                  {orderData.pricing?.reason && (
+                    <DetailRow label="Change Reason" value={orderData.pricing.reason} />
+                  )}
+                </>
+              );
+            })()}
           </DetailSection>
 
           {/* Payment Information */}
@@ -228,50 +246,63 @@ export function OrderDetailModal({
           {orderData.items && orderData.items.length > 0 && (
             <DetailSection title="Order Items">
               <div className="space-y-3">
-                {orderData.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="p-3 border rounded-lg bg-muted/50"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-medium text-sm">
-                          {item.product?.name || "Unknown Product"}
-                        </h4>
-                        {item.product?.sizeName && (
-                          <span className="text-xs text-muted-foreground">
-                            Size: {item.product.sizeName}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-sm font-medium">
-                        x{item.quantity}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div>
-                        <span className="text-muted-foreground">Price: </span>
-                        <span>{formatCurrency(item.currentPrice)}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Total: </span>
-                        <span className="font-medium">
-                          {formatCurrency(item.totalPrice)}
-                        </span>
-                      </div>
-                      {item.hasActivePromotion && (
+                {orderData.items.map((item) => {
+                  const snapshot = item.after ?? item.before;
+                  return (
+                    <div
+                      key={item.id}
+                      className="p-3 border rounded-lg bg-muted/50"
+                    >
+                      <div className="flex justify-between items-start mb-2">
                         <div>
-                          <span className="text-muted-foreground">
-                            Discount:{" "}
-                          </span>
-                          <span className="text-red-500">
-                            -{formatCurrency(item.discountAmount)}
+                          <h4 className="font-medium text-sm">
+                            {item.product?.name || "Unknown Product"}
+                          </h4>
+                          {item.product?.sizeName && (
+                            <span className="text-xs text-muted-foreground">
+                              Size: {item.product.sizeName}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {item.hadChangeFromPOS && (
+                            <Badge variant="outline" className="text-[10px] px-1 text-orange-600 border-orange-300">
+                              Modified
+                            </Badge>
+                          )}
+                          <span className="text-sm font-medium">
+                            x{snapshot?.quantity ?? 0}
                           </span>
                         </div>
-                      )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Price: </span>
+                          <span>{formatCurrency(snapshot?.finalPrice ?? 0)}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Total: </span>
+                          <span className="font-medium">
+                            {formatCurrency(snapshot?.totalPrice ?? 0)}
+                          </span>
+                        </div>
+                        {(snapshot?.discountAmount ?? 0) > 0 && (
+                          <div>
+                            <span className="text-muted-foreground">Discount: </span>
+                            <span className="text-red-500">
+                              -{formatCurrency(snapshot!.discountAmount)}
+                            </span>
+                          </div>
+                        )}
+                        {item.hadChangeFromPOS && item.before && (
+                          <div className="col-span-2 text-muted-foreground">
+                            Original: {formatCurrency(item.before.finalPrice)} → {formatCurrency(snapshot?.finalPrice ?? 0)}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </DetailSection>
           )}

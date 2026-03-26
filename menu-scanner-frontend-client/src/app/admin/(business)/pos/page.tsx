@@ -106,23 +106,6 @@ import {
 import { AppDispatch } from "@/redux/store";
 import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
 
-interface PosCartItem {
-  id: string;
-  productId: string;
-  productName: string;
-  productImageUrl: string;
-  productSizeId: string | null;
-  sizeName: string | null;
-  originalPrice: number;           // Product original price (before admin override)
-  currentPrice: number;            // After admin override (if any)
-  finalPrice: number;              // After promotion (if any)
-  hasActivePromotion: boolean;
-  quantity: number;
-  promotionType: string | null;
-  promotionValue: number | null;
-  promotionFromDate: string | null;
-  promotionToDate: string | null;
-}
 
 export default function PosPage() {
   const router = useRouter();
@@ -197,7 +180,7 @@ export default function PosPage() {
   // ─── Debounce search ───
   const debouncedSearch = useDebounce(searchTerm, 400);
   // ─── Edit Cart Item for Price/Promotion ───
-  const [editingItemForPrice, setEditingItemForPrice] = useState<PosCartItem | null>(null);
+  const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
 
   // ─── Order-Level Discount ───
   const [orderDiscount, setOrderDiscount] = useState<{
@@ -330,6 +313,25 @@ export default function PosPage() {
         : product.displayPrice || parseFloat(String(product.price || 0));
       const hasPromo = size ? size.hasPromotion : product.hasActivePromotion;
 
+      const promotionType = size?.promotionType || product.displayPromotionType || null;
+      const promotionValue = size?.promotionValue ?? product.displayPromotionValue ?? null;
+      const promotionFromDate = size?.promotionFromDate || product.displayPromotionFromDate || null;
+      const promotionToDate = size?.promotionToDate || product.displayPromotionToDate || null;
+
+      const snapshot = {
+        currentPrice,
+        finalPrice,
+        hasActivePromotion: hasPromo,
+        quantity,
+        totalBeforeDiscount: currentPrice * quantity,
+        discountAmount: (currentPrice - finalPrice) * quantity,
+        totalPrice: finalPrice * quantity,
+        promotionType,
+        promotionValue,
+        promotionFromDate,
+        promotionToDate,
+      };
+
       const newItem: PosPageCartItem = {
         id: cartId,
         productId: product.id,
@@ -337,36 +339,31 @@ export default function PosPage() {
         productImageUrl: product.mainImageUrl || "",
         productSizeId: size?.id || null,
         sizeName: size?.name || null,
-        originalPrice: currentPrice, // Track original product price for audit trail
-        currentPrice,
-        finalPrice,
-        hasActivePromotion: hasPromo,
         quantity,
-        promotionType: size?.promotionType || product.displayPromotionType || null,
-        promotionValue: size?.promotionValue || product.displayPromotionValue || null,
-        promotionFromDate: size?.promotionFromDate || product.displayPromotionFromDate || null,
-        promotionToDate: size?.promotionToDate || product.displayPromotionToDate || null,
+        before: snapshot,
+        hadChangeFromPOS: false,
+        after: snapshot,
       };
 
       if (editingId) {
         const existingItem = cartItems.find((item) => item.id === editingId);
         if (existingItem) {
-          dispatch(
-            updateCartItem({
-              ...newItem,
-              quantity: existingItem.quantity,
-            })
-          );
+          const qty = existingItem.quantity;
+          dispatch(updateCartItem({
+            ...newItem,
+            quantity: qty,
+            after: { ...newItem.after, quantity: qty, totalBeforeDiscount: newItem.after.currentPrice * qty, discountAmount: (newItem.after.currentPrice - newItem.after.finalPrice) * qty, totalPrice: newItem.after.finalPrice * qty },
+          }));
         }
       } else {
         const existing = cartItems.find((item) => item.id === cartId);
         if (existing) {
-          dispatch(
-            updateCartItem({
-              ...newItem,
-              quantity: existing.quantity + 1,
-            })
-          );
+          const qty = existing.quantity + 1;
+          dispatch(updateCartItem({
+            ...newItem,
+            quantity: qty,
+            after: { ...newItem.after, quantity: qty, totalBeforeDiscount: newItem.after.currentPrice * qty, discountAmount: (newItem.after.currentPrice - newItem.after.finalPrice) * qty, totalPrice: newItem.after.finalPrice * qty },
+          }));
         } else {
           dispatch(addCartItem(newItem));
         }
@@ -389,12 +386,17 @@ export default function PosPage() {
       if (newQuantity === 0) {
         dispatch(removeCartItem(cartId));
       } else {
-        dispatch(
-          updateCartItem({
-            ...item,
+        dispatch(updateCartItem({
+          ...item,
+          quantity: newQuantity,
+          after: {
+            ...item.after,
             quantity: newQuantity,
-          })
-        );
+            totalBeforeDiscount: item.after.currentPrice * newQuantity,
+            discountAmount: (item.after.currentPrice - item.after.finalPrice) * newQuantity,
+            totalPrice: item.after.finalPrice * newQuantity,
+          },
+        }));
       }
     },
     [cartItems, dispatch]
@@ -418,8 +420,8 @@ export default function PosPage() {
     let totalDiscount = 0;
     cartItems.forEach((item) => {
       totalQuantity += item.quantity;
-      const beforeDiscount = item.currentPrice * item.quantity;
-      const afterDiscount = item.finalPrice * item.quantity;
+      const beforeDiscount = item.after.currentPrice * item.quantity;
+      const afterDiscount = item.after.finalPrice * item.quantity;
       subtotalBeforeDiscount += beforeDiscount;
       subtotal += afterDiscount;
       totalDiscount += beforeDiscount - afterDiscount;
@@ -461,7 +463,7 @@ export default function PosPage() {
   );
 
   // ─── Edit Cart Item ───
-  const handleEditCartItem = (cartItem: PosCartItem) => {
+  const handleEditCartItem = (cartItem: PosPageCartItem) => {
     const product = products.find((p) => p.id === cartItem.productId);
     if (product) {
       dispatch(setSizePickerProduct(product));
@@ -469,9 +471,8 @@ export default function PosPage() {
     }
   };
 
-
   // ─── Handle Edit Cart Item for Price/Promotion ───
-  const handleEditPriceItem = useCallback((item: PosCartItem) => {
+  const handleEditPriceItem = useCallback((item: PosPageCartItem) => {
     setEditingItemForPrice(item);
   }, []);
 
@@ -479,37 +480,41 @@ export default function PosPage() {
   const handleSaveItemChanges = useCallback((editData: any) => {
     if (!editingItemForPrice) return;
 
-    // Parse new values to proper types
-    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.currentPrice;
+    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.after.currentPrice;
     const newQuantity = parseInt(editData.newQuantity) || editingItemForPrice.quantity;
+    const promoType: string | null = editData.newPromotion.type || null;
+    const promoValue: number | null = editData.newPromotion.value ? parseFloat(editData.newPromotion.value) : null;
 
-    // Calculate final price based on promotion
     let finalPrice = newPrice;
-    if (editData.newPromotion.type) {
-      if (editData.newPromotion.type === "PERCENTAGE") {
-        finalPrice = newPrice * (1 - (editData.newPromotion.value || 0) / 100);
-      } else if (editData.newPromotion.type === "FIXED") {
-        finalPrice = Math.max(0, newPrice - (editData.newPromotion.value || 0));
-      }
+    if (promoType === "PERCENTAGE" && promoValue) {
+      finalPrice = newPrice * (1 - promoValue / 100);
+    } else if (promoType === "FIXED" && promoValue) {
+      finalPrice = Math.max(0, newPrice - promoValue);
     }
 
-    // Create updated cart item with mapped fields
+    const hadChange =
+      newPrice !== editingItemForPrice.before.currentPrice ||
+      finalPrice !== editingItemForPrice.before.finalPrice ||
+      newQuantity !== editingItemForPrice.before.quantity ||
+      !!promoType !== editingItemForPrice.before.hasActivePromotion;
+
     const updatedItem: PosPageCartItem = {
-      id: editingItemForPrice.id,
-      productId: editingItemForPrice.productId,
-      productName: editingItemForPrice.productName,
-      productImageUrl: editingItemForPrice.productImageUrl,
-      productSizeId: editingItemForPrice.productSizeId,
-      sizeName: editingItemForPrice.sizeName,
-      originalPrice: editingItemForPrice.originalPrice || editingItemForPrice.currentPrice, // Preserve original
-      currentPrice: newPrice, // Admin override price
-      finalPrice: finalPrice, // After promotions
+      ...editingItemForPrice,
       quantity: newQuantity,
-      hasActivePromotion: !!editData.newPromotion.type,
-      promotionType: editData.newPromotion.type,
-      promotionValue: editData.newPromotion.value ? parseFloat(editData.newPromotion.value) : null,
-      promotionFromDate: editingItemForPrice.promotionFromDate,
-      promotionToDate: editingItemForPrice.promotionToDate,
+      hadChangeFromPOS: hadChange,
+      after: {
+        currentPrice: newPrice,
+        finalPrice,
+        hasActivePromotion: !!promoType,
+        quantity: newQuantity,
+        totalBeforeDiscount: newPrice * newQuantity,
+        discountAmount: (newPrice - finalPrice) * newQuantity,
+        totalPrice: finalPrice * newQuantity,
+        promotionType: promoType,
+        promotionValue: promoValue,
+        promotionFromDate: editingItemForPrice.after.promotionFromDate,
+        promotionToDate: editingItemForPrice.after.promotionToDate,
+      },
     };
 
     dispatch(updateCartItem(updatedItem));
@@ -570,123 +575,74 @@ export default function PosPage() {
         price: selectedDeliveryOption.price || 0,
       },
 
-      // Full cart with item details and complete audit trail (before/after snapshots)
+      // Cart — items only, no pricing (pricing is top-level)
       cart: {
         businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
         businessName: products[0]?.businessName || "",
-        items: cartItems.map((item) => {
-          // Build before snapshot (original pricing before any changes)
-          const beforeSnapshot = item.before || {
-            currentPrice: item.originalPrice || item.currentPrice,
-            finalPrice: item.originalPrice || item.currentPrice,
-            hasActivePromotion: false,
-            quantity: item.quantity,
-            totalBeforeDiscount: (item.originalPrice || item.currentPrice) * item.quantity,
-            discountAmount: 0,
-            totalPrice: (item.originalPrice || item.currentPrice) * item.quantity,
-            promotionType: null,
-            promotionValue: null,
-            promotionFromDate: item.promotionFromDate || null,
-            promotionToDate: item.promotionToDate || null,
-          };
-
-          // Build after snapshot (final pricing after all changes)
-          const afterSnapshot = item.after || {
-            currentPrice: item.currentPrice,
-            finalPrice: item.finalPrice,
-            hasActivePromotion: item.hasActivePromotion,
-            quantity: item.quantity,
-            totalBeforeDiscount: item.currentPrice * item.quantity,
-            discountAmount: (item.currentPrice - item.finalPrice) * item.quantity,
-            totalPrice: item.finalPrice * item.quantity,
-            promotionType: item.hasActivePromotion ? item.promotionType : null,
-            promotionValue: item.hasActivePromotion ? item.promotionValue : null,
-            promotionFromDate: item.promotionFromDate || null,
-            promotionToDate: item.promotionToDate || null,
-          };
-
-          // Detect if item has changes
-          const hadChange = beforeSnapshot.finalPrice !== afterSnapshot.finalPrice ||
-                           beforeSnapshot.quantity !== afterSnapshot.quantity ||
-                           beforeSnapshot.hasActivePromotion !== afterSnapshot.hasActivePromotion;
-
-          // Build audit metadata if item changed
-          const auditMetadata = hadChange ? {
-            changeType: "PRICE_OVERRIDE" as const,
-            discountType: item.hasActivePromotion && item.promotionType ? (item.promotionType === "PERCENTAGE" ? "PERCENTAGE" : "FIXED_AMOUNT") : null,
-            discountValue: item.hasActivePromotion ? item.promotionValue : null,
-            originalPrice: beforeSnapshot.finalPrice,
-            updatedPrice: afterSnapshot.finalPrice,
-            reason: "POS Admin Override or Promotion Applied",
-            changedAt: new Date().toISOString(),
-          } : undefined;
-
-          return {
-            productId: item.productId,
-            productName: item.productName,
-            productImageUrl: item.productImageUrl,
-            productSizeId: item.productSizeId || null,
-            sizeName: item.sizeName || null,
-
-            // AUDIT TRAIL: Before snapshot
-            before: beforeSnapshot,
-
-            // Was item modified?
-            hadChangeFromPOS: hadChange,
-
-            // AUDIT TRAIL: After snapshot
-            after: afterSnapshot,
-
-            // Detailed audit metadata
-            auditMetadata: auditMetadata,
-          };
-        }),
-
-        // Order-level pricing with audit trail
-        pricing: cartPricing || {
-          before: {
-            totalItems: cartSummary.totalItems,
-            subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
-            subtotal: cartSummary.subtotalBeforeDiscount,
-            totalDiscount: 0,
-            deliveryFee: selectedDeliveryOption?.price || 0,
-            taxAmount: 0,
-            finalTotal: cartSummary.subtotalBeforeDiscount + (selectedDeliveryOption?.price || 0),
-          },
-          hadOrderLevelChangeFromPOS: !!orderDiscount,
-          after: {
-            totalItems: cartSummary.totalItems,
-            subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
-            subtotal: cartSummary.subtotal,
-            totalDiscount: cartSummary.totalDiscount,
-            deliveryFee: selectedDeliveryOption?.price || 0,
-            taxAmount: 0,
-            finalTotal: (() => {
-              let total = cartSummary.finalTotal;
-              if (orderDiscount) {
-                if (orderDiscount.type === "fixed") {
-                  total = Math.max(0, total - orderDiscount.value);
-                } else if (orderDiscount.type === "percentage") {
-                  total = total * (1 - (orderDiscount.value / 100));
-                }
-              }
-              return total;
-            })(),
-          },
-          discountMetadata: orderDiscount ? {
-            discountType: orderDiscount.type === "fixed" ? "FIXED_AMOUNT" : "PERCENTAGE",
-            discountValue: orderDiscount.value,
-            beforeTotal: orderDiscount.beforeTotal,
-            afterTotal: orderDiscount.afterTotal,
-            amountSaved: orderDiscount.discountAmount,
-            reason: orderDiscount.reason,
-            appliedAt: orderDiscount.appliedAt,
-          } : undefined,
-          orderLevelChangeReason: orderDiscount?.reason,
-        },
+        items: cartItems.map((item) => ({
+          productId: item.productId,
+          productName: item.productName,
+          productImageUrl: item.productImageUrl,
+          productSizeId: item.productSizeId || null,
+          sizeName: item.sizeName || null,
+          quantity: item.quantity,
+          before: item.before,
+          hadChangeFromPOS: item.hadChangeFromPOS,
+          after: item.after,
+          // Flat fields for backend fallback
+          currentPrice: item.after.currentPrice,
+          finalPrice: item.after.finalPrice,
+          hasActivePromotion: item.after.hasActivePromotion,
+          promotionType: item.after.promotionType,
+          promotionValue: item.after.promotionValue,
+          totalBeforeDiscount: item.after.totalBeforeDiscount,
+          discountAmount: item.after.discountAmount,
+          totalPrice: item.after.totalPrice,
+        })),
+        totalItems: cartSummary.totalItems,
+        totalQuantity: cartSummary.totalQuantity,
+        subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
+        subtotal: cartSummary.subtotal,
+        totalDiscount: cartSummary.totalDiscount,
+        finalTotal: cartSummary.finalTotal,
       },
 
-      // Payment info (CASH only)
+      // Order-level pricing audit trail — top-level, matches backend PricingInfo
+      pricing: (() => {
+        const deliveryFee = selectedDeliveryOption?.price || 0;
+        const beforeSnapshot = {
+          totalItems: cartSummary.totalItems,
+          subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
+          subtotal: cartSummary.subtotalBeforeDiscount,
+          totalDiscount: 0,
+          deliveryFee,
+          taxAmount: 0,
+          finalTotal: cartSummary.subtotalBeforeDiscount + deliveryFee,
+        };
+        let afterFinalTotal = cartSummary.finalTotal;
+        if (orderDiscount) {
+          afterFinalTotal = orderDiscount.type === "fixed"
+            ? Math.max(0, afterFinalTotal - orderDiscount.value)
+            : afterFinalTotal * (1 - orderDiscount.value / 100);
+        }
+        const afterSnapshot = {
+          totalItems: cartSummary.totalItems,
+          subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
+          subtotal: cartSummary.subtotal,
+          totalDiscount: cartSummary.totalDiscount,
+          deliveryFee,
+          taxAmount: 0,
+          finalTotal: afterFinalTotal,
+        };
+        return {
+          before: beforeSnapshot,
+          hadOrderLevelChangeFromPOS: !!orderDiscount,
+          after: afterSnapshot,
+          orderLevelChangeReason: orderDiscount?.reason || "",
+        };
+      })(),
+
+      // Payment info
       payment: {
         paymentMethod: "CASH",
         paymentStatus: "PAID",
@@ -1064,15 +1020,14 @@ export default function PosPage() {
                       productName={item.productName}
                       productImageUrl={item.productImageUrl}
                       sizeName={item.sizeName}
-                      currentPrice={item.currentPrice}
-                      finalPrice={item.finalPrice}
+                      currentPrice={item.after.currentPrice}
+                      finalPrice={item.after.finalPrice}
                       quantity={item.quantity}
-                      hasPromotion={item.hasActivePromotion}
-                      promotionType={item.promotionType}
-                      promotionValue={item.promotionValue}
-                      originalPrice={item.before?.finalPrice || item.currentPrice}
+                      hasPromotion={item.after.hasActivePromotion}
+                      promotionType={item.after.promotionType}
+                      promotionValue={item.after.promotionValue}
+                      originalPrice={item.before.finalPrice}
                       hadChangeFromPOS={item.hadChangeFromPOS}
-                      auditChangeType={item.auditMetadata?.changeType}
                       onQuantityChange={(delta) => updateQuantity(item.id, delta)}
                       onRemove={() => removeItem(item.id)}
                       onEdit={() => handleEditPriceItem(item)}
@@ -1292,11 +1247,11 @@ export default function PosPage() {
             productName: editingItemForPrice.productName,
             productImageUrl: editingItemForPrice.productImageUrl,
             sizeName: editingItemForPrice.sizeName,
-            currentPrice: editingItemForPrice.currentPrice,
+            currentPrice: editingItemForPrice.after.currentPrice,
             quantity: editingItemForPrice.quantity,
-            hasActivePromotion: editingItemForPrice.hasActivePromotion,
-            promotionType: editingItemForPrice.promotionType,
-            promotionValue: editingItemForPrice.promotionValue,
+            hasActivePromotion: editingItemForPrice.after.hasActivePromotion,
+            promotionType: editingItemForPrice.after.promotionType,
+            promotionValue: editingItemForPrice.after.promotionValue,
           } : null
         }
         onSave={handleSaveItemChanges}

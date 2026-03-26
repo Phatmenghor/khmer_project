@@ -1,29 +1,12 @@
 /**
- * POS Checkout Request/Response Models
- *
- * Unified checkout structure for both PUBLIC (customer) and POS (admin) orders
- * For coffee shop POS: Order is COMPLETE when created
- * All details filled in by shop staff → Ready to prepare immediately
- *
- * Audit Trail: Tracks before/after values for item modifications
- * - Business can review what prices were changed
- * - Business can review what promotions were applied
- * - Timestamp and user tracking for accountability
+ * POS Checkout Request Models
+ * Matches backend POSCheckoutRequest and nested DTOs exactly.
  */
 
-// Item audit trail for tracking modifications
-export interface ItemAuditTrail {
-  originalPrice: number;
-  overriddenPrice: number;
-  originalPromotion?: { type: string | null; value: number | null };
-  appliedPromotion?: { type: string | null; value: number | null };
-  modifiedAt?: string;
-  modifiedBy?: string;
-  reason?: string; // Why was it changed
-}
+import { ItemPricingSnapshot, OrderPricingSnapshot } from "../type/pos-page-type";
 
+// Item in the cart — matches backend POSCheckoutItemRequest
 export interface POSCheckoutItemRequest {
-  id?: string; // Cart item ID for tracking
   productId: string;
   productSizeId?: string | null;
   quantity: number;
@@ -34,23 +17,26 @@ export interface POSCheckoutItemRequest {
   sizeName?: string | null;
   status?: string;
 
-  // Current/original prices from product
-  currentPrice?: number; // Original product price
-  finalPrice?: number; // Price after any product promotions
+  // Snapshot BEFORE any POS modifications (original product pricing)
+  before: ItemPricingSnapshot;
+
+  // Was item modified by POS operator?
+  hadChangeFromPOS: boolean;
+
+  // Snapshot AFTER POS modifications (current/final pricing)
+  after: ItemPricingSnapshot;
+
+  // Flat pricing fields (used by backend as fallback / legacy support)
+  originalPrice?: number;
+  currentPrice?: number;
+  finalPrice?: number;
   hasActivePromotion?: boolean;
-
-  // Admin can override pricing & apply custom promotions
-  overridePrice?: number; // Admin override price
-  promotionType?: string | null; // PERCENTAGE or FIXED_AMOUNT
+  overridePrice?: number;
+  promotionType?: string | null;
   promotionValue?: number | null;
-
-  // Totals
-  totalBeforeDiscount?: number; // quantity * currentPrice
-  discountAmount?: number; // quantity * (currentPrice - finalPrice)
-  totalPrice?: number; // quantity * finalPrice (or overridden price)
-
-  // Audit trail - shows before/after modifications
-  auditTrail?: ItemAuditTrail[];
+  totalBeforeDiscount?: number;
+  discountAmount?: number;
+  totalPrice?: number;
 }
 
 export interface DeliveryOptionRequest {
@@ -60,17 +46,17 @@ export interface DeliveryOptionRequest {
   price: number;
 }
 
+// Cart summary — matches backend POSCheckoutRequest.CartSummary
 export interface CartSummary {
   businessId: string;
   businessName?: string;
   items: POSCheckoutItemRequest[];
-
   totalItems: number;
   totalQuantity: number;
-  subtotalBeforeDiscount: number; // Sum of all item currentPrice * quantity
-  subtotal: number; // Sum of all item finalPrice * quantity (after product promotions)
-  totalDiscount: number; // Sum of all discounts from product promotions
-  finalTotal: number; // subtotal + delivery + tax
+  subtotalBeforeDiscount: number;
+  subtotal: number;
+  totalDiscount: number;
+  finalTotal: number;
 }
 
 export interface POSCheckoutAddressRequest {
@@ -85,60 +71,54 @@ export interface POSCheckoutAddressRequest {
   longitude?: number;
 }
 
-export interface PaymentInfo {
-  paymentMethod: string; // CASH only for now
-  paymentStatus?: string; // PAID, UNPAID, etc.
+// Order-level pricing audit trail — matches backend POSCheckoutRequest.PricingInfo
+export interface PricingInfo {
+  before: OrderPricingSnapshot;
+  hadOrderLevelChangeFromPOS: boolean;
+  after: OrderPricingSnapshot;
+  orderLevelChangeReason?: string;
 }
 
+export interface PaymentInfo {
+  paymentMethod: string;
+  paymentStatus?: string;
+}
+
+// Top-level checkout request — matches backend POSCheckoutRequest exactly
 export interface POSCheckoutRequest {
-  // Order basics
   businessId: string;
-  customerId?: string; // Optional - for registered customer
+  customerId?: string;
   customerName?: string;
   customerPhone?: string;
 
-  // Full delivery details (like public checkout)
   deliveryAddress: POSCheckoutAddressRequest;
   deliveryOption: DeliveryOptionRequest;
-
-  // Full cart with all item details and audit trail
   cart: CartSummary;
 
-  // Payment (CASH only)
+  // Order-level pricing with before/after audit trail
+  pricing: PricingInfo;
+
   payment: PaymentInfo;
 
-  // Notes
+  orderStatus?: string;
   customerNote?: string;
   businessNote?: string;
-
-  // Order status
-  orderStatus?: string; // PENDING, CONFIRMED, etc. (POS always COMPLETED)
 }
 
 export interface POSCheckoutResponse {
   id: string;
   orderNumber: string;
-
-  // Totals as stored in backend
   subtotal: number;
   discountAmount: number;
   deliveryFee: number;
   taxAmount: number;
   totalAmount: number;
-
-  // Order tracking
-  orderStatus: string; // Always COMPLETED for POS
-  source: string; // Always POS
+  orderStatus: string;
+  source: string;
   paymentMethod: string;
-  paymentStatus: string; // PAID for POS orders
-
-  // Audit info
+  paymentStatus: string;
   createdBy: string;
   createdAt: string;
   customerName?: string;
   customerPhone?: string;
-
-  // Items with audit trail preserved
-  items?: POSCheckoutItemRequest[];
 }
-
