@@ -441,20 +441,30 @@ PREPARING → READY → IN_TRANSIT → COMPLETED
 ```
 Both use:
 ✅ Same UUID generation for order ID
-✅ Same auto-increment sequence for order numbers
-✅ Shared counter: #ORD-2024-0001, 0002, 0003, etc.
+✅ Same order number format: ORD-YYYYMMDD-XXXXXX
+✅ Shared counter across all orders
 
-Example sequence (mixed):
-#ORD-2024-0001 ← PUBLIC (customer online)
-#ORD-2024-0002 ← POS (from counter)
-#ORD-2024-0003 ← PUBLIC (customer online)
-#ORD-2024-0004 ← POS (from counter)
+Format Breakdown:
+ORD-20260323-000001
+├─ ORD = prefix
+├─ 20260323 = date (YYYYMMDD)
+└─ 000001 = sequence (auto-increment)
+
+Example sequence (mixed, same day):
+ORD-20260323-000001 ← PUBLIC (customer online)
+ORD-20260323-000002 ← POS (from counter)
+ORD-20260323-000003 ← PUBLIC (customer online)
+ORD-20260323-000004 ← POS (from counter)
+
+Next day:
+ORD-20260324-000001 ← Sequence resets with new date
+ORD-20260324-000002 ← PUBLIC
 
 Only difference:
 source: 'POS' or source: 'PUBLIC'
 ```
 
-**NO separate ID prefixes like #POS-0001 or #CS-0001**
-- Use same numbering system
+**NO separate ID prefixes**
+- Use unified format: `ORD-YYYYMMDD-XXXXXX`
 - Source field differentiates them
 
