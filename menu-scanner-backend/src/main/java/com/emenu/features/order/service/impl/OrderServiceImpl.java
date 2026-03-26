@@ -610,7 +610,6 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         log.info("✅ [ORDER ITEMS SAVED] Successfully saved {} items for order: {}", order.getItems().size(), orderId);
     }
-    }
 
     private void createPaymentRecord(Order order) {
         BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
