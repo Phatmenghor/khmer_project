@@ -1,5 +1,6 @@
 package com.emenu.features.order.mapper;
 
+import com.emenu.features.order.dto.response.OrderItemAuditTrailMetadata;
 import com.emenu.features.order.dto.response.OrderItemPricingSnapshot;
 import com.emenu.features.order.dto.response.OrderItemResponse;
 import com.emenu.features.order.models.OrderItem;
@@ -69,13 +70,13 @@ public interface OrderItemMapper {
         return buildDefaultAfterSnapshot(orderItem);
     }
 
-    default Map<String, Object> deserializeAuditMetadata(OrderItem orderItem) {
+    default OrderItemAuditTrailMetadata deserializeAuditMetadata(OrderItem orderItem) {
         if (orderItem.getAuditMetadata() == null) {
             return null;
         }
         try {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(orderItem.getAuditMetadata(), Map.class);
+            return mapper.readValue(orderItem.getAuditMetadata(), OrderItemAuditTrailMetadata.class);
         } catch (Exception e) {
             return null;
         }

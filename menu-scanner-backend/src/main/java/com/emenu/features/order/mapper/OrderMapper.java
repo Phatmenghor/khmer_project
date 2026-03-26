@@ -271,18 +271,16 @@ public interface OrderMapper {
             } catch (Exception e) {
                 // If deserialization fails, create default metadata
                 discountMetadata = OrderLevelDiscountMetadata.builder()
-                        .discountType("NONE")
+                        .discountType(null)
                         .discountValue(BigDecimal.ZERO)
-                        .discountPercentage(0)
                         .reason("No order-level discount")
                         .build();
             }
         } else {
             // Create default metadata if not present
             discountMetadata = OrderLevelDiscountMetadata.builder()
-                    .discountType("NONE")
+                    .discountType(null)
                     .discountValue(BigDecimal.ZERO)
-                    .discountPercentage(0)
                     .reason("No order-level discount applied")
                     .build();
         }
