@@ -48,8 +48,16 @@ export interface OrderItemApiResponse {
     promotionToDate: string | null;
   };
 
-  // Reason for changes
-  reason?: string;
+  // Detailed audit metadata (if changed)
+  auditMetadata?: {
+    changeType: "PRICE_OVERRIDE" | "PROMOTION_APPLIED" | "QUANTITY_CHANGED" | "COMBINED";
+    discountType?: "FIXED_AMOUNT" | "PERCENTAGE" | null;
+    discountValue?: number | null;
+    originalPrice: number;
+    updatedPrice: number;
+    reason: string;
+    changedAt?: string;
+  };
 }
 
 export interface OrderPricingApiResponse {
@@ -76,6 +84,17 @@ export interface OrderPricingApiResponse {
     deliveryFee: number;
     taxAmount: number;
     finalTotal: number;
+  };
+
+  // Detailed discount metadata (if applied)
+  discountMetadata?: {
+    discountType: "FIXED_AMOUNT" | "PERCENTAGE";
+    discountValue: number;
+    beforeTotal: number;
+    afterTotal: number;
+    amountSaved: number;
+    reason: string;
+    appliedAt?: string;
   };
 
   // Reason for order-level change

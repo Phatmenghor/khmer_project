@@ -88,6 +88,27 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "special_instructions", columnDefinition = "TEXT")
     private String specialInstructions;
 
+    // ===== AUDIT TRAIL: Before/After snapshots =====
+    // Snapshot BEFORE any POS modifications (original product price)
+    @Column(name = "before_snapshot", columnDefinition = "TEXT")
+    private String beforeSnapshot; // JSON: OrderItemPricingSnapshot
+
+    // Was the item modified from POS?
+    @Column(name = "had_change_from_pos")
+    private Boolean hadChangeFromPOS = false;
+
+    // Snapshot AFTER POS modifications
+    @Column(name = "after_snapshot", columnDefinition = "TEXT")
+    private String afterSnapshot; // JSON: OrderItemPricingSnapshot
+
+    // Detailed audit metadata (if changed)
+    @Column(name = "audit_metadata", columnDefinition = "TEXT")
+    private String auditMetadata; // JSON: OrderItemAuditTrailMetadata
+
+    // Reason for the change (if any)
+    @Column(name = "change_reason", columnDefinition = "TEXT")
+    private String changeReason;
+
     // Business Methods
     public void calculateTotalPrice() {
         this.totalPrice = this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));

@@ -23,6 +23,32 @@ export interface ItemPricingSnapshot {
   promotionToDate: string | null;
 }
 
+// ─── Item Audit Trail Metadata ───
+export interface ItemAuditTrailMetadata {
+  // Type of change made
+  changeType:
+    | "PRICE_OVERRIDE"           // Admin changed base price
+    | "PROMOTION_APPLIED"        // Promotion was added/modified
+    | "QUANTITY_CHANGED"         // Quantity was modified
+    | "COMBINED";                // Multiple changes
+
+  // Discount details (if discount was applied)
+  discountType?: "FIXED_AMOUNT" | "PERCENTAGE" | null;
+  discountValue?: number | null;  // $ amount or % value
+
+  // Original price before any changes
+  originalPrice: number;
+
+  // Updated/final price after all changes
+  updatedPrice: number;
+
+  // Human-readable reason
+  reason: string;
+
+  // Timestamp of change
+  changedAt?: string;
+}
+
 // ─── Cart Item with Audit Trail ───
 export interface PosPageCartItem {
   id: string;
@@ -42,8 +68,8 @@ export interface PosPageCartItem {
   // After: Final pricing after all POS changes
   after: ItemPricingSnapshot;
 
-  // Reason for changes (if any)
-  reason?: string;
+  // Detailed audit metadata (if changed)
+  auditMetadata?: ItemAuditTrailMetadata;
 }
 
 // ─── Order Pricing Snapshot (before or after) ───
@@ -57,6 +83,30 @@ export interface OrderPricingSnapshot {
   finalTotal: number;              // Total to pay
 }
 
+// ─── Order Discount Metadata ───
+export interface OrderDiscountMetadata {
+  // Type of order-level discount
+  discountType: "FIXED_AMOUNT" | "PERCENTAGE";
+
+  // Discount value ($ amount or % value)
+  discountValue: number;
+
+  // Total before discount
+  beforeTotal: number;
+
+  // Total after discount
+  afterTotal: number;
+
+  // Actual amount saved
+  amountSaved: number;
+
+  // Human-readable reason
+  reason: string;
+
+  // Timestamp of discount application
+  appliedAt?: string;
+}
+
 // ─── Order Pricing with Audit Trail ───
 export interface OrderPricingWithAuditTrail {
   // Before: Pricing before order-level discount
@@ -67,6 +117,9 @@ export interface OrderPricingWithAuditTrail {
 
   // After: Pricing after order-level discount
   after: OrderPricingSnapshot;
+
+  // Detailed discount metadata (if applied)
+  discountMetadata?: OrderDiscountMetadata;
 
   // Reason for order-level change
   orderLevelChangeReason?: string;
@@ -93,8 +146,8 @@ export interface POSPageState {
   hasMoreProducts: boolean;
 
   // Cart with Audit Trail
-  cartItems: PosPageCartItem[];              // Items with before/after snapshots
-  cartPricing: OrderPricingWithAuditTrail | null;  // Order total with before/after
+  cartItems: PosPageCartItem[];
+  cartPricing: OrderPricingWithAuditTrail | null;
   showCart: boolean;
 
   // Order

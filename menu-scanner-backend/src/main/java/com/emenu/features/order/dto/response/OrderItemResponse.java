@@ -24,6 +24,10 @@ public class OrderItemResponse {
     @Valid
     private OrderItemPricingSnapshot after;
 
+    // Detailed audit metadata (if changed)
+    @Valid
+    private OrderItemAuditTrailMetadata auditMetadata;
+
     // Reason for the change (if any)
     private String reason;
 

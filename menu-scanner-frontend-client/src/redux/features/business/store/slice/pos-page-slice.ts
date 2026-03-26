@@ -4,7 +4,7 @@
  */
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { POSPageState, PosPageCartItem } from "../models/type/pos-page-type";
+import { POSPageState, PosPageCartItem, OrderPricingWithAuditTrail } from "../models/type/pos-page-type";
 import {
   fetchPOSPageCategoriesService,
   fetchPOSPageBrandsService,
@@ -33,6 +33,7 @@ const initialState: POSPageState = {
   productPage: 1,
   hasMoreProducts: true,
   cartItems: [],
+  cartPricing: null,
   showCart: true,
   customerNote: "",
   isSubmitting: false,
@@ -116,6 +117,9 @@ const posPageSlice = createSlice({
     },
     clearCartItems: (state) => {
       state.cartItems = [];
+    },
+    setCartPricing: (state, action: PayloadAction<OrderPricingWithAuditTrail | null>) => {
+      state.cartPricing = action.payload;
     },
     setShowCart: (state, action: PayloadAction<boolean>) => {
       state.showCart = action.payload;
@@ -228,6 +232,7 @@ const posPageSlice = createSlice({
           total: action.payload.total,
         };
         state.cartItems = [];
+        state.cartPricing = null;
         state.customerNote = "";
         state.selectedDeliveryOption = null;
         state.selectedPaymentOption = null;
@@ -260,6 +265,7 @@ export const {
   updateCartItem,
   removeCartItem,
   clearCartItems,
+  setCartPricing,
   setShowCart,
   setCustomerNote,
   setIsSubmitting,

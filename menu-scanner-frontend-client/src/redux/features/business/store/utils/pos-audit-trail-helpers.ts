@@ -76,45 +76,73 @@ export const createOrderPricingSnapshot = (
 };
 
 /**
- * Display item audit trail in a readable format
- * Returns a string showing before → after changes
+ * Display item audit trail in a readable format with detailed metadata
  */
 export const displayItemChanges = (item: PosPageCartItem): string => {
-  if (!item.hadChangeFromPOS || !item.before || !item.after) {
+  if (!item.hadChangeFromPOS) {
     return "No changes";
   }
 
-  const changes: string[] = [];
-
-  // Check price change
-  if (item.before.currentPrice !== item.after.currentPrice) {
-    changes.push(
-      `Price: $${item.before.currentPrice} → $${item.after.currentPrice}`
-    );
+  if (!item.auditMetadata) {
+    return "Changes detected but no details available";
   }
 
-  // Check quantity change
-  if (item.before.quantity !== item.after.quantity) {
-    changes.push(
-      `Quantity: ${item.before.quantity} → ${item.after.quantity}`
-    );
+  const meta = item.auditMetadata;
+  const parts: string[] = [];
+
+  // Change type
+  parts.push(`${meta.changeType}`);
+
+  // Discount details (if applicable)
+  if (meta.discountType && meta.discountValue !== undefined) {
+    const discountStr =
+      meta.discountType === "PERCENTAGE"
+        ? `${meta.discountValue}%`
+        : `$${meta.discountValue.toFixed(2)}`;
+    parts.push(`Discount: ${discountStr}`);
   }
 
-  // Check promotion change
-  if (
-    item.before.promotionType !== item.after.promotionType ||
-    item.before.promotionValue !== item.after.promotionValue
-  ) {
-    const beforePromo = item.before.promotionType
-      ? `${item.before.promotionValue}% ${item.before.promotionType}`
-      : "None";
-    const afterPromo = item.after.promotionType
-      ? `${item.after.promotionValue}% ${item.after.promotionType}`
-      : "None";
-    changes.push(`Promotion: ${beforePromo} → ${afterPromo}`);
+  // Price change
+  parts.push(
+    `$${meta.originalPrice.toFixed(2)} → $${meta.updatedPrice.toFixed(2)}`
+  );
+
+  // Reason
+  parts.push(`Reason: ${meta.reason}`);
+
+  return parts.join(" | ");
+};
+
+/**
+ * Get detailed item audit metadata for display
+ */
+export const getItemAuditDetails = (
+  item: PosPageCartItem
+): {
+  changeType: string;
+  discountType: string | null;
+  discountValue: number | null;
+  originalPrice: number;
+  updatedPrice: number;
+  amountSaved: number;
+  reason: string;
+} | null => {
+  if (!item.hadChangeFromPOS || !item.auditMetadata) {
+    return null;
   }
 
-  return changes.length > 0 ? changes.join(" | ") : "No changes";
+  const meta = item.auditMetadata;
+  const amountSaved = meta.originalPrice - meta.updatedPrice;
+
+  return {
+    changeType: meta.changeType,
+    discountType: meta.discountType || null,
+    discountValue: meta.discountValue || null,
+    originalPrice: meta.originalPrice,
+    updatedPrice: meta.updatedPrice,
+    amountSaved: Math.max(0, amountSaved),
+    reason: meta.reason,
+  };
 };
 
 /**

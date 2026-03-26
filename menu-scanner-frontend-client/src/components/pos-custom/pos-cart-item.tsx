@@ -19,6 +19,10 @@ interface POSCartItemProps {
   hasPromotion?: boolean;
   promotionType?: string | null;
   promotionValue?: number | null;
+  // Audit trail fields
+  originalPrice?: number;
+  hadChangeFromPOS?: boolean;
+  auditChangeType?: string;
   onQuantityChange: (delta: number) => void;
   onRemove: () => void;
   onEdit: () => void;
@@ -35,6 +39,9 @@ export function POSCartItem({
   hasPromotion,
   promotionType,
   promotionValue,
+  originalPrice,
+  hadChangeFromPOS,
+  auditChangeType,
   onQuantityChange,
   onRemove,
   onEdit,
@@ -143,6 +150,44 @@ export function POSCartItem({
           </div>
         </div>
       </div>
+
+      {/* Audit Trail - Before/After Comparison */}
+      {hadChangeFromPOS && originalPrice && (
+        <div className="mt-4 pt-4 border-t border-slate-200">
+          <div className="text-xs font-semibold text-slate-600 mb-3 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+            POS Audit Trail
+          </div>
+          <div className="flex items-center justify-between gap-3 text-xs">
+            {/* Before */}
+            <div className="flex-1 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+              <div className="text-slate-500 font-medium mb-1">Before</div>
+              <div className="font-semibold text-slate-900">
+                {formatCurrency(originalPrice)}
+              </div>
+              {auditChangeType && (
+                <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-wide">
+                  {auditChangeType}
+                </div>
+              )}
+            </div>
+
+            {/* Arrow */}
+            <div className="text-slate-400 font-bold">→</div>
+
+            {/* After */}
+            <div className="flex-1 bg-green-50 rounded-lg p-2.5 border border-green-200">
+              <div className="text-green-700 font-medium mb-1">After</div>
+              <div className="font-semibold text-green-900">
+                {formatCurrency(finalPrice)}
+              </div>
+              <div className="text-[10px] text-green-600 mt-1 font-semibold">
+                Saved: {formatCurrency(Math.max(0, originalPrice - finalPrice))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

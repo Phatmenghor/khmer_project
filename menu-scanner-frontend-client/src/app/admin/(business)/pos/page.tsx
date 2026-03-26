@@ -85,6 +85,7 @@ import {
   updateCartItem,
   removeCartItem,
   clearCartItems,
+  setCartPricing,
   setShowCart,
   setCustomerNote,
   setIsSubmitting,
@@ -144,6 +145,7 @@ export default function PosPage() {
     productPage,
     hasMoreProducts,
     cartItems,
+    cartPricing,
     showCart,
     customerNote,
     isSubmitting,
@@ -541,8 +543,9 @@ export default function PosPage() {
       return;
     }
 
-    // Build POSCheckoutRequest payload - unified structure with public checkout
-    // Includes audit trail for item modifications (before/after prices & promotions)
+    // Build POSCheckoutRequest payload with complete audit trail
+    // Items: before/after snapshots + metadata for each change
+    // Order: before/after pricing + discount metadata
     const payload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
 
@@ -567,72 +570,120 @@ export default function PosPage() {
         price: selectedDeliveryOption.price || 0,
       },
 
-      // Full cart with item details and audit trail
+      // Full cart with item details and complete audit trail (before/after snapshots)
       cart: {
         businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
         businessName: products[0]?.businessName || "",
-        items: cartItems.map((item) => ({
-          // Required fields
-          productId: item.productId,
-          quantity: item.quantity,
+        items: cartItems.map((item) => {
+          // Build before snapshot (original pricing before any changes)
+          const beforeSnapshot = item.before || {
+            currentPrice: item.originalPrice || item.currentPrice,
+            finalPrice: item.originalPrice || item.currentPrice,
+            hasActivePromotion: false,
+            quantity: item.quantity,
+            totalBeforeDiscount: (item.originalPrice || item.currentPrice) * item.quantity,
+            discountAmount: 0,
+            totalPrice: (item.originalPrice || item.currentPrice) * item.quantity,
+            promotionType: null,
+            promotionValue: null,
+            promotionFromDate: item.promotionFromDate || null,
+            promotionToDate: item.promotionToDate || null,
+          };
 
-          // Display fields
-          productName: item.productName,
-          productImageUrl: item.productImageUrl,
-          productSizeId: item.productSizeId || null,
-          sizeName: item.sizeName || null,
-          status: "ACTIVE",
+          // Build after snapshot (final pricing after all changes)
+          const afterSnapshot = item.after || {
+            currentPrice: item.currentPrice,
+            finalPrice: item.finalPrice,
+            hasActivePromotion: item.hasActivePromotion,
+            quantity: item.quantity,
+            totalBeforeDiscount: item.currentPrice * item.quantity,
+            discountAmount: (item.currentPrice - item.finalPrice) * item.quantity,
+            totalPrice: item.finalPrice * item.quantity,
+            promotionType: item.hasActivePromotion ? item.promotionType : null,
+            promotionValue: item.hasActivePromotion ? item.promotionValue : null,
+            promotionFromDate: item.promotionFromDate || null,
+            promotionToDate: item.promotionToDate || null,
+          };
 
-          // Price history for audit trail
-          originalPrice: item.originalPrice || item.currentPrice, // Product baseline before override
-          currentPrice: item.currentPrice,                         // After admin override (if any)
-          finalPrice: item.finalPrice,                             // After promotion (if any)
-          hasActivePromotion: item.hasActivePromotion,
+          // Detect if item has changes
+          const hadChange = beforeSnapshot.finalPrice !== afterSnapshot.finalPrice ||
+                           beforeSnapshot.quantity !== afterSnapshot.quantity ||
+                           beforeSnapshot.hasActivePromotion !== afterSnapshot.hasActivePromotion;
 
-          // Admin overrides & custom promotions
-          overridePrice: item.originalPrice && item.currentPrice !== item.originalPrice ? item.currentPrice : undefined,
-          promotionType: item.hasActivePromotion && item.promotionType ? item.promotionType : null,
-          promotionValue: item.hasActivePromotion && item.promotionValue ? item.promotionValue : null,
+          // Build audit metadata if item changed
+          const auditMetadata = hadChange ? {
+            changeType: "PRICE_OVERRIDE" as const,
+            discountType: item.hasActivePromotion && item.promotionType ? (item.promotionType === "PERCENTAGE" ? "PERCENTAGE" : "FIXED_AMOUNT") : null,
+            discountValue: item.hasActivePromotion ? item.promotionValue : null,
+            originalPrice: beforeSnapshot.finalPrice,
+            updatedPrice: afterSnapshot.finalPrice,
+            reason: "POS Admin Override or Promotion Applied",
+            changedAt: new Date().toISOString(),
+          } : undefined;
 
-          // Totals for each item
-          totalBeforeDiscount: item.originalPrice * item.quantity,
-          discountAmount: (item.originalPrice - item.finalPrice) * item.quantity,
-          totalPrice: item.finalPrice * item.quantity,
+          return {
+            productId: item.productId,
+            productName: item.productName,
+            productImageUrl: item.productImageUrl,
+            productSizeId: item.productSizeId || null,
+            sizeName: item.sizeName || null,
 
-          // Audit trail - single snapshot: original → final (with override & promotion)
-          auditTrail: (item.originalPrice && item.originalPrice !== item.currentPrice) ||
-                      (item.currentPrice !== item.finalPrice)
-            ? {
-                originalPrice: item.originalPrice || item.currentPrice,
-                currentPrice: item.currentPrice,
-                finalPrice: item.finalPrice,
-                promotionType: item.hasActivePromotion ? item.promotionType : null,
-                promotionValue: item.hasActivePromotion ? item.promotionValue : null,
-                reason: "POS Admin Override",
+            // AUDIT TRAIL: Before snapshot
+            before: beforeSnapshot,
+
+            // Was item modified?
+            hadChangeFromPOS: hadChange,
+
+            // AUDIT TRAIL: After snapshot
+            after: afterSnapshot,
+
+            // Detailed audit metadata
+            auditMetadata: auditMetadata,
+          };
+        }),
+
+        // Order-level pricing with audit trail
+        pricing: cartPricing || {
+          before: {
+            totalItems: cartSummary.totalItems,
+            subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
+            subtotal: cartSummary.subtotalBeforeDiscount,
+            totalDiscount: 0,
+            deliveryFee: selectedDeliveryOption?.price || 0,
+            taxAmount: 0,
+            finalTotal: cartSummary.subtotalBeforeDiscount + (selectedDeliveryOption?.price || 0),
+          },
+          hadOrderLevelChangeFromPOS: !!orderDiscount,
+          after: {
+            totalItems: cartSummary.totalItems,
+            subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
+            subtotal: cartSummary.subtotal,
+            totalDiscount: cartSummary.totalDiscount,
+            deliveryFee: selectedDeliveryOption?.price || 0,
+            taxAmount: 0,
+            finalTotal: (() => {
+              let total = cartSummary.finalTotal;
+              if (orderDiscount) {
+                if (orderDiscount.type === "fixed") {
+                  total = Math.max(0, total - orderDiscount.value);
+                } else if (orderDiscount.type === "percentage") {
+                  total = total * (1 - (orderDiscount.value / 100));
+                }
               }
-            : null,
-        })),
-
-        // Cart totals (with order-level discount if applied)
-        totalItems: cartSummary.totalItems,
-        totalQuantity: cartSummary.totalQuantity,
-        subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
-        subtotal: cartSummary.subtotal,
-        totalDiscount: cartSummary.totalDiscount,
-        finalTotal: (() => {
-          let total = cartSummary.finalTotal;
-          
-          // Apply order-level discount if set
-          if (orderDiscount) {
-            if (orderDiscount.type === "fixed") {
-              total = Math.max(0, total - orderDiscount.value);
-            } else if (orderDiscount.type === "percentage") {
-              total = total * (1 - (orderDiscount.value / 100));
-            }
-          }
-          
-          return total;
-        })(),
+              return total;
+            })(),
+          },
+          discountMetadata: orderDiscount ? {
+            discountType: orderDiscount.type === "fixed" ? "FIXED_AMOUNT" : "PERCENTAGE",
+            discountValue: orderDiscount.value,
+            beforeTotal: orderDiscount.beforeTotal,
+            afterTotal: orderDiscount.afterTotal,
+            amountSaved: orderDiscount.discountAmount,
+            reason: orderDiscount.reason,
+            appliedAt: orderDiscount.appliedAt,
+          } : undefined,
+          orderLevelChangeReason: orderDiscount?.reason,
+        },
       },
 
       // Payment info (CASH only)
@@ -643,9 +694,7 @@ export default function PosPage() {
 
       // Notes
       customerNote: customerNote || "",
-      businessNote: orderDiscount
-        ? `AUDIT TRAIL - Order-Level Discount Applied | Before Total: $${orderDiscount.beforeTotal.toFixed(2)} | Discount: ${orderDiscount.type === "fixed" ? `$${orderDiscount.value.toFixed(2)}` : `${orderDiscount.value}%`} (Saved: $${orderDiscount.discountAmount.toFixed(2)}) | After Total: $${orderDiscount.afterTotal.toFixed(2)} | Reason: ${orderDiscount.reason} | Applied At: ${orderDiscount.appliedAt}`
-        : "Created via POS System",
+      businessNote: "Created via POS System",
       orderStatus: OrderStatus.PENDING,
     };
 
@@ -656,7 +705,9 @@ export default function PosPage() {
         const order = result.payload;
         dispatch(setSuccessOrder({ orderNumber: order.orderNumber, total: order.totalAmount }));
         dispatch(clearCartItems());
+        dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
+        setOrderDiscount(null);
         showToast.success("✅ POS Order created successfully!");
       }
     } catch (error: any) {
@@ -1019,6 +1070,9 @@ export default function PosPage() {
                       hasPromotion={item.hasActivePromotion}
                       promotionType={item.promotionType}
                       promotionValue={item.promotionValue}
+                      originalPrice={item.before?.finalPrice || item.currentPrice}
+                      hadChangeFromPOS={item.hadChangeFromPOS}
+                      auditChangeType={item.auditMetadata?.changeType}
                       onQuantityChange={(delta) => updateQuantity(item.id, delta)}
                       onRemove={() => removeItem(item.id)}
                       onEdit={() => handleEditPriceItem(item)}
@@ -1088,10 +1142,39 @@ export default function PosPage() {
                   </span>
                   <span className="font-medium">{formatCurrency(cartSummary.taxAmount)}</span>
                 </div>
+                {orderDiscount && (
+                  <>
+                    <Separator />
+                    <div className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                      Order-Level Discount
+                    </div>
+                    <div className="flex justify-between text-xs bg-orange-50 -mx-3 -mb-1.5 px-3 py-2 rounded-b-lg">
+                      <span className="text-orange-700 font-medium">
+                        {orderDiscount.type === "fixed" ? `$${orderDiscount.value.toFixed(2)}` : `${orderDiscount.value}%`} off
+                      </span>
+                      <span className="text-orange-700 font-semibold">
+                        Save: {formatCurrency(orderDiscount.discountAmount)}
+                      </span>
+                    </div>
+                  </>
+                )}
                 <Separator />
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold">Total</span>
-                  <span className="text-base font-bold text-primary">{formatCurrency(cartSummary.finalTotal)}</span>
+                  <span className="text-base font-bold text-primary">
+                    {(() => {
+                      let total = cartSummary.finalTotal;
+                      if (orderDiscount) {
+                        if (orderDiscount.type === "fixed") {
+                          total = Math.max(0, total - orderDiscount.value);
+                        } else if (orderDiscount.type === "percentage") {
+                          total = total * (1 - (orderDiscount.value / 100));
+                        }
+                      }
+                      return formatCurrency(total);
+                    })()}
+                  </span>
                 </div>
               </div>
             </div>

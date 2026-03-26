@@ -37,6 +37,7 @@ export const selectHasMoreProducts = (state: RootState) =>
 
 // ─── Cart ───
 export const selectCartItems = (state: RootState) => state.posPage.cartItems;
+export const selectCartPricing = (state: RootState) => state.posPage.cartPricing;
 export const selectShowCart = (state: RootState) => state.posPage.showCart;
 
 // ─── Order ───

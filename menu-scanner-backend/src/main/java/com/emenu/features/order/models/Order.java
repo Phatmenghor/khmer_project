@@ -65,6 +65,27 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "business_note", columnDefinition = "TEXT")
     private String businessNote;
 
+    // ===== AUDIT TRAIL: Order-level discount snapshot =====
+    // Snapshot BEFORE order-level modifications (after item-level pricing)
+    @Column(name = "pricing_before_snapshot", columnDefinition = "TEXT")
+    private String pricingBeforeSnapshot; // JSON: OrderPricingSnapshot
+
+    // Was the order total modified from POS?
+    @Column(name = "had_order_level_change_from_pos")
+    private Boolean hadOrderLevelChangeFromPOS = false;
+
+    // Snapshot AFTER order-level modifications
+    @Column(name = "pricing_after_snapshot", columnDefinition = "TEXT")
+    private String pricingAfterSnapshot; // JSON: OrderPricingSnapshot
+
+    // Detailed order-level discount metadata (if applied)
+    @Column(name = "order_discount_metadata", columnDefinition = "TEXT")
+    private String orderDiscountMetadata; // JSON: OrderLevelDiscountMetadata
+
+    // Reason for order-level change (if any)
+    @Column(name = "order_level_change_reason", columnDefinition = "TEXT")
+    private String orderLevelChangeReason;
+
     // Pricing
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;           // Items total before discounts

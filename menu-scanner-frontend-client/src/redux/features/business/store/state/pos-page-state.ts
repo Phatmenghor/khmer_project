@@ -20,6 +20,7 @@ import {
   selectProductPage,
   selectHasMoreProducts,
   selectCartItems,
+  selectCartPricing,
   selectShowCart,
   selectCustomerNote,
   selectIsSubmitting,
@@ -51,6 +52,7 @@ export const usePOSPageState = () => {
   const productPage = useAppSelector(selectProductPage);
   const hasMoreProducts = useAppSelector(selectHasMoreProducts);
   const cartItems = useAppSelector(selectCartItems);
+  const cartPricing = useAppSelector(selectCartPricing);
   const showCart = useAppSelector(selectShowCart);
   const customerNote = useAppSelector(selectCustomerNote);
   const isSubmitting = useAppSelector(selectIsSubmitting);
@@ -80,6 +82,7 @@ export const usePOSPageState = () => {
     productPage,
     hasMoreProducts,
     cartItems,
+    cartPricing,
     showCart,
     customerNote,
     isSubmitting,
