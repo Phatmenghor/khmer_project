@@ -26,6 +26,11 @@ import java.util.stream.Collectors;
         uses = {LocationMapper.class, DeliveryOptionMapper.class, OrderItemMapper.class, PaginationMapper.class, OrderStatusHistoryMapper.class})
 public interface OrderMapper {
 
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "createdAt", source = "createdAt")
+    @Mapping(target = "updatedAt", source = "updatedAt")
+    @Mapping(target = "createdBy", source = "createdBy")
+    @Mapping(target = "updatedBy", source = "updatedBy")
     @Mapping(target = "customerName", expression = "java(order.getCustomerIdentifier())")
     @Mapping(target = "customerPhone", expression = "java(order.getCustomerContact())")
     @Mapping(source = "business.name", target = "businessName")
@@ -137,17 +142,26 @@ public interface OrderMapper {
      * Deserialize delivery address JSON snapshot to OrderDeliveryAddressDto
      */
     default com.emenu.features.order.dto.response.OrderDeliveryAddressDto mapDeliveryAddress(Order order) {
-        if (order.getDeliveryAddressSnapshot() == null || order.getDeliveryAddressSnapshot().isBlank()) {
+        if (order == null) {
+            return null;
+        }
+
+        String snapshot = order.getDeliveryAddressSnapshot();
+
+        // Return null if no snapshot
+        if (snapshot == null || snapshot.isBlank() || snapshot.equals("{}")) {
             return null;
         }
 
         try {
             com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            return objectMapper.readValue(
-                    order.getDeliveryAddressSnapshot(),
+            com.emenu.features.order.dto.response.OrderDeliveryAddressDto address = objectMapper.readValue(
+                    snapshot,
                     com.emenu.features.order.dto.response.OrderDeliveryAddressDto.class
             );
+            return address;
         } catch (Exception e) {
+            // Log error but don't crash
             return null;
         }
     }
@@ -156,17 +170,26 @@ public interface OrderMapper {
      * Deserialize delivery option JSON snapshot to OrderDeliveryOptionDto
      */
     default com.emenu.features.order.dto.response.OrderDeliveryOptionDto mapDeliveryOption(Order order) {
-        if (order.getDeliveryOptionSnapshot() == null || order.getDeliveryOptionSnapshot().isBlank()) {
+        if (order == null) {
+            return null;
+        }
+
+        String snapshot = order.getDeliveryOptionSnapshot();
+
+        // Return null if no snapshot
+        if (snapshot == null || snapshot.isBlank() || snapshot.equals("{}")) {
             return null;
         }
 
         try {
             com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            return objectMapper.readValue(
-                    order.getDeliveryOptionSnapshot(),
+            com.emenu.features.order.dto.response.OrderDeliveryOptionDto option = objectMapper.readValue(
+                    snapshot,
                     com.emenu.features.order.dto.response.OrderDeliveryOptionDto.class
             );
+            return option;
         } catch (Exception e) {
+            // Log error but don't crash
             return null;
         }
     }
