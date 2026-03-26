@@ -17,9 +17,11 @@ TRUNCATE TABLE order_items CASCADE;
 TRUNCATE TABLE orders CASCADE;
 TRUNCATE TABLE delivery_options CASCADE;
 TRUNCATE TABLE product_sizes CASCADE;
+TRUNCATE TABLE product_images CASCADE;
+TRUNCATE TABLE product_favorites CASCADE;
 TRUNCATE TABLE products CASCADE;
-TRUNCATE TABLE product_brands CASCADE;
-TRUNCATE TABLE product_categories CASCADE;
+TRUNCATE TABLE brands CASCADE;
+TRUNCATE TABLE categories CASCADE;
 TRUNCATE TABLE cart_items CASCADE;
 TRUNCATE TABLE carts CASCADE;
 TRUNCATE TABLE businesses CASCADE;
@@ -71,7 +73,7 @@ FROM generate_series(1, 500) AS t(i);
 -- ============================================================================
 -- 5. 20 PRODUCT CATEGORIES - NO NULL VALUES
 -- ============================================================================
-INSERT INTO product_categories (id, business_id, name, description, image_url, is_deleted, created_at, updated_at) VALUES
+INSERT INTO categories (id, business_id, name, description, image_url, is_deleted, created_at, updated_at) VALUES
 ('c1-e29b-41d4-a716-446655440001', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Appetizers', 'Delicious appetizers and starters', 'https://example.com/appetizers.jpg', false, NOW(), NOW()),
 ('c1-e29b-41d4-a716-446655440002', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Main Courses', 'Main course dishes and specials', 'https://example.com/main.jpg', false, NOW(), NOW()),
 ('c1-e29b-41d4-a716-446655440003', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Desserts', 'Sweet desserts and pastries', 'https://example.com/desserts.jpg', false, NOW(), NOW()),
@@ -96,7 +98,7 @@ INSERT INTO product_categories (id, business_id, name, description, image_url, i
 -- ============================================================================
 -- 6. 20 PRODUCT BRANDS - NO NULL VALUES
 -- ============================================================================
-INSERT INTO product_brands (id, business_id, name, description, image_url, is_deleted, created_at, updated_at) VALUES
+INSERT INTO brands (id, business_id, name, description, image_url, is_deleted, created_at, updated_at) VALUES
 ('b1-e29b-41d4-a716-446655440001', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Premium Select', 'Premium quality brand', 'https://example.com/brand-a.jpg', false, NOW(), NOW()),
 ('b1-e29b-41d4-a716-446655440002', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Quality Choice', 'Quality assured brand', 'https://example.com/brand-b.jpg', false, NOW(), NOW()),
 ('b1-e29b-41d4-a716-446655440003', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Standard Plus', 'Standard quality brand', 'https://example.com/brand-c.jpg', false, NOW(), NOW()),
@@ -125,8 +127,8 @@ INSERT INTO products (id, business_id, category_id, brand_id, name, description,
 SELECT
     gen_random_uuid(),
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    (SELECT id FROM product_categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY (i % 20) OFFSET (i % 20) LIMIT 1),
-    (SELECT id FROM product_brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY (i % 20) OFFSET (i % 20) LIMIT 1),
+    (SELECT id FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY (i % 20) OFFSET (i % 20) LIMIT 1),
+    (SELECT id FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY (i % 20) OFFSET (i % 20) LIMIT 1),
     'Product ' || i::text,
     'Premium quality product ' || i::text || ' - Authentic ingredients, freshly prepared',
     (15.00 + ((i % 300) * 0.1))::numeric(19,2),
