@@ -15,8 +15,16 @@ export interface PosPageCartItem {
   productImageUrl: string;
   productSizeId: string | null;
   sizeName: string | null;
+
+  // Original product price (before admin modifications)
+  originalPrice?: number;
+
+  // Current price (after admin override, if any)
   currentPrice: number;
+
+  // Final price (after product promotions or admin-applied promotions)
   finalPrice: number;
+
   hasActivePromotion: boolean;
   quantity: number;
   promotionType: string | null;

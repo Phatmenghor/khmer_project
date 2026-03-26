@@ -322,6 +322,7 @@ export default function PosPage() {
         productImageUrl: product.mainImageUrl || "",
         productSizeId: size?.id || null,
         sizeName: size?.name || null,
+        originalPrice: currentPrice, // Track original product price for audit trail
         currentPrice,
         finalPrice,
         hasActivePromotion: hasPromo,
@@ -485,8 +486,9 @@ export default function PosPage() {
       productImageUrl: editingItemForPrice.productImageUrl,
       productSizeId: editingItemForPrice.productSizeId,
       sizeName: editingItemForPrice.sizeName,
-      currentPrice: newPrice,
-      finalPrice: finalPrice,
+      originalPrice: editingItemForPrice.originalPrice || editingItemForPrice.currentPrice, // Preserve original
+      currentPrice: newPrice, // Admin override price
+      finalPrice: finalPrice, // After promotions
       quantity: newQuantity,
       hasActivePromotion: !!editData.newPromotion.type,
       promotionType: editData.newPromotion.type,
@@ -567,12 +569,13 @@ export default function PosPage() {
           discountAmount: (item.currentPrice - item.finalPrice) * item.quantity,
           totalPrice: item.finalPrice * item.quantity,
 
-          // Audit trail - shows modifications made by admin
-          auditTrail: item.currentPrice !== item.finalPrice
+          // Audit trail - shows full modification history
+          auditTrail: (item.originalPrice && item.originalPrice !== item.currentPrice) ||
+                      (item.currentPrice !== item.finalPrice)
             ? [
                 {
-                  originalPrice: item.currentPrice,
-                  overriddenPrice: item.finalPrice,
+                  originalPrice: item.originalPrice || item.currentPrice,
+                  overriddenPrice: item.currentPrice,
                   appliedPromotion: item.hasActivePromotion
                     ? { type: item.promotionType, value: item.promotionValue }
                     : null,
