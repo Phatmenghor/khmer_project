@@ -3,7 +3,6 @@ package com.emenu.features.order.mapper;
 import com.emenu.features.order.dto.response.OrderItemPricingSnapshot;
 import com.emenu.features.order.dto.response.OrderItemResponse;
 import com.emenu.features.order.models.OrderItem;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
