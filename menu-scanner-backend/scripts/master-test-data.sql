@@ -7,6 +7,13 @@
 
 SET synchronous_commit TO OFF;
 
+-- ============================================================================
+-- AUTO MIGRATION: Add source column to orders table (if not exists)
+-- ============================================================================
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS source VARCHAR(50) DEFAULT 'PUBLIC';
+CREATE INDEX IF NOT EXISTS idx_orders_source ON orders(source);
+SELECT '✅ Database migration applied: source column ready' as migration_status;
+
 DO $$ DECLARE
     t TIMESTAMPTZ := NOW();
     photo1 TEXT := 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop';
