@@ -34,11 +34,6 @@ TRUNCATE TABLE order_delivery_addresses CASCADE;
 TRUNCATE TABLE orders CASCADE;
 TRUNCATE TABLE cart_items CASCADE;
 TRUNCATE TABLE carts CASCADE;
-TRUNCATE TABLE attendances CASCADE;
-TRUNCATE TABLE attendance_check_ins CASCADE;
-TRUNCATE TABLE leaves CASCADE;
-TRUNCATE TABLE schedule_work_days CASCADE;
-TRUNCATE TABLE work_schedules CASCADE;
 TRUNCATE TABLE customer_addresses CASCADE;
 TRUNCATE TABLE payments CASCADE;
 TRUNCATE TABLE business_exchange_rates CASCADE;
@@ -64,8 +59,6 @@ TRUNCATE TABLE location_village_cbc CASCADE;
 TRUNCATE TABLE location_commune_cbc CASCADE;
 TRUNCATE TABLE location_district_cbc CASCADE;
 TRUNCATE TABLE location_province_cbc CASCADE;
-TRUNCATE TABLE work_schedule_type_enum CASCADE;
-TRUNCATE TABLE leave_type_enum CASCADE;
 
 -- ============================================================================
 -- 1. LOCATION DATA - CAMBODIA PROVINCES, DISTRICTS, COMMUNES, VILLAGES
@@ -528,93 +521,7 @@ SELECT
 FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 10) u, generate_series(1, 2) AS t(i);
 
 -- ============================================================================
--- 33. WORK SCHEDULE TYPES
--- ============================================================================
-
-INSERT INTO work_schedule_type_enum (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, enum_name, description)
-SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    CASE WHEN (i % 3) = 0 THEN 'FULL_TIME' WHEN (i % 3) = 1 THEN 'PART_TIME' ELSE 'SHIFT_BASED' END,
-    'Schedule type ' || i::text
-FROM generate_series(1, 3) AS t(i);
-
--- ============================================================================
--- 34. WORK SCHEDULES
--- ============================================================================
-
-INSERT INTO work_schedules (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, business_id, name, start_time, end_time, break_start_time, break_end_time)
-SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    u.id, '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'Schedule ' || i::text,
-    '09:00'::time, '18:00'::time, '12:00'::time, '13:00'::time
-FROM (SELECT id FROM users WHERE user_type = 'BUSINESS_USER' LIMIT 30) u, generate_series(1, 1) AS t(i);
-
--- ============================================================================
--- 35. LEAVE TYPES
--- ============================================================================
-
-INSERT INTO leave_type_enum (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, enum_name, description)
-SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    CASE WHEN (i % 5) = 0 THEN 'ANNUAL' WHEN (i % 5) = 1 THEN 'SICK' WHEN (i % 5) = 2 THEN 'MATERNITY' WHEN (i % 5) = 3 THEN 'EMERGENCY' ELSE 'UNPAID' END,
-    'Leave type ' || i::text
-FROM generate_series(1, 5) AS t(i);
-
--- ============================================================================
--- 36. ATTENDANCES & CHECK-INS
--- ============================================================================
-
-INSERT INTO attendances (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, reference_number, user_id, business_id, work_schedule_id, attendance_date, status, remarks)
-SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'ATT-' || TO_CHAR(CURRENT_DATE - (i - 1)::int * INTERVAL '1 day'::interval, 'YYYYMMDD') || '-' || LPAD(i::text, 4, '0'),
-    (SELECT id FROM users WHERE user_type = 'BUSINESS_USER' LIMIT 1),
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    (SELECT id FROM work_schedules LIMIT 1),
-    CURRENT_DATE - (i - 1)::int * INTERVAL '1 day'::interval,
-    CASE WHEN (i % 20) = 0 THEN 'ABSENT' WHEN (i % 25) = 0 THEN 'LATE' WHEN (i % 30) = 0 THEN 'HALF_DAY' ELSE 'PRESENT' END,
-    CASE WHEN (i % 20) = 0 THEN 'User was absent' ELSE NULL END
-FROM generate_series(1, 30) AS t(i);
-
--- ============================================================================
--- 37. ATTENDANCE CHECK-INS
--- ============================================================================
-
-INSERT INTO attendance_check_ins (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, reference_number, attendance_id, check_in_type, check_in_time, latitude, longitude, remarks)
-SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'CHK-' || a.reference_number || '-' || t.check_type::text,
-    a.id,
-    t.check_type::text,
-    a.attendance_date::timestamp + CASE WHEN t.check_type = 1 THEN '09:00'::time ELSE '18:00'::time END,
-    11.5564, 104.9282,
-    'Check in at office'
-FROM (SELECT id, reference_number, attendance_date FROM attendances LIMIT 20) a, (SELECT 1 as check_type UNION SELECT 2) t;
-
--- ============================================================================
--- 38. LEAVES
--- ============================================================================
-
-INSERT INTO leaves (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, reference_number, user_id, business_id, leave_type_enum, start_date, end_date, total_days, reason, status, action_by, action_at, action_note)
-SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'LEAVE-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(i::text, 4, '0'),
-    (SELECT id FROM users WHERE user_type = 'BUSINESS_USER' LIMIT 1 OFFSET (i % 10)),
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    (SELECT id FROM leave_type_enum LIMIT 1 OFFSET (i % 5)),
-    CURRENT_DATE + (i * 10)::int, CURRENT_DATE + (i * 10 + 3)::int,
-    4.0, 'Personal leave ' || i::text,
-    CASE WHEN (i % 5) = 0 THEN 'APPROVED' WHEN (i % 5) = 1 THEN 'REJECTED' ELSE 'PENDING' END,
-    CASE WHEN (i % 5) IN (0, 1) THEN '550e8400-e29b-41d4-a716-446655550001' ELSE NULL END,
-    CASE WHEN (i % 5) IN (0, 1) THEN NOW() ELSE NULL END,
-    CASE WHEN (i % 5) = 0 THEN 'Approved' WHEN (i % 5) = 1 THEN 'Rejected' ELSE NULL END
-FROM generate_series(1, 20) AS t(i);
-
--- ============================================================================
--- 39. SUBSCRIPTION PLANS
+-- 33. SUBSCRIPTION PLANS
 -- ============================================================================
 
 INSERT INTO subscription_plans (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, price, duration_days, status)
@@ -672,7 +579,6 @@ SELECT '  • 4 Location tables (Provinces, Districts, Communes, Villages)' AS c
 SELECT '  • 7 Authentication tables (Roles, Users, Sessions, Tokens)' AS coverage;
 SELECT '  • 8 Product tables (Categories, Brands, Products, Images, Stock)' AS coverage;
 SELECT '  • 13 Order tables (Orders, Items, Deliveries, Payments, History)' AS coverage;
-SELECT '  • 7 HR tables (Schedules, Attendances, Leaves, Check-ins)' AS coverage;
 SELECT '  • 2 Subscription tables (Plans, Subscriptions)' AS coverage;
 SELECT '  • 5 Reference/Utility tables (Exchange Rates, Audit Logs, Images)' AS coverage;
 SELECT '  ============================================' AS divider;
@@ -681,8 +587,6 @@ SELECT '📋 Orders: 200 records (100 WEB + 100 POS)' AS data_count;
 SELECT '🛒 Order Items: 600 records (3 items per order)' AS data_count;
 SELECT '📦 Products: 100 records with complete metadata' AS data_count;
 SELECT '🏢 Businesses: 2 records with full configuration' AS data_count;
-SELECT '👔 Staff Schedules: 30 records with work assignments' AS data_count;
-SELECT '📅 Attendances: 30 days of attendance records' AS data_count;
 SELECT '📨 Audit Logs: 50 records for security tracking' AS data_count;
 SELECT '✨ ALL BaseUUIDEntity fields properly populated' AS audit_trail;
 SELECT '✨ ALL foreign key relationships maintained' AS integrity;
