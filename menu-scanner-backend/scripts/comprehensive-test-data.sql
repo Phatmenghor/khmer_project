@@ -180,6 +180,13 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 ('550e8400-e29b-41d4-a716-446655550001', '550e8400-e29b-41d4-a716-446655440001'),
 ('550e8400-e29b-41d4-a716-446655550002', '550e8400-e29b-41d4-a716-446655440003');
 
+-- Assign STAFF role to all generated staff members
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, '550e8400-e29b-41d4-a716-446655440002'
+FROM users u
+WHERE u.user_type = 'BUSINESS_USER'
+  AND u.user_identifier LIKE 'staff%@business.com';
+
 -- ============================================================================
 -- 8. USER SESSIONS
 -- ============================================================================
