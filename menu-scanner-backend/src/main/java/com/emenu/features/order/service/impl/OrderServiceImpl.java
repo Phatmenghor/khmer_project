@@ -779,8 +779,9 @@ public class OrderServiceImpl implements OrderService {
                     hasPromotion = true;
                     promotionType = itemRequest.getPromotionType();
                     promotionValue = itemRequest.getPromotionValue();
-                    promotionFromDate = itemRequest.getPromotionFromDate();
-                    promotionToDate = itemRequest.getPromotionToDate();
+                    // Promotion dates not available in POSCheckoutItemRequest
+                    promotionFromDate = null;
+                    promotionToDate = null;
                 }
 
                 orderItem.setHasPromotion(hasPromotion);
