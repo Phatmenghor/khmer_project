@@ -510,27 +510,12 @@ export default function PosPage() {
       return;
     }
 
-    // Build POSCheckoutRequest payload matching backend structure
+    // Build POSCheckoutRequest payload - unified structure with public checkout
+    // Includes audit trail for item modifications (before/after prices & promotions)
     const payload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
 
-      // Items array with product details and pricing overrides
-      items: cartItems.map((item) => ({
-        productId: item.productId,
-        productSizeId: item.productSizeId || undefined,
-        quantity: item.quantity,
-        overridePrice: item.currentPrice !== item.finalPrice
-          ? item.finalPrice
-          : item.currentPrice,
-        promotionType: item.hasActivePromotion && item.promotionType ? item.promotionType : null,
-        promotionValue: item.hasActivePromotion && item.promotionValue ? item.promotionValue : null,
-        productName: item.productName,
-        productImageUrl: item.productImageUrl,
-        sizeName: item.sizeName || null,
-      })),
-
-      // Delivery details
-      deliveryOptionId: selectedDeliveryOption.id,
+      // Full delivery details (same as public checkout)
       deliveryAddress: {
         village: "",
         commune: "",
@@ -543,19 +528,80 @@ export default function PosPage() {
         longitude: 0,
       },
 
-      // Payment (CASH only)
-      paymentMethod: "CASH",
+      // Full delivery option details (same as public checkout)
+      deliveryOption: {
+        name: selectedDeliveryOption.name || "Delivery",
+        description: selectedDeliveryOption.description || "POS Order",
+        imageUrl: selectedDeliveryOption.imageUrl || "",
+        price: selectedDeliveryOption.price || 0,
+      },
 
-      // Order totals
-      subtotal: cartSummary.subtotal,
-      discountAmount: cartSummary.totalDiscount,
-      deliveryFee: cartSummary.deliveryFee,
-      taxAmount: cartSummary.taxAmount,
-      totalAmount: cartSummary.finalTotal,
+      // Full cart with item details and audit trail
+      cart: {
+        businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
+        businessName: products[0]?.businessName || "",
+        items: cartItems.map((item) => ({
+          id: item.id,
+          productId: item.productId,
+          productSizeId: item.productSizeId || null,
+          quantity: item.quantity,
+
+          // Display fields
+          productName: item.productName,
+          productImageUrl: item.productImageUrl,
+          sizeName: item.sizeName || null,
+          status: "ACTIVE",
+
+          // Original/current prices
+          currentPrice: item.currentPrice,
+          finalPrice: item.finalPrice,
+          hasActivePromotion: item.hasActivePromotion,
+
+          // Admin overrides & custom promotions
+          overridePrice: item.currentPrice !== item.finalPrice ? item.finalPrice : undefined,
+          promotionType: item.hasActivePromotion && item.promotionType ? item.promotionType : null,
+          promotionValue: item.hasActivePromotion && item.promotionValue ? item.promotionValue : null,
+
+          // Totals for each item
+          totalBeforeDiscount: item.currentPrice * item.quantity,
+          discountAmount: (item.currentPrice - item.finalPrice) * item.quantity,
+          totalPrice: item.finalPrice * item.quantity,
+
+          // Audit trail - shows modifications made by admin
+          auditTrail: item.currentPrice !== item.finalPrice
+            ? [
+                {
+                  originalPrice: item.currentPrice,
+                  overriddenPrice: item.finalPrice,
+                  appliedPromotion: item.hasActivePromotion
+                    ? { type: item.promotionType, value: item.promotionValue }
+                    : null,
+                  modifiedAt: new Date().toISOString(),
+                  reason: "POS Admin Override",
+                },
+              ]
+            : [],
+        })),
+
+        // Cart totals
+        totalItems: cartSummary.totalItems,
+        totalQuantity: cartSummary.totalQuantity,
+        subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
+        subtotal: cartSummary.subtotal,
+        totalDiscount: cartSummary.totalDiscount,
+        finalTotal: cartSummary.finalTotal,
+      },
+
+      // Payment info (CASH only)
+      payment: {
+        paymentMethod: "CASH",
+        paymentStatus: "PAID",
+      },
 
       // Notes
       customerNote: customerNote || "",
-      businessNote: "",
+      businessNote: "Created via POS System",
+      orderStatus: OrderStatus.PENDING,
     };
 
     dispatch(setIsSubmitting(true));
@@ -566,10 +612,10 @@ export default function PosPage() {
         dispatch(setSuccessOrder({ orderNumber: order.orderNumber, total: order.totalAmount }));
         dispatch(clearCartItems());
         dispatch(setCustomerNote(""));
-        showToast.success("Order created successfully");
+        showToast.success("✅ POS Order created successfully!");
       }
     } catch (error: any) {
-      showToast.error(error?.message || "Failed to create order");
+      showToast.error(error?.message || "❌ Failed to create POS order");
     } finally {
       dispatch(setIsSubmitting(false));
     }
