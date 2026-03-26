@@ -85,7 +85,7 @@ FROM generate_series(1, 20) AS t(i);
 -- ============================================================================
 -- 6. BRANDS (20 TOTAL) - PostgreSQL Compatible
 -- ============================================================================
-INSERT INTO brands (id, version, created_at, updated_at, created_by, updated_by, is_deleted, name, description, image_url)
+INSERT INTO brands (id, version, created_at, updated_at, created_by, updated_by, is_deleted, business_id, name, description, image_url, status)
 SELECT
     gen_random_uuid(),
     0,
@@ -94,9 +94,11 @@ SELECT
     NULL,
     NULL,
     FALSE,
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Brand ' || i::text,
     'High quality brand number ' || i::text,
-    CASE WHEN i % 2 = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop' END
+    CASE WHEN i % 2 = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200&auto=format&fit=crop' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200&auto=format&fit=crop' END,
+    'ACTIVE'
 FROM generate_series(1, 20) AS t(i);
 
 -- ============================================================================
