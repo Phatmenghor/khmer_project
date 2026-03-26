@@ -4,10 +4,6 @@ import {
   AllOrderAdminRequest,
   UpdateOrderParams,
 } from "../models/request/order-admin-request";
-import {
-  UpdateOrderItemsFromPOSRequest,
-  ConfirmPOSOrderChangesRequest,
-} from "@/redux/features/main/store/models/request/order-pos-update-request";
 
 export const fetchAllOrderAdminService = createApiThunk<
   any,
@@ -51,48 +47,9 @@ export const deleteOrderAdminService = createApiThunk<any, string>(
   }
 );
 
-// ─── POS Order Update Services ───
-
 /**
- * Update items on an existing order from POS
- * Separate endpoint for creating new orders: createPOSCheckoutOrderService
- * Sets order to PENDING_POS_CONFIRMATION if shouldAutoConfirm is false
+ * NOTE: Order creation from POS uses createPOSCheckoutOrderService in pos-page-thunks.ts
+ * This file only handles order management (fetch, update status, delete)
+ * Both POS and customer orders use the same endpoints
+ * Differentiation is done via the 'source' field in the response
  */
-export const updateOrderItemsFromPOSService = createApiThunk<
-  any,
-  UpdateOrderItemsFromPOSRequest
->("ordersAdmin/updateItemsFromPOS", async (request) => {
-  const response = await axiosClientWithAuth.post(
-    `/api/v1/orders/${request.orderId}/update-items`,
-    request
-  );
-  return response.data.data;
-});
-
-/**
- * Confirm or reject POS changes made to an order
- * Admin must confirm before order proceeds to next status
- */
-export const confirmPOSOrderChangesService = createApiThunk<
-  any,
-  ConfirmPOSOrderChangesRequest
->("ordersAdmin/confirmPOSChanges", async (request) => {
-  const response = await axiosClientWithAuth.post(
-    `/api/v1/orders/${request.orderId}/confirm-pos-changes`,
-    request
-  );
-  return response.data.data;
-});
-
-/**
- * Fetch order update history (all modifications made to an order)
- */
-export const fetchOrderUpdateHistoryService = createApiThunk<any, string>(
-  "ordersAdmin/fetchUpdateHistory",
-  async (orderId) => {
-    const response = await axiosClientWithAuth.get(
-      `/api/v1/orders/${orderId}/update-history`
-    );
-    return response.data.data;
-  }
-);
