@@ -94,27 +94,30 @@ public class UserServiceImpl implements UserService {
             saved.setEmployment(emp);
         }
 
+        // Use a final reference for use inside lambdas (saved is reassigned below)
+        final User savedRef = saved;
+
         // Addresses
         if (req.getAddresses() != null) {
-            req.getAddresses().forEach(r -> saved.getAddresses().add(buildAddress(r, saved)));
+            req.getAddresses().forEach(r -> savedRef.getAddresses().add(buildAddress(r, savedRef)));
         }
 
         // Emergency contacts
         if (req.getEmergencyContacts() != null) {
-            req.getEmergencyContacts().forEach(r -> saved.getEmergencyContacts().add(buildContact(r, saved)));
+            req.getEmergencyContacts().forEach(r -> savedRef.getEmergencyContacts().add(buildContact(r, savedRef)));
         }
 
         // Documents
         if (req.getDocuments() != null) {
-            req.getDocuments().forEach(r -> saved.getDocuments().add(buildDocument(r, saved)));
+            req.getDocuments().forEach(r -> savedRef.getDocuments().add(buildDocument(r, savedRef)));
         }
 
         // Educations
         if (req.getEducations() != null) {
-            req.getEducations().forEach(r -> saved.getEducations().add(buildEducation(r, saved)));
+            req.getEducations().forEach(r -> savedRef.getEducations().add(buildEducation(r, savedRef)));
         }
 
-        saved = userRepository.save(saved);
+        saved = userRepository.save(savedRef);
         log.info("User created: {} type={}", saved.getUserIdentifier(), saved.getUserType());
         return userMapper.toResponse(saved);
     }

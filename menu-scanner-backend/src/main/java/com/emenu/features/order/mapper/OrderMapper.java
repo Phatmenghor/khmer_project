@@ -240,7 +240,7 @@ public interface OrderMapper {
             return null;
         }
 
-        User u = history.getChangedByUser();
+        com.emenu.features.auth.models.User u = history.getChangedByUser();
         com.emenu.features.auth.models.UserProfile p = u.getProfile();
         return OrderStatusHistoryUserInfo.builder()
                 .userId(history.getChangedByUserId())
