@@ -20,10 +20,12 @@ import { createApiThunk } from "@/utils/axios/api-wrapper";
 export const fetchAllUsersService = createApiThunk<any, AllUserRequest>(
   "users/fetchAll",
   async (params) => {
+    console.log("🔍 API Request Payload:", JSON.stringify(params, null, 2));
     const response = await axiosClientWithAuth.post(
       "/api/v1/users/all",
       params
     );
+    console.log("✅ API Response received:", response.data);
     return response.data.data;
   }
 );

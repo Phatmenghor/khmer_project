@@ -84,16 +84,19 @@ export default function UserBusinessPage() {
 
   // Fetch users when filters or search change
   useEffect(() => {
-    dispatch(
-      fetchAllUsersService({
-        search: debouncedSearch,
-        pageNo: filters.pageNo,
-        pageSize: globalPageSize,
-        roles: filters.role === UserRole.ALL ? [] : [filters.role],
-        userTypes: [UserGropeType.BUSINESS_USER],
-        accountStatus: filters.accountStatus === AccountStatus.ALL ? [] : [filters.accountStatus],
-      }),
-    );
+    const filterPayload = {
+      search: debouncedSearch,
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize,
+      roles: filters.role === UserRole.ALL ? [] : [filters.role],
+      userTypes: [UserGropeType.BUSINESS_USER],
+      accountStatus: filters.accountStatus === AccountStatus.ALL ? [] : [filters.accountStatus],
+    };
+
+    // Debug: Log the filter payload being sent
+    console.log("📤 Sending filter to API:", filterPayload);
+
+    dispatch(fetchAllUsersService(filterPayload));
   }, [dispatch, debouncedSearch, filters.accountStatus, filters.role, filters.pageNo, globalPageSize]);
 
   const [modalState, setModalState] = useState({
