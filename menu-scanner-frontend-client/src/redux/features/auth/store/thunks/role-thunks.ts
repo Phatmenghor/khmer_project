@@ -44,12 +44,10 @@ export const updateRoleService = createApiThunk<any, UpdateRoleParams>(
   },
 );
 
-export const deleteRoleService = createApiThunk<any, string>(
+export const deleteRoleService = createApiThunk<string, string>(
   "roles/delete",
   async (roleId) => {
-    const response = await axiosClientWithAuth.delete(
-      `/api/v1/roles/${roleId}`,
-    );
-    return response.data.data;
+    await axiosClientWithAuth.delete(`/api/v1/roles/${roleId}`);
+    return roleId;
   },
 );

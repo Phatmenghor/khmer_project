@@ -162,7 +162,7 @@ const roleSlice = createSlice({
           state.data.hasPrevious = state.data.pageNo > 1;
         }
       })
-      .addCase(deleteUserService.rejected, (state, action) => {
+      .addCase(deleteRoleService.rejected, (state, action) => {
         state.operations.isDeleting = false;
         state.error = action.payload as string;
       });
