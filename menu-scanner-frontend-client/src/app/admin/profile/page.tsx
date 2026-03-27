@@ -381,8 +381,7 @@ export default function AdminProfilePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="space-y-4 px-2">
         {/* Profile Header */}
         <Card className="mb-6">
           <CardContent className="p-6">
@@ -1211,7 +1210,7 @@ export default function AdminProfilePage() {
             </Card>
           </div>
         )}
-      </div>
+    </div>
 
       {/* Profile Picture Modal */}
       <ProfilePictureModal
