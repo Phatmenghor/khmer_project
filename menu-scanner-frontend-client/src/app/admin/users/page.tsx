@@ -56,13 +56,11 @@ export default function UserBusinessPage() {
   const rolesContent = useAppSelector(selectRoleContent);
 
   // Build dynamic role filter options
-  const roleFilterOptions = [
-    { value: UserRole.ALL, label: "All Roles" },
-    ...rolesContent.map((role) => ({
-      value: role.id,
-      label: formatEnumValue(role.name),
-    })),
-  ];
+  // Backend provides ALL_ROLES item when includeAll: true, so map directly
+  const roleFilterOptions = rolesContent.map((role) => ({
+    value: role.id || UserRole.ALL, // Use null id from ALL_ROLES as UserRole.ALL
+    label: formatEnumValue(role.name),
+  }));
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.USERS,
@@ -200,11 +198,7 @@ export default function UserBusinessPage() {
               options={roleFilterOptions}
               value={filters.role}
               placeholder="All Roles"
-              onValueChange={(value) => {
-                // Handle both UserRole enums and role IDs
-                const filterValue = roleFilterOptions.find(opt => opt.value === value)?.value || value;
-                dispatch(setRoleFilter(filterValue as UserRole));
-              }}
+              onValueChange={(value) => dispatch(setRoleFilter(value as UserRole))}
               label="Platform Role"
             />
           </div>

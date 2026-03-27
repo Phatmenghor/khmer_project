@@ -30,9 +30,8 @@ export const USER_CUSTOMER_ROLE_CREATE_UPDATE = [
 
 export const ACCOUNT_STATUS_CREATE_UPDATE = [
   { value: AccountStatus.ACTIVE, label: "Active" },
-  { value: AccountStatus.INACTIVE, label: "Inactive" },
+  { value: AccountStatus.END_WORK, label: "End Work" },
   { value: AccountStatus.LOCKED, label: "Locked" },
-  { value: AccountStatus.SUSPENDED, label: "Suspended" },
 ];
 
 export const BUSINESS_STATUS_CREATE_UPDATE = [

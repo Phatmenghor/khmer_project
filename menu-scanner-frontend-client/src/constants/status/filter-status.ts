@@ -114,9 +114,8 @@ export const SUBSCRIPT_STATUS_FILTER = [
 export const ACCOUNT_STATUS_FILTER = [
   { value: AccountStatus.ALL, label: "All Status" },
   { value: AccountStatus.ACTIVE, label: "Active" },
-  { value: AccountStatus.INACTIVE, label: "Inactive" },
+  { value: AccountStatus.END_WORK, label: "End Work" },
   { value: AccountStatus.LOCKED, label: "Locked" },
-  { value: AccountStatus.SUSPENDED, label: "Suspended" },
 ];
 
 export const PRODUCT_STATUS_FILTER = [
