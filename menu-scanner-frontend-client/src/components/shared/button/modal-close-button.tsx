@@ -6,14 +6,14 @@ import { X } from "lucide-react";
 interface ModalCloseButtonProps {
   onClick: () => void;
   iconSize?: "sm" | "md" | "lg" | "xl";
-  iconColor?: string;
+  iconColor?: "white" | "black";
   className?: string;
 }
 
 export function ModalCloseButton({
   onClick,
   iconSize = "md",
-  iconColor = "currentColor",
+  iconColor = "black",
   className = "",
 }: ModalCloseButtonProps) {
   const iconSizeMap = {
@@ -21,6 +21,11 @@ export function ModalCloseButton({
     md: "h-4 w-4",
     lg: "h-5 w-5",
     xl: "h-6 w-6",
+  };
+
+  const colorMap = {
+    white: "#ffffff",
+    black: "#000000",
   };
 
   return (
@@ -32,7 +37,7 @@ export function ModalCloseButton({
     >
       <X
         className={`${iconSizeMap[iconSize]}`}
-        style={{ color: iconColor }}
+        style={{ color: colorMap[iconColor] }}
       />
     </Button>
   );

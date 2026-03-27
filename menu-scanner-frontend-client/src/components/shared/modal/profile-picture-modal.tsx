@@ -23,7 +23,7 @@ interface ProfilePictureModalProps {
   onImageRemove: () => void;
   isLoading?: boolean;
   closeIconSize?: "sm" | "md" | "lg" | "xl";
-  closeIconColor?: string;
+  closeIconColor?: "white" | "black";
 }
 
 export function ProfilePictureModal({
@@ -35,7 +35,7 @@ export function ProfilePictureModal({
   onImageRemove,
   isLoading = false,
   closeIconSize = "md",
-  closeIconColor = "currentColor",
+  closeIconColor = "white",
 }: ProfilePictureModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -107,7 +107,6 @@ export function ProfilePictureModal({
             onClick={onClose}
             iconSize={closeIconSize}
             iconColor={closeIconColor}
-            className="text-primary-foreground"
           />
         </div>
 
