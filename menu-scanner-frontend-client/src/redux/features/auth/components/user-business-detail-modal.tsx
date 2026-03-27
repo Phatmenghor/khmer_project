@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { fetchUserByIdService } from "@/redux/features/auth/store/thunks/users-thunks";
 import { clearSelectedUser } from "@/redux/features/auth/store/slice/users-slice";
@@ -49,9 +49,17 @@ export function UserBusinessDetailModal({
     onClose();
   };
 
+  const DetailField = ({ label, value }: { label: string; value: React.ReactNode }) => (
+    <div className="space-y-1">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="text-sm text-foreground">{value || "---"}</p>
+    </div>
+  );
+
   if (isFetchingDetail) {
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogTitle className="sr-only">User Details Loading</DialogTitle>
         <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
             <Loading />
@@ -64,6 +72,7 @@ export function UserBusinessDetailModal({
   if (!userData) {
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogTitle className="sr-only">User Details</DialogTitle>
         <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">No user data available</p>
@@ -75,6 +84,7 @@ export function UserBusinessDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogTitle className="sr-only">User Details - {userData.fullName}</DialogTitle>
       <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
@@ -120,61 +130,15 @@ export function UserBusinessDetailModal({
               <h3 className="text-base font-semibold text-foreground mb-4">
                 Personal Information
               </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    First Name
-                  </p>
-                  <p className="text-sm text-foreground">{userData.firstName || "---"}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Last Name
-                  </p>
-                  <p className="text-sm text-foreground">{userData.lastName || "---"}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Email
-                  </p>
-                  <p className="text-sm text-foreground">{userData.email || "---"}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Phone Number
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {userData.phoneNumber || "---"}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Nickname
-                  </p>
-                  <p className="text-sm text-foreground">{userData.nickname || "---"}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Gender
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {userData.gender ? formatEnumValue(userData.gender) : "---"}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Date of Birth
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {userData.dateOfBirth || "---"}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Position
-                  </p>
-                  <p className="text-sm text-foreground">{userData.position || "---"}</p>
-                </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                <DetailField label="First Name" value={userData.firstName} />
+                <DetailField label="Last Name" value={userData.lastName} />
+                <DetailField label="Email" value={userData.email} />
+                <DetailField label="Phone Number" value={userData.phoneNumber} />
+                <DetailField label="Nickname" value={userData.nickname} />
+                <DetailField label="Gender" value={userData.gender ? formatEnumValue(userData.gender) : null} />
+                <DetailField label="Date of Birth" value={userData.dateOfBirth} />
+                <DetailField label="Position" value={userData.position} />
               </div>
             </div>
 
@@ -183,45 +147,27 @@ export function UserBusinessDetailModal({
               <h3 className="text-base font-semibold text-foreground mb-4">
                 Account Information
               </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    User Type
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {formatEnumValue(userData.userType)}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Account Status
-                  </p>
-                  <p className="text-sm font-medium">
-                    {userData.accountStatus === "ACTIVE" && (
-                      <span className="text-green-600">
-                        {formatEnumValue(userData.accountStatus)}
-                      </span>
-                    )}
-                    {userData.accountStatus === "END_WORK" && (
-                      <span className="text-orange-600">
-                        {formatEnumValue(userData.accountStatus)}
-                      </span>
-                    )}
-                    {userData.accountStatus === "LOCKED" && (
-                      <span className="text-red-600">
-                        {formatEnumValue(userData.accountStatus)}
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Business
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {userData.businessName || "---"}
-                  </p>
-                </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                <DetailField label="User Type" value={formatEnumValue(userData.userType)} />
+                <DetailField
+                  label="Account Status"
+                  value={
+                    <span
+                      className={
+                        userData.accountStatus === "ACTIVE"
+                          ? "text-green-600 font-medium"
+                          : userData.accountStatus === "END_WORK"
+                            ? "text-orange-600 font-medium"
+                            : userData.accountStatus === "LOCKED"
+                              ? "text-red-600 font-medium"
+                              : ""
+                      }
+                    >
+                      {formatEnumValue(userData.accountStatus)}
+                    </span>
+                  }
+                />
+                <DetailField label="Business" value={userData.businessName} />
               </div>
             </div>
 
@@ -235,201 +181,68 @@ export function UserBusinessDetailModal({
                 <h3 className="text-base font-semibold text-foreground mb-4">
                   Employment Information
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      Employee ID
-                    </p>
-                    <p className="text-sm text-foreground">
-                      {userData.employeeId || "---"}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      Department
-                    </p>
-                    <p className="text-sm text-foreground">
-                      {userData.department || "---"}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      Employment Type
-                    </p>
-                    <p className="text-sm text-foreground">
-                      {userData.employmentType
-                        ? formatEnumValue(userData.employmentType)
-                        : "---"}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      Shift
-                    </p>
-                    <p className="text-sm text-foreground">
-                      {userData.shift || "---"}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      Join Date
-                    </p>
-                    <p className="text-sm text-foreground">
-                      {userData.joinDate || "---"}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      Leave Date
-                    </p>
-                    <p className="text-sm text-foreground">
-                      {userData.leaveDate || "---"}
-                    </p>
-                  </div>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                  <DetailField label="Employee ID" value={userData.employeeId} />
+                  <DetailField label="Department" value={userData.department} />
+                  <DetailField
+                    label="Employment Type"
+                    value={userData.employmentType ? formatEnumValue(userData.employmentType) : null}
+                  />
+                  <DetailField label="Shift" value={userData.shift} />
+                  <DetailField label="Join Date" value={userData.joinDate} />
+                  <DetailField label="Leave Date" value={userData.leaveDate} />
                 </div>
               </div>
             )}
 
-            {/* Address Information */}
+            {/* Addresses */}
             {userData.addresses && userData.addresses.length > 0 && (
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-4">
                   Addresses
                 </h3>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="space-y-4">
-                      {userData.addresses.map((address: any, index: number) => (
-                        <div key={index}>
-                          <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Type
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {address.addressType
-                                  ? formatEnumValue(address.addressType)
-                                  : "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                House No
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {address.houseNo || "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Street
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {address.street || "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Village
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {address.village || "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Commune
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {address.commune || "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                District
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {address.district || "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Province
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {address.province || "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Country
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {address.country || "---"}
-                              </p>
-                            </div>
-                          </div>
-                          {index < userData.addresses.length - 1 && (
-                            <div className="border-t pt-4" />
-                          )}
+                <div className="space-y-3">
+                  {userData.addresses.map((address: any, index: number) => (
+                    <Card key={index} className="border-l-4 border-l-primary">
+                      <CardContent className="pt-4 pb-4">
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                          <DetailField label="Type" value={address.addressType ? formatEnumValue(address.addressType) : null} />
+                          <DetailField label="House No" value={address.houseNo} />
+                          <DetailField label="Street" value={address.street} />
+                          <DetailField label="Village" value={address.village} />
+                          <DetailField label="Commune" value={address.commune} />
+                          <DetailField label="District" value={address.district} />
+                          <DetailField label="Province" value={address.province} />
+                          <DetailField label="Country" value={address.country} />
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
 
             {/* Emergency Contacts */}
-            {userData.emergencyContacts &&
-              userData.emergencyContacts.length > 0 && (
-                <div>
-                  <h3 className="text-base font-semibold text-foreground mb-4">
-                    Emergency Contacts
-                  </h3>
-                  <Card>
-                    <CardContent className="pt-6">
-                      <div className="space-y-4">
-                        {userData.emergencyContacts.map(
-                          (contact: any, index: number) => (
-                            <div key={index}>
-                              <div className="grid grid-cols-2 gap-4 mb-4">
-                                <div className="space-y-2">
-                                  <p className="text-xs font-medium text-muted-foreground">
-                                    Name
-                                  </p>
-                                  <p className="text-sm text-foreground">
-                                    {contact.name || "---"}
-                                  </p>
-                                </div>
-                                <div className="space-y-2">
-                                  <p className="text-xs font-medium text-muted-foreground">
-                                    Relationship
-                                  </p>
-                                  <p className="text-sm text-foreground">
-                                    {contact.relationship || "---"}
-                                  </p>
-                                </div>
-                                <div className="space-y-2 col-span-2">
-                                  <p className="text-xs font-medium text-muted-foreground">
-                                    Phone
-                                  </p>
-                                  <p className="text-sm text-foreground">
-                                    {contact.phone || "---"}
-                                  </p>
-                                </div>
-                              </div>
-                              {index < userData.emergencyContacts.length - 1 && (
-                                <div className="border-t pt-4" />
-                              )}
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+            {userData.emergencyContacts && userData.emergencyContacts.length > 0 && (
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-4">
+                  Emergency Contacts
+                </h3>
+                <div className="space-y-3">
+                  {userData.emergencyContacts.map((contact: any, index: number) => (
+                    <Card key={index} className="border-l-4 border-l-orange-500">
+                      <CardContent className="pt-4 pb-4">
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                          <DetailField label="Name" value={contact.name} />
+                          <DetailField label="Relationship" value={contact.relationship} />
+                          <DetailField label="Phone" value={contact.phone} />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
             {/* Documents */}
             {userData.documents && userData.documents.length > 0 && (
@@ -437,49 +250,28 @@ export function UserBusinessDetailModal({
                 <h3 className="text-base font-semibold text-foreground mb-4">
                   Documents
                 </h3>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="space-y-6">
-                      {userData.documents.map((doc: any, index: number) => (
-                        <div key={index}>
-                          <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Type
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {doc.type ? formatEnumValue(doc.type) : "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Number
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {doc.number || "---"}
-                              </p>
-                            </div>
-                          </div>
-                          {doc.fileUrl && (
-                            <div className="space-y-2 mb-4">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Preview
-                              </p>
-                              <img
-                                src={doc.fileUrl}
-                                alt={doc.type}
-                                className="h-40 w-full rounded-lg object-contain bg-muted/20"
-                              />
-                            </div>
-                          )}
-                          {index < userData.documents.length - 1 && (
-                            <div className="border-t pt-6" />
-                          )}
+                <div className="space-y-4">
+                  {userData.documents.map((doc: any, index: number) => (
+                    <Card key={index} className="border-l-4 border-l-blue-500 overflow-hidden">
+                      <CardContent className="pt-4 pb-4">
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-3 mb-4">
+                          <DetailField label="Type" value={doc.type ? formatEnumValue(doc.type) : null} />
+                          <DetailField label="Number" value={doc.number} />
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                        {doc.fileUrl && (
+                          <div className="space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">Preview</p>
+                            <img
+                              src={doc.fileUrl}
+                              alt={doc.type}
+                              className="h-32 w-full rounded-lg object-contain bg-muted/20"
+                            />
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -489,75 +281,38 @@ export function UserBusinessDetailModal({
                 <h3 className="text-base font-semibold text-foreground mb-4">
                   Education
                 </h3>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="space-y-6">
-                      {userData.educations.map((edu: any, index: number) => (
-                        <div key={index}>
-                          <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                School Name
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {edu.schoolName || "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Level
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {edu.level ? formatEnumValue(edu.level) : "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Field of Study
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {edu.fieldOfStudy || "---"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Graduation Status
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {edu.isGraduated ? "Graduated" : "Not Graduated"}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Study Period
-                              </p>
-                              <p className="text-sm text-foreground">
-                                {edu.startYear && edu.endYear
-                                  ? `${edu.startYear} - ${edu.endYear}`
-                                  : "---"}
-                              </p>
-                            </div>
-                          </div>
-                          {edu.certificateUrl && (
-                            <div className="space-y-2 mb-4">
-                              <p className="text-xs font-medium text-muted-foreground">
-                                Certificate
-                              </p>
-                              <img
-                                src={edu.certificateUrl}
-                                alt="Certificate"
-                                className="h-40 w-full rounded-lg object-contain bg-muted/20"
-                              />
-                            </div>
-                          )}
-                          {index < userData.educations.length - 1 && (
-                            <div className="border-t pt-6" />
-                          )}
+                <div className="space-y-4">
+                  {userData.educations.map((edu: any, index: number) => (
+                    <Card key={index} className="border-l-4 border-l-green-500 overflow-hidden">
+                      <CardContent className="pt-4 pb-4">
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-3 mb-4">
+                          <DetailField label="School Name" value={edu.schoolName} />
+                          <DetailField label="Level" value={edu.level ? formatEnumValue(edu.level) : null} />
+                          <DetailField label="Field of Study" value={edu.fieldOfStudy} />
+                          <DetailField label="Graduation" value={edu.isGraduated ? "Yes" : "No"} />
+                          <DetailField
+                            label="Study Period"
+                            value={
+                              edu.startYear && edu.endYear
+                                ? `${edu.startYear} - ${edu.endYear}`
+                                : null
+                            }
+                          />
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                        {edu.certificateUrl && (
+                          <div className="space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">Certificate</p>
+                            <img
+                              src={edu.certificateUrl}
+                              alt="Certificate"
+                              className="h-32 w-full rounded-lg object-contain bg-muted/20"
+                            />
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -567,21 +322,21 @@ export function UserBusinessDetailModal({
                 <h3 className="text-base font-semibold text-foreground mb-4">
                   Additional Information
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
                   {userData.remark && (
-                    <div className="space-y-2 col-span-2">
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Remark
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground">Remark</p>
+                      <p className="text-sm text-foreground bg-muted/30 rounded-md p-3">
+                        {userData.remark}
                       </p>
-                      <p className="text-sm text-foreground">{userData.remark}</p>
                     </div>
                   )}
                   {userData.notes && (
-                    <div className="space-y-2 col-span-2">
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Notes
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground">Notes</p>
+                      <p className="text-sm text-foreground bg-muted/30 rounded-md p-3">
+                        {userData.notes}
                       </p>
-                      <p className="text-sm text-foreground">{userData.notes}</p>
                     </div>
                   )}
                 </div>
@@ -593,46 +348,24 @@ export function UserBusinessDetailModal({
               <h3 className="text-base font-semibold text-foreground mb-4">
                 System Information
               </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2 col-span-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    User ID
-                  </p>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">User ID</p>
                   <p className="text-xs font-mono bg-muted px-3 py-2 rounded break-all">
                     {userData.id}
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Created At
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {dateTimeFormat(userData.createdAt ?? "")}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Created By
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {userData.createdBy || "---"}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Last Updated
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {dateTimeFormat(userData.updatedAt ?? "")}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Updated By
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {userData.updatedBy || "---"}
-                  </p>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <DetailField
+                    label="Created At"
+                    value={dateTimeFormat(userData.createdAt ?? "")}
+                  />
+                  <DetailField label="Created By" value={userData.createdBy} />
+                  <DetailField
+                    label="Last Updated"
+                    value={dateTimeFormat(userData.updatedAt ?? "")}
+                  />
+                  <DetailField label="Updated By" value={userData.updatedBy} />
                 </div>
               </div>
             </div>
