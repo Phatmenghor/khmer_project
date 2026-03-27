@@ -23,7 +23,7 @@ interface UserTableOptions {
   handlers: UserTableHandlers;
 }
 
-export const userPlatformTableColumns = ({
+export const userBusinessTableColumns = ({
   data,
   handlers,
 }: UserTableOptions): TableColumn<UserResponseModel>[] => {

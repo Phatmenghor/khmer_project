@@ -8,7 +8,7 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
-import { userPlatformTableColumns } from "@/redux/features/auth/table/users-platform-table";
+import { userBusinessTableColumns } from "@/redux/features/auth/table/users-business-table";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useUsersState } from "@/redux/features/auth/store/state/users-state";
@@ -140,7 +140,7 @@ export default function UserBusinessPage() {
   );
 
   const columns = useMemo(
-    () => userPlatformTableColumns({ data: usersData, handlers: tableHandlers }),
+    () => userBusinessTableColumns({ data: usersData, handlers: tableHandlers }),
     [userState, tableHandlers],
   );
 
@@ -201,7 +201,7 @@ export default function UserBusinessPage() {
               value={filters.role}
               placeholder="All Roles"
               onValueChange={(value) => dispatch(setRoleFilter(value as UserRole))}
-              label="Platform Role"
+              label="Business Role"
             />
           </div>
         </CardHeaderSection>
