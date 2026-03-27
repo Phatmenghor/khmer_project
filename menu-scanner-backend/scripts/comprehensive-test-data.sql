@@ -181,7 +181,7 @@ INSERT INTO users (
 -- 500 STAFF MEMBERS
 INSERT INTO users (
     id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-    user_identifier, password, user_type, account_status, business_id,
+    user_identifier, password, user_type, account_status, status, business_id,
     remark, active_sessions_count
 )
 SELECT
@@ -190,6 +190,7 @@ SELECT
     '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'BUSINESS_USER',
     CASE WHEN (i % 100) = 0 THEN 'END_WORK' ELSE 'ACTIVE' END,
+    'ACTIVE',
     CASE WHEN (i <= 250) THEN '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid ELSE '550cad56-cafd-4aba-baef-c4dcd53940d1'::uuid END,
     'Auto-generated staff #' || i::text,
     0
@@ -197,13 +198,13 @@ FROM generate_series(1, 500) AS t(i);
 
 -- 5 CUSTOMERS
 INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-    user_identifier, password, user_type, account_status, business_id,
+    user_identifier, password, user_type, account_status, status, business_id,
     remark, last_login_at, last_active_at, active_sessions_count)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     'customer' || i::text || '@example.com',
     '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'CUSTOMER', 'ACTIVE', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Test customer account #' || i::text,
     NOW() - (i::int - 1) * INTERVAL '1 day',
     NOW() - (i::int - 1) * INTERVAL '1 day', 1
