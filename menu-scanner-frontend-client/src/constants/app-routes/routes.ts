@@ -79,10 +79,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
         title: "Roles",
         href: ROUTES.ADMIN.ROLES,
       },
-      {
-        title: "Sessions",
-        href: ROUTES.ADMIN.USER_SESSIONS,
-      },
+      // {
+      //   title: "Sessions",
+      //   href: ROUTES.ADMIN.USER_SESSIONS,
+      // },
     ],
   },
 
