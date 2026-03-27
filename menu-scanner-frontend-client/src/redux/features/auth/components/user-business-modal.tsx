@@ -933,6 +933,104 @@ export default function UserBusinessModal({
                   )}
                 </div>
 
+                {/* Emergency Contacts */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold">Emergency Contacts</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {contactFields.length > 0
+                          ? `${contactFields.length} contact${
+                              contactFields.length > 1 ? "s" : ""
+                            } added`
+                          : "No emergency contacts added"}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        appendContact({
+                          id: undefined,
+                          name: "",
+                          phone: "",
+                          relationship: "",
+                        })
+                      }
+                      disabled={isSubmitting}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Contact
+                    </Button>
+                  </div>
+
+                  {contactFields.length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        No emergency contacts added
+                      </p>
+                    </div>
+                  ) : (
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          {contactFields.map((field, index) => (
+                            <div
+                              key={field.id}
+                              className="border rounded-lg p-4 relative lg:col-span-2"
+                            >
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <TextField
+                                  control={control}
+                                  name={`emergencyContacts.${index}.name`}
+                                  label="Contact Name"
+                                  placeholder="Name"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.emergencyContacts?.[index]?.name as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`emergencyContacts.${index}.phone`}
+                                  label="Phone Number"
+                                  placeholder="Phone"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.emergencyContacts?.[index]?.phone as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`emergencyContacts.${index}.relationship`}
+                                  label="Relationship"
+                                  placeholder="Relationship"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.emergencyContacts?.[index]
+                                      ?.relationship as any
+                                  }
+                                />
+                              </div>
+                              {!isSubmitting && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => removeContact(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
 
                 {/* Documents */}
                 <div className="space-y-4">
