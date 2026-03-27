@@ -46,7 +46,7 @@ export const roleTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {user?.name || "---"}
+          {formatEnumValue(user?.name)}
         </span>
       ),
     },
