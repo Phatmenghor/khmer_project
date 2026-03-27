@@ -690,6 +690,7 @@ export default function AdminProfilePage() {
                                 label="Type"
                                 placeholder="Type"
                                 options={ADDRESS_TYPE_OPTIONS}
+                                disabled={!isEditing}
                                 error={
                                   errors.addresses?.[index]?.addressType as any
                                 }
@@ -699,6 +700,7 @@ export default function AdminProfilePage() {
                                 name={`addresses.${index}.houseNo`}
                                 label="House No"
                                 placeholder="No"
+                                disabled={!isEditing}
                                 error={
                                   errors.addresses?.[index]?.houseNo as any
                                 }
@@ -708,6 +710,7 @@ export default function AdminProfilePage() {
                                 name={`addresses.${index}.street`}
                                 label="Street"
                                 placeholder="Street"
+                                disabled={!isEditing}
                                 error={
                                   errors.addresses?.[index]?.street as any
                                 }
@@ -717,6 +720,7 @@ export default function AdminProfilePage() {
                                 name={`addresses.${index}.village`}
                                 label="Village"
                                 placeholder="Village"
+                                disabled={!isEditing}
                                 error={
                                   errors.addresses?.[index]?.village as any
                                 }
@@ -726,6 +730,7 @@ export default function AdminProfilePage() {
                                 name={`addresses.${index}.commune`}
                                 label="Commune"
                                 placeholder="Commune"
+                                disabled={!isEditing}
                                 error={
                                   errors.addresses?.[index]?.commune as any
                                 }
@@ -735,6 +740,7 @@ export default function AdminProfilePage() {
                                 name={`addresses.${index}.district`}
                                 label="District"
                                 placeholder="District"
+                                disabled={!isEditing}
                                 error={
                                   errors.addresses?.[index]?.district as any
                                 }
@@ -744,6 +750,7 @@ export default function AdminProfilePage() {
                                 name={`addresses.${index}.province`}
                                 label="Province"
                                 placeholder="Province"
+                                disabled={!isEditing}
                                 error={
                                   errors.addresses?.[index]?.province as any
                                 }
@@ -753,6 +760,7 @@ export default function AdminProfilePage() {
                                 name={`addresses.${index}.country`}
                                 label="Country"
                                 placeholder="Country"
+                                disabled={!isEditing}
                                 error={
                                   errors.addresses?.[index]?.country as any
                                 }
@@ -817,6 +825,7 @@ export default function AdminProfilePage() {
                                 name={`emergencyContacts.${index}.name`}
                                 label="Name"
                                 placeholder="Name"
+                                disabled={!isEditing}
                                 error={
                                   errors.emergencyContacts?.[index]?.name as any
                                 }
@@ -826,6 +835,7 @@ export default function AdminProfilePage() {
                                 name={`emergencyContacts.${index}.phone`}
                                 label="Phone"
                                 placeholder="Phone"
+                                disabled={!isEditing}
                                 error={
                                   errors.emergencyContacts?.[index]?.phone as any
                                 }
@@ -835,6 +845,7 @@ export default function AdminProfilePage() {
                                 name={`emergencyContacts.${index}.relationship`}
                                 label="Relationship"
                                 placeholder="Relationship"
+                                disabled={!isEditing}
                                 error={
                                   errors.emergencyContacts?.[index]
                                     ?.relationship as any
@@ -902,6 +913,7 @@ export default function AdminProfilePage() {
                                   label="Type"
                                   placeholder="Type"
                                   options={DOCUMENT_TYPE_OPTIONS}
+                                disabled={!isEditing}
                                   error={
                                     errors.documents?.[index]?.type as any
                                   }
@@ -911,6 +923,7 @@ export default function AdminProfilePage() {
                                   name={`documents.${index}.number`}
                                   label="Number"
                                   placeholder="Number"
+                                disabled={!isEditing}
                                   error={
                                     errors.documents?.[index]?.number as any
                                   }
@@ -1003,6 +1016,7 @@ export default function AdminProfilePage() {
                                   label="Level"
                                   placeholder="Level"
                                   options={EDUCATION_LEVEL_OPTIONS}
+                                disabled={!isEditing}
                                   error={
                                     errors.educations?.[index]?.level as any
                                   }
@@ -1012,6 +1026,7 @@ export default function AdminProfilePage() {
                                   name={`educations.${index}.schoolName`}
                                   label="School"
                                   placeholder="School"
+                                disabled={!isEditing}
                                   error={
                                     errors.educations?.[index]
                                       ?.schoolName as any
@@ -1022,6 +1037,7 @@ export default function AdminProfilePage() {
                                   name={`educations.${index}.fieldOfStudy`}
                                   label="Field"
                                   placeholder="Field"
+                                disabled={!isEditing}
                                   error={
                                     errors.educations?.[index]
                                       ?.fieldOfStudy as any
@@ -1033,6 +1049,7 @@ export default function AdminProfilePage() {
                                   label="Start"
                                   mode="date"
                                   placeholder="Start"
+                                disabled={!isEditing}
                                   error={
                                     errors.educations?.[index]
                                       ?.startYear as any
@@ -1044,6 +1061,7 @@ export default function AdminProfilePage() {
                                   label="End"
                                   mode="date"
                                   placeholder="End"
+                                disabled={!isEditing}
                                   error={
                                     errors.educations?.[index]?.endYear as any
                                   }
