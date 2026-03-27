@@ -107,7 +107,7 @@ export default function UserBusinessModal({
 
   // Build role options from fetched data
   const roleOptions = rolesContent.map((role) => ({
-    value: role.id,
+    value: role.name,
     label: formatEnumValue(role.name),
   }));
 
