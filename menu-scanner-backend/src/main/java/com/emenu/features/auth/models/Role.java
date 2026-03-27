@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "roles", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_role_name_business", columnNames = {"name", "business_id"})
+        @UniqueConstraint(name = "uk_role_name_business", columnNames = {"name", "business_id", "is_deleted"})
 })
 @Data
 @EqualsAndHashCode(callSuper = true)
