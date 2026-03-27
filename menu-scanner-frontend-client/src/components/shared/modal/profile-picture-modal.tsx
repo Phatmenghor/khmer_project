@@ -85,17 +85,9 @@ export function ProfilePictureModal({
     onClose();
   };
 
-  const handleUploadClick = (type: "file" | "camera") => {
-    setInputType(type);
-    setTimeout(() => fileInputRef.current?.click(), 0);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className="max-w-md p-0 overflow-hidden flex flex-col"
-        closeButtonClassName="text-white hover:bg-white/10"
-      >
+      <DialogContent className="max-w-md p-0 overflow-hidden">
         <DialogTitle asChild>
           <VisuallyHidden>Profile Picture Manager</VisuallyHidden>
         </DialogTitle>
@@ -104,13 +96,13 @@ export function ProfilePictureModal({
         </DialogDescription>
 
         {/* Header */}
-        <div className="bg-primary px-6 py-4 text-white">
+        <div className="px-6 py-4 border-b">
           <h2 className="text-lg font-semibold">Update Profile Picture</h2>
         </div>
 
         {/* Body - Image Preview */}
-        <div className="flex-1 p-6 flex flex-col items-center justify-center gap-4">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/20 flex items-center justify-center bg-gray-100 shadow-sm">
+        <div className="p-6 flex flex-col items-center gap-4">
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 flex items-center justify-center bg-gray-100">
             {selectedImage || currentImageUrl ? (
               <img
                 src={selectedImage || currentImageUrl}
@@ -127,19 +119,22 @@ export function ProfilePictureModal({
           </div>
 
           {selectedImage && selectedImage !== currentImageUrl && (
-            <p className="text-sm text-green-600 font-medium">
+            <p className="text-sm text-blue-600 font-medium">
               ✓ New image selected
             </p>
           )}
         </div>
 
         {/* Footer - Action Buttons */}
-        <div className="border-t border-gray-200 px-6 py-4 space-y-2.5">
-          {/* Combined Upload Button */}
-          <button
-            onClick={() => handleUploadClick("file")}
+        <div className="border-t px-6 py-4 space-y-3">
+          {/* Select Photo Button */}
+          <Button
+            onClick={() => {
+              setInputType("file");
+              fileInputRef.current?.click();
+            }}
+            className="w-full gap-2 bg-primary hover:bg-primary/90"
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
           >
             {isLoading ? (
               <>
@@ -149,40 +144,55 @@ export function ProfilePictureModal({
             ) : (
               <>
                 <Camera className="h-4 w-4" />
-                Change Photo
+                Select Photo
               </>
             )}
-          </button>
+          </Button>
 
-          {/* Download and Remove Buttons Row */}
+          {/* Open Camera Button */}
+          <Button
+            onClick={() => {
+              setInputType("camera");
+              fileInputRef.current?.click();
+            }}
+            className="w-full gap-2 bg-primary hover:bg-primary/90"
+            disabled={isLoading}
+          >
+            <Camera className="h-4 w-4" />
+            Open Camera
+          </Button>
+
+          {/* Download Picture */}
           {currentImageUrl && (
-            <div className="flex gap-2 pt-2">
-              <Button
-                onClick={handleDownload}
-                variant="outline"
-                className="flex-1 gap-2 text-sm"
-                disabled={isLoading}
-              >
-                <Download className="h-4 w-4" />
-                Download
-              </Button>
-              <Button
-                onClick={handleRemove}
-                variant="outline"
-                className="flex-1 gap-2 text-sm text-destructive hover:text-destructive hover:bg-destructive/10"
-                disabled={isLoading}
-              >
-                <Trash2 className="h-4 w-4" />
-                Remove
-              </Button>
-            </div>
+            <Button
+              onClick={handleDownload}
+              variant="outline"
+              className="w-full gap-2"
+              disabled={isLoading}
+            >
+              <Download className="h-4 w-4" />
+              Download
+            </Button>
           )}
 
-          {/* Cancel Button */}
+          {/* Remove Picture */}
+          {currentImageUrl && (
+            <Button
+              onClick={handleRemove}
+              variant="outline"
+              className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+              disabled={isLoading}
+            >
+              <Trash2 className="h-4 w-4" />
+              Remove
+            </Button>
+          )}
+
+          {/* Cancel */}
           <Button
             onClick={onClose}
             variant="outline"
-            className="w-full text-sm"
+            className="w-full"
             disabled={isLoading}
           >
             Cancel
