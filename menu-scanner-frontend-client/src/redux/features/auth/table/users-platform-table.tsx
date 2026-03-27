@@ -8,6 +8,7 @@ import {
   UserResponseModel,
 } from "../store/models/response/users-response";
 import { ActionButton } from "@/components/shared/button/action-button";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 
 interface UserTableHandlers {
   handleEditUser: (user: UserResponseModel) => void;
@@ -125,18 +126,11 @@ export const userPlatformTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (user) => (
-        <div className="flex flex-wrap gap-1">
+        <span className="text-xs text-muted-foreground">
           {user.roles?.length > 0
-            ? user.roles.map((role: string) => (
-                <span
-                  key={role}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary dark:bg-primary/20"
-                >
-                  {role}
-                </span>
-              ))
-            : <span className="text-xs text-muted-foreground">---</span>}
-        </div>
+            ? user.roles.map((role: string) => formatEnumValue(role)).join(", ")
+            : "---"}
+        </span>
       ),
     },
     {
@@ -146,17 +140,17 @@ export const userPlatformTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (user) => {
-        const statusColor = user?.accountStatus === "ACTIVE"
-          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-          : user?.accountStatus === "INACTIVE"
-          ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-          : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
+        const statusTextColor = user?.accountStatus === "ACTIVE"
+          ? "text-green-600 dark:text-green-400"
+          : user?.accountStatus === "END_WORK"
+          ? "text-orange-600 dark:text-orange-400"
+          : user?.accountStatus === "LOCKED"
+          ? "text-red-600 dark:text-red-400"
+          : "text-muted-foreground";
 
         return (
-          <span
-            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}
-          >
-            {user?.accountStatus || "---"}
+          <span className={`text-xs font-medium ${statusTextColor}`}>
+            {user?.accountStatus ? formatEnumValue(user.accountStatus) : "---"}
           </span>
         );
       },
