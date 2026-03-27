@@ -831,7 +831,7 @@ export default function UserBusinessModal({
                                   disabled={isSubmitting}
                                   className="h-6 w-6 p-0"
                                 >
-                                  <Trash2 className="h-3 w-3" />
+                                  <Trash2 className="h-3 w-3 text-red-500" />
                                 </Button>
                               </div>
                               <div className="grid grid-cols-2 gap-3">
@@ -1185,7 +1185,6 @@ export default function UserBusinessModal({
 
                 {/* Additional Notes */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Additional Information</h3>
                   <TextareaField
                     control={control}
                     name="remark"
