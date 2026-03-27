@@ -97,13 +97,13 @@ export function ProfilePictureModal({
           <VisuallyHidden>Upload, download, or remove your profile picture</VisuallyHidden>
         </DialogDescription>
         {/* Header */}
-        <div className="bg-primary p-6 text-primary-foreground flex items-center justify-between">
+        <div className="relative bg-primary p-6 text-primary-foreground">
           <h2 className="text-lg font-semibold">Profile Picture</h2>
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="text-primary-foreground hover:bg-primary/80"
+            className="absolute right-2 top-2 text-primary-foreground hover:bg-primary/80"
           >
             <X className="h-4 w-4" />
           </Button>
