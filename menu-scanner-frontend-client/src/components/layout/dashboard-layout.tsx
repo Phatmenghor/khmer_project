@@ -61,8 +61,7 @@ export default function DashboardLayout({
       />
       <div
         className={cn(
-          "dashboard-content flex flex-col flex-1 transition-all duration-300",
-          isPosPage ? "overflow-hidden" : "overflow-y-auto",
+          "dashboard-content flex flex-col flex-1 transition-all duration-300 overflow-hidden",
           isMobile ? "w-full" : isSidebarOpen ? "ml-56" : "ml-[60px]",
         )}
       >
@@ -72,7 +71,7 @@ export default function DashboardLayout({
         />
         <main className={cn(
           "dashboard-main flex-1",
-          isPosPage ? "overflow-hidden" : "p-2 md:p-4"
+          isPosPage ? "overflow-hidden" : "overflow-y-auto p-2 md:p-4"
         )}>
           {children}
         </main>
