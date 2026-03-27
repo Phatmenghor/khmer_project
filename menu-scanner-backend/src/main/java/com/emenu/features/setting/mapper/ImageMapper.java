@@ -21,33 +21,34 @@ public interface ImageMapper {
 
     // Custom implementation for toDto to include imageUrl
     default ImageDto toDto(ImageEntity image) {
-if (image == null) {
-    return null;
-}
+        if (image == null) {
+            return null;
+        }
 
-ImageDto imageDto = new ImageDto();
-imageDto.setId(image.getId());
-imageDto.setType(image.getType());
-imageDto.setImageUrl("http://152.42.254.193:8080/api/images/" + image.getId());
+        ImageDto imageDto = new ImageDto();
+        imageDto.setId(image.getId());
+        imageDto.setType(image.getType());
+//imageDto.setImageUrl("http://localhost:8080/api/images/" + image.getId());
+        imageDto.setImageUrl("https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200");
 
-return imageDto;
+        return imageDto;
     }
 
     default ImageResponse toResponse(ImageEntity image) {
-if (image == null) {
-    return null;
-}
+        if (image == null) {
+            return null;
+        }
 
-String base64Data = image.getData();
+        String base64Data = image.getData();
 // Remove prefix if it exists (like "data:image/png;base64,")
-if (base64Data.contains(",")) {
-    base64Data = base64Data.substring(base64Data.indexOf(",") + 1);
-}
+        if (base64Data.contains(",")) {
+            base64Data = base64Data.substring(base64Data.indexOf(",") + 1);
+        }
 
-return ImageResponse.builder()
-        .id(image.getId())
-        .type(image.getType())
-        .data(Base64.getDecoder().decode(base64Data))
-        .build();
+        return ImageResponse.builder()
+                .id(image.getId())
+                .type(image.getType())
+                .data(Base64.getDecoder().decode(base64Data))
+                .build();
     }
 }
