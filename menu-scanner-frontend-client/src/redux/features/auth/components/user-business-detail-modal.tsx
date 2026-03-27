@@ -139,6 +139,11 @@ export function UserBusinessDetailModal({
                 <DetailField label="Gender" value={userData.gender ? formatEnumValue(userData.gender) : null} />
                 <DetailField label="Date of Birth" value={userData.dateOfBirth} />
                 <DetailField label="Position" value={userData.position} />
+                {userData.remark && (
+                  <div className="col-span-2">
+                    <DetailField label="Remark" value={userData.remark} />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -317,28 +322,16 @@ export function UserBusinessDetailModal({
             )}
 
             {/* Additional Information */}
-            {(userData.remark || userData.notes) && (
+            {userData.notes && (
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-4">
                   Additional Information
                 </h3>
-                <div className="space-y-4">
-                  {userData.remark && (
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-muted-foreground">Remark</p>
-                      <p className="text-sm text-foreground bg-muted/30 rounded-md p-3">
-                        {userData.remark}
-                      </p>
-                    </div>
-                  )}
-                  {userData.notes && (
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-muted-foreground">Notes</p>
-                      <p className="text-sm text-foreground bg-muted/30 rounded-md p-3">
-                        {userData.notes}
-                      </p>
-                    </div>
-                  )}
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">Notes</p>
+                  <p className="text-sm text-foreground bg-muted/30 rounded-md p-3">
+                    {userData.notes}
+                  </p>
                 </div>
               </div>
             )}
@@ -348,10 +341,10 @@ export function UserBusinessDetailModal({
               <h3 className="text-base font-semibold text-foreground mb-4">
                 System Information
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-muted-foreground">User ID</p>
-                  <p className="text-xs font-mono bg-muted px-3 py-2 rounded break-all">
+                  <p className="text-sm text-foreground font-mono">
                     {userData.id}
                   </p>
                 </div>
