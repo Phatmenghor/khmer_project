@@ -804,118 +804,116 @@ export default function UserBusinessModal({
                   {addressFields.length === 0 ? (
                     <div className="text-center py-8 border-2 border-dashed rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        No addresses added. Click "Add Address" to add one.
+                        No addresses added
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {addressFields.map((field, index) => (
-                        <Card key={field.id}>
-                          <CardHeader className="pb-4">
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-base">
-                                Address {index + 1}
-                              </CardTitle>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => removeAddress(index)}
-                                disabled={isSubmitting}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
-                              </Button>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="space-y-4">
+                          {addressFields.map((field, index) => (
+                            <div key={field.id} className="pb-4 border-b last:border-0 last:pb-0">
+                              <div className="flex items-center justify-between mb-3">
+                                <p className="text-sm font-medium">Address {index + 1}</p>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeAddress(index)}
+                                  disabled={isSubmitting}
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3">
+                                <SelectField
+                                  control={control}
+                                  name={`addresses.${index}.addressType`}
+                                  label="Type"
+                                  placeholder="Type"
+                                  options={ADDRESS_TYPE_OPTIONS}
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.addresses?.[index]?.addressType as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`addresses.${index}.houseNo`}
+                                  label="House No"
+                                  placeholder="No"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.addresses?.[index]?.houseNo as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`addresses.${index}.street`}
+                                  label="Street"
+                                  placeholder="Street"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.addresses?.[index]?.street as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`addresses.${index}.village`}
+                                  label="Village"
+                                  placeholder="Village"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.addresses?.[index]?.village as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`addresses.${index}.commune`}
+                                  label="Commune"
+                                  placeholder="Commune"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.addresses?.[index]?.commune as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`addresses.${index}.district`}
+                                  label="District"
+                                  placeholder="District"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.addresses?.[index]?.district as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`addresses.${index}.province`}
+                                  label="Province"
+                                  placeholder="Province"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.addresses?.[index]?.province as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`addresses.${index}.country`}
+                                  label="Country"
+                                  placeholder="Country"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.addresses?.[index]?.country as any
+                                  }
+                                />
+                              </div>
                             </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-2 gap-4">
-                              <SelectField
-                                control={control}
-                                name={`addresses.${index}.addressType`}
-                                label="Address Type"
-                                placeholder="Select type"
-                                options={ADDRESS_TYPE_OPTIONS}
-                                disabled={isSubmitting}
-                                error={
-                                  errors.addresses?.[index]?.addressType as any
-                                }
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.houseNo`}
-                                label="House No"
-                                placeholder="Enter house number"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.addresses?.[index]?.houseNo as any
-                                }
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.street`}
-                                label="Street"
-                                placeholder="Enter street"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.addresses?.[index]?.street as any
-                                }
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.village`}
-                                label="Village"
-                                placeholder="Enter village"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.addresses?.[index]?.village as any
-                                }
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.commune`}
-                                label="Commune"
-                                placeholder="Enter commune"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.addresses?.[index]?.commune as any
-                                }
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.district`}
-                                label="District"
-                                placeholder="Enter district"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.addresses?.[index]?.district as any
-                                }
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.province`}
-                                label="Province"
-                                placeholder="Enter province"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.addresses?.[index]?.province as any
-                                }
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.country`}
-                                label="Country"
-                                placeholder="Enter country"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.addresses?.[index]?.country as any
-                                }
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
 
@@ -956,70 +954,68 @@ export default function UserBusinessModal({
                   {contactFields.length === 0 ? (
                     <div className="text-center py-8 border-2 border-dashed rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        No contacts added. Click "Add Contact" to add one.
+                        No contacts added
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {contactFields.map((field, index) => (
-                        <Card key={field.id}>
-                          <CardHeader className="pb-4">
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-base">
-                                Contact {index + 1}
-                              </CardTitle>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => removeContact(index)}
-                                disabled={isSubmitting}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
-                              </Button>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="space-y-3">
+                          {contactFields.map((field, index) => (
+                            <div key={field.id} className="pb-3 border-b last:border-0 last:pb-0">
+                              <div className="flex items-center justify-between mb-2">
+                                <p className="text-sm font-medium">Contact {index + 1}</p>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeContact(index)}
+                                  disabled={isSubmitting}
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2">
+                                <TextField
+                                  control={control}
+                                  name={`emergencyContacts.${index}.name`}
+                                  label="Name"
+                                  placeholder="Name"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.emergencyContacts?.[index]
+                                      ?.name as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`emergencyContacts.${index}.phone`}
+                                  label="Phone"
+                                  placeholder="Phone"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.emergencyContacts?.[index]
+                                      ?.phone as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`emergencyContacts.${index}.relationship`}
+                                  label="Relationship"
+                                  placeholder="Relation"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.emergencyContacts?.[index]
+                                      ?.relationship as any
+                                  }
+                                />
+                              </div>
                             </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-3 gap-4">
-                              <TextField
-                                control={control}
-                                name={`emergencyContacts.${index}.name`}
-                                label="Contact Name"
-                                placeholder="Enter name"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.emergencyContacts?.[index]
-                                    ?.name as any
-                                }
-                              />
-                              <TextField
-                                control={control}
-                                name={`emergencyContacts.${index}.phone`}
-                                label="Phone Number"
-                                placeholder="Enter phone"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.emergencyContacts?.[index]
-                                    ?.phone as any
-                                }
-                              />
-                              <TextField
-                                control={control}
-                                name={`emergencyContacts.${index}.relationship`}
-                                label="Relationship"
-                                placeholder="e.g., Father, Mother"
-                                disabled={isSubmitting}
-                                error={
-                                  errors.emergencyContacts?.[index]
-                                    ?.relationship as any
-                                }
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
 
@@ -1058,81 +1054,79 @@ export default function UserBusinessModal({
                   {documentFields.length === 0 ? (
                     <div className="text-center py-8 border-2 border-dashed rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        No documents added. Click "Add Document" to add one.
+                        No documents added
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {documentFields.map((field, index) => (
-                        <Card key={field.id}>
-                          <CardHeader className="pb-4">
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-base">
-                                Document {index + 1}
-                              </CardTitle>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => removeDocument(index)}
-                                disabled={isSubmitting}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
-                              </Button>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <SelectField
-                                  control={control}
-                                  name={`documents.${index}.type`}
-                                  label="Document Type"
-                                  placeholder="Select type"
-                                  options={DOCUMENT_TYPE_OPTIONS}
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="space-y-4">
+                          {documentFields.map((field, index) => (
+                            <div key={field.id} className="pb-4 border-b last:border-0 last:pb-0">
+                              <div className="flex items-center justify-between mb-3">
+                                <p className="text-sm font-medium">Document {index + 1}</p>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeDocument(index)}
+                                  disabled={isSubmitting}
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <SelectField
+                                    control={control}
+                                    name={`documents.${index}.type`}
+                                    label="Type"
+                                    placeholder="Type"
+                                    options={DOCUMENT_TYPE_OPTIONS}
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.documents?.[index]?.type as any
+                                    }
+                                  />
+                                  <TextField
+                                    control={control}
+                                    name={`documents.${index}.number`}
+                                    label="Document No"
+                                    placeholder="No"
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.documents?.[index]?.number as any
+                                    }
+                                  />
+                                </div>
+                                <ClickableImageUpload
+                                  label="File"
+                                  value={
+                                    watch(`documents.${index}.fileUrl`) || ""
+                                  }
+                                  onChange={(base64) =>
+                                    setValue(
+                                      `documents.${index}.fileUrl`,
+                                      base64,
+                                      { shouldDirty: true },
+                                    )
+                                  }
+                                  aspectRatio="square"
+                                  height="h-32"
+                                  maxSize={5}
                                   disabled={isSubmitting}
                                   error={
-                                    errors.documents?.[index]?.type as any
+                                    errors.documents?.[index]?.fileUrl as any
                                   }
-                                />
-                                <TextField
-                                  control={control}
-                                  name={`documents.${index}.number`}
-                                  label="Document Number"
-                                  placeholder="Enter document number"
-                                  disabled={isSubmitting}
-                                  error={
-                                    errors.documents?.[index]?.number as any
-                                  }
+                                  placeholder="Upload"
                                 />
                               </div>
-                              <ClickableImageUpload
-                                label="Document File"
-                                value={
-                                  watch(`documents.${index}.fileUrl`) || ""
-                                }
-                                onChange={(base64) =>
-                                  setValue(
-                                    `documents.${index}.fileUrl`,
-                                    base64,
-                                    { shouldDirty: true },
-                                  )
-                                }
-                                aspectRatio="square"
-                                height="h-40"
-                                maxSize={5}
-                                disabled={isSubmitting}
-                                error={
-                                  errors.documents?.[index]?.fileUrl as any
-                                }
-                                placeholder="Click to upload document file"
-                              />
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
 
@@ -1175,118 +1169,116 @@ export default function UserBusinessModal({
                   {educationFields.length === 0 ? (
                     <div className="text-center py-8 border-2 border-dashed rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        No education added. Click "Add Education" to add one.
+                        No education added
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {educationFields.map((field, index) => (
-                        <Card key={field.id}>
-                          <CardHeader className="pb-4">
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-base">
-                                Education {index + 1}
-                              </CardTitle>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => removeEducation(index)}
-                                disabled={isSubmitting}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
-                              </Button>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <SelectField
-                                  control={control}
-                                  name={`educations.${index}.level`}
-                                  label="Education Level"
-                                  placeholder="Select level"
-                                  options={EDUCATION_LEVEL_OPTIONS}
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="space-y-4">
+                          {educationFields.map((field, index) => (
+                            <div key={field.id} className="pb-4 border-b last:border-0 last:pb-0">
+                              <div className="flex items-center justify-between mb-3">
+                                <p className="text-sm font-medium">Education {index + 1}</p>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeEducation(index)}
                                   disabled={isSubmitting}
-                                  error={
-                                    errors.educations?.[index]?.level as any
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <SelectField
+                                    control={control}
+                                    name={`educations.${index}.level`}
+                                    label="Level"
+                                    placeholder="Level"
+                                    options={EDUCATION_LEVEL_OPTIONS}
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.educations?.[index]?.level as any
+                                    }
+                                  />
+                                  <TextField
+                                    control={control}
+                                    name={`educations.${index}.schoolName`}
+                                    label="School"
+                                    placeholder="School"
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.educations?.[index]
+                                        ?.schoolName as any
+                                    }
+                                  />
+                                  <TextField
+                                    control={control}
+                                    name={`educations.${index}.fieldOfStudy`}
+                                    label="Field"
+                                    placeholder="Field"
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.educations?.[index]
+                                        ?.fieldOfStudy as any
+                                    }
+                                  />
+                                  <DateTimePickerField
+                                    control={control}
+                                    name={`educations.${index}.startYear`}
+                                    label="Start"
+                                    mode="date"
+                                    placeholder="Start"
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.educations?.[index]
+                                        ?.startYear as any
+                                    }
+                                  />
+                                  <DateTimePickerField
+                                    control={control}
+                                    name={`educations.${index}.endYear`}
+                                    label="End"
+                                    mode="date"
+                                    placeholder="End"
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.educations?.[index]?.endYear as any
+                                    }
+                                  />
+                                </div>
+                                <ClickableImageUpload
+                                  label="Certificate"
+                                  value={
+                                    watch(`educations.${index}.certificateUrl`) ||
+                                    ""
                                   }
-                                />
-                                <TextField
-                                  control={control}
-                                  name={`educations.${index}.schoolName`}
-                                  label="School/University Name"
-                                  placeholder="Enter name"
+                                  onChange={(base64) =>
+                                    setValue(
+                                      `educations.${index}.certificateUrl`,
+                                      base64,
+                                      { shouldDirty: true },
+                                    )
+                                  }
+                                  aspectRatio="square"
+                                  height="h-32"
+                                  maxSize={5}
                                   disabled={isSubmitting}
                                   error={
                                     errors.educations?.[index]
-                                      ?.schoolName as any
+                                      ?.certificateUrl as any
                                   }
-                                />
-                                <TextField
-                                  control={control}
-                                  name={`educations.${index}.fieldOfStudy`}
-                                  label="Field of Study"
-                                  placeholder="Enter field"
-                                  disabled={isSubmitting}
-                                  error={
-                                    errors.educations?.[index]
-                                      ?.fieldOfStudy as any
-                                  }
-                                />
-                                <DateTimePickerField
-                                  control={control}
-                                  name={`educations.${index}.startYear`}
-                                  label="Start Date"
-                                  mode="date"
-                                  placeholder="Select start date"
-                                  disabled={isSubmitting}
-                                  error={
-                                    errors.educations?.[index]
-                                      ?.startYear as any
-                                  }
-                                />
-                                <DateTimePickerField
-                                  control={control}
-                                  name={`educations.${index}.endYear`}
-                                  label="End Date"
-                                  mode="date"
-                                  placeholder="Select end date"
-                                  disabled={isSubmitting}
-                                  error={
-                                    errors.educations?.[index]?.endYear as any
-                                  }
+                                  placeholder="Upload"
                                 />
                               </div>
-                              <ClickableImageUpload
-                                label="Certificate"
-                                value={
-                                  watch(`educations.${index}.certificateUrl`) ||
-                                  ""
-                                }
-                                onChange={(base64) =>
-                                  setValue(
-                                    `educations.${index}.certificateUrl`,
-                                    base64,
-                                    { shouldDirty: true },
-                                  )
-                                }
-                                aspectRatio="square"
-                                height="h-40"
-                                maxSize={5}
-                                disabled={isSubmitting}
-                                error={
-                                  errors.educations?.[index]
-                                    ?.certificateUrl as any
-                                }
-                                placeholder="Click to upload certificate"
-                              />
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
 
