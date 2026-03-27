@@ -33,7 +33,6 @@ export function ProfilePictureModal({
 }: ProfilePictureModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string>(currentImageUrl || "");
-  const [inputType, setInputType] = useState<"file" | "camera" | null>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -129,10 +128,7 @@ export function ProfilePictureModal({
         <div className="border-t px-6 py-4 space-y-3">
           {/* Select Photo Button */}
           <Button
-            onClick={() => {
-              setInputType("file");
-              fileInputRef.current?.click();
-            }}
+            onClick={() => fileInputRef.current?.click()}
             className="w-full gap-2 bg-primary hover:bg-primary/90"
             disabled={isLoading}
           >
@@ -147,19 +143,6 @@ export function ProfilePictureModal({
                 Select Photo
               </>
             )}
-          </Button>
-
-          {/* Open Camera Button */}
-          <Button
-            onClick={() => {
-              setInputType("camera");
-              fileInputRef.current?.click();
-            }}
-            className="w-full gap-2 bg-primary hover:bg-primary/90"
-            disabled={isLoading}
-          >
-            <Camera className="h-4 w-4" />
-            Open Camera
           </Button>
 
           {/* Download Picture */}
@@ -204,7 +187,6 @@ export function ProfilePictureModal({
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          capture={inputType === "camera" ? "environment" : undefined}
           className="hidden"
           onChange={handleFileSelect}
         />
