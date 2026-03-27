@@ -1,5 +1,6 @@
 package com.emenu.features.auth.models;
 
+import com.emenu.enums.common.Status;
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.UserType;
 import com.emenu.shared.domain.BaseUUIDEntity;
@@ -37,6 +38,11 @@ public class User extends BaseUUIDEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false)
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
+
+    // Platform-level enable/disable (managed by platform admin)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status = Status.ACTIVE;
 
     @Column(name = "business_id")
     private UUID businessId;

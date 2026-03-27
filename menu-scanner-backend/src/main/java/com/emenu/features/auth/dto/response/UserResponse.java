@@ -1,5 +1,6 @@
 package com.emenu.features.auth.dto.response;
 
+import com.emenu.enums.common.Status;
 import com.emenu.enums.user.*;
 import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class UserResponse extends BaseAuditResponse {
     private String userIdentifier;
     private UserType userType;
     private AccountStatus accountStatus;
+    private Status status;
     private List<String> roles;
     private UUID businessId;
     private String businessName;

@@ -153,27 +153,27 @@ INSERT INTO business_settings (id, version, created_at, updated_at, created_by, 
 
 INSERT INTO users (
     id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-    user_identifier, password, user_type, account_status, business_id,
+    user_identifier, password, user_type, account_status, status, business_id,
     remark, last_login_at, last_active_at, active_sessions_count
 ) VALUES
 (
     '550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     'phatmenghor19@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'PLATFORM_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'PLATFORM_USER', 'ACTIVE', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Main platform administrator account',
     NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes', 1
 ),
 (
     '550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     'phatmenghor20@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'BUSINESS_USER', 'ACTIVE', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Primary business manager for Phatmenghor Business',
     NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour', 2
 ),
 (
     '550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     'phatmenghor21@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'CUSTOMER', 'ACTIVE', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Test customer account for QA',
     NOW() - INTERVAL '3 hours', NOW() - INTERVAL '45 minutes', 1
 );

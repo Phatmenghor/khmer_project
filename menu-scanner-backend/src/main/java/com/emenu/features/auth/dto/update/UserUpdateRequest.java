@@ -1,5 +1,6 @@
 package com.emenu.features.auth.dto.update;
 
+import com.emenu.enums.common.Status;
 import com.emenu.enums.user.*;
 import com.emenu.features.auth.dto.request.*;
 import lombok.Data;
@@ -13,6 +14,7 @@ public class UserUpdateRequest {
 
     // Account
     private AccountStatus accountStatus;
+    private Status status;
     private UUID businessId;
     private List<String> roles;
     private String remark;

@@ -1,5 +1,6 @@
 package com.emenu.security;
 
+import com.emenu.enums.common.Status;
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.exception.custom.*;
 import com.emenu.features.auth.models.User;
@@ -44,6 +45,10 @@ public class SecurityUtils {
     }
 
     public void validateAccountStatus(User user) {
+        if (user.getStatus() == Status.INACTIVE) {
+            throw new ValidationException("Account has been disabled by platform");
+        }
+
         if (user.getAccountStatus() == AccountStatus.LOCKED) {
             throw new ValidationException("Account is locked");
         }
