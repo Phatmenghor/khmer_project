@@ -315,7 +315,7 @@ export default function UserBusinessModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-[90%] max-w-7xl max-h-[92dvh] p-0 flex flex-col mx-auto">
+      <DialogContent className="max-w-7xl max-h-[92dvh] p-0 flex flex-col mx-auto w-full px-4 sm:px-6 lg:px-8">
         <FormHeader
           title={isCreate ? "Create New User Business" : "Edit User Business"}
           description={
