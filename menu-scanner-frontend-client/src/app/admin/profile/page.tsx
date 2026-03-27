@@ -381,8 +381,8 @@ export default function AdminProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
-      <div className="w-full px-3 sm:px-4 py-3 sm:py-6 max-w-6xl mx-auto">
+    <div className="w-full min-h-screen bg-background">
+      <div className="w-full px-3 sm:px-4 py-3 sm:py-6">
         {/* Profile Header */}
         <Card className="mb-6">
           <CardContent className="p-6">
