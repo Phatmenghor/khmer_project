@@ -22,6 +22,8 @@ interface ProfilePictureModalProps {
   onImageSelect: (imageData: string) => void;
   onImageRemove: () => void;
   isLoading?: boolean;
+  closeIconSize?: "sm" | "md" | "lg" | "xl";
+  closeIconColor?: string;
 }
 
 export function ProfilePictureModal({
@@ -32,10 +34,19 @@ export function ProfilePictureModal({
   onImageSelect,
   onImageRemove,
   isLoading = false,
+  closeIconSize = "md",
+  closeIconColor = "currentColor",
 }: ProfilePictureModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string>(currentImageUrl || "");
+
+  const iconSizeMap = {
+    sm: "h-3 w-3",
+    md: "h-4 w-4",
+    lg: "h-5 w-5",
+    xl: "h-6 w-6",
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -103,9 +114,9 @@ export function ProfilePictureModal({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="absolute right-2 top-2 text-primary-foreground hover:bg-primary/80"
+            className="absolute right-4 top-4 text-primary-foreground hover:bg-primary/80"
           >
-            <X className="h-4 w-4" />
+            <X className={`${iconSizeMap[closeIconSize]}`} style={{ color: closeIconColor }} />
           </Button>
         </div>
 
