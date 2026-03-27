@@ -1,15 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Controller } from "react-hook-form";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { SelectFieldProps } from ".";
 
 export function SelectField({
@@ -26,6 +27,8 @@ export function SelectField({
   loading = false,
   loadingPlaceholder = "Loading...",
 }: SelectFieldProps) {
+  const [open, setOpen] = useState(false);
+
   return (
     <div className={`space-y-2 ${className}`}>
       <Label htmlFor={name} className="text-sm font-medium">
@@ -40,35 +43,64 @@ export function SelectField({
             ? field.value[0] || ""
             : field.value || "";
 
+          const selectedOption = options.find((opt) => opt.value === currentValue);
+
           return (
-            <Select
-              value={currentValue}
-              onValueChange={(value) => {
-                if (onValueChange) {
-                  onValueChange(value);
-                } else {
-                  field.onChange(value);
-                }
-              }}
-              disabled={disabled || loading}
-            >
-              <SelectTrigger
-                className={`h-10 transition-colors ${
-                  error ? "border-red-500 focus:border-red-500" : ""
-                }`}
-              >
-                <SelectValue
-                  placeholder={loading ? loadingPlaceholder : placeholder}
-                />
-              </SelectTrigger>
-              <SelectContent side="bottom" align="start" sideOffset={4}>
-                {options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  id={name}
+                  variant="outline"
+                  role="combobox"
+                  disabled={disabled || loading}
+                  className={cn(
+                    "w-full justify-between h-10 px-3 transition-colors",
+                    error && "border-red-500 focus:border-red-500"
+                  )}
+                >
+                  <span
+                    className={
+                      selectedOption ? "text-foreground" : "text-muted-foreground"
+                    }
+                  >
+                    {loading
+                      ? loadingPlaceholder
+                      : selectedOption?.label || placeholder}
+                  </span>
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <div className="max-h-[300px] overflow-y-auto">
+                  {options.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        if (onValueChange) {
+                          onValueChange(option.value);
+                        } else {
+                          field.onChange(option.value);
+                        }
+                        setOpen(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
+                        currentValue === option.value && "bg-accent text-accent-foreground"
+                      )}
+                    >
+                      <Check
+                        className={cn(
+                          "h-4 w-4",
+                          currentValue === option.value ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           );
         }}
       />
