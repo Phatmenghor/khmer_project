@@ -34,8 +34,7 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
             "AND (:businessId IS NULL OR r.businessId = :businessId) " +
             "AND (:userTypes IS NULL OR r.userType IN :userTypes) " +
             "AND (:search IS NULL OR :search = '' OR " +
-            "LOWER(r.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(r.description) LIKE LOWER(CONCAT('%', :search, '%')))")
+            "LOWER(r.name) LIKE LOWER(CONCAT('%', :search, '%')) OR ")
     Page<Role> findAllWithFilters(
             @Param("businessId") UUID businessId,
             @Param("userTypes") List<UserType> userTypes,
@@ -48,8 +47,7 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
             "AND (:businessId IS NULL OR r.businessId = :businessId) " +
             "AND (:userTypes IS NULL OR r.userType IN :userTypes) " +
             "AND (:search IS NULL OR :search = '' OR " +
-            "LOWER(r.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(r.description) LIKE LOWER(CONCAT('%', :search, '%')))")
+            "LOWER(r.name) LIKE LOWER(CONCAT('%', :search, '%')) OR ")
     List<Role> findAllListWithFilters(
             @Param("businessId") UUID businessId,
             @Param("userTypes") List<UserType> userTypes,
