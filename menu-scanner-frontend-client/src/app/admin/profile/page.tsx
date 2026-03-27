@@ -47,6 +47,7 @@ import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 import Link from "next/link";
 import { Loading } from "@/components/shared/common/loading";
+import { DisplayField } from "@/components/shared/form-field/display-field";
 import {
   AddressType,
   ADDRESS_TYPE_OPTIONS,
@@ -498,67 +499,83 @@ export default function AdminProfilePage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <TextField
-                      control={typedControl}
-                      name="firstName"
-                      label="First Name"
-                      placeholder="First name"
-                      disabled={!isEditing}
-                      error={errors.firstName}
-                    />
+                    {isEditing ? (
+                      <>
+                        <TextField
+                          control={typedControl}
+                          name="firstName"
+                          label="First Name"
+                          placeholder="First name"
+                          error={errors.firstName}
+                        />
 
-                    <TextField
-                      control={typedControl}
-                      name="lastName"
-                      label="Last Name"
-                      placeholder="Last name"
-                      error={errors.lastName}
-                    />
+                        <TextField
+                          control={typedControl}
+                          name="lastName"
+                          label="Last Name"
+                          placeholder="Last name"
+                          error={errors.lastName}
+                        />
 
-                    <TextField
-                      control={typedControl}
-                      name="nickname"
-                      label="Nickname"
-                      placeholder="Nickname"
-                      error={errors.nickname}
-                    />
+                        <TextField
+                          control={typedControl}
+                          name="nickname"
+                          label="Nickname"
+                          placeholder="Nickname"
+                          error={errors.nickname}
+                        />
 
-                    <TextField
-                      control={typedControl}
-                      name="email"
-                      label="Email"
-                      placeholder="Email"
-                      type="email"
-                      error={errors.email}
-                    />
+                        <TextField
+                          control={typedControl}
+                          name="email"
+                          label="Email"
+                          placeholder="Email"
+                          type="email"
+                          error={errors.email}
+                        />
 
-                    <TextField
-                      control={typedControl}
-                      name="phoneNumber"
-                      label="Phone Number"
-                      placeholder="Phone"
-                      error={errors.phoneNumber}
-                    />
+                        <TextField
+                          control={typedControl}
+                          name="phoneNumber"
+                          label="Phone Number"
+                          placeholder="Phone"
+                          error={errors.phoneNumber}
+                        />
 
-                    <SelectField
-                      control={typedControl}
-                      name="gender"
-                      label="Gender"
-                      placeholder="Select gender"
-                      options={GENDER_OPTIONS}
-                      disabled={!isEditing}
-                      error={errors.gender}
-                    />
+                        <SelectField
+                          control={typedControl}
+                          name="gender"
+                          label="Gender"
+                          placeholder="Select gender"
+                          options={GENDER_OPTIONS}
+                          error={errors.gender}
+                        />
 
-                    <DateTimePickerField
-                      control={typedControl}
-                      name="dateOfBirth"
-                      label="Date of Birth"
-                      mode="date"
-                      placeholder="Date of birth"
-                      disabled={!isEditing}
-                      error={errors.dateOfBirth}
-                    />
+                        <DateTimePickerField
+                          control={typedControl}
+                          name="dateOfBirth"
+                          label="Date of Birth"
+                          mode="date"
+                          placeholder="Date of birth"
+                          error={errors.dateOfBirth}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <DisplayField label="First Name" value={watch("firstName")} />
+                        <DisplayField label="Last Name" value={watch("lastName")} />
+                        <DisplayField label="Nickname" value={watch("nickname")} />
+                        <DisplayField label="Email" value={watch("email")} />
+                        <DisplayField label="Phone Number" value={watch("phoneNumber")} />
+                        <DisplayField
+                          label="Gender"
+                          value={
+                            GENDER_OPTIONS.find((o) => o.value === watch("gender"))?.label
+                          }
+                        />
+                        <DisplayField label="Date of Birth" value={watch("dateOfBirth")} />
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -570,64 +587,85 @@ export default function AdminProfilePage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <TextField
-                      control={typedControl}
-                      name="employeeId"
-                      label="Employee ID"
-                      placeholder="Employee ID"
-                      error={errors.employeeId}
-                    />
+                    {isEditing ? (
+                      <>
+                        <TextField
+                          control={typedControl}
+                          name="employeeId"
+                          label="Employee ID"
+                          placeholder="Employee ID"
+                          error={errors.employeeId}
+                        />
 
-                    <TextField
-                      control={typedControl}
-                      name="position"
-                      label="Position"
-                      placeholder="Position"
-                      error={errors.position}
-                    />
+                        <TextField
+                          control={typedControl}
+                          name="position"
+                          label="Position"
+                          placeholder="Position"
+                          error={errors.position}
+                        />
 
-                    <TextField
-                      control={typedControl}
-                      name="department"
-                      label="Department"
-                      placeholder="Department"
-                      error={errors.department}
-                    />
+                        <TextField
+                          control={typedControl}
+                          name="department"
+                          label="Department"
+                          placeholder="Department"
+                          error={errors.department}
+                        />
 
-                    <SelectField
-                      control={typedControl}
-                      name="employmentType"
-                      label="Employment Type"
-                      placeholder="Select type"
-                      options={EMPLOYMENT_TYPE_OPTIONS}
-                      error={errors.employmentType}
-                    />
+                        <SelectField
+                          control={typedControl}
+                          name="employmentType"
+                          label="Employment Type"
+                          placeholder="Select type"
+                          options={EMPLOYMENT_TYPE_OPTIONS}
+                          error={errors.employmentType}
+                        />
 
-                    <DateTimePickerField
-                      control={typedControl}
-                      name="joinDate"
-                      label="Join Date"
-                      mode="date"
-                      placeholder="Join date"
-                      error={errors.joinDate}
-                    />
+                        <DateTimePickerField
+                          control={typedControl}
+                          name="joinDate"
+                          label="Join Date"
+                          mode="date"
+                          placeholder="Join date"
+                          error={errors.joinDate}
+                        />
 
-                    <DateTimePickerField
-                      control={typedControl}
-                      name="leaveDate"
-                      label="Leave Date"
-                      mode="date"
-                      placeholder="Leave date"
-                      error={errors.leaveDate}
-                    />
+                        <DateTimePickerField
+                          control={typedControl}
+                          name="leaveDate"
+                          label="Leave Date"
+                          mode="date"
+                          placeholder="Leave date"
+                          error={errors.leaveDate}
+                        />
 
-                    <TextField
-                      control={typedControl}
-                      name="shift"
-                      label="Shift"
-                      placeholder="Shift"
-                      error={errors.shift}
-                    />
+                        <TextField
+                          control={typedControl}
+                          name="shift"
+                          label="Shift"
+                          placeholder="Shift"
+                          error={errors.shift}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <DisplayField label="Employee ID" value={watch("employeeId")} />
+                        <DisplayField label="Position" value={watch("position")} />
+                        <DisplayField label="Department" value={watch("department")} />
+                        <DisplayField
+                          label="Employment Type"
+                          value={
+                            EMPLOYMENT_TYPE_OPTIONS.find(
+                              (o) => o.value === watch("employmentType")
+                            )?.label
+                          }
+                        />
+                        <DisplayField label="Join Date" value={watch("joinDate")} />
+                        <DisplayField label="Leave Date" value={watch("leaveDate")} />
+                        <DisplayField label="Shift" value={watch("shift")} />
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -1119,15 +1157,18 @@ export default function AdminProfilePage() {
                   <CardTitle>Additional Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <TextareaField
-                    control={typedControl}
-                    name="remark"
-                    label="Remarks"
-                    placeholder="Additional notes or information"
-                    rows={4}
-                    disabled={!isEditing}
-                    error={errors.remark}
-                  />
+                  {isEditing ? (
+                    <TextareaField
+                      control={typedControl}
+                      name="remark"
+                      label="Remarks"
+                      placeholder="Additional notes or information"
+                      rows={4}
+                      error={errors.remark}
+                    />
+                  ) : (
+                    <DisplayField label="Remarks" value={watch("remark")} />
+                  )}
                 </CardContent>
               </Card>
             </div>
