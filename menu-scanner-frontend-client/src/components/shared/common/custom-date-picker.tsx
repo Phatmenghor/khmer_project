@@ -351,9 +351,9 @@ export function CustomDateTimePicker({
         {/* Calendar Grid */}
         <div className="p-3">
           <div className="grid grid-cols-7 gap-1 mb-2">
-            {DAYS.map((day) => (
+            {DAYS.map((day, index) => (
               <div
-                key={day}
+                key={index}
                 className="h-8 w-8 flex items-center justify-center text-xs font-medium text-muted-foreground"
               >
                 {day}
