@@ -65,19 +65,11 @@ import {
   EducationLevel,
   EDUCATION_LEVEL_OPTIONS,
 } from "@/constants/status/user-enums";
+import {
+  GENDER_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
+} from "@/constants/form-options";
 import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
-
-const GENDER_OPTIONS = [
-  { value: "MALE", label: "Male" },
-  { value: "FEMALE", label: "Female" },
-  { value: "OTHER", label: "Other" },
-];
-
-const EMPLOYMENT_TYPE_OPTIONS = [
-  { value: "FULL_TIME", label: "Full Time" },
-  { value: "PART_TIME", label: "Part Time" },
-  { value: "CONTRACT", label: "Contract" },
-];
 
 type Props = {
   mode: ModalMode;
