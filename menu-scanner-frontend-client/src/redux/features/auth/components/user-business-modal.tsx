@@ -579,84 +579,10 @@ export default function UserBusinessModal({
                   <h3 className="text-lg font-semibold">
                     Personal Information <span className="text-red-500">*</span>
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <TextField
-                      control={control}
-                      name="firstName"
-                      label="First Name"
-                      placeholder="Enter first name"
-                      required
-                      disabled={isSubmitting}
-                      error={errors.firstName}
-                    />
-
-                    <TextField
-                      control={control}
-                      name="lastName"
-                      label="Last Name"
-                      placeholder="Enter last name"
-                      required
-                      disabled={isSubmitting}
-                      error={errors.lastName}
-                    />
-
-                    <TextField
-                      control={control}
-                      name="nickname"
-                      label="Nickname"
-                      placeholder="Enter nickname"
-                      disabled={isSubmitting}
-                      error={errors.nickname}
-                    />
-
-                    <TextField
-                      control={control}
-                      name="phoneNumber"
-                      label="Phone Number"
-                      placeholder="Enter phone number"
-                      required
-                      disabled={isSubmitting}
-                      error={errors.phoneNumber}
-                    />
-
-                    <SelectField
-                      control={control}
-                      name="gender"
-                      label="Gender"
-                      placeholder="Select gender"
-                      options={GENDER_OPTIONS}
-                      disabled={isSubmitting}
-                      error={errors.gender}
-                    />
-
-                    <DateTimePickerField
-                      control={control}
-                      name="dateOfBirth"
-                      label="Date of Birth"
-                      mode="date"
-                      placeholder="Select date of birth"
-                      disabled={isSubmitting}
-                      error={errors.dateOfBirth}
-                    />
-
-                    <ClickableImageUpload
-                      label="Profile Image"
-                      value={watch("profileImageUrl")}
-                      onChange={(base64) =>
-                        setValue("profileImageUrl", base64, {
-                          shouldDirty: true,
-                        })
-                      }
-                      aspectRatio="square"
-                      height="h-40"
-                      maxSize={5}
-                      disabled={isSubmitting}
-                      error={errors.profileImageUrl}
-                      placeholder="Upload profile image"
-                    />
-
+                  <div className="space-y-4">
+                    {/* User Role and Account Status - EDIT MODE ONLY (Top) */}
                     {!isCreate && (
-                      <>
+                      <div className="grid grid-cols-2 gap-4">
                         <SelectField
                           control={control}
                           name="roles"
@@ -685,8 +611,87 @@ export default function UserBusinessModal({
                           disabled={isSubmitting}
                           error={errors.accountStatus}
                         />
-                      </>
+                      </div>
                     )}
+
+                    {/* Personal Details Grid */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <TextField
+                        control={control}
+                        name="firstName"
+                        label="First Name"
+                        placeholder="Enter first name"
+                        required
+                        disabled={isSubmitting}
+                        error={errors.firstName}
+                      />
+
+                      <TextField
+                        control={control}
+                        name="lastName"
+                        label="Last Name"
+                        placeholder="Enter last name"
+                        required
+                        disabled={isSubmitting}
+                        error={errors.lastName}
+                      />
+
+                      <TextField
+                        control={control}
+                        name="nickname"
+                        label="Nickname"
+                        placeholder="Enter nickname"
+                        disabled={isSubmitting}
+                        error={errors.nickname}
+                      />
+
+                      <TextField
+                        control={control}
+                        name="phoneNumber"
+                        label="Phone Number"
+                        placeholder="Enter phone number"
+                        required
+                        disabled={isSubmitting}
+                        error={errors.phoneNumber}
+                      />
+
+                      <SelectField
+                        control={control}
+                        name="gender"
+                        label="Gender"
+                        placeholder="Select gender"
+                        options={GENDER_OPTIONS}
+                        disabled={isSubmitting}
+                        error={errors.gender}
+                      />
+
+                      <DateTimePickerField
+                        control={control}
+                        name="dateOfBirth"
+                        label="Date of Birth"
+                        mode="date"
+                        placeholder="Select date of birth"
+                        disabled={isSubmitting}
+                        error={errors.dateOfBirth}
+                      />
+                    </div>
+
+                    {/* Profile Image - Full Width Single Item */}
+                    <ClickableImageUpload
+                      label="Profile Image"
+                      value={watch("profileImageUrl")}
+                      onChange={(base64) =>
+                        setValue("profileImageUrl", base64, {
+                          shouldDirty: true,
+                        })
+                      }
+                      aspectRatio="square"
+                      height="h-40"
+                      maxSize={5}
+                      disabled={isSubmitting}
+                      error={errors.profileImageUrl}
+                      placeholder="Upload profile image"
+                    />
                   </div>
                 </div>
 
