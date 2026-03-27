@@ -192,10 +192,6 @@ export default function RolesPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
-            { label: "Roles", href: "" },
-          ]}
           title="Roles Management"
           searchValue={filters.search}
           searchPlaceholder="Search roles..."
