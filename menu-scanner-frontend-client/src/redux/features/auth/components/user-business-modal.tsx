@@ -1257,6 +1257,21 @@ export default function UserBusinessModal({
                                     }
                                   />
                                 </div>
+                                <div className="flex items-center gap-4">
+                                  <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      {...control.register(
+                                        `educations.${index}.isGraduated`
+                                      )}
+                                      disabled={isSubmitting}
+                                      className="w-4 h-4 rounded border-gray-300"
+                                    />
+                                    <span className="text-sm font-medium">
+                                      Graduated
+                                    </span>
+                                  </label>
+                                </div>
                                 <ClickableImageUpload
                                   label="Certificate"
                                   value={
