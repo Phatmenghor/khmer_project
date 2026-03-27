@@ -112,11 +112,9 @@ export const createUserSchema = z.object({
     .string()
     .min(1, "Password is required")
     .min(8, "Password must be at least 8 characters"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  phoneNumber: z
-    .string()
-    .regex(/^\+?[\d\s-()]+$/, "Invalid phone number format"),
+  firstName: z.string().optional().or(z.literal("")),
+  lastName: z.string().optional().or(z.literal("")),
+  phoneNumber: z.string().optional().or(z.literal("")),
   profileImageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   userType: z.string().min(1, "User type is required"),
   businessId: z.string().optional().or(z.literal("")),
@@ -148,11 +146,9 @@ export const createUserSchema = z.object({
  */
 export const updateUserSchema = z.object({
   id: z.string().min(1, "User ID is required"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  phoneNumber: z
-    .string()
-    .regex(/^\+?[\d\s-()]+$/, "Invalid phone number format"),
+  firstName: z.string().optional().or(z.literal("")),
+  lastName: z.string().optional().or(z.literal("")),
+  phoneNumber: z.string().optional().or(z.literal("")),
   profileImageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   accountStatus: z.string().min(1, "Account status is required"),
   businessId: z.string().optional().or(z.literal("")),

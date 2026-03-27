@@ -607,7 +607,6 @@ export default function UserBusinessModal({
                         name="firstName"
                         label="First Name"
                         placeholder="Enter first name"
-                        required
                         disabled={isSubmitting}
                         error={errors.firstName}
                       />
@@ -617,7 +616,6 @@ export default function UserBusinessModal({
                         name="lastName"
                         label="Last Name"
                         placeholder="Enter last name"
-                        required
                         disabled={isSubmitting}
                         error={errors.lastName}
                       />
