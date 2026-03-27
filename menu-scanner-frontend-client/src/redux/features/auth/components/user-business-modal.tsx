@@ -47,9 +47,12 @@ import {
 } from "@/constants/status/status";
 import {
   ACCOUNT_STATUS_CREATE_UPDATE,
-  USER_BUSINESS_ROLE_CREATE_UPDATE,
 } from "@/constants/status/create-update-status";
 import { Loading } from "@/components/shared/common/loading";
+import { fetchAllRoleService } from "../store/thunks/role-thunks";
+import { selectRoleContent } from "../store/selectors/role-selectors";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 type Props = {
   mode: ModalMode;
@@ -73,7 +76,14 @@ export default function UserBusinessModal({
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
   const userData = useAppSelector(selectSelectedUser);
+  const rolesContent = useAppSelector(selectRoleContent);
   const { isCreating, isUpdating } = operations;
+
+  // Build role options from fetched data
+  const roleOptions = rolesContent.map((role) => ({
+    value: role.id,
+    label: formatEnumValue(role.name),
+  }));
 
   const {
     control,
@@ -106,6 +116,21 @@ export default function UserBusinessModal({
 
   const userIdentifier = watch("userIdentifier");
   const email = watch("email");
+
+  // Fetch roles for the dropdown
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(
+        fetchAllRoleService({
+          pageNo: 1,
+          pageSize: 100,
+          includeAll: false,
+          businessId: AppDefault.BUSINESS_ID,
+          userTypes: [UserGropeType.BUSINESS_USER],
+        }),
+      );
+    }
+  }, [isOpen, dispatch]);
 
   // Fetch user data for edit mode
   useEffect(() => {
@@ -357,9 +382,9 @@ export default function UserBusinessModal({
                   name="roles"
                   label="User Role"
                   placeholder="Select user role"
-                  options={USER_BUSINESS_ROLE_CREATE_UPDATE}
+                  options={roleOptions}
                   required
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || roleOptions.length === 0}
                   error={getArrayFieldError(errors.roles)}
                   onValueChange={(value) => {
                     setValue("roles", [value], {

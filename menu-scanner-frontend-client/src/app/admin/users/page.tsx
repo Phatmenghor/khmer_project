@@ -18,6 +18,9 @@ import {
   fetchAllUsersService,
   toggleUserStatusService,
 } from "@/redux/features/auth/store/thunks/users-thunks";
+import { fetchAllRoleService } from "@/redux/features/auth/store/thunks/role-thunks";
+import { selectRoleContent } from "@/redux/features/auth/store/selectors/role-selectors";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   setAccountStatusFilter,
   setPageNo,
@@ -50,11 +53,34 @@ export default function UserBusinessPage() {
   const { filters, pagination, usersData, usersContent, userState, isLoading, operations, dispatch } = useUsersState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
+  const rolesContent = useAppSelector(selectRoleContent);
+
+  // Build dynamic role filter options
+  const roleFilterOptions = [
+    { value: UserRole.ALL, label: "All Roles" },
+    ...rolesContent.map((role) => ({
+      value: role.id,
+      label: formatEnumValue(role.name),
+    })),
+  ];
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.USERS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
+
+  // Fetch roles for the filter
+  useEffect(() => {
+    dispatch(
+      fetchAllRoleService({
+        pageNo: 1,
+        pageSize: 100,
+        includeAll: true,
+        businessId: AppDefault.BUSINESS_ID,
+        userTypes: [UserGropeType.BUSINESS_USER],
+      }),
+    );
+  }, [dispatch]);
 
   // Fetch users when filters or search change
   useEffect(() => {
@@ -171,10 +197,14 @@ export default function UserBusinessPage() {
               label="Account Status"
             />
             <CustomSelect
-              options={USER_BUSINESS_ROLE_FILTER}
+              options={roleFilterOptions}
               value={filters.role}
               placeholder="All Roles"
-              onValueChange={(value) => dispatch(setRoleFilter(value as UserRole))}
+              onValueChange={(value) => {
+                // Handle both UserRole enums and role IDs
+                const filterValue = roleFilterOptions.find(opt => opt.value === value)?.value || value;
+                dispatch(setRoleFilter(filterValue as UserRole));
+              }}
               label="Platform Role"
             />
           </div>
