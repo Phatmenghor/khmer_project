@@ -42,7 +42,7 @@ public class UserProfile extends BaseUUIDEntity {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "profile_image_url")
+    @Column(name = "profile_image_url", columnDefinition = "TEXT")
     private String profileImageUrl;
 
     public String getFullName() {
