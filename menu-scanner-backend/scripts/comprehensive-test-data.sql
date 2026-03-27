@@ -76,42 +76,42 @@ TRUNCATE TABLE location_province_cbc CASCADE;
 
 -- PROVINCES
 INSERT INTO location_province_cbc (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, province_code, province_en, province_kh) VALUES
-('01000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP', 'Phnom Penh', 'ភ្នំពេញ'),
-('01000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'KT', 'Kandal', 'កណ្តាល'),
-('01000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PW', 'Pursat', 'ពោធិ៍សាត'),
-('01000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'SV', 'Siem Reap', 'សៀមរាប'),
-('01000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'KA', 'Kampong Chhnang', 'កម្ពង់ឆ្នាំង');
+('01000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP', 'Phnom Penh', 'ភ្នំពេញ'),
+('01000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'KT', 'Kandal', 'កណ្តាល'),
+('01000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PW', 'Pursat', 'ពោធិ៍សាត'),
+('01000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'SV', 'Siem Reap', 'សៀមរាប'),
+('01000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'KA', 'Kampong Chhnang', 'កម្ពង់ឆ្នាំង');
 
 -- DISTRICTS
 INSERT INTO location_district_cbc (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, district_code, district_en, district_kh, province_code) VALUES
-('02000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP01', 'Daun Penh', 'ដូនពេញ', 'PP'),
-('02000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP02', 'Chamkarmon', 'ចំការមន', 'PP'),
-('02000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP03', 'Russey Keo', 'រស្សីកែវ', 'PP'),
-('02000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'KT01', 'Kandal Stung', 'កណ្តាលស្ទឹង', 'KT'),
-('02000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'KT02', 'Ta Khmau', 'តាខ្មៅ', 'KT');
+('02000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP01', 'Daun Penh', 'ដូនពេញ', 'PP'),
+('02000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP02', 'Chamkarmon', 'ចំការមន', 'PP'),
+('02000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP03', 'Russey Keo', 'រស្សីកែវ', 'PP'),
+('02000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'KT01', 'Kandal Stung', 'កណ្តាលស្ទឹង', 'KT'),
+('02000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'KT02', 'Ta Khmau', 'តាខ្មៅ', 'KT');
 
 -- COMMUNES
 INSERT INTO location_commune_cbc (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, commune_code, commune_en, commune_kh, district_code) VALUES
-('03000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP0101', 'Wat Phnom', 'វត្តផ្នល់ម', 'PP01'),
-('03000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP0102', 'Sangkat Chey Chumnes', 'សង្កាត់ឆេយឆូមនេស្', 'PP01'),
-('03000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP0201', 'Sangkat Boeung Trabek', 'សង្កាត់បឹងត្របក', 'PP02'),
-('03000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP0301', 'Sangkat Prasart Meakakum', 'សង្កាត់ព្រាសាទមេឃគុម', 'PP03'),
-('03000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'KT0101', 'Sangkat Kandal', 'សង្កាត់កណ្តាល', 'KT01');
+('03000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP0101', 'Wat Phnom', 'វត្តផ្នល់ម', 'PP01'),
+('03000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP0102', 'Sangkat Chey Chumnes', 'សង្កាត់ឆេយឆូមនេស្', 'PP01'),
+('03000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP0201', 'Sangkat Boeung Trabek', 'សង្កាត់បឹងត្របក', 'PP02'),
+('03000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP0301', 'Sangkat Prasart Meakakum', 'សង្កាត់ព្រាសាទមេឃគុម', 'PP03'),
+('03000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'KT0101', 'Sangkat Kandal', 'សង្កាត់កណ្តាល', 'KT01');
 
 -- VILLAGES
 INSERT INTO location_village_cbc (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, village_code, village_en, village_kh, commune_code) VALUES
-('04000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP010101', 'Village 1', 'ភូមិ ១', 'PP0101'),
-('04000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP010102', 'Village 2', 'ភូមិ ២', 'PP0101'),
-('04000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP010103', 'Village 3', 'ភូមិ ៣', 'PP0101'),
-('04000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP010201', 'Village 4', 'ភូមិ ៤', 'PP0102'),
-('04000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'PP010202', 'Village 5', 'ភូមិ ៥', 'PP0102');
+('04000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP010101', 'Village 1', 'ភូមិ ១', 'PP0101'),
+('04000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP010102', 'Village 2', 'ភូមិ ២', 'PP0101'),
+('04000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP010103', 'Village 3', 'ភូមិ ៣', 'PP0101'),
+('04000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP010201', 'Village 4', 'ភូមិ ៤', 'PP0102'),
+('04000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'PP010202', 'Village 5', 'ភូមិ ៥', 'PP0102');
 
 -- ============================================================================
 -- 2. REFERENCE DATA - ENUMS & COUNTERS
 -- ============================================================================
 
 INSERT INTO exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, usd_to_khr_rate, is_active, notes) VALUES
-('05000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 4100.0, true, 'Current exchange rate');
+('05000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 4100.0, true, 'Current exchange rate');
 
 INSERT INTO order_counters (counter_date, counter_value) VALUES (CURRENT_DATE, 0);
 
@@ -126,26 +126,26 @@ INSERT INTO reference_counters (entity_type, counter_date, counter_value) VALUES
 -- ============================================================================
 
 INSERT INTO roles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, business_id, user_type) VALUES
-('550e8400-e29b-41d4-a716-446655440000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'ADMIN', 'Platform Administrator', NULL, 'PLATFORM_USER'),
-('550e8400-e29b-41d4-a716-446655440001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'MANAGER', 'Business Manager', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS_USER'),
-('550e8400-e29b-41d4-a716-446655440002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'STAFF', 'Business Staff', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS_USER'),
-('550e8400-e29b-41d4-a716-446655440003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'CUSTOMER', 'Customer Role', NULL, 'CUSTOMER');
+('550e8400-e29b-41d4-a716-446655440000', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'ADMIN', 'Platform Administrator', NULL, 'PLATFORM_USER'),
+('550e8400-e29b-41d4-a716-446655440001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'MANAGER', 'Business Manager', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS_USER'),
+('550e8400-e29b-41d4-a716-446655440002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'STAFF', 'Business Staff', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'BUSINESS_USER'),
+('550e8400-e29b-41d4-a716-446655440003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'CUSTOMER', 'Customer Role', NULL, 'CUSTOMER');
 
 -- ============================================================================
 -- 4. BUSINESSES
 -- ============================================================================
 
 INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, phone, email, address, description, status, owner_id, is_subscription_active) VALUES
-('550cad56-cafd-4aba-baef-c4dcd53940d0', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'Phatmenghor Business', '+855 23 9999999', 'phatmenghor20@gmail.com', 'Phnom Penh, Cambodia', 'Main business with comprehensive testing', 'ACTIVE', '550e8400-e29b-41d4-a716-446655550001', true),
-('550cad56-cafd-4aba-baef-c4dcd53940d1', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'Branch 2', '+855 23 8888888', 'branch2@test.com', 'Siem Reap, Cambodia', 'Secondary branch for testing', 'ACTIVE', NULL, false);
+('550cad56-cafd-4aba-baef-c4dcd53940d0', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'Phatmenghor Business', '+855 23 9999999', 'phatmenghor20@gmail.com', 'Phnom Penh, Cambodia', 'Main business with comprehensive testing', 'ACTIVE', '550e8400-e29b-41d4-a716-446655550001', true),
+('550cad56-cafd-4aba-baef-c4dcd53940d1', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 'Branch 2', '+855 23 8888888', 'branch2@test.com', 'Siem Reap, Cambodia', 'Secondary branch for testing', 'ACTIVE', NULL, false);
 
 -- ============================================================================
 -- 5. BUSINESS SETTINGS
 -- ============================================================================
 
 INSERT INTO business_settings (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, logo_url, banner_url, business_type, opening_time, closing_time, is_open_24_hours, working_days, timezone, currency, language, usd_to_khr_rate, contact_email, contact_phone, whatsapp_number, facebook_url, instagram_url, telegram_url, website_url, primary_color, secondary_color, track_inventory, tax_rate, service_charge_percentage, min_order_amount, delivery_radius_km, estimated_delivery_time) VALUES
-('550cad56-cafd-4aba-baef-c4dcd53940d2', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584', 'RESTAURANT', '09:00', '22:00', false, 'MON,TUE,WED,THU,FRI,SAT,SUN', 'Asia/Phnom_Penh', 'USD', 'en', 4100.0, 'contact@business.com', '+855 23 9999999', '+855 89 123456', 'https://facebook.com/phatmenghor', 'https://instagram.com/phatmenghor', 'https://t.me/phatmenghor', 'https://phatmenghor.com', '#FF6B6B', '#4ECDC4', true, 10.0, 5.0, 5.0, 15.0, '30-45 minutes'),
-('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', NULL, 'CAFE', '08:00', '21:00', false, 'MON,TUE,WED,THU,FRI,SAT,SUN', 'Asia/Phnom_Penh', 'USD', 'en', 4100.0, NULL, '+855 23 8888888', NULL, NULL, NULL, NULL, NULL, '#FF6B6B', '#4ECDC4', true, 5.0, NULL, 3.0, 20.0, '45 minutes');
+('550cad56-cafd-4aba-baef-c4dcd53940d2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584', 'RESTAURANT', '09:00', '22:00', false, 'MON,TUE,WED,THU,FRI,SAT,SUN', 'Asia/Phnom_Penh', 'USD', 'en', 4100.0, 'contact@business.com', '+855 23 9999999', '+855 89 123456', 'https://facebook.com/phatmenghor', 'https://instagram.com/phatmenghor', 'https://t.me/phatmenghor', 'https://phatmenghor.com', '#FF6B6B', '#4ECDC4', true, 10.0, 5.0, 5.0, 15.0, '30-45 minutes'),
+('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', NULL, 'CAFE', '08:00', '21:00', false, 'MON,TUE,WED,THU,FRI,SAT,SUN', 'Asia/Phnom_Penh', 'USD', 'en', 4100.0, NULL, '+855 23 8888888', NULL, NULL, NULL, NULL, NULL, '#FF6B6B', '#4ECDC4', true, 5.0, NULL, 3.0, 20.0, '45 minutes');
 
 -- ============================================================================
 -- 6. USERS (3 main + 500 staff + 5 customers)
@@ -157,21 +157,21 @@ INSERT INTO users (
     remark, last_login_at, last_active_at, active_sessions_count
 ) VALUES
 (
-    '550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    '550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     'phatmenghor19@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'PLATFORM_USER', 'ACTIVE', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Main platform administrator account',
     NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes', 1
 ),
 (
-    '550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    '550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     'phatmenghor20@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'BUSINESS_USER', 'ACTIVE', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Primary business manager for Phatmenghor Business',
     NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour', 2
 ),
 (
-    '550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    '550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     'phatmenghor21@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'CUSTOMER', 'ACTIVE', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'Test customer account for QA',
@@ -185,7 +185,7 @@ INSERT INTO users (
     remark, active_sessions_count
 )
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     'staff' || i::text || '@business.com',
     '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'BUSINESS_USER',
@@ -201,7 +201,7 @@ INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, 
     user_identifier, password, user_type, account_status, status, business_id,
     remark, last_login_at, last_active_at, active_sessions_count)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     'customer' || i::text || '@example.com',
     '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'CUSTOMER', 'ACTIVE', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -241,17 +241,17 @@ WHERE u.user_type = 'CUSTOMER'
 INSERT INTO user_profiles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, email, first_name, last_name, nickname, gender, date_of_birth, phone_number, profile_image_url) VALUES
 -- Platform Admin
-('ee000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('ee000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550000', 'phatmenghor19@gmail.com', 'Platform', 'Admin', 'Admin',
  'MALE', '1990-01-15', '+855 10 100 0001',
  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200'),
 -- Business Manager
-('ee000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('ee000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550001', 'phatmenghor20@gmail.com', 'Business', 'Manager', 'BizMgr',
  'MALE', '1988-05-20', '+855 10 200 0001',
  'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200'),
 -- Customer
-('ee000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('ee000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'phatmenghor21@gmail.com', 'Customer', 'User', 'CustUser',
  'FEMALE', '1995-11-10', '+855 10 300 0001',
  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200');
@@ -280,17 +280,17 @@ WHERE u.user_identifier NOT IN ('phatmenghor19@gmail.com', 'phatmenghor20@gmail.
 INSERT INTO user_employments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, employee_id, position, department, employment_type, join_date, leave_date, shift) VALUES
 -- Platform Admin
-('ff000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('ff000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550000', 'EMP-0001', 'Administrator', 'Management', 'FULL_TIME', '2020-01-01', NULL, 'Morning'),
 -- Business Manager
-('ff000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('ff000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550001', 'EMP-0002', 'Manager', 'Operations', 'FULL_TIME', '2021-03-01', NULL, 'Morning');
 
 -- Bulk employment for 500 staff
 INSERT INTO user_employments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, employee_id, position, department, employment_type, join_date, shift)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     u.id,
     'EMP-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 4, '0'),
     CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5) = 0 THEN 'Manager'
@@ -320,11 +320,11 @@ WHERE u.user_type = 'BUSINESS_USER'
 INSERT INTO user_telegrams (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, telegram_id, telegram_username, telegram_first_name, telegram_last_name, telegram_photo_url, telegram_synced_at) VALUES
 -- Platform Admin telegram
-('a1000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('a1000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550000', 100000001, 'phatmenghor_admin', 'Platform', 'Admin',
  'https://t.me/i/userpic/320/phatmenghor_admin.jpg', NOW() - INTERVAL '7 days'),
 -- Business Manager telegram
-('a1000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('a1000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550001', 100000002, 'phatmenghor_biz', 'Business', 'Manager',
  'https://t.me/i/userpic/320/phatmenghor_biz.jpg', NOW() - INTERVAL '3 days');
 
@@ -335,22 +335,22 @@ INSERT INTO user_telegrams (id, version, created_at, updated_at, created_by, upd
 INSERT INTO user_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, address_type, house_no, street, village, commune, district, province, country) VALUES
 -- Platform Admin - current address
-('aa000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('aa000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550000', 'CURRENT', '#12B', 'Norodom Blvd', 'Phnom Penh Village', 'Tonle Bassac', 'Chamkarmon', 'Phnom Penh', 'Cambodia'),
 -- Platform Admin - place of birth
-('aa000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('aa000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550000', 'PLACE_OF_BIRTH', '#5', 'Village Road', 'Kandal Village', 'Kandal Stung', 'Kandal Stung', 'Kandal', 'Cambodia'),
 -- Business Manager - current address
-('aa000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('aa000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550001', 'CURRENT', '#45', 'Russian Blvd', 'Toul Tom Poung', 'Toul Tom Poung I', 'Chamkarmon', 'Phnom Penh', 'Cambodia'),
 -- Business Manager - place of birth
-('aa000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('aa000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550001', 'PLACE_OF_BIRTH', '#22', 'Ta Khmau Road', 'Ta Khmau Village', 'Ta Khmau', 'Ta Khmau', 'Kandal', 'Cambodia'),
 -- Customer - current address
-('aa000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('aa000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'CURRENT', '#8', 'Street 130', 'Phsar Thmey III', 'Phsar Thmey III', 'Daun Penh', 'Phnom Penh', 'Cambodia'),
 -- Customer - place of birth
-('aa000000-0000-0000-0000-000000000006', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('aa000000-0000-0000-0000-000000000006', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'PLACE_OF_BIRTH', '#3', 'Siem Reap Road', 'Angkor Village', 'Svay Dangkum', 'Siem Reap', 'Siem Reap', 'Cambodia');
 
 -- Bulk current address for all staff members
@@ -378,17 +378,17 @@ WHERE u.user_type = 'BUSINESS_USER'
 INSERT INTO user_emergency_contacts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, name, phone, relationship) VALUES
 -- Platform Admin contacts
-('bb000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('bb000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550000', 'Sok Dara', '+855 12 345 678', 'Father'),
-('bb000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('bb000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550000', 'Chan Mony', '+855 17 234 567', 'Mother'),
 -- Business Manager contacts
-('bb000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('bb000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550001', 'Phat Ratha', '+855 96 456 789', 'Spouse'),
-('bb000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('bb000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550001', 'Phat Bopha', '+855 78 567 890', 'Sister'),
 -- Customer contacts
-('bb000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+('bb000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'Lim Sothy', '+855 89 678 901', 'Friend');
 
 -- Bulk emergency contacts for staff (1 per staff, first 200)
@@ -415,18 +415,18 @@ WHERE u.user_type = 'BUSINESS_USER'
 INSERT INTO user_documents (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, type, number, file_url) VALUES
 -- Platform Admin documents
-('cc000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550000', 'ID_CARD', 'ID-1990-001-0001', 'https://example.com/docs/admin-id.pdf'),
-('cc000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550000', 'FAMILY_BOOK', 'FB-PP-2020-0001', 'https://example.com/docs/admin-family.pdf'),
+('cc000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'ID_CARD', 'ID-1990-001-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
+('cc000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'FAMILY_BOOK', 'FB-PP-2020-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 -- Business Manager documents
-('cc000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550001', 'ID_CARD', 'ID-1988-002-0001', 'https://example.com/docs/manager-id.pdf'),
-('cc000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550001', 'PASSPORT', 'PB-2022-456789', 'https://example.com/docs/manager-passport.pdf'),
+('cc000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'ID_CARD', 'ID-1988-002-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
+('cc000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'PASSPORT', 'PB-2022-456789', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 -- Customer documents
-('cc000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550002', 'ID_CARD', 'ID-1995-003-0001', 'https://example.com/docs/customer-id.pdf');
+('cc000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'ID_CARD', 'ID-1995-003-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce');
 
 -- Bulk documents for all staff (1 per staff)
 INSERT INTO user_documents (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
@@ -440,7 +440,7 @@ SELECT
         WHEN 0 THEN 'ID-19' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) % 90 + 80)::text, 2, '0') || '-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 3, '0') || '-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 4, '0')
         WHEN 1 THEN 'PB-2022-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) * 7 % 900000 + 100000)::text, 6, '0')
         ELSE 'FB-PP-2020-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 4, '0') END,
-    'https://example.com/docs/staff-doc-' || ROW_NUMBER() OVER (ORDER BY u.created_at) || '.pdf'
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
 FROM users u
 WHERE u.user_type = 'BUSINESS_USER'
   AND u.user_identifier LIKE 'staff%@business.com';
@@ -452,18 +452,18 @@ WHERE u.user_type = 'BUSINESS_USER'
 INSERT INTO user_educations (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url) VALUES
 -- Platform Admin education
-('dd000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550000', 'BACHELOR', 'Royal University of Phnom Penh', 'Computer Science', '2008', '2012', true, 'https://example.com/certs/admin-bachelor.pdf'),
-('dd000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550000', 'MASTER', 'Institute of Technology of Cambodia', 'Information Technology', '2013', '2015', true, 'https://example.com/certs/admin-master.pdf'),
+('dd000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'BACHELOR', 'Royal University of Phnom Penh', 'Computer Science', '2008', '2012', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
+('dd000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'MASTER', 'Institute of Technology of Cambodia', 'Information Technology', '2013', '2015', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 -- Business Manager education
-('dd000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550001', 'BACHELOR', 'Build Bright University', 'Business Administration', '2006', '2010', true, 'https://example.com/certs/manager-bachelor.pdf'),
+('dd000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'BACHELOR', 'Build Bright University', 'Business Administration', '2006', '2010', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 -- Customer education
-('dd000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550002', 'HIGH_SCHOOL', 'Hun Sen Phnom Penh High School', NULL, '2010', '2013', true, NULL),
-('dd000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550002', 'DIPLOMA', 'Paññāsāstra University of Cambodia', 'Hospitality Management', '2013', '2015', true, 'https://example.com/certs/customer-diploma.pdf');
+('dd000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'HIGH_SCHOOL', 'Hun Sen Phnom Penh High School', 'General Education', '2010', '2013', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
+('dd000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'DIPLOMA', 'Paññāsāstra University of Cambodia', 'Hospitality Management', '2013', '2015', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce');
 
 -- Bulk education for all staff (1 per staff)
 INSERT INTO user_educations (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
@@ -487,8 +487,7 @@ SELECT
     (2000 + (ROW_NUMBER() OVER (ORDER BY u.created_at) % 15))::text,
     (2003 + (ROW_NUMBER() OVER (ORDER BY u.created_at) % 15))::text,
     true,
-    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3) = 0 THEN NULL
-         ELSE 'https://example.com/certs/staff-cert-' || ROW_NUMBER() OVER (ORDER BY u.created_at) || '.pdf' END
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
 FROM users u
 WHERE u.user_type = 'BUSINESS_USER'
   AND u.user_identifier LIKE 'staff%@business.com';
@@ -499,7 +498,7 @@ WHERE u.user_type = 'BUSINESS_USER'
 
 INSERT INTO user_sessions (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, refresh_token_id, device_id, device_name, device_type, user_agent, browser, operating_system, ip_address, location, status, login_at, last_active_at, expires_at, is_current_session)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550e8400-e29b-41d4-a716-446655550000', NULL, 'device-' || i::text, 'Device ' || i::text,
     CASE WHEN (i % 3) = 0 THEN 'WEB' WHEN (i % 3) = 1 THEN 'MOBILE' ELSE 'TABLET' END,
     'Mozilla/5.0', 'Chrome', 'Linux', '192.168.' || (i % 256)::text || '.' || (i % 256)::text,
@@ -513,7 +512,7 @@ FROM generate_series(1, 5) AS t(i);
 
 INSERT INTO refresh_tokens (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, token, user_id, expiry_date, is_revoked, revoked_at, revocation_reason, device_info, ip_address)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     'refresh_token_' || i::text || '_' || gen_random_uuid()::text, '550e8400-e29b-41d4-a716-446655550000',
     NOW() + (30 - i)::int * INTERVAL '1 day', (i > 3),
     CASE WHEN (i > 3) THEN NOW() - (i - 3)::int * INTERVAL '1 day' ELSE NULL END,
@@ -527,7 +526,7 @@ FROM generate_series(1, 5) AS t(i);
 
 INSERT INTO blacklisted_tokens (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, token, user_identifier, blacklisted_at, expiry_date, reason)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     'token_' || i::text || '_' || gen_random_uuid()::text, 'user_' || i::text,
     NOW() - (i::int - 1) * INTERVAL '1 day', NOW() + (30 - i)::int * INTERVAL '1 day',
     'User logged out'
@@ -539,7 +538,7 @@ FROM generate_series(1, 3) AS t(i);
 
 INSERT INTO categories (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, image_url, status)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Category ' || i::text,
     'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400',
     CASE WHEN (i % 10) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
@@ -551,7 +550,7 @@ FROM generate_series(1, 20) AS t(i);
 
 INSERT INTO brands (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, image_url, status)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Brand ' || i::text, 'Premium brand number ' || i::text,
     'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=400',
     CASE WHEN (i % 15) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
@@ -563,7 +562,7 @@ FROM generate_series(1, 20) AS t(i);
 
 INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, has_active_promotion, main_image_url, status, has_sizes, view_count, favorite_count, minimum_stock_level, sku, barcode)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     (SELECT id FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i % 20)),
     (SELECT id FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i % 20)),
@@ -584,7 +583,7 @@ FROM generate_series(1, 100) AS t(i);
 
 INSERT INTO product_sizes (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, name, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, minimum_stock_level)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     p.id,
     CASE WHEN (t.size % 3) = 0 THEN 'Small' WHEN (t.size % 3) = 1 THEN 'Medium' ELSE 'Large' END,
     (p.price + t.size)::numeric,
@@ -600,7 +599,7 @@ CROSS JOIN (SELECT 1 as size UNION SELECT 2 UNION SELECT 3) t;
 
 INSERT INTO product_images (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, image_url)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     p.id,
     CASE WHEN (t.img % 2) = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=600' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=600' END
 FROM (SELECT id FROM products LIMIT 50) p
@@ -612,7 +611,7 @@ CROSS JOIN (SELECT 1 as img UNION SELECT 2) t;
 
 INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, status, is_expired)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', p.id, NULL,
     100 + (i % 200), (i % 20), (100 + (i % 200) - (i % 20))::int,
     p.price::numeric, NOW() - (i % 30)::int * INTERVAL '1 day',
@@ -625,7 +624,7 @@ FROM (SELECT id, price FROM products LIMIT 100) p, generate_series(1, 1) AS t(i)
 
 INSERT INTO stock_movements (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_stock_id, movement_type, quantity_change, previous_quantity, new_quantity, reference_type, reference_id, notes, initiated_by_name)
 SELECT
-    gen_random_uuid(), 0, NOW() - (i % 15)::int * INTERVAL '1 day', NOW() - (i % 15)::int * INTERVAL '1 day', 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW() - (i % 15)::int * INTERVAL '1 day', NOW() - (i % 15)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', ps.id,
     CASE WHEN (i % 5) = 0 THEN 'STOCK_IN' WHEN (i % 5) = 1 THEN 'STOCK_OUT' WHEN (i % 5) = 2 THEN 'ADJUSTMENT' WHEN (i % 5) = 3 THEN 'RETURN' ELSE 'DAMAGE' END,
     CASE WHEN (i % 5) IN (0, 3) THEN (5 + i % 10) ELSE -(5 + i % 10) END,
@@ -639,7 +638,7 @@ FROM (SELECT id FROM product_stock LIMIT 30) ps, generate_series(1, 3) AS t(i);
 
 INSERT INTO product_favorites (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, product_id)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     (ARRAY['550e8400-e29b-41d4-a716-446655550002',
            (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 1 OFFSET 0),
            (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 1 OFFSET 1),
@@ -653,11 +652,11 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 
 INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, price, status) VALUES
-('00000001-0000-0000-0000-000000000001'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Pickup', 'Quick pickup', 0.00::numeric, 'ACTIVE'),
-('00000001-0000-0000-0000-000000000002'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Standard', 'Standard delivery', 2.00::numeric, 'ACTIVE'),
-('00000001-0000-0000-0000-000000000003'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Express', 'Express delivery', 5.00::numeric, 'ACTIVE'),
-('00000001-0000-0000-0000-000000000004'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Same Day', 'Same day delivery', 3.50::numeric, 'ACTIVE'),
-('00000001-0000-0000-0000-000000000005'::uuid, 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Door Step', 'Door step delivery', 1.50::numeric, 'ACTIVE');
+('00000001-0000-0000-0000-000000000001'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Pickup', 'Quick pickup', 0.00::numeric, 'ACTIVE'),
+('00000001-0000-0000-0000-000000000002'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Standard', 'Standard delivery', 2.00::numeric, 'ACTIVE'),
+('00000001-0000-0000-0000-000000000003'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Express', 'Express delivery', 5.00::numeric, 'ACTIVE'),
+('00000001-0000-0000-0000-000000000004'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Same Day', 'Same day delivery', 3.50::numeric, 'ACTIVE'),
+('00000001-0000-0000-0000-000000000005'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Door Step', 'Door step delivery', 1.50::numeric, 'ACTIVE');
 
 -- ============================================================================
 -- 20. PAYMENT OPTIONS
@@ -665,7 +664,7 @@ INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, u
 
 INSERT INTO payment_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, payment_option_type, status)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     CASE WHEN (i % 2) = 0 THEN 'Cash Payment' ELSE 'Card Payment' END,
     'CASH', 'ACTIVE'
@@ -677,7 +676,7 @@ FROM generate_series(1, 2) AS t(i);
 
 INSERT INTO carts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, business_id)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     u.id, '550cad56-cafd-4aba-baef-c4dcd53940d0'
 FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 10) u
 ON CONFLICT (user_id, business_id) DO NOTHING;
@@ -688,7 +687,7 @@ ON CONFLICT (user_id, business_id) DO NOTHING;
 
 INSERT INTO cart_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, cart_id, product_id, product_size_id, quantity)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     c.id, p.id, NULL, 2
 FROM (SELECT id FROM carts LIMIT 5) c
 CROSS JOIN (SELECT id FROM products LIMIT 10) p
@@ -700,7 +699,7 @@ ON CONFLICT DO NOTHING;
 
 INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, confirmed_at, completed_at)
 SELECT
-    gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, '550e8400-e29b-41d4-a716-446655550002'::uuid,
     'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-WEB-' || LPAD(i::text, 4, '0'),
     CASE WHEN (i % 5) = 0 THEN 'PENDING' WHEN (i % 5) = 1 THEN 'CONFIRMED' WHEN (i % 5) = 2 THEN 'PREPARING' WHEN (i % 5) = 3 THEN 'COMPLETED' ELSE 'CANCELLED' END,
@@ -714,7 +713,7 @@ FROM generate_series(1, 100) AS t(i);
 -- POS ORDERS
 INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, confirmed_at, completed_at)
 SELECT
-    gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, CASE WHEN (i % 3) = 0 THEN '550e8400-e29b-41d4-a716-446655550002'::uuid ELSE NULL END,
     'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-POS-' || LPAD(i::text, 4, '0'),
     'COMPLETED', 'POS', (45 + (i % 100))::numeric, CASE WHEN (i % 5) = 0 THEN 3::numeric ELSE 0::numeric END, 0::numeric, 4::numeric,
@@ -729,7 +728,7 @@ FROM generate_series(1, 100) AS t(i);
 
 INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     id, 'Village ' || (ROW_NUMBER() OVER() % 50)::text, 'Commune ' || (ROW_NUMBER() OVER() % 25)::text,
     'District ' || (ROW_NUMBER() OVER() % 12)::text, 'Phnom Penh', LPAD((ROW_NUMBER() OVER() % 500)::text, 3, '0'),
     'Building ' || CHR((65 + (ROW_NUMBER() OVER() % 26))::int), 'Delivery note ' || (ROW_NUMBER() OVER())::text,
@@ -742,7 +741,7 @@ FROM orders;
 
 INSERT INTO order_delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, name, description, image_url, price)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     id,
     CASE WHEN (ROW_NUMBER() OVER() % 3) = 0 THEN 'Pickup' WHEN (ROW_NUMBER() OVER() % 3) = 1 THEN 'Standard' ELSE 'Express' END,
     'Delivery option',  'https://example.com/delivery.jpg',
@@ -755,7 +754,7 @@ FROM orders;
 
 INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date, quantity, total_price, special_instructions, had_change_from_pos, change_reason)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     o.id,
     p.id,
     NULL,
@@ -788,7 +787,7 @@ JOIN LATERAL (
 
 INSERT INTO order_item_pricing_snapshots (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_item_id, before_current_price, before_final_price, before_has_active_promotion, before_discount_amount, before_total_price, before_promotion_type, before_promotion_value, before_promotion_from_date, before_promotion_to_date, after_current_price, after_final_price, after_has_active_promotion, after_discount_amount, after_total_price, after_promotion_type, after_promotion_value, after_promotion_from_date, after_promotion_to_date)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     id, current_price, final_price, has_promotion, (current_price - final_price)::numeric, total_price,
     CASE WHEN has_promotion THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN has_promotion THEN 10 ELSE 0 END, NOW(), NOW() + INTERVAL '30 days',
     current_price, final_price, has_promotion, (current_price - final_price)::numeric, total_price,
@@ -801,7 +800,7 @@ FROM order_items;
 
 INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
 SELECT
-    gen_random_uuid(), 0, created_at, created_at, 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, created_at, created_at, 'system', 'system', false, NULL, NULL,
     id, order_status, '550e8400-e29b-41d4-a716-446655550001', 'Admin', 'Status: ' || order_status
 FROM orders;
 
@@ -811,7 +810,7 @@ FROM orders;
 
 INSERT INTO order_payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, order_id, payment_reference, status, payment_method, subtotal, discount_amount, delivery_fee, tax_amount, total_amount)
 SELECT
-    gen_random_uuid(), 0, created_at, created_at, 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, created_at, created_at, 'system', 'system', false, NULL, NULL,
     business_id, id, 'PAY-' || SUBSTRING(id::text, 1, 8), payment_status, payment_method,
     subtotal, discount_amount, delivery_fee, tax_amount, total_amount
 FROM orders;
@@ -822,7 +821,7 @@ FROM orders;
 
 INSERT INTO payments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, image_url, business_id, plan_id, subscription_id, amount, amount_khr, payment_method, status, payment_type, reference_number, notes)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     'https://example.com/image.jpg', '550cad56-cafd-4aba-baef-c4dcd53940d0', NULL, NULL,
     99.99::numeric, (99.99 * 4100)::numeric, 'CASH',
     CASE WHEN (i % 3) = 0 THEN 'COMPLETED' WHEN (i % 3) = 1 THEN 'PENDING' ELSE 'PAID' END,
@@ -835,7 +834,7 @@ FROM generate_series(1, 10) AS t(i);
 
 INSERT INTO business_exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, usd_to_khr_rate, usd_to_cny_rate, usd_to_thb_rate, usd_to_vnd_rate, is_active, notes)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', 4100.0, 6.8, 33.5, 24000.0, true, 'Current rates'
 FROM generate_series(1, 1) AS t(i);
 
@@ -845,7 +844,7 @@ FROM generate_series(1, 1) AS t(i);
 
 INSERT INTO customer_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     u.id, 'Village ' || i::text, 'Chamkarmon', 'Chamkarmon', 'Phnom Penh', 'Cambodia',
     i::text, 'House ' || i::text, 'Delivery address ' || i::text, 11.5564, 104.9282, (i = 1)
 FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 10) u, generate_series(1, 2) AS t(i);
@@ -856,7 +855,7 @@ FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 10) u, generate_se
 
 INSERT INTO subscription_plans (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, name, description, price, duration_days, status)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     CASE WHEN (i % 3) = 0 THEN 'Basic Plan' WHEN (i % 3) = 1 THEN 'Pro Plan' ELSE 'Enterprise Plan' END,
     'Subscription plan ' || i::text,
     CASE WHEN (i % 3) = 0 THEN 9.99 WHEN (i % 3) = 1 THEN 29.99 ELSE 99.99 END,
@@ -870,7 +869,7 @@ FROM generate_series(1, 3) AS t(i);
 
 INSERT INTO subscriptions (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, plan_id, start_date, end_date, auto_renew)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     (SELECT id FROM subscription_plans LIMIT 1),
     NOW(), NOW() + INTERVAL '30 days', true
@@ -882,7 +881,7 @@ FROM generate_series(1, 1) AS t(i);
 
 INSERT INTO audit_logs (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_id, user_identifier, user_type, http_method, endpoint, ip_address, user_agent, status_code, response_time_ms, error_message, session_id, request_params)
 SELECT
-    gen_random_uuid(), 0, NOW() - (i % 15)::int * INTERVAL '1 hour', NOW() - (i % 15)::int * INTERVAL '1 hour', 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW() - (i % 15)::int * INTERVAL '1 hour', NOW() - (i % 15)::int * INTERVAL '1 hour', 'system', 'system', false, NULL, NULL,
     '550e8400-e29b-41d4-a716-446655550000', 'admin@business.com', 'PLATFORM_USER',
     CASE WHEN (i % 4) = 0 THEN 'GET' WHEN (i % 4) = 1 THEN 'POST' WHEN (i % 4) = 2 THEN 'PUT' ELSE 'DELETE' END,
     '/api/v1/orders', '192.168.1.100', 'Mozilla/5.0', 200, 150, NULL, 'session-' || i::text, 'page=1&size=20'
@@ -894,7 +893,7 @@ FROM generate_series(1, 50) AS t(i);
 
 INSERT INTO images (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, type, data)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     CASE WHEN (i % 3) = 0 THEN 'PRODUCT' WHEN (i % 3) = 1 THEN 'BUSINESS_LOGO' ELSE 'USER_PROFILE' END,
     'base64_encoded_image_data_' || i::text
 FROM generate_series(1, 20) AS t(i);
