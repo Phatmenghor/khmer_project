@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -111,7 +112,7 @@ public class RoleServiceImpl implements RoleService {
             allRoles.setName("ALL_ROLES");
             allRoles.setDescription("All Roles");
             allRoles.setBusinessId(request.getBusinessId());
-            allRoles.setUserType("BUSINESS_USER");
+            allRoles.setUserType(UserType.BUSINESS_USER);
             allRoles.setCreatedAt(null);
             allRoles.setUpdatedAt(null);
             allRoles.setCreatedBy(null);
@@ -160,7 +161,7 @@ public class RoleServiceImpl implements RoleService {
             allRoles.setName("ALL_ROLES");
             allRoles.setDescription("All Roles");
             allRoles.setBusinessId(request.getBusinessId());
-            allRoles.setUserType("BUSINESS_USER");
+            allRoles.setUserType(UserType.BUSINESS_USER);
             allRoles.setCreatedAt(null);
             allRoles.setUpdatedAt(null);
             allRoles.setCreatedBy(null);
