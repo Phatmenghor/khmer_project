@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   Camera,
@@ -11,6 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface ProfilePictureModalProps {
   isOpen: boolean;
@@ -93,6 +94,12 @@ export function ProfilePictureModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md p-0 overflow-hidden">
+        <DialogTitle asChild>
+          <VisuallyHidden>Profile Picture Manager</VisuallyHidden>
+        </DialogTitle>
+        <DialogDescription asChild>
+          <VisuallyHidden>Upload, download, or remove your profile picture</VisuallyHidden>
+        </DialogDescription>
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white flex items-center justify-between">
           <h2 className="text-lg font-semibold">Profile Picture</h2>
