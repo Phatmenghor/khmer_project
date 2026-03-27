@@ -469,12 +469,12 @@ export default function AdminProfilePage() {
         </Card>
 
         {/* Navigation Tabs */}
-        <div className="flex gap-1 mb-6 bg-card rounded-lg p-1 border overflow-x-auto">
+        <div className="flex gap-1 mb-6 bg-card rounded-lg p-1 border w-full">
           <Button
             variant={activeSection === "profile" ? "secondary" : "ghost"}
             size="sm"
             onClick={() => setActiveSection("profile")}
-            className="whitespace-nowrap flex-shrink-0"
+            className="flex-1 justify-center"
           >
             <User className="h-4 w-4 mr-2" />
             Profile
@@ -483,7 +483,7 @@ export default function AdminProfilePage() {
             variant={activeSection === "security" ? "secondary" : "ghost"}
             size="sm"
             onClick={() => setActiveSection("security")}
-            className="whitespace-nowrap flex-shrink-0"
+            className="flex-1 justify-center"
           >
             <Lock className="h-4 w-4 mr-2" />
             Security
