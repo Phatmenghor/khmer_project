@@ -501,7 +501,6 @@ export default function AdminProfilePage() {
                       name="firstName"
                       label="First Name"
                       placeholder="First name"
-                      disabled={!isEditing}
                       error={errors.firstName}
                     />
 
