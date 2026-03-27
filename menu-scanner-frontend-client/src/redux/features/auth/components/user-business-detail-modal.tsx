@@ -103,10 +103,7 @@ export function UserBusinessDetailModal({
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-semibold text-foreground">
-                {userData.fullName || "Unknown User"}
-              </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm font-medium text-foreground">
                 {userData.userIdentifier}
               </p>
               {userData.roles && userData.roles.length > 0 && (
