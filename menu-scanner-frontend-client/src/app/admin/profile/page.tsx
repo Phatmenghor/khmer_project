@@ -501,6 +501,7 @@ export default function AdminProfilePage() {
                       name="firstName"
                       label="First Name"
                       placeholder="First name"
+                      disabled={!isEditing}
                       error={errors.firstName}
                     />
 
@@ -543,6 +544,7 @@ export default function AdminProfilePage() {
                       label="Gender"
                       placeholder="Select gender"
                       options={GENDER_OPTIONS}
+                      disabled={!isEditing}
                       error={errors.gender}
                     />
 
@@ -552,6 +554,7 @@ export default function AdminProfilePage() {
                       label="Date of Birth"
                       mode="date"
                       placeholder="Date of birth"
+                      disabled={!isEditing}
                       error={errors.dateOfBirth}
                     />
                   </div>
@@ -636,6 +639,7 @@ export default function AdminProfilePage() {
                         type="button"
                         variant="outline"
                         size="sm"
+                        disabled={!isEditing}
                         onClick={() =>
                           appendAddress({
                             id: undefined,
@@ -671,6 +675,7 @@ export default function AdminProfilePage() {
                               type="button"
                               variant="ghost"
                               size="sm"
+                              disabled={!isEditing}
                               onClick={() => removeAddress(index)}
                               className="absolute top-2 right-2 text-red-500 hover:text-red-700"
                             >
@@ -767,6 +772,7 @@ export default function AdminProfilePage() {
                         type="button"
                         variant="outline"
                         size="sm"
+                        disabled={!isEditing}
                         onClick={() =>
                           appendContact({
                             id: undefined,
@@ -797,6 +803,7 @@ export default function AdminProfilePage() {
                               type="button"
                               variant="ghost"
                               size="sm"
+                              disabled={!isEditing}
                               onClick={() => removeContact(index)}
                               className="absolute top-2 right-2 text-red-500 hover:text-red-700"
                             >
@@ -848,6 +855,7 @@ export default function AdminProfilePage() {
                         type="button"
                         variant="outline"
                         size="sm"
+                        disabled={!isEditing}
                         onClick={() =>
                           appendDocument({
                             id: undefined,
@@ -878,6 +886,7 @@ export default function AdminProfilePage() {
                               type="button"
                               variant="ghost"
                               size="sm"
+                              disabled={!isEditing}
                               onClick={() => removeDocument(index)}
                               className="absolute top-2 right-2 text-red-500 hover:text-red-700"
                             >
@@ -920,6 +929,7 @@ export default function AdminProfilePage() {
                                 aspectRatio="auto"
                                 height="h-32"
                                 maxSize={5}
+                                disabled={!isEditing}
                                 error={
                                   errors.documents?.[index]?.fileUrl as any
                                 }
@@ -942,6 +952,7 @@ export default function AdminProfilePage() {
                         type="button"
                         variant="outline"
                         size="sm"
+                        disabled={!isEditing}
                         onClick={() =>
                           appendEducation({
                             id: undefined,
@@ -976,6 +987,7 @@ export default function AdminProfilePage() {
                               type="button"
                               variant="ghost"
                               size="sm"
+                              disabled={!isEditing}
                               onClick={() => removeEducation(index)}
                               className="absolute top-2 right-2 text-red-500 hover:text-red-700"
                             >
@@ -1065,6 +1077,7 @@ export default function AdminProfilePage() {
                                 aspectRatio="auto"
                                 height="h-32"
                                 maxSize={5}
+                                disabled={!isEditing}
                                 error={
                                   errors.educations?.[index]
                                     ?.certificateUrl as any
@@ -1091,6 +1104,7 @@ export default function AdminProfilePage() {
                     label="Remarks"
                     placeholder="Additional notes or information"
                     rows={4}
+                    disabled={!isEditing}
                     error={errors.remark}
                   />
                 </CardContent>
