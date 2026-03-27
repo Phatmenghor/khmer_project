@@ -52,11 +52,21 @@ export const userPlatformTableColumns = ({
       maxWidth: "400px",
       render: (user) => {
         return (
-          <CustomAvatar
-            imageUrl={user.profileImageUrl}
-            name={user?.firstName}
-            size="lg"
-          />
+          <div className="h-12 w-12 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+            {user.profileImageUrl ? (
+              <img
+                src={user.profileImageUrl}
+                alt={user?.firstName}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
+                <span className="text-xs font-semibold text-primary">
+                  {user?.firstName?.charAt(0)?.toUpperCase() || "U"}
+                </span>
+              </div>
+            )}
+          </div>
         );
       },
     },
@@ -115,15 +125,18 @@ export const userPlatformTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (user) => (
-        <>
+        <div className="flex flex-wrap gap-1">
           {user.roles?.length > 0
             ? user.roles.map((role: string) => (
-                <span key={role} className="text-xs text-muted-foreground">
+                <span
+                  key={role}
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary dark:bg-primary/20"
+                >
                   {role}
                 </span>
               ))
-            : "---"}
-        </>
+            : <span className="text-xs text-muted-foreground">---</span>}
+        </div>
       ),
     },
     {
@@ -132,11 +145,21 @@ export const userPlatformTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {user?.accountStatus || "---"}
-        </span>
-      ),
+      render: (user) => {
+        const statusColor = user?.accountStatus === "ACTIVE"
+          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+          : user?.accountStatus === "INACTIVE"
+          ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+          : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
+
+        return (
+          <span
+            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}
+          >
+            {user?.accountStatus || "---"}
+          </span>
+        );
+      },
     },
     {
       key: "createdAt",
