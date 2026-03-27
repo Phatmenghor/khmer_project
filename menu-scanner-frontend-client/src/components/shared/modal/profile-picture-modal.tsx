@@ -21,8 +21,8 @@ interface ProfilePictureModalProps {
   onImageSelect: (imageData: string) => void;
   onImageRemove: () => void;
   isLoading?: boolean;
-  closeIconSize?: "sm" | "md" | "lg" | "xl";
-  closeIconColor?: "white" | "black";
+  closeButtonSize?: "sm" | "md" | "lg" | "xl";
+  closeButtonColor?: "white" | "black";
 }
 
 export function ProfilePictureModal({
@@ -33,8 +33,8 @@ export function ProfilePictureModal({
   onImageSelect,
   onImageRemove,
   isLoading = false,
-  closeIconSize = "md",
-  closeIconColor = "white",
+  closeButtonSize = "md",
+  closeButtonColor = "white",
 }: ProfilePictureModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -104,8 +104,8 @@ export function ProfilePictureModal({
           <h2 className="text-lg font-semibold">Profile Picture</h2>
           <ModalCloseButton
             onClick={onClose}
-            iconSize={closeIconSize}
-            iconColor={closeIconColor}
+            size={closeButtonSize}
+            color={closeButtonColor}
           />
         </div>
 

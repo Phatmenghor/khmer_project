@@ -1,21 +1,27 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
 interface ModalCloseButtonProps {
   onClick: () => void;
-  iconSize?: "sm" | "md" | "lg" | "xl";
-  iconColor?: "white" | "black";
+  size?: "sm" | "md" | "lg" | "xl";
+  color?: "white" | "black";
   className?: string;
 }
 
 export function ModalCloseButton({
   onClick,
-  iconSize = "md",
-  iconColor = "black",
+  size = "md",
+  color = "black",
   className = "",
 }: ModalCloseButtonProps) {
+  const sizeMap = {
+    sm: "h-6 w-6 p-1",
+    md: "h-8 w-8 p-1.5",
+    lg: "h-10 w-10 p-2",
+    xl: "h-12 w-12 p-2.5",
+  };
+
   const iconSizeMap = {
     sm: "h-3 w-3",
     md: "h-4 w-4",
@@ -29,16 +35,16 @@ export function ModalCloseButton({
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
+    <button
       onClick={onClick}
-      className={`absolute right-2 top-4 hover:bg-primary/80 ${className}`}
+      className={`absolute right-2 top-4 flex items-center justify-center rounded-md transition-colors hover:bg-black/10 ${sizeMap[size]} ${className}`}
+      type="button"
+      aria-label="Close"
     >
       <X
-        className={`${iconSizeMap[iconSize]}`}
-        style={{ color: colorMap[iconColor] }}
+        className={`${iconSizeMap[size]}`}
+        style={{ color: colorMap[color] }}
       />
-    </Button>
+    </button>
   );
 }
