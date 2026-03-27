@@ -100,15 +100,31 @@ public class RoleServiceImpl implements RoleService {
                 pageable
         );
 
-        List<RoleResponse> responses = rolesPage.getContent().stream()
+        List<RoleResponse> responses = new ArrayList<>(rolesPage.getContent().stream()
                 .map(roleMapper::toResponse)
-                .toList();
+                .toList());
+
+        // Add ALL_ROLES item at top if includeAll is true and on first page
+        if (includeAll && rolesPage.getNumber() == 0) {
+            RoleResponse allRoles = new RoleResponse();
+            allRoles.setId(null);
+            allRoles.setName("ALL_ROLES");
+            allRoles.setDescription("All Roles");
+            allRoles.setBusinessId(request.getBusinessId());
+            allRoles.setUserType("BUSINESS_USER");
+            allRoles.setCreatedAt(null);
+            allRoles.setUpdatedAt(null);
+            allRoles.setCreatedBy(null);
+            allRoles.setUpdatedBy(null);
+
+            responses.add(0, allRoles);
+        }
 
         return PaginationResponse.<RoleResponse>builder()
                 .content(responses)
                 .pageNo(rolesPage.getNumber() + 1)
                 .pageSize(rolesPage.getSize())
-                .totalElements(rolesPage.getTotalElements())
+                .totalElements(includeAll && rolesPage.getNumber() == 0 ? rolesPage.getTotalElements() + 1 : rolesPage.getTotalElements())
                 .totalPages(rolesPage.getTotalPages())
                 .last(rolesPage.isLast())
                 .first(rolesPage.isFirst())
@@ -133,9 +149,27 @@ public class RoleServiceImpl implements RoleService {
                 includeAll
         );
 
-        return roles.stream()
+        List<RoleResponse> responses = new ArrayList<>(roles.stream()
                 .map(roleMapper::toResponse)
-                .toList();
+                .toList());
+
+        // Add ALL_ROLES item at top if includeAll is true
+        if (includeAll) {
+            RoleResponse allRoles = new RoleResponse();
+            allRoles.setId(null);
+            allRoles.setName("ALL_ROLES");
+            allRoles.setDescription("All Roles");
+            allRoles.setBusinessId(request.getBusinessId());
+            allRoles.setUserType("BUSINESS_USER");
+            allRoles.setCreatedAt(null);
+            allRoles.setUpdatedAt(null);
+            allRoles.setCreatedBy(null);
+            allRoles.setUpdatedBy(null);
+
+            responses.add(0, allRoles);
+        }
+
+        return responses;
     }
 
     @Override
