@@ -89,7 +89,7 @@ export default function ResetPasswordModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-md max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-lg max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title="Reset Password"
           description="Reset the user's password to the default value"
@@ -129,7 +129,7 @@ export default function ResetPasswordModal({
                   type={showPassword ? "text" : "password"}
                   value={defaultPassword}
                   readOnly
-                  className="pr-20 font-mono text-sm"
+                  className="pr-20 font-mono text-sm h-12 py-3"
                 />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
                   <Button
