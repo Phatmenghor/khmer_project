@@ -66,6 +66,12 @@ export function UserBusinessDetailModal({
           {/* Personal Information */}
           <DetailSection title="Personal Information">
             <DetailRow label="Full Name" value={userData?.fullName || "---"} />
+            <DetailRow label="First Name" value={userData?.firstName || "---"} />
+            <DetailRow label="Last Name" value={userData?.lastName || "---"} />
+            <DetailRow
+              label="User Identifier"
+              value={userData?.userIdentifier || "---"}
+            />
             <DetailRow label="Email" value={userData?.email || "---"} />
             <DetailRow
               label="Phone Number"
@@ -73,10 +79,16 @@ export function UserBusinessDetailModal({
             />
             <DetailRow label="Position" value={userData?.position || "---"} />
             <DetailRow label="Address" value={userData?.address || "---"} />
+            <DetailRow label="Nickname" value={userData?.nickname || "---"} />
+            <DetailRow label="Gender" value={userData?.gender || "---"} />
             <DetailRow
-              label="User Identifier"
-              value={userData?.userIdentifier || "---"}
+              label="Date of Birth"
+              value={userData?.dateOfBirth || "---"}
             />
+          </DetailSection>
+
+          {/* Account Information */}
+          <DetailSection title="Account Information">
             <DetailRow
               label="User Type"
               value={formatEnumToDisplay(userData?.userType)}
@@ -103,14 +115,158 @@ export function UserBusinessDetailModal({
                     ))}
                   </div>
                 }
+                isLast
               />
             )}
-
-            {/* Notes */}
-            {userData?.notes && (
-              <DetailRow label="Notes" value={userData.notes} isLast />
-            )}
           </DetailSection>
+
+          {/* Employment Information */}
+          {(userData?.employeeId ||
+            userData?.department ||
+            userData?.employmentType ||
+            userData?.joinDate ||
+            userData?.leaveDate ||
+            userData?.shift) && (
+            <DetailSection title="Employment Information">
+              <DetailRow
+                label="Employee ID"
+                value={userData?.employeeId || "---"}
+              />
+              <DetailRow
+                label="Department"
+                value={userData?.department || "---"}
+              />
+              <DetailRow
+                label="Employment Type"
+                value={userData?.employmentType || "---"}
+              />
+              <DetailRow label="Join Date" value={userData?.joinDate || "---"} />
+              <DetailRow label="Leave Date" value={userData?.leaveDate || "---"} />
+              <DetailRow label="Shift" value={userData?.shift || "---"} isLast />
+            </DetailSection>
+          )}
+
+          {/* Additional Information */}
+          {(userData?.notes || userData?.remark) && (
+            <DetailSection title="Additional Information">
+              {userData?.notes && (
+                <DetailRow label="Notes" value={userData.notes} />
+              )}
+              {userData?.remark && (
+                <DetailRow label="Remark" value={userData.remark} isLast />
+              )}
+            </DetailSection>
+          )}
+
+          {/* Addresses */}
+          {userData?.addresses && userData?.addresses.length > 0 && (
+            <DetailSection title="Addresses">
+              <div className="space-y-3">
+                {userData.addresses.map((address: any, index: number) => (
+                  <div
+                    key={index}
+                    className="p-3 bg-muted/30 rounded-md border border-border text-sm"
+                  >
+                    <p className="font-medium">{address.label || `Address ${index + 1}`}</p>
+                    <p className="text-muted-foreground">
+                      {address.addressLine || address.address || "---"}
+                    </p>
+                    {(address.city || address.state || address.postalCode) && (
+                      <p className="text-xs text-muted-foreground">
+                        {[address.city, address.state, address.postalCode]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </DetailSection>
+          )}
+
+          {/* Emergency Contacts */}
+          {userData?.emergencyContacts &&
+            userData?.emergencyContacts.length > 0 && (
+              <DetailSection title="Emergency Contacts">
+                <div className="space-y-3">
+                  {userData.emergencyContacts.map((contact: any, index: number) => (
+                    <div
+                      key={index}
+                      className="p-3 bg-muted/30 rounded-md border border-border text-sm"
+                    >
+                      <p className="font-medium">{contact.name || "Contact"}</p>
+                      <p className="text-muted-foreground">
+                        {contact.relationship || "---"}
+                      </p>
+                      {contact.phoneNumber && (
+                        <p className="text-xs text-muted-foreground">
+                          {contact.phoneNumber}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </DetailSection>
+            )}
+
+          {/* Documents */}
+          {userData?.documents && userData?.documents.length > 0 && (
+            <DetailSection title="Documents">
+              <div className="space-y-3">
+                {userData.documents.map((doc: any, index: number) => (
+                  <div
+                    key={index}
+                    className="p-3 bg-muted/30 rounded-md border border-border text-sm"
+                  >
+                    <p className="font-medium">{doc.name || `Document ${index + 1}`}</p>
+                    {doc.url && (
+                      <a
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:underline"
+                      >
+                        View Document
+                      </a>
+                    )}
+                    {doc.description && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {doc.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </DetailSection>
+          )}
+
+          {/* Education */}
+          {userData?.educations && userData?.educations.length > 0 && (
+            <DetailSection title="Education">
+              <div className="space-y-3">
+                {userData.educations.map((edu: any, index: number) => (
+                  <div
+                    key={index}
+                    className="p-3 bg-muted/30 rounded-md border border-border text-sm"
+                  >
+                    <p className="font-medium">{edu.schoolName || edu.degree || `Education ${index + 1}`}</p>
+                    {(edu.major || edu.degree) && (
+                      <p className="text-muted-foreground text-xs">
+                        {[edu.degree, edu.major].filter(Boolean).join(" - ")}
+                      </p>
+                    )}
+                    {(edu.startDate || edu.endDate) && (
+                      <p className="text-xs text-muted-foreground">
+                        {edu.startDate}
+                        {edu.startDate && edu.endDate && " to "}
+                        {edu.endDate}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </DetailSection>
+          )}
 
           {/* System Information */}
           <DetailSection title="System Information">
