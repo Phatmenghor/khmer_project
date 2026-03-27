@@ -381,7 +381,7 @@ export default function AdminProfilePage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-background">
+    <div className="w-full bg-background">
       <div className="w-full px-3 sm:px-4 py-3 sm:py-6">
         {/* Profile Header */}
         <Card className="mb-6">
@@ -492,8 +492,8 @@ export default function AdminProfilePage() {
 
         {/* Profile Section */}
         {activeSection === "profile" && (
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+            <div className="w-full space-y-6">
               {/* Personal Information */}
               <Card>
                 <CardHeader>
@@ -1131,7 +1131,7 @@ export default function AdminProfilePage() {
 
         {/* Security Section */}
         {activeSection === "security" && (
-          <div className="space-y-4">
+          <div className="w-full space-y-4">
             {/* Connected Accounts */}
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
