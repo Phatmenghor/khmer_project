@@ -917,107 +917,6 @@ export default function UserBusinessModal({
                   )}
                 </div>
 
-                {/* Emergency Contacts */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">
-                        Emergency Contacts
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {contactFields.length > 0
-                          ? `${contactFields.length} contact${
-                              contactFields.length > 1 ? "s" : ""
-                            } added`
-                          : "No contacts added"}
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        appendContact({
-                          id: undefined,
-                          name: "",
-                          phone: "",
-                          relationship: "",
-                        })
-                      }
-                      disabled={isSubmitting}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Contact
-                    </Button>
-                  </div>
-
-                  {contactFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">
-                        No contacts added
-                      </p>
-                    </div>
-                  ) : (
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="space-y-3">
-                          {contactFields.map((field, index) => (
-                            <div key={field.id} className="pb-3 border-b last:border-0 last:pb-0">
-                              <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium">Contact {index + 1}</p>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeContact(index)}
-                                  disabled={isSubmitting}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                              <div className="grid grid-cols-3 gap-2">
-                                <TextField
-                                  control={control}
-                                  name={`emergencyContacts.${index}.name`}
-                                  label="Name"
-                                  placeholder="Name"
-                                  disabled={isSubmitting}
-                                  error={
-                                    errors.emergencyContacts?.[index]
-                                      ?.name as any
-                                  }
-                                />
-                                <TextField
-                                  control={control}
-                                  name={`emergencyContacts.${index}.phone`}
-                                  label="Phone"
-                                  placeholder="Phone"
-                                  disabled={isSubmitting}
-                                  error={
-                                    errors.emergencyContacts?.[index]
-                                      ?.phone as any
-                                  }
-                                />
-                                <TextField
-                                  control={control}
-                                  name={`emergencyContacts.${index}.relationship`}
-                                  label="Relationship"
-                                  placeholder="Relation"
-                                  disabled={isSubmitting}
-                                  error={
-                                    errors.emergencyContacts?.[index]
-                                      ?.relationship as any
-                                  }
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
 
                 {/* Documents */}
                 <div className="space-y-4">
@@ -1060,23 +959,20 @@ export default function UserBusinessModal({
                   ) : (
                     <Card>
                       <CardContent className="pt-6">
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           {documentFields.map((field, index) => (
-                            <div key={field.id} className="pb-4 border-b last:border-0 last:pb-0">
-                              <div className="flex items-center justify-between mb-3">
-                                <p className="text-sm font-medium">Document {index + 1}</p>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeDocument(index)}
-                                  disabled={isSubmitting}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                              <div className="space-y-2">
+                            <div key={field.id} className="border rounded-lg p-4 relative">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeDocument(index)}
+                                disabled={isSubmitting}
+                                className="h-6 w-6 p-0 absolute top-2 right-2"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                              <div className="space-y-3">
                                 <div className="grid grid-cols-2 gap-2">
                                   <SelectField
                                     control={control}
@@ -1112,8 +1008,8 @@ export default function UserBusinessModal({
                                       { shouldDirty: true },
                                     )
                                   }
-                                  aspectRatio="square"
-                                  height="h-32"
+                                  aspectRatio="auto"
+                                  height="h-40"
                                   maxSize={5}
                                   disabled={isSubmitting}
                                   error={
@@ -1175,23 +1071,20 @@ export default function UserBusinessModal({
                   ) : (
                     <Card>
                       <CardContent className="pt-6">
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           {educationFields.map((field, index) => (
-                            <div key={field.id} className="pb-4 border-b last:border-0 last:pb-0">
-                              <div className="flex items-center justify-between mb-3">
-                                <p className="text-sm font-medium">Education {index + 1}</p>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeEducation(index)}
-                                  disabled={isSubmitting}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                              <div className="space-y-2">
+                            <div key={field.id} className="border rounded-lg p-4 relative">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeEducation(index)}
+                                disabled={isSubmitting}
+                                className="h-6 w-6 p-0 absolute top-2 right-2"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                              <div className="space-y-3 pt-2">
                                 <div className="grid grid-cols-2 gap-2">
                                   <SelectField
                                     control={control}
@@ -1263,8 +1156,8 @@ export default function UserBusinessModal({
                                       { shouldDirty: true },
                                     )
                                   }
-                                  aspectRatio="square"
-                                  height="h-32"
+                                  aspectRatio="auto"
+                                  height="h-40"
                                   maxSize={5}
                                   disabled={isSubmitting}
                                   error={
