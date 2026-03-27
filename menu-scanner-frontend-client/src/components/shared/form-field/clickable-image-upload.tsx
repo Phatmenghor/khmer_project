@@ -156,7 +156,7 @@ export function ClickableImageUpload({
               <img
                 src={value}
                 alt="Preview"
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 bg-muted/20"
               />
 
               <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
