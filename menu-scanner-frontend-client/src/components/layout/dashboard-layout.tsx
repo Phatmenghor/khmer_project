@@ -70,7 +70,7 @@ export default function DashboardLayout({
           onFullscreenClick={() => setIsFullscreen(true)}
         />
         <main className={cn(
-          "dashboard-main flex flex-col flex-1",
+          "dashboard-main flex flex-col flex-1 min-h-0",
           isPosPage ? "overflow-hidden" : "overflow-y-auto"
         )}>
           <div className={isPosPage ? "" : "p-2 md:p-4"}>
