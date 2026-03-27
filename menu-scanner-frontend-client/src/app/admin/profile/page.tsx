@@ -381,7 +381,7 @@ export default function AdminProfilePage() {
   }
 
   return (
-    <div className="space-y-4 px-2">
+    <div className="space-y-4">
         {/* Profile Header */}
         <Card className="mb-6">
           <CardContent className="p-6">
