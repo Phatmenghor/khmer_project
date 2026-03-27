@@ -50,7 +50,7 @@ export function UserBusinessDetailModal({
   };
 
   const DetailField = ({ label, value }: { label: string; value: React.ReactNode }) => (
-    <div className="space-y-1">
+    <div className="space-y-1 min-h-12">
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className="text-sm text-foreground">{value || "---"}</p>
     </div>
