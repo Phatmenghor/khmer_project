@@ -550,13 +550,6 @@ export default function UserBusinessModal({
                         required
                         disabled={isSubmitting || roleOptions.length === 0}
                         error={getArrayFieldError(errors.roles)}
-                        value={Array.isArray(watch("roles")) && watch("roles").length > 0 ? watch("roles")[0] : ""}
-                        onValueChange={(value) => {
-                          setValue("roles", [value], {
-                            shouldDirty: true,
-                            shouldValidate: true,
-                          });
-                        }}
                       />
 
                       <SelectField
@@ -592,13 +585,6 @@ export default function UserBusinessModal({
                           required
                           disabled={isSubmitting || roleOptions.length === 0}
                           error={getArrayFieldError(errors.roles)}
-                          value={Array.isArray(watch("roles")) && watch("roles").length > 0 ? watch("roles")[0] : ""}
-                          onValueChange={(value) => {
-                            setValue("roles", [value], {
-                              shouldDirty: true,
-                              shouldValidate: true,
-                            });
-                          }}
                         />
 
                         <SelectField
