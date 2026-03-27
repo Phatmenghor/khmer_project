@@ -127,13 +127,16 @@ export default function AdminProfilePage() {
     mode: "onChange",
   });
 
+  // Type assertion for control to fix TypeScript compatibility
+  const typedControl = control as any;
+
   // Field arrays
   const {
     fields: addressFields,
     append: appendAddress,
     remove: removeAddress,
   } = useFieldArray({
-    control,
+    control: typedControl,
     name: "addresses",
   });
 
@@ -142,7 +145,7 @@ export default function AdminProfilePage() {
     append: appendContact,
     remove: removeContact,
   } = useFieldArray({
-    control,
+    control: typedControl,
     name: "emergencyContacts",
   });
 
@@ -151,7 +154,7 @@ export default function AdminProfilePage() {
     append: appendDocument,
     remove: removeDocument,
   } = useFieldArray({
-    control,
+    control: typedControl,
     name: "documents",
   });
 
@@ -160,7 +163,7 @@ export default function AdminProfilePage() {
     append: appendEducation,
     remove: removeEducation,
   } = useFieldArray({
-    control,
+    control: typedControl,
     name: "educations",
   });
 
@@ -502,7 +505,7 @@ export default function AdminProfilePage() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextField
-                      control={control}
+                      control={typedControl}
                       name="firstName"
                       label="First Name"
                       placeholder="First name"
@@ -511,7 +514,7 @@ export default function AdminProfilePage() {
                     />
 
                     <TextField
-                      control={control}
+                      control={typedControl}
                       name="lastName"
                       label="Last Name"
                       placeholder="Last name"
@@ -520,7 +523,7 @@ export default function AdminProfilePage() {
                     />
 
                     <TextField
-                      control={control}
+                      control={typedControl}
                       name="nickname"
                       label="Nickname"
                       placeholder="Nickname"
@@ -529,7 +532,7 @@ export default function AdminProfilePage() {
                     />
 
                     <TextField
-                      control={control}
+                      control={typedControl}
                       name="email"
                       label="Email"
                       placeholder="Email"
@@ -539,7 +542,7 @@ export default function AdminProfilePage() {
                     />
 
                     <TextField
-                      control={control}
+                      control={typedControl}
                       name="phoneNumber"
                       label="Phone Number"
                       placeholder="Phone"
@@ -548,7 +551,7 @@ export default function AdminProfilePage() {
                     />
 
                     <SelectField
-                      control={control}
+                      control={typedControl}
                       name="gender"
                       label="Gender"
                       placeholder="Select gender"
@@ -558,7 +561,7 @@ export default function AdminProfilePage() {
                     />
 
                     <DateTimePickerField
-                      control={control}
+                      control={typedControl}
                       name="dateOfBirth"
                       label="Date of Birth"
                       mode="date"
@@ -578,7 +581,7 @@ export default function AdminProfilePage() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextField
-                      control={control}
+                      control={typedControl}
                       name="employeeId"
                       label="Employee ID"
                       placeholder="Employee ID"
@@ -587,7 +590,7 @@ export default function AdminProfilePage() {
                     />
 
                     <TextField
-                      control={control}
+                      control={typedControl}
                       name="position"
                       label="Position"
                       placeholder="Position"
@@ -596,7 +599,7 @@ export default function AdminProfilePage() {
                     />
 
                     <TextField
-                      control={control}
+                      control={typedControl}
                       name="department"
                       label="Department"
                       placeholder="Department"
@@ -605,7 +608,7 @@ export default function AdminProfilePage() {
                     />
 
                     <SelectField
-                      control={control}
+                      control={typedControl}
                       name="employmentType"
                       label="Employment Type"
                       placeholder="Select type"
@@ -615,7 +618,7 @@ export default function AdminProfilePage() {
                     />
 
                     <DateTimePickerField
-                      control={control}
+                      control={typedControl}
                       name="joinDate"
                       label="Join Date"
                       mode="date"
@@ -625,7 +628,7 @@ export default function AdminProfilePage() {
                     />
 
                     <DateTimePickerField
-                      control={control}
+                      control={typedControl}
                       name="leaveDate"
                       label="Leave Date"
                       mode="date"
@@ -635,7 +638,7 @@ export default function AdminProfilePage() {
                     />
 
                     <TextField
-                      control={control}
+                      control={typedControl}
                       name="shift"
                       label="Shift"
                       placeholder="Shift"
@@ -698,7 +701,7 @@ export default function AdminProfilePage() {
                             </Button>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                               <SelectField
-                                control={control}
+                                control={typedControl}
                                 name={`addresses.${index}.addressType`}
                                 label="Type"
                                 placeholder="Type"
@@ -708,7 +711,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`addresses.${index}.houseNo`}
                                 label="House No"
                                 placeholder="No"
@@ -717,7 +720,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`addresses.${index}.street`}
                                 label="Street"
                                 placeholder="Street"
@@ -726,7 +729,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`addresses.${index}.village`}
                                 label="Village"
                                 placeholder="Village"
@@ -735,7 +738,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`addresses.${index}.commune`}
                                 label="Commune"
                                 placeholder="Commune"
@@ -744,7 +747,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`addresses.${index}.district`}
                                 label="District"
                                 placeholder="District"
@@ -753,7 +756,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`addresses.${index}.province`}
                                 label="Province"
                                 placeholder="Province"
@@ -762,7 +765,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`addresses.${index}.country`}
                                 label="Country"
                                 placeholder="Country"
@@ -826,7 +829,7 @@ export default function AdminProfilePage() {
                             </Button>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`emergencyContacts.${index}.name`}
                                 label="Name"
                                 placeholder="Name"
@@ -835,7 +838,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`emergencyContacts.${index}.phone`}
                                 label="Phone"
                                 placeholder="Phone"
@@ -844,7 +847,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                               <TextField
-                                control={control}
+                                control={typedControl}
                                 name={`emergencyContacts.${index}.relationship`}
                                 label="Relationship"
                                 placeholder="Relationship"
@@ -910,7 +913,7 @@ export default function AdminProfilePage() {
                             <div className="space-y-4 pt-2">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <SelectField
-                                  control={control}
+                                  control={typedControl}
                                   name={`documents.${index}.type`}
                                   label="Type"
                                   placeholder="Type"
@@ -920,7 +923,7 @@ export default function AdminProfilePage() {
                                   }
                                 />
                                 <TextField
-                                  control={control}
+                                  control={typedControl}
                                   name={`documents.${index}.number`}
                                   label="Number"
                                   placeholder="Number"
@@ -1011,7 +1014,7 @@ export default function AdminProfilePage() {
                             <div className="space-y-4 pt-2">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <SelectField
-                                  control={control}
+                                  control={typedControl}
                                   name={`educations.${index}.level`}
                                   label="Level"
                                   placeholder="Level"
@@ -1021,7 +1024,7 @@ export default function AdminProfilePage() {
                                   }
                                 />
                                 <TextField
-                                  control={control}
+                                  control={typedControl}
                                   name={`educations.${index}.schoolName`}
                                   label="School"
                                   placeholder="School"
@@ -1031,7 +1034,7 @@ export default function AdminProfilePage() {
                                   }
                                 />
                                 <TextField
-                                  control={control}
+                                  control={typedControl}
                                   name={`educations.${index}.fieldOfStudy`}
                                   label="Field"
                                   placeholder="Field"
@@ -1041,7 +1044,7 @@ export default function AdminProfilePage() {
                                   }
                                 />
                                 <DateTimePickerField
-                                  control={control}
+                                  control={typedControl}
                                   name={`educations.${index}.startYear`}
                                   label="Start"
                                   mode="date"
@@ -1052,7 +1055,7 @@ export default function AdminProfilePage() {
                                   }
                                 />
                                 <DateTimePickerField
-                                  control={control}
+                                  control={typedControl}
                                   name={`educations.${index}.endYear`}
                                   label="End"
                                   mode="date"
@@ -1115,7 +1118,7 @@ export default function AdminProfilePage() {
                 </CardHeader>
                 <CardContent>
                   <TextareaField
-                    control={control}
+                    control={typedControl}
                     name="remark"
                     label="Remarks"
                     placeholder="Additional notes or information"
