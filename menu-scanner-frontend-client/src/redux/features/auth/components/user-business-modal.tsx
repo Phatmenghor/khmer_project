@@ -650,7 +650,6 @@ export default function UserBusinessModal({
                         name="phoneNumber"
                         label="Phone Number"
                         placeholder="Enter phone number"
-                        required
                         disabled={isSubmitting}
                         error={errors.phoneNumber}
                       />
