@@ -114,6 +114,8 @@ export default function UserBusinessPage() {
     isOpen: false,
     userBusinessId: "",
     userName: "",
+    userRole: [] as string[],
+    profileImageUrl: "",
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -124,7 +126,7 @@ export default function UserBusinessPage() {
   const handleCreateUser = () => setModalState({ isOpen: true, mode: ModalMode.CREATE_MODE, userId: "" });
   const handleEditUser = (user: UserResponseModel) => setModalState({ isOpen: true, mode: ModalMode.UPDATE_MODE, userId: user?.id || "" });
   const handleViewDetail = (user: UserResponseModel) => setDetailModalState({ isOpen: true, userBusinessId: user.id || "" });
-  const handleResetPassword = (user: UserResponseModel) => setResetPasswordState({ isOpen: true, userBusinessId: user.id || "", userName: user.userIdentifier || "" });
+  const handleResetPassword = (user: UserResponseModel) => setResetPasswordState({ isOpen: true, userBusinessId: user.id || "", userName: user.userIdentifier || "", userRole: user.roles || [], profileImageUrl: user.profileImageUrl || "" });
   const handleDeleteUser = (user: UserResponseModel) => setDeleteState({ isOpen: true, user });
 
   const handleToggleStatus = async (user: UserResponseModel) => {
@@ -175,7 +177,7 @@ export default function UserBusinessPage() {
 
   const closeModal = () => setModalState({ isOpen: false, mode: ModalMode.CREATE_MODE, userId: "" });
   const closeDetailModal = () => setDetailModalState({ isOpen: false, userBusinessId: "" });
-  const closeResetPasswordModal = () => setResetPasswordState({ isOpen: false, userBusinessId: "", userName: "" });
+  const closeResetPasswordModal = () => setResetPasswordState({ isOpen: false, userBusinessId: "", userName: "", userRole: [], profileImageUrl: "" });
   const closeDeleteModal = () => setDeleteState({ isOpen: false, user: null });
 
   return (
@@ -227,7 +229,7 @@ export default function UserBusinessPage() {
 
       <UserBusinessModal isOpen={modalState.isOpen} onClose={closeModal} userId={modalState.userId} mode={modalState.mode} />
       <UserBusinessDetailModal userId={detailModalState.userBusinessId} isOpen={detailModalState.isOpen} onClose={closeDetailModal} />
-      <ResetPasswordModal isOpen={resetPasswordState.isOpen} userName={resetPasswordState.userName} onClose={closeResetPasswordModal} userId={resetPasswordState.userBusinessId} />
+      <ResetPasswordModal isOpen={resetPasswordState.isOpen} userName={resetPasswordState.userName} userRole={resetPasswordState.userRole} profileImageUrl={resetPasswordState.profileImageUrl} onClose={closeResetPasswordModal} userId={resetPasswordState.userBusinessId} />
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

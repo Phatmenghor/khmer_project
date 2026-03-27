@@ -25,11 +25,13 @@ import { selectIsResettingPassword } from "@/redux/features/auth/store/selectors
 import { showToast } from "../common/show-toast";
 import { FormHeader } from "../form-field/form-header";
 import { FormBody } from "../form-field/form-body";
-import { FormFooter } from "../form-field/form-footer";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 
 interface ResetPasswordModalProps {
   userId?: string;
   userName?: string;
+  userRole?: string[];
+  profileImageUrl?: string;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -38,6 +40,8 @@ export default function ResetPasswordModal({
   userId,
   isOpen,
   userName,
+  userRole,
+  profileImageUrl,
   onClose,
 }: ResetPasswordModalProps) {
   const dispatch = useAppDispatch();
@@ -102,16 +106,24 @@ export default function ResetPasswordModal({
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-semibold text-primary">
-                      {userName?.charAt(0)?.toUpperCase() || "U"}
-                    </span>
+                  <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {profileImageUrl ? (
+                      <img src={profileImageUrl} alt={userName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-sm font-semibold text-primary">
+                        {userName?.charAt(0)?.toUpperCase() || "U"}
+                      </span>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
                       {userName || "Unknown User"}
                     </p>
-                    <p className="text-xs text-muted-foreground">User Account</p>
+                    <p className="text-xs text-muted-foreground">
+                      {userRole && userRole.length > 0
+                        ? userRole.map(role => formatEnumValue(role)).join(", ")
+                        : "User Account"}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -182,7 +194,7 @@ export default function ResetPasswordModal({
           </div>
         </FormBody>
 
-        <FormFooter isSubmitting={isResettingPassword}>
+        <div className="flex gap-3 px-4 py-4 border-t bg-muted/30 flex-shrink-0 sm:px-6 justify-end">
           <Button
             type="button"
             variant="outline"
@@ -206,7 +218,7 @@ export default function ResetPasswordModal({
               "Reset Password"
             )}
           </Button>
-        </FormFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
