@@ -302,6 +302,19 @@ export default function UserBusinessModal({
     try {
       setIsUploadingImage(true);
 
+      // Process profile image URL
+      let profileImageUrl = data.profileImageUrl;
+      if (profileImageUrl && isBase64Image(profileImageUrl)) {
+        try {
+          profileImageUrl = await uploadImage(profileImageUrl);
+        } catch (error) {
+          console.error("Failed to upload profile image:", error);
+          showToast.error("Failed to upload profile image");
+          setIsUploadingImage(false);
+          return;
+        }
+      }
+
       // Process document file URLs
       const processedDocuments = await Promise.all(
         (data.documents || []).map(async (doc) => {
@@ -369,7 +382,7 @@ export default function UserBusinessModal({
           roles: data.roles,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: data.profileImageUrl || undefined,
+          profileImageUrl: profileImageUrl || undefined,
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
@@ -414,7 +427,7 @@ export default function UserBusinessModal({
           roles: data.roles,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: data.profileImageUrl || undefined,
+          profileImageUrl: profileImageUrl || undefined,
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
