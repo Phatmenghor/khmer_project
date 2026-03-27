@@ -28,8 +28,7 @@ public interface ImageMapper {
         ImageDto imageDto = new ImageDto();
         imageDto.setId(image.getId());
         imageDto.setType(image.getType());
-//imageDto.setImageUrl("http://localhost:8080/api/images/" + image.getId());
-        imageDto.setImageUrl("https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200");
+        imageDto.setImageUrl("/api/images/" + image.getId());
 
         return imageDto;
     }
