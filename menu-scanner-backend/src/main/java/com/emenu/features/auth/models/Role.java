@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "roles", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_role_name_business", columnNames = {"name", "business_id", "is_deleted"})
-})
+@Table(name = "roles")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
