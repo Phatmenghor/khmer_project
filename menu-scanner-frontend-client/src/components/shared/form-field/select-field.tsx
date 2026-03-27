@@ -53,7 +53,7 @@ export function SelectField({
               disabled={disabled || loading}
             >
               <SelectTrigger
-                className={`transition-colors ${
+                className={`h-10 transition-colors ${
                   error ? "border-red-500 focus:border-red-500" : ""
                 }`}
               >

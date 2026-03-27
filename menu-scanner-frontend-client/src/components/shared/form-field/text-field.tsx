@@ -92,7 +92,7 @@ export function TextField({
                 field.onChange(e.target.value);
               }
             }}
-            className={`transition-colors ${disabled ? "bg-muted/50" : ""} ${
+            className={`h-10 transition-colors ${disabled ? "bg-muted/50" : ""} ${
               error ? "border-red-500 focus:border-red-500" : ""
             }`}
           />
