@@ -14,6 +14,7 @@ import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.service.RoleService;
+import com.emenu.features.auth.util.EnumNormalizer;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +42,11 @@ public class RoleServiceImpl implements RoleService {
     public RoleResponse createRole(RoleCreateRequest request) {
         log.info("Creating role: {}", request.getName());
 
-        // Normalize role name to uppercase
-        String normalizedName = request.getName().toUpperCase().replace(" ", "_");
+        // Normalize role name
+        String normalizedName = EnumNormalizer.normalizeString(request.getName());
+
+        // Normalize and validate user type
+        UserType normalizedUserType = EnumNormalizer.normalizeUserType(request.getUserType());
 
         // Check for duplicate role
         if (request.getBusinessId() != null) {
@@ -62,6 +66,7 @@ public class RoleServiceImpl implements RoleService {
 
         Role role = roleMapper.toEntity(request);
         role.setName(normalizedName);
+        role.setUserType(normalizedUserType);
 
         Role savedRole = roleRepository.save(role);
         log.info("Role created: {} with ID: {}", savedRole.getName(), savedRole.getId());
@@ -162,7 +167,7 @@ public class RoleServiceImpl implements RoleService {
 
         // Validate name uniqueness if changing name
         if (request.getName() != null && !request.getName().isEmpty()) {
-            String normalizedName = request.getName().toUpperCase().replace(" ", "_");
+            String normalizedName = EnumNormalizer.normalizeString(request.getName());
             if (!normalizedName.equals(role.getName())) {
                 if (role.getBusinessId() != null) {
                     if (roleRepository.existsByNameAndBusinessIdAndIsDeletedFalse(normalizedName, role.getBusinessId())) {
