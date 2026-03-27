@@ -194,14 +194,14 @@ export default function UserBusinessModal({
   const userIdentifier = watch("userIdentifier");
   const email = watch("email");
 
-  // Fetch roles for the dropdown
+  // Fetch roles for the dropdown - must use includeAll: true to match filter
   useEffect(() => {
     if (isOpen) {
       dispatch(
         fetchAllRoleService({
           pageNo: 1,
           pageSize: 100,
-          includeAll: false,
+          includeAll: true,
           businessId: AppDefault.BUSINESS_ID,
           userTypes: [UserGropeType.BUSINESS_USER],
         }),
