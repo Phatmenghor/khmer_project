@@ -26,7 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -195,23 +200,15 @@ public class UserServiceImpl implements UserService {
             if (req.getShift() != null) emp.setShift(req.getShift());
         }
 
-        // Addresses — full replace if provided
-        if (req.getAddresses() != null) {
-            user.getAddresses().clear();
-            req.getAddresses().forEach(r -> user.getAddresses().add(buildAddress(r, user)));
-        }
-        if (req.getEmergencyContacts() != null) {
-            user.getEmergencyContacts().clear();
-            req.getEmergencyContacts().forEach(r -> user.getEmergencyContacts().add(buildContact(r, user)));
-        }
-        if (req.getDocuments() != null) {
-            user.getDocuments().clear();
-            req.getDocuments().forEach(r -> user.getDocuments().add(buildDocument(r, user)));
-        }
-        if (req.getEducations() != null) {
-            user.getEducations().clear();
-            req.getEducations().forEach(r -> user.getEducations().add(buildEducation(r, user)));
-        }
+        // null = no change | [] = remove all | items = merge (update by id / create new / delete missing)
+        if (req.getAddresses() != null) mergeList(req.getAddresses(), user.getAddresses(),
+                AddressRequest::getId, this::applyAddressFields, r -> buildAddress(r, user));
+        if (req.getEmergencyContacts() != null) mergeList(req.getEmergencyContacts(), user.getEmergencyContacts(),
+                EmergencyContactRequest::getId, this::applyContactFields, r -> buildContact(r, user));
+        if (req.getDocuments() != null) mergeList(req.getDocuments(), user.getDocuments(),
+                DocumentRequest::getId, this::applyDocumentFields, r -> buildDocument(r, user));
+        if (req.getEducations() != null) mergeList(req.getEducations(), user.getEducations(),
+                EducationRequest::getId, this::applyEducationFields, r -> buildEducation(r, user));
 
         User updated = userRepository.save(user);
         log.info("User updated: {}", updated.getUserIdentifier());
@@ -267,48 +264,99 @@ public class UserServiceImpl implements UserService {
                 || r.getEmploymentType() != null || r.getJoinDate() != null || r.getShift() != null;
     }
 
+    /**
+     * Merge a request list into an existing entity collection.
+     * - [] → clears all (orphanRemoval deletes)
+     * - item with id present in collection → update fields
+     * - item with no id → create new
+     * - existing item whose id is absent from request list → removed (orphanRemoval deletes)
+     */
+    private <REQ, ENTITY extends com.emenu.shared.domain.BaseUUIDEntity> void mergeList(
+            List<REQ> requests,
+            List<ENTITY> existing,
+            Function<REQ, UUID> idExtractor,
+            java.util.function.BiConsumer<REQ, ENTITY> updater,
+            Function<REQ, ENTITY> creator) {
+
+        if (requests.isEmpty()) { existing.clear(); return; }
+
+        Map<UUID, ENTITY> existingById = existing.stream()
+                .filter(e -> e.getId() != null)
+                .collect(Collectors.toMap(com.emenu.shared.domain.BaseUUIDEntity::getId, Function.identity()));
+
+        Set<UUID> keepIds = requests.stream()
+                .map(idExtractor).filter(Objects::nonNull).collect(Collectors.toSet());
+
+        existing.removeIf(e -> !keepIds.contains(e.getId()));
+
+        for (REQ req : requests) {
+            UUID id = idExtractor.apply(req);
+            if (id != null && existingById.containsKey(id)) {
+                updater.accept(req, existingById.get(id));
+            } else if (id == null) {
+                existing.add(creator.apply(req));
+            }
+        }
+    }
+
     private UserAddress buildAddress(AddressRequest req, User user) {
         UserAddress a = new UserAddress();
         a.setUser(user);
-        a.setAddressType(req.getAddressType());
-        a.setHouseNo(req.getHouseNo());
-        a.setStreet(req.getStreet());
-        a.setVillage(req.getVillage());
-        a.setCommune(req.getCommune());
-        a.setDistrict(req.getDistrict());
-        a.setProvince(req.getProvince());
-        a.setCountry(req.getCountry());
+        applyAddressFields(req, a);
         return a;
+    }
+
+    private void applyAddressFields(AddressRequest req, UserAddress a) {
+        if (req.getAddressType() != null) a.setAddressType(req.getAddressType());
+        if (req.getHouseNo() != null) a.setHouseNo(req.getHouseNo());
+        if (req.getStreet() != null) a.setStreet(req.getStreet());
+        if (req.getVillage() != null) a.setVillage(req.getVillage());
+        if (req.getCommune() != null) a.setCommune(req.getCommune());
+        if (req.getDistrict() != null) a.setDistrict(req.getDistrict());
+        if (req.getProvince() != null) a.setProvince(req.getProvince());
+        if (req.getCountry() != null) a.setCountry(req.getCountry());
     }
 
     private UserEmergencyContact buildContact(EmergencyContactRequest req, User user) {
         UserEmergencyContact c = new UserEmergencyContact();
         c.setUser(user);
-        c.setName(req.getName());
-        c.setPhone(req.getPhone());
-        c.setRelationship(req.getRelationship());
+        applyContactFields(req, c);
         return c;
+    }
+
+    private void applyContactFields(EmergencyContactRequest req, UserEmergencyContact c) {
+        if (req.getName() != null) c.setName(req.getName());
+        if (req.getPhone() != null) c.setPhone(req.getPhone());
+        if (req.getRelationship() != null) c.setRelationship(req.getRelationship());
     }
 
     private UserDocument buildDocument(DocumentRequest req, User user) {
         UserDocument d = new UserDocument();
         d.setUser(user);
-        d.setType(req.getType());
-        d.setNumber(req.getNumber());
-        d.setFileUrl(req.getFileUrl());
+        applyDocumentFields(req, d);
         return d;
+    }
+
+    private void applyDocumentFields(DocumentRequest req, UserDocument d) {
+        if (req.getType() != null) d.setType(req.getType());
+        if (req.getNumber() != null) d.setNumber(req.getNumber());
+        if (req.getFileUrl() != null) d.setFileUrl(req.getFileUrl());
     }
 
     private UserEducation buildEducation(EducationRequest req, User user) {
         UserEducation e = new UserEducation();
         e.setUser(user);
-        e.setLevel(req.getLevel());
-        e.setSchoolName(req.getSchoolName());
-        e.setFieldOfStudy(req.getFieldOfStudy());
-        e.setStartYear(req.getStartYear());
-        e.setEndYear(req.getEndYear());
-        e.setIsGraduated(req.getIsGraduated());
-        e.setCertificateUrl(req.getCertificateUrl());
+        applyEducationFields(req, e);
         return e;
+    }
+
+    private void applyEducationFields(EducationRequest req, UserEducation e) {
+        if (req.getLevel() != null) e.setLevel(req.getLevel());
+        if (req.getSchoolName() != null) e.setSchoolName(req.getSchoolName());
+        if (req.getFieldOfStudy() != null) e.setFieldOfStudy(req.getFieldOfStudy());
+        if (req.getStartYear() != null) e.setStartYear(req.getStartYear());
+        if (req.getEndYear() != null) e.setEndYear(req.getEndYear());
+        if (req.getIsGraduated() != null) e.setIsGraduated(req.getIsGraduated());
+        if (req.getCertificateUrl() != null) e.setCertificateUrl(req.getCertificateUrl());
     }
 }
