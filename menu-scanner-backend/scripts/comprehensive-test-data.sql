@@ -54,6 +54,10 @@ TRUNCATE TABLE exchange_rates CASCADE;
 TRUNCATE TABLE user_sessions CASCADE;
 TRUNCATE TABLE refresh_tokens CASCADE;
 TRUNCATE TABLE blacklisted_tokens CASCADE;
+TRUNCATE TABLE user_educations CASCADE;
+TRUNCATE TABLE user_documents CASCADE;
+TRUNCATE TABLE user_emergency_contacts CASCADE;
+TRUNCATE TABLE user_addresses CASCADE;
 TRUNCATE TABLE user_roles CASCADE;
 TRUNCATE TABLE users CASCADE;
 TRUNCATE TABLE businesses CASCADE;
@@ -144,22 +148,75 @@ INSERT INTO business_settings (id, version, created_at, updated_at, created_by, 
 -- 6. USERS (3 main + 500 staff + 5 customers)
 -- ============================================================================
 
-INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, last_login_at, last_active_at, active_sessions_count) VALUES
-('550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Platform', 'Admin', '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200', 'PLATFORM_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Administrator', 'Phnom Penh', 'Platform admin', NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes', 1),
-('550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Business', 'Manager', '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200', 'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Manager', 'Phnom Penh', 'Business manager', NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour', 2),
-('550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL, 'phatmenghor21@gmail.com', 'phatmenghor21@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK', 'Customer', 'User', '+855 10 300 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200', 'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0', NULL, 'Phnom Penh', 'Test customer', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '45 minutes', 1);
+INSERT INTO users (
+    id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_identifier, email, password, first_name, last_name, nickname, gender, date_of_birth,
+    phone_number, profile_image_url, user_type, account_status, business_id,
+    employee_id, position, department, employment_type, join_date, leave_date, shift,
+    address, notes, remark, last_login_at, last_active_at, active_sessions_count
+) VALUES
+(
+    '550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
+    'Platform', 'Admin', 'Admin', 'MALE', '1990-01-15',
+    '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200',
+    'PLATFORM_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'EMP-0001', 'Administrator', 'Management', 'FULL_TIME', '2020-01-01', NULL, 'Morning',
+    'Phnom Penh', 'Platform admin', 'Main platform administrator account',
+    NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes', 1
+),
+(
+    '550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
+    'Business', 'Manager', 'BizMgr', 'MALE', '1988-05-20',
+    '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200',
+    'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'EMP-0002', 'Manager', 'Operations', 'FULL_TIME', '2021-03-01', NULL, 'Morning',
+    'Phnom Penh', 'Business manager', 'Primary business manager for Phatmenghor Business',
+    NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour', 2
+),
+(
+    '550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    'phatmenghor21@gmail.com', 'phatmenghor21@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
+    'Customer', 'User', 'CustUser', 'FEMALE', '1995-11-10',
+    '+855 10 300 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200',
+    'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    'Phnom Penh', 'Test customer', 'Test customer account for QA',
+    NOW() - INTERVAL '3 hours', NOW() - INTERVAL '45 minutes', 1
+);
 
 -- 500 STAFF MEMBERS
-INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, position, address, notes, active_sessions_count)
+INSERT INTO users (
+    id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_identifier, email, password, first_name, last_name, nickname, gender, date_of_birth,
+    phone_number, profile_image_url, user_type, account_status, business_id,
+    employee_id, position, department, employment_type, join_date, shift,
+    address, notes, remark, active_sessions_count
+)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'staff' || i::text || '@business.com', 'staff' || i::text || '@business.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'Staff_' || i::text, 'User_' || i::text, '+855 10 ' || LPAD((i % 10000000)::text, 7, '0'),
+    'staff' || i::text || '@business.com', 'staff' || i::text || '@business.com',
+    '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
+    'Staff_' || i::text, 'User_' || i::text,
+    'staff' || i::text,
+    CASE WHEN (i % 2) = 0 THEN 'MALE' ELSE 'FEMALE' END,
+    (DATE '1990-01-01' + ((i % 3650)::text || ' days')::INTERVAL)::DATE,
+    '+855 10 ' || LPAD((i % 10000000)::text, 7, '0'),
     CASE WHEN (i % 2) = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584' END,
-    'BUSINESS_USER', CASE WHEN (i % 100) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END,
+    'BUSINESS_USER',
+    CASE WHEN (i % 100) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END,
     CASE WHEN (i <= 250) THEN '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid ELSE '550cad56-cafd-4aba-baef-c4dcd53940d1'::uuid END,
+    'EMP-' || LPAD(i::text, 4, '0'),
     CASE WHEN (i % 5) = 0 THEN 'Manager' WHEN (i % 5) = 1 THEN 'Chef' WHEN (i % 5) = 2 THEN 'Waiter' WHEN (i % 5) = 3 THEN 'Cashier' ELSE 'Kitchen Staff' END,
-    'Phnom Penh Street ' || i::text, 'Staff member ' || i::text, 0
+    CASE WHEN (i % 4) = 0 THEN 'Kitchen' WHEN (i % 4) = 1 THEN 'Service' WHEN (i % 4) = 2 THEN 'Finance' ELSE 'Operations' END,
+    CASE WHEN (i % 3) = 0 THEN 'FULL_TIME' WHEN (i % 3) = 1 THEN 'PART_TIME' ELSE 'CONTRACT' END,
+    (DATE '2020-01-01' + ((i % 1460)::text || ' days')::INTERVAL)::DATE,
+    CASE WHEN (i % 3) = 0 THEN 'Morning' WHEN (i % 3) = 1 THEN 'Afternoon' ELSE 'Night' END,
+    'Phnom Penh Street ' || i::text,
+    'Staff member ' || i::text,
+    'Auto-generated staff #' || i::text,
+    0
 FROM generate_series(1, 500) AS t(i);
 
 -- 5 CUSTOMERS
@@ -196,6 +253,101 @@ SELECT u.id, '550e8400-e29b-41d4-a716-446655440003'
 FROM users u
 WHERE u.user_type = 'CUSTOMER'
   AND u.user_identifier LIKE 'customer%@example.com';
+
+
+-- ============================================================================
+-- 7.5 USER ADDRESSES
+-- ============================================================================
+
+INSERT INTO user_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, house_no, street, village, commune, district, province, country) VALUES
+-- Platform Admin
+('aa000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', '#12B', 'Norodom Blvd', 'Phnom Penh Village', 'Tonle Bassac', 'Chamkarmon', 'Phnom Penh', 'Cambodia'),
+-- Business Manager
+('aa000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', '#45', 'Russian Blvd', 'Toul Tom Poung', 'Toul Tom Poung I', 'Chamkarmon', 'Phnom Penh', 'Cambodia'),
+-- Customer
+('aa000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', '#8', 'Street 130', 'Phsar Thmey III', 'Phsar Thmey III', 'Daun Penh', 'Phnom Penh', 'Cambodia');
+
+-- Bulk address for 50 staff members
+INSERT INTO user_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, house_no, street, village, commune, district, province, country)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    u.id,
+    '#' || (ROW_NUMBER() OVER ())::text,
+    'Street ' || (ROW_NUMBER() OVER () * 10)::text,
+    'Village ' || (ROW_NUMBER() OVER () % 5 + 1)::text,
+    'Commune ' || (ROW_NUMBER() OVER () % 3 + 1)::text,
+    CASE WHEN (ROW_NUMBER() OVER () % 3) = 0 THEN 'Chamkarmon' WHEN (ROW_NUMBER() OVER () % 3) = 1 THEN 'Daun Penh' ELSE 'Russey Keo' END,
+    'Phnom Penh',
+    'Cambodia'
+FROM users u
+WHERE u.user_type = 'BUSINESS_USER'
+  AND u.user_identifier LIKE 'staff%@business.com'
+LIMIT 50;
+
+-- ============================================================================
+-- 7.6 USER EMERGENCY CONTACTS
+-- ============================================================================
+
+INSERT INTO user_emergency_contacts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, name, phone, relationship) VALUES
+-- Platform Admin contacts
+('bb000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'Sok Dara', '+855 12 345 678', 'Father'),
+('bb000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'Chan Mony', '+855 17 234 567', 'Mother'),
+-- Business Manager contacts
+('bb000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'Phat Ratha', '+855 96 456 789', 'Spouse'),
+('bb000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'Phat Bopha', '+855 78 567 890', 'Sister'),
+-- Customer contacts
+('bb000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'Lim Sothy', '+855 89 678 901', 'Friend');
+
+-- ============================================================================
+-- 7.7 USER DOCUMENTS
+-- ============================================================================
+
+INSERT INTO user_documents (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, type, number, file_url) VALUES
+-- Platform Admin documents
+('cc000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'ID_CARD', 'ID-1990-001-0001', 'https://example.com/docs/admin-id.pdf'),
+('cc000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'FAMILY_BOOK', 'FB-PP-2020-0001', 'https://example.com/docs/admin-family.pdf'),
+-- Business Manager documents
+('cc000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'ID_CARD', 'ID-1988-002-0001', 'https://example.com/docs/manager-id.pdf'),
+('cc000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'PASSPORT', 'PB-2022-456789', 'https://example.com/docs/manager-passport.pdf'),
+-- Customer documents
+('cc000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'ID_CARD', 'ID-1995-003-0001', 'https://example.com/docs/customer-id.pdf');
+
+-- ============================================================================
+-- 7.8 USER EDUCATIONS
+-- ============================================================================
+
+INSERT INTO user_educations (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url) VALUES
+-- Platform Admin education
+('dd000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'BACHELOR', 'Royal University of Phnom Penh', 'Computer Science', '2008', '2012', true, 'https://example.com/certs/admin-bachelor.pdf'),
+('dd000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'MASTER', 'Institute of Technology of Cambodia', 'Information Technology', '2013', '2015', true, 'https://example.com/certs/admin-master.pdf'),
+-- Business Manager education
+('dd000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'BACHELOR', 'Build Bright University', 'Business Administration', '2006', '2010', true, 'https://example.com/certs/manager-bachelor.pdf'),
+-- Customer education
+('dd000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'HIGH_SCHOOL', 'Hun Sen Phnom Penh High School', NULL, '2010', '2013', true, NULL),
+('dd000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'DIPLOMA', 'Paññāsāstra University of Cambodia', 'Hospitality Management', '2013', '2015', true, 'https://example.com/certs/customer-diploma.pdf');
 
 -- ============================================================================
 -- 8. USER SESSIONS

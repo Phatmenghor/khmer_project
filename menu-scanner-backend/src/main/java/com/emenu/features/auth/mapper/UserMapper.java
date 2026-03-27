@@ -2,12 +2,9 @@ package com.emenu.features.auth.mapper;
 
 import com.emenu.features.auth.dto.request.RegisterRequest;
 import com.emenu.features.auth.dto.request.UserCreateRequest;
-import com.emenu.features.auth.dto.response.LoginResponse;
-import com.emenu.features.auth.dto.response.UserBasicInfo;
-import com.emenu.features.auth.dto.response.UserResponse;
+import com.emenu.features.auth.dto.response.*;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
-import com.emenu.features.auth.models.Role;
-import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.models.*;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.*;
@@ -21,8 +18,9 @@ public interface UserMapper {
 
     @Mapping(target = "fullName", expression = "java(user.getFullName())")
     @Mapping(target = "businessName", source = "business.name")
-    @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToEnums")
+    @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToStrings")
     @Mapping(target = "telegramSynced", expression = "java(user.getTelegramId() != null)")
+    @Mapping(target = "address", source = "userAddress")
     UserResponse toResponse(User user);
 
     @Mapping(target = "telegramSynced", expression = "java(user.getTelegramId() != null)")
@@ -39,34 +37,52 @@ public interface UserMapper {
 
     List<UserResponse> toResponseList(List<User> users);
 
+    // Nested response mappings
+    AddressResponse toAddressResponse(UserAddress address);
+    EmergencyContactResponse toEmergencyContactResponse(UserEmergencyContact contact);
+    DocumentResponse toDocumentResponse(UserDocument document);
+    EducationResponse toEducationResponse(UserEducation education);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "userAddress", ignore = true)
+    @Mapping(target = "emergencyContacts", ignore = true)
+    @Mapping(target = "documents", ignore = true)
+    @Mapping(target = "educations", ignore = true)
     void updateEntity(UserUpdateRequest request, @MappingTarget User user);
 
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "userAddress", ignore = true)
+    @Mapping(target = "emergencyContacts", ignore = true)
+    @Mapping(target = "documents", ignore = true)
+    @Mapping(target = "educations", ignore = true)
     User toEntity(UserCreateRequest request);
 
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "position", ignore = true)
     @Mapping(target = "notes", ignore = true)
+    @Mapping(target = "userAddress", ignore = true)
+    @Mapping(target = "emergencyContacts", ignore = true)
+    @Mapping(target = "documents", ignore = true)
+    @Mapping(target = "educations", ignore = true)
     User toEntity(RegisterRequest request);
-
-    @Named("rolesToEnums")
-    default List<String> rolesToEnums(List<Role> roles) {
-if (roles == null) return List.of();
-return roles.stream().map(Role::getName).collect(Collectors.toList());
-    }
 
     @Named("rolesToStrings")
     default List<String> rolesToStrings(List<Role> roles) {
-if (roles == null) return List.of();
-return roles.stream().map(Role::getName).collect(Collectors.toList());
+        if (roles == null) return List.of();
+        return roles.stream().map(Role::getName).collect(Collectors.toList());
+    }
+
+    // Keep legacy name for any existing callers
+    @Named("rolesToEnums")
+    default List<String> rolesToEnums(List<Role> roles) {
+        return rolesToStrings(roles);
     }
 
     default PaginationResponse<UserResponse> toPaginationResponse(Page<User> page, PaginationMapper paginationMapper) {
-return paginationMapper.toPaginationResponse(page, this::toResponseList);
+        return paginationMapper.toPaginationResponse(page, this::toResponseList);
     }
 }
