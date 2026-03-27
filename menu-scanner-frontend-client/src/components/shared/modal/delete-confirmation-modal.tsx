@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
@@ -71,26 +71,9 @@ export function DeleteConfirmationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full sm:max-w-md p-0 flex flex-col">
+      <DialogContent className="w-full max-w-sm p-0 flex flex-col">
         <FormHeader
-          title={
-            <div className="flex items-center gap-3">
-              <div
-                className={`p-2 rounded-full ${
-                  isCritical
-                    ? "bg-red-100 text-red-600"
-                    : "bg-orange-100 text-orange-600"
-                }`}
-              >
-                {isCritical ? (
-                  <Trash2 className="h-5 w-5" />
-                ) : (
-                  <AlertTriangle className="h-5 w-5" />
-                )}
-              </div>
-              <span>{title}</span>
-            </div>
-          }
+          title={title}
           description={description}
         />
 
