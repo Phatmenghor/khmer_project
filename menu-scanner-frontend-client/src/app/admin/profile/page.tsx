@@ -1250,6 +1250,5 @@ export default function AdminProfilePage() {
         confirmationText="DELETE"
       />
     </div>
-    </div>
   );
 }
