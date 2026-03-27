@@ -252,26 +252,23 @@ export function UserBusinessDetailModal({
                 <h3 className="text-base font-semibold text-foreground mb-4">
                   Documents
                 </h3>
-                <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   {userData.documents.map((doc: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-blue-500 overflow-hidden">
-                      <CardContent className="pt-4 pb-4">
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                          <div>
-                            <DetailField label="Type" value={doc.type ? formatEnumValue(doc.type) : null} />
-                            <DetailField label="Number" value={doc.number} />
-                          </div>
-                          {doc.fileUrl && (
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">Preview</p>
-                              <img
-                                src={doc.fileUrl}
-                                alt={doc.type}
-                                className="h-32 w-32 rounded-lg object-contain bg-muted/20"
-                              />
-                            </div>
-                          )}
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <DetailField label="Type" value={doc.type ? formatEnumValue(doc.type) : null} />
+                          <DetailField label="Number" value={doc.number} />
                         </div>
+                        {doc.fileUrl && (
+                          <div className="mt-4 -mx-4 -mb-4">
+                            <img
+                              src={doc.fileUrl}
+                              alt={doc.type}
+                              className="w-full h-40 object-contain bg-muted/20"
+                            />
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
@@ -285,36 +282,33 @@ export function UserBusinessDetailModal({
                 <h3 className="text-base font-semibold text-foreground mb-4">
                   Education
                 </h3>
-                <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   {userData.educations.map((edu: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-green-500 overflow-hidden">
-                      <CardContent className="pt-4 pb-4">
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                          <div>
-                            <DetailField label="School Name" value={edu.schoolName} />
-                            <DetailField label="Level" value={edu.level ? formatEnumValue(edu.level) : null} />
-                            <DetailField label="Field of Study" value={edu.fieldOfStudy} />
-                            <DetailField label="Graduation" value={edu.isGraduated ? "Yes" : "No"} />
-                            <DetailField
-                              label="Study Period"
-                              value={
-                                edu.startYear && edu.endYear
-                                  ? `${edu.startYear} - ${edu.endYear}`
-                                  : null
-                              }
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <DetailField label="School Name" value={edu.schoolName} />
+                          <DetailField label="Level" value={edu.level ? formatEnumValue(edu.level) : null} />
+                          <DetailField label="Field of Study" value={edu.fieldOfStudy} />
+                          <DetailField label="Graduation" value={edu.isGraduated ? "Yes" : "No"} />
+                          <DetailField
+                            label="Study Period"
+                            value={
+                              edu.startYear && edu.endYear
+                                ? `${edu.startYear} - ${edu.endYear}`
+                                : null
+                            }
+                          />
+                        </div>
+                        {edu.certificateUrl && (
+                          <div className="mt-4 -mx-4 -mb-4">
+                            <img
+                              src={edu.certificateUrl}
+                              alt="Certificate"
+                              className="w-full h-40 object-contain bg-muted/20"
                             />
                           </div>
-                          {edu.certificateUrl && (
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">Certificate</p>
-                              <img
-                                src={edu.certificateUrl}
-                                alt="Certificate"
-                                className="h-32 w-32 rounded-lg object-contain bg-muted/20"
-                              />
-                            </div>
-                          )}
-                        </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
