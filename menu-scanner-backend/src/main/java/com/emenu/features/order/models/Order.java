@@ -149,7 +149,7 @@ public class Order extends BaseUUIDEntity {
     }
 
     public String getCustomerContact() {
-        return customer != null ? customer.getPhoneNumber() : null;
+        return customer != null && customer.getProfile() != null ? customer.getProfile().getPhoneNumber() : null;
     }
 
     public void markAsPaid() {

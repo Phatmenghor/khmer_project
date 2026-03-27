@@ -41,9 +41,11 @@ public interface UserSessionMapper {
     @Named("getUserFullName")
     default String getUserFullName(User user) {
         if (user == null) return null;
-        String fullName = (user.getFirstName() != null ? user.getFirstName() : "") +
-                (user.getLastName() != null ? " " + user.getLastName() : "");
-        return fullName.trim().isEmpty() ? null : fullName.trim();
+        if (user.getProfile() == null) return user.getFullName();
+        String first = user.getProfile().getFirstName() != null ? user.getProfile().getFirstName() : "";
+        String last = user.getProfile().getLastName() != null ? " " + user.getProfile().getLastName() : "";
+        String fullName = (first + last).trim();
+        return fullName.isEmpty() ? null : fullName;
     }
 
     @Named("getUserType")

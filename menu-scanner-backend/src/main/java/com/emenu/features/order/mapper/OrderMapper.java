@@ -240,12 +240,14 @@ public interface OrderMapper {
             return null;
         }
 
+        User u = history.getChangedByUser();
+        com.emenu.features.auth.models.UserProfile p = u.getProfile();
         return OrderStatusHistoryUserInfo.builder()
                 .userId(history.getChangedByUserId())
-                .firstName(history.getChangedByUser().getFirstName())
-                .lastName(history.getChangedByUser().getLastName())
-                .phoneNumber(history.getChangedByUser().getPhoneNumber())
-                .businessId(history.getChangedByUser().getBusinessId())
+                .firstName(p != null ? p.getFirstName() : null)
+                .lastName(p != null ? p.getLastName() : null)
+                .phoneNumber(p != null ? p.getPhoneNumber() : null)
+                .businessId(u.getBusinessId())
                 .build();
     }
 

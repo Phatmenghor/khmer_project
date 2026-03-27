@@ -143,17 +143,27 @@ public class DataInitializationService {
             if (!userRepository.existsByUserIdentifierAndIsDeletedFalse(adminUserIdentifier)) {
                 User admin = new User();
                 admin.setUserIdentifier(adminUserIdentifier);
-                admin.setEmail(defaultAdminEmail);
                 admin.setPassword(passwordEncoder.encode(defaultAdminPassword));
-                admin.setFirstName("Platform");
-                admin.setLastName("Administrator");
                 admin.setUserType(UserType.PLATFORM_USER);
-                admin.setPosition("Platform Owner");
                 admin.setAccountStatus(AccountStatus.ACTIVE);
 
                 Role platformOwnerRole = roleRepository.findByNameAndIsDeletedFalse("PLATFORM_OWNER")
                         .orElseThrow(() -> new RuntimeException("Platform owner role not found"));
                 admin.setRoles(List.of(platformOwnerRole));
+
+                admin = userRepository.save(admin);
+
+                com.emenu.features.auth.models.UserProfile profile = new com.emenu.features.auth.models.UserProfile();
+                profile.setUser(admin);
+                profile.setEmail(defaultAdminEmail);
+                profile.setFirstName("Platform");
+                profile.setLastName("Administrator");
+                admin.setProfile(profile);
+
+                com.emenu.features.auth.models.UserEmployment employment = new com.emenu.features.auth.models.UserEmployment();
+                employment.setUser(admin);
+                employment.setPosition("Platform Owner");
+                admin.setEmployment(employment);
 
                 admin = userRepository.save(admin);
                 log.info("✅ Created platform owner: {} with ID: {}", adminUserIdentifier, admin.getId());

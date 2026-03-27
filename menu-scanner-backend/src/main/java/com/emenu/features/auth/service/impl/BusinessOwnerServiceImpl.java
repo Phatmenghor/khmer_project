@@ -344,20 +344,29 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         User owner = new User();
         owner.setUserIdentifier(request.getOwnerUserIdentifier());
-        owner.setEmail(request.getOwnerEmail());
         owner.setPassword(passwordEncoder.encode(request.getOwnerPassword()));
-
-        // Split full name
-        String[] nameParts = request.getOwnerFullName().split(" ", 2);
-        owner.setFirstName(nameParts[0]);
-        owner.setLastName(nameParts.length > 1 ? nameParts[1] : "");
-
-        owner.setPhoneNumber(request.getOwnerPhone());
         owner.setUserType(UserType.BUSINESS_USER);
         owner.setAccountStatus(AccountStatus.ACTIVE);
         owner.setBusinessId(businessId);
-        owner.setPosition("Owner");
         owner.setRoles(List.of(ownerRole));
+
+        owner = businessOwnerRepository.save(owner);
+
+        // Build profile
+        String[] nameParts = request.getOwnerFullName() != null ? request.getOwnerFullName().split(" ", 2) : new String[]{"", ""};
+        com.emenu.features.auth.models.UserProfile profile = new com.emenu.features.auth.models.UserProfile();
+        profile.setUser(owner);
+        profile.setEmail(request.getOwnerEmail());
+        profile.setFirstName(nameParts[0]);
+        profile.setLastName(nameParts.length > 1 ? nameParts[1] : "");
+        profile.setPhoneNumber(request.getOwnerPhone());
+        owner.setProfile(profile);
+
+        // Build employment
+        com.emenu.features.auth.models.UserEmployment employment = new com.emenu.features.auth.models.UserEmployment();
+        employment.setUser(owner);
+        employment.setPosition("Owner");
+        owner.setEmployment(employment);
 
         return businessOwnerRepository.save(owner);
     }
