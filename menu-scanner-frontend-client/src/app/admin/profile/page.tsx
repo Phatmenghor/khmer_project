@@ -384,8 +384,8 @@ export default function AdminProfilePage() {
             <div className="flex items-center gap-4">
               {/* Profile Image - Camera Icon */}
               <div
-                className="relative cursor-pointer group"
-                onClick={() => setIsProfilePictureModalOpen(true)}
+                className={`relative group ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}
+                onClick={() => isEditing && setIsProfilePictureModalOpen(true)}
               >
                 <div className="relative">
                   <CustomAvatar
@@ -393,10 +393,12 @@ export default function AdminProfilePage() {
                     name={userProfile?.fullName}
                     size="xl"
                   />
-                  {/* Camera Icon Overlay */}
-                  <div className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                    <Camera className="h-4 w-4 text-white" />
-                  </div>
+                  {/* Camera Icon Overlay - Only show in edit mode */}
+                  {isEditing && (
+                    <div className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                      <Camera className="h-4 w-4 text-white" />
+                    </div>
+                  )}
                 </div>
               </div>
 
