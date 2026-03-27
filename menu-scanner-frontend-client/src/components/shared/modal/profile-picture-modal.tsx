@@ -9,6 +9,7 @@ import {
   Download,
   X,
   Loader2,
+  Folder,
 } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -33,6 +34,7 @@ export function ProfilePictureModal({
   isLoading = false,
 }: ProfilePictureModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string>(currentImageUrl || "");
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,14 +83,8 @@ export function ProfilePictureModal({
   };
 
   const handleRemove = () => {
-    if (
-      confirm(
-        "Are you sure you want to remove your profile picture? This action cannot be undone."
-      )
-    ) {
-      onImageRemove();
-      onClose();
-    }
+    onImageRemove();
+    onClose();
   };
 
   return (
@@ -101,13 +97,13 @@ export function ProfilePictureModal({
           <VisuallyHidden>Upload, download, or remove your profile picture</VisuallyHidden>
         </DialogDescription>
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white flex items-center justify-between">
+        <div className="bg-primary p-6 text-primary-foreground flex items-center justify-between">
           <h2 className="text-lg font-semibold">Profile Picture</h2>
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="text-white hover:bg-white/20"
+            className="text-primary-foreground hover:bg-primary/80"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -140,10 +136,10 @@ export function ProfilePictureModal({
 
         {/* Action Buttons */}
         <div className="border-t p-6 space-y-3">
-          {/* Select Picture */}
+          {/* Select Picture from Folder */}
           <Button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
+            className="w-full gap-2 bg-primary hover:bg-primary/90"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -153,10 +149,20 @@ export function ProfilePictureModal({
               </>
             ) : (
               <>
-                <Camera className="h-4 w-4" />
-                Select Picture
+                <Folder className="h-4 w-4" />
+                Select Photo
               </>
             )}
+          </Button>
+
+          {/* Open Camera */}
+          <Button
+            onClick={() => cameraInputRef.current?.click()}
+            className="w-full gap-2 bg-primary hover:bg-primary/90"
+            disabled={isLoading}
+          >
+            <Camera className="h-4 w-4" />
+            Open Camera
           </Button>
 
           {/* Download Picture */}
@@ -168,7 +174,7 @@ export function ProfilePictureModal({
               disabled={isLoading}
             >
               <Download className="h-4 w-4" />
-              Download Picture
+              Download
             </Button>
           )}
 
@@ -177,11 +183,11 @@ export function ProfilePictureModal({
             <Button
               onClick={handleRemove}
               variant="outline"
-              className="w-full gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
               disabled={isLoading}
             >
               <Trash2 className="h-4 w-4" />
-              Remove Picture
+              Remove
             </Button>
           )}
 
@@ -196,11 +202,19 @@ export function ProfilePictureModal({
           </Button>
         </div>
 
-        {/* Hidden File Input */}
+        {/* Hidden File Inputs */}
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
           className="hidden"
           onChange={handleFileSelect}
         />
