@@ -7,11 +7,11 @@ import {
   Camera,
   Trash2,
   Download,
-  X,
   Loader2,
   Folder,
 } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { ModalCloseButton } from "@/components/shared/button/modal-close-button";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface ProfilePictureModalProps {
@@ -40,13 +40,6 @@ export function ProfilePictureModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string>(currentImageUrl || "");
-
-  const iconSizeMap = {
-    sm: "h-3 w-3",
-    md: "h-4 w-4",
-    lg: "h-5 w-5",
-    xl: "h-6 w-6",
-  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -110,14 +103,12 @@ export function ProfilePictureModal({
         {/* Header */}
         <div className="relative bg-primary p-6 text-primary-foreground">
           <h2 className="text-lg font-semibold">Profile Picture</h2>
-          <Button
-            variant="ghost"
-            size="sm"
+          <ModalCloseButton
             onClick={onClose}
-            className="absolute right-2 top-2 text-primary-foreground hover:bg-primary/80"
-          >
-            <X className={`${iconSizeMap[closeIconSize]}`} style={{ color: closeIconColor }} />
-          </Button>
+            iconSize={closeIconSize}
+            iconColor={closeIconColor}
+            className="text-primary-foreground"
+          />
         </div>
 
         {/* Current/Selected Image Preview */}
