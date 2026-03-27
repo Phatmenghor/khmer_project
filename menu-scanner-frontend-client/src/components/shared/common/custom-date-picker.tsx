@@ -264,15 +264,20 @@ export function CustomDateTimePicker({
             {selectedDate ? formatDate(selectedDate) : placeholder}
           </span>
           {selectedDate && !disabled && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="ml-1 h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+            <div
+              className="ml-1 h-6 w-6 p-0 flex items-center justify-center rounded hover:bg-destructive/10 hover:text-destructive cursor-pointer transition-colors"
               onClick={clearSelection}
+              role="button"
+              tabIndex={0}
+              aria-label="Clear date selection"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  clearSelection(e as any);
+                }
+              }}
             >
               <X className="h-3 w-3" />
-            </Button>
+            </div>
           )}
         </Button>
       </PopoverTrigger>
