@@ -261,11 +261,11 @@ export function UserBusinessDetailModal({
                           <DetailField label="Number" value={doc.number} />
                         </div>
                         {doc.fileUrl && (
-                          <div className="mt-4 -mx-4 -mb-4">
+                          <div className="mt-4 -mx-4 -mb-4 flex justify-start">
                             <img
                               src={doc.fileUrl}
                               alt={doc.type}
-                              className="w-full h-40 object-contain bg-muted/20"
+                              className="h-40 w-auto max-w-full object-contain bg-muted/20"
                             />
                           </div>
                         )}
@@ -301,11 +301,11 @@ export function UserBusinessDetailModal({
                           />
                         </div>
                         {edu.certificateUrl && (
-                          <div className="mt-4 -mx-4 -mb-4">
+                          <div className="mt-4 -mx-4 -mb-4 flex justify-start">
                             <img
                               src={edu.certificateUrl}
                               alt="Certificate"
-                              className="w-full h-40 object-contain bg-muted/20"
+                              className="h-40 w-auto max-w-full object-contain bg-muted/20"
                             />
                           </div>
                         )}
