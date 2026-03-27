@@ -62,6 +62,17 @@ export const roleTableColumns = ({
       ),
     },
     {
+      key: "userType",
+      label: "User Type",
+      minWidth: "10px",
+      maxWidth: "200px",
+      render: (user) => (
+        <span className="text-xs text-muted-foreground">
+          {user?.userType || "---"}
+        </span>
+      ),
+    },
+    {
       key: "createdAt",
       label: "Created At",
       minWidth: "10px",

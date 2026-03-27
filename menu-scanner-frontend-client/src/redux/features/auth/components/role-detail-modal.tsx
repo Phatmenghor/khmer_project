@@ -59,16 +59,12 @@ export function RoleDetailModal({
     >
       {roleData ? (
         <div className="space-y-6">
-          {/* Personal Information */}
-          <DetailSection title="Personal Information">
-            <DetailRow label="Full Name" value={roleData?.name || "---"} />
+          {/* Role Information */}
+          <DetailSection title="Role Information">
+            <DetailRow label="Role Name" value={roleData?.name || "---"} />
             <DetailRow
               label="Description"
               value={roleData?.description || "---"}
-            />
-            <DetailRow
-              label="Business ID"
-              value={roleData?.businessId || "---"}
             />
             <DetailRow label="User Type" value={roleData?.userType || "---"} />
           </DetailSection>

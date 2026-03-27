@@ -195,7 +195,10 @@ export default function RolesPage() {
           title="Roles Management"
           searchValue={filters.search}
           searchPlaceholder="Search roles..."
+          buttonText="Create Role"
           buttonIcon={<Plus className="w-3 h-3" />}
+          buttonTooltip="Create a new role"
+          openModal={handleCreate}
           onSearchChange={handleSearchChange}
         ></CardHeaderSection>
 

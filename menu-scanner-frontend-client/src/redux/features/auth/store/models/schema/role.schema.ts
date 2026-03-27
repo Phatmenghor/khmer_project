@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 export const createRoleSchema = z.object({
-  name: z.string().min(1, "name role is required"),
+  name: z.string().min(1, "Role name is required").min(2, "Role name must be at least 2 characters"),
   description: z.string().optional().or(z.literal("")),
 });
 
 export const updateRoleSchema = z.object({
-  id: z.string().min(1, "role id is required"),
-  name: z.string().min(1, "name role is required"),
+  id: z.string().min(1, "Role id is required"),
+  name: z.string().min(1, "Role name is required").min(2, "Role name must be at least 2 characters"),
   description: z.string().optional().or(z.literal("")),
 });
 
