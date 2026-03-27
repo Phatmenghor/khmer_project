@@ -73,6 +73,19 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
     mode: "onChange",
   });
 
+  const nameValue = watch("name");
+
+  useEffect(() => {
+    if (nameValue) {
+      const normalized = nameValue
+        .toUpperCase()
+        .replace(/\s+/g, "_");
+      if (normalized !== nameValue) {
+        setValue("name", normalized);
+      }
+    }
+  }, [nameValue, setValue]);
+
   useEffect(() => {
     const fetchRoleData = async () => {
       if (!roleId || !isOpen || isCreate) return;
