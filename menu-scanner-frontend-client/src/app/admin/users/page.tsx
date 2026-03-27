@@ -55,12 +55,14 @@ export default function UserBusinessPage() {
   const debouncedSearch = useDebounce(filters.search, 400);
   const rolesContent = useAppSelector(selectRoleContent);
 
-  // Build dynamic role filter options
-  // Backend provides ALL_ROLES item when includeAll: true, so map directly
-  const roleFilterOptions = rolesContent.map((role) => ({
-    value: role.id || UserRole.ALL, // Use null id from ALL_ROLES as UserRole.ALL
-    label: formatEnumValue(role.name),
-  }));
+  // Build dynamic role filter options with static ALL_ROLES option
+  const roleFilterOptions = [
+    { value: UserRole.ALL, label: "All Roles" },
+    ...rolesContent.map((role) => ({
+      value: role.id,
+      label: formatEnumValue(role.name),
+    })),
+  ];
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.USERS,
@@ -73,7 +75,7 @@ export default function UserBusinessPage() {
       fetchAllRoleService({
         pageNo: 1,
         pageSize: 100,
-        includeAll: true,
+        includeAll: false,
         businessId: AppDefault.BUSINESS_ID,
         userTypes: [UserGropeType.BUSINESS_USER],
       }),
