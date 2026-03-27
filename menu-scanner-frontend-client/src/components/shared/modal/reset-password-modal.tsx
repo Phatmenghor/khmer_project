@@ -23,9 +23,9 @@ import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { adminChangePasswordService } from "@/redux/features/auth/store/thunks/users-thunks";
 import { selectIsResettingPassword } from "@/redux/features/auth/store/selectors/users-selectors";
 import { showToast } from "../common/show-toast";
-import { FormHeader } from "./form-header";
-import { FormBody } from "./form-body";
-import { FormFooter } from "./form-footer";
+import { FormHeader } from "../form-field/form-header";
+import { FormBody } from "../form-field/form-body";
+import { FormFooter } from "../form-field/form-footer";
 
 interface ResetPasswordModalProps {
   userId?: string;
