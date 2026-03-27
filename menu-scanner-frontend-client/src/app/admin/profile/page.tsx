@@ -1210,7 +1210,6 @@ export default function AdminProfilePage() {
             </Card>
           </div>
         )}
-    </div>
 
       {/* Profile Picture Modal */}
       <ProfilePictureModal
@@ -1250,6 +1249,7 @@ export default function AdminProfilePage() {
         requireConfirmation={true}
         confirmationText="DELETE"
       />
+    </div>
     </div>
   );
 }
