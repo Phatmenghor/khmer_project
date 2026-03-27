@@ -502,7 +502,7 @@ export default function UserBusinessModal({
               )}
 
               <div className="space-y-6">
-                {/* Account Credentials */}
+                {/* Account Credentials & Roles - CREATE MODE */}
                 {isCreate && (
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">
@@ -539,6 +539,69 @@ export default function UserBusinessModal({
                         required
                         disabled={isSubmitting}
                         error={errors.password}
+                      />
+
+                      <SelectField
+                        control={control}
+                        name="roles"
+                        label="User Role"
+                        placeholder="Select user role"
+                        options={roleOptions}
+                        required
+                        disabled={isSubmitting || roleOptions.length === 0}
+                        error={getArrayFieldError(errors.roles)}
+                        onValueChange={(value) => {
+                          setValue("roles", [value], {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }}
+                      />
+
+                      <SelectField
+                        control={control}
+                        name="accountStatus"
+                        label="Account Status"
+                        placeholder="Select account status"
+                        options={ACCOUNT_STATUS_CREATE_UPDATE}
+                        required
+                        disabled={isSubmitting}
+                        error={errors.accountStatus}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* System & Roles - EDIT MODE */}
+                {!isCreate && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <SelectField
+                        control={control}
+                        name="roles"
+                        label="User Role"
+                        placeholder="Select user role"
+                        options={roleOptions}
+                        required
+                        disabled={isSubmitting || roleOptions.length === 0}
+                        error={getArrayFieldError(errors.roles)}
+                        onValueChange={(value) => {
+                          setValue("roles", [value], {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }}
+                      />
+
+                      <SelectField
+                        control={control}
+                        name="accountStatus"
+                        label="Account Status"
+                        placeholder="Select account status"
+                        options={ACCOUNT_STATUS_CREATE_UPDATE}
+                        required
+                        disabled={isSubmitting}
+                        error={errors.accountStatus}
                       />
                     </div>
                   </div>
@@ -609,13 +672,20 @@ export default function UserBusinessModal({
                       error={errors.dateOfBirth}
                     />
 
-                    <TextField
-                      control={control}
-                      name="profileImageUrl"
-                      label="Profile Image URL"
-                      placeholder="Enter image URL"
+                    <ClickableImageUpload
+                      label="Profile Image"
+                      value={watch("profileImageUrl")}
+                      onChange={(base64) =>
+                        setValue("profileImageUrl", base64, {
+                          shouldDirty: true,
+                        })
+                      }
+                      aspectRatio="square"
+                      height="h-40"
+                      maxSize={5}
                       disabled={isSubmitting}
                       error={errors.profileImageUrl}
+                      placeholder="Upload profile image"
                     />
                   </div>
                 </div>
@@ -690,42 +760,6 @@ export default function UserBusinessModal({
                       placeholder="Enter shift"
                       disabled={isSubmitting}
                       error={errors.shift}
-                    />
-                  </div>
-                </div>
-
-                {/* System & Roles */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
-                    System & Roles <span className="text-red-500">*</span>
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <SelectField
-                      control={control}
-                      name="roles"
-                      label="User Role"
-                      placeholder="Select user role"
-                      options={roleOptions}
-                      required
-                      disabled={isSubmitting || roleOptions.length === 0}
-                      error={getArrayFieldError(errors.roles)}
-                      onValueChange={(value) => {
-                        setValue("roles", [value], {
-                          shouldDirty: true,
-                          shouldValidate: true,
-                        });
-                      }}
-                    />
-
-                    <SelectField
-                      control={control}
-                      name="accountStatus"
-                      label="Account Status"
-                      placeholder="Select account status"
-                      options={ACCOUNT_STATUS_CREATE_UPDATE}
-                      required
-                      disabled={isSubmitting}
-                      error={errors.accountStatus}
                     />
                   </div>
                 </div>
