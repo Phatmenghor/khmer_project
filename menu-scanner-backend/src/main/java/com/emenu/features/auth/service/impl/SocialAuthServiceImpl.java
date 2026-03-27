@@ -6,6 +6,7 @@ import com.emenu.enums.user.UserType;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.models.UserProfile;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.auth.service.RefreshTokenService;
@@ -13,7 +14,6 @@ import com.emenu.features.auth.dto.request.SocialAuthRequest;
 import com.emenu.features.auth.dto.response.SocialAuthResponse;
 import com.emenu.features.auth.dto.response.SocialSyncResponse;
 import com.emenu.features.auth.service.SocialAuthService;
-import com.emenu.features.auth.service.social.provider.GoogleAuthProvider;
 import com.emenu.features.auth.service.social.provider.SocialUserInfo;
 import com.emenu.features.auth.service.social.provider.TelegramAuthProvider;
 import com.emenu.security.jwt.JWTGenerator;
@@ -36,7 +36,6 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final TelegramAuthProvider telegramAuthProvider;
-    private final GoogleAuthProvider googleAuthProvider;
     private final JWTGenerator jwtGenerator;
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
@@ -44,26 +43,21 @@ public class SocialAuthServiceImpl implements SocialAuthService {
 
     @Override
     public SocialAuthResponse authenticate(SocialAuthRequest request) {
-        log.info("Social auth: provider={}, userType={}", request.getProvider(), request.getUserType());
+        log.info("## [SOCIAL AUTH] ▶ provider={}, userType={}", request.getProvider(), request.getUserType());
 
         SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(request.getProvider());
         SocialUserInfo userInfo = fetchUserInfo(provider, request.getAccessToken());
 
         User user = findOrCreateUser(userInfo, provider, request.getUserType(), request.getBusinessId());
-
         syncSocialData(user, provider, userInfo);
         userRepository.save(user);
 
-        List<String> roles = user.getRoles().stream()
-                .map(Role::getName)
-                .toList();
-
+        List<String> roles = user.getRoles().stream().map(Role::getName).toList();
         String accessToken = jwtGenerator.generateAccessTokenFromUsername(user.getUserIdentifier(), roles);
         String refreshToken = refreshTokenService.createRefreshToken(
-                user, request.getIpAddress(), request.getDeviceInfo()
-        ).getToken();
+                user, request.getIpAddress(), request.getDeviceInfo()).getToken();
 
-        log.info("Social auth successful: user={}, provider={}", user.getUserIdentifier(), provider);
+        log.info("## [SOCIAL AUTH] ✓ success: user={}, provider={}", user.getUserIdentifier(), provider);
 
         return SocialAuthResponse.builder()
                 .success(true)
@@ -89,18 +83,20 @@ public class SocialAuthServiceImpl implements SocialAuthService {
 
         User user = userRepository.findByIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> new ValidationException("User not found"));
-        log.info("## [SYNC SERVICE] ✓ Found user: identifier={}, userType={}", user.getUserIdentifier(), user.getUserType());
+        log.info("## [SYNC SERVICE] ✓ Found user: identifier={}", user.getUserIdentifier());
 
         SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(request.getProvider());
         log.info("## [SYNC SERVICE] ▶ Fetching user info from provider: {}", provider);
         SocialUserInfo userInfo = fetchUserInfo(provider, request.getAccessToken());
         log.info("## [SYNC SERVICE] ✓ Provider info fetched: id={}, username={}", userInfo.getId(), userInfo.getUsername());
 
-        log.info("## [SYNC SERVICE] ▶ Syncing social data to user entity...");
         syncSocialData(user, provider, userInfo);
         userRepository.save(user);
+
+        Long tgId = user.getTelegram() != null ? user.getTelegram().getTelegramId() : null;
+        String tgUsername = user.getTelegram() != null ? user.getTelegram().getTelegramUsername() : null;
         log.info("## [SYNC SERVICE] ✓ User saved: telegramId={}, telegramUsername={}, hasPhoto={}",
-                user.getTelegramId(), user.getTelegramUsername(), user.getTelegramPhotoUrl() != null);
+                tgId, tgUsername, user.getTelegram() != null && user.getTelegram().getTelegramPhotoUrl() != null);
 
         SocialSyncResponse.SocialSyncResponseBuilder builder = SocialSyncResponse.builder()
                 .success(true)
@@ -114,9 +110,6 @@ public class SocialAuthServiceImpl implements SocialAuthService {
                     .telegramFirstName(userInfo.getFirstName())
                     .telegramLastName(userInfo.getLastName())
                     .telegramPhotoUrl(userInfo.getPhotoUrl());
-        } else if (provider == SocialAuthProvider.GOOGLE) {
-            builder.googleId(userInfo.getId())
-                    .googleEmail(userInfo.getEmail());
         }
 
         return builder.build();
@@ -129,24 +122,20 @@ public class SocialAuthServiceImpl implements SocialAuthService {
 
         User user = userRepository.findByIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> new ValidationException("User not found"));
-        log.info("## [UNSYNC SERVICE] ✓ Found user: identifier={}", user.getUserIdentifier());
 
         SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(providerKey);
 
         switch (provider) {
             case TELEGRAM -> {
-                log.info("## [UNSYNC SERVICE] ▶ Clearing Telegram fields (was telegramId={})", user.getTelegramId());
+                Long tgId = user.getTelegram() != null ? user.getTelegram().getTelegramId() : null;
+                log.info("## [UNSYNC SERVICE] ▶ Clearing Telegram (was telegramId={})", tgId);
                 user.unsyncTelegram();
-            }
-            case GOOGLE -> {
-                log.info("## [UNSYNC SERVICE] ▶ Clearing Google fields (was googleId={})", user.getGoogleId());
-                user.unsyncGoogle();
             }
             default -> throw new ValidationException("Unsupported provider: " + provider);
         }
 
         userRepository.save(user);
-        log.info("## [UNSYNC SERVICE] ✓ User saved, {} unsynced successfully", providerKey);
+        log.info("## [UNSYNC SERVICE] ✓ {} unsynced successfully", providerKey);
 
         return SocialSyncResponse.builder()
                 .success(true)
@@ -156,38 +145,23 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     }
 
     private SocialUserInfo fetchUserInfo(SocialAuthProvider provider, String accessToken) {
-        return switch (provider) {
-            case TELEGRAM -> telegramAuthProvider.getUserInfo(accessToken);
-            case GOOGLE -> googleAuthProvider.getUserInfo(accessToken);
-            default -> throw new ValidationException("Provider not yet implemented: " + provider);
-        };
+        if (provider == SocialAuthProvider.TELEGRAM) {
+            return telegramAuthProvider.getUserInfo(accessToken);
+        }
+        throw new ValidationException("Unsupported provider: " + provider);
     }
 
-    private User findOrCreateUser(SocialUserInfo userInfo, SocialAuthProvider provider, 
-                                   UserType userType, UUID businessId) {
+    private User findOrCreateUser(SocialUserInfo userInfo, SocialAuthProvider provider, UserType userType, UUID businessId) {
         return switch (provider) {
             case TELEGRAM -> findOrCreateByTelegram(userInfo, userType, businessId);
-            case GOOGLE -> findOrCreateByGoogle(userInfo, userType, businessId);
-            default -> throw new ValidationException("Provider not yet implemented: " + provider);
+            default -> throw new ValidationException("Unsupported provider: " + provider);
         };
     }
 
     private User findOrCreateByTelegram(SocialUserInfo userInfo, UserType userType, UUID businessId) {
         Long telegramId = Long.parseLong(userInfo.getId());
-
         return userRepository.findByTelegramIdAndIsDeletedFalse(telegramId)
                 .orElseGet(() -> createNewUser(userInfo, userType, businessId));
-    }
-
-    private User findOrCreateByGoogle(SocialUserInfo userInfo, UserType userType, UUID businessId) {
-        if (userType == UserType.BUSINESS_USER && businessId != null) {
-            return userRepository.findByGoogleIdAndUserTypeAndBusinessIdAndIsDeletedFalse(
-                    userInfo.getId(), userType, businessId
-            ).orElseGet(() -> createNewUser(userInfo, userType, businessId));
-        } else {
-            return userRepository.findByGoogleIdAndUserTypeAndIsDeletedFalse(userInfo.getId(), userType)
-                    .orElseGet(() -> createNewUser(userInfo, userType, businessId));
-        }
     }
 
     private User createNewUser(SocialUserInfo userInfo, UserType userType, UUID businessId) {
@@ -202,37 +176,39 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         Role role = roleRepository.findByNameAndIsDeletedFalse(defaultRole)
                 .orElseThrow(() -> new ValidationException("Default role not found: " + defaultRole));
 
-        // Validate role is compatible with the user type
         if (!role.isCompatibleWithUserType(userType)) {
             throw new ValidationException(
-                    String.format("Role '%s' is not properly configured for '%s' user type", defaultRole, userType)
-            );
+                    String.format("Role '%s' is not properly configured for '%s'", defaultRole, userType));
         }
 
         User user = new User();
         user.setUserIdentifier(userIdentifier);
-        user.setEmail(userInfo.getEmail());
         user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-        user.setFirstName(userInfo.getFirstName());
-        user.setLastName(userInfo.getLastName());
         user.setUserType(userType);
         user.setAccountStatus(AccountStatus.ACTIVE);
         user.setBusinessId(businessId);
         user.setRoles(List.of(role));
 
+        // Create profile with social info
+        UserProfile profile = new UserProfile();
+        profile.setUser(user);
+        profile.setEmail(userInfo.getEmail());
+        profile.setFirstName(userInfo.getFirstName());
+        profile.setLastName(userInfo.getLastName());
+        user.setProfile(profile);
+
         return userRepository.save(user);
     }
 
     private void syncSocialData(User user, SocialAuthProvider provider, SocialUserInfo userInfo) {
-        switch (provider) {
-            case TELEGRAM -> user.syncTelegram(
+        if (provider == SocialAuthProvider.TELEGRAM) {
+            user.syncTelegram(
                     Long.parseLong(userInfo.getId()),
                     userInfo.getUsername(),
                     userInfo.getFirstName(),
                     userInfo.getLastName(),
                     userInfo.getPhotoUrl()
             );
-            case GOOGLE -> user.syncGoogle(userInfo.getId(), userInfo.getEmail());
         }
     }
 
@@ -240,16 +216,12 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         String base = userInfo.getUsername() != null ? userInfo.getUsername() :
                       userInfo.getEmail() != null ? userInfo.getEmail().split("@")[0] :
                       "user" + userInfo.getId().substring(0, 8);
-
         String identifier = base.toLowerCase().replaceAll("[^a-z0-9_]", "");
-        
         int suffix = 1;
         String candidate = identifier;
         while (userRepository.existsByUserIdentifierAndUserTypeAndIsDeletedFalse(candidate, userType)) {
-            candidate = identifier + suffix;
-            suffix++;
+            candidate = identifier + suffix++;
         }
-        
         return candidate;
     }
 }

@@ -13,16 +13,27 @@ import java.util.UUID;
 @Data
 public class UserCreateRequest {
 
+    // Account
     @NotBlank(message = "User identifier is required")
     private String userIdentifier;
-
-    private String email;
 
     @NotBlank(message = "Password is required")
     @Size(min = 4, max = 100)
     private String password;
 
+    @NotNull(message = "User type is required")
+    private UserType userType;
+
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
+    private UUID businessId;
+
+    @NotNull(message = "At least one role is required")
+    private List<String> roles;
+
+    private String remark;
+
     // Personal
+    private String email;
     private String firstName;
     private String lastName;
     private String nickname;
@@ -30,15 +41,6 @@ public class UserCreateRequest {
     private LocalDate dateOfBirth;
     private String phoneNumber;
     private String profileImageUrl;
-
-    // Account
-    @NotNull(message = "User type is required")
-    private UserType userType;
-    private AccountStatus accountStatus = AccountStatus.ACTIVE;
-    private UUID businessId;
-
-    @NotNull(message = "At least one role is required")
-    private List<String> roles;
 
     // Employment
     private String employeeId;
@@ -49,13 +51,9 @@ public class UserCreateRequest {
     private LocalDate leaveDate;
     private String shift;
 
-    // Address & Related
-    private AddressRequest address;
+    // Related
+    private List<AddressRequest> addresses;
     private List<EmergencyContactRequest> emergencyContacts;
     private List<DocumentRequest> documents;
     private List<EducationRequest> educations;
-
-    // Misc
-    private String notes;
-    private String remark;
 }

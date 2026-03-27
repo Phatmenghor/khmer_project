@@ -14,11 +14,17 @@ import java.util.UUID;
 @Data
 public class UserResponse extends BaseAuditResponse {
 
-    // Identity
+    // ── Account ────────────────────────────────────────────────────────────
     private String userIdentifier;
-    private String email;
+    private UserType userType;
+    private AccountStatus accountStatus;
+    private List<String> roles;
+    private UUID businessId;
+    private String businessName;
+    private String remark;
 
-    // Personal
+    // ── Personal (from user_profiles) ─────────────────────────────────────
+    private String email;
     private String firstName;
     private String lastName;
     private String fullName;
@@ -28,14 +34,7 @@ public class UserResponse extends BaseAuditResponse {
     private String phoneNumber;
     private String profileImageUrl;
 
-    // Account
-    private UserType userType;
-    private AccountStatus accountStatus;
-    private List<String> roles;
-    private UUID businessId;
-    private String businessName;
-
-    // Employment
+    // ── Employment (from user_employments) ────────────────────────────────
     private String employeeId;
     private String position;
     private String department;
@@ -44,17 +43,7 @@ public class UserResponse extends BaseAuditResponse {
     private LocalDate leaveDate;
     private String shift;
 
-    // Address & Related
-    private AddressResponse address;
-    private List<EmergencyContactResponse> emergencyContacts;
-    private List<DocumentResponse> documents;
-    private List<EducationResponse> educations;
-
-    // Misc
-    private String notes;
-    private String remark;
-
-    // Telegram
+    // ── Telegram (from user_telegrams) ────────────────────────────────────
     private Long telegramId;
     private String telegramUsername;
     private String telegramFirstName;
@@ -63,6 +52,12 @@ public class UserResponse extends BaseAuditResponse {
     private LocalDateTime telegramSyncedAt;
     private boolean telegramSynced;
 
-    // Session
+    // ── Related ────────────────────────────────────────────────────────────
+    private List<AddressResponse> addresses;
+    private List<EmergencyContactResponse> emergencyContacts;
+    private List<DocumentResponse> documents;
+    private List<EducationResponse> educations;
+
+    // ── Session ────────────────────────────────────────────────────────────
     private LocalDateTime lastLoginAt;
 }

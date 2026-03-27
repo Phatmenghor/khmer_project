@@ -57,6 +57,9 @@ TRUNCATE TABLE blacklisted_tokens CASCADE;
 TRUNCATE TABLE user_educations CASCADE;
 TRUNCATE TABLE user_documents CASCADE;
 TRUNCATE TABLE user_emergency_contacts CASCADE;
+TRUNCATE TABLE user_telegrams CASCADE;
+TRUNCATE TABLE user_employments CASCADE;
+TRUNCATE TABLE user_profiles CASCADE;
 TRUNCATE TABLE user_addresses CASCADE;
 TRUNCATE TABLE user_roles CASCADE;
 TRUNCATE TABLE users CASCADE;
@@ -150,85 +153,60 @@ INSERT INTO business_settings (id, version, created_at, updated_at, created_by, 
 
 INSERT INTO users (
     id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-    user_identifier, email, password, first_name, last_name, nickname, gender, date_of_birth,
-    phone_number, profile_image_url, user_type, account_status, business_id,
-    employee_id, position, department, employment_type, join_date, leave_date, shift,
-    address, notes, remark, last_login_at, last_active_at, active_sessions_count
+    user_identifier, password, user_type, account_status, business_id,
+    remark, last_login_at, last_active_at, active_sessions_count
 ) VALUES
 (
     '550e8400-e29b-41d4-a716-446655550000', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'phatmenghor19@gmail.com', 'phatmenghor19@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'Platform', 'Admin', 'Admin', 'MALE', '1990-01-15',
-    '+855 10 100 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200',
+    'phatmenghor19@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'PLATFORM_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'EMP-0001', 'Administrator', 'Management', 'FULL_TIME', '2020-01-01', NULL, 'Morning',
-    'Phnom Penh', 'Platform admin', 'Main platform administrator account',
+    'Main platform administrator account',
     NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes', 1
 ),
 (
     '550e8400-e29b-41d4-a716-446655550001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'phatmenghor20@gmail.com', 'phatmenghor20@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'Business', 'Manager', 'BizMgr', 'MALE', '1988-05-20',
-    '+855 10 200 0001', 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200',
+    'phatmenghor20@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'BUSINESS_USER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'EMP-0002', 'Manager', 'Operations', 'FULL_TIME', '2021-03-01', NULL, 'Morning',
-    'Phnom Penh', 'Business manager', 'Primary business manager for Phatmenghor Business',
+    'Primary business manager for Phatmenghor Business',
     NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour', 2
 ),
 (
     '550e8400-e29b-41d4-a716-446655550002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'phatmenghor21@gmail.com', 'phatmenghor21@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'Customer', 'User', 'CustUser', 'FEMALE', '1995-11-10',
-    '+855 10 300 0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200',
+    'phatmenghor21@gmail.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    'Phnom Penh', 'Test customer', 'Test customer account for QA',
+    'Test customer account for QA',
     NOW() - INTERVAL '3 hours', NOW() - INTERVAL '45 minutes', 1
 );
 
 -- 500 STAFF MEMBERS
 INSERT INTO users (
     id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-    user_identifier, email, password, first_name, last_name, nickname, gender, date_of_birth,
-    phone_number, profile_image_url, user_type, account_status, business_id,
-    employee_id, position, department, employment_type, join_date, shift,
-    address, notes, remark, active_sessions_count
+    user_identifier, password, user_type, account_status, business_id,
+    remark, active_sessions_count
 )
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'staff' || i::text || '@business.com', 'staff' || i::text || '@business.com',
+    'staff' || i::text || '@business.com',
     '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'Staff_' || i::text, 'User_' || i::text,
-    'staff' || i::text,
-    CASE WHEN (i % 2) = 0 THEN 'MALE' ELSE 'FEMALE' END,
-    (DATE '1990-01-01' + ((i % 3650)::text || ' days')::INTERVAL)::DATE,
-    '+855 10 ' || LPAD((i % 10000000)::text, 7, '0'),
-    CASE WHEN (i % 2) = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584' END,
     'BUSINESS_USER',
     CASE WHEN (i % 100) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END,
     CASE WHEN (i <= 250) THEN '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid ELSE '550cad56-cafd-4aba-baef-c4dcd53940d1'::uuid END,
-    'EMP-' || LPAD(i::text, 4, '0'),
-    CASE WHEN (i % 5) = 0 THEN 'Manager' WHEN (i % 5) = 1 THEN 'Chef' WHEN (i % 5) = 2 THEN 'Waiter' WHEN (i % 5) = 3 THEN 'Cashier' ELSE 'Kitchen Staff' END,
-    CASE WHEN (i % 4) = 0 THEN 'Kitchen' WHEN (i % 4) = 1 THEN 'Service' WHEN (i % 4) = 2 THEN 'Finance' ELSE 'Operations' END,
-    CASE WHEN (i % 3) = 0 THEN 'FULL_TIME' WHEN (i % 3) = 1 THEN 'PART_TIME' ELSE 'CONTRACT' END,
-    (DATE '2020-01-01' + ((i % 1460)::text || ' days')::INTERVAL)::DATE,
-    CASE WHEN (i % 3) = 0 THEN 'Morning' WHEN (i % 3) = 1 THEN 'Afternoon' ELSE 'Night' END,
-    'Phnom Penh Street ' || i::text,
-    'Staff member ' || i::text,
     'Auto-generated staff #' || i::text,
     0
 FROM generate_series(1, 500) AS t(i);
 
 -- 5 CUSTOMERS
-INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, user_identifier, email, password, first_name, last_name, phone_number, profile_image_url, user_type, account_status, business_id, last_login_at, last_active_at, active_sessions_count)
+INSERT INTO users (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_identifier, password, user_type, account_status, business_id,
+    remark, last_login_at, last_active_at, active_sessions_count)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
-    'customer' || i::text || '@example.com', 'customer' || i::text || '@example.com', '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
-    'Customer_' || i::text, 'User_' || i::text, '+855 96 ' || LPAD((i % 10000000)::text, 7, '0'),
-    CASE WHEN (i % 2) = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584' END,
+    'customer' || i::text || '@example.com',
+    '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'CUSTOMER', 'ACTIVE', '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    NOW() - (random() * 30)::int * INTERVAL '1 day',
-    NOW() - (random() * 30)::int * INTERVAL '1 day', 1
+    'Test customer account #' || i::text,
+    NOW() - (i::int - 1) * INTERVAL '1 day',
+    NOW() - (i::int - 1) * INTERVAL '1 day', 1
 FROM generate_series(1, 5) AS t(i);
 
 -- ============================================================================
@@ -256,27 +234,133 @@ WHERE u.user_type = 'CUSTOMER'
 
 
 -- ============================================================================
--- 7.5 USER ADDRESSES
+-- 7.5 USER PROFILES
 -- ============================================================================
 
-INSERT INTO user_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-    user_id, house_no, street, village, commune, district, province, country) VALUES
+INSERT INTO user_profiles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, email, first_name, last_name, nickname, gender, date_of_birth, phone_number, profile_image_url) VALUES
 -- Platform Admin
-('aa000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550000', '#12B', 'Norodom Blvd', 'Phnom Penh Village', 'Tonle Bassac', 'Chamkarmon', 'Phnom Penh', 'Cambodia'),
+('ee000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'phatmenghor19@gmail.com', 'Platform', 'Admin', 'Admin',
+ 'MALE', '1990-01-15', '+855 10 100 0001',
+ 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200'),
 -- Business Manager
-('aa000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550001', '#45', 'Russian Blvd', 'Toul Tom Poung', 'Toul Tom Poung I', 'Chamkarmon', 'Phnom Penh', 'Cambodia'),
+('ee000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'phatmenghor20@gmail.com', 'Business', 'Manager', 'BizMgr',
+ 'MALE', '1988-05-20', '+855 10 200 0001',
+ 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200'),
 -- Customer
-('aa000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550002', '#8', 'Street 130', 'Phsar Thmey III', 'Phsar Thmey III', 'Daun Penh', 'Phnom Penh', 'Cambodia');
+('ee000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'phatmenghor21@gmail.com', 'Customer', 'User', 'CustUser',
+ 'FEMALE', '1995-11-10', '+855 10 300 0001',
+ 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200');
 
--- Bulk address for 50 staff members
-INSERT INTO user_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-    user_id, house_no, street, village, commune, district, province, country)
+-- Bulk profiles for 500 staff + 5 customers
+INSERT INTO user_profiles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, email, first_name, last_name, nickname, gender, date_of_birth, phone_number, profile_image_url)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     u.id,
+    u.user_identifier,
+    split_part(split_part(u.user_identifier, '@', 1), '_', 1) || '_' || split_part(split_part(u.user_identifier, '@', 1), '_', 2),
+    'User_' || split_part(split_part(u.user_identifier, '@', 1), 'f', 2),
+    lower(split_part(u.user_identifier, '@', 1)),
+    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 2) = 0 THEN 'MALE' ELSE 'FEMALE' END,
+    (DATE '1988-01-01' + ((ROW_NUMBER() OVER (ORDER BY u.created_at) % 3650)::text || ' days')::INTERVAL)::DATE,
+    '+855 10 ' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) % 10000000)::text, 7, '0'),
+    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 2) = 0
+        THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+        ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584' END
+FROM users u
+WHERE u.user_identifier NOT IN ('phatmenghor19@gmail.com', 'phatmenghor20@gmail.com', 'phatmenghor21@gmail.com');
+
+-- ============================================================================
+-- 7.6 USER EMPLOYMENTS
+-- ============================================================================
+
+INSERT INTO user_employments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, employee_id, position, department, employment_type, join_date, leave_date, shift) VALUES
+-- Platform Admin
+('ff000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'EMP-0001', 'Administrator', 'Management', 'FULL_TIME', '2020-01-01', NULL, 'Morning'),
+-- Business Manager
+('ff000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'EMP-0002', 'Manager', 'Operations', 'FULL_TIME', '2021-03-01', NULL, 'Morning');
+
+-- Bulk employment for 500 staff
+INSERT INTO user_employments (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, employee_id, position, department, employment_type, join_date, shift)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    u.id,
+    'EMP-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 4, '0'),
+    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5) = 0 THEN 'Manager'
+         WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5) = 1 THEN 'Chef'
+         WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5) = 2 THEN 'Waiter'
+         WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5) = 3 THEN 'Cashier'
+         ELSE 'Kitchen Staff' END,
+    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 4) = 0 THEN 'Kitchen'
+         WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 4) = 1 THEN 'Service'
+         WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 4) = 2 THEN 'Finance'
+         ELSE 'Operations' END,
+    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3) = 0 THEN 'FULL_TIME'
+         WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3) = 1 THEN 'PART_TIME'
+         ELSE 'CONTRACT' END,
+    (DATE '2020-01-01' + ((ROW_NUMBER() OVER (ORDER BY u.created_at) % 1460)::text || ' days')::INTERVAL)::DATE,
+    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3) = 0 THEN 'Morning'
+         WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3) = 1 THEN 'Afternoon'
+         ELSE 'Night' END
+FROM users u
+WHERE u.user_type = 'BUSINESS_USER'
+  AND u.user_identifier LIKE 'staff%@business.com';
+
+-- ============================================================================
+-- 7.7 USER TELEGRAMS
+-- ============================================================================
+
+INSERT INTO user_telegrams (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, telegram_id, telegram_username, telegram_first_name, telegram_last_name, telegram_photo_url, telegram_synced_at) VALUES
+-- Platform Admin telegram
+('a1000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 100000001, 'phatmenghor_admin', 'Platform', 'Admin',
+ 'https://t.me/i/userpic/320/phatmenghor_admin.jpg', NOW() - INTERVAL '7 days'),
+-- Business Manager telegram
+('a1000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 100000002, 'phatmenghor_biz', 'Business', 'Manager',
+ 'https://t.me/i/userpic/320/phatmenghor_biz.jpg', NOW() - INTERVAL '3 days');
+
+-- ============================================================================
+-- 7.8 USER ADDRESSES
+-- ============================================================================
+
+INSERT INTO user_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, address_type, house_no, street, village, commune, district, province, country) VALUES
+-- Platform Admin - current address
+('aa000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'CURRENT', '#12B', 'Norodom Blvd', 'Phnom Penh Village', 'Tonle Bassac', 'Chamkarmon', 'Phnom Penh', 'Cambodia'),
+-- Platform Admin - place of birth
+('aa000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550000', 'PLACE_OF_BIRTH', '#5', 'Village Road', 'Kandal Village', 'Kandal Stung', 'Kandal Stung', 'Kandal', 'Cambodia'),
+-- Business Manager - current address
+('aa000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'CURRENT', '#45', 'Russian Blvd', 'Toul Tom Poung', 'Toul Tom Poung I', 'Chamkarmon', 'Phnom Penh', 'Cambodia'),
+-- Business Manager - place of birth
+('aa000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550001', 'PLACE_OF_BIRTH', '#22', 'Ta Khmau Road', 'Ta Khmau Village', 'Ta Khmau', 'Ta Khmau', 'Kandal', 'Cambodia'),
+-- Customer - current address
+('aa000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'CURRENT', '#8', 'Street 130', 'Phsar Thmey III', 'Phsar Thmey III', 'Daun Penh', 'Phnom Penh', 'Cambodia'),
+-- Customer - place of birth
+('aa000000-0000-0000-0000-000000000006', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+ '550e8400-e29b-41d4-a716-446655550002', 'PLACE_OF_BIRTH', '#3', 'Siem Reap Road', 'Angkor Village', 'Svay Dangkum', 'Siem Reap', 'Siem Reap', 'Cambodia');
+
+-- Bulk current address for 50 staff members
+INSERT INTO user_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, address_type, house_no, street, village, commune, district, province, country)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    u.id,
+    'CURRENT',
     '#' || (ROW_NUMBER() OVER ())::text,
     'Street ' || (ROW_NUMBER() OVER () * 10)::text,
     'Village ' || (ROW_NUMBER() OVER () % 5 + 1)::text,
@@ -290,7 +374,7 @@ WHERE u.user_type = 'BUSINESS_USER'
 LIMIT 50;
 
 -- ============================================================================
--- 7.6 USER EMERGENCY CONTACTS
+-- 7.9 USER EMERGENCY CONTACTS
 -- ============================================================================
 
 INSERT INTO user_emergency_contacts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
@@ -310,7 +394,7 @@ INSERT INTO user_emergency_contacts (id, version, created_at, updated_at, create
  '550e8400-e29b-41d4-a716-446655550002', 'Lim Sothy', '+855 89 678 901', 'Friend');
 
 -- ============================================================================
--- 7.7 USER DOCUMENTS
+-- 7.10 USER DOCUMENTS
 -- ============================================================================
 
 INSERT INTO user_documents (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
@@ -330,7 +414,7 @@ INSERT INTO user_documents (id, version, created_at, updated_at, created_by, upd
  '550e8400-e29b-41d4-a716-446655550002', 'ID_CARD', 'ID-1995-003-0001', 'https://example.com/docs/customer-id.pdf');
 
 -- ============================================================================
--- 7.8 USER EDUCATIONS
+-- 7.11 USER EDUCATIONS
 -- ============================================================================
 
 INSERT INTO user_educations (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,

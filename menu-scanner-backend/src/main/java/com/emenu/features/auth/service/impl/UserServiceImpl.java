@@ -44,60 +44,79 @@ public class UserServiceImpl implements UserService {
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
 
     @Override
-    public UserResponse createUser(UserCreateRequest request) {
-        log.info("Creating user: {}", request.getUserIdentifier());
+    public UserResponse createUser(UserCreateRequest req) {
+        log.info("Creating user: {}", req.getUserIdentifier());
 
-        if (userRepository.existsByUserIdentifierAndIsDeletedFalse(request.getUserIdentifier())) {
+        if (userRepository.existsByUserIdentifierAndIsDeletedFalse(req.getUserIdentifier())) {
             throw new ValidationException("User identifier already exists");
         }
-
-        if (request.getUserType() == UserType.BUSINESS_USER && request.getBusinessId() == null) {
+        if (req.getUserType() == UserType.BUSINESS_USER && req.getBusinessId() == null) {
             throw new ValidationException("Business ID is required for BUSINESS_USER type");
         }
-
-        User user = userMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        if (request.getBusinessId() != null) {
-            businessRepository.findByIdAndIsDeletedFalse(request.getBusinessId())
+        if (req.getBusinessId() != null) {
+            businessRepository.findByIdAndIsDeletedFalse(req.getBusinessId())
                     .orElseThrow(() -> new ValidationException("Business not found"));
-            user.setBusinessId(request.getBusinessId());
         }
 
-        List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(request.getRoles());
-        if (roles.size() != request.getRoles().size()) {
-            throw new ValidationException("One or more roles not found");
-        }
-        validateRoleUserTypeCompatibility(roles, request.getUserType());
+        List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
+        if (roles.size() != req.getRoles().size()) throw new ValidationException("One or more roles not found");
+        validateRoleUserTypeCompatibility(roles, req.getUserType());
+
+        User user = userMapper.toEntity(req);
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRoles(roles);
+        User saved = userRepository.save(user);
 
-        // Persist user first so nested entities get a valid user reference
-        User savedUser = userRepository.save(user);
+        // Profile
+        UserProfile profile = new UserProfile();
+        profile.setUser(saved);
+        profile.setEmail(req.getEmail());
+        profile.setFirstName(req.getFirstName());
+        profile.setLastName(req.getLastName());
+        profile.setNickname(req.getNickname());
+        profile.setGender(req.getGender());
+        profile.setDateOfBirth(req.getDateOfBirth());
+        profile.setPhoneNumber(req.getPhoneNumber());
+        profile.setProfileImageUrl(req.getProfileImageUrl());
+        saved.setProfile(profile);
 
-        // Address
-        if (request.getAddress() != null) {
-            UserAddress address = buildAddress(request.getAddress(), savedUser);
-            savedUser.setUserAddress(address);
+        // Employment
+        if (hasEmploymentData(req)) {
+            UserEmployment emp = new UserEmployment();
+            emp.setUser(saved);
+            emp.setEmployeeId(req.getEmployeeId());
+            emp.setPosition(req.getPosition());
+            emp.setDepartment(req.getDepartment());
+            emp.setEmploymentType(req.getEmploymentType());
+            emp.setJoinDate(req.getJoinDate());
+            emp.setLeaveDate(req.getLeaveDate());
+            emp.setShift(req.getShift());
+            saved.setEmployment(emp);
+        }
+
+        // Addresses
+        if (req.getAddresses() != null) {
+            req.getAddresses().forEach(r -> saved.getAddresses().add(buildAddress(r, saved)));
         }
 
         // Emergency contacts
-        if (request.getEmergencyContacts() != null) {
-            request.getEmergencyContacts().forEach(r -> savedUser.getEmergencyContacts().add(buildContact(r, savedUser)));
+        if (req.getEmergencyContacts() != null) {
+            req.getEmergencyContacts().forEach(r -> saved.getEmergencyContacts().add(buildContact(r, saved)));
         }
 
         // Documents
-        if (request.getDocuments() != null) {
-            request.getDocuments().forEach(r -> savedUser.getDocuments().add(buildDocument(r, savedUser)));
+        if (req.getDocuments() != null) {
+            req.getDocuments().forEach(r -> saved.getDocuments().add(buildDocument(r, saved)));
         }
 
         // Educations
-        if (request.getEducations() != null) {
-            request.getEducations().forEach(r -> savedUser.getEducations().add(buildEducation(r, savedUser)));
+        if (req.getEducations() != null) {
+            req.getEducations().forEach(r -> saved.getEducations().add(buildEducation(r, saved)));
         }
 
-        savedUser = userRepository.save(savedUser);
-        log.info("User created: {} type={} roles={}", savedUser.getUserIdentifier(), savedUser.getUserType(), request.getRoles());
-        return userMapper.toResponse(savedUser);
+        saved = userRepository.save(saved);
+        log.info("User created: {} type={}", saved.getUserIdentifier(), saved.getUserType());
+        return userMapper.toResponse(saved);
     }
 
     @Override
@@ -107,97 +126,104 @@ public class UserServiceImpl implements UserService {
         if (currentUser.isBusinessUser() && request.getBusinessId() == null) {
             request.setBusinessId(currentUser.getBusinessId());
         }
-
         Pageable pageable = PaginationUtils.createPageable(
                 request.getPageNo(), request.getPageSize(), request.getSortBy(), request.getSortDirection());
 
-        List<UserType> userTypes = (request.getUserTypes() != null && !request.getUserTypes().isEmpty()) ? request.getUserTypes() : null;
-        List<AccountStatus> accountStatuses = (request.getAccountStatuses() != null && !request.getAccountStatuses().isEmpty()) ? request.getAccountStatuses() : null;
-        List<String> roles = (request.getRoles() != null && !request.getRoles().isEmpty()) ? request.getRoles() : null;
+        List<UserType> userTypes = nullIfEmpty(request.getUserTypes());
+        List<AccountStatus> accountStatuses = nullIfEmpty(request.getAccountStatuses());
+        List<String> roles = nullIfEmpty(request.getRoles());
 
-        Page<User> userPage = userRepository.searchUsers(
+        Page<User> page = userRepository.searchUsers(
                 request.getBusinessId(), userTypes, accountStatuses, roles, request.getSearch(), pageable);
-
-        return userMapper.toPaginationResponse(userPage, paginationMapper);
+        return userMapper.toPaginationResponse(page, paginationMapper);
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserById(UUID userId) {
-        User user = userRepository.findByIdAndIsDeletedFalse(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.toResponse(user);
+        return userMapper.toResponse(userRepository.findByIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> new RuntimeException("User not found")));
     }
 
     @Override
-    public UserResponse updateUser(UUID userId, UserUpdateRequest request) {
+    public UserResponse updateUser(UUID userId, UserUpdateRequest req) {
         log.info("Updating user: {}", userId);
-
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (request.getBusinessId() != null && !request.getBusinessId().equals(user.getBusinessId())) {
-            businessRepository.findByIdAndIsDeletedFalse(request.getBusinessId())
+        if (req.getBusinessId() != null && !req.getBusinessId().equals(user.getBusinessId())) {
+            businessRepository.findByIdAndIsDeletedFalse(req.getBusinessId())
                     .orElseThrow(() -> new ValidationException("Business not found"));
-            user.setBusinessId(request.getBusinessId());
+            user.setBusinessId(req.getBusinessId());
         }
 
-        if (request.getRoles() != null && !request.getRoles().isEmpty()) {
-            List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(request.getRoles());
-            if (roles.size() != request.getRoles().size()) throw new ValidationException("One or more roles not found");
+        if (req.getRoles() != null && !req.getRoles().isEmpty()) {
+            List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
+            if (roles.size() != req.getRoles().size()) throw new ValidationException("One or more roles not found");
             validateRoleUserTypeCompatibility(roles, user.getUserType());
             user.getRoles().clear();
             user.getRoles().addAll(roles);
         }
 
-        userMapper.updateEntity(request, user);
+        userMapper.updateEntity(req, user);
 
-        // Address
-        if (request.getAddress() != null) {
-            if (user.getUserAddress() == null) {
-                user.setUserAddress(buildAddress(request.getAddress(), user));
-            } else {
-                applyAddress(request.getAddress(), user.getUserAddress());
-            }
+        // Profile
+        UserProfile profile = user.getProfile();
+        if (profile == null) { profile = new UserProfile(); profile.setUser(user); user.setProfile(profile); }
+        if (req.getEmail() != null) profile.setEmail(req.getEmail());
+        if (req.getFirstName() != null) profile.setFirstName(req.getFirstName());
+        if (req.getLastName() != null) profile.setLastName(req.getLastName());
+        if (req.getNickname() != null) profile.setNickname(req.getNickname());
+        if (req.getGender() != null) profile.setGender(req.getGender());
+        if (req.getDateOfBirth() != null) profile.setDateOfBirth(req.getDateOfBirth());
+        if (req.getPhoneNumber() != null) profile.setPhoneNumber(req.getPhoneNumber());
+        if (req.getProfileImageUrl() != null) profile.setProfileImageUrl(req.getProfileImageUrl());
+
+        // Employment
+        if (hasEmploymentUpdateData(req)) {
+            UserEmployment emp = user.getEmployment();
+            if (emp == null) { emp = new UserEmployment(); emp.setUser(user); user.setEmployment(emp); }
+            if (req.getEmployeeId() != null) emp.setEmployeeId(req.getEmployeeId());
+            if (req.getPosition() != null) emp.setPosition(req.getPosition());
+            if (req.getDepartment() != null) emp.setDepartment(req.getDepartment());
+            if (req.getEmploymentType() != null) emp.setEmploymentType(req.getEmploymentType());
+            if (req.getJoinDate() != null) emp.setJoinDate(req.getJoinDate());
+            if (req.getLeaveDate() != null) emp.setLeaveDate(req.getLeaveDate());
+            if (req.getShift() != null) emp.setShift(req.getShift());
         }
 
-        // Emergency contacts — full replace if provided
-        if (request.getEmergencyContacts() != null) {
+        // Addresses — full replace if provided
+        if (req.getAddresses() != null) {
+            user.getAddresses().clear();
+            req.getAddresses().forEach(r -> user.getAddresses().add(buildAddress(r, user)));
+        }
+        if (req.getEmergencyContacts() != null) {
             user.getEmergencyContacts().clear();
-            request.getEmergencyContacts().forEach(r -> user.getEmergencyContacts().add(buildContact(r, user)));
+            req.getEmergencyContacts().forEach(r -> user.getEmergencyContacts().add(buildContact(r, user)));
         }
-
-        // Documents — full replace if provided
-        if (request.getDocuments() != null) {
+        if (req.getDocuments() != null) {
             user.getDocuments().clear();
-            request.getDocuments().forEach(r -> user.getDocuments().add(buildDocument(r, user)));
+            req.getDocuments().forEach(r -> user.getDocuments().add(buildDocument(r, user)));
         }
-
-        // Educations — full replace if provided
-        if (request.getEducations() != null) {
+        if (req.getEducations() != null) {
             user.getEducations().clear();
-            request.getEducations().forEach(r -> user.getEducations().add(buildEducation(r, user)));
+            req.getEducations().forEach(r -> user.getEducations().add(buildEducation(r, user)));
         }
 
-        User updatedUser = userRepository.save(user);
-        log.info("User updated: {}", updatedUser.getUserIdentifier());
-        return userMapper.toResponse(updatedUser);
+        User updated = userRepository.save(user);
+        log.info("User updated: {}", updated.getUserIdentifier());
+        return userMapper.toResponse(updated);
     }
 
     @Override
     public UserResponse deleteUser(UUID userId) {
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        User currentUser = securityUtils.getCurrentUser();
-        if (user.getId().equals(currentUser.getId())) {
+        if (user.getId().equals(securityUtils.getCurrentUser().getId())) {
             throw new ValidationException("You cannot delete your own account");
         }
-
         user.softDelete();
-        user = userRepository.save(user);
-        log.info("User deleted: {}", user.getUserIdentifier());
-        return userMapper.toResponse(user);
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     @Override
@@ -208,40 +234,48 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateCurrentUser(UserUpdateRequest request) {
-        User currentUser = securityUtils.getCurrentUser();
-        userMapper.updateEntity(request, currentUser);
-        User updatedUser = userRepository.save(currentUser);
-        log.info("Current user updated: {}", updatedUser.getUserIdentifier());
-        return userMapper.toResponse(updatedUser);
+        User user = securityUtils.getCurrentUser();
+        userMapper.updateEntity(request, user);
+        return userMapper.toResponse(userRepository.save(user));
     }
 
-    // ── Private Helpers ───────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private void validateRoleUserTypeCompatibility(List<Role> roles, UserType userType) {
-        for (Role role : roles) {
-            if (!role.isCompatibleWithUserType(userType)) {
+        roles.forEach(r -> {
+            if (!r.isCompatibleWithUserType(userType)) {
                 throw new ValidationException(String.format(
-                        "Role '%s' is not compatible with user type '%s'. This role is for '%s' users.",
-                        role.getName(), userType, role.getUserType()));
+                        "Role '%s' is not compatible with user type '%s'.", r.getName(), userType));
             }
-        }
+        });
+    }
+
+    private <T> List<T> nullIfEmpty(List<T> list) {
+        return (list != null && !list.isEmpty()) ? list : null;
+    }
+
+    private boolean hasEmploymentData(UserCreateRequest r) {
+        return r.getEmployeeId() != null || r.getPosition() != null || r.getDepartment() != null
+                || r.getEmploymentType() != null || r.getJoinDate() != null || r.getShift() != null;
+    }
+
+    private boolean hasEmploymentUpdateData(UserUpdateRequest r) {
+        return r.getEmployeeId() != null || r.getPosition() != null || r.getDepartment() != null
+                || r.getEmploymentType() != null || r.getJoinDate() != null || r.getShift() != null;
     }
 
     private UserAddress buildAddress(AddressRequest req, User user) {
         UserAddress a = new UserAddress();
         a.setUser(user);
-        applyAddress(req, a);
+        a.setAddressType(req.getAddressType());
+        a.setHouseNo(req.getHouseNo());
+        a.setStreet(req.getStreet());
+        a.setVillage(req.getVillage());
+        a.setCommune(req.getCommune());
+        a.setDistrict(req.getDistrict());
+        a.setProvince(req.getProvince());
+        a.setCountry(req.getCountry());
         return a;
-    }
-
-    private void applyAddress(AddressRequest req, UserAddress a) {
-        if (req.getHouseNo() != null) a.setHouseNo(req.getHouseNo());
-        if (req.getStreet() != null) a.setStreet(req.getStreet());
-        if (req.getVillage() != null) a.setVillage(req.getVillage());
-        if (req.getCommune() != null) a.setCommune(req.getCommune());
-        if (req.getDistrict() != null) a.setDistrict(req.getDistrict());
-        if (req.getProvince() != null) a.setProvince(req.getProvince());
-        if (req.getCountry() != null) a.setCountry(req.getCountry());
     }
 
     private UserEmergencyContact buildContact(EmergencyContactRequest req, User user) {

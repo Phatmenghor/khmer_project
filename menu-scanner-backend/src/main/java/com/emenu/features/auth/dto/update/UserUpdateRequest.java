@@ -11,7 +11,14 @@ import java.util.UUID;
 @Data
 public class UserUpdateRequest {
 
+    // Account
+    private AccountStatus accountStatus;
+    private UUID businessId;
+    private List<String> roles;
+    private String remark;
+
     // Personal
+    private String email;
     private String firstName;
     private String lastName;
     private String nickname;
@@ -19,11 +26,6 @@ public class UserUpdateRequest {
     private LocalDate dateOfBirth;
     private String phoneNumber;
     private String profileImageUrl;
-
-    // Account
-    private AccountStatus accountStatus;
-    private UUID businessId;
-    private List<String> roles;
 
     // Employment
     private String employeeId;
@@ -34,13 +36,9 @@ public class UserUpdateRequest {
     private LocalDate leaveDate;
     private String shift;
 
-    // Address & Related (null = no change, empty list = clear all)
-    private AddressRequest address;
+    // Related (null = no change, non-null = full replace)
+    private List<AddressRequest> addresses;
     private List<EmergencyContactRequest> emergencyContacts;
     private List<DocumentRequest> documents;
     private List<EducationRequest> educations;
-
-    // Misc
-    private String notes;
-    private String remark;
 }

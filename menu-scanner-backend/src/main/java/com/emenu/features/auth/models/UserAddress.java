@@ -1,5 +1,6 @@
 package com.emenu.features.auth.models;
 
+import com.emenu.enums.user.AddressType;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,9 +14,13 @@ import lombok.*;
 @AllArgsConstructor
 public class UserAddress extends BaseUUIDEntity {
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "address_type")
+    private AddressType addressType;
 
     @Column(name = "house_no")
     private String houseNo;
