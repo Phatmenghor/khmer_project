@@ -89,7 +89,7 @@ export function ProfilePictureModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md p-0 overflow-hidden">
+      <DialogContent className="max-w-md p-0 overflow-hidden [&>[class*='Close']]:hidden">
         <DialogTitle asChild>
           <VisuallyHidden>Profile Picture Manager</VisuallyHidden>
         </DialogTitle>
