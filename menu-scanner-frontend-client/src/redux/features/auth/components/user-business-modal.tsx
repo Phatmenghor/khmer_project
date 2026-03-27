@@ -572,40 +572,6 @@ export default function UserBusinessModal({
                   </div>
                 )}
 
-                {/* System & Roles - EDIT MODE */}
-                {!isCreate && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <SelectField
-                        control={control}
-                        name="roles"
-                        label="User Role"
-                        placeholder="Select user role"
-                        options={roleOptions}
-                        required
-                        disabled={isSubmitting || roleOptions.length === 0}
-                        error={getArrayFieldError(errors.roles)}
-                        onValueChange={(value) => {
-                          setValue("roles", [value], {
-                            shouldDirty: true,
-                            shouldValidate: true,
-                          });
-                        }}
-                      />
-
-                      <SelectField
-                        control={control}
-                        name="accountStatus"
-                        label="Account Status"
-                        placeholder="Select account status"
-                        options={ACCOUNT_STATUS_CREATE_UPDATE}
-                        required
-                        disabled={isSubmitting}
-                        error={errors.accountStatus}
-                      />
-                    </div>
-                  </div>
-                )}
 
                 {/* Personal Information */}
                 <div className="space-y-4">
@@ -687,6 +653,38 @@ export default function UserBusinessModal({
                       error={errors.profileImageUrl}
                       placeholder="Upload profile image"
                     />
+
+                    {!isCreate && (
+                      <>
+                        <SelectField
+                          control={control}
+                          name="roles"
+                          label="User Role"
+                          placeholder="Select user role"
+                          options={roleOptions}
+                          required
+                          disabled={isSubmitting || roleOptions.length === 0}
+                          error={getArrayFieldError(errors.roles)}
+                          onValueChange={(value) => {
+                            setValue("roles", [value], {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+
+                        <SelectField
+                          control={control}
+                          name="accountStatus"
+                          label="Account Status"
+                          placeholder="Select account status"
+                          options={ACCOUNT_STATUS_CREATE_UPDATE}
+                          required
+                          disabled={isSubmitting}
+                          error={errors.accountStatus}
+                        />
+                      </>
+                    )}
                   </div>
                 </div>
 
