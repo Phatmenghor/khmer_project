@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { DetailModal } from "@/components/shared/modal/detail-modal";
 import {
   DetailRow,
@@ -9,11 +10,10 @@ import {
 } from "@/components/shared/modal/detail-section";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
-  selectIsFetchingDetail,
-  selectSelectedRole,
+  selectRoleContent,
 } from "../store/selectors/role-selectors";
-import { fetchRoleByIdService } from "../store/thunks/role-thunks";
 import { clearSelectedRole } from "../store/slice/role-slice";
+import { RoleResponseModel } from "../store/models/response/role-response";
 
 interface RoleDetailModalProps {
   roleId?: string;
@@ -27,22 +27,8 @@ export function RoleDetailModal({
   onClose,
 }: RoleDetailModalProps) {
   const dispatch = useAppDispatch();
-  const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
-  const roleData = useAppSelector(selectSelectedRole);
-
-  useEffect(() => {
-    const fetchRoleData = async () => {
-      if (!roleId || !isOpen) return;
-
-      try {
-        await dispatch(fetchRoleByIdService(roleId)).unwrap();
-      } catch (error: any) {
-        console.error("Error fetching role data:", error);
-      }
-    };
-
-    fetchRoleData();
-  }, [roleId, isOpen, dispatch]);
+  const rolesContent = useAppSelector(selectRoleContent);
+  const roleData = rolesContent.find(role => role.id === roleId);
 
   const handleClose = () => {
     dispatch(clearSelectedRole());
@@ -53,7 +39,7 @@ export function RoleDetailModal({
     <DetailModal
       isOpen={isOpen}
       onClose={handleClose}
-      isLoading={isFetchingDetail}
+      isLoading={false}
       title={"Role Details"}
       description={"Detailed information about the selected role."}
     >
@@ -61,12 +47,12 @@ export function RoleDetailModal({
         <div className="space-y-6">
           {/* Role Information */}
           <DetailSection title="Role Information">
-            <DetailRow label="Role Name" value={roleData?.name || "---"} />
+            <DetailRow label="Role Name" value={formatEnumValue(roleData?.name)} />
             <DetailRow
               label="Description"
               value={roleData?.description || "---"}
             />
-            <DetailRow label="User Type" value={roleData?.userType || "---"} />
+            <DetailRow label="User Type" value={formatEnumValue(roleData?.userType)} />
           </DetailSection>
 
           {/* System Information */}

@@ -1,5 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { Edit, Eye, Trash } from "lucide-react";
 import { ActionButton } from "@/components/shared/button/action-button";
 import {
@@ -68,7 +69,7 @@ export const roleTableColumns = ({
       maxWidth: "200px",
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {user?.userType || "---"}
+          {formatEnumValue(user?.userType)}
         </span>
       ),
     },
