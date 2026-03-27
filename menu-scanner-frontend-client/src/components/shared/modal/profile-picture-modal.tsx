@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription, ModalCloseButton } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   Camera,
@@ -21,8 +21,6 @@ interface ProfilePictureModalProps {
   onImageSelect: (imageData: string) => void;
   onImageRemove: () => void;
   isLoading?: boolean;
-  closeButtonSize?: "sm" | "md" | "lg" | "xl";
-  closeButtonColor?: "white" | "black";
 }
 
 export function ProfilePictureModal({
@@ -33,8 +31,6 @@ export function ProfilePictureModal({
   onImageSelect,
   onImageRemove,
   isLoading = false,
-  closeButtonSize = "md",
-  closeButtonColor = "white",
 }: ProfilePictureModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -100,13 +96,8 @@ export function ProfilePictureModal({
           <VisuallyHidden>Upload, download, or remove your profile picture</VisuallyHidden>
         </DialogDescription>
         {/* Header */}
-        <div className="relative bg-primary p-6 text-primary-foreground">
+        <div className="bg-primary p-6 text-primary-foreground">
           <h2 className="text-lg font-semibold">Profile Picture</h2>
-          <ModalCloseButton
-            onClick={onClose}
-            size={closeButtonSize}
-            color={closeButtonColor}
-          />
         </div>
 
         {/* Current/Selected Image Preview */}
