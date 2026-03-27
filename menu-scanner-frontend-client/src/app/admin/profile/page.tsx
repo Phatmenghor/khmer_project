@@ -384,11 +384,37 @@ export default function AdminProfilePage() {
         <Card className="mb-6">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="relative">
+              {/* Profile Image - Click to Edit */}
+              <div className="relative group">
                 <CustomAvatar
                   imageUrl={userProfile?.profileImageUrl}
                   name={userProfile?.fullName}
                   size="xl"
+                />
+                {isEditing && (
+                  <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                       onClick={() => document.getElementById('profile-image-input')?.click()}>
+                    <Edit className="h-6 w-6 text-white" />
+                  </div>
+                )}
+                <input
+                  id="profile-image-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        setValue("profileImageUrl", event.target?.result as string, {
+                          shouldDirty: true,
+                        });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  disabled={!isEditing}
                 />
               </div>
 
@@ -487,19 +513,6 @@ export default function AdminProfilePage() {
                   <CardTitle>Personal Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <ClickableImageUpload
-                    label="Profile Image"
-                    value={watch("profileImageUrl")}
-                    onChange={(base64) =>
-                      setValue("profileImageUrl", base64, {
-                        shouldDirty: true,
-                      })
-                    }
-                    disabled={!isEditing}
-                    maxSize={5}
-                    placeholder="Upload profile image"
-                  />
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextField
                       control={control}
@@ -659,7 +672,7 @@ export default function AdminProfilePage() {
                         onClick={() =>
                           appendAddress({
                             id: undefined,
-                            addressType: AddressType.HOME,
+                            addressType: AddressType.CURRENT,
                             houseNo: "",
                             street: "",
                             village: "",
@@ -942,8 +955,9 @@ export default function AdminProfilePage() {
                                   )
                                 }
                                 aspectRatio="auto"
-                                height="h-40"
+                                height="h-32"
                                 maxSize={5}
+                                disabled={!isEditing}
                                 error={
                                   errors.documents?.[index]?.fileUrl as any
                                 }
@@ -1089,8 +1103,9 @@ export default function AdminProfilePage() {
                                   )
                                 }
                                 aspectRatio="auto"
-                                height="h-40"
+                                height="h-32"
                                 maxSize={5}
+                                disabled={!isEditing}
                                 error={
                                   errors.educations?.[index]
                                     ?.certificateUrl as any
