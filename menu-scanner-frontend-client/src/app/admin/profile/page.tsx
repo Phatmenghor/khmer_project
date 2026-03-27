@@ -1051,6 +1051,7 @@ export default function AdminProfilePage() {
                                 <label className="flex items-center gap-2 cursor-pointer">
                                   <input
                                     type="checkbox"
+                                    disabled={!isEditing}
                                     {...control.register(
                                       `educations.${index}.isGraduated`
                                     )}
