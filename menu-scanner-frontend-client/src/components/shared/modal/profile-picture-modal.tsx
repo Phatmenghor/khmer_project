@@ -114,7 +114,7 @@ export function ProfilePictureModal({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="absolute right-4 top-4 text-primary-foreground hover:bg-primary/80"
+            className="absolute right-2 top-2 text-primary-foreground hover:bg-primary/80"
           >
             <X className={`${iconSizeMap[closeIconSize]}`} style={{ color: closeIconColor }} />
           </Button>
