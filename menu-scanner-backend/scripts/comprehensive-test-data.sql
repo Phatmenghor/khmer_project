@@ -260,7 +260,7 @@ INSERT INTO user_profiles (id, version, created_at, updated_at, created_by, upda
 INSERT INTO user_profiles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, email, first_name, last_name, nickname, gender, date_of_birth, phone_number, profile_image_url)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     u.id,
     u.user_identifier,
     split_part(split_part(u.user_identifier, '@', 1), '_', 1) || '_' || split_part(split_part(u.user_identifier, '@', 1), '_', 2),
@@ -269,9 +269,7 @@ SELECT
     CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 2) = 0 THEN 'MALE' ELSE 'FEMALE' END,
     (DATE '1988-01-01' + ((ROW_NUMBER() OVER (ORDER BY u.created_at) % 3650)::text || ' days')::INTERVAL)::DATE,
     '+855 10 ' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) % 10000000)::text, 7, '0'),
-    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 2) = 0
-        THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
-        ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584' END
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
 FROM users u
 WHERE u.user_identifier NOT IN ('phatmenghor19@gmail.com', 'phatmenghor20@gmail.com', 'phatmenghor21@gmail.com');
 
@@ -355,24 +353,23 @@ INSERT INTO user_addresses (id, version, created_at, updated_at, created_by, upd
 ('aa000000-0000-0000-0000-000000000006', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'PLACE_OF_BIRTH', '#3', 'Siem Reap Road', 'Angkor Village', 'Svay Dangkum', 'Siem Reap', 'Siem Reap', 'Cambodia');
 
--- Bulk current address for 50 staff members
+-- Bulk current address for all staff members
 INSERT INTO user_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, address_type, house_no, street, village, commune, district, province, country)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     u.id,
     'CURRENT',
-    '#' || (ROW_NUMBER() OVER ())::text,
-    'Street ' || (ROW_NUMBER() OVER () * 10)::text,
-    'Village ' || (ROW_NUMBER() OVER () % 5 + 1)::text,
-    'Commune ' || (ROW_NUMBER() OVER () % 3 + 1)::text,
-    CASE WHEN (ROW_NUMBER() OVER () % 3) = 0 THEN 'Chamkarmon' WHEN (ROW_NUMBER() OVER () % 3) = 1 THEN 'Daun Penh' ELSE 'Russey Keo' END,
+    '#' || (ROW_NUMBER() OVER (ORDER BY u.created_at))::text,
+    'Street ' || (ROW_NUMBER() OVER (ORDER BY u.created_at) * 10)::text,
+    'Village ' || (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5 + 1)::text,
+    'Commune ' || (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3 + 1)::text,
+    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3) = 0 THEN 'Chamkarmon' WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3) = 1 THEN 'Daun Penh' ELSE 'Russey Keo' END,
     'Phnom Penh',
     'Cambodia'
 FROM users u
 WHERE u.user_type = 'BUSINESS_USER'
-  AND u.user_identifier LIKE 'staff%@business.com'
-LIMIT 50;
+  AND u.user_identifier LIKE 'staff%@business.com';
 
 -- ============================================================================
 -- 7.9 USER EMERGENCY CONTACTS
@@ -398,19 +395,18 @@ INSERT INTO user_emergency_contacts (id, version, created_at, updated_at, create
 INSERT INTO user_emergency_contacts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, name, phone, relationship)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     u.id,
-    CASE (ROW_NUMBER() OVER () % 5)
+    CASE (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5)
         WHEN 0 THEN 'Sok Dara' WHEN 1 THEN 'Chan Mony' WHEN 2 THEN 'Phat Ratha'
         WHEN 3 THEN 'Lim Bopha' ELSE 'Vy Sothea' END,
-    '+855 ' || (10 + (ROW_NUMBER() OVER () % 90))::text || ' ' || LPAD((ROW_NUMBER() OVER () * 7 % 9000 + 1000)::text, 4, '0') || ' ' || LPAD((ROW_NUMBER() OVER () * 13 % 900 + 100)::text, 3, '0'),
-    CASE (ROW_NUMBER() OVER () % 5)
+    '+855 ' || (10 + (ROW_NUMBER() OVER (ORDER BY u.created_at) % 90))::text || ' ' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) * 7 % 9000 + 1000)::text, 4, '0') || ' ' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) * 13 % 900 + 100)::text, 3, '0'),
+    CASE (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5)
         WHEN 0 THEN 'Father' WHEN 1 THEN 'Mother' WHEN 2 THEN 'Spouse'
         WHEN 3 THEN 'Sibling' ELSE 'Friend' END
 FROM users u
 WHERE u.user_type = 'BUSINESS_USER'
-  AND u.user_identifier LIKE 'staff%@business.com'
-LIMIT 200;
+  AND u.user_identifier LIKE 'staff%@business.com';
 
 -- ============================================================================
 -- 7.10 USER DOCUMENTS
@@ -432,23 +428,22 @@ INSERT INTO user_documents (id, version, created_at, updated_at, created_by, upd
 ('cc000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'ID_CARD', 'ID-1995-003-0001', 'https://example.com/docs/customer-id.pdf');
 
--- Bulk ID card documents for staff (1 per staff, first 200)
+-- Bulk documents for all staff (1 per staff)
 INSERT INTO user_documents (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, type, number, file_url)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     u.id,
-    CASE (ROW_NUMBER() OVER () % 3)
+    CASE (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3)
         WHEN 0 THEN 'ID_CARD' WHEN 1 THEN 'PASSPORT' ELSE 'FAMILY_BOOK' END,
-    CASE (ROW_NUMBER() OVER () % 3)
-        WHEN 0 THEN 'ID-19' || LPAD((ROW_NUMBER() OVER () % 90 + 80)::text, 2, '0') || '-' || LPAD((ROW_NUMBER() OVER ())::text, 3, '0') || '-' || LPAD((ROW_NUMBER() OVER ())::text, 4, '0')
-        WHEN 1 THEN 'PB-2022-' || LPAD((ROW_NUMBER() OVER () * 7 % 900000 + 100000)::text, 6, '0')
-        ELSE 'FB-PP-2020-' || LPAD((ROW_NUMBER() OVER ())::text, 4, '0') END,
-    'https://example.com/docs/staff-doc-' || ROW_NUMBER() OVER () || '.pdf'
+    CASE (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3)
+        WHEN 0 THEN 'ID-19' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) % 90 + 80)::text, 2, '0') || '-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 3, '0') || '-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 4, '0')
+        WHEN 1 THEN 'PB-2022-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) * 7 % 900000 + 100000)::text, 6, '0')
+        ELSE 'FB-PP-2020-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 4, '0') END,
+    'https://example.com/docs/staff-doc-' || ROW_NUMBER() OVER (ORDER BY u.created_at) || '.pdf'
 FROM users u
 WHERE u.user_type = 'BUSINESS_USER'
-  AND u.user_identifier LIKE 'staff%@business.com'
-LIMIT 200;
+  AND u.user_identifier LIKE 'staff%@business.com';
 
 -- ============================================================================
 -- 7.11 USER EDUCATIONS
@@ -470,34 +465,33 @@ INSERT INTO user_educations (id, version, created_at, updated_at, created_by, up
 ('dd000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'DIPLOMA', 'Paññāsāstra University of Cambodia', 'Hospitality Management', '2013', '2015', true, 'https://example.com/certs/customer-diploma.pdf');
 
--- Bulk education for staff (1 per staff, first 200)
+-- Bulk education for all staff (1 per staff)
 INSERT INTO user_educations (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     u.id,
-    CASE (ROW_NUMBER() OVER () % 5)
+    CASE (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5)
         WHEN 0 THEN 'HIGH_SCHOOL' WHEN 1 THEN 'DIPLOMA' WHEN 2 THEN 'BACHELOR' WHEN 3 THEN 'MASTER' ELSE 'DOCTORATE' END,
-    CASE (ROW_NUMBER() OVER () % 5)
+    CASE (ROW_NUMBER() OVER (ORDER BY u.created_at) % 5)
         WHEN 0 THEN 'Royal University of Phnom Penh'
         WHEN 1 THEN 'Build Bright University'
         WHEN 2 THEN 'Paññāsāstra University of Cambodia'
         WHEN 3 THEN 'National University of Management'
         ELSE 'Institute of Technology of Cambodia' END,
-    CASE (ROW_NUMBER() OVER () % 4)
+    CASE (ROW_NUMBER() OVER (ORDER BY u.created_at) % 4)
         WHEN 0 THEN NULL
         WHEN 1 THEN 'Business Administration'
         WHEN 2 THEN 'Computer Science'
         ELSE 'Hospitality Management' END,
-    (2000 + (ROW_NUMBER() OVER () % 15))::text,
-    (2003 + (ROW_NUMBER() OVER () % 15))::text,
+    (2000 + (ROW_NUMBER() OVER (ORDER BY u.created_at) % 15))::text,
+    (2003 + (ROW_NUMBER() OVER (ORDER BY u.created_at) % 15))::text,
     true,
-    CASE WHEN (ROW_NUMBER() OVER () % 3) = 0 THEN NULL
-         ELSE 'https://example.com/certs/staff-cert-' || ROW_NUMBER() OVER () || '.pdf' END
+    CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 3) = 0 THEN NULL
+         ELSE 'https://example.com/certs/staff-cert-' || ROW_NUMBER() OVER (ORDER BY u.created_at) || '.pdf' END
 FROM users u
 WHERE u.user_type = 'BUSINESS_USER'
-  AND u.user_identifier LIKE 'staff%@business.com'
-LIMIT 200;
+  AND u.user_identifier LIKE 'staff%@business.com';
 
 -- ============================================================================
 -- 8. USER SESSIONS
