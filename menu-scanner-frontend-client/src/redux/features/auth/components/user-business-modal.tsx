@@ -676,22 +676,25 @@ export default function UserBusinessModal({
                       />
                     </div>
 
-                    {/* Profile Image - Full Width Single Item */}
-                    <ClickableImageUpload
-                      label="Profile Image"
-                      value={watch("profileImageUrl")}
-                      onChange={(base64) =>
-                        setValue("profileImageUrl", base64, {
-                          shouldDirty: true,
-                        })
-                      }
-                      aspectRatio="square"
-                      height="h-40"
-                      maxSize={5}
-                      disabled={isSubmitting}
-                      error={errors.profileImageUrl}
-                      placeholder="Upload profile image"
-                    />
+                    {/* Profile Image - 50% Width */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <ClickableImageUpload
+                        label="Profile Image"
+                        value={watch("profileImageUrl")}
+                        onChange={(base64) =>
+                          setValue("profileImageUrl", base64, {
+                            shouldDirty: true,
+                          })
+                        }
+                        aspectRatio="square"
+                        height="h-40"
+                        maxSize={5}
+                        disabled={isSubmitting}
+                        error={errors.profileImageUrl}
+                        placeholder="Upload profile image"
+                      />
+                      {/* Empty right column */}
+                    </div>
                   </div>
                 </div>
 
