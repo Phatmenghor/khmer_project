@@ -2,18 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import { AlertTriangle, Trash2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { FormBody } from "@/components/shared/form-field/form-body";
+import { FormFooter } from "@/components/shared/form-field/form-footer";
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
@@ -75,41 +71,48 @@ export function DeleteConfirmationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full sm:max-w-md">
-        <DialogHeader className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div
-              className={`p-2 rounded-full ${
-                isCritical
-                  ? "bg-red-100 text-red-600"
-                  : "bg-orange-100 text-orange-600"
-              }`}
-            >
-              {isCritical ? (
-                <Trash2 className="h-5 w-5" />
-              ) : (
-                <AlertTriangle className="h-5 w-5" />
-              )}
+      <DialogContent className="w-full sm:max-w-md p-0 flex flex-col">
+        <FormHeader
+          title={
+            <div className="flex items-center gap-3">
+              <div
+                className={`p-2 rounded-full ${
+                  isCritical
+                    ? "bg-red-100 text-red-600"
+                    : "bg-orange-100 text-orange-600"
+                }`}
+              >
+                {isCritical ? (
+                  <Trash2 className="h-5 w-5" />
+                ) : (
+                  <AlertTriangle className="h-5 w-5" />
+                )}
+              </div>
+              <span>{title}</span>
             </div>
-            <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
-          </div>
+          }
+          description={description}
+        />
 
-          <DialogDescription className="text-base leading-relaxed">
-            {description}
-            {itemName && (
-              <span className="block mt-2 p-2 bg-muted rounded text-foreground font-medium">
+        <FormBody>
+          {itemName && (
+            <div className="p-3 bg-muted rounded-lg border border-muted-foreground/20">
+              <p className="text-sm text-muted-foreground">Item to delete:</p>
+              <p className="text-sm font-semibold text-foreground mt-1">
                 "{itemName}"
-              </span>
-            )}
-            {isCritical && (
-              <span className="block mt-2 text-red-600 font-medium">
-                This action cannot be undone.
-              </span>
-            )}
-          </DialogDescription>
-        </DialogHeader>
+              </p>
+            </div>
+          )}
 
-        <div className="space-y-4">
+          {isCritical && (
+            <Alert className="border-red-200 bg-red-50">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-700">
+                This action cannot be undone.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Confirmation Input for Critical Actions */}
           {requireConfirmation && (
             <div className="space-y-2">
@@ -139,19 +142,9 @@ export function DeleteConfirmationModal({
               <AlertDescription>{error || errorMessage}</AlertDescription>
             </Alert>
           )}
+        </FormBody>
 
-          {/* Warning for Critical Actions */}
-          {isCritical && !requireConfirmation && (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                This is a permanent action that cannot be reversed.
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
-
-        <DialogFooter className="gap-2 sm:gap-0">
+        <FormFooter isSubmitting={isDeleting || isSubmitting} isDirty={true}>
           <Button
             variant="outline"
             onClick={onClose}
@@ -176,7 +169,7 @@ export function DeleteConfirmationModal({
               <>Delete{isCritical ? " Permanently" : ""}</>
             )}
           </Button>
-        </DialogFooter>
+        </FormFooter>
       </DialogContent>
     </Dialog>
   );
