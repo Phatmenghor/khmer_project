@@ -12,6 +12,7 @@ import {
   Monitor,
   Link2,
   Plus,
+  Camera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +37,7 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { clearError } from "@/redux/features/auth/store/slice/auth-slice";
 import ChangePasswordModal from "@/components/shared/modal/change-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
+import { ProfilePictureModal } from "@/components/shared/modal/profile-picture-modal";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { clearToken } from "@/utils/local-storage/token";
@@ -53,7 +55,6 @@ import {
   EducationLevel,
   EDUCATION_LEVEL_OPTIONS,
 } from "@/constants/status/user-enums";
-import { FormBody } from "@/components/shared/form-field/form-body";
 
 // Profile update schema
 import {
@@ -86,6 +87,8 @@ export default function AdminProfilePage() {
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
     useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] =
+    useState(false);
   const [activeSection, setActiveSection] = useState("profile");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
@@ -378,44 +381,28 @@ export default function AdminProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6">
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      <div className="w-full px-3 sm:px-4 py-3 sm:py-6 max-w-6xl mx-auto">
         {/* Profile Header */}
         <Card className="mb-6">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              {/* Profile Image - Click to Edit */}
-              <div className="relative group">
-                <CustomAvatar
-                  imageUrl={userProfile?.profileImageUrl}
-                  name={userProfile?.fullName}
-                  size="xl"
-                />
-                {isEditing && (
-                  <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
-                       onClick={() => document.getElementById('profile-image-input')?.click()}>
-                    <Edit className="h-6 w-6 text-white" />
+              {/* Profile Image - Camera Icon */}
+              <div
+                className="relative cursor-pointer group"
+                onClick={() => setIsProfilePictureModalOpen(true)}
+              >
+                <div className="relative">
+                  <CustomAvatar
+                    imageUrl={userProfile?.profileImageUrl}
+                    name={userProfile?.fullName}
+                    size="xl"
+                  />
+                  {/* Camera Icon Overlay */}
+                  <div className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                    <Camera className="h-4 w-4 text-white" />
                   </div>
-                )}
-                <input
-                  id="profile-image-input"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        setValue("profileImageUrl", event.target?.result as string, {
-                          shouldDirty: true,
-                        });
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                  disabled={!isEditing}
-                />
+                </div>
               </div>
 
               <div className="flex-1">
@@ -1225,6 +1212,25 @@ export default function AdminProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Profile Picture Modal */}
+      <ProfilePictureModal
+        isOpen={isProfilePictureModalOpen}
+        onClose={() => setIsProfilePictureModalOpen(false)}
+        currentImageUrl={userProfile?.profileImageUrl}
+        userName={userProfile?.fullName}
+        onImageSelect={(imageData) => {
+          setValue("profileImageUrl", imageData, {
+            shouldDirty: true,
+          });
+        }}
+        onImageRemove={() => {
+          setValue("profileImageUrl", "", {
+            shouldDirty: true,
+          });
+        }}
+        isLoading={isUploadingImage}
+      />
 
       {/* Change Password Modal */}
       <ChangePasswordModal
