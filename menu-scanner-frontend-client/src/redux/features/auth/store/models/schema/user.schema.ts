@@ -115,4 +115,33 @@ export type UserFormData = {
   shift?: string;
   // Other
   remark?: string;
+  // Address (Optional - single)
+  addressType?: string;
+  houseNo?: string;
+  street?: string;
+  village?: string;
+  commune?: string;
+  district?: string;
+  province?: string;
+  country?: string;
+  // Emergency Contact (Optional - single)
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  emergencyContactRelationship?: string;
+  // Document (Optional - single)
+  documentType?: string;
+  documentNumber?: string;
+  documentFileUrl?: string;
+  // Education (Optional - single)
+  educationLevel?: string;
+  schoolName?: string;
+  fieldOfStudy?: string;
+  startYear?: string;
+  endYear?: string;
+  certificateUrl?: string;
+  // Array fields (for API responses)
+  addresses?: any[];
+  emergencyContacts?: any[];
+  documents?: any[];
+  educations?: any[];
 };

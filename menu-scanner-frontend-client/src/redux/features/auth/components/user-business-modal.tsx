@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
@@ -10,9 +10,6 @@ import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { PasswordField } from "@/components/shared/form-field/password-field";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2 } from "lucide-react";
 import {
   CreateUserRequest,
   UpdateUserRequest,
@@ -157,30 +154,30 @@ export default function UserBusinessModal({
       leaveDate: "",
       shift: "",
       remark: "",
-    },
+      addressType: "",
+      houseNo: "",
+      street: "",
+      village: "",
+      commune: "",
+      district: "",
+      province: "",
+      country: "",
+      emergencyContactName: "",
+      emergencyContactPhone: "",
+      emergencyContactRelationship: "",
+      documentType: "",
+      documentNumber: "",
+      documentFileUrl: "",
+      educationLevel: "",
+      schoolName: "",
+      fieldOfStudy: "",
+      startYear: "",
+      endYear: "",
+      certificateUrl: "",
+    } as any,
     mode: "onChange",
   });
 
-  // Array field controls for complex data
-  const { fields: addressFields, append: appendAddress, remove: removeAddress } = useFieldArray({
-    control,
-    name: "addresses" as any,
-  });
-
-  const { fields: contactFields, append: appendContact, remove: removeContact } = useFieldArray({
-    control,
-    name: "emergencyContacts" as any,
-  });
-
-  const { fields: docFields, append: appendDoc, remove: removeDoc } = useFieldArray({
-    control,
-    name: "documents" as any,
-  });
-
-  const { fields: eduFields, append: appendEducation, remove: removeEducation } = useFieldArray({
-    control,
-    name: "educations" as any,
-  });
 
   const userIdentifier = watch("userIdentifier");
   const email = watch("email");
@@ -210,6 +207,10 @@ export default function UserBusinessModal({
 
         if (fetchUserByIdService.fulfilled.match(resultAction)) {
           const data = resultAction.payload;
+          const firstAddress = Array.isArray(data.addresses) && data.addresses.length > 0 ? data.addresses[0] : {};
+          const firstContact = Array.isArray(data.emergencyContacts) && data.emergencyContacts.length > 0 ? data.emergencyContacts[0] : {};
+          const firstDoc = Array.isArray(data.documents) && data.documents.length > 0 ? data.documents[0] : {};
+          const firstEdu = Array.isArray(data.educations) && data.educations.length > 0 ? data.educations[0] : {};
 
           reset({
             id: data.id,
@@ -230,10 +231,26 @@ export default function UserBusinessModal({
             leaveDate: data.leaveDate || "",
             shift: data.shift || "",
             remark: data.remark || "",
-            addresses: Array.isArray(data.addresses) ? data.addresses : [],
-            emergencyContacts: Array.isArray(data.emergencyContacts) ? data.emergencyContacts : [],
-            documents: Array.isArray(data.documents) ? data.documents : [],
-            educations: Array.isArray(data.educations) ? data.educations : [],
+            addressType: firstAddress?.addressType || "",
+            houseNo: firstAddress?.houseNo || "",
+            street: firstAddress?.street || "",
+            village: firstAddress?.village || "",
+            commune: firstAddress?.commune || "",
+            district: firstAddress?.district || "",
+            province: firstAddress?.province || "",
+            country: firstAddress?.country || "",
+            emergencyContactName: firstContact?.name || "",
+            emergencyContactPhone: firstContact?.phone || "",
+            emergencyContactRelationship: firstContact?.relationship || "",
+            documentType: firstDoc?.type || "",
+            documentNumber: firstDoc?.number || "",
+            documentFileUrl: firstDoc?.fileUrl || "",
+            educationLevel: firstEdu?.level || "",
+            schoolName: firstEdu?.schoolName || "",
+            fieldOfStudy: firstEdu?.fieldOfStudy || "",
+            startYear: firstEdu?.startYear || "",
+            endYear: firstEdu?.endYear || "",
+            certificateUrl: firstEdu?.certificateUrl || "",
           } as any);
         }
       } catch (error) {
@@ -270,10 +287,26 @@ export default function UserBusinessModal({
         leaveDate: "",
         shift: "",
         remark: "",
-        addresses: [],
-        emergencyContacts: [],
-        documents: [],
-        educations: [],
+        addressType: "",
+        houseNo: "",
+        street: "",
+        village: "",
+        commune: "",
+        district: "",
+        province: "",
+        country: "",
+        emergencyContactName: "",
+        emergencyContactPhone: "",
+        emergencyContactRelationship: "",
+        documentType: "",
+        documentNumber: "",
+        documentFileUrl: "",
+        educationLevel: "",
+        schoolName: "",
+        fieldOfStudy: "",
+        startYear: "",
+        endYear: "",
+        certificateUrl: "",
       } as any);
     }
   }, [isOpen, isCreate, reset]);
@@ -287,6 +320,48 @@ export default function UserBusinessModal({
 
   const onSubmit = async (data: UserFormData) => {
     try {
+      // Build arrays from optional fields
+      const addresses = (data.houseNo || data.street || data.village || data.commune || data.district || data.province || data.country)
+        ? [{
+            addressType: data.addressType || "CURRENT",
+            houseNo: data.houseNo || "",
+            street: data.street || "",
+            village: data.village || "",
+            commune: data.commune || "",
+            district: data.district || "",
+            province: data.province || "",
+            country: data.country || "",
+          }]
+        : undefined;
+
+      const emergencyContacts = (data.emergencyContactName || data.emergencyContactPhone || data.emergencyContactRelationship)
+        ? [{
+            name: data.emergencyContactName || "",
+            phone: data.emergencyContactPhone || "",
+            relationship: data.emergencyContactRelationship || "",
+          }]
+        : undefined;
+
+      const documents = (data.documentNumber || data.documentFileUrl)
+        ? [{
+            type: data.documentType || "ID_CARD",
+            number: data.documentNumber || "",
+            fileUrl: data.documentFileUrl || "",
+          }]
+        : undefined;
+
+      const educations = (data.schoolName || data.fieldOfStudy || data.startYear || data.endYear)
+        ? [{
+            level: data.educationLevel || "HIGH_SCHOOL",
+            schoolName: data.schoolName || "",
+            fieldOfStudy: data.fieldOfStudy || "",
+            startYear: data.startYear || "",
+            endYear: data.endYear || "",
+            isGraduated: false,
+            certificateUrl: data.certificateUrl || "",
+          }]
+        : undefined;
+
       if (isCreate) {
         const payload: CreateUserRequest = {
           userIdentifier: data.userIdentifier!,
@@ -311,10 +386,10 @@ export default function UserBusinessModal({
           leaveDate: data.leaveDate || undefined,
           shift: data.shift || undefined,
           remark: data.remark || undefined,
-          addresses: (data.addresses && data.addresses.length > 0) ? data.addresses : undefined,
-          emergencyContacts: (data.emergencyContacts && data.emergencyContacts.length > 0) ? data.emergencyContacts : undefined,
-          documents: (data.documents && data.documents.length > 0) ? data.documents : undefined,
-          educations: (data.educations && data.educations.length > 0) ? data.educations : undefined,
+          addresses,
+          emergencyContacts,
+          documents,
+          educations,
         } as any;
 
         const result = await dispatch(createUserService(payload)).unwrap();
@@ -344,10 +419,10 @@ export default function UserBusinessModal({
           leaveDate: data.leaveDate || undefined,
           shift: data.shift || undefined,
           remark: data.remark || undefined,
-          addresses: (data.addresses && data.addresses.length > 0) ? data.addresses : undefined,
-          emergencyContacts: (data.emergencyContacts && data.emergencyContacts.length > 0) ? data.emergencyContacts : undefined,
-          documents: (data.documents && data.documents.length > 0) ? data.documents : undefined,
-          educations: (data.educations && data.educations.length > 0) ? data.educations : undefined,
+          addresses,
+          emergencyContacts,
+          documents,
+          educations,
         } as any;
 
         const result = await dispatch(
@@ -627,383 +702,195 @@ export default function UserBusinessModal({
                   </div>
                 </div>
 
-                {/* Addresses */}
+                {/* Addresses (Optional) */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">Addresses</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {addressFields.length > 0 ? `${addressFields.length} address(es) added` : "No addresses added"}
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => appendAddress({ addressType: "CURRENT", houseNo: "", street: "", village: "", commune: "", district: "", province: "", country: "" } as any)}
+                  <h3 className="text-lg font-semibold">Address Information (Optional)</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <SelectField
+                      control={control}
+                      name="addressType"
+                      label="Address Type"
+                      placeholder="Select type (optional)"
+                      options={ADDRESS_TYPE_OPTIONS}
                       disabled={isSubmitting}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Address
-                    </Button>
+                      error={errors.addressType as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="houseNo"
+                      label="House No"
+                      placeholder="Enter house number (optional)"
+                      disabled={isSubmitting}
+                      error={errors.houseNo as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="street"
+                      label="Street"
+                      placeholder="Enter street (optional)"
+                      disabled={isSubmitting}
+                      error={errors.street as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="village"
+                      label="Village"
+                      placeholder="Enter village (optional)"
+                      disabled={isSubmitting}
+                      error={errors.village as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="commune"
+                      label="Commune"
+                      placeholder="Enter commune (optional)"
+                      disabled={isSubmitting}
+                      error={errors.commune as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="district"
+                      label="District"
+                      placeholder="Enter district (optional)"
+                      disabled={isSubmitting}
+                      error={errors.district as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="province"
+                      label="Province"
+                      placeholder="Enter province (optional)"
+                      disabled={isSubmitting}
+                      error={errors.province as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="country"
+                      label="Country"
+                      placeholder="Enter country (optional)"
+                      disabled={isSubmitting}
+                      error={errors.country as any}
+                    />
                   </div>
-
-                  {addressFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">No addresses added</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {addressFields.map((field, index) => (
-                        <Card key={field.id}>
-                          <CardHeader className="pb-4">
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-base">Address {index + 1}</CardTitle>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => removeAddress(index)}
-                                disabled={isSubmitting}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
-                              </Button>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-2 gap-4">
-                              <SelectField
-                                control={control}
-                                name={`addresses.${index}.addressType`}
-                                label="Address Type"
-                                placeholder="Select type"
-                                options={ADDRESS_TYPE_OPTIONS}
-                                disabled={isSubmitting}
-                                error={errors.addresses?.[index]?.addressType as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.houseNo`}
-                                label="House No"
-                                placeholder="Enter house number"
-                                disabled={isSubmitting}
-                                error={errors.addresses?.[index]?.houseNo as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.street`}
-                                label="Street"
-                                placeholder="Enter street"
-                                disabled={isSubmitting}
-                                error={errors.addresses?.[index]?.street as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.village`}
-                                label="Village"
-                                placeholder="Enter village"
-                                disabled={isSubmitting}
-                                error={errors.addresses?.[index]?.village as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.commune`}
-                                label="Commune"
-                                placeholder="Enter commune"
-                                disabled={isSubmitting}
-                                error={errors.addresses?.[index]?.commune as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.district`}
-                                label="District"
-                                placeholder="Enter district"
-                                disabled={isSubmitting}
-                                error={errors.addresses?.[index]?.district as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.province`}
-                                label="Province"
-                                placeholder="Enter province"
-                                disabled={isSubmitting}
-                                error={errors.addresses?.[index]?.province as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`addresses.${index}.country`}
-                                label="Country"
-                                placeholder="Enter country"
-                                disabled={isSubmitting}
-                                error={errors.addresses?.[index]?.country as any}
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
-                {/* Emergency Contacts */}
+                {/* Emergency Contact (Optional) */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">Emergency Contacts</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {contactFields.length > 0 ? `${contactFields.length} contact(s) added` : "No emergency contacts"}
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => appendContact({ name: "", phone: "", relationship: "" } as any)}
+                  <h3 className="text-lg font-semibold">Emergency Contact (Optional)</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <TextField
+                      control={control}
+                      name="emergencyContactName"
+                      label="Contact Name"
+                      placeholder="Enter name (optional)"
                       disabled={isSubmitting}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Contact
-                    </Button>
+                      error={errors.emergencyContactName as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="emergencyContactPhone"
+                      label="Contact Phone"
+                      placeholder="Enter phone (optional)"
+                      disabled={isSubmitting}
+                      error={errors.emergencyContactPhone as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="emergencyContactRelationship"
+                      label="Relationship"
+                      placeholder="e.g., Father, Mother (optional)"
+                      disabled={isSubmitting}
+                      error={errors.emergencyContactRelationship as any}
+                    />
                   </div>
-
-                  {contactFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">No emergency contacts added</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {contactFields.map((field, index) => (
-                        <Card key={field.id}>
-                          <CardHeader className="pb-4">
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-base">Contact {index + 1}</CardTitle>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => removeContact(index)}
-                                disabled={isSubmitting}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
-                              </Button>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-3 gap-4">
-                              <TextField
-                                control={control}
-                                name={`emergencyContacts.${index}.name`}
-                                label="Name"
-                                placeholder="Enter name"
-                                disabled={isSubmitting}
-                                error={errors.emergencyContacts?.[index]?.name as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`emergencyContacts.${index}.phone`}
-                                label="Phone"
-                                placeholder="Enter phone"
-                                disabled={isSubmitting}
-                                error={errors.emergencyContacts?.[index]?.phone as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`emergencyContacts.${index}.relationship`}
-                                label="Relationship"
-                                placeholder="e.g., Father, Mother, Brother"
-                                disabled={isSubmitting}
-                                error={errors.emergencyContacts?.[index]?.relationship as any}
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
-                {/* Documents */}
+                {/* Document (Optional) */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">Documents</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {docFields.length > 0 ? `${docFields.length} document(s) added` : "No documents added"}
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => appendDoc({ type: "ID_CARD", number: "", fileUrl: "" } as any)}
+                  <h3 className="text-lg font-semibold">Document (Optional)</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <SelectField
+                      control={control}
+                      name="documentType"
+                      label="Document Type"
+                      placeholder="Select type (optional)"
+                      options={DOCUMENT_TYPE_OPTIONS}
                       disabled={isSubmitting}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Document
-                    </Button>
+                      error={errors.documentType as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="documentNumber"
+                      label="Document Number"
+                      placeholder="Enter number (optional)"
+                      disabled={isSubmitting}
+                      error={errors.documentNumber as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="documentFileUrl"
+                      label="Document File URL"
+                      placeholder="Enter file URL (optional)"
+                      disabled={isSubmitting}
+                      error={errors.documentFileUrl as any}
+                    />
                   </div>
-
-                  {docFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">No documents added</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {docFields.map((field, index) => (
-                        <Card key={field.id}>
-                          <CardHeader className="pb-4">
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-base">Document {index + 1}</CardTitle>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => removeDoc(index)}
-                                disabled={isSubmitting}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
-                              </Button>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-3 gap-4">
-                              <SelectField
-                                control={control}
-                                name={`documents.${index}.type`}
-                                label="Document Type"
-                                placeholder="Select type"
-                                options={DOCUMENT_TYPE_OPTIONS}
-                                disabled={isSubmitting}
-                                error={errors.documents?.[index]?.type as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`documents.${index}.number`}
-                                label="Document Number"
-                                placeholder="Enter number"
-                                disabled={isSubmitting}
-                                error={errors.documents?.[index]?.number as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`documents.${index}.fileUrl`}
-                                label="File URL"
-                                placeholder="Enter file URL"
-                                disabled={isSubmitting}
-                                error={errors.documents?.[index]?.fileUrl as any}
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
-                {/* Education */}
+                {/* Education (Optional) */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">Education</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {eduFields.length > 0 ? `${eduFields.length} education(s) added` : "No education added"}
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => appendEducation({ level: "HIGH_SCHOOL", schoolName: "", fieldOfStudy: "", startYear: "", endYear: "", isGraduated: false, certificateUrl: "" } as any)}
+                  <h3 className="text-lg font-semibold">Education (Optional)</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <SelectField
+                      control={control}
+                      name="educationLevel"
+                      label="Education Level"
+                      placeholder="Select level (optional)"
+                      options={EDUCATION_LEVEL_OPTIONS}
                       disabled={isSubmitting}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Education
-                    </Button>
+                      error={errors.educationLevel as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="schoolName"
+                      label="School/University Name"
+                      placeholder="Enter name (optional)"
+                      disabled={isSubmitting}
+                      error={errors.schoolName as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="fieldOfStudy"
+                      label="Field of Study"
+                      placeholder="Enter field (optional)"
+                      disabled={isSubmitting}
+                      error={errors.fieldOfStudy as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="startYear"
+                      label="Start Year"
+                      type="date"
+                      disabled={isSubmitting}
+                      error={errors.startYear as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="endYear"
+                      label="End Year"
+                      type="date"
+                      disabled={isSubmitting}
+                      error={errors.endYear as any}
+                    />
+                    <TextField
+                      control={control}
+                      name="certificateUrl"
+                      label="Certificate URL"
+                      placeholder="Enter URL (optional)"
+                      disabled={isSubmitting}
+                      error={errors.certificateUrl as any}
+                    />
                   </div>
-
-                  {eduFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">No education added</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {eduFields.map((field, index) => (
-                        <Card key={field.id}>
-                          <CardHeader className="pb-4">
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-base">Education {index + 1}</CardTitle>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => removeEducation(index)}
-                                disabled={isSubmitting}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
-                              </Button>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-2 gap-4">
-                              <SelectField
-                                control={control}
-                                name={`educations.${index}.level`}
-                                label="Education Level"
-                                placeholder="Select level"
-                                options={EDUCATION_LEVEL_OPTIONS}
-                                disabled={isSubmitting}
-                                error={errors.educations?.[index]?.level as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`educations.${index}.schoolName`}
-                                label="School/University Name"
-                                placeholder="Enter name"
-                                disabled={isSubmitting}
-                                error={errors.educations?.[index]?.schoolName as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`educations.${index}.fieldOfStudy`}
-                                label="Field of Study"
-                                placeholder="Enter field"
-                                disabled={isSubmitting}
-                                error={errors.educations?.[index]?.fieldOfStudy as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`educations.${index}.startYear`}
-                                label="Start Year"
-                                type="date"
-                                disabled={isSubmitting}
-                                error={errors.educations?.[index]?.startYear as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`educations.${index}.endYear`}
-                                label="End Year"
-                                type="date"
-                                disabled={isSubmitting}
-                                error={errors.educations?.[index]?.endYear as any}
-                              />
-                              <TextField
-                                control={control}
-                                name={`educations.${index}.certificateUrl`}
-                                label="Certificate URL"
-                                placeholder="Enter URL"
-                                disabled={isSubmitting}
-                                error={errors.educations?.[index]?.certificateUrl as any}
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 {/* Additional Notes */}
