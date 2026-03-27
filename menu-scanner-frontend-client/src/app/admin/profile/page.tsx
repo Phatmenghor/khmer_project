@@ -759,8 +759,7 @@ export default function AdminProfilePage() {
                 </Card>
 
               {/* Emergency Contacts */}
-              {isEditing && (
-                <Card>
+              <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Emergency Contacts</CardTitle>
@@ -841,8 +840,7 @@ export default function AdminProfilePage() {
                 </Card>
 
               {/* Documents */}
-              {isEditing && (
-                <Card>
+              <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Documents</CardTitle>
@@ -936,8 +934,7 @@ export default function AdminProfilePage() {
                 </Card>
 
               {/* Education */}
-              {isEditing && (
-                <Card>
+              <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Education</CardTitle>
