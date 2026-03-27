@@ -18,6 +18,10 @@ import {
   createUserSchema,
   updateUserSchema,
   UserFormData,
+  Address,
+  EmergencyContact,
+  Document,
+  Education,
 } from "../store/models/schema/user.schema";
 import {
   fetchUserByIdService,
@@ -320,8 +324,8 @@ export default function UserBusinessModal({
 
   const onSubmit = async (data: UserFormData) => {
     try {
-      // Build arrays from optional fields
-      const addresses = (data.houseNo || data.street || data.village || data.commune || data.district || data.province || data.country)
+      // Build arrays from optional fields with proper typing
+      const addresses: Address[] | undefined = (data.houseNo || data.street || data.village || data.commune || data.district || data.province || data.country)
         ? [{
             addressType: data.addressType || "CURRENT",
             houseNo: data.houseNo || "",
@@ -334,7 +338,7 @@ export default function UserBusinessModal({
           }]
         : undefined;
 
-      const emergencyContacts = (data.emergencyContactName || data.emergencyContactPhone || data.emergencyContactRelationship)
+      const emergencyContacts: EmergencyContact[] | undefined = (data.emergencyContactName || data.emergencyContactPhone || data.emergencyContactRelationship)
         ? [{
             name: data.emergencyContactName || "",
             phone: data.emergencyContactPhone || "",
@@ -342,7 +346,7 @@ export default function UserBusinessModal({
           }]
         : undefined;
 
-      const documents = (data.documentNumber || data.documentFileUrl)
+      const documents: Document[] | undefined = (data.documentNumber || data.documentFileUrl)
         ? [{
             type: data.documentType || "ID_CARD",
             number: data.documentNumber || "",
@@ -350,7 +354,7 @@ export default function UserBusinessModal({
           }]
         : undefined;
 
-      const educations = (data.schoolName || data.fieldOfStudy || data.startYear || data.endYear)
+      const educations: Education[] | undefined = (data.schoolName || data.fieldOfStudy || data.startYear || data.endYear)
         ? [{
             level: data.educationLevel || "HIGH_SCHOOL",
             schoolName: data.schoolName || "",

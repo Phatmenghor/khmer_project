@@ -2,6 +2,55 @@
 import { z } from "zod";
 
 /**
+ * Address Type
+ */
+export interface Address {
+  id?: string;
+  addressType: string;
+  houseNo: string;
+  street: string;
+  village: string;
+  commune: string;
+  district: string;
+  province: string;
+  country: string;
+}
+
+/**
+ * Emergency Contact Type
+ */
+export interface EmergencyContact {
+  id?: string;
+  name: string;
+  phone: string;
+  relationship: string;
+}
+
+/**
+ * Document Type
+ */
+export interface Document {
+  id?: string;
+  type: string;
+  number: string;
+  fileUrl: string;
+}
+
+/**
+ * Education Type
+ */
+export interface Education {
+  id?: string;
+  level: string;
+  schoolName: string;
+  fieldOfStudy: string;
+  startYear: string;
+  endYear: string;
+  isGraduated: boolean;
+  certificateUrl: string;
+}
+
+/**
  * Create User Schema
  */
 export const createUserSchema = z.object({
@@ -140,8 +189,8 @@ export type UserFormData = {
   endYear?: string;
   certificateUrl?: string;
   // Array fields (for API responses)
-  addresses?: any[];
-  emergencyContacts?: any[];
-  documents?: any[];
-  educations?: any[];
+  addresses?: Address[];
+  emergencyContacts?: EmergencyContact[];
+  documents?: Document[];
+  educations?: Education[];
 };
