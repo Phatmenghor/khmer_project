@@ -14,12 +14,10 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { ModalMode, UserGropeType } from "@/constants/status/status";
-import { Loading } from "@/components/shared/common/loading";
 import {
   selectError,
-  selectIsFetchingDetail,
   selectOperations,
-  selectSelectedRole,
+  selectRoleContent,
 } from "../store/selectors/role-selectors";
 import {
   createRoleSchema,
@@ -28,7 +26,6 @@ import {
 } from "../store/models/schema/role.schema";
 import {
   createRoleService,
-  fetchRoleByIdService,
   updateRoleService,
 } from "../store/thunks/role-thunks";
 import { clearError, clearSelectedRole } from "../store/slice/role-slice";
@@ -50,9 +47,11 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
   const dispatch = useAppDispatch();
 
   const operations = useAppSelector(selectOperations);
-  const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
+  const rolesContent = useAppSelector(selectRoleContent);
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
+
+  const roleData = rolesContent.find(role => role.id === roleId);
 
   const {
     control,
@@ -87,28 +86,14 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
   }, [nameValue, setValue]);
 
   useEffect(() => {
-    const fetchRoleData = async () => {
-      if (!roleId || !isOpen || isCreate) return;
+    if (!roleId || !isOpen || isCreate || !roleData) return;
 
-      try {
-        const resultAction = await dispatch(fetchRoleByIdService(roleId));
-
-        if (fetchRoleByIdService.fulfilled.match(resultAction)) {
-          const data = resultAction.payload;
-
-          reset({
-            id: data.id,
-            name: data.name,
-            description: data?.description || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching role data:", error);
-      }
-    };
-
-    fetchRoleData();
-  }, [roleId, isOpen, isCreate, reset, dispatch]);
+    reset({
+      id: roleData.id,
+      name: roleData.name,
+      description: roleData?.description || "",
+    });
+  }, [roleId, isOpen, isCreate, roleData, reset]);
 
   useEffect(() => {
     if (isOpen && isCreate) {
@@ -181,15 +166,10 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
           }
         />
 
-        {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
-            <Loading />
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-hidden"
-          >
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
             <FormBody>
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
@@ -239,7 +219,6 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
               />
             </FormFooter>
           </form>
-        )}
       </DialogContent>
     </Dialog>
   );
