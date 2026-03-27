@@ -30,12 +30,7 @@ const DialogOverlay = React.forwardRef<
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
-  closeButtonRight?: string;
-  closeButtonTop?: string;
-  closeIconSize?: "sm" | "md" | "lg" | "xl";
-  closeIconColor?: "black" | "white";
-  closeHoverEffect?: string;
-  closeIconClassName?: string;
+  closeButtonClassName?: string;
 }
 
 const DialogContent = React.forwardRef<
@@ -44,25 +39,9 @@ const DialogContent = React.forwardRef<
 >(({
   className,
   children,
-  closeButtonRight = "right-4",
-  closeButtonTop = "top-4",
-  closeIconSize = "lg",
-  closeIconColor = "black",
-  closeHoverEffect = "hover:opacity-100",
-  closeIconClassName = "",
+  closeButtonClassName = "",
   ...props
 }, ref) => {
-  const colorMap = {
-    black: "#000000",
-    white: "#ffffff",
-  };
-
-  const iconSizeMap = {
-    sm: "h-3 w-3",
-    md: "h-4 w-4",
-    lg: "h-6 w-6",
-    xl: "h-8 w-8",
-  };
   return (
   <DialogPortal>
     <DialogOverlay />
@@ -92,8 +71,8 @@ const DialogContent = React.forwardRef<
       {/* Drag handle — visible only on mobile bottom sheet */}
       <div className="mx-auto mb-1 h-1.5 w-12 flex-shrink-0 rounded-full bg-muted-foreground/20 sm:hidden" />
       {children}
-      <DialogPrimitive.Close className={`absolute ${closeButtonRight} ${closeButtonTop} rounded-sm opacity-70 ring-offset-background transition-opacity ${closeHoverEffect} focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground ${closeIconClassName}`}>
-        <X className={iconSizeMap[closeIconSize]} style={{ color: colorMap[closeIconColor] }} />
+      <DialogPrimitive.Close className={`absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground ${closeButtonClassName}`}>
+        <X className="h-6 w-6" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
