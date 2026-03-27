@@ -80,9 +80,11 @@ export function DeleteConfirmationModal({
         <FormBody>
           {itemName && (
             <div className="p-3 bg-muted rounded-lg border border-muted-foreground/20">
-              <p className="text-sm text-muted-foreground">Item to delete:</p>
-              <p className="text-sm font-semibold text-foreground mt-1">
-                "{itemName}"
+              <p className="text-sm">
+                <span className="text-muted-foreground">Item to delete:</span>
+                <span className="font-semibold text-foreground ml-2">
+                  "{itemName}"
+                </span>
               </p>
             </div>
           )}
