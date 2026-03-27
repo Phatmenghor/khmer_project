@@ -90,7 +90,7 @@ export default function UserBusinessPage() {
       pageSize: globalPageSize,
       roles: filters.role === UserRole.ALL ? [] : [filters.role],
       userTypes: [UserGropeType.BUSINESS_USER],
-      accountStatus: filters.accountStatus === AccountStatus.ALL ? [] : [filters.accountStatus],
+      accountStatuses: filters.accountStatus === AccountStatus.ALL ? [] : [filters.accountStatus],
     };
 
     // Debug: Log the filter payload being sent

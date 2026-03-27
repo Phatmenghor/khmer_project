@@ -45,7 +45,7 @@ export interface UpdateUserRequest {
  * Fetch All Users Request
  */
 export interface AllUserRequest extends BaseGetAllRequest {
-  accountStatus?: string[];
+  accountStatuses?: string[];
   roles?: string[];
   userTypes?: string[];
 }
