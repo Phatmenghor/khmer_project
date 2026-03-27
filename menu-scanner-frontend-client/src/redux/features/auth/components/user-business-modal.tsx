@@ -550,6 +550,12 @@ export default function UserBusinessModal({
                         required
                         disabled={isSubmitting || roleOptions.length === 0}
                         error={getArrayFieldError(errors.roles)}
+                        onValueChange={(value) => {
+                          setValue("roles", [value], {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }}
                       />
 
                       <SelectField
@@ -585,6 +591,12 @@ export default function UserBusinessModal({
                           required
                           disabled={isSubmitting || roleOptions.length === 0}
                           error={getArrayFieldError(errors.roles)}
+                          onValueChange={(value) => {
+                            setValue("roles", [value], {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                          }}
                         />
 
                         <SelectField
