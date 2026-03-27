@@ -509,7 +509,6 @@ export default function AdminProfilePage() {
                       name="lastName"
                       label="Last Name"
                       placeholder="Last name"
-                      disabled={!isEditing}
                       error={errors.lastName}
                     />
 
@@ -518,7 +517,6 @@ export default function AdminProfilePage() {
                       name="nickname"
                       label="Nickname"
                       placeholder="Nickname"
-                      disabled={!isEditing}
                       error={errors.nickname}
                     />
 
@@ -528,7 +526,6 @@ export default function AdminProfilePage() {
                       label="Email"
                       placeholder="Email"
                       type="email"
-                      disabled={!isEditing}
                       error={errors.email}
                     />
 
@@ -537,7 +534,6 @@ export default function AdminProfilePage() {
                       name="phoneNumber"
                       label="Phone Number"
                       placeholder="Phone"
-                      disabled={!isEditing}
                       error={errors.phoneNumber}
                     />
 
@@ -547,7 +543,6 @@ export default function AdminProfilePage() {
                       label="Gender"
                       placeholder="Select gender"
                       options={GENDER_OPTIONS}
-                      disabled={!isEditing}
                       error={errors.gender}
                     />
 
@@ -557,7 +552,6 @@ export default function AdminProfilePage() {
                       label="Date of Birth"
                       mode="date"
                       placeholder="Date of birth"
-                      disabled={!isEditing}
                       error={errors.dateOfBirth}
                     />
                   </div>
@@ -576,7 +570,6 @@ export default function AdminProfilePage() {
                       name="employeeId"
                       label="Employee ID"
                       placeholder="Employee ID"
-                      disabled={!isEditing}
                       error={errors.employeeId}
                     />
 
@@ -585,7 +578,6 @@ export default function AdminProfilePage() {
                       name="position"
                       label="Position"
                       placeholder="Position"
-                      disabled={!isEditing}
                       error={errors.position}
                     />
 
@@ -594,7 +586,6 @@ export default function AdminProfilePage() {
                       name="department"
                       label="Department"
                       placeholder="Department"
-                      disabled={!isEditing}
                       error={errors.department}
                     />
 
@@ -604,7 +595,6 @@ export default function AdminProfilePage() {
                       label="Employment Type"
                       placeholder="Select type"
                       options={EMPLOYMENT_TYPE_OPTIONS}
-                      disabled={!isEditing}
                       error={errors.employmentType}
                     />
 
@@ -614,7 +604,6 @@ export default function AdminProfilePage() {
                       label="Join Date"
                       mode="date"
                       placeholder="Join date"
-                      disabled={!isEditing}
                       error={errors.joinDate}
                     />
 
@@ -624,7 +613,6 @@ export default function AdminProfilePage() {
                       label="Leave Date"
                       mode="date"
                       placeholder="Leave date"
-                      disabled={!isEditing}
                       error={errors.leaveDate}
                     />
 
@@ -633,7 +621,6 @@ export default function AdminProfilePage() {
                       name="shift"
                       label="Shift"
                       placeholder="Shift"
-                      disabled={!isEditing}
                       error={errors.shift}
                     />
                   </div>
@@ -938,7 +925,6 @@ export default function AdminProfilePage() {
                                 aspectRatio="auto"
                                 height="h-32"
                                 maxSize={5}
-                                disabled={!isEditing}
                                 error={
                                   errors.documents?.[index]?.fileUrl as any
                                 }
@@ -1086,7 +1072,6 @@ export default function AdminProfilePage() {
                                 aspectRatio="auto"
                                 height="h-32"
                                 maxSize={5}
-                                disabled={!isEditing}
                                 error={
                                   errors.educations?.[index]
                                     ?.certificateUrl as any
@@ -1114,7 +1099,6 @@ export default function AdminProfilePage() {
                     label="Remarks"
                     placeholder="Additional notes or information"
                     rows={4}
-                    disabled={!isEditing}
                     error={errors.remark}
                   />
                 </CardContent>
