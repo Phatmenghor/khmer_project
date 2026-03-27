@@ -44,12 +44,12 @@ public class SecurityUtils {
     }
 
     public void validateAccountStatus(User user) {
-        if (user.getAccountStatus() == AccountStatus.SUSPENDED) {
-            throw new ValidationException("Account is suspended");
+        if (user.getAccountStatus() == AccountStatus.LOCKED) {
+            throw new ValidationException("Account is locked");
         }
 
-        if (user.getAccountStatus() == AccountStatus.INACTIVE) {
-            throw new ValidationException("Account is inactive");
+        if (user.getAccountStatus() == AccountStatus.END_WORK) {
+            throw new ValidationException("Account has been ended");
         }
     }
 

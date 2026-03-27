@@ -189,7 +189,7 @@ SELECT
     'staff' || i::text || '@business.com',
     '$2a$12$hgZ6m7pwOA8AYv.r7YbuN.Yi8gHh.5NWqpEd2Jn6sgCRyu29a1DEK',
     'BUSINESS_USER',
-    CASE WHEN (i % 100) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END,
+    CASE WHEN (i % 100) = 0 THEN 'END_WORK' ELSE 'ACTIVE' END,
     CASE WHEN (i <= 250) THEN '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid ELSE '550cad56-cafd-4aba-baef-c4dcd53940d1'::uuid END,
     'Auto-generated staff #' || i::text,
     0

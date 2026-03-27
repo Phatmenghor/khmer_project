@@ -72,20 +72,6 @@ public class GlobalExceptionHandler {
     }
 
     // Account Status Exception Handlers
-    @ExceptionHandler(AccountInactiveException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAccountInactiveException(
-            AccountInactiveException ex, HttpServletRequest request) {
-        log.warn("Login blocked - Account inactive: {}", ex.getMessage());
-
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.ACCOUNT_DISABLED, request);
-        errorDetails.put("accountStatus", "INACTIVE");
-        errorDetails.put("supportContact", "support@emenu-platform.com");
-        errorDetails.put("action", "Contact support to reactivate your account");
-
-        ApiResponse<Object> response = new ApiResponse<>("error", ex.getMessage(), errorDetails);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
-
     @ExceptionHandler(AccountLockedException.class)
     public ResponseEntity<ApiResponse<Object>> handleAccountLockedException(
             AccountLockedException ex, HttpServletRequest request) {
@@ -94,23 +80,21 @@ public class GlobalExceptionHandler {
         Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.ACCOUNT_LOCKED, request);
         errorDetails.put("accountStatus", "LOCKED");
         errorDetails.put("supportContact", "support@emenu-platform.com");
-        errorDetails.put("securityNote", "Your account has been locked for security reasons");
         errorDetails.put("action", "Contact support to unlock your account");
 
         ApiResponse<Object> response = new ApiResponse<>("error", ex.getMessage(), errorDetails);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
-    @ExceptionHandler(AccountSuspendedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAccountSuspendedException(
-            AccountSuspendedException ex, HttpServletRequest request) {
-        log.warn("Login blocked - Account suspended: {}", ex.getMessage());
+    @ExceptionHandler(AccountEndWorkException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAccountEndWorkException(
+            AccountEndWorkException ex, HttpServletRequest request) {
+        log.warn("Login blocked - Account ended: {}", ex.getMessage());
 
         Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.ACCOUNT_DISABLED, request);
-        errorDetails.put("accountStatus", "SUSPENDED");
+        errorDetails.put("accountStatus", "END_WORK");
         errorDetails.put("supportContact", "support@emenu-platform.com");
-        errorDetails.put("appealProcess", "Contact support to appeal this suspension");
-        errorDetails.put("action", "Your account access has been suspended");
+        errorDetails.put("action", "This account has been marked as end of work");
 
         ApiResponse<Object> response = new ApiResponse<>("error", ex.getMessage(), errorDetails);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
