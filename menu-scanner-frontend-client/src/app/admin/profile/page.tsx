@@ -628,8 +628,7 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Addresses */}
-              {isEditing && (
-                <Card>
+              <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Addresses</CardTitle>
@@ -758,7 +757,6 @@ export default function AdminProfilePage() {
                     )}
                   </CardContent>
                 </Card>
-              )}
 
               {/* Emergency Contacts */}
               {isEditing && (
@@ -841,7 +839,6 @@ export default function AdminProfilePage() {
                     )}
                   </CardContent>
                 </Card>
-              )}
 
               {/* Documents */}
               {isEditing && (
@@ -937,7 +934,6 @@ export default function AdminProfilePage() {
                     )}
                   </CardContent>
                 </Card>
-              )}
 
               {/* Education */}
               {isEditing && (
@@ -1085,7 +1081,6 @@ export default function AdminProfilePage() {
                     )}
                   </CardContent>
                 </Card>
-              )}
 
               {/* Remarks */}
               <Card>
