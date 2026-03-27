@@ -476,8 +476,8 @@ INSERT INTO user_educations (id, version, created_at, updated_at, created_by, up
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
     u.id,
-    CASE (ROW_NUMBER() OVER () % 4)
-        WHEN 0 THEN 'HIGH_SCHOOL' WHEN 1 THEN 'DIPLOMA' WHEN 2 THEN 'BACHELOR' ELSE 'ASSOCIATE' END,
+    CASE (ROW_NUMBER() OVER () % 5)
+        WHEN 0 THEN 'HIGH_SCHOOL' WHEN 1 THEN 'DIPLOMA' WHEN 2 THEN 'BACHELOR' WHEN 3 THEN 'MASTER' ELSE 'DOCTORATE' END,
     CASE (ROW_NUMBER() OVER () % 5)
         WHEN 0 THEN 'Royal University of Phnom Penh'
         WHEN 1 THEN 'Build Bright University'
