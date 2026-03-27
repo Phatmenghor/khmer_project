@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -48,22 +47,14 @@ import { useAppSelector } from "@/redux/store";
 export default function UserBusinessPage() {
   useAdminCleanup(resetState);
 
-  const searchParams = useSearchParams();
   const { filters, pagination, usersData, usersContent, userState, isLoading, operations, dispatch } = useUsersState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.USERS,
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
-  // Sync page from URL into Redux on mount
-  useEffect(() => {
-    const pageFromUrl = parseInt(searchParams.get("pageNo") ?? "1", 10);
-    if (pageFromUrl !== pagination.currentPage) {
-      dispatch(setPageNo(pageFromUrl));
-    }
-  }, [searchParams, filters.pageNo, dispatch]);
 
   // Fetch users when filters or search change
   useEffect(() => {

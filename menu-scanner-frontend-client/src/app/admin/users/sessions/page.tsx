@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -36,7 +35,6 @@ import { SessionsDetailModal } from "@/redux/features/sessions/components/sessio
 export default function SessionPage() {
   // Clean up state when leaving admin area (performance optimization)
   useAdminCleanup(resetState);
-  const searchParams = useSearchParams();
 
   // Redux state
   const {
@@ -67,17 +65,8 @@ export default function SessionPage() {
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.USER_SESSIONS,
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
-  // Initialize URL and Redux state on mount
-  useEffect(() => {
-    const pageParam = searchParams.get("pageNo");
-    const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
-
-    if (pageFromUrl !== pagination.currentPage) {
-      dispatch(setPageNo(pageFromUrl));
-    }
-  }, [searchParams, filters.pageNo, dispatch]);
 
   useEffect(() => {
     dispatch(

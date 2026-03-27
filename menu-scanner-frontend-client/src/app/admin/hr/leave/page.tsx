@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -34,8 +33,6 @@ import { useAppSelector } from "@/redux/store";
 
 export default function LeaveTypePage() {
   useAdminCleanup(resetState);
-
-  const searchParams = useSearchParams();
 
   // Redux state
   const {
@@ -79,17 +76,8 @@ export default function LeaveTypePage() {
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.HR.LEAVE,
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
-  // Initialize URL and Redux state on mount
-  useEffect(() => {
-    const pageParam = searchParams.get("pageNo");
-    const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
-
-    if (pageFromUrl !== pagination.currentPage) {
-      dispatch(setPageNo(pageFromUrl));
-    }
-  }, [searchParams, filters.pageNo, dispatch]);
 
   // Fetch users when filters change
   useEffect(() => {

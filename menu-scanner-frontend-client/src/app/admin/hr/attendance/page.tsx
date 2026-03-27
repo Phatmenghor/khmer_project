@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -36,7 +35,6 @@ import { AttendanceDetailModal } from "@/redux/features/hr/components/attendance
 
 export default function AttendancePage() {
   useAdminCleanup(resetState);
-  const searchParams = useSearchParams();
 
   // Redux state
   const {
@@ -74,17 +72,8 @@ export default function AttendancePage() {
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.HR.ATTENDANCE,
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
-  // Initialize URL and Redux state on mount
-  useEffect(() => {
-    const pageParam = searchParams.get("pageNo");
-    const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
-
-    if (pageFromUrl !== pagination.currentPage) {
-      dispatch(setPageNo(pageFromUrl));
-    }
-  }, [searchParams, filters.pageNo, dispatch]);
 
   // Fetch work schedules when filters change
   useEffect(() => {

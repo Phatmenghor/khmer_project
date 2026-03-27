@@ -1,10 +1,12 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface UsePaginationOptions {
   baseRoute: string;
   totalPages?: number;
   onPageChange?: (page: number) => void;
+  // When provided, syncs the URL pageNo into Redux on mount/change (removes boilerplate useEffect from every page)
+  syncPageToRedux?: (page: number) => void;
 }
 
 interface UsePaginationReturn {
@@ -18,26 +20,29 @@ export function usePagination({
   baseRoute,
   totalPages,
   onPageChange,
+  syncPageToRedux,
 }: UsePaginationOptions): UsePaginationReturn {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Get current page from URL - defaults to 1 if not present
   const currentPage = useMemo(() => {
     const pageParam = searchParams.get("pageNo");
     const parsed = pageParam ? parseInt(pageParam, 10) : 1;
     return isNaN(parsed) || parsed < 1 ? 1 : parsed;
   }, [searchParams]);
 
-  // Centralized URL update function
+  // Sync URL pageNo → Redux whenever URL changes (replaces repeated useEffect in every page)
+  useEffect(() => {
+    if (syncPageToRedux) {
+      syncPageToRedux(currentPage);
+    }
+  }, [currentPage, syncPageToRedux]);
+
   const updateUrlWithPage = useCallback(
     (newPage: number, replace: boolean = false) => {
       const params = new URLSearchParams(searchParams);
       params.set("pageNo", newPage.toString());
-
-      const queryString = params.toString();
-      const url = `${baseRoute}?${queryString}`;
-
+      const url = `${baseRoute}?${params.toString()}`;
       if (replace) {
         router.replace(url);
       } else {
@@ -47,46 +52,21 @@ export function usePagination({
     [searchParams, router, baseRoute]
   );
 
-  // Page change handler with validation
   const handlePageChange = useCallback(
     (newPage: number) => {
-      // Validate page bounds if totalPages is available
-      if (totalPages && (newPage < 1 || newPage > totalPages)) {
-        return;
-      }
-
-      // Basic validation when totalPages is not available
-      if (newPage < 1) {
-        return;
-      }
-
-      // Don't update if we're already on the target page
-      if (newPage === currentPage) {
-        return;
-      }
-
+      if (totalPages && (newPage < 1 || newPage > totalPages)) return;
+      if (newPage < 1) return;
+      if (newPage === currentPage) return;
       updateUrlWithPage(newPage);
-
-      // Call optional callback
-      if (onPageChange) {
-        onPageChange(newPage);
-      }
+      if (onPageChange) onPageChange(newPage);
     },
     [currentPage, updateUrlWithPage, onPageChange, totalPages]
   );
 
-  // Calculate display index for table rows
   const getDisplayIndex = useCallback(
-    (index: number, pageSize: number) => {
-      return (currentPage - 1) * pageSize + index + 1;
-    },
+    (index: number, pageSize: number) => (currentPage - 1) * pageSize + index + 1,
     [currentPage]
   );
 
-  return {
-    currentPage,
-    updateUrlWithPage,
-    handlePageChange,
-    getDisplayIndex,
-  };
+  return { currentPage, updateUrlWithPage, handlePageChange, getDisplayIndex };
 }

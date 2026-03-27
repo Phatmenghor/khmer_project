@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
@@ -39,7 +38,6 @@ import {
 
 export default function OrdersAdminPage() {
   useAdminCleanup(resetState);
-  const searchParams = useSearchParams();
 
   const {
     orderState,
@@ -72,15 +70,8 @@ export default function OrdersAdminPage() {
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.ORDERS,
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
-  useEffect(() => {
-    const pageParam = searchParams.get("pageNo");
-    const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
-    if (pageFromUrl !== pagination.currentPage) {
-      dispatch(setPageNo(pageFromUrl));
-    }
-  }, [searchParams, filters.pageNo, dispatch]);
 
   useEffect(() => {
     dispatch(

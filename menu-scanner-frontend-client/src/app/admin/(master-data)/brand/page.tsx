@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -35,23 +34,10 @@ import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-se
 import { useAppSelector } from "@/redux/store";
 
 export default function BrandPage() {
-  // Clean up state when leaving admin area (performance optimization)
   useAdminCleanup(resetState);
-  const searchParams = useSearchParams();
 
-  // Redux state
-  const {
-    brandState,
-    brandData,
-    brandContent,
-    isLoading,
-    filters,
-    operations,
-    pagination,
-    dispatch,
-  } = useBrandState();
+  const { brandState, brandData, brandContent, isLoading, filters, operations, pagination, dispatch } = useBrandState();
 
-  // Local UI state for modals only
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -68,24 +54,13 @@ export default function BrandPage() {
     brand: null as BrandResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.BRAND,
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
-  // Initialize URL and Redux state on mount
-  useEffect(() => {
-    const pageParam = searchParams.get("pageNo");
-    const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
-
-    if (pageFromUrl !== pagination.currentPage) {
-      dispatch(setPageNo(pageFromUrl));
-    }
-  }, [searchParams, filters.pageNo, dispatch]);
 
   useEffect(() => {
     dispatch(

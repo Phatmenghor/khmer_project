@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -36,7 +35,6 @@ import { PaymentOptionResponse } from "@/redux/features/master-data/store/models
 export default function PaymentOptionsPage() {
   // Clean up state when leaving admin area
   useAdminCleanup(resetState);
-  const searchParams = useSearchParams();
 
   // Redux state
   const {
@@ -69,17 +67,8 @@ export default function PaymentOptionsPage() {
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.PAYMENT_OPTIONS,
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
-  // Initialize URL and Redux state on mount
-  useEffect(() => {
-    const pageParam = searchParams.get("pageNo");
-    const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
-
-    if (pageFromUrl !== pagination.currentPage) {
-      dispatch(setPageNo(pageFromUrl));
-    }
-  }, [searchParams, filters.pageNo, dispatch]);
 
   // Fetch payment options when filters change
   useEffect(() => {
