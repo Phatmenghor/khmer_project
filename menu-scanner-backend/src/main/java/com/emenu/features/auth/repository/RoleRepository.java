@@ -30,7 +30,7 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
 
 
     @Query("SELECT r FROM Role r WHERE " +
-            "(:includeAll = true OR r.isDeleted = false) " +
+            "r.isDeleted = false " +
             "AND (:businessId IS NULL OR r.businessId = :businessId) " +
             "AND (:userTypes IS NULL OR r.userType IN :userTypes) " +
             "AND (:search IS NULL OR :search = '' OR " +
@@ -43,7 +43,7 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
             Pageable pageable);
 
     @Query("SELECT r FROM Role r WHERE " +
-            "(:includeAll = true OR r.isDeleted = false) " +
+            "r.isDeleted = false " +
             "AND (:businessId IS NULL OR r.businessId = :businessId) " +
             "AND (:userTypes IS NULL OR r.userType IN :userTypes) " +
             "AND (:search IS NULL OR :search = '' OR " +
