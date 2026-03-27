@@ -59,7 +59,7 @@ export default function UserBusinessPage() {
   const roleFilterOptions = [
     { value: UserRole.ALL, label: "All Roles" },
     ...rolesContent.map((role) => ({
-      value: role.id,
+      value: role.name,
       label: formatEnumValue(role.name),
     })),
   ];
