@@ -23,10 +23,21 @@ export const createUserSchema = z.object({
   userType: z.string().min(1, "User type is required"),
   businessId: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "At least one role is required"),
-  position: z.string().optional().or(z.literal("")),
-  address: z.string().optional().or(z.literal("")),
-  notes: z.string().optional().or(z.literal("")),
   accountStatus: z.string().min(1, "Account status is required"),
+  // Personal Info
+  nickname: z.string().optional().or(z.literal("")),
+  gender: z.string().optional().or(z.literal("")),
+  dateOfBirth: z.string().optional().or(z.literal("")),
+  // Employment Info
+  employeeId: z.string().optional().or(z.literal("")),
+  position: z.string().optional().or(z.literal("")),
+  department: z.string().optional().or(z.literal("")),
+  employmentType: z.string().optional().or(z.literal("")),
+  joinDate: z.string().optional().or(z.literal("")),
+  leaveDate: z.string().optional().or(z.literal("")),
+  shift: z.string().optional().or(z.literal("")),
+  // Other
+  remark: z.string().optional().or(z.literal("")),
 });
 
 /**
@@ -43,9 +54,20 @@ export const updateUserSchema = z.object({
   accountStatus: z.string().min(1, "Account status is required"),
   businessId: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "At least one role is required"),
+  // Personal Info
+  nickname: z.string().optional().or(z.literal("")),
+  gender: z.string().optional().or(z.literal("")),
+  dateOfBirth: z.string().optional().or(z.literal("")),
+  // Employment Info
+  employeeId: z.string().optional().or(z.literal("")),
   position: z.string().optional().or(z.literal("")),
-  address: z.string().optional().or(z.literal("")),
-  notes: z.string().optional().or(z.literal("")),
+  department: z.string().optional().or(z.literal("")),
+  employmentType: z.string().optional().or(z.literal("")),
+  joinDate: z.string().optional().or(z.literal("")),
+  leaveDate: z.string().optional().or(z.literal("")),
+  shift: z.string().optional().or(z.literal("")),
+  // Other
+  remark: z.string().optional().or(z.literal("")),
 });
 
 export const changePasswordSchema = z
@@ -78,8 +100,19 @@ export type UserFormData = {
   userType?: string;
   businessId?: string;
   roles: string[];
-  position?: string;
-  address?: string;
-  notes?: string;
   accountStatus: string;
+  // Personal Info
+  nickname?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  // Employment Info
+  employeeId?: string;
+  position?: string;
+  department?: string;
+  employmentType?: string;
+  joinDate?: string;
+  leaveDate?: string;
+  shift?: string;
+  // Other
+  remark?: string;
 };

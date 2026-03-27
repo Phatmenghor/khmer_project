@@ -54,6 +54,18 @@ import { selectRoleContent } from "../store/selectors/role-selectors";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { AppDefault } from "@/constants/app-resource/default/default";
 
+const GENDER_OPTIONS = [
+  { value: "MALE", label: "Male" },
+  { value: "FEMALE", label: "Female" },
+  { value: "OTHER", label: "Other" },
+];
+
+const EMPLOYMENT_TYPE_OPTIONS = [
+  { value: "FULL_TIME", label: "Full Time" },
+  { value: "PART_TIME", label: "Part Time" },
+  { value: "CONTRACT", label: "Contract" },
+];
+
 type Props = {
   mode: ModalMode;
   userId?: string;
@@ -102,14 +114,23 @@ export default function UserBusinessModal({
       email: "",
       firstName: "",
       lastName: "",
+      nickname: "",
       phoneNumber: "",
       password: "",
       userType: UserGropeType.BUSINESS_USER,
       roles: [],
       accountStatus: AccountStatus.ACTIVE,
+      gender: "",
+      dateOfBirth: "",
+      profileImageUrl: "",
+      employeeId: "",
       position: "",
-      address: "",
-      notes: "",
+      department: "",
+      employmentType: "",
+      joinDate: "",
+      leaveDate: "",
+      shift: "",
+      remark: "",
     },
     mode: "onChange",
   });
@@ -147,12 +168,21 @@ export default function UserBusinessModal({
             id: data.id,
             firstName: data.firstName || "",
             lastName: data.lastName || "",
+            nickname: data.nickname || "",
             phoneNumber: data.phoneNumber || "",
             accountStatus: data.accountStatus,
             roles: Array.isArray(data.roles) ? data.roles : [],
+            gender: data.gender || "",
+            dateOfBirth: data.dateOfBirth || "",
+            profileImageUrl: data.profileImageUrl || "",
+            employeeId: data.employeeId || "",
             position: data.position || "",
-            address: data.address || "",
-            notes: data.notes || "",
+            department: data.department || "",
+            employmentType: data.employmentType || "",
+            joinDate: data.joinDate || "",
+            leaveDate: data.leaveDate || "",
+            shift: data.shift || "",
+            remark: data.remark || "",
           });
         }
       } catch (error) {
@@ -167,18 +197,28 @@ export default function UserBusinessModal({
   useEffect(() => {
     if (isOpen && isCreate) {
       reset({
+        id: "",
         userIdentifier: "",
         email: "",
         firstName: "",
         lastName: "",
+        nickname: "",
         phoneNumber: "",
         password: "",
         userType: UserGropeType.BUSINESS_USER,
         roles: [],
         accountStatus: AccountStatus.ACTIVE,
+        gender: "",
+        dateOfBirth: "",
+        profileImageUrl: "",
+        employeeId: "",
         position: "",
-        address: "",
-        notes: "",
+        department: "",
+        employmentType: "",
+        joinDate: "",
+        leaveDate: "",
+        shift: "",
+        remark: "",
       });
     }
   }, [isOpen, isCreate, reset]);
@@ -199,13 +239,23 @@ export default function UserBusinessModal({
           password: data.password!,
           firstName: data.firstName,
           lastName: data.lastName,
+          nickname: data.nickname || undefined,
           phoneNumber: data.phoneNumber,
           userType: data.userType!,
           accountStatus: data.accountStatus,
+          businessId: AppDefault.BUSINESS_ID,
           roles: data.roles,
+          gender: data.gender || undefined,
+          dateOfBirth: data.dateOfBirth || undefined,
+          profileImageUrl: data.profileImageUrl || undefined,
+          employeeId: data.employeeId || undefined,
           position: data.position || undefined,
-          address: data.address || undefined,
-          notes: data.notes || undefined,
+          department: data.department || undefined,
+          employmentType: data.employmentType || undefined,
+          joinDate: data.joinDate || undefined,
+          leaveDate: data.leaveDate || undefined,
+          shift: data.shift || undefined,
+          remark: data.remark || undefined,
         };
 
         const result = await dispatch(createUserService(payload)).unwrap();
@@ -219,12 +269,22 @@ export default function UserBusinessModal({
         const payload: UpdateUserRequest = {
           firstName: data.firstName,
           lastName: data.lastName,
+          nickname: data.nickname || undefined,
           phoneNumber: data.phoneNumber,
           accountStatus: data.accountStatus,
+          businessId: AppDefault.BUSINESS_ID,
           roles: data.roles,
+          gender: data.gender || undefined,
+          dateOfBirth: data.dateOfBirth || undefined,
+          profileImageUrl: data.profileImageUrl || undefined,
+          employeeId: data.employeeId || undefined,
           position: data.position || undefined,
-          address: data.address || undefined,
-          notes: data.notes || undefined,
+          department: data.department || undefined,
+          employmentType: data.employmentType || undefined,
+          joinDate: data.joinDate || undefined,
+          leaveDate: data.leaveDate || undefined,
+          shift: data.shift || undefined,
+          remark: data.remark || undefined,
         };
 
         const result = await dispatch(
@@ -255,7 +315,7 @@ export default function UserBusinessModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-[90%] max-w-7xl max-h-[92dvh] p-0 flex flex-col mx-auto">
         <FormHeader
           title={isCreate ? "Create New User Business" : "Edit User Business"}
           description={
@@ -285,10 +345,11 @@ export default function UserBusinessModal({
                 </div>
               )}
 
-              {/* Changed: grid-cols-2 (always 2 columns, no responsive) */}
-              <div className="grid grid-cols-2 gap-4">
-                {isCreate && (
-                  <>
+              {/* Account Credentials */}
+              {isCreate && (
+                <div>
+                  <h3 className="text-sm font-semibold mb-4 text-foreground">Account Credentials</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                     <TextField
                       control={control}
                       name="userIdentifier"
@@ -309,112 +370,212 @@ export default function UserBusinessModal({
                       disabled={isSubmitting}
                       error={errors.email}
                     />
-                  </>
-                )}
 
-                <TextField
-                  control={control}
-                  name="firstName"
-                  label="First Name"
-                  placeholder="Enter first name"
-                  required
-                  disabled={isSubmitting}
-                  error={errors.firstName}
-                />
+                    <PasswordField
+                      control={control}
+                      name="password"
+                      label="Password"
+                      placeholder="Enter password"
+                      required
+                      showPassword={showPassword}
+                      onTogglePassword={() => setShowPassword(!showPassword)}
+                      disabled={isSubmitting}
+                      error={errors.password}
+                    />
+                  </div>
+                </div>
+              )}
 
-                <TextField
-                  control={control}
-                  name="lastName"
-                  label="Last Name"
-                  placeholder="Enter last name"
-                  required
-                  disabled={isSubmitting}
-                  error={errors.lastName}
-                />
-
-                <TextField
-                  control={control}
-                  name="phoneNumber"
-                  label="Phone Number"
-                  placeholder="Enter phone number"
-                  required
-                  disabled={isSubmitting}
-                  error={errors.phoneNumber}
-                />
-
-                <TextField
-                  control={control}
-                  name="position"
-                  label="Position"
-                  placeholder="Enter position (optional)"
-                  disabled={isSubmitting}
-                  error={errors.position}
-                />
-
-                {/* Changed: col-span-2 (always full width, no responsive) */}
-                <div className="col-span-2">
+              {/* Personal Information */}
+              <div>
+                <h3 className="text-sm font-semibold mb-4 text-foreground">Personal Information</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                   <TextField
                     control={control}
-                    name="address"
-                    label="Address"
-                    placeholder="Enter address (optional)"
+                    name="firstName"
+                    label="First Name"
+                    placeholder="Enter first name"
+                    required
                     disabled={isSubmitting}
-                    error={errors.address}
+                    error={errors.firstName}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="lastName"
+                    label="Last Name"
+                    placeholder="Enter last name"
+                    required
+                    disabled={isSubmitting}
+                    error={errors.lastName}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="nickname"
+                    label="Nickname"
+                    placeholder="Enter nickname (optional)"
+                    disabled={isSubmitting}
+                    error={errors.nickname}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="phoneNumber"
+                    label="Phone Number"
+                    placeholder="Enter phone number"
+                    required
+                    disabled={isSubmitting}
+                    error={errors.phoneNumber}
+                  />
+
+                  <SelectField
+                    control={control}
+                    name="gender"
+                    label="Gender"
+                    placeholder="Select gender (optional)"
+                    options={GENDER_OPTIONS}
+                    disabled={isSubmitting}
+                    error={errors.gender}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="dateOfBirth"
+                    label="Date of Birth"
+                    type="date"
+                    disabled={isSubmitting}
+                    error={errors.dateOfBirth}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="profileImageUrl"
+                    label="Profile Image URL"
+                    placeholder="Enter image URL (optional)"
+                    disabled={isSubmitting}
+                    error={errors.profileImageUrl}
                   />
                 </div>
-
-                {isCreate && (
-                  <PasswordField
-                    control={control}
-                    name="password"
-                    label="Password"
-                    placeholder="Enter password"
-                    required
-                    showPassword={showPassword}
-                    onTogglePassword={() => setShowPassword(!showPassword)}
-                    disabled={isSubmitting}
-                    error={errors.password}
-                  />
-                )}
-
-                <SelectField
-                  control={control}
-                  name="roles"
-                  label="User Role"
-                  placeholder="Select user role"
-                  options={roleOptions}
-                  required
-                  disabled={isSubmitting || roleOptions.length === 0}
-                  error={getArrayFieldError(errors.roles)}
-                  onValueChange={(value) => {
-                    setValue("roles", [value], {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    });
-                  }}
-                />
-
-                <SelectField
-                  control={control}
-                  name="accountStatus"
-                  label="Account Status"
-                  placeholder="Select account status"
-                  options={ACCOUNT_STATUS_CREATE_UPDATE}
-                  required
-                  disabled={isSubmitting}
-                  error={errors.accountStatus}
-                />
               </div>
 
-              <TextareaField
-                control={control}
-                name="notes"
-                label="Notes"
-                placeholder="Enter any additional notes (optional)"
-                rows={5}
-                disabled={isSubmitting}
-                error={errors.notes}
-              />
+              {/* Employment Information */}
+              <div>
+                <h3 className="text-sm font-semibold mb-4 text-foreground">Employment Information</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  <TextField
+                    control={control}
+                    name="employeeId"
+                    label="Employee ID"
+                    placeholder="Enter employee ID (optional)"
+                    disabled={isSubmitting}
+                    error={errors.employeeId}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="position"
+                    label="Position"
+                    placeholder="Enter position (optional)"
+                    disabled={isSubmitting}
+                    error={errors.position}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="department"
+                    label="Department"
+                    placeholder="Enter department (optional)"
+                    disabled={isSubmitting}
+                    error={errors.department}
+                  />
+
+                  <SelectField
+                    control={control}
+                    name="employmentType"
+                    label="Employment Type"
+                    placeholder="Select employment type (optional)"
+                    options={EMPLOYMENT_TYPE_OPTIONS}
+                    disabled={isSubmitting}
+                    error={errors.employmentType}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="joinDate"
+                    label="Join Date"
+                    type="date"
+                    disabled={isSubmitting}
+                    error={errors.joinDate}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="leaveDate"
+                    label="Leave Date"
+                    type="date"
+                    disabled={isSubmitting}
+                    error={errors.leaveDate}
+                  />
+
+                  <TextField
+                    control={control}
+                    name="shift"
+                    label="Shift"
+                    placeholder="Enter shift (optional)"
+                    disabled={isSubmitting}
+                    error={errors.shift}
+                  />
+                </div>
+              </div>
+
+              {/* System & Roles */}
+              <div>
+                <h3 className="text-sm font-semibold mb-4 text-foreground">System & Roles</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  <SelectField
+                    control={control}
+                    name="roles"
+                    label="User Role"
+                    placeholder="Select user role"
+                    options={roleOptions}
+                    required
+                    disabled={isSubmitting || roleOptions.length === 0}
+                    error={getArrayFieldError(errors.roles)}
+                    onValueChange={(value) => {
+                      setValue("roles", [value], {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                    }}
+                  />
+
+                  <SelectField
+                    control={control}
+                    name="accountStatus"
+                    label="Account Status"
+                    placeholder="Select account status"
+                    options={ACCOUNT_STATUS_CREATE_UPDATE}
+                    required
+                    disabled={isSubmitting}
+                    error={errors.accountStatus}
+                  />
+                </div>
+              </div>
+
+              {/* Additional Notes */}
+              <div>
+                <h3 className="text-sm font-semibold mb-4 text-foreground">Additional Information</h3>
+                <TextareaField
+                  control={control}
+                  name="remark"
+                  label="Remark"
+                  placeholder="Enter any remarks (optional)"
+                  rows={3}
+                  disabled={isSubmitting}
+                  error={errors.remark}
+                />
+              </div>
             </FormBody>
 
             <FormFooter
