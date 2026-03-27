@@ -892,7 +892,7 @@ export default function AdminProfilePage() {
                         No documents added
                       </p>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {documentFields.map((field, index) => (
                           <div
                             key={field.id}
@@ -993,7 +993,7 @@ export default function AdminProfilePage() {
                         No education added
                       </p>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {educationFields.map((field, index) => (
                           <div
                             key={field.id}
