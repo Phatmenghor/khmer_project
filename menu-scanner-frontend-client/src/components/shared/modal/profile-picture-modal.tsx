@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, ModalCloseButton } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   Camera,
@@ -11,7 +11,6 @@ import {
   Folder,
 } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
-import { ModalCloseButton } from "@/components/shared/button/modal-close-button";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface ProfilePictureModalProps {
