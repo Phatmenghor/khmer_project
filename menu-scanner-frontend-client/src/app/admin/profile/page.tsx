@@ -490,156 +490,146 @@ export default function AdminProfilePage() {
           <form onSubmit={handleSubmit(onSubmit)} className="w-full">
             <div className="w-full space-y-6">
               {/* Personal Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <TextField
-                      control={typedControl}
-                      name="firstName"
-                      label="First Name"
-                      placeholder="First name"
-                      disabled={!isEditing}
-                      error={errors.firstName}
-                    />
+              {isEditing && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Personal Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <TextField
+                        control={typedControl}
+                        name="firstName"
+                        label="First Name"
+                        placeholder="First name"
+                        error={errors.firstName}
+                      />
 
-                    <TextField
-                      control={typedControl}
-                      name="lastName"
-                      label="Last Name"
-                      placeholder="Last name"
-                      disabled={!isEditing}
-                      error={errors.lastName}
-                    />
+                      <TextField
+                        control={typedControl}
+                        name="lastName"
+                        label="Last Name"
+                        placeholder="Last name"
+                        error={errors.lastName}
+                      />
 
-                    <TextField
-                      control={typedControl}
-                      name="nickname"
-                      label="Nickname"
-                      placeholder="Nickname"
-                      disabled={!isEditing}
-                      error={errors.nickname}
-                    />
+                      <TextField
+                        control={typedControl}
+                        name="nickname"
+                        label="Nickname"
+                        placeholder="Nickname"
+                        error={errors.nickname}
+                      />
 
-                    <TextField
-                      control={typedControl}
-                      name="email"
-                      label="Email"
-                      placeholder="Email"
-                      type="email"
-                      disabled={!isEditing}
-                      error={errors.email}
-                    />
+                      <TextField
+                        control={typedControl}
+                        name="email"
+                        label="Email"
+                        placeholder="Email"
+                        type="email"
+                        error={errors.email}
+                      />
 
-                    <TextField
-                      control={typedControl}
-                      name="phoneNumber"
-                      label="Phone Number"
-                      placeholder="Phone"
-                      disabled={!isEditing}
-                      error={errors.phoneNumber}
-                    />
+                      <TextField
+                        control={typedControl}
+                        name="phoneNumber"
+                        label="Phone Number"
+                        placeholder="Phone"
+                        error={errors.phoneNumber}
+                      />
 
-                    <SelectField
-                      control={typedControl}
-                      name="gender"
-                      label="Gender"
-                      placeholder="Select gender"
-                      options={GENDER_OPTIONS}
-                      disabled={!isEditing}
-                      error={errors.gender}
-                    />
+                      <SelectField
+                        control={typedControl}
+                        name="gender"
+                        label="Gender"
+                        placeholder="Select gender"
+                        options={GENDER_OPTIONS}
+                        error={errors.gender}
+                      />
 
-                    <DateTimePickerField
-                      control={typedControl}
-                      name="dateOfBirth"
-                      label="Date of Birth"
-                      mode="date"
-                      placeholder="Date of birth"
-                      disabled={!isEditing}
-                      error={errors.dateOfBirth}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                      <DateTimePickerField
+                        control={typedControl}
+                        name="dateOfBirth"
+                        label="Date of Birth"
+                        mode="date"
+                        placeholder="Date of birth"
+                        error={errors.dateOfBirth}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Employment Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Employment Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <TextField
-                      control={typedControl}
-                      name="employeeId"
-                      label="Employee ID"
-                      placeholder="Employee ID"
-                      disabled={!isEditing}
-                      error={errors.employeeId}
-                    />
+              {isEditing && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Employment Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <TextField
+                        control={typedControl}
+                        name="employeeId"
+                        label="Employee ID"
+                        placeholder="Employee ID"
+                        error={errors.employeeId}
+                      />
 
-                    <TextField
-                      control={typedControl}
-                      name="position"
-                      label="Position"
-                      placeholder="Position"
-                      disabled={!isEditing}
-                      error={errors.position}
-                    />
+                      <TextField
+                        control={typedControl}
+                        name="position"
+                        label="Position"
+                        placeholder="Position"
+                        error={errors.position}
+                      />
 
-                    <TextField
-                      control={typedControl}
-                      name="department"
-                      label="Department"
-                      placeholder="Department"
-                      disabled={!isEditing}
-                      error={errors.department}
-                    />
+                      <TextField
+                        control={typedControl}
+                        name="department"
+                        label="Department"
+                        placeholder="Department"
+                        error={errors.department}
+                      />
 
-                    <SelectField
-                      control={typedControl}
-                      name="employmentType"
-                      label="Employment Type"
-                      placeholder="Select type"
-                      options={EMPLOYMENT_TYPE_OPTIONS}
-                      disabled={!isEditing}
-                      error={errors.employmentType}
-                    />
+                      <SelectField
+                        control={typedControl}
+                        name="employmentType"
+                        label="Employment Type"
+                        placeholder="Select type"
+                        options={EMPLOYMENT_TYPE_OPTIONS}
+                        error={errors.employmentType}
+                      />
 
-                    <DateTimePickerField
-                      control={typedControl}
-                      name="joinDate"
-                      label="Join Date"
-                      mode="date"
-                      placeholder="Join date"
-                      disabled={!isEditing}
-                      error={errors.joinDate}
-                    />
+                      <DateTimePickerField
+                        control={typedControl}
+                        name="joinDate"
+                        label="Join Date"
+                        mode="date"
+                        placeholder="Join date"
+                        error={errors.joinDate}
+                      />
 
-                    <DateTimePickerField
-                      control={typedControl}
-                      name="leaveDate"
-                      label="Leave Date"
-                      mode="date"
-                      placeholder="Leave date"
-                      disabled={!isEditing}
-                      error={errors.leaveDate}
-                    />
+                      <DateTimePickerField
+                        control={typedControl}
+                        name="leaveDate"
+                        label="Leave Date"
+                        mode="date"
+                        placeholder="Leave date"
+                        error={errors.leaveDate}
+                      />
 
-                    <TextField
-                      control={typedControl}
-                      name="shift"
-                      label="Shift"
-                      placeholder="Shift"
-                      disabled={!isEditing}
-                      error={errors.shift}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                      <TextField
+                        control={typedControl}
+                        name="shift"
+                        label="Shift"
+                        placeholder="Shift"
+                        error={errors.shift}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Addresses */}
               {isEditing && (
