@@ -394,6 +394,24 @@ INSERT INTO user_emergency_contacts (id, version, created_at, updated_at, create
 ('bb000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'Lim Sothy', '+855 89 678 901', 'Friend');
 
+-- Bulk emergency contacts for staff (1 per staff, first 200)
+INSERT INTO user_emergency_contacts (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, name, phone, relationship)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    u.id,
+    CASE (ROW_NUMBER() OVER () % 5)
+        WHEN 0 THEN 'Sok Dara' WHEN 1 THEN 'Chan Mony' WHEN 2 THEN 'Phat Ratha'
+        WHEN 3 THEN 'Lim Bopha' ELSE 'Vy Sothea' END,
+    '+855 ' || (10 + (ROW_NUMBER() OVER () % 90))::text || ' ' || LPAD((ROW_NUMBER() OVER () * 7 % 9000 + 1000)::text, 4, '0') || ' ' || LPAD((ROW_NUMBER() OVER () * 13 % 900 + 100)::text, 3, '0'),
+    CASE (ROW_NUMBER() OVER () % 5)
+        WHEN 0 THEN 'Father' WHEN 1 THEN 'Mother' WHEN 2 THEN 'Spouse'
+        WHEN 3 THEN 'Sibling' ELSE 'Friend' END
+FROM users u
+WHERE u.user_type = 'BUSINESS_USER'
+  AND u.user_identifier LIKE 'staff%@business.com'
+LIMIT 200;
+
 -- ============================================================================
 -- 7.10 USER DOCUMENTS
 -- ============================================================================
@@ -414,6 +432,24 @@ INSERT INTO user_documents (id, version, created_at, updated_at, created_by, upd
 ('cc000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'ID_CARD', 'ID-1995-003-0001', 'https://example.com/docs/customer-id.pdf');
 
+-- Bulk ID card documents for staff (1 per staff, first 200)
+INSERT INTO user_documents (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, type, number, file_url)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    u.id,
+    CASE (ROW_NUMBER() OVER () % 3)
+        WHEN 0 THEN 'ID_CARD' WHEN 1 THEN 'PASSPORT' ELSE 'FAMILY_BOOK' END,
+    CASE (ROW_NUMBER() OVER () % 3)
+        WHEN 0 THEN 'ID-19' || LPAD((ROW_NUMBER() OVER () % 90 + 80)::text, 2, '0') || '-' || LPAD((ROW_NUMBER() OVER ())::text, 3, '0') || '-' || LPAD((ROW_NUMBER() OVER ())::text, 4, '0')
+        WHEN 1 THEN 'PB-2022-' || LPAD((ROW_NUMBER() OVER () * 7 % 900000 + 100000)::text, 6, '0')
+        ELSE 'FB-PP-2020-' || LPAD((ROW_NUMBER() OVER ())::text, 4, '0') END,
+    'https://example.com/docs/staff-doc-' || ROW_NUMBER() OVER () || '.pdf'
+FROM users u
+WHERE u.user_type = 'BUSINESS_USER'
+  AND u.user_identifier LIKE 'staff%@business.com'
+LIMIT 200;
+
 -- ============================================================================
 -- 7.11 USER EDUCATIONS
 -- ============================================================================
@@ -433,6 +469,35 @@ INSERT INTO user_educations (id, version, created_at, updated_at, created_by, up
  '550e8400-e29b-41d4-a716-446655550002', 'HIGH_SCHOOL', 'Hun Sen Phnom Penh High School', NULL, '2010', '2013', true, NULL),
 ('dd000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'DIPLOMA', 'Paññāsāstra University of Cambodia', 'Hospitality Management', '2013', '2015', true, 'https://example.com/certs/customer-diploma.pdf');
+
+-- Bulk education for staff (1 per staff, first 200)
+INSERT INTO user_educations (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', NULL, false, NULL, NULL,
+    u.id,
+    CASE (ROW_NUMBER() OVER () % 4)
+        WHEN 0 THEN 'HIGH_SCHOOL' WHEN 1 THEN 'DIPLOMA' WHEN 2 THEN 'BACHELOR' ELSE 'ASSOCIATE' END,
+    CASE (ROW_NUMBER() OVER () % 5)
+        WHEN 0 THEN 'Royal University of Phnom Penh'
+        WHEN 1 THEN 'Build Bright University'
+        WHEN 2 THEN 'Paññāsāstra University of Cambodia'
+        WHEN 3 THEN 'National University of Management'
+        ELSE 'Institute of Technology of Cambodia' END,
+    CASE (ROW_NUMBER() OVER () % 4)
+        WHEN 0 THEN NULL
+        WHEN 1 THEN 'Business Administration'
+        WHEN 2 THEN 'Computer Science'
+        ELSE 'Hospitality Management' END,
+    (2000 + (ROW_NUMBER() OVER () % 15))::text,
+    (2003 + (ROW_NUMBER() OVER () % 15))::text,
+    true,
+    CASE WHEN (ROW_NUMBER() OVER () % 3) = 0 THEN NULL
+         ELSE 'https://example.com/certs/staff-cert-' || ROW_NUMBER() OVER () || '.pdf' END
+FROM users u
+WHERE u.user_type = 'BUSINESS_USER'
+  AND u.user_identifier LIKE 'staff%@business.com'
+LIMIT 200;
 
 -- ============================================================================
 -- 8. USER SESSIONS
