@@ -8,7 +8,6 @@ import {
   Trash2,
   Download,
   Loader2,
-  Folder,
 } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -33,8 +32,8 @@ export function ProfilePictureModal({
   isLoading = false,
 }: ProfilePictureModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string>(currentImageUrl || "");
+  const [inputType, setInputType] = useState<"file" | "camera" | null>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -86,23 +85,32 @@ export function ProfilePictureModal({
     onClose();
   };
 
+  const handleUploadClick = (type: "file" | "camera") => {
+    setInputType(type);
+    setTimeout(() => fileInputRef.current?.click(), 0);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md p-0 overflow-hidden">
+      <DialogContent
+        className="max-w-md p-0 overflow-hidden flex flex-col"
+        closeButtonClassName="text-white hover:bg-white/10"
+      >
         <DialogTitle asChild>
           <VisuallyHidden>Profile Picture Manager</VisuallyHidden>
         </DialogTitle>
         <DialogDescription asChild>
           <VisuallyHidden>Upload, download, or remove your profile picture</VisuallyHidden>
         </DialogDescription>
+
         {/* Header */}
-        <div className="bg-primary p-6 text-primary-foreground">
-          <h2 className="text-lg font-semibold">Profile Picture</h2>
+        <div className="bg-primary px-6 py-4 text-white">
+          <h2 className="text-lg font-semibold">Update Profile Picture</h2>
         </div>
 
-        {/* Current/Selected Image Preview */}
-        <div className="p-6 flex flex-col items-center gap-4">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 flex items-center justify-center bg-gray-100">
+        {/* Body - Image Preview */}
+        <div className="flex-1 p-6 flex flex-col items-center justify-center gap-4">
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/20 flex items-center justify-center bg-gray-100 shadow-sm">
             {selectedImage || currentImageUrl ? (
               <img
                 src={selectedImage || currentImageUrl}
@@ -119,19 +127,19 @@ export function ProfilePictureModal({
           </div>
 
           {selectedImage && selectedImage !== currentImageUrl && (
-            <p className="text-sm text-blue-600 font-medium">
+            <p className="text-sm text-green-600 font-medium">
               ✓ New image selected
             </p>
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="border-t p-6 space-y-3">
-          {/* Select Picture from Folder */}
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full gap-2 bg-primary hover:bg-primary/90"
+        {/* Footer - Action Buttons */}
+        <div className="border-t border-gray-200 px-6 py-4 space-y-2.5">
+          {/* Combined Upload Button */}
+          <button
+            onClick={() => handleUploadClick("file")}
             disabled={isLoading}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
           >
             {isLoading ? (
               <>
@@ -140,72 +148,53 @@ export function ProfilePictureModal({
               </>
             ) : (
               <>
-                <Folder className="h-4 w-4" />
-                Select Photo
+                <Camera className="h-4 w-4" />
+                Change Photo
               </>
             )}
-          </Button>
+          </button>
 
-          {/* Open Camera */}
-          <Button
-            onClick={() => cameraInputRef.current?.click()}
-            className="w-full gap-2 bg-primary hover:bg-primary/90"
-            disabled={isLoading}
-          >
-            <Camera className="h-4 w-4" />
-            Open Camera
-          </Button>
-
-          {/* Download Picture */}
+          {/* Download and Remove Buttons Row */}
           {currentImageUrl && (
-            <Button
-              onClick={handleDownload}
-              variant="outline"
-              className="w-full gap-2"
-              disabled={isLoading}
-            >
-              <Download className="h-4 w-4" />
-              Download
-            </Button>
+            <div className="flex gap-2 pt-2">
+              <Button
+                onClick={handleDownload}
+                variant="outline"
+                className="flex-1 gap-2 text-sm"
+                disabled={isLoading}
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </Button>
+              <Button
+                onClick={handleRemove}
+                variant="outline"
+                className="flex-1 gap-2 text-sm text-destructive hover:text-destructive hover:bg-destructive/10"
+                disabled={isLoading}
+              >
+                <Trash2 className="h-4 w-4" />
+                Remove
+              </Button>
+            </div>
           )}
 
-          {/* Remove Picture */}
-          {currentImageUrl && (
-            <Button
-              onClick={handleRemove}
-              variant="outline"
-              className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-              disabled={isLoading}
-            >
-              <Trash2 className="h-4 w-4" />
-              Remove
-            </Button>
-          )}
-
-          {/* Cancel */}
+          {/* Cancel Button */}
           <Button
             onClick={onClose}
             variant="outline"
-            className="w-full"
+            className="w-full text-sm"
             disabled={isLoading}
           >
             Cancel
           </Button>
         </div>
 
-        {/* Hidden File Inputs */}
+        {/* Hidden File Input */}
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          className="hidden"
-          onChange={handleFileSelect}
-        />
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
+          capture={inputType === "camera" ? "environment" : undefined}
           className="hidden"
           onChange={handleFileSelect}
         />
