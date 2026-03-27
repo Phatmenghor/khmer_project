@@ -51,6 +51,55 @@ export interface Education {
 }
 
 /**
+ * Address Schema for form validation
+ */
+export const addressSchema = z.object({
+  id: z.string().optional(),
+  addressType: z.string().min(1, "Address type is required"),
+  houseNo: z.string().optional().or(z.literal("")),
+  street: z.string().optional().or(z.literal("")),
+  village: z.string().optional().or(z.literal("")),
+  commune: z.string().optional().or(z.literal("")),
+  district: z.string().optional().or(z.literal("")),
+  province: z.string().optional().or(z.literal("")),
+  country: z.string().optional().or(z.literal("")),
+});
+
+/**
+ * Emergency Contact Schema for form validation
+ */
+export const emergencyContactSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Contact name is required"),
+  phone: z.string().min(1, "Phone number is required"),
+  relationship: z.string().min(1, "Relationship is required"),
+});
+
+/**
+ * Document Schema for form validation
+ */
+export const documentSchema = z.object({
+  id: z.string().optional(),
+  type: z.string().min(1, "Document type is required"),
+  number: z.string().min(1, "Document number is required"),
+  fileUrl: z.string().optional().or(z.literal("")),
+});
+
+/**
+ * Education Schema for form validation
+ */
+export const educationSchema = z.object({
+  id: z.string().optional(),
+  level: z.string().min(1, "Education level is required"),
+  schoolName: z.string().min(1, "School name is required"),
+  fieldOfStudy: z.string().min(1, "Field of study is required"),
+  startYear: z.string().optional().or(z.literal("")),
+  endYear: z.string().optional().or(z.literal("")),
+  isGraduated: z.boolean().default(false),
+  certificateUrl: z.string().optional().or(z.literal("")),
+});
+
+/**
  * Create User Schema
  */
 export const createUserSchema = z.object({
@@ -87,6 +136,11 @@ export const createUserSchema = z.object({
   shift: z.string().optional().or(z.literal("")),
   // Other
   remark: z.string().optional().or(z.literal("")),
+  // Array fields
+  addresses: z.array(addressSchema).optional(),
+  emergencyContacts: z.array(emergencyContactSchema).optional(),
+  documents: z.array(documentSchema).optional(),
+  educations: z.array(educationSchema).optional(),
 });
 
 /**
@@ -117,6 +171,11 @@ export const updateUserSchema = z.object({
   shift: z.string().optional().or(z.literal("")),
   // Other
   remark: z.string().optional().or(z.literal("")),
+  // Array fields
+  addresses: z.array(addressSchema).optional(),
+  emergencyContacts: z.array(emergencyContactSchema).optional(),
+  documents: z.array(documentSchema).optional(),
+  educations: z.array(educationSchema).optional(),
 });
 
 export const changePasswordSchema = z
@@ -164,31 +223,7 @@ export type UserFormData = {
   shift?: string;
   // Other
   remark?: string;
-  // Address (Optional - single)
-  addressType?: string;
-  houseNo?: string;
-  street?: string;
-  village?: string;
-  commune?: string;
-  district?: string;
-  province?: string;
-  country?: string;
-  // Emergency Contact (Optional - single)
-  emergencyContactName?: string;
-  emergencyContactPhone?: string;
-  emergencyContactRelationship?: string;
-  // Document (Optional - single)
-  documentType?: string;
-  documentNumber?: string;
-  documentFileUrl?: string;
-  // Education (Optional - single)
-  educationLevel?: string;
-  schoolName?: string;
-  fieldOfStudy?: string;
-  startYear?: string;
-  endYear?: string;
-  certificateUrl?: string;
-  // Array fields (for API responses)
+  // Array fields
   addresses?: Address[];
   emergencyContacts?: EmergencyContact[];
   documents?: Document[];

@@ -2,14 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus, Trash2 } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
-import { PasswordField } from "@/components/shared/form-field/password-field";
+import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import {
   CreateUserRequest,
   UpdateUserRequest,
@@ -18,10 +22,6 @@ import {
   createUserSchema,
   updateUserSchema,
   UserFormData,
-  Address,
-  EmergencyContact,
-  Document,
-  Education,
 } from "../store/models/schema/user.schema";
 import {
   fetchUserByIdService,
@@ -57,6 +57,15 @@ import { fetchAllRoleService } from "../store/thunks/role-thunks";
 import { selectRoleContent } from "../store/selectors/role-selectors";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import {
+  AddressType,
+  ADDRESS_TYPE_OPTIONS,
+  DocumentType,
+  DOCUMENT_TYPE_OPTIONS,
+  EducationLevel,
+  EDUCATION_LEVEL_OPTIONS,
+} from "@/constants/status/user-enums";
+import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 
 const GENDER_OPTIONS = [
   { value: "MALE", label: "Male" },
@@ -68,29 +77,6 @@ const EMPLOYMENT_TYPE_OPTIONS = [
   { value: "FULL_TIME", label: "Full Time" },
   { value: "PART_TIME", label: "Part Time" },
   { value: "CONTRACT", label: "Contract" },
-];
-
-const ADDRESS_TYPE_OPTIONS = [
-  { value: "CURRENT", label: "Current" },
-  { value: "PERMANENT", label: "Permanent" },
-  { value: "OTHER", label: "Other" },
-];
-
-const DOCUMENT_TYPE_OPTIONS = [
-  { value: "ID_CARD", label: "ID Card" },
-  { value: "PASSPORT", label: "Passport" },
-  { value: "DRIVER_LICENSE", label: "Driver License" },
-  { value: "OTHER", label: "Other" },
-];
-
-const EDUCATION_LEVEL_OPTIONS = [
-  { value: "PRIMARY", label: "Primary" },
-  { value: "SECONDARY", label: "Secondary" },
-  { value: "HIGH_SCHOOL", label: "High School" },
-  { value: "BACHELOR", label: "Bachelor" },
-  { value: "MASTER", label: "Master" },
-  { value: "PHD", label: "PhD" },
-  { value: "OTHER", label: "Other" },
 ];
 
 type Props = {
@@ -108,6 +94,7 @@ export default function UserBusinessModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -158,30 +145,51 @@ export default function UserBusinessModal({
       leaveDate: "",
       shift: "",
       remark: "",
-      addressType: "",
-      houseNo: "",
-      street: "",
-      village: "",
-      commune: "",
-      district: "",
-      province: "",
-      country: "",
-      emergencyContactName: "",
-      emergencyContactPhone: "",
-      emergencyContactRelationship: "",
-      documentType: "",
-      documentNumber: "",
-      documentFileUrl: "",
-      educationLevel: "",
-      schoolName: "",
-      fieldOfStudy: "",
-      startYear: "",
-      endYear: "",
-      certificateUrl: "",
-    } as any,
+      businessId: "",
+      addresses: [],
+      emergencyContacts: [],
+      documents: [],
+      educations: [],
+    },
     mode: "onChange",
   });
 
+  // Field arrays for complex data
+  const {
+    fields: addressFields,
+    append: appendAddress,
+    remove: removeAddress,
+  } = useFieldArray({
+    control,
+    name: "addresses",
+  });
+
+  const {
+    fields: contactFields,
+    append: appendContact,
+    remove: removeContact,
+  } = useFieldArray({
+    control,
+    name: "emergencyContacts",
+  });
+
+  const {
+    fields: documentFields,
+    append: appendDocument,
+    remove: removeDocument,
+  } = useFieldArray({
+    control,
+    name: "documents",
+  });
+
+  const {
+    fields: educationFields,
+    append: appendEducation,
+    remove: removeEducation,
+  } = useFieldArray({
+    control,
+    name: "educations",
+  });
 
   const userIdentifier = watch("userIdentifier");
   const email = watch("email");
@@ -211,10 +219,6 @@ export default function UserBusinessModal({
 
         if (fetchUserByIdService.fulfilled.match(resultAction)) {
           const data = resultAction.payload;
-          const firstAddress = Array.isArray(data.addresses) && data.addresses.length > 0 ? data.addresses[0] : {};
-          const firstContact = Array.isArray(data.emergencyContacts) && data.emergencyContacts.length > 0 ? data.emergencyContacts[0] : {};
-          const firstDoc = Array.isArray(data.documents) && data.documents.length > 0 ? data.documents[0] : {};
-          const firstEdu = Array.isArray(data.educations) && data.educations.length > 0 ? data.educations[0] : {};
 
           reset({
             id: data.id,
@@ -235,27 +239,14 @@ export default function UserBusinessModal({
             leaveDate: data.leaveDate || "",
             shift: data.shift || "",
             remark: data.remark || "",
-            addressType: firstAddress?.addressType || "",
-            houseNo: firstAddress?.houseNo || "",
-            street: firstAddress?.street || "",
-            village: firstAddress?.village || "",
-            commune: firstAddress?.commune || "",
-            district: firstAddress?.district || "",
-            province: firstAddress?.province || "",
-            country: firstAddress?.country || "",
-            emergencyContactName: firstContact?.name || "",
-            emergencyContactPhone: firstContact?.phone || "",
-            emergencyContactRelationship: firstContact?.relationship || "",
-            documentType: firstDoc?.type || "",
-            documentNumber: firstDoc?.number || "",
-            documentFileUrl: firstDoc?.fileUrl || "",
-            educationLevel: firstEdu?.level || "",
-            schoolName: firstEdu?.schoolName || "",
-            fieldOfStudy: firstEdu?.fieldOfStudy || "",
-            startYear: firstEdu?.startYear || "",
-            endYear: firstEdu?.endYear || "",
-            certificateUrl: firstEdu?.certificateUrl || "",
-          } as any);
+            businessId: data.businessId || "",
+            addresses: Array.isArray(data.addresses) ? data.addresses : [],
+            emergencyContacts: Array.isArray(data.emergencyContacts)
+              ? data.emergencyContacts
+              : [],
+            documents: Array.isArray(data.documents) ? data.documents : [],
+            educations: Array.isArray(data.educations) ? data.educations : [],
+          });
         }
       } catch (error) {
         console.error("Error fetching user business data:", error);
@@ -291,27 +282,12 @@ export default function UserBusinessModal({
         leaveDate: "",
         shift: "",
         remark: "",
-        addressType: "",
-        houseNo: "",
-        street: "",
-        village: "",
-        commune: "",
-        district: "",
-        province: "",
-        country: "",
-        emergencyContactName: "",
-        emergencyContactPhone: "",
-        emergencyContactRelationship: "",
-        documentType: "",
-        documentNumber: "",
-        documentFileUrl: "",
-        educationLevel: "",
-        schoolName: "",
-        fieldOfStudy: "",
-        startYear: "",
-        endYear: "",
-        certificateUrl: "",
-      } as any);
+        businessId: "",
+        addresses: [],
+        emergencyContacts: [],
+        documents: [],
+        educations: [],
+      });
     }
   }, [isOpen, isCreate, reset]);
 
@@ -324,47 +300,59 @@ export default function UserBusinessModal({
 
   const onSubmit = async (data: UserFormData) => {
     try {
-      // Build arrays from optional fields with proper typing
-      const addresses: Address[] | undefined = (data.houseNo || data.street || data.village || data.commune || data.district || data.province || data.country)
-        ? [{
-            addressType: data.addressType || "CURRENT",
-            houseNo: data.houseNo || "",
-            street: data.street || "",
-            village: data.village || "",
-            commune: data.commune || "",
-            district: data.district || "",
-            province: data.province || "",
-            country: data.country || "",
-          }]
-        : undefined;
+      setIsUploadingImage(true);
 
-      const emergencyContacts: EmergencyContact[] | undefined = (data.emergencyContactName || data.emergencyContactPhone || data.emergencyContactRelationship)
-        ? [{
-            name: data.emergencyContactName || "",
-            phone: data.emergencyContactPhone || "",
-            relationship: data.emergencyContactRelationship || "",
-          }]
-        : undefined;
+      // Process document file URLs
+      const processedDocuments = await Promise.all(
+        (data.documents || []).map(async (doc) => {
+          let fileUrl = doc.fileUrl;
+          if (fileUrl && isBase64Image(fileUrl)) {
+            try {
+              fileUrl = await uploadImage(fileUrl);
+            } catch (error) {
+              console.error("Failed to upload document file:", error);
+              return null;
+            }
+          }
+          return {
+            id: doc.id,
+            type: doc.type,
+            number: doc.number,
+            fileUrl,
+          };
+        }),
+      );
 
-      const documents: Document[] | undefined = (data.documentNumber || data.documentFileUrl)
-        ? [{
-            type: data.documentType || "ID_CARD",
-            number: data.documentNumber || "",
-            fileUrl: data.documentFileUrl || "",
-          }]
-        : undefined;
+      const validDocuments = processedDocuments.filter((doc) => doc !== null);
 
-      const educations: Education[] | undefined = (data.schoolName || data.fieldOfStudy || data.startYear || data.endYear)
-        ? [{
-            level: data.educationLevel || "HIGH_SCHOOL",
-            schoolName: data.schoolName || "",
-            fieldOfStudy: data.fieldOfStudy || "",
-            startYear: data.startYear || "",
-            endYear: data.endYear || "",
-            isGraduated: false,
-            certificateUrl: data.certificateUrl || "",
-          }]
-        : undefined;
+      // Process education certificate URLs
+      const processedEducations = await Promise.all(
+        (data.educations || []).map(async (edu) => {
+          let certificateUrl = edu.certificateUrl;
+          if (certificateUrl && isBase64Image(certificateUrl)) {
+            try {
+              certificateUrl = await uploadImage(certificateUrl);
+            } catch (error) {
+              console.error("Failed to upload certificate:", error);
+              return null;
+            }
+          }
+          return {
+            id: edu.id,
+            level: edu.level,
+            schoolName: edu.schoolName,
+            fieldOfStudy: edu.fieldOfStudy,
+            startYear: edu.startYear,
+            endYear: edu.endYear,
+            isGraduated: edu.isGraduated || false,
+            certificateUrl,
+          };
+        }),
+      );
+
+      const validEducations = processedEducations.filter((edu) => edu !== null);
+
+      setIsUploadingImage(false);
 
       if (isCreate) {
         const payload: CreateUserRequest = {
@@ -390,10 +378,22 @@ export default function UserBusinessModal({
           leaveDate: data.leaveDate || undefined,
           shift: data.shift || undefined,
           remark: data.remark || undefined,
-          addresses,
-          emergencyContacts,
-          documents,
-          educations,
+          addresses:
+            addressFields.length > 0
+              ? (data.addresses as any)
+              : undefined,
+          emergencyContacts:
+            contactFields.length > 0
+              ? (data.emergencyContacts as any)
+              : undefined,
+          documents:
+            validDocuments.length > 0
+              ? (validDocuments as any)
+              : undefined,
+          educations:
+            validEducations.length > 0
+              ? (validEducations as any)
+              : undefined,
         } as any;
 
         const result = await dispatch(createUserService(payload)).unwrap();
@@ -423,10 +423,22 @@ export default function UserBusinessModal({
           leaveDate: data.leaveDate || undefined,
           shift: data.shift || undefined,
           remark: data.remark || undefined,
-          addresses,
-          emergencyContacts,
-          documents,
-          educations,
+          addresses:
+            addressFields.length > 0
+              ? (data.addresses as any)
+              : undefined,
+          emergencyContacts:
+            contactFields.length > 0
+              ? (data.emergencyContacts as any)
+              : undefined,
+          documents:
+            validDocuments.length > 0
+              ? (validDocuments as any)
+              : undefined,
+          educations:
+            validEducations.length > 0
+              ? (validEducations as any)
+              : undefined,
         } as any;
 
         const result = await dispatch(
@@ -448,12 +460,14 @@ export default function UserBusinessModal({
 
   const handleClose = () => {
     reset();
+    setShowPassword(false);
+    setIsUploadingImage(false);
     dispatch(clearError());
     dispatch(clearSelectedUser());
     onClose();
   };
 
-  const isSubmitting = isCreate ? isCreating : isUpdating;
+  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -491,7 +505,9 @@ export default function UserBusinessModal({
                 {/* Account Credentials */}
                 {isCreate && (
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Account Credentials</h3>
+                    <h3 className="text-lg font-semibold">
+                      Account Credentials <span className="text-red-500">*</span>
+                    </h3>
                     <div className="grid grid-cols-2 gap-4">
                       <TextField
                         control={control}
@@ -514,14 +530,13 @@ export default function UserBusinessModal({
                         error={errors.email}
                       />
 
-                      <PasswordField
+                      <TextField
                         control={control}
                         name="password"
                         label="Password"
+                        type={showPassword ? "text" : "password"}
                         placeholder="Enter password"
                         required
-                        showPassword={showPassword}
-                        onTogglePassword={() => setShowPassword(!showPassword)}
                         disabled={isSubmitting}
                         error={errors.password}
                       />
@@ -531,7 +546,9 @@ export default function UserBusinessModal({
 
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Personal Information</h3>
+                  <h3 className="text-lg font-semibold">
+                    Personal Information <span className="text-red-500">*</span>
+                  </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <TextField
                       control={control}
@@ -557,7 +574,7 @@ export default function UserBusinessModal({
                       control={control}
                       name="nickname"
                       label="Nickname"
-                      placeholder="Enter nickname (optional)"
+                      placeholder="Enter nickname"
                       disabled={isSubmitting}
                       error={errors.nickname}
                     />
@@ -576,17 +593,18 @@ export default function UserBusinessModal({
                       control={control}
                       name="gender"
                       label="Gender"
-                      placeholder="Select gender (optional)"
+                      placeholder="Select gender"
                       options={GENDER_OPTIONS}
                       disabled={isSubmitting}
                       error={errors.gender}
                     />
 
-                    <TextField
+                    <DateTimePickerField
                       control={control}
                       name="dateOfBirth"
                       label="Date of Birth"
-                      type="date"
+                      mode="date"
+                      placeholder="Select date of birth"
                       disabled={isSubmitting}
                       error={errors.dateOfBirth}
                     />
@@ -595,7 +613,7 @@ export default function UserBusinessModal({
                       control={control}
                       name="profileImageUrl"
                       label="Profile Image URL"
-                      placeholder="Enter image URL (optional)"
+                      placeholder="Enter image URL"
                       disabled={isSubmitting}
                       error={errors.profileImageUrl}
                     />
@@ -604,13 +622,15 @@ export default function UserBusinessModal({
 
                 {/* Employment Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Employment Information</h3>
+                  <h3 className="text-lg font-semibold">
+                    Employment Information
+                  </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <TextField
                       control={control}
                       name="employeeId"
                       label="Employee ID"
-                      placeholder="Enter employee ID (optional)"
+                      placeholder="Enter employee ID"
                       disabled={isSubmitting}
                       error={errors.employeeId}
                     />
@@ -619,7 +639,7 @@ export default function UserBusinessModal({
                       control={control}
                       name="position"
                       label="Position"
-                      placeholder="Enter position (optional)"
+                      placeholder="Enter position"
                       disabled={isSubmitting}
                       error={errors.position}
                     />
@@ -628,7 +648,7 @@ export default function UserBusinessModal({
                       control={control}
                       name="department"
                       label="Department"
-                      placeholder="Enter department (optional)"
+                      placeholder="Enter department"
                       disabled={isSubmitting}
                       error={errors.department}
                     />
@@ -637,26 +657,28 @@ export default function UserBusinessModal({
                       control={control}
                       name="employmentType"
                       label="Employment Type"
-                      placeholder="Select employment type (optional)"
+                      placeholder="Select employment type"
                       options={EMPLOYMENT_TYPE_OPTIONS}
                       disabled={isSubmitting}
                       error={errors.employmentType}
                     />
 
-                    <TextField
+                    <DateTimePickerField
                       control={control}
                       name="joinDate"
                       label="Join Date"
-                      type="date"
+                      mode="date"
+                      placeholder="Select join date"
                       disabled={isSubmitting}
                       error={errors.joinDate}
                     />
 
-                    <TextField
+                    <DateTimePickerField
                       control={control}
                       name="leaveDate"
                       label="Leave Date"
-                      type="date"
+                      mode="date"
+                      placeholder="Select leave date"
                       disabled={isSubmitting}
                       error={errors.leaveDate}
                     />
@@ -665,7 +687,7 @@ export default function UserBusinessModal({
                       control={control}
                       name="shift"
                       label="Shift"
-                      placeholder="Enter shift (optional)"
+                      placeholder="Enter shift"
                       disabled={isSubmitting}
                       error={errors.shift}
                     />
@@ -674,7 +696,9 @@ export default function UserBusinessModal({
 
                 {/* System & Roles */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">System & Roles</h3>
+                  <h3 className="text-lg font-semibold">
+                    System & Roles <span className="text-red-500">*</span>
+                  </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <SelectField
                       control={control}
@@ -706,195 +730,530 @@ export default function UserBusinessModal({
                   </div>
                 </div>
 
-                {/* Addresses (Optional) */}
+                {/* Addresses */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Address Information (Optional)</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <SelectField
-                      control={control}
-                      name="addressType"
-                      label="Address Type"
-                      placeholder="Select type (optional)"
-                      options={ADDRESS_TYPE_OPTIONS}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold">Addresses</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {addressFields.length > 0
+                          ? `${addressFields.length} address${
+                              addressFields.length > 1 ? "es" : ""
+                            } added`
+                          : "No addresses added"}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        appendAddress({
+                          id: undefined,
+                          addressType: AddressType.CURRENT,
+                          houseNo: "",
+                          street: "",
+                          village: "",
+                          commune: "",
+                          district: "",
+                          province: "",
+                          country: "",
+                        })
+                      }
                       disabled={isSubmitting}
-                      error={errors.addressType as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="houseNo"
-                      label="House No"
-                      placeholder="Enter house number (optional)"
-                      disabled={isSubmitting}
-                      error={errors.houseNo as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="street"
-                      label="Street"
-                      placeholder="Enter street (optional)"
-                      disabled={isSubmitting}
-                      error={errors.street as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="village"
-                      label="Village"
-                      placeholder="Enter village (optional)"
-                      disabled={isSubmitting}
-                      error={errors.village as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="commune"
-                      label="Commune"
-                      placeholder="Enter commune (optional)"
-                      disabled={isSubmitting}
-                      error={errors.commune as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="district"
-                      label="District"
-                      placeholder="Enter district (optional)"
-                      disabled={isSubmitting}
-                      error={errors.district as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="province"
-                      label="Province"
-                      placeholder="Enter province (optional)"
-                      disabled={isSubmitting}
-                      error={errors.province as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="country"
-                      label="Country"
-                      placeholder="Enter country (optional)"
-                      disabled={isSubmitting}
-                      error={errors.country as any}
-                    />
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Address
+                    </Button>
                   </div>
+
+                  {addressFields.length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        No addresses added. Click "Add Address" to add one.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {addressFields.map((field, index) => (
+                        <Card key={field.id}>
+                          <CardHeader className="pb-4">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-base">
+                                Address {index + 1}
+                              </CardTitle>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeAddress(index)}
+                                disabled={isSubmitting}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-2 gap-4">
+                              <SelectField
+                                control={control}
+                                name={`addresses.${index}.addressType`}
+                                label="Address Type"
+                                placeholder="Select type"
+                                options={ADDRESS_TYPE_OPTIONS}
+                                disabled={isSubmitting}
+                                error={
+                                  errors.addresses?.[index]?.addressType as any
+                                }
+                              />
+                              <TextField
+                                control={control}
+                                name={`addresses.${index}.houseNo`}
+                                label="House No"
+                                placeholder="Enter house number"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.addresses?.[index]?.houseNo as any
+                                }
+                              />
+                              <TextField
+                                control={control}
+                                name={`addresses.${index}.street`}
+                                label="Street"
+                                placeholder="Enter street"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.addresses?.[index]?.street as any
+                                }
+                              />
+                              <TextField
+                                control={control}
+                                name={`addresses.${index}.village`}
+                                label="Village"
+                                placeholder="Enter village"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.addresses?.[index]?.village as any
+                                }
+                              />
+                              <TextField
+                                control={control}
+                                name={`addresses.${index}.commune`}
+                                label="Commune"
+                                placeholder="Enter commune"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.addresses?.[index]?.commune as any
+                                }
+                              />
+                              <TextField
+                                control={control}
+                                name={`addresses.${index}.district`}
+                                label="District"
+                                placeholder="Enter district"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.addresses?.[index]?.district as any
+                                }
+                              />
+                              <TextField
+                                control={control}
+                                name={`addresses.${index}.province`}
+                                label="Province"
+                                placeholder="Enter province"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.addresses?.[index]?.province as any
+                                }
+                              />
+                              <TextField
+                                control={control}
+                                name={`addresses.${index}.country`}
+                                label="Country"
+                                placeholder="Enter country"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.addresses?.[index]?.country as any
+                                }
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Emergency Contact (Optional) */}
+                {/* Emergency Contacts */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Emergency Contact (Optional)</h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    <TextField
-                      control={control}
-                      name="emergencyContactName"
-                      label="Contact Name"
-                      placeholder="Enter name (optional)"
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        Emergency Contacts
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {contactFields.length > 0
+                          ? `${contactFields.length} contact${
+                              contactFields.length > 1 ? "s" : ""
+                            } added`
+                          : "No contacts added"}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        appendContact({
+                          id: undefined,
+                          name: "",
+                          phone: "",
+                          relationship: "",
+                        })
+                      }
                       disabled={isSubmitting}
-                      error={errors.emergencyContactName as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="emergencyContactPhone"
-                      label="Contact Phone"
-                      placeholder="Enter phone (optional)"
-                      disabled={isSubmitting}
-                      error={errors.emergencyContactPhone as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="emergencyContactRelationship"
-                      label="Relationship"
-                      placeholder="e.g., Father, Mother (optional)"
-                      disabled={isSubmitting}
-                      error={errors.emergencyContactRelationship as any}
-                    />
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Contact
+                    </Button>
                   </div>
+
+                  {contactFields.length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        No contacts added. Click "Add Contact" to add one.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {contactFields.map((field, index) => (
+                        <Card key={field.id}>
+                          <CardHeader className="pb-4">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-base">
+                                Contact {index + 1}
+                              </CardTitle>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeContact(index)}
+                                disabled={isSubmitting}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-3 gap-4">
+                              <TextField
+                                control={control}
+                                name={`emergencyContacts.${index}.name`}
+                                label="Contact Name"
+                                placeholder="Enter name"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.emergencyContacts?.[index]
+                                    ?.name as any
+                                }
+                              />
+                              <TextField
+                                control={control}
+                                name={`emergencyContacts.${index}.phone`}
+                                label="Phone Number"
+                                placeholder="Enter phone"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.emergencyContacts?.[index]
+                                    ?.phone as any
+                                }
+                              />
+                              <TextField
+                                control={control}
+                                name={`emergencyContacts.${index}.relationship`}
+                                label="Relationship"
+                                placeholder="e.g., Father, Mother"
+                                disabled={isSubmitting}
+                                error={
+                                  errors.emergencyContacts?.[index]
+                                    ?.relationship as any
+                                }
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Document (Optional) */}
+                {/* Documents */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Document (Optional)</h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    <SelectField
-                      control={control}
-                      name="documentType"
-                      label="Document Type"
-                      placeholder="Select type (optional)"
-                      options={DOCUMENT_TYPE_OPTIONS}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold">Documents</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {documentFields.length > 0
+                          ? `${documentFields.length} document${
+                              documentFields.length > 1 ? "s" : ""
+                            } added`
+                          : "No documents added"}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        appendDocument({
+                          id: undefined,
+                          type: DocumentType.ID_CARD,
+                          number: "",
+                          fileUrl: "",
+                        })
+                      }
                       disabled={isSubmitting}
-                      error={errors.documentType as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="documentNumber"
-                      label="Document Number"
-                      placeholder="Enter number (optional)"
-                      disabled={isSubmitting}
-                      error={errors.documentNumber as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="documentFileUrl"
-                      label="Document File URL"
-                      placeholder="Enter file URL (optional)"
-                      disabled={isSubmitting}
-                      error={errors.documentFileUrl as any}
-                    />
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Document
+                    </Button>
                   </div>
+
+                  {documentFields.length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        No documents added. Click "Add Document" to add one.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {documentFields.map((field, index) => (
+                        <Card key={field.id}>
+                          <CardHeader className="pb-4">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-base">
+                                Document {index + 1}
+                              </CardTitle>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeDocument(index)}
+                                disabled={isSubmitting}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <SelectField
+                                  control={control}
+                                  name={`documents.${index}.type`}
+                                  label="Document Type"
+                                  placeholder="Select type"
+                                  options={DOCUMENT_TYPE_OPTIONS}
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.documents?.[index]?.type as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`documents.${index}.number`}
+                                  label="Document Number"
+                                  placeholder="Enter document number"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.documents?.[index]?.number as any
+                                  }
+                                />
+                              </div>
+                              <ClickableImageUpload
+                                label="Document File"
+                                value={
+                                  watch(`documents.${index}.fileUrl`) || ""
+                                }
+                                onChange={(base64) =>
+                                  setValue(
+                                    `documents.${index}.fileUrl`,
+                                    base64,
+                                    { shouldDirty: true },
+                                  )
+                                }
+                                aspectRatio="square"
+                                height="h-40"
+                                maxSize={5}
+                                disabled={isSubmitting}
+                                error={
+                                  errors.documents?.[index]?.fileUrl as any
+                                }
+                                placeholder="Click to upload document file"
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Education (Optional) */}
+                {/* Education */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Education (Optional)</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <SelectField
-                      control={control}
-                      name="educationLevel"
-                      label="Education Level"
-                      placeholder="Select level (optional)"
-                      options={EDUCATION_LEVEL_OPTIONS}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold">Education</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {educationFields.length > 0
+                          ? `${educationFields.length} education${
+                              educationFields.length > 1 ? "s" : ""
+                            } added`
+                          : "No education added"}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        appendEducation({
+                          id: undefined,
+                          level: EducationLevel.HIGH_SCHOOL,
+                          schoolName: "",
+                          fieldOfStudy: "",
+                          startYear: "",
+                          endYear: "",
+                          isGraduated: false,
+                          certificateUrl: "",
+                        })
+                      }
                       disabled={isSubmitting}
-                      error={errors.educationLevel as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="schoolName"
-                      label="School/University Name"
-                      placeholder="Enter name (optional)"
-                      disabled={isSubmitting}
-                      error={errors.schoolName as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="fieldOfStudy"
-                      label="Field of Study"
-                      placeholder="Enter field (optional)"
-                      disabled={isSubmitting}
-                      error={errors.fieldOfStudy as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="startYear"
-                      label="Start Year"
-                      type="date"
-                      disabled={isSubmitting}
-                      error={errors.startYear as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="endYear"
-                      label="End Year"
-                      type="date"
-                      disabled={isSubmitting}
-                      error={errors.endYear as any}
-                    />
-                    <TextField
-                      control={control}
-                      name="certificateUrl"
-                      label="Certificate URL"
-                      placeholder="Enter URL (optional)"
-                      disabled={isSubmitting}
-                      error={errors.certificateUrl as any}
-                    />
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Education
+                    </Button>
                   </div>
+
+                  {educationFields.length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        No education added. Click "Add Education" to add one.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {educationFields.map((field, index) => (
+                        <Card key={field.id}>
+                          <CardHeader className="pb-4">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-base">
+                                Education {index + 1}
+                              </CardTitle>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeEducation(index)}
+                                disabled={isSubmitting}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <SelectField
+                                  control={control}
+                                  name={`educations.${index}.level`}
+                                  label="Education Level"
+                                  placeholder="Select level"
+                                  options={EDUCATION_LEVEL_OPTIONS}
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.educations?.[index]?.level as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`educations.${index}.schoolName`}
+                                  label="School/University Name"
+                                  placeholder="Enter name"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.educations?.[index]
+                                      ?.schoolName as any
+                                  }
+                                />
+                                <TextField
+                                  control={control}
+                                  name={`educations.${index}.fieldOfStudy`}
+                                  label="Field of Study"
+                                  placeholder="Enter field"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.educations?.[index]
+                                      ?.fieldOfStudy as any
+                                  }
+                                />
+                                <DateTimePickerField
+                                  control={control}
+                                  name={`educations.${index}.startYear`}
+                                  label="Start Date"
+                                  mode="date"
+                                  placeholder="Select start date"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.educations?.[index]
+                                      ?.startYear as any
+                                  }
+                                />
+                                <DateTimePickerField
+                                  control={control}
+                                  name={`educations.${index}.endYear`}
+                                  label="End Date"
+                                  mode="date"
+                                  placeholder="Select end date"
+                                  disabled={isSubmitting}
+                                  error={
+                                    errors.educations?.[index]?.endYear as any
+                                  }
+                                />
+                              </div>
+                              <ClickableImageUpload
+                                label="Certificate"
+                                value={
+                                  watch(`educations.${index}.certificateUrl`) ||
+                                  ""
+                                }
+                                onChange={(base64) =>
+                                  setValue(
+                                    `educations.${index}.certificateUrl`,
+                                    base64,
+                                    { shouldDirty: true },
+                                  )
+                                }
+                                aspectRatio="square"
+                                height="h-40"
+                                maxSize={5}
+                                disabled={isSubmitting}
+                                error={
+                                  errors.educations?.[index]
+                                    ?.certificateUrl as any
+                                }
+                                placeholder="Click to upload certificate"
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Additional Notes */}
@@ -903,8 +1262,8 @@ export default function UserBusinessModal({
                   <TextareaField
                     control={control}
                     name="remark"
-                    label="Remark"
-                    placeholder="Enter any remarks (optional)"
+                    label="Remarks"
+                    placeholder="Enter any remarks"
                     rows={3}
                     disabled={isSubmitting}
                     error={errors.remark}
@@ -917,8 +1276,12 @@ export default function UserBusinessModal({
               isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage="Creating user..."
-              updateMessage="Updating user..."
+              createMessage={
+                isUploadingImage ? "Uploading files..." : "Creating user..."
+              }
+              updateMessage={
+                isUploadingImage ? "Uploading files..." : "Updating user..."
+              }
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton
@@ -927,8 +1290,12 @@ export default function UserBusinessModal({
                 isCreate={isCreate}
                 createText="Create User"
                 updateText="Update User"
-                submittingCreateText="Creating..."
-                submittingUpdateText="Updating..."
+                submittingCreateText={
+                  isUploadingImage ? "Uploading..." : "Creating..."
+                }
+                submittingUpdateText={
+                  isUploadingImage ? "Uploading..." : "Updating..."
+                }
               />
             </FormFooter>
           </form>
