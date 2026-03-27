@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -99,11 +100,30 @@ public class RoleServiceImpl implements RoleService {
                 .map(roleMapper::toResponse)
                 .toList();
 
+        // Add ALL_ROLES item at top if includeAll is true
+        if (includeAll && request.getPageNo() == 1) {
+            List<RoleResponse> allResponses = new ArrayList<>();
+            RoleResponse allRoles = new RoleResponse();
+            allRoles.setId(null);
+            allRoles.setName("ALL_ROLES");
+            allRoles.setDescription("All Roles");
+            allRoles.setBusinessId(request.getBusinessId());
+            allRoles.setUserType("BUSINESS_USER");
+            allRoles.setCreatedAt(null);
+            allRoles.setUpdatedAt(null);
+            allRoles.setCreatedBy(null);
+            allRoles.setUpdatedBy(null);
+
+            allResponses.add(allRoles);
+            allResponses.addAll(responses);
+            responses = allResponses;
+        }
+
         return PaginationResponse.<RoleResponse>builder()
                 .content(responses)
                 .pageNo(rolesPage.getNumber() + 1)
                 .pageSize(rolesPage.getSize())
-                .totalElements(rolesPage.getTotalElements())
+                .totalElements(includeAll && request.getPageNo() == 1 ? rolesPage.getTotalElements() + 1 : rolesPage.getTotalElements())
                 .totalPages(rolesPage.getTotalPages())
                 .last(rolesPage.isLast())
                 .first(rolesPage.isFirst())
