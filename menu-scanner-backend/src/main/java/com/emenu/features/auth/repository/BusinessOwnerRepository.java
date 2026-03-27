@@ -38,9 +38,10 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
      */
     @Query("""
         SELECT DISTINCT u FROM User u
+        LEFT JOIN u.profile p
         LEFT JOIN u.business b
         LEFT JOIN b.subscriptions s
-        LEFT JOIN s.payments p
+        LEFT JOIN s.payments pay
         WHERE u.userType = 'BUSINESS_USER'
         AND u.isDeleted = false
         AND b.isDeleted = false
@@ -59,12 +60,12 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
             )
         )
         AND (:autoRenew IS NULL OR s.autoRenew = :autoRenew)
-        AND (:paymentStatuses IS NULL OR p.status IN :paymentStatuses)
+        AND (:paymentStatuses IS NULL OR pay.status IN :paymentStatuses)
         AND (:search IS NULL OR :search = '' OR
              LOWER(u.userIdentifier) LIKE LOWER(CONCAT('%', :search, '%')) OR
-             LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR
-             LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR
-             LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR
+             LOWER(p.email) LIKE LOWER(CONCAT('%', :search, '%')) OR
+             LOWER(p.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR
+             LOWER(p.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR
              LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')) OR
              LOWER(b.email) LIKE LOWER(CONCAT('%', :search, '%')))
         ORDER BY u.createdAt DESC
@@ -89,7 +90,8 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
      */
     @Query("""
         SELECT COUNT(u) > 0 FROM User u
-        WHERE u.email = :email
+        JOIN u.profile p
+        WHERE p.email = :email
         AND u.userType = 'BUSINESS_USER'
         AND u.isDeleted = false
     """)
