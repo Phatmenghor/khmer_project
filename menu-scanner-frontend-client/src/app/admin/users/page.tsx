@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
-import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
@@ -16,7 +14,6 @@ import { useUsersState } from "@/redux/features/auth/store/state/users-state";
 import { usePagination } from "@/redux/store/use-pagination";
 import {
   deleteUserService,
-  fetchAllUsersService,
   toggleUserStatusService,
 } from "@/redux/features/auth/store/thunks/users-thunks";
 import {
@@ -32,38 +29,23 @@ import {
   USER_BUSINESS_ROLE_FILTER,
 } from "@/constants/status/filter-status";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
-import {
-  AccountStatus,
-  ModalMode,
-  UserGropeType,
-  UserRole,
-} from "@/constants/status/status";
+import { AccountStatus, ModalMode, UserRole } from "@/constants/status/status";
 import UserBusinessModal from "@/redux/features/auth/components/user-business-modal";
 import { UserBusinessDetailModal } from "@/redux/features/auth/components/user-business-detail-modal";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/redux/store";
+import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { useUsersPage } from "@/hooks/use-users-page";
 
 export default function UserBusinessPage() {
-  // Clean up state when leaving admin area (performance optimization)
   useAdminCleanup(resetState);
 
-  const searchParams = useSearchParams();
+  const { filters, pagination, usersData, usersContent, userState, isLoading, operations, dispatch } = useUsersState();
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
 
-  // Redux state
-  const {
-    userState,
-    usersData,
-    usersContent,
-    isLoading,
-    filters,
-    operations,
-    pagination,
-    dispatch,
-  } = useUsersState();
+  useUsersPage();
 
-  // Local UI state for modals only
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -86,48 +68,9 @@ export default function UserBusinessPage() {
     user: null as UserResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-
-  const debouncedSearch = useDebounce(filters.search, 400);
-
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.USERS,
   });
-
-  // Initialize URL and Redux state on mount
-  useEffect(() => {
-    const pageParam = searchParams.get("pageNo");
-    const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
-
-    if (pageFromUrl !== pagination.currentPage) {
-      dispatch(setPageNo(pageFromUrl));
-    }
-  }, [searchParams, filters.pageNo, dispatch]);
-
-  // Fetch users when filters change
-  useEffect(() => {
-    dispatch(
-      fetchAllUsersService({
-        search: debouncedSearch,
-        pageNo: filters.pageNo,
-        pageSize: globalPageSize,
-        roles: filters.role === UserRole.ALL ? [] : [filters.role],
-        userTypes: [UserGropeType.BUSINESS_USER],
-        accountStatus:
-          filters.accountStatus === AccountStatus.ALL
-            ? []
-            : [filters.accountStatus],
-      }),
-    );
-  }, [
-    dispatch,
-    debouncedSearch,
-    filters.accountStatus,
-    filters.role,
-    filters.pageNo,
-    globalPageSize,
-  ]);
 
   // Event handlers
   const handleCreateUser = () => {
