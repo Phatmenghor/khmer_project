@@ -19,10 +19,8 @@ public interface CustomerMapper {
 
     @Mapping(target = "userType", constant = "CUSTOMER")
     @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "position", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "accountStatus", constant = "ACTIVE")
-    @Mapping(target = "notes", ignore = true)
     User toEntity(UserCreateRequest request);
 
     @Mapping(source = "business.name", target = "businessName")
@@ -33,12 +31,9 @@ public interface CustomerMapper {
     List<UserResponse> toResponseList(List<User> users);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "email", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "userType", ignore = true)
     @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "position", ignore = true)
-    @Mapping(target = "notes", ignore = true)
     @Mapping(target = "accountStatus", ignore = true)
     void updateEntity(UserUpdateRequest request, @MappingTarget User user);
 
@@ -46,13 +41,10 @@ public interface CustomerMapper {
      * Restricted update for current customer profile - only allows safe fields
      */
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "email", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "userType", ignore = true)
     @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "position", ignore = true)
     @Mapping(target = "accountStatus", ignore = true)
-    @Mapping(target = "notes", ignore = true)
     void updateCurrentUserProfile(UserUpdateRequest request, @MappingTarget User user);
 
     @Named("rolesToRoleEnums")

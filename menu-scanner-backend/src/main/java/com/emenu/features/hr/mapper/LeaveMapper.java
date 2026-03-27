@@ -19,17 +19,17 @@ import java.util.List;
 public interface LeaveMapper {
 
     @Mapping(target = "userInfo.id", source = "user.id")
-    @Mapping(target = "userInfo.firstName", source = "user.firstName")
-    @Mapping(target = "userInfo.lastName", source = "user.lastName")
-    @Mapping(target = "userInfo.email", source = "user.email")
-    @Mapping(target = "userInfo.phoneNumber", source = "user.phoneNumber")
-    @Mapping(target = "userInfo.profileImageUrl", source = "user.profileImageUrl")
+    @Mapping(target = "userInfo.firstName", source = "user.profile.firstName")
+    @Mapping(target = "userInfo.lastName", source = "user.profile.lastName")
+    @Mapping(target = "userInfo.email", source = "user.profile.email")
+    @Mapping(target = "userInfo.phoneNumber", source = "user.profile.phoneNumber")
+    @Mapping(target = "userInfo.profileImageUrl", source = "user.profile.profileImageUrl")
     @Mapping(target = "actionUserInfo.id", source = "actionUser.id")
-    @Mapping(target = "actionUserInfo.firstName", source = "actionUser.firstName")
-    @Mapping(target = "actionUserInfo.lastName", source = "actionUser.lastName")
-    @Mapping(target = "actionUserInfo.email", source = "actionUser.email")
-    @Mapping(target = "actionUserInfo.phoneNumber", source = "actionUser.phoneNumber")
-    @Mapping(target = "actionUserInfo.profileImageUrl", source = "actionUser.profileImageUrl")
+    @Mapping(target = "actionUserInfo.firstName", source = "actionUser.profile.firstName")
+    @Mapping(target = "actionUserInfo.lastName", source = "actionUser.profile.lastName")
+    @Mapping(target = "actionUserInfo.email", source = "actionUser.profile.email")
+    @Mapping(target = "actionUserInfo.phoneNumber", source = "actionUser.profile.phoneNumber")
+    @Mapping(target = "actionUserInfo.profileImageUrl", source = "actionUser.profile.profileImageUrl")
     LeaveResponse toResponse(Leave leave);
 
     List<LeaveResponse> toResponseList(List<Leave> leaves);

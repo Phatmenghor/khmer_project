@@ -19,11 +19,11 @@ import java.util.List;
 public interface WorkScheduleMapper {
 
     @Mapping(target = "userInfo.id", source = "user.id")
-    @Mapping(target = "userInfo.firstName", source = "user.firstName")
-    @Mapping(target = "userInfo.lastName", source = "user.lastName")
-    @Mapping(target = "userInfo.email", source = "user.email")
-    @Mapping(target = "userInfo.phoneNumber", source = "user.phoneNumber")
-    @Mapping(target = "userInfo.profileImageUrl", source = "user.profileImageUrl")
+    @Mapping(target = "userInfo.firstName", source = "user.profile.firstName")
+    @Mapping(target = "userInfo.lastName", source = "user.profile.lastName")
+    @Mapping(target = "userInfo.email", source = "user.profile.email")
+    @Mapping(target = "userInfo.phoneNumber", source = "user.profile.phoneNumber")
+    @Mapping(target = "userInfo.profileImageUrl", source = "user.profile.profileImageUrl")
     WorkScheduleResponse toResponse(WorkSchedule workSchedule);
 
     List<WorkScheduleResponse> toResponseList(List<WorkSchedule> workSchedules);

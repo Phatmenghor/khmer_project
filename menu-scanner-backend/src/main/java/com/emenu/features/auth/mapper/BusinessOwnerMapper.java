@@ -23,7 +23,7 @@ public interface BusinessOwnerMapper {
      */
     @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "ownerUserIdentifier", source = "owner.userIdentifier")
-    @Mapping(target = "ownerEmail", source = "owner.email")
+    @Mapping(target = "ownerEmail", source = "owner.profile.email")
     @Mapping(target = "ownerFullName", expression = "java(owner.getFullName())")
     @Mapping(target = "businessId", source = "business.id")
     @Mapping(target = "businessName", source = "business.name")
@@ -53,10 +53,10 @@ public interface BusinessOwnerMapper {
      */
     @Mapping(target = "ownerId", source = "id")
     @Mapping(target = "ownerUserIdentifier", source = "userIdentifier")
-    @Mapping(target = "ownerEmail", source = "email")
-    @Mapping(target = "ownerProfileImageUrl", source = "profileImageUrl")
+    @Mapping(target = "ownerEmail", source = "profile.email")
+    @Mapping(target = "ownerProfileImageUrl", source = "profile.profileImageUrl")
     @Mapping(target = "ownerFullName", expression = "java(owner.getFullName())")
-    @Mapping(target = "ownerPhone", source = "phoneNumber")
+    @Mapping(target = "ownerPhone", source = "profile.phoneNumber")
     @Mapping(target = "ownerAccountStatus", source = "accountStatus")
     @Mapping(target = "businessId", source = "business.id")
     @Mapping(target = "businessName", source = "business.name")
