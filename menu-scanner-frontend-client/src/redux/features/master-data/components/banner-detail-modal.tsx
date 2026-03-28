@@ -96,21 +96,28 @@ export function BannerDetailModal({
                   <CardContent className="space-y-4">
                     {/* Labels Row - Top alignment */}
                     <div className="flex flex-col md:flex-row gap-6">
-                      {/* Left label - Banner Image */}
+                      {/* Left label - Business Name */}
+                      <div className="w-full md:w-1/2">
+                        <p className="text-sm font-medium text-foreground">Business Name</p>
+                      </div>
+                      {/* Right label - Banner Image */}
                       {bannerData.imageUrl && (
                         <div className="w-full md:w-1/2">
                           <p className="text-sm font-medium text-foreground">Banner Image</p>
                         </div>
                       )}
-                      {/* Right label - Business Name */}
-                      <div className="w-full md:w-1/2">
-                        <p className="text-sm font-medium text-foreground">Business Name</p>
-                      </div>
                     </div>
 
-                    {/* Content Row - Image and Fields */}
+                    {/* Content Row - Fields and Image */}
                     <div className="flex flex-col md:flex-row gap-6">
-                      {/* Banner Image - Left Side (50%) */}
+                      {/* Basic Info - Left Side (50%) */}
+                      <div className="w-full md:w-1/2 space-y-4">
+                        <p className="text-foreground">{bannerData.businessName || "---"}</p>
+                        <DisplayField label="Link URL" value={bannerData.linkUrl || "---"} />
+                        <DisplayField label="Status" value={bannerData.status ? formatEnumValue(bannerData.status) : "---"} />
+                      </div>
+
+                      {/* Banner Image - Right Side (50%) */}
                       {bannerData.imageUrl && (
                         <div className="w-full md:w-1/2">
                           <div className="max-w-md h-40 rounded-md overflow-hidden bg-muted border border-border">
@@ -122,13 +129,6 @@ export function BannerDetailModal({
                           </div>
                         </div>
                       )}
-
-                      {/* Basic Info - Right Side (50%) */}
-                      <div className="w-full md:w-1/2 space-y-4">
-                        <p className="text-foreground">{bannerData.businessName || "---"}</p>
-                        <DisplayField label="Link URL" value={bannerData.linkUrl || "---"} />
-                        <DisplayField label="Status" value={bannerData.status ? formatEnumValue(bannerData.status) : "---"} />
-                      </div>
                     </div>
                   </CardContent>
                 </Card>

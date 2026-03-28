@@ -96,21 +96,29 @@ export function CategoriesDetailModal({
                   <CardContent className="space-y-4">
                     {/* Labels Row - Top alignment */}
                     <div className="flex flex-col md:flex-row gap-6">
-                      {/* Left label - Category Image */}
+                      {/* Left label - Category Name */}
+                      <div className="w-full md:w-1/2">
+                        <p className="text-sm font-medium text-foreground">Category Name</p>
+                      </div>
+                      {/* Right label - Category Image */}
                       {categoriesData.imageUrl && (
                         <div className="w-full md:w-1/2">
                           <p className="text-sm font-medium text-foreground">Category Image</p>
                         </div>
                       )}
-                      {/* Right label - Category Name */}
-                      <div className="w-full md:w-1/2">
-                        <p className="text-sm font-medium text-foreground">Category Name</p>
-                      </div>
                     </div>
 
-                    {/* Content Row - Image and Fields */}
+                    {/* Content Row - Fields and Image */}
                     <div className="flex flex-col md:flex-row gap-6">
-                      {/* Category Image - Left Side (50%) */}
+                      {/* Basic Info - Left Side (50%) */}
+                      <div className="w-full md:w-1/2 space-y-4">
+                        <p className="text-foreground">{categoriesData.name || "---"}</p>
+                        <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
+                        <DisplayField label="Status" value={categoriesData.status ? formatEnumValue(categoriesData.status) : "---"} />
+                        <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />
+                      </div>
+
+                      {/* Category Image - Right Side (50%) */}
                       {categoriesData.imageUrl && (
                         <div className="w-full md:w-1/2">
                           <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
@@ -122,14 +130,6 @@ export function CategoriesDetailModal({
                           </div>
                         </div>
                       )}
-
-                      {/* Basic Info - Right Side (50%) */}
-                      <div className="w-full md:w-1/2 space-y-4">
-                        <p className="text-foreground">{categoriesData.name || "---"}</p>
-                        <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
-                        <DisplayField label="Status" value={categoriesData.status ? formatEnumValue(categoriesData.status) : "---"} />
-                        <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
