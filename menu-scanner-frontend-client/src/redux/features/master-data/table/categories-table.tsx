@@ -6,6 +6,7 @@ import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { Switch } from "@/components/ui/switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
+import { formatProductCount } from "@/utils/format/product-count-formatter";
 import {
   AllCategoriesResponseModel,
   CategoriesResponseModel,
@@ -93,7 +94,7 @@ export const categoriesTableColumns = ({
       truncate: true,
       render: (categories) => (
         <span className="text-xs text-muted-foreground">
-          {categories?.totalProducts ?? "---"}
+          {formatProductCount(categories?.totalProducts)}
         </span>
       ),
     },
@@ -106,7 +107,7 @@ export const categoriesTableColumns = ({
       truncate: true,
       render: (categories) => (
         <span className="text-xs text-muted-foreground">
-          {categories?.activeProducts ?? "---"}
+          {formatProductCount(categories?.activeProducts)}
         </span>
       ),
     },

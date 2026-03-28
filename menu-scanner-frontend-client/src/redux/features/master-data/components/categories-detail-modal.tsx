@@ -4,6 +4,7 @@ import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
+import { formatProductCount } from "@/utils/format/product-count-formatter";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { CategoriesResponseModel } from "../store/models/response/categories-response";
 
@@ -77,8 +78,8 @@ export function CategoriesDetailModal({
                     <p className="text-foreground">{categories.name || "---"}</p>
                     <DisplayField label="Business Name" value={categories.businessName || "---"} />
                     <DisplayField label="Status" value={categories.status ? formatEnumValue(categories.status) : "---"} />
-                    <DisplayField label="Total Products" value={categories.totalProducts ?? "---"} />
-                    <DisplayField label="Active Products" value={categories.activeProducts ?? "---"} />
+                    <DisplayField label="Total Products" value={formatProductCount(categories.totalProducts)} />
+                    <DisplayField label="Active Products" value={formatProductCount(categories.activeProducts)} />
                   </div>
 
                   {/* Category Image - Right Side (50%) */}
