@@ -641,7 +641,7 @@ export default function PosPage() {
       {/* ─── Main Content ─── */}
       <div className="flex max-md:flex-col md:flex-row flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
           {/* Search & Brand Filter Bar */}
           <div className="flex flex-wrap items-end gap-2 max-md:gap-1 max-md:p-2 md:p-3 border-b bg-muted/20 shrink-0">
             <div className="relative flex-1 max-md:min-w-[140px] md:min-w-[200px]">
