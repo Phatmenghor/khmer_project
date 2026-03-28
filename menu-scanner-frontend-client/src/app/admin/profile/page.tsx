@@ -160,10 +160,12 @@ export default function AdminProfilePage() {
     name: "educations",
   });
 
-  // Load profile on mount
+  // Load profile on mount (only if not already loaded or loading)
   useEffect(() => {
-    dispatch(getProfileService());
-  }, [dispatch]);
+    if (!userProfile && !isProfileLoading) {
+      dispatch(getProfileService());
+    }
+  }, [dispatch, userProfile, isProfileLoading]);
 
   // Update form when profile loads
   useEffect(() => {
