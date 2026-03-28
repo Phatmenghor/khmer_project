@@ -18,6 +18,7 @@ export interface OperationStates {
 export interface RoleManagementState {
   data: AllRoleResponseModel | null;
   selectedRole: RoleResponseModel | null;
+  rolesList: RoleResponseModel[];
   isLoading: boolean;
   error: string | null;
   filters: RoleFilters;

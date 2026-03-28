@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserManagementState } from "../models/type/users-types";
 import { RoleManagementState } from "../models/type/role-types";
+import { RoleResponseModel } from "../models/response/role-response";
 import {
   createRoleService,
   deleteRoleService,
@@ -148,7 +149,7 @@ const roleSlice = createSlice({
         state.selectedRole = action.payload;
 
         if (state.data) {
-          state.data.content = state.data.content.map((role) =>
+          state.data.content = state.data.content.map((role: RoleResponseModel) =>
             role.id === action.payload.id ? action.payload : role,
           );
         }
