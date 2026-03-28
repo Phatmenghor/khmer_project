@@ -12,6 +12,7 @@ import {
   fetchAllBannerService,
   fetchBannerByIdService,
   updateBannerService,
+  toggleBannerStatusService,
 } from "../thunks/banner-thunks";
 
 /**
@@ -177,6 +178,26 @@ const bannerSlice = createSlice({
       .addCase(deleteBannerService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.operations.isDeleting = false;
+      });
+
+    builder
+      .addCase(toggleBannerStatusService.pending, (state) => {
+        state.operations.isUpdating = true;
+        state.error = null;
+      })
+      .addCase(toggleBannerStatusService.fulfilled, (state, action) => {
+        state.operations.isUpdating = false;
+
+        // Update in list
+        if (state.data) {
+          state.data.content = state.data.content.map((banner) =>
+            banner.id === action.payload.id ? action.payload : banner
+          );
+        }
+      })
+      .addCase(toggleBannerStatusService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.operations.isUpdating = false;
       });
   },
 });
