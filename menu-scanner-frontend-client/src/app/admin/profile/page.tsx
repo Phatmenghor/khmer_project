@@ -1240,20 +1240,19 @@ export default function AdminProfilePage() {
                                   errors.educations?.[index]?.endYear as any
                                 }
                               />
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <label className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  {...control.register(
-                                    `educations.${index}.isGraduated`
-                                  )}
-                                  className="w-4 h-4 rounded border-gray-300"
-                                />
-                                <span className="text-sm font-medium">
-                                  Graduated
-                                </span>
-                              </label>
+                              <SelectField
+                                control={typedControl}
+                                name={`educations.${index}.isGraduated`}
+                                label="Graduated"
+                                placeholder="Select status"
+                                options={[
+                                  { label: "Yes", value: "true" },
+                                  { label: "No", value: "false" },
+                                ]}
+                                error={
+                                  errors.educations?.[index]?.isGraduated as any
+                                }
+                              />
                             </div>
                             <div className="w-1/2">
                               <ClickableImageUpload
