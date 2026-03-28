@@ -1227,19 +1227,20 @@ export default function UserBusinessModal({
                                       errors.educations?.[index]?.endYear as any
                                     }
                                   />
-                                  <label className="flex items-center gap-2 cursor-pointer col-span-2">
-                                    <input
-                                      type="checkbox"
-                                      {...control.register(
-                                        `educations.${index}.isGraduated`
-                                      )}
-                                      disabled={isSubmitting}
-                                      className="w-4 h-4 rounded border-gray-300"
-                                    />
-                                    <span className="text-sm font-medium">
-                                      Graduated
-                                    </span>
-                                  </label>
+                                  <SelectField
+                                    control={control}
+                                    name={`educations.${index}.isGraduated`}
+                                    label="Graduated"
+                                    placeholder="Select status"
+                                    options={[
+                                      { label: "Yes", value: "true" },
+                                      { label: "No", value: "false" },
+                                    ]}
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.educations?.[index]?.isGraduated as any
+                                    }
+                                  />
                                 </div>
                                 <div className="w-1/2">
                                   <ClickableImageUpload
