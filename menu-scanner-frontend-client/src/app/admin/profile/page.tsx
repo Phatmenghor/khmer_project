@@ -990,26 +990,28 @@ export default function AdminProfilePage() {
                                 }
                               />
                             </div>
-                            <ClickableImageUpload
-                              label="File"
-                              value={
-                                watch(`documents.${index}.fileUrl`) || ""
-                              }
-                              onChange={(base64) =>
-                                setValue(
-                                  `documents.${index}.fileUrl`,
-                                  base64,
-                                  { shouldDirty: true }
-                                )
-                              }
-                              aspectRatio="auto"
-                              height="h-32"
-                              maxSize={5}
-                              error={
-                                errors.documents?.[index]?.fileUrl as any
-                              }
-                              placeholder="Upload"
-                            />
+                            <div className="w-1/2">
+                              <ClickableImageUpload
+                                label="File"
+                                value={
+                                  watch(`documents.${index}.fileUrl`) || ""
+                                }
+                                onChange={(base64) =>
+                                  setValue(
+                                    `documents.${index}.fileUrl`,
+                                    base64,
+                                    { shouldDirty: true }
+                                  )
+                                }
+                                aspectRatio="auto"
+                                height="h-32"
+                                maxSize={5}
+                                error={
+                                  errors.documents?.[index]?.fileUrl as any
+                                }
+                                placeholder="Upload"
+                              />
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -1038,7 +1040,7 @@ export default function AdminProfilePage() {
                                 <img
                                   src={field.fileUrl}
                                   alt="Document"
-                                  className="w-1/2 h-32 object-cover rounded mt-2"
+                                  className="w-1/2 h-32 object-contain rounded mt-2"
                                 />
                               </div>
                             )}
@@ -1168,28 +1170,30 @@ export default function AdminProfilePage() {
                                 </span>
                               </label>
                             </div>
-                            <ClickableImageUpload
-                              label="Certificate"
-                              value={
-                                watch(`educations.${index}.certificateUrl`) ||
-                                ""
-                              }
-                              onChange={(base64) =>
-                                setValue(
-                                  `educations.${index}.certificateUrl`,
-                                  base64,
-                                  { shouldDirty: true }
-                                )
-                              }
-                              aspectRatio="auto"
-                              height="h-32"
-                              maxSize={5}
-                              error={
-                                errors.educations?.[index]
-                                  ?.certificateUrl as any
-                              }
-                              placeholder="Upload"
-                            />
+                            <div className="w-1/2">
+                              <ClickableImageUpload
+                                label="Certificate"
+                                value={
+                                  watch(`educations.${index}.certificateUrl`) ||
+                                  ""
+                                }
+                                onChange={(base64) =>
+                                  setValue(
+                                    `educations.${index}.certificateUrl`,
+                                    base64,
+                                    { shouldDirty: true }
+                                  )
+                                }
+                                aspectRatio="auto"
+                                height="h-32"
+                                maxSize={5}
+                                error={
+                                  errors.educations?.[index]
+                                    ?.certificateUrl as any
+                                }
+                                placeholder="Upload"
+                              />
+                            </div>
                           </div>
                         </div>
                       ))}
