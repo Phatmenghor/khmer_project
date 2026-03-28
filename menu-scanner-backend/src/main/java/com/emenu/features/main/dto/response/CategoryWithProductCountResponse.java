@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryWithProductCountResponse extends CategoryResponse {
-    private Long productCount = 0L;
+    private Long totalProducts = 0L;
+    private Long activeProducts = 0L;
 }

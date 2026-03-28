@@ -97,18 +97,21 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(Category::getId)
                 .toList();
 
-        // Fetch all product counts in a single query (batch query - optimized)
-        List<Object[]> productCountData = categoryRepository.countProductsForCategories(categoryIds);
+        // Fetch all product counts (total and active) in a single query (batch query - optimized)
+        List<Object[]> productCountData = categoryRepository.countTotalAndActiveProductsForCategories(categoryIds);
 
-        // Build a map from category ID to product count
-        java.util.Map<UUID, Long> productCountMap = new java.util.HashMap<>();
+        // Build maps from category ID to product counts
+        java.util.Map<UUID, Long> totalProductCountMap = new java.util.HashMap<>();
+        java.util.Map<UUID, Long> activeProductCountMap = new java.util.HashMap<>();
         for (Object[] data : productCountData) {
             UUID categoryId = (UUID) data[0];
-            Long count = (Long) data[1];
-            productCountMap.put(categoryId, count);
+            Long totalCount = ((Number) data[1]).longValue();
+            Long activeCount = ((Number) data[2]).longValue();
+            totalProductCountMap.put(categoryId, totalCount);
+            activeProductCountMap.put(categoryId, activeCount);
         }
 
-        // Map categories to response with product count
+        // Map categories to response with product counts
         List<CategoryWithProductCountResponse> responses = categoryPage.getContent().stream()
                 .map(category -> {
                     CategoryWithProductCountResponse response = new CategoryWithProductCountResponse();
@@ -126,9 +129,11 @@ public class CategoryServiceImpl implements CategoryService {
                     response.setImageUrl(baseResponse.getImageUrl());
                     response.setStatus(baseResponse.getStatus());
 
-                    // Get product count from map (optimized - no N+1 query)
-                    long productCount = productCountMap.getOrDefault(category.getId(), 0L);
-                    response.setProductCount(productCount);
+                    // Get product counts from maps (optimized - no N+1 query)
+                    long totalProductCount = totalProductCountMap.getOrDefault(category.getId(), 0L);
+                    long activeProductCount = activeProductCountMap.getOrDefault(category.getId(), 0L);
+                    response.setTotalProducts(totalProductCount);
+                    response.setActiveProducts(activeProductCount);
 
                     return response;
                 })
