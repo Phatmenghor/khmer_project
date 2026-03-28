@@ -94,22 +94,31 @@ export function BannerDetailModal({
                     <CardTitle>Banner Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* Banner Image */}
-                    {bannerData.imageUrl && (
-                      <div className="mb-4">
-                        <p className="text-sm font-medium text-foreground mb-2">Banner Image</p>
-                        <div className="max-w-md h-40 rounded-md overflow-hidden bg-muted border border-border">
-                          <img
-                            src={bannerData.imageUrl}
-                            alt={bannerData.businessName}
-                            className="w-full h-full object-cover"
-                          />
+                    {/* Image and Basic Info - Side by Side */}
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Banner Image - Left Side (50%) */}
+                      {bannerData.imageUrl && (
+                        <div className="w-full md:w-1/2">
+                          <p className="text-sm font-medium text-foreground mb-2">Banner Image</p>
+                          <div className="max-w-md h-40 rounded-md overflow-hidden bg-muted border border-border">
+                            <img
+                              src={bannerData.imageUrl}
+                              alt={bannerData.businessName}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
                         </div>
+                      )}
+
+                      {/* Basic Info - Right Side (50%) */}
+                      <div className="w-full md:w-1/2 space-y-4">
+                        <DisplayField label="Business Name" value={bannerData.businessName || "---"} />
+                        <DisplayField label="Link URL" value={bannerData.linkUrl || "---"} />
                       </div>
-                    )}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <DisplayField label="Business Name" value={bannerData.businessName || "---"} />
-                      <DisplayField label="Link URL" value={bannerData.linkUrl || "---"} />
+                    </div>
+
+                    {/* Status - Below */}
+                    <div className="pt-4">
                       <DisplayField label="Status" value={bannerData.status ? formatEnumValue(bannerData.status) : "---"} />
                     </div>
                   </CardContent>
