@@ -22,7 +22,7 @@ import {
 } from "@/redux/features/master-data/store/slice/brand-slice";
 import {
   deleteBrandService,
-  fetchAllBrandService,
+  fetchAllBrandWithProductCountService,
   toggleBrandStatusService,
 } from "@/redux/features/master-data/store/thunks/brand-thunks";
 import { brandTableColumns } from "@/redux/features/master-data/table/brand-table";
@@ -74,7 +74,7 @@ export default function BrandPage() {
 
   useEffect(() => {
     dispatch(
-      fetchAllBrandService({
+      fetchAllBrandWithProductCountService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,

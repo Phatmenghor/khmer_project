@@ -10,6 +10,7 @@ import {
   createBrandService,
   deleteBrandService,
   fetchAllBrandService,
+  fetchAllBrandWithProductCountService,
   fetchBrandByIdService,
   updateBrandService,
   toggleBrandStatusService,
@@ -85,6 +86,20 @@ const brandSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchAllBrandService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.isLoading = false;
+      });
+
+    builder
+      .addCase(fetchAllBrandWithProductCountService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllBrandWithProductCountService.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchAllBrandWithProductCountService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.isLoading = false;
       });
