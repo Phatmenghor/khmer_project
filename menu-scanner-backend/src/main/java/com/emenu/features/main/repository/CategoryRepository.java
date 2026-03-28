@@ -71,8 +71,11 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
         Sort sort
     );
     /**
-     * Count products for a given category
+     * Get product counts for multiple categories in a single query (optimized)
      */
-    @Query("SELECT COUNT(p) FROM Product p WHERE p.categoryId = :categoryId AND p.isDeleted = false")
-    long countProductsByCategory(@Param("categoryId") UUID categoryId);
+    @Query("SELECT c.id, COUNT(p.id) FROM Category c " +
+           "LEFT JOIN Product p ON p.categoryId = c.id AND p.isDeleted = false " +
+           "WHERE c.id IN :categoryIds AND c.isDeleted = false " +
+           "GROUP BY c.id")
+    List<Object[]> countProductsForCategories(@Param("categoryIds") List<UUID> categoryIds);
 }

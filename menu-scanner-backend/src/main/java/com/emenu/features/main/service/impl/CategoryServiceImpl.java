@@ -92,6 +92,22 @@ public class CategoryServiceImpl implements CategoryService {
                 pageable
         );
 
+        // Get all category IDs from the page
+        List<UUID> categoryIds = categoryPage.getContent().stream()
+                .map(Category::getId)
+                .toList();
+
+        // Fetch all product counts in a single query (batch query - optimized)
+        List<Object[]> productCountData = categoryRepository.countProductsForCategories(categoryIds);
+
+        // Build a map from category ID to product count
+        java.util.Map<UUID, Long> productCountMap = new java.util.HashMap<>();
+        for (Object[] data : productCountData) {
+            UUID categoryId = (UUID) data[0];
+            Long count = (Long) data[1];
+            productCountMap.put(categoryId, count);
+        }
+
         // Map categories to response with product count
         List<CategoryWithProductCountResponse> responses = categoryPage.getContent().stream()
                 .map(category -> {
@@ -110,8 +126,8 @@ public class CategoryServiceImpl implements CategoryService {
                     response.setImageUrl(baseResponse.getImageUrl());
                     response.setStatus(baseResponse.getStatus());
 
-                    // Count products for this category
-                    long productCount = categoryRepository.countProductsByCategory(category.getId());
+                    // Get product count from map (optimized - no N+1 query)
+                    long productCount = productCountMap.getOrDefault(category.getId(), 0L);
                     response.setProductCount(productCount);
 
                     return response;
