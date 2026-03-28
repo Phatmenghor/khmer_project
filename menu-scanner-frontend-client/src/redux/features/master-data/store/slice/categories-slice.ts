@@ -13,6 +13,7 @@ import {
   fetchAllCategoriesWithProductCountService,
   fetchCategoriesByIdService,
   updateCategoriesService,
+  toggleCategoriesStatusService,
 } from "../thunks/categories-thunks";
 
 /**
@@ -194,6 +195,26 @@ const categoriesSlice = createSlice({
       .addCase(deleteCategoriesService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.operations.isDeleting = false;
+      });
+
+    // Handle toggle status (background update without loading state)
+    builder
+      .addCase(toggleCategoriesStatusService.fulfilled, (state, action) => {
+        // Update in both lists
+        if (state.data) {
+          state.data.content = state.data.content.map((category) =>
+            category.id === action.payload.id ? action.payload : category
+          );
+        }
+        if (state.dataWithProductCount) {
+          state.dataWithProductCount.content = state.dataWithProductCount.content.map(
+            (category) =>
+              category.id === action.payload.id ? action.payload : category
+          );
+        }
+      })
+      .addCase(toggleCategoriesStatusService.rejected, (state, action) => {
+        state.error = action.payload as string;
       });
   },
 });

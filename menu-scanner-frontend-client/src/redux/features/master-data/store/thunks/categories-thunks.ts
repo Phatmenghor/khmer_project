@@ -82,6 +82,30 @@ export const updateCategoriesService = createApiThunk<
 });
 
 /**
+ * Toggle category status
+ */
+export const toggleCategoriesStatusService = createApiThunk<any, any>(
+  "categories/toggleStatus",
+  async (category) => {
+    if (!category?.id) {
+      throw new Error("Category ID is required");
+    }
+
+    const newStatus = category?.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+
+    const response = await axiosClientWithAuth.put(
+      `/api/v1/categories/${category.id}`,
+      {
+        name: category.name,
+        imageUrl: category.imageUrl,
+        status: newStatus,
+      }
+    );
+    return response.data.data;
+  }
+);
+
+/**
  * Delete categories
  */
 export const deleteCategoriesService = createApiThunk<any, string>(

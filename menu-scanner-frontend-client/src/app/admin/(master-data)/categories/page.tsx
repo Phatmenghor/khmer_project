@@ -22,7 +22,7 @@ import {
 } from "@/redux/features/master-data/store/slice/categories-slice";
 import {
   deleteCategoriesService,
-  updateCategoriesService,
+  toggleCategoriesStatusService,
   fetchAllCategoriesWithProductCountService,
 } from "@/redux/features/master-data/store/thunks/categories-thunks";
 import {
@@ -133,33 +133,11 @@ export default function CategoriesPage() {
     });
   };
 
-  const handleToggleCategoryStatus = async (category: CategoriesResponseModel) => {
+  const handleToggleCategoryStatus = (category: CategoriesResponseModel) => {
+    if (!category?.id) return;
     try {
-      const newStatus = category.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-      await dispatch(
-        updateCategoriesService({
-          categoriesId: category.id,
-          categoriesData: {
-            name: category.name,
-            imageUrl: category.imageUrl,
-            status: newStatus,
-          },
-        }),
-      ).unwrap();
-
-      showToast.success(
-        `Category status updated to ${newStatus}`,
-      );
-
-      // Refresh the data with product count
-      dispatch(
-        fetchAllCategoriesWithProductCountService({
-          search: debouncedSearch,
-          pageNo: filters.pageNo,
-          pageSize: globalPageSize,
-          status: filters.status == Status.ALL ? undefined : filters.status,
-        }),
-      );
+      dispatch(toggleCategoriesStatusService(category));
+      showToast.success("Category status updated successfully");
     } catch (error: any) {
       showToast.error(error || "Failed to update category status");
     }
@@ -172,7 +150,7 @@ export default function CategoriesPage() {
       handleDeleteCategories,
       handleToggleCategoryStatus,
     }),
-    [debouncedSearch, filters.pageNo, filters.status, globalPageSize, dispatch],
+    [],
   );
 
   const columns = useMemo(
