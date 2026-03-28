@@ -94,22 +94,31 @@ export function CategoriesDetailModal({
                     <CardTitle>Category Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* Category Image */}
-                    {categoriesData.imageUrl && (
-                      <div className="mb-4">
-                        <p className="text-sm font-medium text-foreground mb-2">Category Image</p>
-                        <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
-                          <img
-                            src={categoriesData.imageUrl}
-                            alt={categoriesData.name}
-                            className="h-full w-full object-cover"
-                          />
+                    {/* Image and Basic Info - Side by Side */}
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Category Image - Left Side (50%) */}
+                      {categoriesData.imageUrl && (
+                        <div className="w-full md:w-1/2">
+                          <p className="text-sm font-medium text-foreground mb-2">Category Image</p>
+                          <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+                            <img
+                              src={categoriesData.imageUrl}
+                              alt={categoriesData.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
                         </div>
+                      )}
+
+                      {/* Basic Info - Right Side (50%) */}
+                      <div className="w-full md:w-1/2 space-y-4">
+                        <DisplayField label="Category Name" value={categoriesData.name || "---"} />
+                        <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
                       </div>
-                    )}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <DisplayField label="Category Name" value={categoriesData.name || "---"} />
-                      <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
+                    </div>
+
+                    {/* Status and Product Count - Below */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                       <DisplayField label="Status" value={categoriesData.status ? formatEnumValue(categoriesData.status) : "---"} />
                       <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />
                     </div>
