@@ -6,6 +6,7 @@ import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.CategoryAllFilterRequest;
 import com.emenu.features.main.dto.filter.CategoryFilterRequest;
 import com.emenu.features.main.dto.request.CategoryCreateRequest;
+import com.emenu.features.main.dto.response.CategoryResponse;
 import com.emenu.features.main.dto.response.CategoryWithProductCountResponse;
 import com.emenu.features.main.dto.update.CategoryUpdateRequest;
 import com.emenu.features.main.mapper.CategoryMapper;
