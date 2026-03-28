@@ -664,7 +664,7 @@ ON CONFLICT DO NOTHING;
 -- 19. DELIVERY OPTIONS (18 items)
 -- ============================================================================
 
-INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, price, status)
+INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, image_url, price, status)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -675,6 +675,7 @@ SELECT
         ELSE 'Same Day'
     END,
     'Delivery method ' || i || ' with estimated time',
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
     (5.00 + (i * 0.5))::numeric,
     CASE WHEN (i % 3) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
 FROM generate_series(1, 18) AS t(i);
