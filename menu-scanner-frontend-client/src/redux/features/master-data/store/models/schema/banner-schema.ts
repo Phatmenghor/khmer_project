@@ -5,7 +5,6 @@ import { z } from "zod";
  */
 export const createBannerSchema = z.object({
   imageUrl: z.string().min(1, "Image URL is required"),
-  title: z.string().optional().or(z.literal("")),
   description: z.string().optional().or(z.literal("")),
   linkUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   status: z.string().min(1, "Status is required"),
@@ -16,7 +15,6 @@ export const createBannerSchema = z.object({
  */
 export const updateBannerSchema = z.object({
   imageUrl: z.string().min(1, "Image URL is required"),
-  title: z.string().optional().or(z.literal("")),
   description: z.string().optional().or(z.literal("")),
   linkUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   status: z.string().min(1, "Status is required"),

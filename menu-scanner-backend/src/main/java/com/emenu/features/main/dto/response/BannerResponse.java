@@ -13,7 +13,6 @@ public class BannerResponse extends BaseAuditResponse {
     private UUID businessId;
     private String businessName;
     private String imageUrl;
-    private String title;
     private String description;
     private String linkUrl;
     private Status status;

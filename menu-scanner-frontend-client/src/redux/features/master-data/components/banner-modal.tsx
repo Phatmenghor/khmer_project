@@ -72,7 +72,6 @@ export default function BannerModal({
     resolver: zodResolver(isCreate ? createBannerSchema : updateBannerSchema),
     defaultValues: {
       imageUrl: "",
-      title: "",
       description: "",
       linkUrl: "",
       status: Status.ACTIVE,
@@ -86,7 +85,6 @@ export default function BannerModal({
     if (isOpen) {
       reset({
         imageUrl: "",
-        title: "",
         description: "",
         linkUrl: "",
         status: Status.ACTIVE,
@@ -107,7 +105,6 @@ export default function BannerModal({
 
           reset({
             imageUrl: data?.imageUrl || "",
-            title: data?.title || "",
             description: data?.description || "",
             linkUrl: data?.linkUrl || "",
             status: data?.status || "",
@@ -148,7 +145,6 @@ export default function BannerModal({
 
       const payload = {
         imageUrl: finalImageUrl,
-        title: data.title || "",
         description: data.description || "",
         linkUrl: data.linkUrl || "",
         status: data.status,
@@ -236,17 +232,8 @@ export default function BannerModal({
                     Banner Details
                   </h3>
 
-                  {/* Banner Text Fields */}
+                  {/* Banner Description */}
                   <div className="grid grid-cols-1 gap-4 mb-4">
-                    <TextField
-                      control={control}
-                      name="title"
-                      label="Banner Title"
-                      placeholder="Enter banner title (optional)"
-                      disabled={isProcessing}
-                      error={errors.title}
-                    />
-
                     <TextField
                       control={control}
                       name="description"

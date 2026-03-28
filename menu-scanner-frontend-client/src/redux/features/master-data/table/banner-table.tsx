@@ -41,7 +41,7 @@ export const bannerTableColumns = ({
     },
     {
       key: "imageUrl",
-      label: "Banner Image & Title",
+      label: "Banner Image & Description",
       minWidth: "200px",
       maxWidth: "600px",
       render: (banner) => {
@@ -50,7 +50,7 @@ export const bannerTableColumns = ({
             <div className="flex-shrink-0 w-40 h-24 rounded-lg overflow-hidden bg-muted border border-border">
               <img
                 src={banner.imageUrl}
-                alt={banner.title || "Banner"}
+                alt="Banner"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.src = "/assets/image/no-image.png";
@@ -58,10 +58,7 @@ export const bannerTableColumns = ({
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="font-bold text-base text-foreground truncate mb-1">
-                {banner.title || "Untitled Banner"}
-              </h2>
-              <h3 className="font-semibold text-sm text-muted-foreground line-clamp-2">
+              <h3 className="font-semibold text-sm text-foreground line-clamp-3">
                 {banner.description || "No description"}
               </h3>
             </div>

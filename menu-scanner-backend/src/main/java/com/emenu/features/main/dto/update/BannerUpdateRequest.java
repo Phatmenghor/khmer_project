@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 public class BannerUpdateRequest {
     private String imageUrl;
-    private String title;
     private String description;
     private String linkUrl;
     private Status status;
