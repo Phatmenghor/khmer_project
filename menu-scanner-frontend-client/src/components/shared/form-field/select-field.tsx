@@ -40,8 +40,8 @@ export function SelectField({
         render={({ field }) => {
           // Handle array values (for roles field)
           const currentValue = Array.isArray(field.value)
-            ? field.value[0] || ""
-            : field.value || "";
+            ? field.value[0] ?? ""
+            : field.value ?? "";
 
           const selectedOption = options.find((opt) => opt.value === currentValue);
 
