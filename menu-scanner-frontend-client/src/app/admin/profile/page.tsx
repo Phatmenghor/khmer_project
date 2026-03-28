@@ -289,33 +289,78 @@ export default function AdminProfilePage() {
 
       setIsUploadingImage(false);
 
-      // Build payload with only defined and non-empty values
-      const payload: any = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phoneNumber: data.phoneNumber,
-        email: data.email,
-      };
+      // Build clean payload for backend - only include fields that have actual values
+      // Backend expects specific enum formats and proper structure
+      const payload: any = {};
 
-      // Add optional fields only if they have values
+      // Required fields - always include
+      if (data.firstName) payload.firstName = data.firstName;
+      if (data.lastName) payload.lastName = data.lastName;
+      if (data.phoneNumber) payload.phoneNumber = data.phoneNumber;
+      if (data.email) payload.email = data.email;
+
+      // Personal information - optional but include if present
       if (data.nickname) payload.nickname = data.nickname;
-      if (data.gender) payload.gender = data.gender;
-      if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth;
+      if (data.gender) payload.gender = data.gender; // Backend expects: MALE, FEMALE, OTHER
+      if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth; // Format: YYYY-MM-DD
       if (profileImageUrl) payload.profileImageUrl = profileImageUrl;
+
+      // Employment information - optional but include if present
       if (data.employeeId) payload.employeeId = data.employeeId;
       if (data.position) payload.position = data.position;
       if (data.department) payload.department = data.department;
-      if (data.employmentType) payload.employmentType = data.employmentType;
-      if (data.joinDate) payload.joinDate = data.joinDate;
-      if (data.leaveDate) payload.leaveDate = data.leaveDate;
+      if (data.employmentType) payload.employmentType = data.employmentType; // Backend expects: FULL_TIME, PART_TIME, CONTRACT
+      if (data.joinDate) payload.joinDate = data.joinDate; // Format: YYYY-MM-DD
+      if (data.leaveDate) payload.leaveDate = data.leaveDate; // Format: YYYY-MM-DD
       if (data.shift) payload.shift = data.shift;
       if (data.remark) payload.remark = data.remark;
 
-      // Add array fields only if they have data
-      if (addressFields.length > 0) payload.addresses = data.addresses;
-      if (contactFields.length > 0) payload.emergencyContacts = data.emergencyContacts;
-      if (validDocuments.length > 0) payload.documents = validDocuments;
-      if (validEducations.length > 0) payload.educations = validEducations;
+      // Array fields - only include non-empty arrays to avoid unwanted deletions
+      // Empty array = delete all related records, so only send if we have data
+      if (addressFields.length > 0 && data.addresses?.length > 0) {
+        payload.addresses = data.addresses.map((addr: any) => ({
+          id: addr.id || undefined,
+          addressType: addr.addressType, // Backend expects: CURRENT, PLACE_OF_BIRTH, PERMANENT
+          houseNo: addr.houseNo,
+          street: addr.street,
+          village: addr.village,
+          commune: addr.commune,
+          district: addr.district,
+          province: addr.province,
+          country: addr.country,
+        }));
+      }
+
+      if (contactFields.length > 0 && data.emergencyContacts?.length > 0) {
+        payload.emergencyContacts = data.emergencyContacts.map((contact: any) => ({
+          id: contact.id || undefined,
+          name: contact.name,
+          phone: contact.phone,
+          relationship: contact.relationship,
+        }));
+      }
+
+      if (validDocuments.length > 0) {
+        payload.documents = validDocuments.map((doc: any) => ({
+          id: doc.id || undefined,
+          type: doc.type, // Backend expects: ID_CARD, PASSPORT, DRIVER_LICENSE
+          number: doc.number,
+          fileUrl: doc.fileUrl,
+        }));
+      }
+
+      if (validEducations.length > 0) {
+        payload.educations = validEducations.map((edu: any) => ({
+          id: edu.id || undefined,
+          level: edu.level, // Backend expects: PRESCHOOL, PRIMARY, SECONDARY, TERTIARY, VOCATIONAL
+          schoolName: edu.schoolName,
+          fieldOfStudy: edu.fieldOfStudy,
+          startYear: edu.startYear,
+          endYear: edu.endYear,
+          isGraduated: edu.isGraduated || false,
+          certificateUrl: edu.certificateUrl,
+        }));
+      }
 
       console.log("🔄 [UPDATE] Sending payload to backend:", payload);
       const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
