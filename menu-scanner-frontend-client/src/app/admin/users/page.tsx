@@ -18,7 +18,7 @@ import {
   fetchAllUsersService,
   toggleUserStatusService,
 } from "@/redux/features/auth/store/thunks/users-thunks";
-import { fetchAllRoleService } from "@/redux/features/auth/store/thunks/role-thunks";
+import { fetchAllRolesListService } from "@/redux/features/auth/store/thunks/role-thunks";
 import { selectRoleContent } from "@/redux/features/auth/store/selectors/role-selectors";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
@@ -69,12 +69,10 @@ export default function UserBusinessPage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Fetch roles for the filter
+  // Fetch roles for the filter (all roles as list, no pagination needed)
   useEffect(() => {
     dispatch(
-      fetchAllRoleService({
-        pageNo: 1,
-        pageSize: 100,
+      fetchAllRolesListService({
         includeAll: false,
         userTypes: [UserGropeType.BUSINESS_USER],
       }),
