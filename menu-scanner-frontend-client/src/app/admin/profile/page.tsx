@@ -1036,7 +1036,7 @@ export default function AdminProfilePage() {
                                 <img
                                   src={field.fileUrl}
                                   alt="Document"
-                                  className="w-full h-32 object-cover rounded mt-2"
+                                  className="w-1/2 h-32 object-cover rounded mt-2"
                                 />
                               </div>
                             )}
@@ -1228,7 +1228,7 @@ export default function AdminProfilePage() {
                               <img
                                 src={field.certificateUrl}
                                 alt="Certificate"
-                                className="w-full h-32 object-cover rounded mt-2"
+                                className="w-1/2 h-32 object-cover rounded mt-2"
                               />
                             </div>
                           )}
