@@ -1015,19 +1015,21 @@ export default function AdminProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-6">
                       {documentFields.map((field, index) => (
                         <div key={field.id} className="border rounded-lg p-4">
                           <div className="space-y-4">
-                            <DisplayField
-                              label="Type"
-                              value={
-                                DOCUMENT_TYPE_OPTIONS.find(
-                                  (o) => o.value === field.type
-                                )?.label
-                              }
-                            />
-                            <DisplayField label="Number" value={field.number} />
+                            <div className="grid grid-cols-2 gap-4">
+                              <DisplayField
+                                label="Type"
+                                value={
+                                  DOCUMENT_TYPE_OPTIONS.find(
+                                    (o) => o.value === field.type
+                                  )?.label
+                                }
+                              />
+                              <DisplayField label="Number" value={field.number} />
+                            </div>
                             {field.fileUrl && (
                               <div>
                                 <label className="text-sm font-medium text-muted-foreground">
