@@ -232,11 +232,85 @@ public class UserServiceImpl implements UserService {
         return userMapper.toResponse(securityUtils.getCurrentUser());
     }
 
+    /**
+     * Updates the current authenticated user's profile.
+     * Convenience method that extracts the current user ID and calls updateUser.
+     */
     @Override
+    @Transactional
     public UserResponse updateCurrentUser(UserUpdateRequest request) {
-        User user = securityUtils.getCurrentUser();
-        userMapper.updateEntity(request, user);
-        return userMapper.toResponse(userRepository.save(user));
+        User currentUser = securityUtils.getCurrentUser();
+        return updateUser(currentUser.getId(), request);
+    }
+
+    @Override
+    public UserResponse updateUser(UUID userId, UserUpdateRequest req) {
+        log.info("Updating user: {}", userId);
+        User user = userRepository.findByIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (req.getBusinessId() != null && !req.getBusinessId().equals(user.getBusinessId())) {
+            businessRepository.findByIdAndIsDeletedFalse(req.getBusinessId())
+                    .orElseThrow(() -> new ValidationException("Business not found"));
+            user.setBusinessId(req.getBusinessId());
+        }
+
+        if (req.getRoles() != null && !req.getRoles().isEmpty()) {
+            List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
+            if (roles.size() != req.getRoles().size()) throw new ValidationException("One or more roles not found");
+            validateRoleUserTypeCompatibility(roles, user.getUserType());
+            user.getRoles().clear();
+            user.getRoles().addAll(roles);
+        }
+
+        userMapper.updateEntity(req, user);
+
+        // Profile
+        UserProfile profile = user.getProfile();
+        if (profile == null) {
+            profile = new UserProfile();
+            profile.setUser(user);
+            user.setProfile(profile);
+        }
+        if (req.getEmail() != null) profile.setEmail(req.getEmail());
+        if (req.getFirstName() != null) profile.setFirstName(req.getFirstName());
+        if (req.getLastName() != null) profile.setLastName(req.getLastName());
+        if (req.getNickname() != null) profile.setNickname(req.getNickname());
+        if (req.getGender() != null) profile.setGender(req.getGender());
+        if (req.getDateOfBirth() != null) profile.setDateOfBirth(req.getDateOfBirth());
+        if (req.getPhoneNumber() != null) profile.setPhoneNumber(req.getPhoneNumber());
+        if (req.getProfileImageUrl() != null) profile.setProfileImageUrl(req.getProfileImageUrl());
+
+        // Employment
+        if (hasEmploymentUpdateData(req)) {
+            UserEmployment emp = user.getEmployment();
+            if (emp == null) {
+                emp = new UserEmployment();
+                emp.setUser(user);
+                user.setEmployment(emp);
+            }
+            if (req.getEmployeeId() != null) emp.setEmployeeId(req.getEmployeeId());
+            if (req.getPosition() != null) emp.setPosition(req.getPosition());
+            if (req.getDepartment() != null) emp.setDepartment(req.getDepartment());
+            if (req.getEmploymentType() != null) emp.setEmploymentType(req.getEmploymentType());
+            if (req.getJoinDate() != null) emp.setJoinDate(req.getJoinDate());
+            if (req.getLeaveDate() != null) emp.setLeaveDate(req.getLeaveDate());
+            if (req.getShift() != null) emp.setShift(req.getShift());
+        }
+
+        // Nested arrays: null = no change | [] = remove all | items = merge
+        if (req.getAddresses() != null) mergeList(req.getAddresses(), user.getAddresses(),
+                AddressRequest::getId, this::applyAddressFields, r -> buildAddress(r, user));
+        if (req.getEmergencyContacts() != null) mergeList(req.getEmergencyContacts(), user.getEmergencyContacts(),
+                EmergencyContactRequest::getId, this::applyContactFields, r -> buildContact(r, user));
+        if (req.getDocuments() != null) mergeList(req.getDocuments(), user.getDocuments(),
+                DocumentRequest::getId, this::applyDocumentFields, r -> buildDocument(r, user));
+        if (req.getEducations() != null) mergeList(req.getEducations(), user.getEducations(),
+                EducationRequest::getId, this::applyEducationFields, r -> buildEducation(r, user));
+
+        User updated = userRepository.save(user);
+        log.info("User updated: {}", updated.getUserIdentifier());
+        return userMapper.toResponse(updated);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

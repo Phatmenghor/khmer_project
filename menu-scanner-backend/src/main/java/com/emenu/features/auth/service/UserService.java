@@ -23,6 +23,10 @@ public interface UserService {
     UserResponse deleteUser(UUID userId);
     
     UserResponse getCurrentUser();
-    
+
+    /**
+     * Updates the current authenticated user's profile.
+     * Convenience method that extracts the current user ID internally.
+     */
     UserResponse updateCurrentUser(UserUpdateRequest request);
 }
