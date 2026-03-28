@@ -513,7 +513,7 @@ export default function UserBusinessModal({
                     <h3 className="text-lg font-semibold">
                       Account Credentials <span className="text-red-500">*</span>
                     </h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <TextField
                         control={control}
                         name="userIdentifier"
@@ -586,7 +586,7 @@ export default function UserBusinessModal({
                   <div className="space-y-4">
                     {/* User Role and Account Status - EDIT MODE ONLY (Top) */}
                     {!isCreate && (
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <SelectField
                           control={control}
                           name="roles"
@@ -618,7 +618,7 @@ export default function UserBusinessModal({
                     )}
 
                     {/* Personal Details Grid */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <TextField
                         control={control}
                         name="firstName"
@@ -677,7 +677,7 @@ export default function UserBusinessModal({
                     </div>
 
                     {/* Profile Image - 50% Width */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <ClickableImageUpload
                         label="Profile Image"
                         value={watch("profileImageUrl")}
@@ -703,7 +703,7 @@ export default function UserBusinessModal({
                   <h3 className="text-lg font-semibold">
                     Employment Information
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextField
                       control={control}
                       name="employeeId"
