@@ -1,28 +1,28 @@
 // components/shared/form/index.ts
-import { Control, FieldError } from "react-hook-form";
+import { Control, FieldError, FieldValues, Path } from "react-hook-form";
 
-export interface BaseFieldProps {
-  name: string;
+export interface BaseFieldProps<T extends FieldValues = any> {
+  name: Path<T>;
   label: string;
-  control: Control<any>;
+  control: Control<T>;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;
   className?: string;
 }
 
-export interface TextFieldProps extends BaseFieldProps {
+export interface TextFieldProps<T extends FieldValues = any> extends BaseFieldProps<T> {
   type?: "text" | "email" | "tel" | "password";
   placeholder?: string;
 }
 
-export interface PasswordFieldProps extends BaseFieldProps {
+export interface PasswordFieldProps<T extends FieldValues = any> extends BaseFieldProps<T> {
   placeholder?: string;
   showPassword?: boolean;
   onTogglePassword?: () => void;
 }
 
-export interface SelectFieldProps extends BaseFieldProps {
+export interface SelectFieldProps<T extends FieldValues = any> extends BaseFieldProps<T> {
   options: Array<{ value: string; label: string }>;
   placeholder?: string;
   onValueChange?: (value: string) => void;
@@ -30,7 +30,7 @@ export interface SelectFieldProps extends BaseFieldProps {
   loadingPlaceholder?: string;
 }
 
-export interface TextareaFieldProps extends BaseFieldProps {
+export interface TextareaFieldProps<T extends FieldValues = any> extends BaseFieldProps<T> {
   placeholder?: string;
   rows?: number;
 }

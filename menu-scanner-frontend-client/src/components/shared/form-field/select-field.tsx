@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, FieldValues } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SelectFieldProps } from ".";
 
-export function SelectField({
+export function SelectField<T extends FieldValues = any>({
   name,
   label,
   control,
@@ -26,7 +26,7 @@ export function SelectField({
   className = "",
   loading = false,
   loadingPlaceholder = "Loading...",
-}: SelectFieldProps) {
+}: SelectFieldProps<T>) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -49,7 +49,7 @@ export function SelectField({
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
-                  id={name}
+                  id={name as string}
                   variant="outline"
                   role="combobox"
                   disabled={disabled || loading}
