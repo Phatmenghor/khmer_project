@@ -131,6 +131,8 @@ export function UserBusinessDetailModal({
                   <DisplayField label="Phone Number" value={userData.phoneNumber} />
                   <DisplayField label="Gender" value={userData.gender ? formatEnumValue(userData.gender) : "-"} />
                   <DisplayField label="Date of Birth" value={userData.dateOfBirth} />
+                  <DisplayField label="Role" value={userData.roles && userData.roles.length > 0 ? userData.roles.map(r => formatEnumValue(r)).join(", ") : "-"} />
+                  <DisplayField label="Account Status" value={userData.accountStatus ? formatEnumValue(userData.accountStatus) : "-"} />
                   <DisplayField
                     label="Telegram ID"
                     value={userData.telegramId}
@@ -155,8 +157,6 @@ export function UserBusinessDetailModal({
                     label="Telegram Synced"
                     value={userData.telegramSynced ? "Yes" : "No"}
                   />
-                  <DisplayField label="Role" value={userData.roles && userData.roles.length > 0 ? userData.roles.map(r => formatEnumValue(r)).join(", ") : "-"} />
-                  <DisplayField label="Account Status" value={userData.accountStatus ? formatEnumValue(userData.accountStatus) : "-"} />
                 </div>
               </CardContent>
             </Card>
@@ -193,23 +193,21 @@ export function UserBusinessDetailModal({
                 <CardHeader>
                   <CardTitle>Addresses</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent>
+                  <div className="space-y-6">
                     {userData.addresses.map((address: any, index: number) => (
-                      <Card key={index} className="border-l-4 border-l-primary">
-                        <CardContent className="pt-4 pb-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <DisplayField label="Type" value={address.addressType ? formatEnumValue(address.addressType) : "-"} />
-                            <DisplayField label="House No" value={address.houseNo} />
-                            <DisplayField label="Street" value={address.street} />
-                            <DisplayField label="Village" value={address.village} />
-                            <DisplayField label="Commune" value={address.commune} />
-                            <DisplayField label="District" value={address.district} />
-                            <DisplayField label="Province" value={address.province} />
-                            <DisplayField label="Country" value={address.country} />
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <div key={index} className="border-b pb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <DisplayField label="Type" value={address.addressType ? formatEnumValue(address.addressType) : "-"} />
+                          <DisplayField label="House No" value={address.houseNo} />
+                          <DisplayField label="Street" value={address.street} />
+                          <DisplayField label="Village" value={address.village} />
+                          <DisplayField label="Commune" value={address.commune} />
+                          <DisplayField label="District" value={address.district} />
+                          <DisplayField label="Province" value={address.province} />
+                          <DisplayField label="Country" value={address.country} />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </CardContent>
