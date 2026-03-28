@@ -150,10 +150,13 @@ export const updateUserSchema = z.object({
   lastName: z.string().optional().or(z.literal("")),
   email: z.string().optional().or(z.literal("")),
   phoneNumber: z.string().optional().or(z.literal("")),
-  profileImageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
-  accountStatus: z.string().min(1, "Account status is required"),
+  profileImageUrl: z.string().optional().or(z.literal("")).refine(
+    (val) => !val || val.startsWith("http") || val.startsWith("data:"),
+    "Invalid URL format"
+  ),
+  accountStatus: z.string().optional().or(z.literal("")),
   businessId: z.string().optional().or(z.literal("")),
-  roles: z.array(z.string()).min(1, "At least one role is required"),
+  roles: z.array(z.string()).optional(),
   // Personal Info
   nickname: z.string().optional().or(z.literal("")),
   gender: z.string().optional().or(z.literal("")),
