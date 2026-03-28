@@ -86,25 +86,6 @@ export const categoriesTableColumns = ({
     },
 
     {
-      key: "status",
-      label: "Status",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (categories) => (
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={categories?.status === "ACTIVE"}
-            onCheckedChange={() => handleToggleCategoryStatus(categories)}
-          />
-          <span className="text-xs text-muted-foreground">
-            {categories?.status ? formatEnumValue(categories.status) : "---"}
-          </span>
-        </div>
-      ),
-    },
-
-    {
       key: "totalProducts",
       label: "Total Products",
       minWidth: "10px",
@@ -127,6 +108,25 @@ export const categoriesTableColumns = ({
         <span className="text-xs text-muted-foreground">
           {categories?.activeProducts ?? "---"}
         </span>
+      ),
+    },
+
+    {
+      key: "status",
+      label: "Status",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (categories) => (
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={categories?.status === "ACTIVE"}
+            onCheckedChange={() => handleToggleCategoryStatus(categories)}
+          />
+          <span className="text-xs text-muted-foreground">
+            {categories?.status ? formatEnumValue(categories.status) : "---"}
+          </span>
+        </div>
       ),
     },
 
