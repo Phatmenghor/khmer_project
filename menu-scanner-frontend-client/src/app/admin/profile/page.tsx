@@ -635,6 +635,30 @@ export default function AdminProfilePage() {
                           }
                         />
                         <DisplayField label="Date of Birth" value={watch("dateOfBirth")} />
+                        <DisplayField
+                          label="Telegram ID"
+                          value={userProfile?.telegramId}
+                        />
+                        <DisplayField
+                          label="Telegram Username"
+                          value={userProfile?.telegramUsername}
+                        />
+                        <DisplayField
+                          label="Telegram First Name"
+                          value={userProfile?.telegramFirstName}
+                        />
+                        <DisplayField
+                          label="Telegram Last Name"
+                          value={userProfile?.telegramLastName}
+                        />
+                        <DisplayField
+                          label="Telegram Synced At"
+                          value={userProfile?.telegramSyncedAt}
+                        />
+                        <DisplayField
+                          label="Telegram Synced"
+                          value={userProfile?.telegramSynced ? "Yes" : "No"}
+                        />
                       </>
                     )}
                   </div>
