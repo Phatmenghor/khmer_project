@@ -4,7 +4,8 @@ import { formatProductCount } from "@/utils/format/product-count-formatter";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { Switch } from "@/components/ui/switch";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   AllBrandResponseModel,
   BrandResponseModel,
@@ -14,6 +15,7 @@ interface BrandTableHandlers {
   handleEditBrand: (brand: BrandResponseModel) => void;
   handleBrandViewDetail: (brand: BrandResponseModel) => void;
   handleDeleteBrand: (brand: BrandResponseModel) => void;
+  handleToggleBrandStatus?: (brand: BrandResponseModel) => void;
 }
 
 interface BrandTableOptions {
@@ -25,8 +27,12 @@ export const brandTableColumns = ({
   data,
   handlers,
 }: BrandTableOptions): TableColumn<BrandResponseModel>[] => {
-  const { handleEditBrand, handleBrandViewDetail, handleDeleteBrand } =
-    handlers;
+  const {
+    handleEditBrand,
+    handleBrandViewDetail,
+    handleDeleteBrand,
+    handleToggleBrandStatus
+  } = handlers;
 
   return [
     {
@@ -47,11 +53,21 @@ export const brandTableColumns = ({
       maxWidth: "400px",
       render: (brand) => {
         return (
-          <CustomAvatar
-            imageUrl={brand.imageUrl}
-            name={brand?.name}
-            size="md"
-          />
+          <div className="h-12 w-12 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+            {brand.imageUrl ? (
+              <img
+                src={brand.imageUrl}
+                alt={brand?.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
+                <span className="text-xs font-semibold text-primary">
+                  {brand?.name?.charAt(0)?.toUpperCase() || "B"}
+                </span>
+              </div>
+            )}
+          </div>
         );
       },
     },
@@ -76,9 +92,17 @@ export const brandTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (brand) => (
-        <span className="text-xs text-muted-foreground">
-          {brand?.status || "---"}
-        </span>
+        <div className="flex items-center gap-2">
+          {handleToggleBrandStatus && (
+            <Switch
+              checked={brand?.status === "ACTIVE"}
+              onCheckedChange={() => handleToggleBrandStatus(brand)}
+            />
+          )}
+          <span className="text-xs text-muted-foreground">
+            {brand?.status ? formatEnumValue(brand.status) : "---"}
+          </span>
+        </div>
       ),
     },
 

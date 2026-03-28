@@ -76,3 +76,17 @@ export const deleteBrandService = createApiThunk<any, string>(
     return response.data.data;
   }
 );
+
+/**
+ * Toggle brand status
+ */
+export const toggleBrandStatusService = createApiThunk<any, UpdateBrandParams>(
+  "brands/toggleStatus",
+  async ({ brandId, brandData }) => {
+    const response = await axiosClientWithAuth.put(
+      `/api/v1/brands/${brandId}`,
+      brandData
+    );
+    return response.data.data;
+  }
+);

@@ -23,6 +23,7 @@ import {
 import {
   deleteBrandService,
   fetchAllBrandService,
+  toggleBrandStatusService,
 } from "@/redux/features/master-data/store/thunks/brand-thunks";
 import { brandTableColumns } from "@/redux/features/master-data/table/brand-table";
 import BrandModal from "@/redux/features/master-data/components/brand-modal";
@@ -119,11 +120,28 @@ export default function BrandPage() {
     });
   };
 
+  const handleToggleBrandStatus = async (brand: BrandResponseModel) => {
+    if (!brand?.id) return;
+    try {
+      const newStatus = brand.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+      await dispatch(
+        toggleBrandStatusService({
+          brandId: brand.id,
+          brandData: { ...brand, status: newStatus },
+        })
+      ).unwrap();
+      showToast.success("Brand status updated successfully");
+    } catch (error: any) {
+      showToast.error(error || "Failed to update brand status");
+    }
+  };
+
   const tableHandlers = useMemo(
     () => ({
       handleEditBrand,
       handleBrandViewDetail,
       handleDeleteBrand,
+      handleToggleBrandStatus,
     }),
     [],
   );
