@@ -59,7 +59,7 @@ export default function BannerPage() {
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
-    bannerId: "",
+    banner: null as BannerResponseModel | null,
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -114,7 +114,7 @@ export default function BannerPage() {
   const handleBannerViewDetail = (banner: BannerResponseModel) => {
     setDetailModalState({
       isOpen: true,
-      bannerId: banner.id || "",
+      banner: banner,
     });
   };
 
@@ -204,7 +204,7 @@ export default function BannerPage() {
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
-      bannerId: "",
+      banner: null,
     });
   };
 
@@ -266,7 +266,7 @@ export default function BannerPage() {
 
       {/* Modals User Detail */}
       <BannerDetailModal
-        bannerId={detailModalState.bannerId}
+        banner={detailModalState.banner}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />

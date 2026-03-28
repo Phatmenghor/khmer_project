@@ -67,7 +67,7 @@ export default function CategoriesPage() {
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
-    categoriesId: "",
+    categories: null as CategoriesResponseModel | null,
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -122,7 +122,7 @@ export default function CategoriesPage() {
   const handleCategoriesViewDetail = (categories: CategoriesResponseModel) => {
     setDetailModalState({
       isOpen: true,
-      categoriesId: categories.id || "",
+      categories: categories,
     });
   };
 
@@ -216,7 +216,7 @@ export default function CategoriesPage() {
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
-      categoriesId: "",
+      categories: null,
     });
   };
 
@@ -278,7 +278,7 @@ export default function CategoriesPage() {
 
       {/* Modals categories Detail */}
       <CategoriesDetailModal
-        categoriesId={detailModalState.categoriesId}
+        categories={detailModalState.categories}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
