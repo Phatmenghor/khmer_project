@@ -485,7 +485,6 @@ export default function UserBusinessModal({
               : "Update user business information below"
           }
           avatarName={userIdentifier || email}
-          avatarImageUrl={userData?.profileImageUrl}
         />
 
         {!isCreate && isFetchingDetail ? (
@@ -966,7 +965,7 @@ export default function UserBusinessModal({
                   ) : (
                     <Card>
                       <CardContent className="pt-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {contactFields.map((field, index) => (
                             <div
                               key={field.id}
@@ -1025,47 +1024,37 @@ export default function UserBusinessModal({
                 </div>
 
                 {/* Documents */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">Documents</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {documentFields.length > 0
-                          ? `${documentFields.length} document${
-                              documentFields.length > 1 ? "s" : ""
-                            } added`
-                          : "No documents added"}
-                      </p>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Documents</CardTitle>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          appendDocument({
+                            id: undefined,
+                            type: DocumentType.ID_CARD,
+                            number: "",
+                            fileUrl: "",
+                          })
+                        }
+                        disabled={isSubmitting}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Document
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        appendDocument({
-                          id: undefined,
-                          type: DocumentType.ID_CARD,
-                          number: "",
-                          fileUrl: "",
-                        })
-                      }
-                      disabled={isSubmitting}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Document
-                    </Button>
-                  </div>
+                  </CardHeader>
+                  <CardContent>
 
                   {documentFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">
-                        No documents added
-                      </p>
+                    <div className="text-center py-8 text-sm text-muted-foreground">
+                      No documents added
                     </div>
                   ) : (
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {documentFields.map((field, index) => (
                             <div key={field.id} className="border rounded-lg p-4 relative">
                               <Button
@@ -1127,57 +1116,45 @@ export default function UserBusinessModal({
                             </div>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
+                      )}
+                  </CardContent>
+                </Card>
 
                 {/* Education */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">Education</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {educationFields.length > 0
-                          ? `${educationFields.length} education${
-                              educationFields.length > 1 ? "s" : ""
-                            } added`
-                          : "No education added"}
-                      </p>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Education</CardTitle>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          appendEducation({
+                            id: undefined,
+                            level: EducationLevel.HIGH_SCHOOL,
+                            schoolName: "",
+                            fieldOfStudy: "",
+                            startYear: "",
+                            endYear: "",
+                            isGraduated: false,
+                            certificateUrl: "",
+                          })
+                        }
+                        disabled={isSubmitting}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Education
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        appendEducation({
-                          id: undefined,
-                          level: EducationLevel.HIGH_SCHOOL,
-                          schoolName: "",
-                          fieldOfStudy: "",
-                          startYear: "",
-                          endYear: "",
-                          isGraduated: false,
-                          certificateUrl: "",
-                        })
-                      }
-                      disabled={isSubmitting}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Education
-                    </Button>
-                  </div>
-
+                  </CardHeader>
+                  <CardContent>
                   {educationFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">
-                        No education added
-                      </p>
+                    <div className="text-center py-8 text-sm text-muted-foreground">
+                      No education added
                     </div>
                   ) : (
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {educationFields.map((field, index) => (
                             <div key={field.id} className="border rounded-lg p-4 relative">
                               <Button
@@ -1291,10 +1268,9 @@ export default function UserBusinessModal({
                             </div>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
+                      )}
+                  </CardContent>
+                </Card>
 
                 {/* Additional Notes */}
                 <div className="space-y-4">
