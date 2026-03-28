@@ -148,7 +148,20 @@ INSERT INTO business_settings (id, version, created_at, updated_at, created_by, 
 ('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', NULL, 'CAFE', '08:00', '21:00', false, 'MON,TUE,WED,THU,FRI,SAT,SUN', 'Asia/Phnom_Penh', 'USD', 'en', 4100.0, NULL, '+855 23 8888888', NULL, NULL, NULL, NULL, NULL, '#FF6B6B', '#4ECDC4', true, 5.0, NULL, 3.0, 20.0, '45 minutes');
 
 -- ============================================================================
--- 6. USERS (3 main + 500 staff + 5 customers)
+-- 6. BANNERS (18 items)
+-- ============================================================================
+
+INSERT INTO banners (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, image_url, link_url, status)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+    '550cad56-cadf-4aba-baef-c4dcd53940d0',
+    'https://example.com/banner-' || LPAD(i::text, 2, '0') || '.jpg',
+    'https://example.com/promotion-' || LPAD(i::text, 2, '0'),
+    CASE WHEN (i % 4) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
+FROM generate_series(1, 18) AS t(i);
+
+-- ============================================================================
+-- 7. USERS (3 main + 500 staff + 5 customers)
 -- ============================================================================
 
 INSERT INTO users (
@@ -648,27 +661,50 @@ FROM (SELECT id FROM products LIMIT 30) p, generate_series(1, 2) AS t(i)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- 19. DELIVERY OPTIONS
+-- 19. DELIVERY OPTIONS (18 items)
 -- ============================================================================
 
-INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, price, status) VALUES
-('00000001-0000-0000-0000-000000000001'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Pickup', 'Quick pickup', 0.00::numeric, 'ACTIVE'),
-('00000001-0000-0000-0000-000000000002'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Standard', 'Standard delivery', 2.00::numeric, 'ACTIVE'),
-('00000001-0000-0000-0000-000000000003'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Express', 'Express delivery', 5.00::numeric, 'ACTIVE'),
-('00000001-0000-0000-0000-000000000004'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Same Day', 'Same day delivery', 3.50::numeric, 'ACTIVE'),
-('00000001-0000-0000-0000-000000000005'::uuid, 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Door Step', 'Door step delivery', 1.50::numeric, 'ACTIVE');
+INSERT INTO delivery_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, description, price, status)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'Delivery Option ' || LPAD(i::text, 2, '0') || ' - ' || CASE
+        WHEN (i % 4) = 0 THEN 'Express'
+        WHEN (i % 4) = 1 THEN 'Standard'
+        WHEN (i % 4) = 2 THEN 'Economy'
+        ELSE 'Same Day'
+    END,
+    'Delivery method ' || i || ' with estimated time',
+    (5.00 + (i * 0.5))::numeric,
+    CASE WHEN (i % 3) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
+FROM generate_series(1, 18) AS t(i);
 
 -- ============================================================================
--- 20. PAYMENT OPTIONS
+-- 20. PAYMENT OPTIONS (18 items - Fixed duplicate type issue)
 -- ============================================================================
 
 INSERT INTO payment_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, payment_option_type, status)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    CASE WHEN (i % 2) = 0 THEN 'Cash Payment' ELSE 'Card Payment' END,
-    'CASH', 'ACTIVE'
-FROM generate_series(1, 2) AS t(i);
+    CASE (i % 6)
+        WHEN 0 THEN 'Cash Payment'
+        WHEN 1 THEN 'Card Payment'
+        WHEN 2 THEN 'ABA Bank'
+        WHEN 3 THEN 'ACE Bank'
+        WHEN 4 THEN 'Khmer Bank'
+        ELSE 'Mobile Money'
+    END,
+    CASE (i % 6)
+        WHEN 0 THEN 'CASH'
+        WHEN 1 THEN 'CARD'
+        WHEN 2 THEN 'BANK_TRANSFER'
+        WHEN 3 THEN 'BANK_TRANSFER'
+        WHEN 4 THEN 'BANK_TRANSFER'
+        ELSE 'MOBILE_MONEY'
+    END,
+    CASE WHEN (i % 4) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
+FROM generate_series(1, 18) AS t(i);
 
 -- ============================================================================
 -- 21. CARTS
@@ -829,14 +865,20 @@ SELECT
 FROM generate_series(1, 10) AS t(i);
 
 -- ============================================================================
--- 31. EXCHANGE RATES
+-- 31. EXCHANGE RATES (18 items)
 -- ============================================================================
 
 INSERT INTO business_exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, usd_to_khr_rate, usd_to_cny_rate, usd_to_thb_rate, usd_to_vnd_rate, is_active, notes)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
-    '550cad56-cafd-4aba-baef-c4dcd53940d0', 4100.0, 6.8, 33.5, 24000.0, true, 'Current rates'
-FROM generate_series(1, 1) AS t(i);
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    ROUND((4100.0 + (i * 10.5))::numeric, 2),
+    ROUND((6.8 + (i * 0.05))::numeric, 2),
+    ROUND((33.5 + (i * 0.15))::numeric, 2),
+    ROUND((24000.0 + (i * 50))::numeric, 2),
+    CASE WHEN (i % 3) = 0 THEN false ELSE true END,
+    'Exchange rate update ' || i || ' - ' || TO_CHAR(NOW() - INTERVAL '1 day' * (18 - i), 'YYYY-MM-DD HH24:MI')
+FROM generate_series(1, 18) AS t(i);
 
 -- ============================================================================
 -- 32. CUSTOMER ADDRESSES
