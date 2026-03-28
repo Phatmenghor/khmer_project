@@ -176,7 +176,6 @@ export default function PosPage() {
     appliedAt: string;             // ISO timestamp of when applied
   } | null>(null);
 
-  }, []);
 
   // ─── Initialize Categories and Brands on Mount ───
   useEffect(() => {
