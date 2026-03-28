@@ -142,10 +142,15 @@ export const userBusinessTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (user) => (
-        <Switch
-          checked={user?.accountStatus === "ACTIVE"}
-          onCheckedChange={() => handleToggleStatus(user)}
-        />
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={user?.accountStatus === "ACTIVE"}
+            onCheckedChange={() => handleToggleStatus(user)}
+          />
+          <span className="text-xs text-muted-foreground">
+            {user?.accountStatus ? formatEnumValue(user.accountStatus) : "---"}
+          </span>
+        </div>
       ),
     },
     {
