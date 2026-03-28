@@ -936,7 +936,7 @@ export default function PosPage() {
         <div
           className={`${
             showCart ? "flex" : "hidden"
-          } md:flex w-full max-md:border-t md:border-l md:w-[380px] xl:w-[420px] max-md:h-1/3 md:h-full flex-col bg-card shrink-0 overflow-hidden ${
+          } md:flex w-full max-md:border-t md:border-l md:w-[380px] xl:w-[420px] max-md:max-h-[70vh] md:h-full flex-col bg-card shrink-0 overflow-y-auto ${
             showCart && "fixed inset-0 z-50 md:relative md:z-auto max-md:bottom-0 max-md:w-full max-md:h-auto"
           }`}
         >
