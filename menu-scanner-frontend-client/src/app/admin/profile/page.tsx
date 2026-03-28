@@ -990,7 +990,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                             </div>
-                            <div className="w-1/2">
+                            <div className="w-full">
                               <ClickableImageUpload
                                 label="File"
                                 value={
@@ -1004,7 +1004,7 @@ export default function AdminProfilePage() {
                                   )
                                 }
                                 aspectRatio="auto"
-                                height="h-auto"
+                                height="h-32"
                                 maxSize={5}
                                 error={
                                   errors.documents?.[index]?.fileUrl as any
@@ -1170,7 +1170,7 @@ export default function AdminProfilePage() {
                                 </span>
                               </label>
                             </div>
-                            <div className="w-1/2">
+                            <div className="w-full">
                               <ClickableImageUpload
                                 label="Certificate"
                                 value={
@@ -1185,7 +1185,7 @@ export default function AdminProfilePage() {
                                   )
                                 }
                                 aspectRatio="auto"
-                                height="h-auto"
+                                height="h-32"
                                 maxSize={5}
                                 error={
                                   errors.educations?.[index]
