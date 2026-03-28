@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 interface CustomerAvatarProps {
   imageUrl?: string;
   name?: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "xxl";
   className?: string;
   variant?: "avatar" | "banner";
   bannerHeight?: "sm" | "md" | "lg" | "xl";
@@ -25,6 +25,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
     md: { avatar: "h-10 w-10", indicator: "w-3 h-3" },
     lg: { avatar: "h-12 w-12", indicator: "w-3.5 h-3.5" },
     xl: { avatar: "h-16 w-16", indicator: "w-4 h-4" },
+    xxl: { avatar: "h-32 w-32", indicator: "w-5 h-5" },
   };
 
   // Banner sizes (rectangular - good for table display)

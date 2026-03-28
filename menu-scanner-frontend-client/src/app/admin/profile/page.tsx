@@ -491,11 +491,11 @@ export default function AdminProfilePage() {
                 className={`relative group ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}
                 onClick={() => isEditing && setIsProfilePictureModalOpen(true)}
               >
-                <div className="relative w-24 h-24">
+                <div className="relative">
                   <CustomAvatar
                     imageUrl={userProfile?.profileImageUrl}
                     name={userProfile?.fullName}
-                    size="xl"
+                    size="xxl"
                   />
                   {/* Camera Icon Overlay - Always show on hover in edit mode */}
                   {isEditing && (
