@@ -357,7 +357,7 @@ export default function AdminProfilePage() {
           fieldOfStudy: edu.fieldOfStudy,
           startYear: edu.startYear,
           endYear: edu.endYear,
-          isGraduated: edu.isGraduated || false,
+          isGraduated: typeof edu.isGraduated === 'string' ? edu.isGraduated === 'true' : (edu.isGraduated || false),
           certificateUrl: edu.certificateUrl,
         }));
       }
@@ -1103,7 +1103,7 @@ export default function AdminProfilePage() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {documentFields.map((field, index) => (
+                      {documentFields.map((field: any, index) => (
                         <div key={field.id} className="border rounded-lg p-4">
                           <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1111,19 +1111,19 @@ export default function AdminProfilePage() {
                                 label="Type"
                                 value={
                                   DOCUMENT_TYPE_OPTIONS.find(
-                                    (o) => o.value === field.type
+                                    (o) => o.value === field?.type
                                   )?.label
                                 }
                               />
-                              <DisplayField label="Number" value={field.number} />
+                              <DisplayField label="Number" value={field?.number} />
                             </div>
-                            {field.fileUrl && (
+                            {field?.fileUrl && (
                               <div className="mt-4">
                                 <label className="text-sm font-medium text-muted-foreground">
                                   File
                                 </label>
                                 <img
-                                  src={field.fileUrl}
+                                  src={field?.fileUrl}
                                   alt="Document"
                                   className="w-1/2 h-32 object-cover rounded mt-2"
                                 />
@@ -1246,8 +1246,8 @@ export default function AdminProfilePage() {
                                 label="Graduated"
                                 placeholder="Select status"
                                 options={[
-                                  { label: "Yes", value: true },
-                                  { label: "No", value: false },
+                                  { label: "Yes", value: "true" },
+                                  { label: "No", value: "false" },
                                 ]}
                                 error={
                                   errors.educations?.[index]?.isGraduated as any
@@ -1284,7 +1284,7 @@ export default function AdminProfilePage() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {educationFields.map((field, index) => (
+                      {educationFields.map((field: any, index) => (
                         <div key={field.id} className="border rounded-lg p-4">
                           <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1292,31 +1292,31 @@ export default function AdminProfilePage() {
                                 label="Level"
                                 value={
                                   EDUCATION_LEVEL_OPTIONS.find(
-                                    (o) => o.value === field.level
+                                    (o) => o.value === field?.level
                                   )?.label
                                 }
                               />
-                              <DisplayField label="School" value={field.schoolName} />
+                              <DisplayField label="School" value={field?.schoolName} />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <DisplayField label="Field of Study" value={field.fieldOfStudy} />
-                              <DisplayField label="Start Year" value={field.startYear} />
+                              <DisplayField label="Field of Study" value={field?.fieldOfStudy} />
+                              <DisplayField label="Start Year" value={field?.startYear} />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <DisplayField label="End Year" value={field.endYear} />
+                              <DisplayField label="End Year" value={field?.endYear} />
                               <DisplayField
                                 label="Graduated"
-                                value={field.isGraduated ? "Yes" : "No"}
+                                value={field?.isGraduated ? "Yes" : "No"}
                               />
                             </div>
                           </div>
-                          {field.certificateUrl && (
+                          {field?.certificateUrl && (
                             <div className="mt-4">
                               <label className="text-sm font-medium text-muted-foreground">
                                 Certificate
                               </label>
                               <img
-                                src={field.certificateUrl}
+                                src={field?.certificateUrl}
                                 alt="Certificate"
                                 className="w-1/2 h-32 object-cover rounded mt-2"
                               />
