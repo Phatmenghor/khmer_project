@@ -62,7 +62,7 @@ export default function CategoriesPage() {
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
-    categoriesId: "",
+    categories: null as CategoriesResponseModel | null,
   });
 
   const [detailModalState, setDetailModalState] = useState({
@@ -107,7 +107,7 @@ export default function CategoriesPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.CREATE_MODE,
-      categoriesId: "",
+      categories: null,
     });
   };
 
@@ -115,7 +115,7 @@ export default function CategoriesPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.UPDATE_MODE,
-      categoriesId: categories?.id || "",
+      categories: categories,
     });
   };
 
@@ -209,7 +209,7 @@ export default function CategoriesPage() {
     setModalState({
       isOpen: false,
       mode: ModalMode.CREATE_MODE,
-      categoriesId: "",
+      categories: null,
     });
   };
 
@@ -272,7 +272,7 @@ export default function CategoriesPage() {
       <CategoriesModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
-        categoriesId={modalState.categoriesId}
+        categories={modalState.categories}
         mode={modalState.mode}
       />
 

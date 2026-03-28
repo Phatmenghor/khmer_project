@@ -51,7 +51,7 @@ export default function BrandPage() {
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
-    brandId: "",
+    brand: null as BrandResponseModel | null,
   });
 
   const [detailModalState, setDetailModalState] = useState({
@@ -94,7 +94,7 @@ export default function BrandPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.CREATE_MODE,
-      brandId: "",
+      brand: null,
     });
   };
 
@@ -102,7 +102,7 @@ export default function BrandPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.UPDATE_MODE,
-      brandId: brand?.id || "",
+      brand: brand,
     });
   };
 
@@ -200,7 +200,7 @@ export default function BrandPage() {
     setModalState({
       isOpen: false,
       mode: ModalMode.CREATE_MODE,
-      brandId: "",
+      brand: null,
     });
   };
 
@@ -263,7 +263,7 @@ export default function BrandPage() {
       <BrandModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
-        brandId={modalState.brandId}
+        brand={modalState.brand}
         mode={modalState.mode}
       />
 

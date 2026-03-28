@@ -23,27 +23,25 @@ import {
 } from "../store/models/schema/brand-schema";
 import {
   createBrandService,
-  fetchBrandByIdService,
   updateBrandService,
 } from "../store/thunks/brand-thunks";
 import { clearError, clearSelectedBrand } from "../store/slice/brand-slice";
 import {
   selectError,
-  selectIsFetchingDetail,
   selectOperations,
 } from "../store/selectors/brand-selector";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { Loading } from "@/components/shared/common/loading";
+import { BrandResponseModel } from "../store/models/response/brand-response";
 
 type Props = {
   mode: ModalMode;
-  brandId?: string;
+  brand?: BrandResponseModel | null;
   onClose: () => void;
   isOpen: boolean;
 };
 
-export default function BrandModal({ isOpen, onClose, brandId, mode }: Props) {
+export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
 
   // Local state for image upload loading
@@ -52,7 +50,6 @@ export default function BrandModal({ isOpen, onClose, brandId, mode }: Props) {
   const dispatch = useAppDispatch();
 
   const operations = useAppSelector(selectOperations);
-  const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
@@ -78,40 +75,25 @@ export default function BrandModal({ isOpen, onClose, brandId, mode }: Props) {
 
   useEffect(() => {
     if (isOpen) {
-      reset({
-        name: "",
-        imageUrl: "",
-        description: "",
-        status: Status.ACTIVE,
-      });
-    }
-  }, [isOpen, brandId, reset]);
-
-  // Fetch banner data for edit mode
-  useEffect(() => {
-    const fetchBrandData = async () => {
-      if (!brandId || !isOpen || isCreate) return;
-
-      try {
-        const resultAction = await dispatch(fetchBrandByIdService(brandId));
-
-        if (fetchBrandByIdService.fulfilled.match(resultAction)) {
-          const data = resultAction.payload;
-
-          reset({
-            name: data?.name || "",
-            imageUrl: data?.imageUrl || "",
-            description: data?.description || "",
-            status: data?.status || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching brand data:", error);
+      if (isCreate) {
+        // Reset form for create mode
+        reset({
+          name: "",
+          imageUrl: "",
+          description: "",
+          status: Status.ACTIVE,
+        });
+      } else if (brand) {
+        // Populate form with brand data for edit mode
+        reset({
+          name: brand.name || "",
+          imageUrl: brand.imageUrl || "",
+          description: brand.description || "",
+          status: brand.status || "",
+        });
       }
-    };
-
-    fetchBrandData();
-  }, [brandId, isOpen, isCreate, reset, dispatch]);
+    }
+  }, [isOpen, brand, isCreate, reset]);
 
   // Clear errors when modal opens
   useEffect(() => {
@@ -150,8 +132,9 @@ export default function BrandModal({ isOpen, onClose, brandId, mode }: Props) {
         showToast.success("Brand created successfully");
         handleClose();
       } else {
+        if (!brand?.id) return;
         await dispatch(
-          updateBrandService({ brandId: brandId!, brandData: payload }),
+          updateBrandService({ brandId: brand.id, brandData: payload }),
         ).unwrap();
         showToast.success("Brand updated successfully");
         handleClose();
@@ -187,16 +170,10 @@ export default function BrandModal({ isOpen, onClose, brandId, mode }: Props) {
           isCreate={isCreate}
         />
 
-        {/* Show loading spinner in edit mode while fetching or when form is empty */}
-        {!isCreate && (isFetchingDetail || !imageUrl) ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
-            <Loading />
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-hidden"
-          >
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
             <FormBody>
               {/* Display Redux errors */}
               {reduxError && (
@@ -293,7 +270,6 @@ export default function BrandModal({ isOpen, onClose, brandId, mode }: Props) {
               />
             </FormFooter>
           </form>
-        )}
       </DialogContent>
     </Dialog>
   );

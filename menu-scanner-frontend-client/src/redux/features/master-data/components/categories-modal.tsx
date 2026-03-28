@@ -20,7 +20,6 @@ import { ClickableImageUpload } from "@/components/shared/form-field/clickable-i
 import {
   selectError,
   selectOperations,
-  selectSelectedCategories,
 } from "../store/selectors/categories-selector";
 import {
   CreateCategoriesData,
@@ -29,17 +28,17 @@ import {
 } from "../store/models/schema/categories-schema";
 import {
   createCategoriesService,
-  fetchCategoriesByIdService,
   updateCategoriesService,
 } from "../store/thunks/categories-thunks";
 import {
   clearError,
   clearSelectedCategories,
 } from "../store/slice/categories-slice";
+import { CategoriesResponseModel } from "../store/models/response/categories-response";
 
 type Props = {
   mode: ModalMode;
-  categoriesId?: string;
+  categories?: CategoriesResponseModel | null;
   onClose: () => void;
   isOpen: boolean;
 };
@@ -47,7 +46,7 @@ type Props = {
 export default function CategoriesModal({
   isOpen,
   onClose,
-  categoriesId,
+  categories,
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
@@ -58,7 +57,6 @@ export default function CategoriesModal({
   const dispatch = useAppDispatch();
 
   const operations = useAppSelector(selectOperations);
-  const categoriesData = useAppSelector(selectSelectedCategories);
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
@@ -67,6 +65,7 @@ export default function CategoriesModal({
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors, isDirty },
   } = useForm<CreateCategoriesData>({
     resolver: zodResolver(
@@ -80,42 +79,27 @@ export default function CategoriesModal({
     mode: "onChange",
   });
 
-  // Fetch category data for edit mode
+  const imageUrl = watch("imageUrl");
+
   useEffect(() => {
-    const fetchCategoryData = async () => {
-      if (!categoriesId || !isOpen || isCreate) return;
-
-      try {
-        const resultAction = await dispatch(
-          fetchCategoriesByIdService(categoriesId),
-        );
-
-        if (fetchCategoriesByIdService.fulfilled.match(resultAction)) {
-          const data = resultAction.payload;
-
-          reset({
-            name: data?.name || "",
-            imageUrl: data?.imageUrl || "",
-            status: data?.status || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching categories data:", error);
+    if (isOpen) {
+      if (isCreate) {
+        // Reset form for create mode
+        reset({
+          name: "",
+          imageUrl: "",
+          status: Status.ACTIVE,
+        });
+      } else if (categories) {
+        // Populate form with categories data for edit mode
+        reset({
+          name: categories.name || "",
+          imageUrl: categories.imageUrl || "",
+          status: categories.status || "",
+        });
       }
-    };
-
-    fetchCategoryData();
-  }, [categoriesId, isOpen, isCreate, reset, dispatch]);
-
-  useEffect(() => {
-    if (isOpen && isCreate) {
-      reset({
-        name: "",
-        imageUrl: "",
-        status: Status.ACTIVE,
-      });
     }
-  }, [isOpen, isCreate, reset]);
+  }, [isOpen, categories, isCreate, reset]);
 
   // Clear errors when modal opens
   useEffect(() => {
@@ -155,9 +139,10 @@ export default function CategoriesModal({
         showToast.success("Category created successfully");
         handleClose();
       } else {
+        if (!categories?.id) return;
         await dispatch(
           updateCategoriesService({
-            categoriesId: categoriesId!,
+            categoriesId: categories.id,
             categoriesData: payload,
           }),
         ).unwrap();
@@ -213,7 +198,7 @@ export default function CategoriesModal({
             {/* Category Image Upload */}
             <ClickableImageUpload
               label="Category Image"
-              value={categoriesData?.imageUrl || ""}
+              value={imageUrl}
               onChange={(base64) => setValue("imageUrl", base64)}
               aspectRatio="square"
               required
