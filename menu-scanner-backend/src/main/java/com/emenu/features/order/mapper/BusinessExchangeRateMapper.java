@@ -18,9 +18,6 @@ public interface BusinessExchangeRateMapper {
     BusinessExchangeRate toEntity(BusinessExchangeRateCreateRequest request);
 
     @Mapping(source = "business.name", target = "businessName")
-    @Mapping(target = "formattedKhrRate", expression = "java(exchangeRate.getFormattedKhrRate())")
-    @Mapping(target = "formattedCnyRate", expression = "java(exchangeRate.getFormattedCnyRate())")
-    @Mapping(target = "formattedVndRate", expression = "java(exchangeRate.getFormattedVndRate())")
     BusinessExchangeRateResponse toResponse(BusinessExchangeRate exchangeRate);
 
     List<BusinessExchangeRateResponse> toResponseList(List<BusinessExchangeRate> exchangeRates);

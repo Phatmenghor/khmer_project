@@ -72,31 +72,6 @@ public class BusinessExchangeRate extends BaseUUIDEntity {
         this.status = ExchangeRateStatus.INACTIVE;
     }
 
-    /**
-     * Check if optional currency rates are set
-     */
-    public boolean hasCnyRate() {
-        return usdToCnyRate != null && usdToCnyRate > 0;
-    }
-
-    public boolean hasVndRate() {
-        return usdToVndRate != null && usdToVndRate > 0;
-    }
-
-    /**
-     * Get formatted rates for display
-     */
-    public String getFormattedKhrRate() {
-        return String.format("1 USD = %.2f KHR", usdToKhrRate);
-    }
-
-    public String getFormattedCnyRate() {
-        return hasCnyRate() ? String.format("1 USD = %.4f CNY", usdToCnyRate) : "Not set";
-    }
-
-    public String getFormattedVndRate() {
-        return hasVndRate() ? String.format("1 USD = %.2f VND", usdToVndRate) : "Not set";
-    }
 
     /**
      * Enum for exchange rate status
