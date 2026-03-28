@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
+import { TextAreaField } from "@/components/shared/form-field/textarea-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
@@ -234,14 +235,13 @@ export default function BannerModal({
 
                   {/* Banner Description */}
                   <div className="grid grid-cols-1 gap-4 mb-4">
-                    <TextField
+                    <TextAreaField
                       control={control}
                       name="description"
                       label="Description"
                       placeholder="Enter banner description (optional)"
                       disabled={isProcessing}
                       error={errors.description}
-                      multiline
                       rows={3}
                     />
                   </div>
