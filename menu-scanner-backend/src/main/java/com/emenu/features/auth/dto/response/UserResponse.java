@@ -54,12 +54,6 @@ public class UserResponse extends BaseAuditResponse {
     private LocalDateTime telegramSyncedAt;
     private boolean telegramSynced;
 
-    // ── Related ────────────────────────────────────────────────────────────
-    private List<AddressResponse> addresses;
-    private List<EmergencyContactResponse> emergencyContacts;
-    private List<DocumentResponse> documents;
-    private List<EducationResponse> educations;
-
     // ── Session ────────────────────────────────────────────────────────────
     private LocalDateTime lastLoginAt;
 }

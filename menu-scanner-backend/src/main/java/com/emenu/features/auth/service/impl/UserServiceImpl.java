@@ -5,6 +5,7 @@ import com.emenu.enums.user.UserType;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.dto.filter.UserFilterRequest;
 import com.emenu.features.auth.dto.request.*;
+import com.emenu.features.auth.dto.response.UserDetailResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.features.auth.mapper.UserMapper;
@@ -148,8 +149,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse getUserById(UUID userId) {
-        return userMapper.toResponse(userRepository.findByIdAndIsDeletedFalse(userId)
+    public UserDetailResponse getUserById(UUID userId) {
+        return userMapper.toDetailResponse(userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new RuntimeException("User not found")));
     }
 

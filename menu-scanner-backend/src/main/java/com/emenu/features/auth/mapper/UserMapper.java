@@ -46,6 +46,36 @@ public interface UserMapper {
     @Mapping(target = "telegramSyncedAt",  source = "telegram.telegramSyncedAt")
     UserResponse toResponse(User user);
 
+    @Mapping(target = "fullName",          expression = "java(user.getFullName())")
+    @Mapping(target = "businessName",      source = "business.name")
+    @Mapping(target = "roles",             source = "roles", qualifiedByName = "rolesToStrings")
+    @Mapping(target = "telegramSynced",    expression = "java(user.getTelegram() != null)")
+    // Personal from profile
+    @Mapping(target = "email",             source = "profile.email")
+    @Mapping(target = "firstName",         source = "profile.firstName")
+    @Mapping(target = "lastName",          source = "profile.lastName")
+    @Mapping(target = "nickname",          source = "profile.nickname")
+    @Mapping(target = "gender",            source = "profile.gender")
+    @Mapping(target = "dateOfBirth",       source = "profile.dateOfBirth")
+    @Mapping(target = "phoneNumber",       source = "profile.phoneNumber")
+    @Mapping(target = "profileImageUrl",   source = "profile.profileImageUrl")
+    // Employment from employment
+    @Mapping(target = "employeeId",        source = "employment.employeeId")
+    @Mapping(target = "position",          source = "employment.position")
+    @Mapping(target = "department",        source = "employment.department")
+    @Mapping(target = "employmentType",    source = "employment.employmentType")
+    @Mapping(target = "joinDate",          source = "employment.joinDate")
+    @Mapping(target = "leaveDate",         source = "employment.leaveDate")
+    @Mapping(target = "shift",             source = "employment.shift")
+    // Telegram from telegram
+    @Mapping(target = "telegramId",        source = "telegram.telegramId")
+    @Mapping(target = "telegramUsername",  source = "telegram.telegramUsername")
+    @Mapping(target = "telegramFirstName", source = "telegram.telegramFirstName")
+    @Mapping(target = "telegramLastName",  source = "telegram.telegramLastName")
+    @Mapping(target = "telegramPhotoUrl",  source = "telegram.telegramPhotoUrl")
+    @Mapping(target = "telegramSyncedAt",  source = "telegram.telegramSyncedAt")
+    UserDetailResponse toDetailResponse(User user);
+
     @Mapping(target = "telegramSynced",    expression = "java(user.getTelegram() != null)")
     @Mapping(target = "firstName",         source = "profile.firstName")
     @Mapping(target = "lastName",          source = "profile.lastName")

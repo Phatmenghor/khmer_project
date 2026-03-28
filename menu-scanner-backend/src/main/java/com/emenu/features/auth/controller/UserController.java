@@ -4,6 +4,7 @@ import com.emenu.features.auth.dto.filter.UserFilterRequest;
 import com.emenu.features.auth.dto.request.AdminPasswordResetRequest;
 import com.emenu.features.auth.dto.request.PasswordChangeRequest;
 import com.emenu.features.auth.dto.request.UserCreateRequest;
+import com.emenu.features.auth.dto.response.UserDetailResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.features.auth.service.AuthService;
@@ -104,12 +105,12 @@ public class UserController {
     }
 
     /**
-     * Retrieves a user by their ID
+     * Retrieves a user by their ID with full details
      */
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable UUID userId) {
+    public ResponseEntity<ApiResponse<UserDetailResponse>> getUserById(@PathVariable UUID userId) {
         log.info("Get user: {}", userId);
-        UserResponse response = userService.getUserById(userId);
+        UserDetailResponse response = userService.getUserById(userId);
         return ResponseEntity.ok(ApiResponse.success("User retrieved", response));
     }
 
