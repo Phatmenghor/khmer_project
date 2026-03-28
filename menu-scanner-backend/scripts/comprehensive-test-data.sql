@@ -680,7 +680,7 @@ SELECT
 FROM generate_series(1, 18) AS t(i);
 
 -- ============================================================================
--- 20. PAYMENT OPTIONS (18 items - Fixed duplicate type issue)
+-- 20. PAYMENT OPTIONS (18 items - All types use CASH enum)
 -- ============================================================================
 
 INSERT INTO payment_options (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, name, payment_option_type, status)
@@ -690,19 +690,12 @@ SELECT
     CASE (i % 6)
         WHEN 0 THEN 'Cash Payment'
         WHEN 1 THEN 'Card Payment'
-        WHEN 2 THEN 'ABA Bank'
-        WHEN 3 THEN 'ACE Bank'
-        WHEN 4 THEN 'Khmer Bank'
+        WHEN 2 THEN 'ABA Bank Transfer'
+        WHEN 3 THEN 'ACE Bank Transfer'
+        WHEN 4 THEN 'Khmer Bank Transfer'
         ELSE 'Mobile Money'
     END,
-    CASE (i % 6)
-        WHEN 0 THEN 'CASH'
-        WHEN 1 THEN 'CARD'
-        WHEN 2 THEN 'BANK_TRANSFER'
-        WHEN 3 THEN 'BANK_TRANSFER'
-        WHEN 4 THEN 'BANK_TRANSFER'
-        ELSE 'MOBILE_MONEY'
-    END,
+    'CASH',
     CASE WHEN (i % 4) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
 FROM generate_series(1, 18) AS t(i);
 
