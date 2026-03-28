@@ -140,6 +140,8 @@ export default function CategoriesPage() {
         updateCategoriesService({
           categoriesId: category.id,
           categoriesData: {
+            name: category.name,
+            imageUrl: category.imageUrl,
             status: newStatus,
           },
         }),
