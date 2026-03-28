@@ -31,7 +31,7 @@ import {
   selectOperations,
 } from "../store/selectors/brand-selector";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
-import { TextareaField } from "@/components/shared/form-field/text-area-field";
+import { TextAreaField } from "@/components/shared/form-field/textarea-field";
 import { BrandResponseModel } from "../store/models/response/brand-response";
 
 type Props = {
@@ -230,7 +230,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
                     />
                   </div>
 
-                  <TextareaField
+                  <TextAreaField
                     control={control}
                     name="description"
                     label="Description"
