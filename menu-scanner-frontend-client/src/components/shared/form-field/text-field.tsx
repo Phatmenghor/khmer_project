@@ -27,6 +27,8 @@ interface TextFieldProps {
   max?: number;
   step?: number | string;
   allowZero?: boolean; // New prop: whether 0 is a valid value (default true)
+  pattern?: string; // New prop: regex pattern for input validation
+  onCustomChange?: (value: string) => void; // New prop: custom onChange handler
 }
 
 export function TextField({
@@ -44,6 +46,8 @@ export function TextField({
   max,
   step,
   allowZero = true, // Default: 0 is valid
+  pattern,
+  onCustomChange,
 }: TextFieldProps) {
   return (
     <div className={`space-y-2 ${className}`}>
@@ -89,9 +93,22 @@ export function TextField({
                 field.onChange(value === "" ? undefined : value);
               } else {
                 // For non-number types
-                field.onChange(e.target.value);
+                let value = e.target.value;
+
+                // Apply pattern filtering if provided
+                if (pattern) {
+                  const regex = new RegExp(`^${pattern}*$`);
+                  if (!regex.test(value)) {
+                    // If value doesn't match pattern, keep the last valid value
+                    return;
+                  }
+                }
+
+                field.onChange(value);
+                onCustomChange?.(value);
               }
             }}
+            pattern={pattern}
             className={`h-10 transition-colors ${disabled ? "bg-muted/50" : ""} ${
               error ? "border-red-500 focus:border-red-500" : ""
             }`}

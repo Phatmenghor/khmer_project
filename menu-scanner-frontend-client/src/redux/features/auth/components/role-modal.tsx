@@ -75,19 +75,6 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
   // Cast control to any for compatibility with field components
   const control = formControl as any;
 
-  const nameValue = watch("name");
-
-  useEffect(() => {
-    if (nameValue) {
-      const normalized = nameValue
-        .toUpperCase()
-        .replace(/\s+/g, "_");
-      if (normalized !== nameValue) {
-        setValue("name", normalized);
-      }
-    }
-  }, [nameValue, setValue]);
-
   useEffect(() => {
     if (!roleId || !isOpen || isCreate || !roleData) return;
 
@@ -117,9 +104,14 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
 
   const onSubmit = async (data: RoleFormData) => {
     try {
+      // Convert name to uppercase with underscores for spaces
+      const convertedName = data.name!
+        .toUpperCase()
+        .replace(/\s+/g, "_");
+
       if (isCreate) {
         const payload: CreateRoleRequest = {
-          name: data.name!,
+          name: convertedName,
           description: data.description || "",
           businessId: AppDefault.BUSINESS_ID,
           userType: UserGropeType.BUSINESS_USER,
@@ -130,7 +122,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
         handleClose();
       } else {
         const payload: UpdateRoleRequest = {
-          name: data.name!,
+          name: convertedName,
           description: data.description || "",
         };
 
@@ -191,6 +183,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
                 required
                 disabled={isSubmitting}
                 error={errors.name}
+                pattern="[a-zA-Z ]"
               />
 
               <TextareaField
