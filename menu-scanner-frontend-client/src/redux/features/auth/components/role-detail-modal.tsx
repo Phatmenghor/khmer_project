@@ -52,13 +52,11 @@ export function RoleDetailModal({
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-semibold text-foreground">
-              {formatEnumValue(roleData.name)}
+              Role Details
             </h2>
-            {roleData.description && (
-              <p className="text-sm text-foreground mt-1">
-                {roleData.description}
-              </p>
-            )}
+            <p className="text-sm text-foreground mt-1">
+              Detailed information about the selected role
+            </p>
           </div>
         </div>
 
