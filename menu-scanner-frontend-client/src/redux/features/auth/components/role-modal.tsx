@@ -75,12 +75,20 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
   // Cast control to any for compatibility with field components
   const control = formControl as any;
 
+  // Helper function to convert API format (UPPERCASE_WITH_UNDERSCORES) to display format (Title Case With Spaces)
+  const convertApiFormatToDisplay = (name: string): string => {
+    return name
+      .split("_")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   useEffect(() => {
     if (!roleId || !isOpen || isCreate || !roleData) return;
 
     reset({
       id: roleData.id,
-      name: roleData.name,
+      name: convertApiFormatToDisplay(roleData.name),
       description: roleData?.description || "",
     });
   }, [roleId, isOpen, isCreate, roleData, reset]);
