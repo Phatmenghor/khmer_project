@@ -83,13 +83,13 @@ public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "roles",             ignore = true)
     @Mapping(target = "password",          ignore = true)
-    @Mapping(target = "profile",           ignore = true)
-    @Mapping(target = "employment",        ignore = true)
+    @Mapping(target = "profile",           qualifiedByName = "updateProfile")
+    @Mapping(target = "employment",        qualifiedByName = "updateEmployment")
     @Mapping(target = "telegram",          ignore = true)
-    @Mapping(target = "addresses",         ignore = true)
-    @Mapping(target = "emergencyContacts", ignore = true)
-    @Mapping(target = "documents",         ignore = true)
-    @Mapping(target = "educations",        ignore = true)
+    @Mapping(target = "addresses",         qualifiedByName = "updateAddresses")
+    @Mapping(target = "emergencyContacts", qualifiedByName = "updateEmergencyContacts")
+    @Mapping(target = "documents",         qualifiedByName = "updateDocuments")
+    @Mapping(target = "educations",        qualifiedByName = "updateEducations")
     void updateEntity(UserUpdateRequest request, @MappingTarget User user);
 
     @Mapping(target = "roles",             ignore = true)
@@ -127,5 +127,188 @@ public interface UserMapper {
 
     default PaginationResponse<UserResponse> toPaginationResponse(Page<User> page, PaginationMapper paginationMapper) {
         return paginationMapper.toPaginationResponse(page, this::toResponseList);
+    }
+
+    // ─── Custom Nested Object Updaters ────────────────────────────────────
+
+    /**
+     * Updates the UserProfile with fields from the UserUpdateRequest.
+     * Only updates fields that are not null in the request.
+     */
+    @Named("updateProfile")
+    default void updateProfile(UserUpdateRequest request, @MappingTarget User user) {
+        if (user.getProfile() == null) {
+            user.setProfile(new UserProfile());
+        }
+        UserProfile profile = user.getProfile();
+
+        if (request.getEmail() != null) profile.setEmail(request.getEmail());
+        if (request.getFirstName() != null) profile.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) profile.setLastName(request.getLastName());
+        if (request.getNickname() != null) profile.setNickname(request.getNickname());
+        if (request.getGender() != null) profile.setGender(request.getGender());
+        if (request.getDateOfBirth() != null) profile.setDateOfBirth(request.getDateOfBirth());
+        if (request.getPhoneNumber() != null) profile.setPhoneNumber(request.getPhoneNumber());
+        if (request.getProfileImageUrl() != null) profile.setProfileImageUrl(request.getProfileImageUrl());
+    }
+
+    /**
+     * Updates the UserEmployment with fields from the UserUpdateRequest.
+     * Only updates fields that are not null in the request.
+     */
+    @Named("updateEmployment")
+    default void updateEmployment(UserUpdateRequest request, @MappingTarget User user) {
+        // Check if there are any employment fields to update
+        if (request.getEmployeeId() == null && request.getPosition() == null &&
+            request.getDepartment() == null && request.getEmploymentType() == null &&
+            request.getJoinDate() == null && request.getLeaveDate() == null &&
+            request.getShift() == null) {
+            return; // No employment data to update
+        }
+
+        if (user.getEmployment() == null) {
+            user.setEmployment(new UserEmployment());
+        }
+        UserEmployment employment = user.getEmployment();
+
+        if (request.getEmployeeId() != null) employment.setEmployeeId(request.getEmployeeId());
+        if (request.getPosition() != null) employment.setPosition(request.getPosition());
+        if (request.getDepartment() != null) employment.setDepartment(request.getDepartment());
+        if (request.getEmploymentType() != null) employment.setEmploymentType(request.getEmploymentType());
+        if (request.getJoinDate() != null) employment.setJoinDate(request.getJoinDate());
+        if (request.getLeaveDate() != null) employment.setLeaveDate(request.getLeaveDate());
+        if (request.getShift() != null) employment.setShift(request.getShift());
+    }
+
+    /**
+     * Handles address list updates with proper merge logic.
+     * Null/empty list = no change, otherwise replaces all addresses.
+     */
+    @Named("updateAddresses")
+    default void updateAddresses(List<AddressRequest> requests, @MappingTarget User user) {
+        if (requests == null) {
+            return; // Null = no change
+        }
+        if (requests.isEmpty()) {
+            user.getAddresses().clear(); // Empty list = clear all
+            return;
+        }
+        // Non-empty list = replace all with mapped addresses
+        user.setAddresses(requests.stream()
+                .map(this::toAddressEntity)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Handles emergency contact list updates with proper merge logic.
+     */
+    @Named("updateEmergencyContacts")
+    default void updateEmergencyContacts(List<EmergencyContactRequest> requests, @MappingTarget User user) {
+        if (requests == null) {
+            return; // Null = no change
+        }
+        if (requests.isEmpty()) {
+            user.getEmergencyContacts().clear(); // Empty list = clear all
+            return;
+        }
+        // Non-empty list = replace all with mapped contacts
+        user.setEmergencyContacts(requests.stream()
+                .map(this::toEmergencyContactEntity)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Handles document list updates with proper merge logic.
+     */
+    @Named("updateDocuments")
+    default void updateDocuments(List<DocumentRequest> requests, @MappingTarget User user) {
+        if (requests == null) {
+            return; // Null = no change
+        }
+        if (requests.isEmpty()) {
+            user.getDocuments().clear(); // Empty list = clear all
+            return;
+        }
+        // Non-empty list = replace all with mapped documents
+        user.setDocuments(requests.stream()
+                .map(this::toDocumentEntity)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Handles education list updates with proper merge logic.
+     */
+    @Named("updateEducations")
+    default void updateEducations(List<EducationRequest> requests, @MappingTarget User user) {
+        if (requests == null) {
+            return; // Null = no change
+        }
+        if (requests.isEmpty()) {
+            user.getEducations().clear(); // Empty list = clear all
+            return;
+        }
+        // Non-empty list = replace all with mapped educations
+        user.setEducations(requests.stream()
+                .map(this::toEducationEntity)
+                .collect(Collectors.toList()));
+    }
+
+    // ─── Entity Mapping Methods (Convert DTOs to Entities) ────────────────
+
+    /**
+     * Converts AddressRequest DTO to UserAddress entity.
+     */
+    default UserAddress toAddressEntity(AddressRequest request) {
+        UserAddress address = new UserAddress();
+        address.setId(request.getId());
+        address.setAddressType(request.getAddressType());
+        address.setHouseNo(request.getHouseNo());
+        address.setStreet(request.getStreet());
+        address.setVillage(request.getVillage());
+        address.setCommune(request.getCommune());
+        address.setDistrict(request.getDistrict());
+        address.setProvince(request.getProvince());
+        address.setCountry(request.getCountry());
+        return address;
+    }
+
+    /**
+     * Converts EmergencyContactRequest DTO to UserEmergencyContact entity.
+     */
+    default UserEmergencyContact toEmergencyContactEntity(EmergencyContactRequest request) {
+        UserEmergencyContact contact = new UserEmergencyContact();
+        contact.setId(request.getId());
+        contact.setName(request.getName());
+        contact.setPhone(request.getPhone());
+        contact.setRelationship(request.getRelationship());
+        return contact;
+    }
+
+    /**
+     * Converts DocumentRequest DTO to UserDocument entity.
+     */
+    default UserDocument toDocumentEntity(DocumentRequest request) {
+        UserDocument document = new UserDocument();
+        document.setId(request.getId());
+        document.setType(request.getType());
+        document.setNumber(request.getNumber());
+        document.setFileUrl(request.getFileUrl());
+        return document;
+    }
+
+    /**
+     * Converts EducationRequest DTO to UserEducation entity.
+     */
+    default UserEducation toEducationEntity(EducationRequest request) {
+        UserEducation education = new UserEducation();
+        education.setId(request.getId());
+        education.setLevel(request.getLevel());
+        education.setSchoolName(request.getSchoolName());
+        education.setFieldOfStudy(request.getFieldOfStudy());
+        education.setStartYear(request.getStartYear());
+        education.setEndYear(request.getEndYear());
+        education.setIsGraduated(request.getIsGraduated() != null ? request.getIsGraduated() : false);
+        education.setCertificateUrl(request.getCertificateUrl());
+        return education;
     }
 }
