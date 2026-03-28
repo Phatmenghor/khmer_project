@@ -9,6 +9,7 @@ import {
 } from "../store/models/response/users-response";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
+import { Switch } from "@/components/ui/switch";
 
 interface UserTableHandlers {
   handleEditUser: (user: UserResponseModel) => void;
@@ -32,6 +33,7 @@ export const userBusinessTableColumns = ({
     handleViewUserDetail,
     handleResetPassword,
     handleDeleteUser,
+    handleToggleStatus,
   } = handlers;
 
   return [
@@ -139,21 +141,12 @@ export const userBusinessTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (user) => {
-        const statusTextColor = user?.accountStatus === "ACTIVE"
-          ? "text-green-600 dark:text-green-400"
-          : user?.accountStatus === "END_WORK"
-          ? "text-orange-600 dark:text-orange-400"
-          : user?.accountStatus === "LOCKED"
-          ? "text-red-600 dark:text-red-400"
-          : "text-muted-foreground";
-
-        return (
-          <span className={`text-xs font-medium ${statusTextColor}`}>
-            {user?.accountStatus ? formatEnumValue(user.accountStatus) : "---"}
-          </span>
-        );
-      },
+      render: (user) => (
+        <Switch
+          checked={user?.accountStatus === "ACTIVE"}
+          onCheckedChange={() => handleToggleStatus(user)}
+        />
+      ),
     },
     {
       key: "createdAt",
