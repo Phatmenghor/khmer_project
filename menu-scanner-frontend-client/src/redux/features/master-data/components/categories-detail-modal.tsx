@@ -119,7 +119,7 @@ export function CategoriesDetailModal({
                     </div>
 
                     {/* Product Count - Below */}
-                    <div className="pt-4 border-t">
+                    <div className="pt-4">
                       <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />
                     </div>
                   </CardContent>
