@@ -2,19 +2,17 @@
 
 import { useEffect } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { DetailModal } from "@/components/shared/modal/detail-modal";
-import {
-  DetailRow,
-  DetailSection,
-} from "@/components/shared/modal/detail-section";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import {
   selectIsFetchingDetail,
   selectSelectedCategories,
 } from "../store/selectors/categories-selector";
 import { fetchCategoriesByIdService } from "../store/thunks/categories-thunks";
 import { clearSelectedCategories } from "../store/slice/categories-slice";
+import { DisplayField } from "@/components/shared/form-field/display-field";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface CategoriesDetailModalProps {
   categoriesId?: string;
@@ -32,7 +30,7 @@ export function CategoriesDetailModal({
   const categoriesData = useAppSelector(selectSelectedCategories);
 
   useEffect(() => {
-    const fetchBrandData = async () => {
+    const fetchCategoriesData = async () => {
       if (!categoriesId || !isOpen) return;
 
       try {
@@ -42,7 +40,7 @@ export function CategoriesDetailModal({
       }
     };
 
-    fetchBrandData();
+    fetchCategoriesData();
   }, [categoriesId, isOpen, dispatch]);
 
   const handleClose = () => {
@@ -50,79 +48,97 @@ export function CategoriesDetailModal({
     onClose();
   };
 
+  if (!categoriesData && !isFetchingDetail) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogTitle className="sr-only">Category Details</DialogTitle>
+        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-full">
+            <p className="text-muted-foreground">No category data available</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
-    <DetailModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isLoading={isFetchingDetail}
-      title={"Categoires information Details"}
-      description={categoriesData?.name || "Loading categories information..."}
-    >
-      {categoriesData ? (
-        <div className="space-y-6">
-          {/* Brand Information */}
-          <DetailSection title="Personal Information">
-            <CustomAvatar
-              imageUrl={categoriesData.imageUrl}
-              name={categoriesData?.name}
-              size="xl"
-            />
-            <DetailRow
-              label="Brand Name"
-              value={categoriesData?.name || "---"}
-            />
-
-            <DetailRow label="Status" value={categoriesData?.status || "---"} />
-
-            <DetailRow
-              label="Total Products"
-              value={categoriesData?.totalProducts || "---"}
-            />
-
-            <DetailRow
-              label="Active Products"
-              value={categoriesData?.activeProducts || "---"}
-            />
-          </DetailSection>
-
-          {/* System Information */}
-          <DetailSection title="System Information">
-            <DetailRow
-              label="Banner ID"
-              value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
-                  {categoriesData?.id}
-                </span>
-              }
-            />
-            <DetailRow
-              label="Business Name"
-              value={categoriesData?.businessName || "---"}
-            />
-            <DetailRow
-              label="Created At"
-              value={dateTimeFormat(categoriesData?.createdAt ?? "")}
-            />
-            <DetailRow
-              label="Created By"
-              value={categoriesData?.createdBy || "---"}
-            />
-            <DetailRow
-              label="Last Updated"
-              value={dateTimeFormat(categoriesData?.updatedAt ?? "")}
-            />
-            <DetailRow
-              label="Updated By"
-              value={categoriesData?.updatedBy || "---"}
-              isLast
-            />
-          </DetailSection>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogTitle className="sr-only">Category Details - {categoriesData?.name}</DialogTitle>
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-semibold text-foreground">
+              Category Details
+            </h2>
+            <p className="text-sm text-foreground mt-1">
+              Detailed information about the selected category
+            </p>
+          </div>
         </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">No Categories data available</p>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {isFetchingDetail ? (
+              <div className="space-y-4">
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : categoriesData ? (
+              <>
+                {/* Category Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Category Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Category Image */}
+                    {categoriesData.imageUrl && (
+                      <div className="mb-4">
+                        <p className="text-sm font-medium text-foreground mb-2">Category Image</p>
+                        <div className="h-32 w-32 rounded-md overflow-hidden bg-muted border border-border">
+                          <img
+                            src={categoriesData.imageUrl}
+                            alt={categoriesData.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <DisplayField label="Category Name" value={categoriesData.name || "---"} />
+                      <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
+                      <DisplayField label="Status" value={categoriesData.status || "---"} />
+                      <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* System Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>System Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <DisplayField label="Category ID" value={categoriesData.id} />
+                      <DisplayField label="Created At" value={dateTimeFormat(categoriesData.createdAt ?? "")} />
+                      <DisplayField label="Created By" value={categoriesData.createdBy || "---"} />
+                      <DisplayField label="Last Updated" value={dateTimeFormat(categoriesData.updatedAt ?? "")} />
+                      <DisplayField label="Updated By" value={categoriesData.updatedBy || "---"} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No category data available</p>
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </DetailModal>
+      </DialogContent>
+    </Dialog>
   );
 }

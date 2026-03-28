@@ -1,22 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { DetailModal } from "@/components/shared/modal/detail-modal";
-import {
-  DetailRow,
-  DetailSection,
-} from "@/components/shared/modal/detail-section";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { formatEnumToDisplay } from "@/utils/styles/enum-style";
 import {
   selectIsFetchingDetail,
   selectSelectedBanner,
 } from "../store/selectors/banner-selector";
 import { fetchBannerByIdService } from "../store/thunks/banner-thunks";
 import { clearSelectedBanner } from "../store/slice/banner-slice";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { DisplayField } from "@/components/shared/form-field/display-field";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface BannerDetailModalProps {
   bannerId?: string;
@@ -34,17 +30,17 @@ export function BannerDetailModal({
   const bannerData = useAppSelector(selectSelectedBanner);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchBannerData = async () => {
       if (!bannerId || !isOpen) return;
 
       try {
         await dispatch(fetchBannerByIdService(bannerId)).unwrap();
       } catch (error: any) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching banner data:", error);
       }
     };
 
-    fetchUserData();
+    fetchBannerData();
   }, [bannerId, isOpen, dispatch]);
 
   const handleClose = () => {
@@ -52,70 +48,94 @@ export function BannerDetailModal({
     onClose();
   };
 
-  return (
-    <DetailModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isLoading={isFetchingDetail}
-      title={"Banner information Details"}
-      description={bannerData?.businessName || "Loading banner information..."}
-    >
-      {bannerData ? (
-        <div className="space-y-6">
-          {/* Banner Information */}
-          <DetailSection title="Personal Information">
-            <CustomAvatar
-              variant="banner"
-              imageUrl={bannerData.imageUrl}
-              name={bannerData?.businessName}
-              bannerHeight="xl"
-            />
-            <DetailRow label="Link URL" value={bannerData?.linkUrl || "---"} />
-            <DetailRow
-              label="Business Name"
-              value={bannerData?.businessName || "---"}
-            />
-            <DetailRow
-              label="Status"
-              value={bannerData?.status || "---"}
-              isLast
-            />
-          </DetailSection>
+  if (!bannerData && !isFetchingDetail) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogTitle className="sr-only">Banner Details</DialogTitle>
+        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-full">
+            <p className="text-muted-foreground">No banner data available</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
-          {/* System Information */}
-          <DetailSection title="System Information">
-            <DetailRow
-              label="Banner ID"
-              value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
-                  {bannerData?.id}
-                </span>
-              }
-            />
-            <DetailRow
-              label="Created At"
-              value={dateTimeFormat(bannerData?.createdAt ?? "")}
-            />
-            <DetailRow
-              label="Created By"
-              value={bannerData?.createdBy || "---"}
-            />
-            <DetailRow
-              label="Last Updated"
-              value={dateTimeFormat(bannerData?.updatedAt ?? "")}
-            />
-            <DetailRow
-              label="Updated By"
-              value={bannerData?.updatedBy || "---"}
-              isLast
-            />
-          </DetailSection>
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogTitle className="sr-only">Banner Details - {bannerData?.businessName}</DialogTitle>
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-semibold text-foreground">
+              Banner Details
+            </h2>
+            <p className="text-sm text-foreground mt-1">
+              Detailed information about the selected banner
+            </p>
+          </div>
         </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">No user data available</p>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {isFetchingDetail ? (
+              <div className="space-y-4">
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : bannerData ? (
+              <>
+                {/* Banner Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Banner Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Banner Image */}
+                    {bannerData.imageUrl && (
+                      <div className="mb-4">
+                        <p className="text-sm font-medium text-foreground mb-2">Banner Image</p>
+                        <img
+                          src={bannerData.imageUrl}
+                          alt={bannerData.businessName}
+                          className="w-full h-48 object-cover rounded-md border"
+                        />
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <DisplayField label="Business Name" value={bannerData.businessName || "---"} />
+                      <DisplayField label="Link URL" value={bannerData.linkUrl || "---"} />
+                      <DisplayField label="Status" value={bannerData.status || "---"} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* System Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>System Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <DisplayField label="Banner ID" value={bannerData.id} />
+                      <DisplayField label="Created At" value={dateTimeFormat(bannerData.createdAt ?? "")} />
+                      <DisplayField label="Created By" value={bannerData.createdBy || "---"} />
+                      <DisplayField label="Last Updated" value={dateTimeFormat(bannerData.updatedAt ?? "")} />
+                      <DisplayField label="Updated By" value={bannerData.updatedBy || "---"} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No banner data available</p>
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </DetailModal>
+      </DialogContent>
+    </Dialog>
   );
 }
