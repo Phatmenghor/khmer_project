@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   setUser,
   setAuthReady,
 } from "@/redux/features/auth/store/slice/auth-slice";
-import { getProfileService } from "@/redux/features/auth/store/thunks/auth-thunks";
-import { selectAuthReady, selectProfile } from "@/redux/features/auth/store/selectors/auth-selectors";
+import { selectAuthReady } from "@/redux/features/auth/store/selectors/auth-selectors";
 import { COOKIE_KEYS } from "@/constants/cookie-keys";
 
 // Helper to read cookies directly from browser (works on client-side refresh)
@@ -30,10 +29,7 @@ export function useAuthInit() {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const authReady = useAppSelector(selectAuthReady);
-  const profile = useAppSelector(selectProfile);
-  const profileFetchedRef = useRef(false);
 
-  // Step 1: Initialize auth from cookies
   useEffect(() => {
     // Detect if we're on an admin route
     const isAdminRoute = pathname?.startsWith("/admin") === true;
@@ -56,9 +52,10 @@ export function useAuthInit() {
     });
 
     // If we have both token and user info, restore to Redux
+    // Profile will be auto-fetched by middleware when setUser is dispatched
     if (token && userInfo) {
       console.log("## [AUTH INIT] ✓ Restoring auth from cookies");
-      dispatch(setUser(userInfo));
+      dispatch(setUser(userInfo)); // This triggers profile auto-fetch via middleware
       dispatch(setAuthReady());
     } else {
       // No auth data, mark as ready (not authenticated)
@@ -68,18 +65,6 @@ export function useAuthInit() {
       }
     }
   }, [pathname, dispatch, authReady]);
-
-  // Step 2: Fetch profile only once after auth is ready and if not already loaded
-  useEffect(() => {
-    if (authReady && !profile && !profileFetchedRef.current) {
-      console.log("## [AUTH INIT] Fetching profile...");
-      profileFetchedRef.current = true;
-      dispatch(getProfileService()).catch((err) => {
-        console.warn("⚠ Profile fetch failed:", err);
-        profileFetchedRef.current = false; // Reset flag on error to allow retry
-      });
-    }
-  }, [authReady, profile, dispatch]);
 
   return { authReady };
 }

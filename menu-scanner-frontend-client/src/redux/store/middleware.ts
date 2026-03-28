@@ -127,3 +127,37 @@ export const errorLoggingMiddleware: Middleware =
 
     return next(action);
   };
+
+/**
+ * Auto-fetch profile middleware
+ * Automatically fetches user profile when user is set in auth state
+ * Ensures profile is fetched only once at app startup
+ */
+let profileFetchTriggered = false;
+
+export const autoFetchProfileMiddleware: Middleware =
+  (storeAPI) => (next) => (action: any) => {
+    const result = next(action);
+
+    // Trigger profile fetch when user is set (after auth restoration)
+    if (action.type === "auth/setUser" && !profileFetchTriggered) {
+      profileFetchTriggered = true;
+      const state = storeAPI.getState();
+
+      // Check if profile not already loaded
+      if (!state.auth.profile) {
+        console.log("🔐 [MIDDLEWARE] Auto-fetching profile...");
+        // Dynamically import to avoid circular dependencies
+        import("../features/auth/store/thunks/auth-thunks").then(
+          ({ getProfileService }) => {
+            storeAPI.dispatch(getProfileService() as any).catch((err: any) => {
+              console.warn("⚠️ Profile fetch failed:", err);
+              profileFetchTriggered = false; // Reset on error to allow retry
+            });
+          }
+        );
+      }
+    }
+
+    return result;
+  };

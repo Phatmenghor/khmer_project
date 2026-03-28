@@ -5,6 +5,7 @@ import {
   authLoggingMiddleware,
   userLoggingMiddleware,
   errorLoggingMiddleware,
+  autoFetchProfileMiddleware,
 } from "./middleware";
 import { reducers } from "./reducers";
 
@@ -25,6 +26,7 @@ const store = configureStore({
         ignoredPaths: ["users.data"],
       },
     }).concat([
+      autoFetchProfileMiddleware, // Auto-fetch profile when user is set
       authLoggingMiddleware,
       userLoggingMiddleware,
       errorLoggingMiddleware,
