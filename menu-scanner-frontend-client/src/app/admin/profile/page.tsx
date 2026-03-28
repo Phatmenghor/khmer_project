@@ -419,6 +419,42 @@ export default function AdminProfilePage() {
     }
   };
 
+  const handleAutoRemoveProfilePicture = async () => {
+    try {
+      setIsUploadingImage(true);
+
+      // Update form immediately
+      setValue("profileImageUrl", "", {
+        shouldDirty: true,
+      });
+
+      // Remove profile picture via API
+      const payload = {
+        profileImageUrl: "",
+      };
+
+      console.log("🔄 [REMOVE] Removing profile picture...");
+      const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
+      console.log("✅ [REMOVE] Profile picture removed:", updatedProfile);
+
+      // Reload profile to ensure we have the latest from server
+      const freshProfile = await dispatch(getProfileService()).unwrap();
+      console.log("✅ [FETCH] Fresh profile loaded:", freshProfile);
+
+      showToast.success("Profile picture removed successfully");
+    } catch (error: any) {
+      console.error("Error removing profile picture:", error);
+      showToast.error(error || "Failed to remove profile picture");
+      // Reset the form value on error
+      if (userProfile?.profileImageUrl) {
+        setValue("profileImageUrl", userProfile.profileImageUrl);
+      }
+    } finally {
+      setIsUploadingImage(false);
+      setIsProfilePictureModalOpen(false);
+    }
+  };
+
   const handleCancel = () => {
     if (userProfile) {
       reset({
@@ -1486,9 +1522,7 @@ export default function AdminProfilePage() {
           handleAutoUploadProfilePicture(imageData);
         }}
         onImageRemove={() => {
-          setValue("profileImageUrl", "", {
-            shouldDirty: true,
-          });
+          handleAutoRemoveProfilePicture();
         }}
         isLoading={isUploadingImage}
       />
