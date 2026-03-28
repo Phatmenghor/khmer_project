@@ -114,12 +114,8 @@ export function BannerDetailModal({
                       <div className="w-full md:w-1/2 space-y-4">
                         <DisplayField label="Business Name" value={bannerData.businessName || "---"} />
                         <DisplayField label="Link URL" value={bannerData.linkUrl || "---"} />
+                        <DisplayField label="Status" value={bannerData.status ? formatEnumValue(bannerData.status) : "---"} />
                       </div>
-                    </div>
-
-                    {/* Status - Below */}
-                    <div className="pt-4">
-                      <DisplayField label="Status" value={bannerData.status ? formatEnumValue(bannerData.status) : "---"} />
                     </div>
                   </CardContent>
                 </Card>
