@@ -114,12 +114,12 @@ export function CategoriesDetailModal({
                       <div className="w-full md:w-1/2 space-y-4">
                         <DisplayField label="Category Name" value={categoriesData.name || "---"} />
                         <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
+                        <DisplayField label="Status" value={categoriesData.status ? formatEnumValue(categoriesData.status) : "---"} />
                       </div>
                     </div>
 
-                    {/* Status and Product Count - Below */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                      <DisplayField label="Status" value={categoriesData.status ? formatEnumValue(categoriesData.status) : "---"} />
+                    {/* Product Count - Below */}
+                    <div className="pt-4 border-t">
                       <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />
                     </div>
                   </CardContent>
