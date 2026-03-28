@@ -715,6 +715,16 @@ export default function AdminProfilePage() {
                           label="Telegram Synced"
                           value={userProfile?.telegramSynced ? "Yes" : "No"}
                         />
+                        <DisplayField
+                          label="Role"
+                          value={userProfile?.roles && userProfile.roles.length > 0
+                            ? userProfile.roles.join(", ")
+                            : "-"}
+                        />
+                        <DisplayField
+                          label="Account Status"
+                          value={userProfile?.accountStatus || "-"}
+                        />
                       </>
                     )}
                   </div>
