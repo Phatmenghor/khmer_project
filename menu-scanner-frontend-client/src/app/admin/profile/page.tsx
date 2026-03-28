@@ -289,39 +289,42 @@ export default function AdminProfilePage() {
 
       setIsUploadingImage(false);
 
-      const payload = {
+      // Build payload with only defined and non-empty values
+      const payload: any = {
         firstName: data.firstName,
         lastName: data.lastName,
-        nickname: data.nickname || undefined,
         phoneNumber: data.phoneNumber,
         email: data.email,
-        gender: data.gender || undefined,
-        dateOfBirth: data.dateOfBirth || undefined,
-        profileImageUrl: profileImageUrl || undefined,
-        employeeId: data.employeeId || undefined,
-        position: data.position || undefined,
-        department: data.department || undefined,
-        employmentType: data.employmentType || undefined,
-        joinDate: data.joinDate || undefined,
-        leaveDate: data.leaveDate || undefined,
-        shift: data.shift || undefined,
-        remark: data.remark || undefined,
-        addresses:
-          addressFields.length > 0 ? (data.addresses as any) : undefined,
-        emergencyContacts:
-          contactFields.length > 0
-            ? (data.emergencyContacts as any)
-            : undefined,
-        documents:
-          validDocuments.length > 0 ? (validDocuments as any) : undefined,
-        educations:
-          validEducations.length > 0 ? (validEducations as any) : undefined,
       };
 
+      // Add optional fields only if they have values
+      if (data.nickname) payload.nickname = data.nickname;
+      if (data.gender) payload.gender = data.gender;
+      if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth;
+      if (profileImageUrl) payload.profileImageUrl = profileImageUrl;
+      if (data.employeeId) payload.employeeId = data.employeeId;
+      if (data.position) payload.position = data.position;
+      if (data.department) payload.department = data.department;
+      if (data.employmentType) payload.employmentType = data.employmentType;
+      if (data.joinDate) payload.joinDate = data.joinDate;
+      if (data.leaveDate) payload.leaveDate = data.leaveDate;
+      if (data.shift) payload.shift = data.shift;
+      if (data.remark) payload.remark = data.remark;
+
+      // Add array fields only if they have data
+      if (addressFields.length > 0) payload.addresses = data.addresses;
+      if (contactFields.length > 0) payload.emergencyContacts = data.emergencyContacts;
+      if (validDocuments.length > 0) payload.documents = validDocuments;
+      if (validEducations.length > 0) payload.educations = validEducations;
+
+      console.log("🔄 [UPDATE] Sending payload to backend:", payload);
       const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
+      console.log("✅ [UPDATE] Backend response:", updatedProfile);
 
       // Reload profile data to ensure we have the latest from server
-      await dispatch(getProfileService()).unwrap();
+      console.log("🔄 [FETCH] Reloading profile data...");
+      const freshProfile = await dispatch(getProfileService()).unwrap();
+      console.log("✅ [FETCH] Fresh profile loaded:", freshProfile);
 
       showToast.success("Profile updated successfully");
       setIsEditing(false);
