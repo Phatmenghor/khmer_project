@@ -33,6 +33,15 @@ export function ProfilePictureModal({
 }: ProfilePictureModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string>(currentImageUrl || "");
+  const [isRemoving, setIsRemoving] = useState(false);
+
+  // Reset state when modal opens/closes
+  React.useEffect(() => {
+    if (isOpen) {
+      setSelectedImage(currentImageUrl || "");
+      setIsRemoving(false);
+    }
+  }, [isOpen, currentImageUrl]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -53,8 +62,7 @@ export function ProfilePictureModal({
     reader.onload = (event) => {
       const imageData = event.target?.result as string;
       setSelectedImage(imageData);
-      onImageSelect(imageData);
-      setTimeout(() => onClose(), 500);
+      setIsRemoving(false);
     };
     reader.readAsDataURL(file);
   };
@@ -79,8 +87,24 @@ export function ProfilePictureModal({
     }
   };
 
-  const handleRemove = () => {
-    onImageRemove();
+  const handleRemoveClick = () => {
+    setSelectedImage("");
+    setIsRemoving(true);
+  };
+
+  const handleSave = () => {
+    if (isRemoving) {
+      onImageRemove();
+    } else if (selectedImage !== currentImageUrl) {
+      onImageSelect(selectedImage);
+    }
+  };
+
+  const hasChanges = selectedImage !== currentImageUrl || isRemoving;
+
+  const handleCancel = () => {
+    setSelectedImage(currentImageUrl || "");
+    setIsRemoving(false);
     onClose();
   };
 
@@ -159,9 +183,9 @@ export function ProfilePictureModal({
           )}
 
           {/* Remove Picture */}
-          {currentImageUrl && (
+          {currentImageUrl && !isRemoving && (
             <Button
-              onClick={handleRemove}
+              onClick={handleRemoveClick}
               variant="outline"
               className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
               disabled={isLoading}
@@ -171,15 +195,31 @@ export function ProfilePictureModal({
             </Button>
           )}
 
-          {/* Cancel */}
-          <Button
-            onClick={onClose}
-            variant="outline"
-            className="w-full"
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
+          {/* Footer Buttons - Cancel and Save */}
+          <div className="flex gap-2 pt-2">
+            <Button
+              onClick={handleCancel}
+              variant="outline"
+              className="flex-1"
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={isLoading || !hasChanges}
+              className="flex-1"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                "Save"
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Hidden File Input */}

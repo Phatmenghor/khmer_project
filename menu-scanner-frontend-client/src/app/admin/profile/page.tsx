@@ -1482,14 +1482,31 @@ export default function AdminProfilePage() {
         onClose={() => setIsProfilePictureModalOpen(false)}
         currentImageUrl={userProfile?.profileImageUrl}
         userName={userProfile?.fullName}
-        onImageSelect={(imageData) => {
-          handleAutoUploadProfilePicture(imageData);
-        }}
-        onImageRemove={() => {
-          setValue("profileImageUrl", "", {
-            shouldDirty: true,
-          });
-          setIsProfilePictureModalOpen(false);
+        onImageSelect={handleAutoUploadProfilePicture}
+        onImageRemove={async () => {
+          try {
+            setIsUploadingImage(true);
+
+            const payload = {
+              profileImageUrl: "",
+            };
+
+            console.log("🔄 [REMOVE] Removing profile picture...");
+            await dispatch(updateProfileService(payload)).unwrap();
+            console.log("✅ [REMOVE] Profile picture removed");
+
+            // Reload profile to ensure we have the latest from server
+            const freshProfile = await dispatch(getProfileService()).unwrap();
+            console.log("✅ [FETCH] Fresh profile loaded:", freshProfile);
+
+            showToast.success("Profile picture removed successfully");
+            setIsProfilePictureModalOpen(false);
+          } catch (error: any) {
+            console.error("Error removing profile picture:", error);
+            showToast.error(error || "Failed to remove profile picture");
+          } finally {
+            setIsUploadingImage(false);
+          }
         }}
         isLoading={isUploadingImage}
       />
