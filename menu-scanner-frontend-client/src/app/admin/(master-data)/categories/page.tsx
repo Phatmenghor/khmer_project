@@ -22,6 +22,7 @@ import {
 } from "@/redux/features/master-data/store/slice/categories-slice";
 import {
   deleteCategoriesService,
+  updateCategoriesService,
   fetchAllCategoriesWithProductCountService,
 } from "@/redux/features/master-data/store/thunks/categories-thunks";
 import {
