@@ -83,33 +83,20 @@ export function UserBusinessDetailModal({
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-4">
-            {userData.profileImageUrl ? (
-              <img
-                src={userData.profileImageUrl}
-                alt={userData.fullName}
-                className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
-              />
-            ) : (
-              <div className="h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-lg font-semibold text-primary">
-                  {userData.fullName?.charAt(0)?.toUpperCase() || "U"}
-                </span>
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">
-                {userData.userIdentifier}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-semibold text-foreground">
+              User Details
+            </h2>
+            <p className="text-sm text-foreground mt-1">
+              View detailed information about the user
+            </p>
+            <div className="mt-3 space-y-1">
+              <p className="text-sm text-foreground">
+                {userData.email}
               </p>
-              {userData.roles && userData.roles.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {userData.roles.map((role, index) => (
-                    <Badge key={index} variant="secondary">
-                      {formatEnumValue(role)}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              <p className="text-sm text-foreground">
+                {userData.fullName}
+              </p>
             </div>
           </div>
         </div>
