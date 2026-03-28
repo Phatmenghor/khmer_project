@@ -38,6 +38,12 @@ public class Banner extends BaseUUIDEntity {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "link_url")
     private String linkUrl;
 

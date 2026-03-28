@@ -41,28 +41,42 @@ export const bannerTableColumns = ({
     },
     {
       key: "imageUrl",
-      label: "Banner Image",
-      minWidth: "10px",
-      maxWidth: "400px",
+      label: "Banner Image & Title",
+      minWidth: "200px",
+      maxWidth: "600px",
       render: (banner) => {
         return (
-          <CustomAvatar
-            variant="banner"
-            imageUrl={banner.imageUrl}
-            name={banner?.businessName}
-            bannerHeight="lg"
-          />
+          <div className="flex items-center gap-3 py-2">
+            <div className="flex-shrink-0 w-40 h-24 rounded-lg overflow-hidden bg-muted border border-border">
+              <img
+                src={banner.imageUrl}
+                alt={banner.title || "Banner"}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "https://via.placeholder.com/160x96?text=No+Image";
+                }}
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-sm text-foreground truncate">
+                {banner.title || "Untitled Banner"}
+              </h4>
+              <p className="text-xs text-muted-foreground line-clamp-2">
+                {banner.description || "No description"}
+              </p>
+            </div>
+          </div>
         );
       },
     },
     {
       key: "linkUrl",
-      label: "Link URL",
-      minWidth: "10px",
-      maxWidth: "400px",
+      label: "Link",
+      minWidth: "150px",
+      maxWidth: "300px",
       truncate: true,
       render: (banner) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-muted-foreground truncate">
           {banner?.linkUrl || "---"}
         </span>
       ),
