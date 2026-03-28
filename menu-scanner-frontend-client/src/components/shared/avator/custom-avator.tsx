@@ -25,7 +25,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
     md: { avatar: "h-10 w-10", indicator: "w-3 h-3" },
     lg: { avatar: "h-12 w-12", indicator: "w-3.5 h-3.5" },
     xl: { avatar: "h-16 w-16", indicator: "w-4 h-4" },
-    xxl: { avatar: "h-32 w-32", indicator: "w-5 h-5" },
+    xxl: { avatar: "h-14 w-14", indicator: "w-4 h-4" },
   };
 
   // Banner sizes (rectangular - good for table display)
