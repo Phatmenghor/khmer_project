@@ -317,7 +317,7 @@ export default function AdminProfilePage() {
 
       // Array fields - only include non-empty arrays to avoid unwanted deletions
       // Empty array = delete all related records, so only send if we have data
-      if (addressFields.length > 0 && data.addresses?.length > 0) {
+      if (addressFields.length > 0 && data.addresses && data.addresses.length > 0) {
         payload.addresses = data.addresses.map((addr: any) => ({
           id: addr.id || undefined,
           addressType: addr.addressType, // Backend expects: CURRENT, PLACE_OF_BIRTH, PERMANENT
@@ -331,7 +331,7 @@ export default function AdminProfilePage() {
         }));
       }
 
-      if (contactFields.length > 0 && data.emergencyContacts?.length > 0) {
+      if (contactFields.length > 0 && data.emergencyContacts && data.emergencyContacts.length > 0) {
         payload.emergencyContacts = data.emergencyContacts.map((contact: any) => ({
           id: contact.id || undefined,
           name: contact.name,
@@ -886,24 +886,24 @@ export default function AdminProfilePage() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {addressFields.map((field, index) => (
+                      {addressFields.map((field: any, index) => (
                         <div key={field.id} className="border-b pb-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <DisplayField
                               label="Type"
                               value={
                                 ADDRESS_TYPE_OPTIONS.find(
-                                  (o) => o.value === field.addressType
+                                  (o) => o.value === field?.addressType
                                 )?.label
                               }
                             />
-                            <DisplayField label="House No" value={field.houseNo} />
-                            <DisplayField label="Street" value={field.street} />
-                            <DisplayField label="Village" value={field.village} />
-                            <DisplayField label="Commune" value={field.commune} />
-                            <DisplayField label="District" value={field.district} />
-                            <DisplayField label="Province" value={field.province} />
-                            <DisplayField label="Country" value={field.country} />
+                            <DisplayField label="House No" value={field?.houseNo} />
+                            <DisplayField label="Street" value={field?.street} />
+                            <DisplayField label="Village" value={field?.village} />
+                            <DisplayField label="Commune" value={field?.commune} />
+                            <DisplayField label="District" value={field?.district} />
+                            <DisplayField label="Province" value={field?.province} />
+                            <DisplayField label="Country" value={field?.country} />
                           </div>
                         </div>
                       ))}
@@ -993,12 +993,12 @@ export default function AdminProfilePage() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {contactFields.map((field, index) => (
+                      {contactFields.map((field: any, index) => (
                         <div key={field.id} className="border-b pb-4">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <DisplayField label="Name" value={field.name} />
-                            <DisplayField label="Phone" value={field.phone} />
-                            <DisplayField label="Relationship" value={field.relationship} />
+                            <DisplayField label="Name" value={field?.name} />
+                            <DisplayField label="Phone" value={field?.phone} />
+                            <DisplayField label="Relationship" value={field?.relationship} />
                           </div>
                         </div>
                       ))}
