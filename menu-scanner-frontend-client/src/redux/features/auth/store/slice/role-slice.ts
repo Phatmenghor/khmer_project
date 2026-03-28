@@ -17,6 +17,7 @@ import { deleteUserService } from "../thunks/users-thunks";
 const initialState: RoleManagementState = {
   data: null,
   selectedRole: null,
+  rolesList: [],
   isLoading: true,
   error: null,
   filters: {
@@ -85,18 +86,7 @@ const roleSlice = createSlice({
       })
       .addCase(fetchAllRolesListService.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Convert array response to pagination format for consistency
-        state.data = {
-          content: action.payload || [],
-          pageNo: 1,
-          pageSize: action.payload?.length || 0,
-          totalElements: action.payload?.length || 0,
-          totalPages: 1,
-          last: true,
-          first: true,
-          hasNext: false,
-          hasPrevious: false,
-        };
+        state.rolesList = action.payload || [];
       })
       .addCase(fetchAllRolesListService.rejected, (state, action) => {
         state.isLoading = false;

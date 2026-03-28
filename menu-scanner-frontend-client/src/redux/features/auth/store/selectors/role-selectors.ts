@@ -5,6 +5,8 @@ export const selectRolesState = (state: RootState) => state.roles;
 
 export const selectRoles = (state: RootState) => state.roles.data;
 
+export const selectRolesList = (state: RootState) => state.roles.rolesList;
+
 export const selectSelectedRole = (state: RootState) =>
   state.roles.selectedRole;
 

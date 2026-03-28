@@ -19,7 +19,7 @@ import {
   toggleUserStatusService,
 } from "@/redux/features/auth/store/thunks/users-thunks";
 import { fetchAllRolesListService } from "@/redux/features/auth/store/thunks/role-thunks";
-import { selectRoleContent } from "@/redux/features/auth/store/selectors/role-selectors";
+import { selectRolesList } from "@/redux/features/auth/store/selectors/role-selectors";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   setAccountStatusFilter,
@@ -53,7 +53,7 @@ export default function UserBusinessPage() {
   const { filters, pagination, usersData, usersContent, userState, isLoading, operations, dispatch } = useUsersState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
-  const rolesContent = useAppSelector(selectRoleContent);
+  const rolesContent = useAppSelector(selectRolesList);
 
   // Build dynamic role filter options with static ALL_ROLES option
   const roleFilterOptions = [
