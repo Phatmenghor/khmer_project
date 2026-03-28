@@ -57,12 +57,7 @@ public class BrandController {
     public ResponseEntity<ApiResponse<PaginationResponse<BrandResponse>>> getMyBusinessBrands(@Valid @RequestBody BrandFilterRequest filter) {
         log.info("Getting brands for current user's business");
         User currentUser = securityUtils.getCurrentUser();
-
-        // Use businessId from filter if provided, otherwise use current user's business
-        if (filter.getBusinessId() == null) {
-            filter.setBusinessId(currentUser.getBusinessId());
-        }
-
+        filter.setBusinessId(currentUser.getBusinessId());
         PaginationResponse<BrandResponse> brands = brandService.getAllBrands(filter);
         return ResponseEntity.ok(ApiResponse.success("Business brands retrieved successfully", brands));
     }
@@ -75,12 +70,7 @@ public class BrandController {
     public ResponseEntity<ApiResponse<PaginationResponse<BrandWithProductCountResponse>>> getMyBusinessBrandsWithProductCount(@Valid @RequestBody BrandFilterRequest filter) {
         log.info("Getting brands with product count for current user's business");
         User currentUser = securityUtils.getCurrentUser();
-
-        // Use businessId from filter if provided, otherwise use current user's business
-        if (filter.getBusinessId() == null) {
-            filter.setBusinessId(currentUser.getBusinessId());
-        }
-
+        filter.setBusinessId(currentUser.getBusinessId());
         PaginationResponse<BrandWithProductCountResponse> brands = brandService.getBrandsWithProductCount(filter);
         return ResponseEntity.ok(ApiResponse.success("Business brands with product count retrieved successfully", brands));
     }
