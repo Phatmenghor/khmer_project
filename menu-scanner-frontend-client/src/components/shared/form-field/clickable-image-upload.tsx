@@ -65,7 +65,7 @@ export function ClickableImageUpload({
   };
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -139,7 +139,7 @@ export function ClickableImageUpload({
             disabled
               ? "opacity-50 cursor-not-allowed"
               : "cursor-pointer hover:shadow-md",
-            error && "border-red-500"
+            error && "border-red-500",
           )}
         >
           <input
@@ -171,7 +171,7 @@ export function ClickableImageUpload({
                   type="button"
                   variant="destructive"
                   size="sm"
-                  className="absolute top-3 right-3 z-10 opacity-0 hover:opacity-100 transition-opacity"
+                  className="absolute top-3 right-3 z-10"
                   onClick={handleRemove}
                 >
                   <X className="h-4 w-4" />
