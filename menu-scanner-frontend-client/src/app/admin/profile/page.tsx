@@ -383,6 +383,42 @@ export default function AdminProfilePage() {
     }
   };
 
+  const handleAutoUploadProfilePicture = async (imageData: string) => {
+    try {
+      setIsUploadingImage(true);
+
+      // Update form immediately for preview
+      setValue("profileImageUrl", imageData, {
+        shouldDirty: true,
+      });
+
+      // Upload to API
+      const payload = {
+        profileImageUrl: imageData,
+      };
+
+      console.log("🔄 [UPLOAD] Uploading profile picture...");
+      const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
+      console.log("✅ [UPLOAD] Profile picture uploaded:", updatedProfile);
+
+      // Reload profile to ensure we have the latest from server
+      const freshProfile = await dispatch(getProfileService()).unwrap();
+      console.log("✅ [FETCH] Fresh profile loaded:", freshProfile);
+
+      showToast.success("Profile picture updated successfully");
+    } catch (error: any) {
+      console.error("Error uploading profile picture:", error);
+      showToast.error(error || "Failed to update profile picture");
+      // Reset the form value on error
+      if (userProfile?.profileImageUrl) {
+        setValue("profileImageUrl", userProfile.profileImageUrl);
+      }
+    } finally {
+      setIsUploadingImage(false);
+      setIsProfilePictureModalOpen(false);
+    }
+  };
+
   const handleCancel = () => {
     if (userProfile) {
       reset({
@@ -455,16 +491,16 @@ export default function AdminProfilePage() {
                 className={`relative group ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}
                 onClick={() => isEditing && setIsProfilePictureModalOpen(true)}
               >
-                <div className="relative">
+                <div className="relative w-24 h-24">
                   <CustomAvatar
                     imageUrl={userProfile?.profileImageUrl}
                     name={userProfile?.fullName}
                     size="xl"
                   />
-                  {/* Camera Icon Overlay - Only show in edit mode */}
+                  {/* Camera Icon Overlay - Always show on hover in edit mode */}
                   {isEditing && (
-                    <div className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                      <Camera className="h-4 w-4 text-white" />
+                    <div className="absolute bottom-0 right-0 bg-primary rounded-full p-3 transition-all shadow-lg hover:bg-primary/90 hover:scale-110">
+                      <Camera className="h-5 w-5 text-white" />
                     </div>
                   )}
                 </div>
@@ -1449,9 +1485,7 @@ export default function AdminProfilePage() {
         currentImageUrl={userProfile?.profileImageUrl}
         userName={userProfile?.fullName}
         onImageSelect={(imageData) => {
-          setValue("profileImageUrl", imageData, {
-            shouldDirty: true,
-          });
+          handleAutoUploadProfilePicture(imageData);
         }}
         onImageRemove={() => {
           setValue("profileImageUrl", "", {
