@@ -1068,7 +1068,7 @@ export default function UserBusinessModal({
                                 size="sm"
                                 onClick={() => removeDocument(index)}
                                 disabled={isSubmitting}
-                                className="h-6 w-6 p-0 absolute top-2 right-2"
+                                className="h-6 w-6 p-0 absolute top-2 right-2 text-red-500"
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
@@ -1170,7 +1170,7 @@ export default function UserBusinessModal({
                                 size="sm"
                                 onClick={() => removeEducation(index)}
                                 disabled={isSubmitting}
-                                className="h-6 w-6 p-0 absolute top-2 right-2"
+                                className="h-6 w-6 p-0 absolute top-2 right-2 text-red-500"
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
