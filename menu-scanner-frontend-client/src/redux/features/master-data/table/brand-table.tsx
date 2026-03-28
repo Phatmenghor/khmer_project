@@ -1,5 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { formatProductCount } from "@/utils/format/product-count-formatter";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
@@ -89,7 +90,7 @@ export const brandTableColumns = ({
       truncate: true,
       render: (brand) => (
         <span className="text-xs text-muted-foreground">
-          {brand?.totalProducts || "---"}
+          {formatProductCount(brand?.totalProducts)}
         </span>
       ),
     },
@@ -102,7 +103,7 @@ export const brandTableColumns = ({
       truncate: true,
       render: (brand) => (
         <span className="text-xs text-muted-foreground">
-          {brand?.activeProducts || "---"}
+          {formatProductCount(brand?.activeProducts)}
         </span>
       ),
     },

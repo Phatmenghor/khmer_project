@@ -55,7 +55,7 @@ export default function BrandPage() {
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
-    brandId: "",
+    brand: null as BrandResponseModel | null,
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -108,7 +108,7 @@ export default function BrandPage() {
   const handleBrandViewDetail = (brand: BrandResponseModel) => {
     setDetailModalState({
       isOpen: true,
-      brandId: brand.id || "",
+      brand: brand,
     });
   };
 
@@ -189,7 +189,7 @@ export default function BrandPage() {
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
-      brandId: "",
+      brand: null,
     });
   };
 
@@ -251,7 +251,7 @@ export default function BrandPage() {
 
       {/* Modals Brand Detail */}
       <BrandDetailModal
-        brandId={detailModalState.brandId}
+        brand={detailModalState.brand}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
