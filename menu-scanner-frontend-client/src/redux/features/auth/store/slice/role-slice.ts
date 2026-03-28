@@ -5,6 +5,7 @@ import {
   createRoleService,
   deleteRoleService,
   fetchAllRoleService,
+  fetchAllRolesListService,
   fetchRoleByIdService,
   updateRoleService,
 } from "../thunks/role-thunks";
@@ -73,6 +74,31 @@ const roleSlice = createSlice({
         state.data = action.payload;
       })
       .addCase(fetchAllRoleService.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    builder
+      .addCase(fetchAllRolesListService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllRolesListService.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Convert array response to pagination format for consistency
+        state.data = {
+          content: action.payload || [],
+          pageNo: 1,
+          pageSize: action.payload?.length || 0,
+          totalElements: action.payload?.length || 0,
+          totalPages: 1,
+          last: true,
+          first: true,
+          hasNext: false,
+          hasPrevious: false,
+        };
+      })
+      .addCase(fetchAllRolesListService.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
