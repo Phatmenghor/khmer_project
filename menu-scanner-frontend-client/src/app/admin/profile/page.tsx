@@ -1246,8 +1246,8 @@ export default function AdminProfilePage() {
                                 label="Graduated"
                                 placeholder="Select status"
                                 options={[
-                                  { label: "Yes", value: "true" },
-                                  { label: "No", value: "false" },
+                                  { label: "Yes", value: true },
+                                  { label: "No", value: false },
                                 ]}
                                 error={
                                   errors.educations?.[index]?.isGraduated as any
