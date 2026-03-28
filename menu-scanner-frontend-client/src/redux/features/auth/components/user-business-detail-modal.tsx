@@ -243,19 +243,21 @@ export function UserBusinessDetailModal({
                   <CardTitle>Documents</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-6">
                     {userData.documents.map((doc: any, index: number) => (
-                      <div key={index} className="border rounded-lg p-4 bg-muted/20">
-                        <div className="space-y-4">
+                      <div key={index} className="border-b pb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <DisplayField label="Type" value={doc.type ? formatEnumValue(doc.type) : "-"} />
                           <DisplayField label="Number" value={doc.number} />
                           {doc.fileUrl && (
-                            <div className="rounded-md overflow-hidden border border-border">
-                              <img
-                                src={doc.fileUrl}
-                                alt={doc.type}
-                                className="w-full h-auto max-h-64 object-contain bg-white"
-                              />
+                            <div className="col-span-1 md:col-span-2">
+                              <div className="rounded-md overflow-hidden border border-border">
+                                <img
+                                  src={doc.fileUrl}
+                                  alt={doc.type}
+                                  className="w-full h-auto max-h-64 object-contain bg-white"
+                                />
+                              </div>
                             </div>
                           )}
                         </div>
@@ -273,10 +275,10 @@ export function UserBusinessDetailModal({
                   <CardTitle>Education</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-6">
                     {userData.educations.map((edu: any, index: number) => (
-                      <div key={index} className="border rounded-lg p-4 bg-muted/20">
-                        <div className="space-y-4">
+                      <div key={index} className="border-b pb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <DisplayField label="School" value={edu.schoolName} />
                           <DisplayField label="Level" value={edu.level ? formatEnumValue(edu.level) : "-"} />
                           <DisplayField label="Field of Study" value={edu.fieldOfStudy} />
@@ -284,12 +286,14 @@ export function UserBusinessDetailModal({
                           <DisplayField label="End Year" value={edu.endYear} />
                           <DisplayField label="Graduation" value={edu.isGraduated ? "Yes" : "No"} />
                           {edu.certificateUrl && (
-                            <div className="rounded-md overflow-hidden border border-border">
-                              <img
-                                src={edu.certificateUrl}
-                                alt="Certificate"
-                                className="w-full h-auto max-h-64 object-contain bg-white"
-                              />
+                            <div className="col-span-1 md:col-span-2">
+                              <div className="rounded-md overflow-hidden border border-border">
+                                <img
+                                  src={edu.certificateUrl}
+                                  alt="Certificate"
+                                  className="w-full h-auto max-h-64 object-contain bg-white"
+                                />
+                              </div>
                             </div>
                           )}
                         </div>
