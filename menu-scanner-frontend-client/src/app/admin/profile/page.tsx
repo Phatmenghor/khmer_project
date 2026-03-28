@@ -1004,7 +1004,7 @@ export default function AdminProfilePage() {
                                   )
                                 }
                                 aspectRatio="auto"
-                                height="h-auto"
+                                height="h-32"
                                 maxSize={5}
                                 error={
                                   errors.documents?.[index]?.fileUrl as any
@@ -1185,7 +1185,7 @@ export default function AdminProfilePage() {
                                   )
                                 }
                                 aspectRatio="auto"
-                                height="h-auto"
+                                height="h-32"
                                 maxSize={5}
                                 error={
                                   errors.educations?.[index]
