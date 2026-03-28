@@ -16,9 +16,7 @@ import { ModalMode, Status } from "@/constants/status/status";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   selectError,
-  selectIsFetchingDetail,
   selectOperations,
-  selectSelectedBanner,
 } from "../store/selectors/banner-selector";
 import {
   CreateBannerData,
@@ -26,7 +24,6 @@ import {
   updateBannerSchema,
 } from "../store/models/schema/banner-schema";
 import {
-  fetchBannerByIdService,
   createBannerService,
   updateBannerService,
 } from "../store/thunks/banner-thunks";
@@ -35,11 +32,11 @@ import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import { showToast } from "@/components/shared/common/show-toast";
 import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
-import { Loading } from "@/components/shared/common/loading";
+import { BannerResponseModel } from "../store/models/response/banner-response";
 
 type Props = {
   mode: ModalMode;
-  bannerId?: string;
+  banner?: BannerResponseModel | null;
   onClose: () => void;
   isOpen: boolean;
 };
@@ -47,7 +44,7 @@ type Props = {
 export default function BannerModal({
   isOpen,
   onClose,
-  bannerId,
+  banner,
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
@@ -58,7 +55,6 @@ export default function BannerModal({
   const dispatch = useAppDispatch();
 
   const operations = useAppSelector(selectOperations);
-  const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
@@ -84,40 +80,25 @@ export default function BannerModal({
 
   useEffect(() => {
     if (isOpen) {
-      reset({
-        imageUrl: "",
-        description: "",
-        linkUrl: "",
-        status: Status.ACTIVE,
-      });
-    }
-  }, [isOpen, bannerId, reset]);
-
-  // Fetch banner data for edit mode
-  useEffect(() => {
-    const fetchBannerData = async () => {
-      if (!bannerId || !isOpen || isCreate) return;
-
-      try {
-        const resultAction = await dispatch(fetchBannerByIdService(bannerId));
-
-        if (fetchBannerByIdService.fulfilled.match(resultAction)) {
-          const data = resultAction.payload;
-
-          reset({
-            imageUrl: data?.imageUrl || "",
-            description: data?.description || "",
-            linkUrl: data?.linkUrl || "",
-            status: data?.status || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching banner data:", error);
+      if (isCreate) {
+        // Reset form for create mode
+        reset({
+          imageUrl: "",
+          description: "",
+          linkUrl: "",
+          status: Status.ACTIVE,
+        });
+      } else if (banner) {
+        // Populate form with banner data for edit mode
+        reset({
+          imageUrl: banner.imageUrl || "",
+          description: banner.description || "",
+          linkUrl: banner.linkUrl || "",
+          status: banner.status || "",
+        });
       }
-    };
-
-    fetchBannerData();
-  }, [bannerId, isOpen, isCreate, reset, dispatch]);
+    }
+  }, [isOpen, banner, isCreate, reset]);
 
   // Clear errors when modal opens
   useEffect(() => {
@@ -156,8 +137,9 @@ export default function BannerModal({
         showToast.success("Banner created successfully");
         handleClose();
       } else {
+        if (!banner?.id) return;
         await dispatch(
-          updateBannerService({ id: bannerId!, payload }),
+          updateBannerService({ id: banner.id, payload }),
         ).unwrap();
         showToast.success("Banner updated successfully");
         handleClose();
@@ -193,16 +175,10 @@ export default function BannerModal({
           isCreate={isCreate}
         />
 
-        {/* Show loading spinner in edit mode while fetching */}
-        {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
-            <Loading />
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-hidden"
-          >
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
             <FormBody>
               {/* Display Redux errors */}
               {reduxError && (
@@ -300,7 +276,6 @@ export default function BannerModal({
               />
             </FormFooter>
           </form>
-        )}
       </DialogContent>
     </Dialog>
   );

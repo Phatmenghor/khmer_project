@@ -54,7 +54,7 @@ export default function BannerPage() {
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
-    bannerId: "",
+    banner: null as BannerResponseModel | null,
   });
 
   const [detailModalState, setDetailModalState] = useState({
@@ -99,7 +99,7 @@ export default function BannerPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.CREATE_MODE,
-      bannerId: "",
+      banner: null,
     });
   };
 
@@ -107,7 +107,7 @@ export default function BannerPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.UPDATE_MODE,
-      bannerId: banner?.id || "",
+      banner: banner,
     });
   };
 
@@ -197,7 +197,7 @@ export default function BannerPage() {
     setModalState({
       isOpen: false,
       mode: ModalMode.CREATE_MODE,
-      bannerId: "",
+      banner: null,
     });
   };
 
@@ -260,7 +260,7 @@ export default function BannerPage() {
       <BannerModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
-        bannerId={modalState.bannerId}
+        banner={modalState.banner}
         mode={modalState.mode}
       />
 
