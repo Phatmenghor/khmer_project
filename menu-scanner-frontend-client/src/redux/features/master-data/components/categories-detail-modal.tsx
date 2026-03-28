@@ -97,7 +97,7 @@ export function CategoriesDetailModal({
                     {categoriesData.imageUrl && (
                       <div className="mb-4">
                         <p className="text-sm font-medium text-foreground mb-2">Category Image</p>
-                        <div className="h-32 w-32 rounded-md overflow-hidden bg-muted border border-border">
+                        <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
                           <img
                             src={categoriesData.imageUrl}
                             alt={categoriesData.name}

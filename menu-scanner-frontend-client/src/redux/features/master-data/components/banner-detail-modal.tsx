@@ -97,11 +97,13 @@ export function BannerDetailModal({
                     {bannerData.imageUrl && (
                       <div className="mb-4">
                         <p className="text-sm font-medium text-foreground mb-2">Banner Image</p>
-                        <img
-                          src={bannerData.imageUrl}
-                          alt={bannerData.businessName}
-                          className="w-full h-48 object-cover rounded-md border"
-                        />
+                        <div className="max-w-md h-40 rounded-md overflow-hidden bg-muted border border-border">
+                          <img
+                            src={bannerData.imageUrl}
+                            alt={bannerData.businessName}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       </div>
                     )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
