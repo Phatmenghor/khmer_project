@@ -70,7 +70,7 @@ export const bannerTableColumns = ({
       maxWidth: "500px",
       render: (banner) => (
         <h3 className="font-semibold text-sm text-foreground line-clamp-3">
-          {banner.description || "No description"}
+          {banner.description || "---"}
         </h3>
       ),
     },
