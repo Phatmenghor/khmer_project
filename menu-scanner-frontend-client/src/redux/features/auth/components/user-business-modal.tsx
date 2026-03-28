@@ -1067,7 +1067,7 @@ export default function UserBusinessModal({
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
-                              <div className="space-y-3">
+                              <div className="space-y-4 pt-2">
                                 <div className="grid grid-cols-2 gap-2">
                                   <SelectField
                                     control={control}
@@ -1091,27 +1091,29 @@ export default function UserBusinessModal({
                                     }
                                   />
                                 </div>
-                                <ClickableImageUpload
-                                  label="File"
-                                  value={
-                                    watch(`documents.${index}.fileUrl`) || ""
-                                  }
-                                  onChange={(base64) =>
-                                    setValue(
-                                      `documents.${index}.fileUrl`,
-                                      base64,
-                                      { shouldDirty: true },
-                                    )
-                                  }
-                                  aspectRatio="auto"
-                                  height="h-40"
-                                  maxSize={5}
-                                  disabled={isSubmitting}
-                                  error={
-                                    errors.documents?.[index]?.fileUrl as any
-                                  }
-                                  placeholder="Upload"
-                                />
+                                <div className="w-1/2">
+                                  <ClickableImageUpload
+                                    label="File"
+                                    value={
+                                      watch(`documents.${index}.fileUrl`) || ""
+                                    }
+                                    onChange={(base64) =>
+                                      setValue(
+                                        `documents.${index}.fileUrl`,
+                                        base64,
+                                        { shouldDirty: true },
+                                      )
+                                    }
+                                    aspectRatio="auto"
+                                    height="h-40"
+                                    maxSize={5}
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.documents?.[index]?.fileUrl as any
+                                    }
+                                    placeholder="Upload"
+                                  />
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -1167,7 +1169,7 @@ export default function UserBusinessModal({
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
-                              <div className="space-y-3 pt-2">
+                              <div className="space-y-4 pt-2">
                                 <div className="grid grid-cols-2 gap-2">
                                   <SelectField
                                     control={control}
@@ -1225,9 +1227,7 @@ export default function UserBusinessModal({
                                       errors.educations?.[index]?.endYear as any
                                     }
                                   />
-                                </div>
-                                <div className="flex items-center gap-4">
-                                  <label className="flex items-center gap-2 cursor-pointer">
+                                  <label className="flex items-center gap-2 cursor-pointer col-span-2">
                                     <input
                                       type="checkbox"
                                       {...control.register(
@@ -1241,29 +1241,31 @@ export default function UserBusinessModal({
                                     </span>
                                   </label>
                                 </div>
-                                <ClickableImageUpload
-                                  label="Certificate"
-                                  value={
-                                    watch(`educations.${index}.certificateUrl`) ||
-                                    ""
-                                  }
-                                  onChange={(base64) =>
-                                    setValue(
-                                      `educations.${index}.certificateUrl`,
-                                      base64,
-                                      { shouldDirty: true },
-                                    )
-                                  }
-                                  aspectRatio="auto"
-                                  height="h-40"
-                                  maxSize={5}
-                                  disabled={isSubmitting}
-                                  error={
-                                    errors.educations?.[index]
-                                      ?.certificateUrl as any
-                                  }
-                                  placeholder="Upload"
-                                />
+                                <div className="w-1/2">
+                                  <ClickableImageUpload
+                                    label="Certificate"
+                                    value={
+                                      watch(`educations.${index}.certificateUrl`) ||
+                                      ""
+                                    }
+                                    onChange={(base64) =>
+                                      setValue(
+                                        `educations.${index}.certificateUrl`,
+                                        base64,
+                                        { shouldDirty: true },
+                                      )
+                                    }
+                                    aspectRatio="auto"
+                                    height="h-40"
+                                    maxSize={5}
+                                    disabled={isSubmitting}
+                                    error={
+                                      errors.educations?.[index]
+                                        ?.certificateUrl as any
+                                    }
+                                    placeholder="Upload"
+                                  />
+                                </div>
                               </div>
                             </div>
                           ))}
