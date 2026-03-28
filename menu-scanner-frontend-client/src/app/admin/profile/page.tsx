@@ -1078,11 +1078,11 @@ export default function AdminProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {documentFields.map((field, index) => (
                         <div key={field.id} className="border rounded-lg p-4">
                           <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <DisplayField
                                 label="Type"
                                 value={
@@ -1260,11 +1260,11 @@ export default function AdminProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {educationFields.map((field, index) => (
                         <div key={field.id} className="border rounded-lg p-4">
                           <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <DisplayField
                                 label="Level"
                                 value={
@@ -1275,11 +1275,11 @@ export default function AdminProfilePage() {
                               />
                               <DisplayField label="School" value={field.schoolName} />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <DisplayField label="Field of Study" value={field.fieldOfStudy} />
                               <DisplayField label="Start Year" value={field.startYear} />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <DisplayField label="End Year" value={field.endYear} />
                               <DisplayField
                                 label="Graduated"
