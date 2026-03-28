@@ -44,23 +44,21 @@ public class CategoryController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
         log.info("Getting all categories for current user's business");
-        PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
+         PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
     }
 
     /**
      * Get all categories with filtering (uses current user's business from token)
-     * If businessId is provided in filter, use it; otherwise use current user's business
      */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getMyBusinessAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
         log.info("Getting my categories for current user's business");
 
-        // Use businessId from filter if provided, otherwise use current user's business
-        if (filter.getBusinessId() == null) {
+
             UUID businessId = securityUtils.getCurrentUserBusinessId();
             filter.setBusinessId(businessId);
-        }
+
 
         PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
@@ -74,11 +72,8 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryWithProductCountResponse>>> getMyBusinessCategoriesWithProductCount(@Valid @RequestBody CategoryFilterRequest filter) {
         log.info("Getting my business categories with product count");
 
-        // Use businessId from filter if provided, otherwise use current user's business
-        if (filter.getBusinessId() == null) {
             UUID businessId = securityUtils.getCurrentUserBusinessId();
             filter.setBusinessId(businessId);
-        }
 
         PaginationResponse<CategoryWithProductCountResponse> categories = categoryService.getCategoriesWithProductCount(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories with product count retrieved successfully", categories));
