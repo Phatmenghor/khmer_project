@@ -318,12 +318,17 @@ export default function AdminProfilePage() {
           validEducations.length > 0 ? (validEducations as any) : undefined,
       };
 
-      await dispatch(updateProfileService(payload)).unwrap();
+      const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
+
+      // Reload profile data to ensure we have the latest from server
+      await dispatch(getProfileService()).unwrap();
+
       showToast.success("Profile updated successfully");
       setIsEditing(false);
     } catch (error: any) {
       console.error("Error updating profile:", error);
       showToast.error(error || "Failed to update profile");
+      setIsUploadingImage(false);
     }
   };
 
