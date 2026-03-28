@@ -2,6 +2,10 @@ package com.emenu.features.auth.mapper;
 
 import com.emenu.features.auth.dto.request.RegisterRequest;
 import com.emenu.features.auth.dto.request.UserCreateRequest;
+import com.emenu.features.auth.dto.request.AddressRequest;
+import com.emenu.features.auth.dto.request.EmergencyContactRequest;
+import com.emenu.features.auth.dto.request.DocumentRequest;
+import com.emenu.features.auth.dto.request.EducationRequest;
 import com.emenu.features.auth.dto.response.*;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.features.auth.models.*;
