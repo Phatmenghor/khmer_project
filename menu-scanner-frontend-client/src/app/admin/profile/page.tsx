@@ -196,7 +196,10 @@ export default function AdminProfilePage() {
           ? userProfile.documents
           : [],
         educations: Array.isArray(userProfile.educations)
-          ? userProfile.educations
+          ? userProfile.educations.map((edu: any) => ({
+              ...edu,
+              isGraduated: typeof edu.isGraduated === 'boolean' ? String(edu.isGraduated) : edu.isGraduated
+            }))
           : [],
       });
     }
@@ -410,7 +413,10 @@ export default function AdminProfilePage() {
           ? userProfile.documents
           : [],
         educations: Array.isArray(userProfile.educations)
-          ? userProfile.educations
+          ? userProfile.educations.map((edu: any) => ({
+              ...edu,
+              isGraduated: typeof edu.isGraduated === 'boolean' ? String(edu.isGraduated) : edu.isGraduated
+            }))
           : [],
       });
     }
