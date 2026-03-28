@@ -15,6 +15,7 @@ export interface CategoriesResponseModel {
   name: string;
   imageUrl: string;
   status: string;
-  totalProducts: number;
-  activeProducts: number;
+  totalProducts?: number;
+  activeProducts?: number;
+  productCount?: number; // From /my-business/product/all endpoint
 }

@@ -85,14 +85,16 @@ export const categoriesTableColumns = ({
     },
 
     {
-      key: "totalProducts",
+      key: "productCount",
       label: "Total Products",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (categories) => (
         <span className="text-xs text-muted-foreground">
-          {categories?.totalProducts || "---"}
+          {categories?.productCount !== undefined
+            ? categories?.productCount
+            : categories?.totalProducts || "---"}
         </span>
       ),
     },
