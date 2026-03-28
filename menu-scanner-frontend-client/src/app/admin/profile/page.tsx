@@ -990,7 +990,7 @@ export default function AdminProfilePage() {
                                 }
                               />
                             </div>
-                            <div className="w-full">
+                            <div className="w-1/2">
                               <ClickableImageUpload
                                 label="File"
                                 value={
@@ -1170,7 +1170,7 @@ export default function AdminProfilePage() {
                                 </span>
                               </label>
                             </div>
-                            <div className="w-full">
+                            <div className="w-1/2">
                               <ClickableImageUpload
                                 label="Certificate"
                                 value={
