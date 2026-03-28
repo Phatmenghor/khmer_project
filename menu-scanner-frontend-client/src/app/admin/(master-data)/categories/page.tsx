@@ -24,6 +24,10 @@ import {
   deleteCategoriesService,
   fetchAllCategoriesWithProductCountService,
 } from "@/redux/features/master-data/store/thunks/categories-thunks";
+import {
+  selectCategoriesWithProductCountContent,
+  selectPaginationWithProductCount,
+} from "@/redux/features/master-data/store/selectors/categories-selector";
 import { categoriesTableColumns } from "@/redux/features/master-data/table/categories-table";
 import CategoriesModal from "@/redux/features/master-data/components/categories-modal";
 import { CategoriesDetailModal } from "@/redux/features/master-data/components/categories-detail-modal";
@@ -48,6 +52,10 @@ export default function CategoriesPage() {
     pagination,
     dispatch,
   } = useCategoriesState();
+
+  // Use categories with product count for admin page display
+  const categoriesWithProductCount = useAppSelector(selectCategoriesWithProductCountContent);
+  const paginationWithProductCount = useAppSelector(selectPaginationWithProductCount);
 
   // Local UI state for modals only
   const [modalState, setModalState] = useState({
@@ -136,7 +144,7 @@ export default function CategoriesPage() {
   const columns = useMemo(
     () =>
       categoriesTableColumns({
-        data: categoriesData,
+        data: categoriesState?.dataWithProductCount,
         handlers: tableHandlers,
       }),
     [categoriesState, tableHandlers],
@@ -175,8 +183,8 @@ export default function CategoriesPage() {
       closeDeleteModal();
 
       // Navigate to previous page if this was the last item
-      if (categoriesContent.length === 1 && pagination.currentPage > 1) {
-        const newPage = pagination.currentPage - 1;
+      if (categoriesWithProductCount.length === 1 && paginationWithProductCount.currentPage > 1) {
+        const newPage = paginationWithProductCount.currentPage - 1;
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
@@ -233,14 +241,14 @@ export default function CategoriesPage() {
 
         {/* Data Table with Your Custom Pagination */}
         <DataTableWithPagination
-          data={categoriesContent}
+          data={categoriesWithProductCount}
           columns={columns}
           loading={isLoading}
           emptyMessage="No Categories found"
           getRowKey={(categories) => categories.id}
-          currentPage={filters.pageNo}
-          totalElements={pagination.totalElements}
-          totalPages={pagination.totalPages}
+          currentPage={paginationWithProductCount.currentPage}
+          totalElements={paginationWithProductCount.totalElements}
+          totalPages={paginationWithProductCount.totalPages}
           onPageChange={handlePageChangeWrapper}
           pageSize={globalPageSize}
           onPageSizeChange={handlePageSizeChange}

@@ -5,11 +5,19 @@ export const selectCategoriesState = (state: RootState) => state.categories;
 
 export const selectCategories = (state: RootState) => state.categories.data;
 
+export const selectCategoriesWithProductCount = (state: RootState) =>
+  state.categories.dataWithProductCount;
+
 export const selectSelectedCategories = (state: RootState) =>
   state.categories.selectedCategories;
 
 export const selectCategoriesContent = createSelector(
   [selectCategories],
+  (data) => data?.content || []
+);
+
+export const selectCategoriesWithProductCountContent = createSelector(
+  [selectCategoriesWithProductCount],
   (data) => data?.content || []
 );
 
@@ -38,3 +46,20 @@ export const selectPagination = createSelector([selectCategories], (data) => ({
   hasNext: data?.hasNext || false,
   hasPrevious: data?.hasPrevious || false,
 }));
+
+/**
+ * Select pagination metadata for categories with product count
+ */
+export const selectPaginationWithProductCount = createSelector(
+  [selectCategoriesWithProductCount],
+  (data) => ({
+    currentPage: data?.pageNo || 1,
+    totalPages: data?.totalPages || 1,
+    totalElements: data?.totalElements || 0,
+    pageSize: data?.pageSize || 15,
+    last: data?.last || false,
+    first: data?.first || true,
+    hasNext: data?.hasNext || false,
+    hasPrevious: data?.hasPrevious || false,
+  })
+);

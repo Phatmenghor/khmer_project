@@ -10,6 +10,7 @@ import {
   createCategoriesService,
   deleteCategoriesService,
   fetchAllCategoriesService,
+  fetchAllCategoriesWithProductCountService,
   fetchCategoriesByIdService,
   updateCategoriesService,
 } from "../thunks/categories-thunks";
@@ -19,6 +20,7 @@ import {
  */
 const initialState: CategoriesManagementState = {
   data: null,
+  dataWithProductCount: null,
   selectedCategories: null,
   isLoading: true,
   error: null,
@@ -84,6 +86,21 @@ const categoriesSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchAllCategoriesService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.isLoading = false;
+      });
+
+    // Handle categories with product count (for admin page)
+    builder
+      .addCase(fetchAllCategoriesWithProductCountService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllCategoriesWithProductCountService.fulfilled, (state, action) => {
+        state.dataWithProductCount = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchAllCategoriesWithProductCountService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.isLoading = false;
       });
