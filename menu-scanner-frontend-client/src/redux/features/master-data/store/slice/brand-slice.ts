@@ -12,6 +12,7 @@ import {
   fetchAllBrandService,
   fetchBrandByIdService,
   updateBrandService,
+  toggleBrandStatusService,
 } from "../thunks/brand-thunks";
 
 /**
@@ -177,6 +178,24 @@ const brandSlice = createSlice({
       .addCase(deleteBrandService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.operations.isDeleting = false;
+      });
+
+    builder
+      .addCase(toggleBrandStatusService.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(toggleBrandStatusService.fulfilled, (state, action) => {
+        state.selectedBrand = action.payload;
+
+        // Update in list
+        if (state.data) {
+          state.data.content = state.data.content.map((brand) =>
+            brand.id === action.payload.id ? action.payload : brand
+          );
+        }
+      })
+      .addCase(toggleBrandStatusService.rejected, (state, action) => {
+        state.error = action.payload as string;
       });
   },
 });
