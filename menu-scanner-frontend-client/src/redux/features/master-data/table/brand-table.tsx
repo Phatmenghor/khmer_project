@@ -31,7 +31,7 @@ export const brandTableColumns = ({
     handleEditBrand,
     handleBrandViewDetail,
     handleDeleteBrand,
-    handleToggleBrandStatus
+    handleToggleBrandStatus,
   } = handlers;
 
   return [
@@ -86,27 +86,6 @@ export const brandTableColumns = ({
     },
 
     {
-      key: "status",
-      label: "Status",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (brand) => (
-        <div className="flex items-center gap-2">
-          {handleToggleBrandStatus && (
-            <Switch
-              checked={brand?.status === "ACTIVE"}
-              onCheckedChange={() => handleToggleBrandStatus(brand)}
-            />
-          )}
-          <span className="text-xs text-muted-foreground">
-            {brand?.status ? formatEnumValue(brand.status) : "---"}
-          </span>
-        </div>
-      ),
-    },
-
-    {
       key: "totalProducts",
       label: "Total Products",
       minWidth: "10px",
@@ -129,6 +108,27 @@ export const brandTableColumns = ({
         <span className="text-xs text-muted-foreground">
           {formatProductCount(brand?.activeProducts)}
         </span>
+      ),
+    },
+
+    {
+      key: "status",
+      label: "Status",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (brand) => (
+        <div className="flex items-center gap-2">
+          {handleToggleBrandStatus && (
+            <Switch
+              checked={brand?.status === "ACTIVE"}
+              onCheckedChange={() => handleToggleBrandStatus(brand)}
+            />
+          )}
+          <span className="text-xs text-muted-foreground">
+            {brand?.status ? formatEnumValue(brand.status) : "---"}
+          </span>
+        </div>
       ),
     },
 
