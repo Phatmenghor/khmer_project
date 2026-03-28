@@ -6,7 +6,7 @@ import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.CategoryAllFilterRequest;
 import com.emenu.features.main.dto.filter.CategoryFilterRequest;
 import com.emenu.features.main.dto.request.CategoryCreateRequest;
-import com.emenu.features.main.dto.response.CategoryResponse;
+import com.emenu.features.main.dto.response.CategoryWithProductCountResponse;
 import com.emenu.features.main.dto.update.CategoryUpdateRequest;
 import com.emenu.features.main.mapper.CategoryMapper;
 import com.emenu.features.main.models.Category;
@@ -75,6 +75,52 @@ public class CategoryServiceImpl implements CategoryService {
                 pageable
         );
         return categoryMapper.toPaginationResponse(categoryPage, paginationMapper);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginationResponse<CategoryWithProductCountResponse> getCategoriesWithProductCount(CategoryFilterRequest filter) {
+        Pageable pageable = PaginationUtils.createPageable(
+                filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
+        );
+
+        Page<Category> categoryPage = categoryRepository.findAllWithFilters(
+                filter.getBusinessId(),
+                filter.getStatus(),
+                filter.getSearch(),
+                pageable
+        );
+
+        // Map categories to response with product count
+        List<CategoryWithProductCountResponse> responses = categoryPage.getContent().stream()
+                .map(category -> {
+                    CategoryWithProductCountResponse response = new CategoryWithProductCountResponse();
+                    CategoryResponse baseResponse = categoryMapper.toResponse(category);
+
+                    // Copy base response fields
+                    response.setId(baseResponse.getId());
+                    response.setCreatedAt(baseResponse.getCreatedAt());
+                    response.setUpdatedAt(baseResponse.getUpdatedAt());
+                    response.setCreatedBy(baseResponse.getCreatedBy());
+                    response.setUpdatedBy(baseResponse.getUpdatedBy());
+                    response.setBusinessId(baseResponse.getBusinessId());
+                    response.setBusinessName(baseResponse.getBusinessName());
+                    response.setName(baseResponse.getName());
+                    response.setImageUrl(baseResponse.getImageUrl());
+                    response.setStatus(baseResponse.getStatus());
+
+                    // Count products for this category
+                    long productCount = categoryRepository.countProductsByCategory(category.getId());
+                    response.setProductCount(productCount);
+
+                    return response;
+                })
+                .toList();
+
+        return new PaginationResponse<>(
+                responses,
+                paginationMapper.toPaginationMetadata(categoryPage)
+        );
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.emenu.features.main.controller;
 import com.emenu.features.main.dto.filter.CategoryFilterRequest;
 import com.emenu.features.main.dto.request.CategoryCreateRequest;
 import com.emenu.features.main.dto.response.CategoryResponse;
+import com.emenu.features.main.dto.response.CategoryWithProductCountResponse;
 import com.emenu.features.main.dto.update.CategoryUpdateRequest;
 import com.emenu.features.main.service.CategoryService;
 import com.emenu.security.SecurityUtils;
@@ -63,6 +64,24 @@ public class CategoryController {
 
         PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
+    }
+
+    /**
+     * Get all categories with product count (for admin page) - extracts businessId from token
+     * Includes total product count for each category
+     */
+    @PostMapping("/my-business/product/all")
+    public ResponseEntity<ApiResponse<PaginationResponse<CategoryWithProductCountResponse>>> getMyBusinessCategoriesWithProductCount(@Valid @RequestBody CategoryFilterRequest filter) {
+        log.info("Getting my business categories with product count");
+
+        // Use businessId from filter if provided, otherwise use current user's business
+        if (filter.getBusinessId() == null) {
+            UUID businessId = securityUtils.getCurrentUserBusinessId();
+            filter.setBusinessId(businessId);
+        }
+
+        PaginationResponse<CategoryWithProductCountResponse> categories = categoryService.getCategoriesWithProductCount(filter);
+        return ResponseEntity.ok(ApiResponse.success("Categories with product count retrieved successfully", categories));
     }
 
     /**

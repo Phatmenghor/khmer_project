@@ -70,4 +70,9 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
         @Param("search") String search,
         Sort sort
     );
+    /**
+     * Count products for a given category
+     */
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.categoryId = :categoryId AND p.isDeleted = false")
+    long countProductsByCategory(@Param("categoryId") UUID categoryId);
 }
