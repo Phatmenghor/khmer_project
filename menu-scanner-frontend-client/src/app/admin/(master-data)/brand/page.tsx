@@ -36,7 +36,16 @@ import { useAppSelector } from "@/redux/store";
 export default function BrandPage() {
   useAdminCleanup(resetState);
 
-  const { brandState, brandData, brandContent, isLoading, filters, operations, pagination, dispatch } = useBrandState();
+  const {
+    brandState,
+    brandData,
+    brandContent,
+    isLoading,
+    filters,
+    operations,
+    pagination,
+    dispatch,
+  } = useBrandState();
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -195,10 +204,6 @@ export default function BrandPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
-            { label: "Brand", href: "" },
-          ]}
           title="Brand Information"
           searchValue={filters.search}
           searchPlaceholder="Search brand..."
