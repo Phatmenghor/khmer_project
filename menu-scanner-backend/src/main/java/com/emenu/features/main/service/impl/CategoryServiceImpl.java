@@ -118,10 +118,18 @@ public class CategoryServiceImpl implements CategoryService {
                 })
                 .toList();
 
-        return new PaginationResponse<>(
-                responses,
-                paginationMapper.toPaginationMetadata(categoryPage)
-        );
+        PaginationResponse<CategoryWithProductCountResponse> paginationResponse = new PaginationResponse<>();
+        paginationResponse.setContent(responses);
+        paginationResponse.setPageNo(categoryPage.getNumber() + 1);
+        paginationResponse.setPageSize(categoryPage.getSize());
+        paginationResponse.setTotalElements(categoryPage.getTotalElements());
+        paginationResponse.setTotalPages(categoryPage.getTotalPages());
+        paginationResponse.setFirst(categoryPage.isFirst());
+        paginationResponse.setLast(categoryPage.isLast());
+        paginationResponse.setHasNext(categoryPage.hasNext());
+        paginationResponse.setHasPrevious(categoryPage.hasPrevious());
+
+        return paginationResponse;
     }
 
     @Override
