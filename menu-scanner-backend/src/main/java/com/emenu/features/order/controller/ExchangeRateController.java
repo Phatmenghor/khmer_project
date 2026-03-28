@@ -84,14 +84,4 @@ public class ExchangeRateController {
         ExchangeRateResponse exchangeRate = exchangeRateService.getCurrentActiveRate();
         return ResponseEntity.ok(ApiResponse.success("Current exchange rate retrieved successfully", exchangeRate));
     }
-
-    /**
-     * Get current rate value only (for calculations)
-     */
-    @GetMapping("/current/value")
-    public ResponseEntity<ApiResponse<Double>> getCurrentRateValue() {
-        log.info("Getting current exchange rate value");
-        Double rate = exchangeRateService.getCurrentRateValue();
-        return ResponseEntity.ok(ApiResponse.success("Current exchange rate value retrieved successfully", rate));
-    }
 }

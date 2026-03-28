@@ -107,20 +107,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
         return exchangeRateMapper.toResponse(activeRate);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Double getCurrentRateValue() {
-        Optional<ExchangeRate> activeRate = exchangeRateRepository.findActiveRate();
-
-        if (activeRate.isPresent()) {
-            return activeRate.get().getUsdToKhrRate();
-        }
-
-        // Return default rate if no active rate exists
-        log.warn("No active exchange rate found, using default: {}", Constants.DEFAULT_EXCHANGE_RATE);
-        return Constants.DEFAULT_EXCHANGE_RATE;
-    }
-
     // Private helper methods
     private ExchangeRate findExchangeRateById(UUID id) {
         return exchangeRateRepository.findByIdAndIsDeletedFalse(id)

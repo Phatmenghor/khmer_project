@@ -19,5 +19,4 @@ public interface ExchangeRateService {
     
     // System Rate Operations
     ExchangeRateResponse getCurrentActiveRate();
-    Double getCurrentRateValue(); // Returns just the double value for calculations
 }
