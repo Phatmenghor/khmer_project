@@ -53,17 +53,17 @@ export const bannerTableColumns = ({
                 alt={banner.title || "Banner"}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = "https://via.placeholder.com/160x96?text=No+Image";
+                  e.currentTarget.src = "/assets/image/no-image.png";
                 }}
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-sm text-foreground truncate">
+              <h2 className="font-bold text-base text-foreground truncate mb-1">
                 {banner.title || "Untitled Banner"}
-              </h4>
-              <p className="text-xs text-muted-foreground line-clamp-2">
+              </h2>
+              <h3 className="font-semibold text-sm text-muted-foreground line-clamp-2">
                 {banner.description || "No description"}
-              </p>
+              </h3>
             </div>
           </div>
         );
