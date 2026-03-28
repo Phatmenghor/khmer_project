@@ -148,6 +148,7 @@ export const updateUserSchema = z.object({
   id: z.string().min(1, "User ID is required"),
   firstName: z.string().optional().or(z.literal("")),
   lastName: z.string().optional().or(z.literal("")),
+  email: z.string().optional().or(z.literal("")),
   phoneNumber: z.string().optional().or(z.literal("")),
   profileImageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   accountStatus: z.string().min(1, "Account status is required"),

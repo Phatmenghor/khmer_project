@@ -239,6 +239,10 @@ export default function AdminProfilePage() {
               return null;
             }
           }
+          // Only include documents with a fileUrl
+          if (!fileUrl) {
+            return null;
+          }
           return {
             id: doc.id,
             type: doc.type,
@@ -261,6 +265,10 @@ export default function AdminProfilePage() {
               console.error("Failed to upload certificate:", error);
               return null;
             }
+          }
+          // Only include educations with a certificateUrl
+          if (!certificateUrl) {
+            return null;
           }
           return {
             id: edu.id,
