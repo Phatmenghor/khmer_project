@@ -94,12 +94,25 @@ export function CategoriesDetailModal({
                     <CardTitle>Category Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* Image and Basic Info - Side by Side */}
+                    {/* Labels Row - Top alignment */}
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Left label - Category Image */}
+                      {categoriesData.imageUrl && (
+                        <div className="w-full md:w-1/2">
+                          <p className="text-sm font-medium text-foreground">Category Image</p>
+                        </div>
+                      )}
+                      {/* Right label - Category Name */}
+                      <div className="w-full md:w-1/2">
+                        <p className="text-sm font-medium text-foreground">Category Name</p>
+                      </div>
+                    </div>
+
+                    {/* Content Row - Image and Fields */}
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Category Image - Left Side (50%) */}
                       {categoriesData.imageUrl && (
                         <div className="w-full md:w-1/2">
-                          <p className="text-sm font-medium text-foreground mb-2">Category Image</p>
                           <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
                             <img
                               src={categoriesData.imageUrl}
@@ -112,7 +125,7 @@ export function CategoriesDetailModal({
 
                       {/* Basic Info - Right Side (50%) */}
                       <div className="w-full md:w-1/2 space-y-4">
-                        <DisplayField label="Category Name" value={categoriesData.name || "---"} />
+                        <p className="text-foreground">{categoriesData.name || "---"}</p>
                         <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
                         <DisplayField label="Status" value={categoriesData.status ? formatEnumValue(categoriesData.status) : "---"} />
                         <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />

@@ -94,12 +94,25 @@ export function BannerDetailModal({
                     <CardTitle>Banner Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* Image and Basic Info - Side by Side */}
+                    {/* Labels Row - Top alignment */}
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Left label - Banner Image */}
+                      {bannerData.imageUrl && (
+                        <div className="w-full md:w-1/2">
+                          <p className="text-sm font-medium text-foreground">Banner Image</p>
+                        </div>
+                      )}
+                      {/* Right label - Business Name */}
+                      <div className="w-full md:w-1/2">
+                        <p className="text-sm font-medium text-foreground">Business Name</p>
+                      </div>
+                    </div>
+
+                    {/* Content Row - Image and Fields */}
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Banner Image - Left Side (50%) */}
                       {bannerData.imageUrl && (
                         <div className="w-full md:w-1/2">
-                          <p className="text-sm font-medium text-foreground mb-2">Banner Image</p>
                           <div className="max-w-md h-40 rounded-md overflow-hidden bg-muted border border-border">
                             <img
                               src={bannerData.imageUrl}
@@ -112,7 +125,7 @@ export function BannerDetailModal({
 
                       {/* Basic Info - Right Side (50%) */}
                       <div className="w-full md:w-1/2 space-y-4">
-                        <DisplayField label="Business Name" value={bannerData.businessName || "---"} />
+                        <p className="text-foreground">{bannerData.businessName || "---"}</p>
                         <DisplayField label="Link URL" value={bannerData.linkUrl || "---"} />
                         <DisplayField label="Status" value={bannerData.status ? formatEnumValue(bannerData.status) : "---"} />
                       </div>
