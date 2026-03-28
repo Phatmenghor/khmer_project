@@ -126,41 +126,24 @@ export function UserBusinessDetailModal({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DisplayField label="First Name" value={userData.firstName} />
                   <DisplayField label="Last Name" value={userData.lastName} />
+                  <DisplayField label="Nickname" value={userData.nickname} />
                   <DisplayField label="Email" value={userData.email} />
                   <DisplayField label="Phone Number" value={userData.phoneNumber} />
-                  <DisplayField label="Nickname" value={userData.nickname} />
                   <DisplayField label="Gender" value={userData.gender ? formatEnumValue(userData.gender) : "-"} />
                   <DisplayField label="Date of Birth" value={userData.dateOfBirth} />
-                  <DisplayField label="Position" value={userData.position} />
                   <DisplayField label="Role" value={userData.roles && userData.roles.length > 0 ? userData.roles.map(r => formatEnumValue(r)).join(", ") : "-"} />
                   <DisplayField label="Account Status" value={userData.accountStatus ? formatEnumValue(userData.accountStatus) : "-"} />
-                  {userData.remark && (
-                    <div className="col-span-1 md:col-span-2">
-                      <DisplayField label="Remark" value={userData.remark} />
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Account Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <DisplayField label="User Type" value={formatEnumValue(userData.userType)} />
-                  <DisplayField label="Business" value={userData.businessName} />
                 </div>
               </CardContent>
             </Card>
 
             {/* Employment Information */}
             {(userData.employeeId ||
+              userData.position ||
               userData.department ||
               userData.employmentType ||
               userData.joinDate ||
+              userData.leaveDate ||
               userData.shift) && (
               <Card>
                 <CardHeader>
@@ -169,11 +152,12 @@ export function UserBusinessDetailModal({
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DisplayField label="Employee ID" value={userData.employeeId} />
+                    <DisplayField label="Position" value={userData.position} />
                     <DisplayField label="Department" value={userData.department} />
                     <DisplayField label="Employment Type" value={userData.employmentType ? formatEnumValue(userData.employmentType) : "-"} />
-                    <DisplayField label="Shift" value={userData.shift} />
                     <DisplayField label="Join Date" value={userData.joinDate} />
                     <DisplayField label="Leave Date" value={userData.leaveDate} />
+                    <DisplayField label="Shift" value={userData.shift} />
                   </div>
                 </CardContent>
               </Card>
@@ -190,7 +174,7 @@ export function UserBusinessDetailModal({
                     {userData.addresses.map((address: any, index: number) => (
                       <Card key={index} className="border-l-4 border-l-primary">
                         <CardContent className="pt-4 pb-4">
-                          <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <DisplayField label="Type" value={address.addressType ? formatEnumValue(address.addressType) : "-"} />
                             <DisplayField label="House No" value={address.houseNo} />
                             <DisplayField label="Street" value={address.street} />
@@ -219,10 +203,10 @@ export function UserBusinessDetailModal({
                     {userData.emergencyContacts.map((contact: any, index: number) => (
                       <Card key={index} className="border-l-4 border-l-orange-500">
                         <CardContent className="pt-4 pb-4">
-                          <div className="space-y-3">
+                          <div className="grid grid-cols-1 gap-4">
                             <DisplayField label="Name" value={contact.name} />
-                            <DisplayField label="Relationship" value={contact.relationship} />
                             <DisplayField label="Phone" value={contact.phone} />
+                            <DisplayField label="Relationship" value={contact.relationship} />
                           </div>
                         </CardContent>
                       </Card>
@@ -241,21 +225,25 @@ export function UserBusinessDetailModal({
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userData.documents.map((doc: any, index: number) => (
-                      <Card key={index} className="border-l-4 border-l-blue-500 overflow-hidden">
+                      <Card key={index} className="border-l-4 border-l-blue-500">
                         <CardContent className="p-4">
-                          <div className="space-y-3">
-                            <DisplayField label="Type" value={doc.type ? formatEnumValue(doc.type) : "-"} />
-                            <DisplayField label="Number" value={doc.number} />
-                          </div>
-                          {doc.fileUrl && (
-                            <div className="mt-4 -mx-4 -mb-4 flex justify-start">
-                              <img
-                                src={doc.fileUrl}
-                                alt={doc.type}
-                                className="h-40 w-auto max-w-full object-contain bg-muted/20"
-                              />
+                          <div className="space-y-4">
+                            <div>
+                              <DisplayField label="Type" value={doc.type ? formatEnumValue(doc.type) : "-"} />
                             </div>
-                          )}
+                            <div>
+                              <DisplayField label="Number" value={doc.number} />
+                            </div>
+                            {doc.fileUrl && (
+                              <div className="rounded-md overflow-hidden border border-border bg-muted/30">
+                                <img
+                                  src={doc.fileUrl}
+                                  alt={doc.type}
+                                  className="w-full h-auto max-h-64 object-contain"
+                                />
+                              </div>
+                            )}
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
@@ -273,31 +261,25 @@ export function UserBusinessDetailModal({
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userData.educations.map((edu: any, index: number) => (
-                      <Card key={index} className="border-l-4 border-l-green-500 overflow-hidden">
+                      <Card key={index} className="border-l-4 border-l-green-500">
                         <CardContent className="p-4">
-                          <div className="space-y-3">
-                            <DisplayField label="School Name" value={edu.schoolName} />
+                          <div className="space-y-4">
+                            <DisplayField label="School" value={edu.schoolName} />
                             <DisplayField label="Level" value={edu.level ? formatEnumValue(edu.level) : "-"} />
                             <DisplayField label="Field of Study" value={edu.fieldOfStudy} />
+                            <DisplayField label="Start Year" value={edu.startYear} />
+                            <DisplayField label="End Year" value={edu.endYear} />
                             <DisplayField label="Graduation" value={edu.isGraduated ? "Yes" : "No"} />
-                            <DisplayField
-                              label="Study Period"
-                              value={
-                                edu.startYear && edu.endYear
-                                  ? `${edu.startYear} - ${edu.endYear}`
-                                  : "-"
-                              }
-                            />
+                            {edu.certificateUrl && (
+                              <div className="rounded-md overflow-hidden border border-border bg-muted/30">
+                                <img
+                                  src={edu.certificateUrl}
+                                  alt="Certificate"
+                                  className="w-full h-auto max-h-64 object-contain"
+                                />
+                              </div>
+                            )}
                           </div>
-                          {edu.certificateUrl && (
-                            <div className="mt-4 -mx-4 -mb-4 flex justify-start">
-                              <img
-                                src={edu.certificateUrl}
-                                alt="Certificate"
-                                className="h-40 w-auto max-w-full object-contain bg-muted/20"
-                              />
-                            </div>
-                          )}
                         </CardContent>
                       </Card>
                     ))}
@@ -306,14 +288,14 @@ export function UserBusinessDetailModal({
               </Card>
             )}
 
-            {/* Additional Information */}
-            {userData.notes && (
+            {/* Remarks */}
+            {userData.remark && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Additional Information</CardTitle>
+                  <CardTitle>Remarks</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <DisplayField label="Notes" value={userData.notes} />
+                  <DisplayField label="Remarks" value={userData.remark} />
                 </CardContent>
               </Card>
             )}
@@ -326,6 +308,8 @@ export function UserBusinessDetailModal({
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DisplayField label="User ID" value={userData.id} />
+                  <DisplayField label="User Type" value={formatEnumValue(userData.userType)} />
+                  <DisplayField label="Business" value={userData.businessName} />
                   <DisplayField label="Created At" value={dateTimeFormat(userData.createdAt ?? "")} />
                   <DisplayField label="Created By" value={userData.createdBy} />
                   <DisplayField label="Last Updated" value={dateTimeFormat(userData.updatedAt ?? "")} />
