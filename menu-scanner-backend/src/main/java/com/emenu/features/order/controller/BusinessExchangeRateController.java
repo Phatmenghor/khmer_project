@@ -7,6 +7,7 @@ import com.emenu.features.order.dto.update.BusinessExchangeRateUpdateRequest;
 import com.emenu.features.order.service.BusinessExchangeRateService;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class BusinessExchangeRateController {
 
     private final BusinessExchangeRateService exchangeRateService;
+    private final SecurityUtils securityUtils;
 
     /**
      * Create new business exchange rate (deactivates previous active rate)
@@ -46,10 +48,28 @@ public class BusinessExchangeRateController {
     public ResponseEntity<ApiResponse<PaginationResponse<BusinessExchangeRateResponse>>> getAllBusinessExchangeRates(
             @Valid @RequestBody BusinessExchangeRateFilterRequest filter) {
         log.info("POST /business-exchange-rates/all - page: {}", filter.getPageNo());
-        
-        PaginationResponse<BusinessExchangeRateResponse> exchangeRates = 
+
+        PaginationResponse<BusinessExchangeRateResponse> exchangeRates =
                 exchangeRateService.getAllBusinessExchangeRates(filter);
-        
+
+        return ResponseEntity.ok(ApiResponse.success("Business exchange rates retrieved successfully", exchangeRates));
+    }
+
+    /**
+     * Get all business exchange rates for current business - Business ID extracted from token
+     * Security: No businessId parameter needed, extracted from authenticated user's context
+     */
+    @PostMapping("/my-business/all")
+    public ResponseEntity<ApiResponse<PaginationResponse<BusinessExchangeRateResponse>>> getMyBusinessExchangeRates(
+            @Valid @RequestBody BusinessExchangeRateFilterRequest filter) {
+        log.info("POST /business-exchange-rates/my-business/all - page: {}", filter.getPageNo());
+
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        filter.setBusinessId(businessId);
+
+        PaginationResponse<BusinessExchangeRateResponse> exchangeRates =
+                exchangeRateService.getAllBusinessExchangeRates(filter);
+
         return ResponseEntity.ok(ApiResponse.success("Business exchange rates retrieved successfully", exchangeRates));
     }
 
