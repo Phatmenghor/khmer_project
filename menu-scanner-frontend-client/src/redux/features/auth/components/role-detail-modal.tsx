@@ -50,12 +50,15 @@ export function RoleDetailModal({
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">
-                {formatEnumValue(roleData.name)}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-semibold text-foreground">
+              {formatEnumValue(roleData.name)}
+            </h2>
+            {roleData.description && (
+              <p className="text-sm text-foreground mt-1">
+                {roleData.description}
               </p>
-            </div>
+            )}
           </div>
         </div>
 
