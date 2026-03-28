@@ -159,7 +159,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-sm p-0 flex flex-col">
+      <DialogContent className="w-full max-w-2xl p-0 flex flex-col">
         <FormHeader
           title={isCreate ? "Create New Role" : "Edit Role"}
           description={
