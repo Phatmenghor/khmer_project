@@ -75,7 +75,7 @@ export const PAYMENT_TYPE_CREATE_UPDATE = [
 
 export const BANNER_STATUS_CREATE_UPDATE = [
   { value: Status.ACTIVE, label: "Active" },
-  { value: Status.INACTIVE, label: "Draft" },
+  { value: Status.INACTIVE, label: "Inactive" },
 ];
 
 export const DELIVERY_OPTIONS_STATUS_CREATE_UPDATE = [
