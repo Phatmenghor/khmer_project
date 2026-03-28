@@ -131,6 +131,30 @@ export function UserBusinessDetailModal({
                   <DisplayField label="Phone Number" value={userData.phoneNumber} />
                   <DisplayField label="Gender" value={userData.gender ? formatEnumValue(userData.gender) : "-"} />
                   <DisplayField label="Date of Birth" value={userData.dateOfBirth} />
+                  <DisplayField
+                    label="Telegram ID"
+                    value={userData.telegramId}
+                  />
+                  <DisplayField
+                    label="Telegram Username"
+                    value={userData.telegramUsername}
+                  />
+                  <DisplayField
+                    label="Telegram First Name"
+                    value={userData.telegramFirstName}
+                  />
+                  <DisplayField
+                    label="Telegram Last Name"
+                    value={userData.telegramLastName}
+                  />
+                  <DisplayField
+                    label="Telegram Synced At"
+                    value={userData.telegramSyncedAt}
+                  />
+                  <DisplayField
+                    label="Telegram Synced"
+                    value={userData.telegramSynced ? "Yes" : "No"}
+                  />
                   <DisplayField label="Role" value={userData.roles && userData.roles.length > 0 ? userData.roles.map(r => formatEnumValue(r)).join(", ") : "-"} />
                   <DisplayField label="Account Status" value={userData.accountStatus ? formatEnumValue(userData.accountStatus) : "-"} />
                 </div>
