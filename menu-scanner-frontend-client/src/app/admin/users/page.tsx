@@ -76,7 +76,6 @@ export default function UserBusinessPage() {
         pageNo: 1,
         pageSize: 100,
         includeAll: false,
-        businessId: AppDefault.BUSINESS_ID,
         userTypes: [UserGropeType.BUSINESS_USER],
       }),
     );

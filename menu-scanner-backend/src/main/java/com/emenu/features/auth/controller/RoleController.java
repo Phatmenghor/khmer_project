@@ -6,6 +6,7 @@ import com.emenu.features.auth.dto.response.RoleDetailResponse;
 import com.emenu.features.auth.dto.response.RoleResponse;
 import com.emenu.features.auth.dto.update.RoleUpdateRequest;
 import com.emenu.features.auth.service.RoleService;
+import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class RoleController {
 
     private final RoleService roleService;
+    private final SecurityUtils securityUtils;
 
     /**
      * Create a new role (platform-level or business-specific)
@@ -63,6 +65,34 @@ public class RoleController {
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRolesList(
             @Valid @RequestBody RoleFilterRequest request) {
         log.info("Get all roles as list with filters");
+        List<RoleResponse> response = roleService.getAllRolesList(request);
+        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", response));
+    }
+
+    /**
+     * Get current business roles with pagination - Business ID extracted from token
+     * Security: No businessId parameter needed, extracted from authenticated user's context
+     */
+    @PostMapping("/my-business/all")
+    public ResponseEntity<ApiResponse<PaginationResponse<RoleResponse>>> getMyBusinessRoles(
+            @Valid @RequestBody RoleFilterRequest request) {
+        log.info("Get my business roles");
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        request.setBusinessId(businessId);
+        PaginationResponse<RoleResponse> response = roleService.getAllRoles(request);
+        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", response));
+    }
+
+    /**
+     * Get current business roles as list - Business ID extracted from token
+     * Security: No businessId parameter needed, extracted from authenticated user's context
+     */
+    @PostMapping("/my-business/all-list")
+    public ResponseEntity<ApiResponse<List<RoleResponse>>> getMyBusinessRolesList(
+            @Valid @RequestBody RoleFilterRequest request) {
+        log.info("Get my business roles as list");
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        request.setBusinessId(businessId);
         List<RoleResponse> response = roleService.getAllRolesList(request);
         return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", response));
     }

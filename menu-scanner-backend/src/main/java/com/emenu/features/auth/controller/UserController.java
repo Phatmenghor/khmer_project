@@ -8,6 +8,7 @@ import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.features.auth.service.AuthService;
 import com.emenu.features.auth.service.UserService;
+import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
@@ -27,6 +28,7 @@ public class UserController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final SecurityUtils securityUtils;
 
     /**
      * Retrieves a test admin token for development purposes
@@ -83,6 +85,20 @@ public class UserController {
     public ResponseEntity<ApiResponse<PaginationResponse<UserResponse>>> getAllUsers(
             @Valid @RequestBody UserFilterRequest request) {
         log.info("Get all users");
+        PaginationResponse<UserResponse> response = userService.getAllUsers(request);
+        return ResponseEntity.ok(ApiResponse.success("Users retrieved", response));
+    }
+
+    /**
+     * Retrieves current business users with pagination - Business ID extracted from token
+     * Security: No businessId parameter needed, extracted from authenticated user's context
+     */
+    @PostMapping("/my-business/all")
+    public ResponseEntity<ApiResponse<PaginationResponse<UserResponse>>> getMyBusinessUsers(
+            @Valid @RequestBody UserFilterRequest request) {
+        log.info("Get my business users");
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        request.setBusinessId(businessId);
         PaginationResponse<UserResponse> response = userService.getAllUsers(request);
         return ResponseEntity.ok(ApiResponse.success("Users retrieved", response));
     }

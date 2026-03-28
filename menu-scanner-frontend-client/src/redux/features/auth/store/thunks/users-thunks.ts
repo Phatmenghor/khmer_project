@@ -22,7 +22,7 @@ export const fetchAllUsersService = createApiThunk<any, AllUserRequest>(
   async (params) => {
     console.log("🔍 API Request Payload:", JSON.stringify(params, null, 2));
     const response = await axiosClientWithAuth.post(
-      "/api/v1/users/all",
+      "/api/v1/users/my-business/all",
       params
     );
     console.log("✅ API Response received:", response.data);
