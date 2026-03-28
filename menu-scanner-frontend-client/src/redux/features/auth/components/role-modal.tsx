@@ -54,7 +54,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
   const roleData = rolesContent.find(role => role.id === roleId);
 
   const {
-    control,
+    control: formControl,
     handleSubmit,
     reset,
     setValue,
@@ -71,6 +71,9 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
     },
     mode: "onChange",
   });
+
+  // Cast control to any for compatibility with field components
+  const control = formControl as any;
 
   const nameValue = watch("name");
 
@@ -164,6 +167,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
               ? "Fill out the form to create a new role"
               : "Update role information below"
           }
+          isCreate={isCreate}
         />
 
         <form
