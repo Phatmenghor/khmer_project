@@ -813,7 +813,7 @@ export default function PosPage() {
             >
               <ChevronRight className="h-5 w-5 transform rotate-180" />
             </Button>
-            <ScrollArea className="flex-1 h-10 overflow-hidden" ref={categoryScrollRef}>
+            <ScrollArea className="flex-1 h-10" ref={categoryScrollRef}>
               <div className="flex gap-3 px-2 h-10 items-center">
                 <button
                   onClick={() => dispatch(setSelectedCategory(null))}
@@ -861,7 +861,7 @@ export default function PosPage() {
           </div>
 
           {/* Product Grid */}
-          <ScrollArea className="flex-1 w-full overflow-hidden" ref={productGridRef}>
+          <ScrollArea className="flex-1 w-full" ref={productGridRef}>
             <div
               className="w-full max-md:p-2 md:p-4"
               style={{
