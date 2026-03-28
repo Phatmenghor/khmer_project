@@ -1033,14 +1033,14 @@ export default function AdminProfilePage() {
                               <DisplayField label="Number" value={field.number} />
                             </div>
                             {field.fileUrl && (
-                              <div>
+                              <div className="mt-4">
                                 <label className="text-sm font-medium text-muted-foreground">
                                   File
                                 </label>
                                 <img
                                   src={field.fileUrl}
                                   alt="Document"
-                                  className="w-1/2 h-32 object-contain rounded mt-2"
+                                  className="w-1/2 h-32 object-cover rounded mt-2"
                                 />
                               </div>
                             )}
