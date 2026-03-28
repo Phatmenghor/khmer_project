@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { Controller, FieldError } from "react-hook-form";
+import { Controller, FieldError, Control, FieldValues, Path } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 
-interface TextAreaFieldProps {
-  name: string;
+interface TextAreaFieldProps<T extends FieldValues> {
+  name: Path<T>;
   label: string;
-  control: any;
+  control: Control<T>;
   error?: FieldError;
   disabled?: boolean;
   placeholder?: string;
@@ -15,7 +15,7 @@ interface TextAreaFieldProps {
   rows?: number;
 }
 
-export function TextAreaField({
+export function TextAreaField<T extends FieldValues>({
   name,
   label,
   control,
@@ -24,10 +24,10 @@ export function TextAreaField({
   placeholder = "",
   className = "",
   rows = 3,
-}: TextAreaFieldProps) {
+}: TextAreaFieldProps<T>) {
   return (
     <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={name} className="text-sm font-medium text-foreground">
+      <Label htmlFor={name as string} className="text-sm font-medium text-foreground">
         {label}
       </Label>
       <Controller
@@ -37,7 +37,7 @@ export function TextAreaField({
           <textarea
             {...field}
             value={field.value ?? ""}
-            id={name}
+            id={name as string}
             placeholder={placeholder}
             disabled={disabled}
             rows={rows}
