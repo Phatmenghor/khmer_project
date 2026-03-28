@@ -115,7 +115,8 @@ export function CategoriesDetailModal({
                         <p className="text-foreground">{categoriesData.name || "---"}</p>
                         <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
                         <DisplayField label="Status" value={categoriesData.status ? formatEnumValue(categoriesData.status) : "---"} />
-                        <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />
+                        <DisplayField label="Total Products" value={categoriesData.totalProducts ?? "---"} />
+                        <DisplayField label="Active Products" value={categoriesData.activeProducts ?? "---"} />
                       </div>
 
                       {/* Category Image - Right Side (50%) */}
