@@ -387,21 +387,37 @@ export default function AdminProfilePage() {
     try {
       setIsUploadingImage(true);
 
-      // Update form immediately for preview
-      setValue("profileImageUrl", imageData, {
+      // First upload the base64 image to CDN/storage
+      let profileImageUrl = imageData;
+      if (isBase64Image(profileImageUrl)) {
+        try {
+          console.log("📤 [UPLOAD CDN] Uploading image to CDN...");
+          profileImageUrl = await uploadImage(profileImageUrl);
+          console.log("✅ [UPLOAD CDN] Image URL from CDN:", profileImageUrl);
+        } catch (error) {
+          console.error("Failed to upload image to CDN:", error);
+          showToast.error("Failed to upload image");
+          setIsUploadingImage(false);
+          return;
+        }
+      }
+
+      // Update form with the CDN URL
+      setValue("profileImageUrl", profileImageUrl, {
         shouldDirty: true,
       });
 
-      // Upload to API
+      // Send only the URL to API
       const payload = {
-        profileImageUrl: imageData,
+        profileImageUrl,
       };
 
-      console.log("🔄 [UPLOAD] Uploading profile picture...");
+      console.log("🔄 [UPDATE API] Updating profile with image URL...");
       const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
-      console.log("✅ [UPLOAD] Profile picture uploaded:", updatedProfile);
+      console.log("✅ [UPDATE API] Profile picture updated:", updatedProfile);
 
       // Reload profile to ensure we have the latest from server
+      console.log("🔄 [FETCH] Reloading profile data...");
       const freshProfile = await dispatch(getProfileService()).unwrap();
       console.log("✅ [FETCH] Fresh profile loaded:", freshProfile);
 
