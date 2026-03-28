@@ -72,13 +72,14 @@ export const SIDEBAR_MENU: MenuItem[] = [
     icon: Users,
     items: [
       {
-        title: "All Users",
-        href: ROUTES.ADMIN.USERS,
-      },
-      {
         title: "Roles",
         href: ROUTES.ADMIN.ROLES,
       },
+      {
+        title: "All Users",
+        href: ROUTES.ADMIN.USERS,
+      },
+
       // {
       //   title: "Sessions",
       //   href: ROUTES.ADMIN.USER_SESSIONS,
