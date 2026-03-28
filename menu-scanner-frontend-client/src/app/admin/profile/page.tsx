@@ -717,7 +717,7 @@ export default function AdminProfilePage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeAddress(index)}
-                            className="absolute top-2 right-2 text-red-500"
+                            className="absolute top-2 right-2 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -869,7 +869,7 @@ export default function AdminProfilePage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeContact(index)}
-                            className="absolute top-2 right-2 text-red-500"
+                            className="absolute top-2 right-2 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -964,7 +964,7 @@ export default function AdminProfilePage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeDocument(index)}
-                            className="absolute top-2 right-2 text-red-500"
+                            className="absolute top-2 right-2 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -1098,7 +1098,7 @@ export default function AdminProfilePage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeEducation(index)}
-                            className="absolute top-2 right-2 text-red-500"
+                            className="absolute top-2 right-2 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
