@@ -27,6 +27,20 @@ export const fetchAllCategoriesService = createApiThunk<
 });
 
 /**
+ * Fetch all categories with product count (for admin page)
+ */
+export const fetchAllCategoriesWithProductCountService = createApiThunk<
+  any,
+  AllCategoriesRequest
+>("categories/fetchAllWithProductCount", async (params) => {
+  const response = await axiosClientWithAuth.post(
+    "/api/v1/categories/my-business/product/all",
+    params
+  );
+  return response.data.data;
+});
+
+/**
  * Fetch categories by ID
  */
 export const fetchCategoriesByIdService = createApiThunk<any, string>(

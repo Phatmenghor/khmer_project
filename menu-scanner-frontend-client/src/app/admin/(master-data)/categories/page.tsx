@@ -22,7 +22,7 @@ import {
 } from "@/redux/features/master-data/store/slice/categories-slice";
 import {
   deleteCategoriesService,
-  fetchAllCategoriesService,
+  fetchAllCategoriesWithProductCountService,
 } from "@/redux/features/master-data/store/thunks/categories-thunks";
 import { categoriesTableColumns } from "@/redux/features/master-data/table/categories-table";
 import CategoriesModal from "@/redux/features/master-data/components/categories-modal";
@@ -78,7 +78,7 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     dispatch(
-      fetchAllCategoriesService({
+      fetchAllCategoriesWithProductCountService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
