@@ -78,4 +78,16 @@ public interface BrandRepository extends JpaRepository<Brand, UUID> {
         @Param("search") String search,
         Sort sort
     );
+
+    /**
+     * Get total and active product counts for multiple brands in a single query (optimized)
+     */
+    @Query("SELECT b.id, " +
+           "COUNT(p.id) as total_count, " +
+           "COUNT(CASE WHEN p.status = 'ACTIVE' THEN p.id END) as active_count " +
+           "FROM Brand b " +
+           "LEFT JOIN Product p ON p.brandId = b.id AND p.isDeleted = false " +
+           "WHERE b.id IN :brandIds AND b.isDeleted = false " +
+           "GROUP BY b.id")
+    List<Object[]> countTotalAndActiveProductsForBrands(@Param("brandIds") List<UUID> brandIds);
 }

@@ -4,6 +4,7 @@ import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.BrandFilterRequest;
 import com.emenu.features.main.dto.request.BrandCreateRequest;
 import com.emenu.features.main.dto.response.BrandResponse;
+import com.emenu.features.main.dto.response.BrandWithProductCountResponse;
 import com.emenu.features.main.dto.update.BrandUpdateRequest;
 import com.emenu.features.main.service.BrandService;
 import com.emenu.security.SecurityUtils;
@@ -64,6 +65,24 @@ public class BrandController {
 
         PaginationResponse<BrandResponse> brands = brandService.getAllBrands(filter);
         return ResponseEntity.ok(ApiResponse.success("Business brands retrieved successfully", brands));
+    }
+
+    /**
+     * Get my business brands with product count
+     * If businessId is provided in filter, use it; otherwise use current user's business
+     */
+    @PostMapping("/my-business/with-product-count")
+    public ResponseEntity<ApiResponse<PaginationResponse<BrandWithProductCountResponse>>> getMyBusinessBrandsWithProductCount(@Valid @RequestBody BrandFilterRequest filter) {
+        log.info("Getting brands with product count for current user's business");
+        User currentUser = securityUtils.getCurrentUser();
+
+        // Use businessId from filter if provided, otherwise use current user's business
+        if (filter.getBusinessId() == null) {
+            filter.setBusinessId(currentUser.getBusinessId());
+        }
+
+        PaginationResponse<BrandWithProductCountResponse> brands = brandService.getBrandsWithProductCount(filter);
+        return ResponseEntity.ok(ApiResponse.success("Business brands with product count retrieved successfully", brands));
     }
 
     /**
