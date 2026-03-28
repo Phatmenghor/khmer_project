@@ -672,14 +672,14 @@ export default function AdminProfilePage() {
 
               {/* Addresses */}
               <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Addresses</CardTitle>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Addresses</CardTitle>
+                    {isEditing && (
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={!isEditing}
                         onClick={() =>
                           appendAddress({
                             id: undefined,
@@ -697,130 +697,146 @@ export default function AdminProfilePage() {
                         <Plus className="h-4 w-4 mr-2" />
                         Add Address
                       </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {addressFields.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No addresses added
-                      </p>
-                    ) : (
-                      <div className="space-y-4">
-                        {addressFields.map((field, index) => (
-                          <div
-                            key={field.id}
-                            className="border rounded-lg p-4 relative"
-                          >
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              disabled={!isEditing}
-                              onClick={() => removeAddress(index)}
-                              className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                              <SelectField
-                                control={typedControl}
-                                name={`addresses.${index}.addressType`}
-                                label="Type"
-                                placeholder="Type"
-                                options={ADDRESS_TYPE_OPTIONS}
-                                disabled={!isEditing}
-                                error={
-                                  errors.addresses?.[index]?.addressType as any
-                                }
-                              />
-                              <TextField
-                                control={typedControl}
-                                name={`addresses.${index}.houseNo`}
-                                label="House No"
-                                placeholder="No"
-                                disabled={!isEditing}
-                                error={
-                                  errors.addresses?.[index]?.houseNo as any
-                                }
-                              />
-                              <TextField
-                                control={typedControl}
-                                name={`addresses.${index}.street`}
-                                label="Street"
-                                placeholder="Street"
-                                disabled={!isEditing}
-                                error={
-                                  errors.addresses?.[index]?.street as any
-                                }
-                              />
-                              <TextField
-                                control={typedControl}
-                                name={`addresses.${index}.village`}
-                                label="Village"
-                                placeholder="Village"
-                                disabled={!isEditing}
-                                error={
-                                  errors.addresses?.[index]?.village as any
-                                }
-                              />
-                              <TextField
-                                control={typedControl}
-                                name={`addresses.${index}.commune`}
-                                label="Commune"
-                                placeholder="Commune"
-                                disabled={!isEditing}
-                                error={
-                                  errors.addresses?.[index]?.commune as any
-                                }
-                              />
-                              <TextField
-                                control={typedControl}
-                                name={`addresses.${index}.district`}
-                                label="District"
-                                placeholder="District"
-                                disabled={!isEditing}
-                                error={
-                                  errors.addresses?.[index]?.district as any
-                                }
-                              />
-                              <TextField
-                                control={typedControl}
-                                name={`addresses.${index}.province`}
-                                label="Province"
-                                placeholder="Province"
-                                disabled={!isEditing}
-                                error={
-                                  errors.addresses?.[index]?.province as any
-                                }
-                              />
-                              <TextField
-                                control={typedControl}
-                                name={`addresses.${index}.country`}
-                                label="Country"
-                                placeholder="Country"
-                                disabled={!isEditing}
-                                error={
-                                  errors.addresses?.[index]?.country as any
-                                }
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {addressFields.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No addresses added
+                    </p>
+                  ) : isEditing ? (
+                    <div className="space-y-4">
+                      {addressFields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="border rounded-lg p-4 relative"
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeAddress(index)}
+                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            <SelectField
+                              control={typedControl}
+                              name={`addresses.${index}.addressType`}
+                              label="Type"
+                              placeholder="Type"
+                              options={ADDRESS_TYPE_OPTIONS}
+                              error={
+                                errors.addresses?.[index]?.addressType as any
+                              }
+                            />
+                            <TextField
+                              control={typedControl}
+                              name={`addresses.${index}.houseNo`}
+                              label="House No"
+                              placeholder="No"
+                              error={
+                                errors.addresses?.[index]?.houseNo as any
+                              }
+                            />
+                            <TextField
+                              control={typedControl}
+                              name={`addresses.${index}.street`}
+                              label="Street"
+                              placeholder="Street"
+                              error={
+                                errors.addresses?.[index]?.street as any
+                              }
+                            />
+                            <TextField
+                              control={typedControl}
+                              name={`addresses.${index}.village`}
+                              label="Village"
+                              placeholder="Village"
+                              error={
+                                errors.addresses?.[index]?.village as any
+                              }
+                            />
+                            <TextField
+                              control={typedControl}
+                              name={`addresses.${index}.commune`}
+                              label="Commune"
+                              placeholder="Commune"
+                              error={
+                                errors.addresses?.[index]?.commune as any
+                              }
+                            />
+                            <TextField
+                              control={typedControl}
+                              name={`addresses.${index}.district`}
+                              label="District"
+                              placeholder="District"
+                              error={
+                                errors.addresses?.[index]?.district as any
+                              }
+                            />
+                            <TextField
+                              control={typedControl}
+                              name={`addresses.${index}.province`}
+                              label="Province"
+                              placeholder="Province"
+                              error={
+                                errors.addresses?.[index]?.province as any
+                              }
+                            />
+                            <TextField
+                              control={typedControl}
+                              name={`addresses.${index}.country`}
+                              label="Country"
+                              placeholder="Country"
+                              error={
+                                errors.addresses?.[index]?.country as any
+                              }
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {addressFields.map((field, index) => (
+                        <div key={field.id} className="border-b pb-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayField
+                              label="Type"
+                              value={
+                                ADDRESS_TYPE_OPTIONS.find(
+                                  (o) => o.value === field.addressType
+                                )?.label
+                              }
+                            />
+                            <DisplayField label="House No" value={field.houseNo} />
+                            <DisplayField label="Street" value={field.street} />
+                            <DisplayField label="Village" value={field.village} />
+                            <DisplayField label="Commune" value={field.commune} />
+                            <DisplayField label="District" value={field.district} />
+                            <DisplayField label="Province" value={field.province} />
+                            <DisplayField label="Country" value={field.country} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Emergency Contacts */}
               <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Emergency Contacts</CardTitle>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Emergency Contacts</CardTitle>
+                    {isEditing && (
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={!isEditing}
                         onClick={() =>
                           appendContact({
                             id: undefined,
@@ -833,80 +849,89 @@ export default function AdminProfilePage() {
                         <Plus className="h-4 w-4 mr-2" />
                         Add Contact
                       </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {contactFields.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No emergency contacts added
-                      </p>
-                    ) : (
-                      <div className="space-y-4">
-                        {contactFields.map((field, index) => (
-                          <div
-                            key={field.id}
-                            className="border rounded-lg p-4 relative"
-                          >
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              disabled={!isEditing}
-                              onClick={() => removeContact(index)}
-                              className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                              <TextField
-                                control={typedControl}
-                                name={`emergencyContacts.${index}.name`}
-                                label="Name"
-                                placeholder="Name"
-                                disabled={!isEditing}
-                                error={
-                                  errors.emergencyContacts?.[index]?.name as any
-                                }
-                              />
-                              <TextField
-                                control={typedControl}
-                                name={`emergencyContacts.${index}.phone`}
-                                label="Phone"
-                                placeholder="Phone"
-                                disabled={!isEditing}
-                                error={
-                                  errors.emergencyContacts?.[index]?.phone as any
-                                }
-                              />
-                              <TextField
-                                control={typedControl}
-                                name={`emergencyContacts.${index}.relationship`}
-                                label="Relationship"
-                                placeholder="Relationship"
-                                disabled={!isEditing}
-                                error={
-                                  errors.emergencyContacts?.[index]
-                                    ?.relationship as any
-                                }
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {contactFields.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No emergency contacts added
+                    </p>
+                  ) : isEditing ? (
+                    <div className="space-y-4">
+                      {contactFields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="border rounded-lg p-4 relative"
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeContact(index)}
+                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                            <TextField
+                              control={typedControl}
+                              name={`emergencyContacts.${index}.name`}
+                              label="Name"
+                              placeholder="Name"
+                              error={
+                                errors.emergencyContacts?.[index]?.name as any
+                              }
+                            />
+                            <TextField
+                              control={typedControl}
+                              name={`emergencyContacts.${index}.phone`}
+                              label="Phone"
+                              placeholder="Phone"
+                              error={
+                                errors.emergencyContacts?.[index]?.phone as any
+                              }
+                            />
+                            <TextField
+                              control={typedControl}
+                              name={`emergencyContacts.${index}.relationship`}
+                              label="Relationship"
+                              placeholder="Relationship"
+                              error={
+                                errors.emergencyContacts?.[index]
+                                  ?.relationship as any
+                              }
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {contactFields.map((field, index) => (
+                        <div key={field.id} className="border-b pb-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <DisplayField label="Name" value={field.name} />
+                            <DisplayField label="Phone" value={field.phone} />
+                            <DisplayField label="Relationship" value={field.relationship} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Documents */}
               <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Documents</CardTitle>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Documents</CardTitle>
+                    {isEditing && (
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={!isEditing}
                         onClick={() =>
                           appendDocument({
                             id: undefined,
@@ -919,93 +944,120 @@ export default function AdminProfilePage() {
                         <Plus className="h-4 w-4 mr-2" />
                         Add Document
                       </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {documentFields.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No documents added
-                      </p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {documentFields.map((field, index) => (
-                          <div
-                            key={field.id}
-                            className="border rounded-lg p-4 relative"
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {documentFields.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No documents added
+                    </p>
+                  ) : isEditing ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {documentFields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="border rounded-lg p-4 relative"
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeDocument(index)}
+                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
                           >
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              disabled={!isEditing}
-                              onClick={() => removeDocument(index)}
-                              className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                            <div className="space-y-4 pt-2">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <SelectField
-                                  control={typedControl}
-                                  name={`documents.${index}.type`}
-                                  label="Type"
-                                  placeholder="Type"
-                                  options={DOCUMENT_TYPE_OPTIONS}
-                                disabled={!isEditing}
-                                  error={
-                                    errors.documents?.[index]?.type as any
-                                  }
-                                />
-                                <TextField
-                                  control={typedControl}
-                                  name={`documents.${index}.number`}
-                                  label="Number"
-                                  placeholder="Number"
-                                disabled={!isEditing}
-                                  error={
-                                    errors.documents?.[index]?.number as any
-                                  }
-                                />
-                              </div>
-                              <ClickableImageUpload
-                                label="File"
-                                value={
-                                  watch(`documents.${index}.fileUrl`) || ""
-                                }
-                                onChange={(base64) =>
-                                  setValue(
-                                    `documents.${index}.fileUrl`,
-                                    base64,
-                                    { shouldDirty: true }
-                                  )
-                                }
-                                aspectRatio="auto"
-                                height="h-32"
-                                maxSize={5}
-                                disabled={!isEditing}
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <div className="space-y-4 pt-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <SelectField
+                                control={typedControl}
+                                name={`documents.${index}.type`}
+                                label="Type"
+                                placeholder="Type"
+                                options={DOCUMENT_TYPE_OPTIONS}
                                 error={
-                                  errors.documents?.[index]?.fileUrl as any
+                                  errors.documents?.[index]?.type as any
                                 }
-                                placeholder="Upload"
+                              />
+                              <TextField
+                                control={typedControl}
+                                name={`documents.${index}.number`}
+                                label="Number"
+                                placeholder="Number"
+                                error={
+                                  errors.documents?.[index]?.number as any
+                                }
                               />
                             </div>
+                            <ClickableImageUpload
+                              label="File"
+                              value={
+                                watch(`documents.${index}.fileUrl`) || ""
+                              }
+                              onChange={(base64) =>
+                                setValue(
+                                  `documents.${index}.fileUrl`,
+                                  base64,
+                                  { shouldDirty: true }
+                                )
+                              }
+                              aspectRatio="auto"
+                              height="h-32"
+                              maxSize={5}
+                              error={
+                                errors.documents?.[index]?.fileUrl as any
+                              }
+                              placeholder="Upload"
+                            />
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {documentFields.map((field, index) => (
+                        <div key={field.id} className="border rounded-lg p-4">
+                          <div className="space-y-4">
+                            <DisplayField
+                              label="Type"
+                              value={
+                                DOCUMENT_TYPE_OPTIONS.find(
+                                  (o) => o.value === field.type
+                                )?.label
+                              }
+                            />
+                            <DisplayField label="Number" value={field.number} />
+                            {field.fileUrl && (
+                              <div>
+                                <label className="text-sm font-medium text-muted-foreground">
+                                  File
+                                </label>
+                                <img
+                                  src={field.fileUrl}
+                                  alt="Document"
+                                  className="w-full h-32 object-cover rounded mt-2"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Education */}
               <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Education</CardTitle>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Education</CardTitle>
+                    {isEditing && (
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={!isEditing}
                         onClick={() =>
                           appendEducation({
                             id: undefined,
@@ -1022,134 +1074,164 @@ export default function AdminProfilePage() {
                         <Plus className="h-4 w-4 mr-2" />
                         Add Education
                       </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {educationFields.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No education added
-                      </p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {educationFields.map((field, index) => (
-                          <div
-                            key={field.id}
-                            className="border rounded-lg p-4 relative"
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {educationFields.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No education added
+                    </p>
+                  ) : isEditing ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {educationFields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="border rounded-lg p-4 relative"
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeEducation(index)}
+                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
                           >
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              disabled={!isEditing}
-                              onClick={() => removeEducation(index)}
-                              className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                            <div className="space-y-4 pt-2">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <SelectField
-                                  control={typedControl}
-                                  name={`educations.${index}.level`}
-                                  label="Level"
-                                  placeholder="Level"
-                                  options={EDUCATION_LEVEL_OPTIONS}
-                                disabled={!isEditing}
-                                  error={
-                                    errors.educations?.[index]?.level as any
-                                  }
-                                />
-                                <TextField
-                                  control={typedControl}
-                                  name={`educations.${index}.schoolName`}
-                                  label="School"
-                                  placeholder="School"
-                                disabled={!isEditing}
-                                  error={
-                                    errors.educations?.[index]
-                                      ?.schoolName as any
-                                  }
-                                />
-                                <TextField
-                                  control={typedControl}
-                                  name={`educations.${index}.fieldOfStudy`}
-                                  label="Field"
-                                  placeholder="Field"
-                                disabled={!isEditing}
-                                  error={
-                                    errors.educations?.[index]
-                                      ?.fieldOfStudy as any
-                                  }
-                                />
-                                <DateTimePickerField
-                                  control={typedControl}
-                                  name={`educations.${index}.startYear`}
-                                  label="Start"
-                                  mode="date"
-                                  placeholder="Start"
-                                disabled={!isEditing}
-                                  error={
-                                    errors.educations?.[index]
-                                      ?.startYear as any
-                                  }
-                                />
-                                <DateTimePickerField
-                                  control={typedControl}
-                                  name={`educations.${index}.endYear`}
-                                  label="End"
-                                  mode="date"
-                                  placeholder="End"
-                                disabled={!isEditing}
-                                  error={
-                                    errors.educations?.[index]?.endYear as any
-                                  }
-                                />
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    disabled={!isEditing}
-                                    {...control.register(
-                                      `educations.${index}.isGraduated`
-                                    )}
-                                    className="w-4 h-4 rounded border-gray-300"
-                                  />
-                                  <span className="text-sm font-medium">
-                                    Graduated
-                                  </span>
-                                </label>
-                              </div>
-                              <ClickableImageUpload
-                                label="Certificate"
-                                value={
-                                  watch(`educations.${index}.certificateUrl`) ||
-                                  ""
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <div className="space-y-4 pt-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <SelectField
+                                control={typedControl}
+                                name={`educations.${index}.level`}
+                                label="Level"
+                                placeholder="Level"
+                                options={EDUCATION_LEVEL_OPTIONS}
+                                error={
+                                  errors.educations?.[index]?.level as any
                                 }
-                                onChange={(base64) =>
-                                  setValue(
-                                    `educations.${index}.certificateUrl`,
-                                    base64,
-                                    { shouldDirty: true }
-                                  )
-                                }
-                                aspectRatio="auto"
-                                height="h-32"
-                                maxSize={5}
-                                disabled={!isEditing}
+                              />
+                              <TextField
+                                control={typedControl}
+                                name={`educations.${index}.schoolName`}
+                                label="School"
+                                placeholder="School"
                                 error={
                                   errors.educations?.[index]
-                                    ?.certificateUrl as any
+                                    ?.schoolName as any
                                 }
-                                placeholder="Upload"
+                              />
+                              <TextField
+                                control={typedControl}
+                                name={`educations.${index}.fieldOfStudy`}
+                                label="Field"
+                                placeholder="Field"
+                                error={
+                                  errors.educations?.[index]
+                                    ?.fieldOfStudy as any
+                                }
+                              />
+                              <DateTimePickerField
+                                control={typedControl}
+                                name={`educations.${index}.startYear`}
+                                label="Start"
+                                mode="date"
+                                placeholder="Start"
+                                error={
+                                  errors.educations?.[index]
+                                    ?.startYear as any
+                                }
+                              />
+                              <DateTimePickerField
+                                control={typedControl}
+                                name={`educations.${index}.endYear`}
+                                label="End"
+                                mode="date"
+                                placeholder="End"
+                                error={
+                                  errors.educations?.[index]?.endYear as any
+                                }
                               />
                             </div>
+                            <div className="flex items-center gap-4">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  {...control.register(
+                                    `educations.${index}.isGraduated`
+                                  )}
+                                  className="w-4 h-4 rounded border-gray-300"
+                                />
+                                <span className="text-sm font-medium">
+                                  Graduated
+                                </span>
+                              </label>
+                            </div>
+                            <ClickableImageUpload
+                              label="Certificate"
+                              value={
+                                watch(`educations.${index}.certificateUrl`) ||
+                                ""
+                              }
+                              onChange={(base64) =>
+                                setValue(
+                                  `educations.${index}.certificateUrl`,
+                                  base64,
+                                  { shouldDirty: true }
+                                )
+                              }
+                              aspectRatio="auto"
+                              height="h-32"
+                              maxSize={5}
+                              error={
+                                errors.educations?.[index]
+                                  ?.certificateUrl as any
+                              }
+                              placeholder="Upload"
+                            />
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {educationFields.map((field, index) => (
+                        <div key={field.id} className="border rounded-lg p-4">
+                          <div className="space-y-4">
+                            <DisplayField
+                              label="Level"
+                              value={
+                                EDUCATION_LEVEL_OPTIONS.find(
+                                  (o) => o.value === field.level
+                                )?.label
+                              }
+                            />
+                            <DisplayField label="School" value={field.schoolName} />
+                            <DisplayField label="Field of Study" value={field.fieldOfStudy} />
+                            <DisplayField label="Start Year" value={field.startYear} />
+                            <DisplayField label="End Year" value={field.endYear} />
+                            <DisplayField
+                              label="Graduated"
+                              value={field.isGraduated ? "Yes" : "No"}
+                            />
+                            {field.certificateUrl && (
+                              <div>
+                                <label className="text-sm font-medium text-muted-foreground">
+                                  Certificate
+                                </label>
+                                <img
+                                  src={field.certificateUrl}
+                                  alt="Certificate"
+                                  className="w-full h-32 object-cover rounded mt-2"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Remarks */}
               <Card>
