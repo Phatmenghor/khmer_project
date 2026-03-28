@@ -55,7 +55,7 @@ export function UserBusinessDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">User Details Loading</DialogTitle>
-        <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
             <Loading />
           </div>
@@ -68,7 +68,7 @@ export function UserBusinessDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">User Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">No user data available</p>
           </div>
@@ -80,7 +80,7 @@ export function UserBusinessDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">User Details - {userData.fullName}</DialogTitle>
-      <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-4">
@@ -243,21 +243,24 @@ export function UserBusinessDetailModal({
                   <CardTitle>Documents</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {userData.documents.map((doc: any, index: number) => (
-                      <div key={index} className="border-b pb-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <DisplayField label="Type" value={doc.type ? formatEnumValue(doc.type) : "-"} />
-                          <DisplayField label="Number" value={doc.number} />
+                      <div key={index} className="border rounded-lg p-4">
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayField label="Type" value={doc.type ? formatEnumValue(doc.type) : "-"} />
+                            <DisplayField label="Number" value={doc.number} />
+                          </div>
                           {doc.fileUrl && (
-                            <div className="col-span-1 md:col-span-2">
-                              <div className="rounded-md overflow-hidden border border-border">
-                                <img
-                                  src={doc.fileUrl}
-                                  alt={doc.type}
-                                  className="w-full h-auto max-h-64 object-contain bg-white"
-                                />
-                              </div>
+                            <div className="mt-4">
+                              <label className="text-sm font-medium text-muted-foreground">
+                                File
+                              </label>
+                              <img
+                                src={doc.fileUrl}
+                                alt="Document"
+                                className="w-1/2 h-32 object-cover rounded mt-2"
+                              />
                             </div>
                           )}
                         </div>
@@ -275,25 +278,32 @@ export function UserBusinessDetailModal({
                   <CardTitle>Education</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {userData.educations.map((edu: any, index: number) => (
-                      <div key={index} className="border-b pb-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <DisplayField label="School" value={edu.schoolName} />
-                          <DisplayField label="Level" value={edu.level ? formatEnumValue(edu.level) : "-"} />
-                          <DisplayField label="Field of Study" value={edu.fieldOfStudy} />
-                          <DisplayField label="Start Year" value={edu.startYear} />
-                          <DisplayField label="End Year" value={edu.endYear} />
-                          <DisplayField label="Graduation" value={edu.isGraduated ? "Yes" : "No"} />
+                      <div key={index} className="border rounded-lg p-4">
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayField label="Level" value={edu.level ? formatEnumValue(edu.level) : "-"} />
+                            <DisplayField label="School" value={edu.schoolName} />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayField label="Field of Study" value={edu.fieldOfStudy} />
+                            <DisplayField label="Start Year" value={edu.startYear} />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayField label="End Year" value={edu.endYear} />
+                            <DisplayField label="Graduation" value={edu.isGraduated ? "Yes" : "No"} />
+                          </div>
                           {edu.certificateUrl && (
-                            <div className="col-span-1 md:col-span-2">
-                              <div className="rounded-md overflow-hidden border border-border">
-                                <img
-                                  src={edu.certificateUrl}
-                                  alt="Certificate"
-                                  className="w-full h-auto max-h-64 object-contain bg-white"
-                                />
-                              </div>
+                            <div className="mt-4">
+                              <label className="text-sm font-medium text-muted-foreground">
+                                Certificate
+                              </label>
+                              <img
+                                src={edu.certificateUrl}
+                                alt="Certificate"
+                                className="w-1/2 h-32 object-cover rounded mt-2"
+                              />
                             </div>
                           )}
                         </div>
