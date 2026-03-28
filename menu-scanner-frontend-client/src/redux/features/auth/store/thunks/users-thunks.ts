@@ -90,7 +90,7 @@ export const toggleUserStatusService = createApiThunk<any, UserResponseModel>(
     }
 
     const newStatus =
-      user?.accountStatus === "ACTIVE" ? "END_WORK" : "ACTIVE";
+      user?.accountStatus === "ACTIVE" ? "LOCKED" : "ACTIVE";
 
     const response = await axiosClientWithAuth.put(`/api/v1/users/${user.id}`, {
       accountStatus: newStatus,
