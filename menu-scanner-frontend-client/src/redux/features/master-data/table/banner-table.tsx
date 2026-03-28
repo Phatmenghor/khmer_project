@@ -8,6 +8,8 @@ import {
 } from "../store/models/response/banner-response";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface BannerTableHandlers {
   handleEditBanner: (banner: BannerResponseModel) => void;
@@ -42,11 +44,11 @@ export const bannerTableColumns = ({
     {
       key: "imageUrl",
       label: "Banner Image",
-      minWidth: "150px",
-      maxWidth: "200px",
+      minWidth: "200px",
+      maxWidth: "280px",
       render: (banner) => {
         return (
-          <div className="flex-shrink-0 w-32 h-20 rounded-lg overflow-hidden bg-muted border border-border">
+          <div className="flex-shrink-0 w-64 h-32 rounded-lg overflow-hidden bg-muted border border-border shadow-sm">
             <img
               src={banner.imageUrl}
               alt="Banner"
@@ -62,8 +64,8 @@ export const bannerTableColumns = ({
     {
       key: "description",
       label: "Description",
-      minWidth: "250px",
-      maxWidth: "400px",
+      minWidth: "300px",
+      maxWidth: "500px",
       render: (banner) => (
         <h3 className="font-semibold text-sm text-foreground line-clamp-3">
           {banner.description || "No description"}
@@ -74,7 +76,7 @@ export const bannerTableColumns = ({
       key: "linkUrl",
       label: "Link",
       minWidth: "150px",
-      maxWidth: "300px",
+      maxWidth: "250px",
       truncate: true,
       render: (banner) => (
         <span className="text-xs text-muted-foreground truncate">
@@ -85,13 +87,19 @@ export const bannerTableColumns = ({
     {
       key: "status",
       label: "Status",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
+      minWidth: "100px",
+      maxWidth: "150px",
       render: (banner) => (
-        <span className="text-xs text-muted-foreground">
-          {banner?.status || "---"}
-        </span>
+        <Badge
+          className={cn(
+            "font-medium text-xs",
+            banner?.status === "ACTIVE"
+              ? "bg-green-100 text-green-800 hover:bg-green-100"
+              : "bg-red-100 text-red-800 hover:bg-red-100"
+          )}
+        >
+          {banner?.status === "ACTIVE" ? "Active" : "Inactive"}
+        </Badge>
       ),
     },
 
