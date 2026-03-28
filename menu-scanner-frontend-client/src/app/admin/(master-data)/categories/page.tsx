@@ -132,13 +132,44 @@ export default function CategoriesPage() {
     });
   };
 
+  const handleToggleCategoryStatus = async (category: CategoriesResponseModel) => {
+    try {
+      const newStatus = category.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+      await dispatch(
+        updateCategoriesService({
+          categoriesId: category.id,
+          categoriesData: {
+            status: newStatus,
+          },
+        }),
+      ).unwrap();
+
+      showToast.success(
+        `Category status updated to ${newStatus}`,
+      );
+
+      // Refresh the data with product count
+      dispatch(
+        fetchAllCategoriesWithProductCountService({
+          search: debouncedSearch,
+          pageNo: filters.pageNo,
+          pageSize: globalPageSize,
+          status: filters.status == Status.ALL ? undefined : filters.status,
+        }),
+      );
+    } catch (error: any) {
+      showToast.error(error || "Failed to update category status");
+    }
+  };
+
   const tableHandlers = useMemo(
     () => ({
       handleEditCategories,
       handleCategoriesViewDetail,
       handleDeleteCategories,
+      handleToggleCategoryStatus,
     }),
-    [],
+    [debouncedSearch, filters.pageNo, filters.status, globalPageSize, dispatch],
   );
 
   const columns = useMemo(

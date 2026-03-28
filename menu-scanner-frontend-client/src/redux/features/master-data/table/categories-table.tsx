@@ -4,6 +4,8 @@ import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { Switch } from "@/components/ui/switch";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   AllCategoriesResponseModel,
   CategoriesResponseModel,
@@ -13,6 +15,7 @@ interface CategoriesTableHandlers {
   handleEditCategories: (brand: CategoriesResponseModel) => void;
   handleCategoriesViewDetail: (brand: CategoriesResponseModel) => void;
   handleDeleteCategories: (brand: CategoriesResponseModel) => void;
+  handleToggleCategoryStatus: (category: CategoriesResponseModel) => void;
 }
 
 interface CategoriesTableOptions {
@@ -28,6 +31,7 @@ export const categoriesTableColumns = ({
     handleEditCategories,
     handleCategoriesViewDetail,
     handleDeleteCategories,
+    handleToggleCategoryStatus,
   } = handlers;
 
   return [
@@ -49,11 +53,21 @@ export const categoriesTableColumns = ({
       maxWidth: "400px",
       render: (categories) => {
         return (
-          <CustomAvatar
-            imageUrl={categories.imageUrl}
-            name={categories?.name}
-            size="md"
-          />
+          <div className="h-12 w-12 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+            {categories.imageUrl ? (
+              <img
+                src={categories.imageUrl}
+                alt={categories?.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
+                <span className="text-xs font-semibold text-primary">
+                  {categories?.name?.charAt(0)?.toUpperCase() || "C"}
+                </span>
+              </div>
+            )}
+          </div>
         );
       },
     },
@@ -78,9 +92,15 @@ export const categoriesTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (categories) => (
-        <span className="text-xs text-muted-foreground">
-          {categories?.status || "---"}
-        </span>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={categories?.status === "ACTIVE"}
+            onCheckedChange={() => handleToggleCategoryStatus(categories)}
+          />
+          <span className="text-xs text-muted-foreground">
+            {categories?.status ? formatEnumValue(categories.status) : "---"}
+          </span>
+        </div>
       ),
     },
 
