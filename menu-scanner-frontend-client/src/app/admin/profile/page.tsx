@@ -1193,26 +1193,32 @@ export default function AdminProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
                       {educationFields.map((field, index) => (
                         <div key={field.id} className="border rounded-lg p-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <DisplayField
-                              label="Level"
-                              value={
-                                EDUCATION_LEVEL_OPTIONS.find(
-                                  (o) => o.value === field.level
-                                )?.label
-                              }
-                            />
-                            <DisplayField label="School" value={field.schoolName} />
-                            <DisplayField label="Field of Study" value={field.fieldOfStudy} />
-                            <DisplayField label="Start Year" value={field.startYear} />
-                            <DisplayField label="End Year" value={field.endYear} />
-                            <DisplayField
-                              label="Graduated"
-                              value={field.isGraduated ? "Yes" : "No"}
-                            />
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <DisplayField
+                                label="Level"
+                                value={
+                                  EDUCATION_LEVEL_OPTIONS.find(
+                                    (o) => o.value === field.level
+                                  )?.label
+                                }
+                              />
+                              <DisplayField label="School" value={field.schoolName} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <DisplayField label="Field of Study" value={field.fieldOfStudy} />
+                              <DisplayField label="Start Year" value={field.startYear} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <DisplayField label="End Year" value={field.endYear} />
+                              <DisplayField
+                                label="Graduated"
+                                value={field.isGraduated ? "Yes" : "No"}
+                              />
+                            </div>
                           </div>
                           {field.certificateUrl && (
                             <div className="mt-4">
