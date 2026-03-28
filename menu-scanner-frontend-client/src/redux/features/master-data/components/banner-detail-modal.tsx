@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
@@ -13,8 +12,6 @@ import {
 } from "../store/selectors/banner-selector";
 import { fetchBannerByIdService } from "../store/thunks/banner-thunks";
 import { clearSelectedBanner } from "../store/slice/banner-slice";
-import { toggleBannerStatusService } from "../store/thunks/banner-thunks";
-import { showToast } from "@/components/shared/common/show-toast";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -50,16 +47,6 @@ export function BannerDetailModal({
   const handleClose = () => {
     dispatch(clearSelectedBanner());
     onClose();
-  };
-
-  const handleToggleStatus = () => {
-    if (!bannerData?.id) return;
-    try {
-      dispatch(toggleBannerStatusService(bannerData));
-      showToast.success("Banner status updated successfully");
-    } catch (error: any) {
-      showToast.error(error || "Failed to update banner status");
-    }
   };
 
   if (!bannerData && !isFetchingDetail) {
@@ -120,21 +107,10 @@ export function BannerDetailModal({
                         </div>
                       </div>
                     )}
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <DisplayField label="Business Name" value={bannerData.businessName || "---"} />
                       <DisplayField label="Link URL" value={bannerData.linkUrl || "---"} />
-                      <div className="flex items-center justify-between py-2 border-b">
-                        <label className="text-sm font-medium text-foreground">Status</label>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={bannerData.status === "ACTIVE"}
-                            onCheckedChange={handleToggleStatus}
-                          />
-                          <span className="text-sm text-muted-foreground">
-                            {formatEnumValue(bannerData.status || "---")}
-                          </span>
-                        </div>
-                      </div>
+                      <DisplayField label="Status" value={bannerData.status ? formatEnumValue(bannerData.status) : "---"} />
                     </div>
                   </CardContent>
                 </Card>

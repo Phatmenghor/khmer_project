@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
@@ -13,8 +12,6 @@ import {
 } from "../store/selectors/categories-selector";
 import { fetchCategoriesByIdService } from "../store/thunks/categories-thunks";
 import { clearSelectedCategories } from "../store/slice/categories-slice";
-import { toggleCategoriesStatusService } from "../store/thunks/categories-thunks";
-import { showToast } from "@/components/shared/common/show-toast";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -50,16 +47,6 @@ export function CategoriesDetailModal({
   const handleClose = () => {
     dispatch(clearSelectedCategories());
     onClose();
-  };
-
-  const handleToggleStatus = () => {
-    if (!categoriesData?.id) return;
-    try {
-      dispatch(toggleCategoriesStatusService(categoriesData));
-      showToast.success("Category status updated successfully");
-    } catch (error: any) {
-      showToast.error(error || "Failed to update category status");
-    }
   };
 
   if (!categoriesData && !isFetchingDetail) {
@@ -120,24 +107,11 @@ export function CategoriesDetailModal({
                         </div>
                       </div>
                     )}
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DisplayField label="Category Name" value={categoriesData.name || "---"} />
-                        <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
-                        <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />
-                      </div>
-                      <div className="flex items-center justify-between py-2 border-b">
-                        <label className="text-sm font-medium text-foreground">Status</label>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={categoriesData.status === "ACTIVE"}
-                            onCheckedChange={handleToggleStatus}
-                          />
-                          <span className="text-sm text-muted-foreground">
-                            {formatEnumValue(categoriesData.status || "---")}
-                          </span>
-                        </div>
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <DisplayField label="Category Name" value={categoriesData.name || "---"} />
+                      <DisplayField label="Business Name" value={categoriesData.businessName || "---"} />
+                      <DisplayField label="Status" value={categoriesData.status ? formatEnumValue(categoriesData.status) : "---"} />
+                      <DisplayField label="Product Count" value={categoriesData.productCount ?? categoriesData.totalProducts ?? "---"} />
                     </div>
                   </CardContent>
                 </Card>
