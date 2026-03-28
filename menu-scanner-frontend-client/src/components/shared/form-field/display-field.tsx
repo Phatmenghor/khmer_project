@@ -8,7 +8,7 @@ interface DisplayFieldProps {
 export function DisplayField({ label, value }: DisplayFieldProps) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-medium text-muted-foreground">{label}</label>
+      <div className="text-sm font-medium text-muted-foreground">{label}</div>
       <p className="text-base text-foreground">{value || "-"}</p>
     </div>
   );

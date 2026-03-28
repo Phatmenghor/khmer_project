@@ -44,6 +44,7 @@ export function DateTimePickerField<T extends FieldValues>({
         name={name}
         render={({ field }) => (
           <CustomDateTimePicker
+            id={name}
             value={field.value || ""}
             onChange={field.onChange}
             disabled={disabled}

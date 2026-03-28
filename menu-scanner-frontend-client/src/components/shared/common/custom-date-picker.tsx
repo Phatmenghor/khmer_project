@@ -25,6 +25,7 @@ interface DateTimePickerProps {
   className?: string;
   error?: boolean;
   mode?: "date" | "datetime";
+  id?: string;
 }
 
 const MONTHS = [
@@ -52,6 +53,7 @@ export function CustomDateTimePicker({
   className,
   error = false,
   mode = "date",
+  id,
 }: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -244,6 +246,7 @@ export function CustomDateTimePicker({
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
+          id={id}
           variant="outline"
           className={cn(
             "w-full justify-start text-left font-normal h-10 px-3 text-sm",
