@@ -1193,10 +1193,10 @@ export default function AdminProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-6">
                       {educationFields.map((field, index) => (
                         <div key={field.id} className="border rounded-lg p-4">
-                          <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
                             <DisplayField
                               label="Level"
                               value={
@@ -1213,19 +1213,19 @@ export default function AdminProfilePage() {
                               label="Graduated"
                               value={field.isGraduated ? "Yes" : "No"}
                             />
-                            {field.certificateUrl && (
-                              <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                  Certificate
-                                </label>
-                                <img
-                                  src={field.certificateUrl}
-                                  alt="Certificate"
-                                  className="w-full h-32 object-cover rounded mt-2"
-                                />
-                              </div>
-                            )}
                           </div>
+                          {field.certificateUrl && (
+                            <div className="mt-4">
+                              <label className="text-sm font-medium text-muted-foreground">
+                                Certificate
+                              </label>
+                              <img
+                                src={field.certificateUrl}
+                                alt="Certificate"
+                                className="w-full h-32 object-cover rounded mt-2"
+                              />
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
