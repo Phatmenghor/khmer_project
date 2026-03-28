@@ -498,8 +498,8 @@ export default function AdminProfilePage() {
                     size="xxl"
                   />
                   {/* Camera Icon Overlay - Auto show on hover */}
-                  <div className="absolute bottom-0 right-0 bg-primary rounded-full p-3 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:bg-primary/90 hover:scale-110">
-                    <Camera className="h-6 w-6 text-white" />
+                  <div className="absolute bottom-1 right-1 bg-primary rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-md hover:bg-primary/90">
+                    <Camera className="h-4 w-4 text-white" />
                   </div>
                 </div>
               </div>
