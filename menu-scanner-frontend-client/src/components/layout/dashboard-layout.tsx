@@ -48,9 +48,7 @@ export default function DashboardLayout({
           onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
           onFullscreenClick={() => setIsFullscreen(false)}
         />
-        <main className="dashboard-main flex-1 overflow-hidden">
-          {children}
-        </main>
+        <main className="dashboard-main flex-1 overflow-hidden">{children}</main>
       </div>
     );
   }
@@ -63,7 +61,8 @@ export default function DashboardLayout({
       />
       <div
         className={cn(
-          "dashboard-content flex flex-col flex-1 transition-all duration-300 overflow-hidden",
+          "dashboard-content flex flex-col flex-1 transition-all duration-300",
+          isPosPage ? "overflow-hidden" : "overflow-y-auto",
           isMobile ? "w-full" : isSidebarOpen ? "ml-56" : "ml-[60px]",
         )}
       >
@@ -71,15 +70,13 @@ export default function DashboardLayout({
           onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
           onFullscreenClick={() => setIsFullscreen(true)}
         />
-        <main
-          className={cn(
-            "dashboard-main flex flex-col flex-1 min-h-0",
-            isPosPage ? "overflow-hidden" : "overflow-y-auto",
-          )}
-        >
-          <div className={isPosPage ? "" : "p-2 md:p-4"}>{children}</div>
-          {!isPosPage && <AdminFooter />}
+        <main className={cn(
+          "dashboard-main flex-1",
+          isPosPage ? "overflow-hidden" : "p-2 md:p-4"
+        )}>
+          {children}
         </main>
+        {!isPosPage && <AdminFooter />}
       </div>
     </div>
   );
