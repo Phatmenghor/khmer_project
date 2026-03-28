@@ -490,6 +490,7 @@ export default function UserBusinessModal({
               : "Update user business information below"
           }
           avatarName={userIdentifier || email}
+          isCreate={isCreate}
         />
 
         {!isCreate && isFetchingDetail ? (
