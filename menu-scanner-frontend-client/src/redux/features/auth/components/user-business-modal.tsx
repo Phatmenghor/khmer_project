@@ -237,7 +237,12 @@ export default function UserBusinessModal({
               ? data.emergencyContacts
               : [],
             documents: Array.isArray(data.documents) ? data.documents : [],
-            educations: Array.isArray(data.educations) ? data.educations : [],
+            educations: Array.isArray(data.educations)
+              ? data.educations.map((edu: any) => ({
+                  ...edu,
+                  isGraduated: String(edu.isGraduated),
+                }))
+              : [],
           });
         }
       } catch (error) {
