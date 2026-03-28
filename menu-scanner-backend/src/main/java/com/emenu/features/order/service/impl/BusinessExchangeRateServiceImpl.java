@@ -52,7 +52,7 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         deactivateCurrentActiveRate(businessId);
 
         BusinessExchangeRate exchangeRate = exchangeRateMapper.toEntity(request);
-        exchangeRate.setIsActive(true); // New rate is always active
+        exchangeRate.setStatus(BusinessExchangeRate.ExchangeRateStatus.ACTIVE); // New rate is always active
 
         BusinessExchangeRate savedExchangeRate = exchangeRateRepository.save(exchangeRate);
 
@@ -76,7 +76,7 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
 
         Page<BusinessExchangeRate> page = exchangeRateRepository.findAllWithFilters(
                 businessId,
-                filter.getIsActive(),
+                filter.getStatus(),
                 filter.getSearch(),
                 pageable
         );
@@ -114,7 +114,7 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         BusinessExchangeRate exchangeRate = findExchangeRateById(id);
 
         // Don't allow deletion of the only active rate for a business
-        if (exchangeRate.getIsActive() && exchangeRateRepository.countActiveRates(exchangeRate.getBusinessId()) == 1) {
+        if (exchangeRate.isActive() && exchangeRateRepository.countActiveRates(exchangeRate.getBusinessId()) == 1) {
             throw new ValidationException("Cannot delete the only active exchange rate. Create a new rate first.");
         }
 

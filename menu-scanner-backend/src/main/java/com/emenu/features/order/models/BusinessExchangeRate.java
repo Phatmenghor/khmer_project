@@ -13,7 +13,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "business_exchange_rates", indexes = {
         @Index(name = "idx_business_exchange_rate_business", columnList = "business_id, is_deleted"),
-        @Index(name = "idx_business_exchange_rate_active", columnList = "business_id, is_active, is_deleted")
+        @Index(name = "idx_business_exchange_rate_status", columnList = "business_id, status, is_deleted")
 })
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -36,16 +36,13 @@ public class BusinessExchangeRate extends BaseUUIDEntity {
     @Column(name = "usd_to_cny_rate")
     private Double usdToCnyRate;
 
-    // Optional: USD to Thai Baht (THB)
-    @Column(name = "usd_to_thb_rate")
-    private Double usdToThbRate;
-
     // Optional: USD to Vietnamese Dong (VND)
     @Column(name = "usd_to_vnd_rate")
     private Double usdToVndRate;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ExchangeRateStatus status = ExchangeRateStatus.ACTIVE;
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
@@ -55,24 +52,24 @@ public class BusinessExchangeRate extends BaseUUIDEntity {
     // ================================
 
     /**
-     * Check if this rate is currently active for the business
+     * Check if this rate is currently active
      */
     public boolean isActive() {
-        return Boolean.TRUE.equals(isActive);
+        return status == ExchangeRateStatus.ACTIVE;
     }
 
     /**
      * Activate this exchange rate
      */
     public void activate() {
-        this.isActive = true;
+        this.status = ExchangeRateStatus.ACTIVE;
     }
 
     /**
      * Deactivate this exchange rate
      */
     public void deactivate() {
-        this.isActive = false;
+        this.status = ExchangeRateStatus.INACTIVE;
     }
 
     /**
@@ -80,10 +77,6 @@ public class BusinessExchangeRate extends BaseUUIDEntity {
      */
     public boolean hasCnyRate() {
         return usdToCnyRate != null && usdToCnyRate > 0;
-    }
-
-    public boolean hasThbRate() {
-        return usdToThbRate != null && usdToThbRate > 0;
     }
 
     public boolean hasVndRate() {
@@ -101,12 +94,15 @@ public class BusinessExchangeRate extends BaseUUIDEntity {
         return hasCnyRate() ? String.format("1 USD = %.4f CNY", usdToCnyRate) : "Not set";
     }
 
-    public String getFormattedThbRate() {
-        return hasThbRate() ? String.format("1 USD = %.4f THB", usdToThbRate) : "Not set";
-    }
-
     public String getFormattedVndRate() {
         return hasVndRate() ? String.format("1 USD = %.2f VND", usdToVndRate) : "Not set";
+    }
+
+    /**
+     * Enum for exchange rate status
+     */
+    public enum ExchangeRateStatus {
+        ACTIVE, INACTIVE
     }
 }
 

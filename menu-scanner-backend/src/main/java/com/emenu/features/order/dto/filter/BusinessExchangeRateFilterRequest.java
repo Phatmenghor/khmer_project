@@ -1,5 +1,6 @@
 package com.emenu.features.order.dto.filter;
 
+import com.emenu.features.order.models.BusinessExchangeRate;
 import com.emenu.shared.dto.BaseFilterRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,5 +11,5 @@ import java.util.UUID;
 @Data
 public class BusinessExchangeRateFilterRequest extends BaseFilterRequest {
     private UUID businessId;
-    private Boolean isActive;
+    private BusinessExchangeRate.ExchangeRateStatus status;
 }

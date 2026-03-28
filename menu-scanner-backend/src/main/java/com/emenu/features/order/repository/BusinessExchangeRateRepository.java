@@ -24,7 +24,7 @@ public interface BusinessExchangeRateRepository extends JpaRepository<BusinessEx
     /**
      * Finds the active exchange rate for a business
      */
-    @Query("SELECT ber FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.isActive = true AND ber.isDeleted = false")
+    @Query("SELECT ber FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
     Optional<BusinessExchangeRate> findActiveRateByBusinessId(@Param("businessId") UUID businessId);
 
     /**
@@ -42,26 +42,26 @@ public interface BusinessExchangeRateRepository extends JpaRepository<BusinessEx
     /**
      * Checks if a business has an active exchange rate
      */
-    @Query("SELECT COUNT(ber) > 0 FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.isActive = true AND ber.isDeleted = false")
+    @Query("SELECT COUNT(ber) > 0 FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
     boolean hasActiveRate(@Param("businessId") UUID businessId);
 
     /**
      * Deactivates all active exchange rates for a business
      */
     @Modifying
-    @Query("UPDATE BusinessExchangeRate ber SET ber.isActive = false WHERE ber.businessId = :businessId AND ber.isActive = true AND ber.isDeleted = false")
+    @Query("UPDATE BusinessExchangeRate ber SET ber.status = 'INACTIVE' WHERE ber.businessId = :businessId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
     int deactivateAllRatesForBusiness(@Param("businessId") UUID businessId);
 
     /**
      * Counts active exchange rates for a business
      */
-    @Query("SELECT COUNT(ber) FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.isActive = true AND ber.isDeleted = false")
+    @Query("SELECT COUNT(ber) FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
     long countActiveRates(@Param("businessId") UUID businessId);
 
     /**
      * Finds all active exchange rates across all businesses, ordered by creation date descending
      */
-    @Query("SELECT ber FROM BusinessExchangeRate ber WHERE ber.isActive = true AND ber.isDeleted = false ORDER BY ber.createdAt DESC")
+    @Query("SELECT ber FROM BusinessExchangeRate ber WHERE ber.status = 'ACTIVE' AND ber.isDeleted = false ORDER BY ber.createdAt DESC")
     List<BusinessExchangeRate> findAllActiveRates();
 
     /**
@@ -71,13 +71,13 @@ public interface BusinessExchangeRateRepository extends JpaRepository<BusinessEx
            "LEFT JOIN ber.business b " +
            "WHERE ber.isDeleted = false " +
            "AND (:businessId IS NULL OR ber.businessId = :businessId) " +
-           "AND (:isActive IS NULL OR ber.isActive = :isActive) " +
+           "AND (:status IS NULL OR ber.status = :status) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     CAST(ber.usdToKhrRate AS string) LIKE CONCAT('%', :search, '%') OR " +
            "     LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<BusinessExchangeRate> findAllWithFilters(
         @Param("businessId") UUID businessId,
-        @Param("isActive") Boolean isActive,
+        @Param("status") BusinessExchangeRate.ExchangeRateStatus status,
         @Param("search") String search,
         Pageable pageable
     );
