@@ -192,8 +192,8 @@ export default function BannerModal({
           isCreate={isCreate}
         />
 
-        {/* Show loading spinner in edit mode while fetching or when form is empty */}
-        {!isCreate && (isFetchingDetail || !imageUrl) ? (
+        {/* Show loading spinner in edit mode while fetching */}
+        {!isCreate && isFetchingDetail ? (
           <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>
