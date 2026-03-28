@@ -19,8 +19,8 @@ import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-st
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import {
   selectError,
-  selectIsFetchingDetail,
   selectOperations,
+  selectSelectedCategories,
 } from "../store/selectors/categories-selector";
 import {
   CreateCategoriesData,
@@ -36,7 +36,6 @@ import {
   clearError,
   clearSelectedCategories,
 } from "../store/slice/categories-slice";
-import { Loading } from "@/components/shared/common/loading";
 
 type Props = {
   mode: ModalMode;
@@ -59,7 +58,7 @@ export default function CategoriesModal({
   const dispatch = useAppDispatch();
 
   const operations = useAppSelector(selectOperations);
-  const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
+  const categoriesData = useAppSelector(selectSelectedCategories);
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
@@ -68,7 +67,6 @@ export default function CategoriesModal({
     handleSubmit,
     reset,
     setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<CreateCategoriesData>({
     resolver: zodResolver(
@@ -82,21 +80,9 @@ export default function CategoriesModal({
     mode: "onChange",
   });
 
-  const imageUrl = watch("imageUrl");
-
+  // Fetch category data for edit mode
   useEffect(() => {
-    if (isOpen) {
-      reset({
-        name: "",
-        imageUrl: "",
-        status: Status.ACTIVE,
-      });
-    }
-  }, [isOpen, categoriesId, reset]);
-
-  // Fetch banner data for edit mode
-  useEffect(() => {
-    const fetchBrandData = async () => {
+    const fetchCategoryData = async () => {
       if (!categoriesId || !isOpen || isCreate) return;
 
       try {
@@ -118,8 +104,18 @@ export default function CategoriesModal({
       }
     };
 
-    fetchBrandData();
+    fetchCategoryData();
   }, [categoriesId, isOpen, isCreate, reset, dispatch]);
+
+  useEffect(() => {
+    if (isOpen && isCreate) {
+      reset({
+        name: "",
+        imageUrl: "",
+        status: Status.ACTIVE,
+      });
+    }
+  }, [isOpen, isCreate, reset]);
 
   // Clear errors when modal opens
   useEffect(() => {
@@ -132,15 +128,15 @@ export default function CategoriesModal({
     try {
       let finalImageUrl = data.imageUrl;
 
-      // Upload image if it's a base64 string with loading state
+      // Upload image if it's a base64 string
       if (finalImageUrl && isBase64Image(finalImageUrl)) {
         setIsUploadingImage(true);
         try {
           finalImageUrl = await uploadImage(finalImageUrl);
         } catch (uploadError) {
-          console.error("Error uploading categories image:", uploadError);
+          console.error("Error uploading category image:", uploadError);
           showToast.error(
-            "Failed to upload categories image. Please try again.",
+            "Failed to upload category image. Please try again.",
           );
           return;
         } finally {
@@ -156,7 +152,7 @@ export default function CategoriesModal({
 
       if (isCreate) {
         await dispatch(createCategoriesService(payload)).unwrap();
-        showToast.success("Categories created successfully");
+        showToast.success("Category created successfully");
         handleClose();
       } else {
         await dispatch(
@@ -165,13 +161,13 @@ export default function CategoriesModal({
             categoriesData: payload,
           }),
         ).unwrap();
-        showToast.success("Categories updated successfully");
+        showToast.success("Category updated successfully");
         handleClose();
       }
     } catch (error: any) {
       showToast.error(
         error?.message ||
-          `Failed to ${isCreate ? "create" : "update"} categories`,
+          `Failed to ${isCreate ? "create" : "update"} category`,
       );
     }
   };
@@ -189,116 +185,86 @@ export default function CategoriesModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full max-w-2xl p-0 flex flex-col">
         <FormHeader
-          title={isCreate ? "Create New Categories" : "Edit Categories"}
+          title={isCreate ? "Create New Category" : "Edit Category"}
           description={
             isCreate
-              ? "Upload an image and configure categories settings"
-              : "Update categories information below"
+              ? "Fill out the form to create a new category"
+              : "Update category information below"
           }
           isCreate={isCreate}
         />
 
-        {/* Show loading spinner in edit mode while fetching or when form is empty */}
-        {!isCreate && (isFetchingDetail || !imageUrl) ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
-            <Loading />
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-hidden"
-          >
-            <FormBody>
-              {/* Display Redux errors */}
-              {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
-                  <p className="text-sm text-destructive font-medium">
-                    {reduxError}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-6">
-                {/* Categories Image Section - Prominent display */}
-                <div className="space-y-3">
-                  <ClickableImageUpload
-                    label="Category Image"
-                    value={imageUrl}
-                    onChange={(base64) => setValue("imageUrl", base64)}
-                    aspectRatio="square"
-                    required
-                    error={errors.imageUrl}
-                    placeholder="Click to upload category image"
-                    helperText="Square image works best (500x500)"
-                  />
-                </div>
-
-                {/* Divider */}
-                <div className="border-t pt-6">
-                  <h3 className="text-sm font-semibold text-foreground mb-4">
-                    Banner Details
-                  </h3>
-
-                  {/* Banner Details Grid */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <TextField
-                      control={control}
-                      name="name"
-                      label="Name Brand"
-                      placeholder="Enter name brand"
-                      disabled={isProcessing}
-                      error={errors.name}
-                    />
-
-                    <SelectField
-                      control={control}
-                      name="status"
-                      label="Status"
-                      placeholder="Select status"
-                      options={BANNER_STATUS_CREATE_UPDATE}
-                      required
-                      disabled={isProcessing}
-                      error={errors.status}
-                    />
-                  </div>
-                </div>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
+          <FormBody>
+            {/* Display Redux errors */}
+            {reduxError && (
+              <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
+                <p className="text-sm text-destructive font-medium">
+                  {reduxError}
+                </p>
               </div>
-            </FormBody>
+            )}
 
-            <FormFooter
+            {/* Category Image Upload */}
+            <ClickableImageUpload
+              label="Category Image"
+              value={categoriesData?.imageUrl || ""}
+              onChange={(base64) => setValue("imageUrl", base64)}
+              aspectRatio="square"
+              required
+              error={errors.imageUrl}
+              placeholder="Click to upload category image"
+              helperText="Square image works best (500x500)"
+            />
+
+            {/* Category Name */}
+            <TextField
+              control={control}
+              name="name"
+              label="Category Name"
+              placeholder="Enter category name"
+              required
+              disabled={isProcessing}
+              error={errors.name}
+            />
+
+            {/* Status */}
+            <SelectField
+              control={control}
+              name="status"
+              label="Status"
+              placeholder="Select status"
+              options={BANNER_STATUS_CREATE_UPDATE}
+              required
+              disabled={isProcessing}
+              error={errors.status}
+            />
+          </FormBody>
+
+          <FormFooter
+            isSubmitting={isProcessing}
+            isDirty={isDirty}
+            isCreate={isCreate}
+            createMessage={isProcessing ? "Uploading..." : "Creating category..."}
+            updateMessage={isProcessing ? "Uploading..." : "Updating category..."}
+          >
+            <CancelButton onClick={handleClose} disabled={isProcessing} />
+            <SubmitButton
               isSubmitting={isProcessing}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage={
-                isProcessing
-                  ? "Uploading categories..."
-                  : "Creating categories..."
-              }
-              updateMessage={
-                isProcessing
-                  ? "Uploading categories..."
-                  : "Updating categories..."
-              }
-            >
-              <CancelButton onClick={handleClose} disabled={isProcessing} />
-              <SubmitButton
-                isSubmitting={isProcessing}
-                isDirty={isDirty}
-                isCreate={isCreate}
-                createText="Create Brand"
-                updateText="Update Brand"
-                submittingCreateText={
-                  isProcessing ? "Uploading..." : "Creating..."
-                }
-                submittingUpdateText={
-                  isProcessing ? "Uploading..." : "Updating..."
-                }
-              />
-            </FormFooter>
-          </form>
-        )}
+              createText="Create category"
+              updateText="Update category"
+              submittingCreateText="Creating..."
+              submittingUpdateText="Updating..."
+            />
+          </FormFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
