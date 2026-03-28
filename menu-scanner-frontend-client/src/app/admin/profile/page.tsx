@@ -1193,7 +1193,7 @@ export default function AdminProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-6">
                       {educationFields.map((field, index) => (
                         <div key={field.id} className="border rounded-lg p-4">
                           <div className="space-y-4">
