@@ -862,15 +862,14 @@ FROM generate_series(1, 10) AS t(i);
 -- 31. EXCHANGE RATES (18 items)
 -- ============================================================================
 
-INSERT INTO business_exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, usd_to_khr_rate, usd_to_cny_rate, usd_to_thb_rate, usd_to_vnd_rate, is_active, notes)
+INSERT INTO business_exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, usd_to_khr_rate, usd_to_cny_rate, usd_to_vnd_rate, status, notes)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     ROUND((4100.0 + (i * 10.5))::numeric, 2),
     ROUND((6.8 + (i * 0.05))::numeric, 2),
-    ROUND((33.5 + (i * 0.15))::numeric, 2),
     ROUND((24000.0 + (i * 50))::numeric, 2),
-    CASE WHEN (i % 3) = 0 THEN false ELSE true END,
+    CASE WHEN (i % 3) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END,
     'Exchange rate update ' || i || ' - ' || TO_CHAR(NOW() - INTERVAL '1 day' * (18 - i), 'YYYY-MM-DD HH24:MI')
 FROM generate_series(1, 18) AS t(i);
 
