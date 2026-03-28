@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -106,7 +112,6 @@ import {
 import { AppDispatch } from "@/redux/store";
 import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
 
-
 export default function PosPage() {
   const router = useRouter();
   const dispatch = useAppDispatch() as AppDispatch;
@@ -162,7 +167,8 @@ export default function PosPage() {
   // ─── Debounce search ───
   const debouncedSearch = useDebounce(searchTerm, 400);
   // ─── Edit Cart Item for Price/Promotion ───
-  const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
+  const [editingItemForPrice, setEditingItemForPrice] =
+    useState<PosPageCartItem | null>(null);
 
   // ─── Order-Level Discount ───
   const [orderDiscount, setOrderDiscount] = useState<{
@@ -170,12 +176,27 @@ export default function PosPage() {
     value: number;
     reason: string;
     // ✅ AUDIT TRAIL: Complete before/after snapshot
-    beforeTotal: number;           // Order total BEFORE discount
-    afterTotal: number;            // Order total AFTER discount
-    discountAmount: number;        // Actual discount amount applied
-    appliedAt: string;             // ISO timestamp of when applied
+    beforeTotal: number; // Order total BEFORE discount
+    afterTotal: number; // Order total AFTER discount
+    discountAmount: number; // Actual discount amount applied
+    appliedAt: string; // ISO timestamp of when applied
   } | null>(null);
 
+  // Mobile responsive zoom
+  useEffect(() => {
+    const applyResponsiveZoom = () => {
+      if (posPageRef.current) {
+        if (window.innerWidth < 768) {
+          posPageRef.current.style.zoom = "1";
+        } else {
+          posPageRef.current.style.zoom = "0.8";
+        }
+      }
+    };
+    applyResponsiveZoom();
+    window.addEventListener("resize", applyResponsiveZoom);
+    return () => window.removeEventListener("resize", applyResponsiveZoom);
+  }, []);
 
   // ─── Initialize Categories and Brands on Mount ───
   useEffect(() => {
@@ -196,9 +217,15 @@ export default function PosPage() {
         brandId: selectedBrand?.id,
         hasPromotion: promotionFilter,
         reset: true,
-      })
+      }),
     );
-  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, dispatch]);
+  }, [
+    debouncedSearch,
+    selectedCategory,
+    selectedBrand,
+    promotionFilter,
+    dispatch,
+  ]);
 
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
@@ -209,7 +236,7 @@ export default function PosPage() {
           categoryId: selectedCategory?.id,
           brandId: selectedBrand?.id,
           hasPromotion: promotionFilter,
-        })
+        }),
       );
     }
   };
@@ -236,7 +263,7 @@ export default function PosPage() {
   // ─── Category Scroll Handler ───
   const scrollCategories = useCallback((direction: "left" | "right") => {
     const viewport = categoryScrollRef.current?.querySelector(
-      "[data-radix-scroll-area-viewport]"
+      "[data-radix-scroll-area-viewport]",
     ) as HTMLElement;
     if (!viewport) return;
     const scrollAmount = 250;
@@ -251,7 +278,7 @@ export default function PosPage() {
     const categoryContainer = categoryScrollRef.current;
     if (!categoryContainer) return;
     const viewport = categoryContainer.querySelector(
-      "[data-radix-scroll-area-viewport]"
+      "[data-radix-scroll-area-viewport]",
     ) as HTMLElement;
     if (!viewport) return;
     Object.assign(categoryContainer.style, {
@@ -270,7 +297,12 @@ export default function PosPage() {
 
   // ─── Cart Logic ───
   const addToCart = useCallback(
-    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string, quantity: number = 1) => {
+    (
+      product: ProductDetailResponseModel,
+      size?: ProductSize,
+      editingId?: string,
+      quantity: number = 1,
+    ) => {
       const cartId = size ? `${product.id}-${size.id}` : product.id;
       const currentPrice = size
         ? size.price
@@ -280,10 +312,14 @@ export default function PosPage() {
         : product.displayPrice || parseFloat(String(product.price || 0));
       const hasPromo = size ? size.hasPromotion : product.hasActivePromotion;
 
-      const promotionType = size?.promotionType || product.displayPromotionType || null;
-      const promotionValue = size?.promotionValue ?? product.displayPromotionValue ?? null;
-      const promotionFromDate = size?.promotionFromDate || product.displayPromotionFromDate || null;
-      const promotionToDate = size?.promotionToDate || product.displayPromotionToDate || null;
+      const promotionType =
+        size?.promotionType || product.displayPromotionType || null;
+      const promotionValue =
+        size?.promotionValue ?? product.displayPromotionValue ?? null;
+      const promotionFromDate =
+        size?.promotionFromDate || product.displayPromotionFromDate || null;
+      const promotionToDate =
+        size?.promotionToDate || product.displayPromotionToDate || null;
 
       const snapshot = {
         currentPrice,
@@ -316,21 +352,39 @@ export default function PosPage() {
         const existingItem = cartItems.find((item) => item.id === editingId);
         if (existingItem) {
           const qty = existingItem.quantity;
-          dispatch(updateCartItem({
-            ...newItem,
-            quantity: qty,
-            after: { ...newItem.after, quantity: qty, totalBeforeDiscount: newItem.after.currentPrice * qty, discountAmount: (newItem.after.currentPrice - newItem.after.finalPrice) * qty, totalPrice: newItem.after.finalPrice * qty },
-          }));
+          dispatch(
+            updateCartItem({
+              ...newItem,
+              quantity: qty,
+              after: {
+                ...newItem.after,
+                quantity: qty,
+                totalBeforeDiscount: newItem.after.currentPrice * qty,
+                discountAmount:
+                  (newItem.after.currentPrice - newItem.after.finalPrice) * qty,
+                totalPrice: newItem.after.finalPrice * qty,
+              },
+            }),
+          );
         }
       } else {
         const existing = cartItems.find((item) => item.id === cartId);
         if (existing) {
           const qty = existing.quantity + 1;
-          dispatch(updateCartItem({
-            ...newItem,
-            quantity: qty,
-            after: { ...newItem.after, quantity: qty, totalBeforeDiscount: newItem.after.currentPrice * qty, discountAmount: (newItem.after.currentPrice - newItem.after.finalPrice) * qty, totalPrice: newItem.after.finalPrice * qty },
-          }));
+          dispatch(
+            updateCartItem({
+              ...newItem,
+              quantity: qty,
+              after: {
+                ...newItem.after,
+                quantity: qty,
+                totalBeforeDiscount: newItem.after.currentPrice * qty,
+                discountAmount:
+                  (newItem.after.currentPrice - newItem.after.finalPrice) * qty,
+                totalPrice: newItem.after.finalPrice * qty,
+              },
+            }),
+          );
         } else {
           dispatch(addCartItem(newItem));
         }
@@ -341,7 +395,7 @@ export default function PosPage() {
       }
       dispatch(setEditingCartItemId(null));
     },
-    [cartItems, showCart, dispatch]
+    [cartItems, showCart, dispatch],
   );
 
   const updateQuantity = useCallback(
@@ -353,27 +407,30 @@ export default function PosPage() {
       if (newQuantity === 0) {
         dispatch(removeCartItem(cartId));
       } else {
-        dispatch(updateCartItem({
-          ...item,
-          quantity: newQuantity,
-          after: {
-            ...item.after,
+        dispatch(
+          updateCartItem({
+            ...item,
             quantity: newQuantity,
-            totalBeforeDiscount: item.after.currentPrice * newQuantity,
-            discountAmount: (item.after.currentPrice - item.after.finalPrice) * newQuantity,
-            totalPrice: item.after.finalPrice * newQuantity,
-          },
-        }));
+            after: {
+              ...item.after,
+              quantity: newQuantity,
+              totalBeforeDiscount: item.after.currentPrice * newQuantity,
+              discountAmount:
+                (item.after.currentPrice - item.after.finalPrice) * newQuantity,
+              totalPrice: item.after.finalPrice * newQuantity,
+            },
+          }),
+        );
       }
     },
-    [cartItems, dispatch]
+    [cartItems, dispatch],
   );
 
   const removeItem = useCallback(
     (cartId: string) => {
       dispatch(removeCartItem(cartId));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const clearCart = () => dispatch(clearCartItems());
@@ -411,13 +468,16 @@ export default function PosPage() {
   }, [cartItems, selectedDeliveryOption]);
 
   // ─── Product Click Handler ───
-  const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
-    if (product.hasSizes) {
-      dispatch(setSizePickerProduct(product));
-      return;
-    }
-    addToCart(product, undefined, undefined, 1);
-  }, [dispatch, addToCart]);
+  const handleProductClick = useCallback(
+    (product: ProductDetailResponseModel) => {
+      if (product.hasSizes) {
+        dispatch(setSizePickerProduct(product));
+        return;
+      }
+      addToCart(product, undefined, undefined, 1);
+    },
+    [dispatch, addToCart],
+  );
 
   // ─── Get quantity in cart ───
   const getProductCartQuantity = useCallback(
@@ -426,7 +486,7 @@ export default function PosPage() {
         .filter((item) => item.productId === productId)
         .reduce((sum, item) => sum + item.quantity, 0);
     },
-    [cartItems]
+    [cartItems],
   );
 
   // ─── Handle Edit Cart Item for Price/Promotion ───
@@ -435,49 +495,56 @@ export default function PosPage() {
   }, []);
 
   // ─── Save Cart Item Price Changes ───
-  const handleSaveItemChanges = useCallback((editData: any) => {
-    if (!editingItemForPrice) return;
+  const handleSaveItemChanges = useCallback(
+    (editData: any) => {
+      if (!editingItemForPrice) return;
 
-    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.after.currentPrice;
-    const newQuantity = parseInt(editData.newQuantity) || editingItemForPrice.quantity;
-    const promoType: string | null = editData.newPromotion.type || null;
-    const promoValue: number | null = editData.newPromotion.value ? parseFloat(editData.newPromotion.value) : null;
+      const newPrice =
+        parseFloat(editData.newPrice) || editingItemForPrice.after.currentPrice;
+      const newQuantity =
+        parseInt(editData.newQuantity) || editingItemForPrice.quantity;
+      const promoType: string | null = editData.newPromotion.type || null;
+      const promoValue: number | null = editData.newPromotion.value
+        ? parseFloat(editData.newPromotion.value)
+        : null;
 
-    let finalPrice = newPrice;
-    if (promoType === "PERCENTAGE" && promoValue) {
-      finalPrice = newPrice * (1 - promoValue / 100);
-    } else if (promoType === "FIXED" && promoValue) {
-      finalPrice = Math.max(0, newPrice - promoValue);
-    }
+      let finalPrice = newPrice;
+      if (promoType === "PERCENTAGE" && promoValue) {
+        finalPrice = newPrice * (1 - promoValue / 100);
+      } else if (promoType === "FIXED" && promoValue) {
+        finalPrice = Math.max(0, newPrice - promoValue);
+      }
 
-    const hadChange =
-      newPrice !== editingItemForPrice.before.currentPrice ||
-      finalPrice !== editingItemForPrice.before.finalPrice ||
-      newQuantity !== editingItemForPrice.before.quantity ||
-      !!promoType !== editingItemForPrice.before.hasActivePromotion;
+      const hadChange =
+        newPrice !== editingItemForPrice.before.currentPrice ||
+        finalPrice !== editingItemForPrice.before.finalPrice ||
+        newQuantity !== editingItemForPrice.before.quantity ||
+        !!promoType !== editingItemForPrice.before.hasActivePromotion;
 
-    const updatedItem: PosPageCartItem = {
-      ...editingItemForPrice,
-      quantity: newQuantity,
-      hadChangeFromPOS: hadChange,
-      after: {
-        currentPrice: newPrice,
-        finalPrice,
-        hasActivePromotion: !!promoType,
+      const updatedItem: PosPageCartItem = {
+        ...editingItemForPrice,
         quantity: newQuantity,
-        totalBeforeDiscount: newPrice * newQuantity,
-        discountAmount: (newPrice - finalPrice) * newQuantity,
-        totalPrice: finalPrice * newQuantity,
-        promotionType: promoType,
-        promotionValue: promoValue,
-        promotionFromDate: editingItemForPrice.after.promotionFromDate,
-        promotionToDate: editingItemForPrice.after.promotionToDate,
-      },
-    };
+        hadChangeFromPOS: hadChange,
+        after: {
+          currentPrice: newPrice,
+          finalPrice,
+          hasActivePromotion: !!promoType,
+          quantity: newQuantity,
+          totalBeforeDiscount: newPrice * newQuantity,
+          discountAmount: (newPrice - finalPrice) * newQuantity,
+          totalPrice: finalPrice * newQuantity,
+          promotionType: promoType,
+          promotionValue: promoValue,
+          promotionFromDate: editingItemForPrice.after.promotionFromDate,
+          promotionToDate: editingItemForPrice.after.promotionToDate,
+        },
+      };
 
-    dispatch(updateCartItem(updatedItem));
-    showToast.success("Item updated successfully");
-  }, [dispatch, editingItemForPrice]);
+      dispatch(updateCartItem(updatedItem));
+      showToast.success("Item updated successfully");
+    },
+    [dispatch, editingItemForPrice],
+  );
 
   // ─── Handle Order-Level Discount ───
   const handleDiscountApply = (discount: {
@@ -491,7 +558,9 @@ export default function PosPage() {
     appliedAt: string;
   }) => {
     setOrderDiscount(discount);
-    showToast.success(`✅ Discount applied: Before: $${discount.beforeTotal.toFixed(2)} → After: $${discount.afterTotal.toFixed(2)} (Saved: $${discount.discountAmount.toFixed(2)})`);
+    showToast.success(
+      `✅ Discount applied: Before: $${discount.beforeTotal.toFixed(2)} → After: $${discount.afterTotal.toFixed(2)} (Saved: $${discount.discountAmount.toFixed(2)})`,
+    );
   };
 
   // ─── Submit Order ───
@@ -579,9 +648,10 @@ export default function PosPage() {
         };
         let afterFinalTotal = cartSummary.finalTotal;
         if (orderDiscount) {
-          afterFinalTotal = orderDiscount.type === "fixed"
-            ? Math.max(0, afterFinalTotal - orderDiscount.value)
-            : afterFinalTotal * (1 - orderDiscount.value / 100);
+          afterFinalTotal =
+            orderDiscount.type === "fixed"
+              ? Math.max(0, afterFinalTotal - orderDiscount.value)
+              : afterFinalTotal * (1 - orderDiscount.value / 100);
         }
         const afterSnapshot = {
           totalItems: cartSummary.totalItems,
@@ -614,10 +684,17 @@ export default function PosPage() {
 
     dispatch(setIsSubmitting(true));
     try {
-      const result = await dispatch(createPOSCheckoutOrderService(payload) as any);
+      const result = await dispatch(
+        createPOSCheckoutOrderService(payload) as any,
+      );
       if (result.payload) {
         const order = result.payload;
-        dispatch(setSuccessOrder({ orderNumber: order.orderNumber, total: order.totalAmount }));
+        dispatch(
+          setSuccessOrder({
+            orderNumber: order.orderNumber,
+            total: order.totalAmount,
+          }),
+        );
         dispatch(clearCartItems());
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
@@ -636,12 +713,12 @@ export default function PosPage() {
     <div
       ref={posPageRef}
       className="flex flex-col h-full w-full max-md:p-1"
-      
+      style={{ zoom: "0.8" }}
     >
       {/* ─── Main Content ─── */}
       <div className="flex max-md:flex-col md:flex-row flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
-        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search & Brand Filter Bar */}
           <div className="flex flex-wrap items-end gap-2 max-md:gap-1 max-md:p-2 md:p-3 border-b bg-muted/20 shrink-0">
             <div className="relative flex-1 max-md:min-w-[140px] md:min-w-[200px]">
@@ -656,7 +733,10 @@ export default function PosPage() {
               />
             </div>
             {/* Brand Filter */}
-            <Popover open={brandOpen} onOpenChange={(open) => dispatch(setBrandOpen(open))}>
+            <Popover
+              open={brandOpen}
+              onOpenChange={(open) => dispatch(setBrandOpen(open))}
+            >
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -685,7 +765,9 @@ export default function PosPage() {
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            selectedBrand === null ? "opacity-100" : "opacity-0"
+                            selectedBrand === null
+                              ? "opacity-100"
+                              : "opacity-0",
                           )}
                         />
                         All Brands
@@ -703,7 +785,9 @@ export default function PosPage() {
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              selectedBrand?.id === brand.id ? "opacity-100" : "opacity-0"
+                              selectedBrand?.id === brand.id
+                                ? "opacity-100"
+                                : "opacity-0",
                             )}
                           />
                           {brand.name}
@@ -715,7 +799,10 @@ export default function PosPage() {
               </PopoverContent>
             </Popover>
             {/* Promotion Filter */}
-            <Popover open={promotionOpen} onOpenChange={(open) => dispatch(setPromotionOpen(open))}>
+            <Popover
+              open={promotionOpen}
+              onOpenChange={(open) => dispatch(setPromotionOpen(open))}
+            >
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -742,7 +829,9 @@ export default function PosPage() {
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            promotionFilter === undefined ? "opacity-100" : "opacity-0"
+                            promotionFilter === undefined
+                              ? "opacity-100"
+                              : "opacity-0",
                           )}
                         />
                         All Products
@@ -758,7 +847,9 @@ export default function PosPage() {
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            promotionFilter === true ? "opacity-100" : "opacity-0"
+                            promotionFilter === true
+                              ? "opacity-100"
+                              : "opacity-0",
                           )}
                         />
                         Promotion
@@ -769,7 +860,10 @@ export default function PosPage() {
               </PopoverContent>
             </Popover>
             {/* Clear All Filter Button */}
-            {(searchTerm || selectedCategory || selectedBrand || promotionFilter !== undefined) && (
+            {(searchTerm ||
+              selectedCategory ||
+              selectedBrand ||
+              promotionFilter !== undefined) && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -798,7 +892,10 @@ export default function PosPage() {
             >
               <ChevronRight className="h-5 w-5 transform rotate-180" />
             </Button>
-            <ScrollArea className="flex-1 h-10 overflow-hidden" ref={categoryScrollRef}>
+            <ScrollArea
+              className="flex-1 h-10 overflow-hidden"
+              ref={categoryScrollRef}
+            >
               <div className="flex gap-3 px-2 h-10 items-center">
                 <button
                   onClick={() => dispatch(setSelectedCategory(null))}
@@ -806,7 +903,7 @@ export default function PosPage() {
                     "shrink-0 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10 flex items-center",
                     selectedCategory === null
                       ? "bg-primary text-primary-foreground"
-                      : "bg-white border border-border text-foreground hover:bg-muted"
+                      : "bg-white border border-border text-foreground hover:bg-muted",
                   )}
                 >
                   All
@@ -824,7 +921,7 @@ export default function PosPage() {
                         "shrink-0 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10 flex items-center",
                         selectedCategory?.id === category.id
                           ? "bg-primary text-primary-foreground"
-                          : "bg-white border border-border text-foreground hover:bg-muted"
+                          : "bg-white border border-border text-foreground hover:bg-muted",
                       )}
                       title={category.name}
                     >
@@ -846,7 +943,10 @@ export default function PosPage() {
           </div>
 
           {/* Product Grid */}
-          <ScrollArea className="flex-1 w-full overflow-hidden" ref={productGridRef}>
+          <ScrollArea
+            className="flex-1 w-full overflow-hidden"
+            ref={productGridRef}
+          >
             <div
               className="w-full max-md:p-2 md:p-4"
               style={{
@@ -855,7 +955,8 @@ export default function PosPage() {
                 gap: "0.75rem",
               }}
             >
-              {productsLoading && products.length === 0 &&
+              {productsLoading &&
+                products.length === 0 &&
                 Array.from({ length: 12 }).map((_, i) => (
                   <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
@@ -868,7 +969,8 @@ export default function PosPage() {
                   onQuantityChange={updateQuantity}
                 />
               ))}
-              {productsLoading && products.length > 0 &&
+              {productsLoading &&
+                products.length > 0 &&
                 Array.from({ length: 15 }).map((_, i) => (
                   <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
@@ -881,7 +983,9 @@ export default function PosPage() {
                 {productsError ? (
                   <>
                     <Package className="w-16 h-16 mb-4 opacity-20 text-destructive" />
-                    <p className="text-sm font-medium text-destructive">Failed to load products</p>
+                    <p className="text-sm font-medium text-destructive">
+                      Failed to load products
+                    </p>
                     <p className="text-xs mt-1">{productsError}</p>
                     <CustomButton
                       variant="outline"
@@ -898,7 +1002,7 @@ export default function PosPage() {
                             brandId: selectedBrand?.id,
                             hasPromotion: promotionFilter,
                             reset: true,
-                          })
+                          }),
                         );
                       }}
                     >
@@ -909,7 +1013,9 @@ export default function PosPage() {
                   <>
                     <Package className="w-16 h-16 mb-4 opacity-20" />
                     <p className="text-sm font-medium">No products found</p>
-                    <p className="text-xs mt-1">Try adjusting your search or filter</p>
+                    <p className="text-xs mt-1">
+                      Try adjusting your search or filter
+                    </p>
                   </>
                 )}
               </div>
@@ -921,8 +1027,9 @@ export default function PosPage() {
         <div
           className={`${
             showCart ? "flex" : "hidden"
-          } md:flex w-full max-md:border-t md:border-l md:w-[380px] xl:w-[420px] max-md:max-h-[70vh] md:h-full flex-col bg-card shrink-0 overflow-y-auto ${
-            showCart && "fixed inset-0 z-50 md:relative md:z-auto max-md:bottom-0 max-md:w-full max-md:h-auto"
+          } md:flex w-full max-md:border-t md:border-l md:w-[380px] xl:w-[420px] max-md:h-1/3 md:h-full flex-col bg-card shrink-0 overflow-hidden ${
+            showCart &&
+            "fixed inset-0 z-50 md:relative md:z-auto max-md:bottom-0 max-md:w-full max-md:h-auto"
           }`}
         >
           {/* Cart Header */}
@@ -931,7 +1038,8 @@ export default function PosPage() {
               <h2 className="font-semibold text-sm">Current Order</h2>
               {cartItems.length > 0 && (
                 <p className="text-xs text-muted-foreground">
-                  {cartItems.length} {cartItems.length === 1 ? "item" : "items"} • {cartSummary.totalQuantity} total
+                  {cartItems.length} {cartItems.length === 1 ? "item" : "items"}{" "}
+                  • {cartSummary.totalQuantity} total
                 </p>
               )}
             </div>
@@ -986,7 +1094,9 @@ export default function PosPage() {
                       promotionValue={item.after.promotionValue}
                       originalPrice={item.before.finalPrice}
                       hadChangeFromPOS={item.hadChangeFromPOS}
-                      onQuantityChange={(delta) => updateQuantity(item.id, delta)}
+                      onQuantityChange={(delta) =>
+                        updateQuantity(item.id, delta)
+                      }
                       onRemove={() => removeItem(item.id)}
                       onEdit={() => handleEditPriceItem(item)}
                     />
@@ -1007,7 +1117,9 @@ export default function PosPage() {
                   </Label>
                   <ComboboxSelectDelivery
                     dataSelect={selectedDeliveryOption as any}
-                    onChangeSelected={(item) => dispatch(setSelectedDeliveryOption(item as any))}
+                    onChangeSelected={(item) =>
+                      dispatch(setSelectedDeliveryOption(item as any))
+                    }
                     placeholder="Delivery..."
                     label=""
                     businessId={AppDefault.BUSINESS_ID}
@@ -1021,7 +1133,9 @@ export default function PosPage() {
                   </Label>
                   <ComboboxSelectPayment
                     dataSelect={selectedPaymentOption as any}
-                    onChangeSelected={(item) => dispatch(setSelectedPaymentOption(item as any))}
+                    onChangeSelected={(item) =>
+                      dispatch(setSelectedPaymentOption(item as any))
+                    }
                     placeholder="Payment..."
                     label=""
                     businessId={AppDefault.BUSINESS_ID}
@@ -1033,27 +1147,39 @@ export default function PosPage() {
               <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 space-y-1.5">
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">
-                    Subtotal ({cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"})
+                    Subtotal ({cartSummary.totalQuantity}{" "}
+                    {cartSummary.totalQuantity === 1 ? "item" : "items"})
                   </span>
-                  <span className="font-medium">{formatCurrency(cartSummary.subtotalBeforeDiscount)}</span>
+                  <span className="font-medium">
+                    {formatCurrency(cartSummary.subtotalBeforeDiscount)}
+                  </span>
                 </div>
                 {cartSummary.totalDiscount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-red-500 font-medium">Discount</span>
-                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.totalDiscount)}</span>
+                    <span className="text-red-500 font-semibold">
+                      -{formatCurrency(cartSummary.totalDiscount)}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Delivery Fee</span>
                   <span className="font-medium text-primary">
-                    {cartSummary.deliveryFee > 0 ? `+${formatCurrency(cartSummary.deliveryFee)}` : "Free"}
+                    {cartSummary.deliveryFee > 0
+                      ? `+${formatCurrency(cartSummary.deliveryFee)}`
+                      : "Free"}
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground flex items-center gap-1">
-                    Tax<span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
+                    Tax
+                    <span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">
+                      0%
+                    </span>
                   </span>
-                  <span className="font-medium">{formatCurrency(cartSummary.taxAmount)}</span>
+                  <span className="font-medium">
+                    {formatCurrency(cartSummary.taxAmount)}
+                  </span>
                 </div>
                 {orderDiscount && (
                   <>
@@ -1064,7 +1190,10 @@ export default function PosPage() {
                     </div>
                     <div className="flex justify-between text-xs bg-orange-50 -mx-3 -mb-1.5 px-3 py-2 rounded-b-lg">
                       <span className="text-orange-700 font-medium">
-                        {orderDiscount.type === "fixed" ? `$${orderDiscount.value.toFixed(2)}` : `${orderDiscount.value}%`} off
+                        {orderDiscount.type === "fixed"
+                          ? `$${orderDiscount.value.toFixed(2)}`
+                          : `${orderDiscount.value}%`}{" "}
+                        off
                       </span>
                       <span className="text-orange-700 font-semibold">
                         Save: {formatCurrency(orderDiscount.discountAmount)}
@@ -1082,7 +1211,7 @@ export default function PosPage() {
                         if (orderDiscount.type === "fixed") {
                           total = Math.max(0, total - orderDiscount.value);
                         } else if (orderDiscount.type === "percentage") {
-                          total = total * (1 - (orderDiscount.value / 100));
+                          total = total * (1 - orderDiscount.value / 100);
                         }
                       }
                       return formatCurrency(total);
@@ -1099,7 +1228,7 @@ export default function PosPage() {
                   size="sm"
                   className={cn(
                     "h-auto px-3 gap-2 text-xs font-semibold border-r border-border hover:bg-muted/50",
-                    orderDiscount && "text-green-600 hover:bg-green-50"
+                    orderDiscount && "text-green-600 hover:bg-green-50",
                   )}
                   onClick={() => dispatch(setShowOrderDetailsModal(true))}
                 >
@@ -1107,8 +1236,8 @@ export default function PosPage() {
                   More
                   {orderDiscount && (
                     <span className="ml-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                      {orderDiscount.type === "fixed" 
-                        ? `-$${orderDiscount.value.toFixed(2)}` 
+                      {orderDiscount.type === "fixed"
+                        ? `-$${orderDiscount.value.toFixed(2)}`
                         : `-${orderDiscount.value}%`}
                     </span>
                   )}
@@ -1116,14 +1245,19 @@ export default function PosPage() {
                 <div className="flex-1 px-3 py-2.5 bg-muted/30 min-w-0 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] text-muted-foreground font-medium">
-                      {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
+                      {cartSummary.totalQuantity}{" "}
+                      {cartSummary.totalQuantity === 1 ? "item" : "items"}
                       {selectedPaymentOption && (
                         <span className="ml-1 text-muted-foreground/70">
-                          · {selectedPaymentOption.name || selectedPaymentOption.paymentOptionType}
+                          ·{" "}
+                          {selectedPaymentOption.name ||
+                            selectedPaymentOption.paymentOptionType}
                         </span>
                       )}
                     </p>
-                    <p className="text-lg font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
+                    <p className="text-lg font-bold text-primary leading-tight">
+                      {formatCurrency(cartSummary.finalTotal)}
+                    </p>
                   </div>
                 </div>
                 <button
@@ -1133,7 +1267,7 @@ export default function PosPage() {
                     "flex flex-col items-center justify-center px-5 gap-0.5 transition-all shrink-0",
                     cartItems.length === 0 || isSubmitting
                       ? "bg-muted text-muted-foreground cursor-not-allowed"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer",
                   )}
                 >
                   {isSubmitting ? (
@@ -1175,7 +1309,12 @@ export default function PosPage() {
               }
             }}
             onSizeSelect={(product, size, qty) => {
-              addToCart(product, size, editingCartItemId || undefined, qty || 1);
+              addToCart(
+                product,
+                size,
+                editingCartItemId || undefined,
+                qty || 1,
+              );
               dispatch(setSizePickerProduct(null));
               dispatch(setEditingCartItemId(null));
             }}
@@ -1192,7 +1331,6 @@ export default function PosPage() {
         totalAmount={successOrder?.total || 0}
       />
 
-
       {/* Edit Cart Item Modal for Price/Promotion */}
       <POSEditCartItemModal
         open={!!editingItemForPrice}
@@ -1200,17 +1338,20 @@ export default function PosPage() {
           if (!open) setEditingItemForPrice(null);
         }}
         item={
-          editingItemForPrice ? {
-            id: editingItemForPrice.id,
-            productName: editingItemForPrice.productName,
-            productImageUrl: editingItemForPrice.productImageUrl,
-            sizeName: editingItemForPrice.sizeName,
-            currentPrice: editingItemForPrice.after.currentPrice,
-            quantity: editingItemForPrice.quantity,
-            hasActivePromotion: editingItemForPrice.after.hasActivePromotion,
-            promotionType: editingItemForPrice.after.promotionType,
-            promotionValue: editingItemForPrice.after.promotionValue,
-          } : null
+          editingItemForPrice
+            ? {
+                id: editingItemForPrice.id,
+                productName: editingItemForPrice.productName,
+                productImageUrl: editingItemForPrice.productImageUrl,
+                sizeName: editingItemForPrice.sizeName,
+                currentPrice: editingItemForPrice.after.currentPrice,
+                quantity: editingItemForPrice.quantity,
+                hasActivePromotion:
+                  editingItemForPrice.after.hasActivePromotion,
+                promotionType: editingItemForPrice.after.promotionType,
+                promotionValue: editingItemForPrice.after.promotionValue,
+              }
+            : null
         }
         onSave={handleSaveItemChanges}
       />
