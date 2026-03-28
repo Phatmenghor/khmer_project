@@ -104,7 +104,7 @@ export default function UserBusinessModal({
   }));
 
   const {
-    control,
+    control: formControl,
     handleSubmit,
     reset,
     setValue,
@@ -145,6 +145,9 @@ export default function UserBusinessModal({
     },
     mode: "onChange",
   });
+
+  // Cast control to any for compatibility with field components
+  const control = formControl as any;
 
   // Field arrays for complex data
   const {
