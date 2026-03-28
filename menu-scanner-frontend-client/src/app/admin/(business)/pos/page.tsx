@@ -176,20 +176,6 @@ export default function PosPage() {
     appliedAt: string;             // ISO timestamp of when applied
   } | null>(null);
 
-  // Mobile responsive zoom
-  useEffect(() => {
-    const applyResponsiveZoom = () => {
-      if (posPageRef.current) {
-        if (window.innerWidth < 768) {
-          posPageRef.current.style.zoom = "1";
-        } else {
-          posPageRef.current.style.zoom = "0.8";
-        }
-      }
-    };
-    applyResponsiveZoom();
-    window.addEventListener("resize", applyResponsiveZoom);
-    return () => window.removeEventListener("resize", applyResponsiveZoom);
   }, []);
 
   // ─── Initialize Categories and Brands on Mount ───
@@ -651,7 +637,7 @@ export default function PosPage() {
     <div
       ref={posPageRef}
       className="flex flex-col h-full w-full max-md:p-1"
-      style={{ zoom: "0.8" }}
+      
     >
       {/* ─── Main Content ─── */}
       <div className="flex max-md:flex-col md:flex-row flex-1 overflow-hidden">
