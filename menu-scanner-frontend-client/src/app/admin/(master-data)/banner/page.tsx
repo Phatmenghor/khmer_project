@@ -166,9 +166,7 @@ export default function BannerPage() {
     try {
       await dispatch(deleteBannerService(deleteState.banner.id)).unwrap();
 
-      showToast.success(
-        `Banner "${deleteState.banner.businessName ?? ""}" deleted successfully`,
-      );
+      showToast.success("Banner deleted successfully");
 
       closeDeleteModal();
 
@@ -209,10 +207,6 @@ export default function BannerPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
-            { label: "Banner", href: "" },
-          ]}
           title="Banner Information"
           searchValue={filters.search}
           searchPlaceholder="Search banner..."
@@ -271,10 +265,8 @@ export default function BannerPage() {
         onClose={closeDeleteModal}
         onDelete={handleDelete}
         title="Delete Banner"
-        description={`Are you sure you want to delete this banner ${
-          deleteState.banner?.businessName || ""
-        }?`}
-        itemName={deleteState.banner?.businessName || ""}
+        description="Are you sure you want to delete this banner?"
+        itemName=""
         isSubmitting={operations.isDeleting}
       />
     </div>
