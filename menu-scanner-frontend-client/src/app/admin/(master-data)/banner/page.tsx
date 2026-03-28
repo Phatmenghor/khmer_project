@@ -22,6 +22,7 @@ import {
 import {
   deleteBannerService,
   fetchAllBannerService,
+  toggleBannerStatusService,
 } from "@/redux/features/master-data/store/thunks/banner-thunks";
 import { bannerTableColumns } from "@/redux/features/master-data/table/banner-table";
 import { STATUS_FILTER } from "@/constants/status/filter-status";
@@ -124,11 +125,22 @@ export default function BannerPage() {
     });
   };
 
+  const handleToggleBannerStatus = async (banner: BannerResponseModel) => {
+    if (!banner?.id) return;
+    try {
+      await dispatch(toggleBannerStatusService(banner)).unwrap();
+      showToast.success("Banner status updated successfully");
+    } catch (error: any) {
+      showToast.error(error || "Failed to update banner status");
+    }
+  };
+
   const tableHandlers = useMemo(
     () => ({
       handleEditBanner,
       handleBannerViewDetail,
       handleDeleteBanner,
+      handleToggleBannerStatus,
     }),
     [],
   );

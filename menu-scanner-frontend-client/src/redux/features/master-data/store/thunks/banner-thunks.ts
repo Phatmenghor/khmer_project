@@ -78,3 +78,23 @@ export const deleteBannerService = createApiThunk<any, string>(
     return response.data.data;
   }
 );
+
+/**
+ * Toggle banner status
+ */
+export const toggleBannerStatusService = createApiThunk<any, any>(
+  "banners/toggleStatus",
+  async (banner) => {
+    if (!banner?.id) {
+      throw new Error("Banner ID is required");
+    }
+
+    const newStatus = banner?.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+
+    const response = await axiosClientWithAuth.put(
+      `/api/v1/banners/${banner.id}`,
+      { status: newStatus }
+    );
+    return response.data.data;
+  }
+);

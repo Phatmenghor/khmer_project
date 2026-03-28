@@ -9,12 +9,14 @@ import {
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 interface BannerTableHandlers {
   handleEditBanner: (banner: BannerResponseModel) => void;
   handleBannerViewDetail: (banner: BannerResponseModel) => void;
   handleDeleteBanner: (banner: BannerResponseModel) => void;
+  handleToggleBannerStatus: (banner: BannerResponseModel) => void;
 }
 
 interface BannerTableOptions {
@@ -26,7 +28,7 @@ export const bannerTableColumns = ({
   data,
   handlers,
 }: BannerTableOptions): TableColumn<BannerResponseModel>[] => {
-  const { handleEditBanner, handleBannerViewDetail, handleDeleteBanner } =
+  const { handleEditBanner, handleBannerViewDetail, handleDeleteBanner, handleToggleBannerStatus } =
     handlers;
 
   return [
@@ -87,19 +89,18 @@ export const bannerTableColumns = ({
     {
       key: "status",
       label: "Status",
-      minWidth: "100px",
-      maxWidth: "150px",
+      minWidth: "120px",
+      maxWidth: "180px",
       render: (banner) => (
-        <Badge
-          className={cn(
-            "font-medium text-xs",
-            banner?.status === "ACTIVE"
-              ? "bg-green-100 text-green-800 hover:bg-green-100"
-              : "bg-red-100 text-red-800 hover:bg-red-100"
-          )}
-        >
-          {banner?.status === "ACTIVE" ? "Active" : "Inactive"}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={banner?.status === "ACTIVE"}
+            onCheckedChange={() => handleToggleBannerStatus(banner)}
+          />
+          <span className="text-xs text-muted-foreground">
+            {banner?.status === "ACTIVE" ? "Active" : "Inactive"}
+          </span>
+        </div>
       ),
     },
 
