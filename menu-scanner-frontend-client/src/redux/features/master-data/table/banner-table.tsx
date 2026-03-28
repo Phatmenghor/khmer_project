@@ -41,30 +41,34 @@ export const bannerTableColumns = ({
     },
     {
       key: "imageUrl",
-      label: "Banner Image & Description",
-      minWidth: "200px",
-      maxWidth: "600px",
+      label: "Banner Image",
+      minWidth: "150px",
+      maxWidth: "200px",
       render: (banner) => {
         return (
-          <div className="flex items-center gap-3 py-2">
-            <div className="flex-shrink-0 w-40 h-24 rounded-lg overflow-hidden bg-muted border border-border">
-              <img
-                src={banner.imageUrl}
-                alt="Banner"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = "/assets/image/no-image.png";
-                }}
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-foreground line-clamp-3">
-                {banner.description || "No description"}
-              </h3>
-            </div>
+          <div className="flex-shrink-0 w-32 h-20 rounded-lg overflow-hidden bg-muted border border-border">
+            <img
+              src={banner.imageUrl}
+              alt="Banner"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = "/assets/image/no-image.png";
+              }}
+            />
           </div>
         );
       },
+    },
+    {
+      key: "description",
+      label: "Description",
+      minWidth: "250px",
+      maxWidth: "400px",
+      render: (banner) => (
+        <h3 className="font-semibold text-sm text-foreground line-clamp-3">
+          {banner.description || "No description"}
+        </h3>
+      ),
     },
     {
       key: "linkUrl",
