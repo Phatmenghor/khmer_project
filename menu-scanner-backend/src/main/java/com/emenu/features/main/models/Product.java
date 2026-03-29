@@ -117,6 +117,15 @@ public class Product extends BaseUUIDEntity {
     @Column(name = "main_image_url")
     private String mainImageUrl;
 
+    @Column(name = "category_name", length = 255)
+    private String categoryName;
+
+    @Column(name = "brand_name", length = 255)
+    private String brandName;
+
+    @Column(name = "business_name", length = 255)
+    private String businessName;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @OrderBy("createdAt DESC")
     private List<ProductImage> images = new ArrayList<>();

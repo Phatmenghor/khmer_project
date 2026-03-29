@@ -18,10 +18,14 @@ import com.emenu.features.main.mapper.ProductSizeMapper;
 import com.emenu.features.main.models.Product;
 import com.emenu.features.main.models.ProductImage;
 import com.emenu.features.main.models.ProductSize;
+import com.emenu.features.main.repository.CategoryRepository;
+import com.emenu.features.main.repository.BrandRepository;
 import com.emenu.features.main.repository.ProductImageRepository;
 import com.emenu.features.main.repository.ProductRepository;
 import com.emenu.features.main.repository.ProductSizeRepository;
 import com.emenu.features.main.service.ProductService;
+import com.emenu.features.main.models.Category;
+import com.emenu.features.main.models.Brand;
 import com.emenu.features.main.utils.ProductFavoriteQueryHelper;
 import com.emenu.features.main.utils.ProductUtils;
 import com.emenu.features.order.utils.CartQueryHelper;
@@ -46,6 +50,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductSizeRepository productSizeRepository;
+    private final CategoryRepository categoryRepository;
+    private final BrandRepository brandRepository;
     private final ProductMapper productMapper;
     private final ProductImageMapper productImageMapper;
     private final ProductSizeMapper productSizeMapper;
@@ -379,6 +385,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productMapper.toEntity(request);
         productMapper.setBusinessFields(product, currentUser.getBusinessId());
         product.initializeDisplayFields();
+        syncDenormalizedNames(product);
 
         Product savedProduct = productRepository.save(product);
 
@@ -409,6 +416,9 @@ public class ProductServiceImpl implements ProductService {
         if (!product.getHasSizes()) {
             product.initializeDisplayFields();
         }
+
+        // Sync denormalized names in case category/brand changed
+        syncDenormalizedNames(product);
 
         Product updatedProduct = productRepository.save(product);
 
@@ -592,5 +602,29 @@ public class ProductServiceImpl implements ProductService {
                 .forEach(row -> stockMap.put((UUID) row[0], ((Number) row[1]).intValue()));
 
         dtoList.forEach(dto -> dto.setTotalStock(stockMap.getOrDefault(dto.getId(), 0)));
+    }
+
+    /**
+     * Sync denormalized category, brand, and business names
+     * Called when a product is created or updated
+     */
+    private void syncDenormalizedNames(Product product) {
+        // Sync category name
+        if (product.getCategoryId() != null) {
+            categoryRepository.findByIdAndIsDeletedFalse(product.getCategoryId())
+                    .ifPresent(category -> product.setCategoryName(category.getName()));
+        }
+
+        // Sync brand name
+        if (product.getBrandId() != null) {
+            brandRepository.findByIdAndIsDeletedFalse(product.getBrandId())
+                    .ifPresent(brand -> product.setBrandName(brand.getName()));
+        }
+
+        // Sync business name - get from securityUtils context
+        User currentUser = securityUtils.getCurrentUser();
+        if (currentUser != null && currentUser.getBusiness() != null) {
+            product.setBusinessName(currentUser.getBusiness().getName());
+        }
     }
 }
