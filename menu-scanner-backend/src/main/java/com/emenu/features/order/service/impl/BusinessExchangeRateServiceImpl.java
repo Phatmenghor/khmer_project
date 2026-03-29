@@ -120,10 +120,21 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         log.info("Deleting business exchange rate: {}", id);
 
         BusinessExchangeRate exchangeRate = findExchangeRateById(id);
+        UUID businessId = exchangeRate.getBusinessId();
 
-        // Don't allow deletion of the only active rate for a business
-        if (exchangeRate.isActive() && exchangeRateRepository.countActiveRates(exchangeRate.getBusinessId()) == 1) {
-            throw new ValidationException("Cannot delete the only active exchange rate. Create a new rate first.");
+        // If deleting the only ACTIVE rate, activate the most recent INACTIVE rate
+        if (exchangeRate.isActive() && exchangeRateRepository.countActiveRates(businessId) == 1) {
+            Optional<BusinessExchangeRate> nextActiveRate = exchangeRateRepository.findMostRecentInactiveRateByBusinessId(businessId);
+
+            if (nextActiveRate.isEmpty()) {
+                throw new ValidationException("Cannot delete the only exchange rate. At least one rate must exist for a business.");
+            }
+
+            // Activate the most recent inactive rate
+            BusinessExchangeRate rateToActivate = nextActiveRate.get();
+            rateToActivate.activate();
+            exchangeRateRepository.save(rateToActivate);
+            log.info("Activated rate {} when deleting active rate {}", rateToActivate.getId(), id);
         }
 
         exchangeRate.softDelete();

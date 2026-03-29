@@ -31,10 +31,8 @@ export const exchangeRateTableColumns = ({
 }: TableOptions): TableColumn<ExchangeRateResponseModel>[] => {
   const { handleEditRate, handleViewRateDetail, handleDeleteRate } = handlers;
 
-  // Count active rates to prevent deletion of the only active rate
-  const activeRatesCount = data?.content?.filter(
-    (rate) => rate.status === "ACTIVE"
-  ).length || 0;
+  // Get total rates count
+  const totalRatesCount = data?.content?.length || 0;
 
   return [
     {
@@ -123,8 +121,7 @@ export const exchangeRateTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (parameter) => {
-        const isOnlyActiveRate =
-          parameter.status === "ACTIVE" && activeRatesCount === 1;
+        const isOnlyRate = totalRatesCount === 1;
 
         return (
           <div className="flex items-center gap-2">
@@ -141,13 +138,13 @@ export const exchangeRateTableColumns = ({
             <ActionButton
               icon={<Trash className="w-4 h-4" />}
               tooltip={
-                isOnlyActiveRate
-                  ? "Cannot delete the only active rate"
+                isOnlyRate
+                  ? "Cannot delete the only exchange rate"
                   : "Delete Rate"
               }
               onClick={() => handleDeleteRate(parameter)}
               variant="destructive"
-              disabled={isOnlyActiveRate}
+              disabled={isOnlyRate}
             />
           </div>
         );

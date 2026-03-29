@@ -124,14 +124,10 @@ export default function ExchangeRatePage() {
   };
 
   const handleDeleteRate = (exchage: ExchangeRateResponseModel) => {
-    // Check if this is the only ACTIVE rate
-    const activeRatesCount = exchangeRateContent.filter(
-      (rate) => rate.status === "ACTIVE"
-    ).length;
-
-    if (exchage.status === "ACTIVE" && activeRatesCount === 1) {
+    // Check if this is the only rate total for the business
+    if (exchangeRateContent.length === 1) {
       showToast.error(
-        "Cannot delete the only active exchange rate. Create a new rate first."
+        "Cannot delete the only exchange rate. At least one rate must exist."
       );
       return;
     }

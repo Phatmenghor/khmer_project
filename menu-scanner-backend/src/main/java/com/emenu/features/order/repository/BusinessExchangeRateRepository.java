@@ -65,6 +65,12 @@ public interface BusinessExchangeRateRepository extends JpaRepository<BusinessEx
     List<BusinessExchangeRate> findAllActiveRates();
 
     /**
+     * Finds the most recently created inactive exchange rate for a business
+     */
+    @Query("SELECT ber FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.status = 'INACTIVE' AND ber.isDeleted = false ORDER BY ber.createdAt DESC LIMIT 1")
+    Optional<BusinessExchangeRate> findMostRecentInactiveRateByBusinessId(@Param("businessId") UUID businessId);
+
+    /**
      * Find all business exchange rates with dynamic filtering
      */
     @Query("SELECT ber FROM BusinessExchangeRate ber " +
