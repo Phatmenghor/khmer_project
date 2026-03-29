@@ -97,6 +97,14 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         log.info("Updating business exchange rate: {}", id);
 
         BusinessExchangeRate exchangeRate = findExchangeRateById(id);
+        UUID businessId = exchangeRate.getBusinessId();
+
+        // If updating to ACTIVE status, deactivate other active rates for this business
+        if (request.getStatus() != null &&
+            request.getStatus() == BusinessExchangeRate.ExchangeRateStatus.ACTIVE &&
+            !exchangeRate.isActive()) {
+            deactivateCurrentActiveRate(businessId);
+        }
 
         exchangeRateMapper.updateEntity(request, exchangeRate);
         BusinessExchangeRate updatedExchangeRate = exchangeRateRepository.save(exchangeRate);
