@@ -903,7 +903,7 @@ export default function ProductModal({
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-2">
                         {imageFields.map((field, index) => (
                           <div
                             key={field.id}
