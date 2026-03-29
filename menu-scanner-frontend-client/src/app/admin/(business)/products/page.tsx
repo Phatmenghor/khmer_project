@@ -94,6 +94,8 @@ export default function ProductPage() {
         pageSize: globalPageSize,
         status:
           filters.status == ProductStatus.ALL ? undefined : filters.status,
+        brandId: selectedBrand?.id,
+        categoryId: selectedCategories?.id,
       }),
     );
   }, [
@@ -102,6 +104,8 @@ export default function ProductPage() {
     filters.pageNo,
     filters.status,
     globalPageSize,
+    selectedBrand,
+    selectedCategories,
   ]);
 
   // Event handlers
@@ -135,11 +139,17 @@ export default function ProductPage() {
     });
   };
 
+  const handleStatusChange = async (productId: string, status: string) => {
+    // You can implement status update API call here
+    showToast.info(`Status updated to ${status}`);
+  };
+
   const tableHandlers = useMemo(
     () => ({
       handleEditProduct,
       handleProductViewDetail,
       handleDeleteProduct,
+      handleStatusChange,
     }),
     [],
   );
