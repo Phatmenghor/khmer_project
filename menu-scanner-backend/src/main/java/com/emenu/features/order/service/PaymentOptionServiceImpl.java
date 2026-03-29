@@ -24,13 +24,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentOptionService {
+public class PaymentOptionServiceImpl implements IPaymentOptionService {
 
     private final PaymentOptionRepository paymentOptionRepository;
 
-    /**
-     * Create a new payment option
-     */
+    @Override
     @Transactional
     public PaymentOptionResponse createPaymentOption(UUID businessId, PaymentOptionRequest request) {
         log.info("Creating payment option: {} for business: {}", request.getName(), businessId);
@@ -53,9 +51,7 @@ public class PaymentOptionService {
         return mapToResponse(saved);
     }
 
-    /**
-     * Get all payment options for a business
-     */
+    @Override
     @Transactional(readOnly = true)
     public List<PaymentOptionResponse> getAllPaymentOptions(UUID businessId) {
         log.info("Getting all payment options for business: {}", businessId);
@@ -65,9 +61,7 @@ public class PaymentOptionService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get all active payment options for a business
-     */
+    @Override
     @Transactional(readOnly = true)
     public List<PaymentOptionResponse> getActivePaymentOptions(UUID businessId) {
         log.info("Getting active payment options for business: {}", businessId);
@@ -77,9 +71,7 @@ public class PaymentOptionService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Search payment options with pagination
-     */
+    @Override
     @Transactional(readOnly = true)
     public Page<PaymentOptionResponse> searchPaymentOptions(
             UUID businessId,
@@ -96,9 +88,7 @@ public class PaymentOptionService {
         return page.map(this::mapToResponse);
     }
 
-    /**
-     * Get payment option by ID
-     */
+    @Override
     @Transactional(readOnly = true)
     public PaymentOptionResponse getPaymentOptionById(UUID businessId, UUID id) {
         log.info("Getting payment option: {} for business: {}", id, businessId);
@@ -107,9 +97,7 @@ public class PaymentOptionService {
         return mapToResponse(option);
     }
 
-    /**
-     * Update payment option
-     */
+    @Override
     @Transactional
     public PaymentOptionResponse updatePaymentOption(
             UUID businessId,
@@ -136,9 +124,7 @@ public class PaymentOptionService {
         return mapToResponse(updated);
     }
 
-    /**
-     * Delete payment option
-     */
+    @Override
     @Transactional
     public void deletePaymentOption(UUID businessId, UUID id) {
         log.info("Deleting payment option: {} for business: {}", id, businessId);
@@ -150,9 +136,7 @@ public class PaymentOptionService {
         log.info("Payment option deleted: {}", id);
     }
 
-    /**
-     * Get all payment options with filters and pagination
-     */
+    @Override
     @Transactional(readOnly = true)
     public PaginationResponse<PaymentOptionResponse> getAllPaymentOptionsWithFilters(
             UUID businessId,
@@ -186,9 +170,7 @@ public class PaymentOptionService {
                 .build();
     }
 
-    /**
-     * Get all active payment options (public - no pagination)
-     */
+    @Override
     @Transactional(readOnly = true)
     public List<PaymentOptionResponse> getAllActivePaymentOptions() {
         log.info("Getting all active payment options");
