@@ -78,7 +78,9 @@ export function ProductDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogTitle className="sr-only">Product Details - {productData.name}</DialogTitle>
+      <DialogTitle className="sr-only">
+        Product Details - {productData.name}
+      </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
@@ -92,7 +94,9 @@ export function ProductDetailModal({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-xs text-muted-foreground">No image</span>
+                  <span className="text-xs text-muted-foreground">
+                    No image
+                  </span>
                 </div>
               )}
             </div>
@@ -122,21 +126,31 @@ export function ProductDetailModal({
                     label="Description"
                     value={productData.description || "---"}
                   />
-                  <DisplayField label="Category" value={productData.categoryName || "---"} />
-                  <DisplayField label="Brand" value={productData.brandName || "---"} />
+                  <DisplayField
+                    label="Category"
+                    value={productData.categoryName || "---"}
+                  />
+                  <DisplayField
+                    label="Brand"
+                    value={productData.brandName || "---"}
+                  />
                   <DisplayField
                     label="Status"
                     value={formatEnumValue(productData.status) || "---"}
                   />
                   <DisplayField label="SKU" value={productData.sku || "---"} />
-                  <DisplayField label="Barcode" value={productData.barcode || "---"} />
+                  <DisplayField
+                    label="Barcode"
+                    value={productData.barcode || "---"}
+                  />
                   <DisplayField
                     label="Has Sizes"
-                    value={
-                      productData.hasSizes ? "Yes" : "No"
-                    }
+                    value={productData.hasSizes ? "Yes" : "No"}
                   />
-                  <DisplayField label="Business" value={productData.businessName || "---"} />
+                  <DisplayField
+                    label="Business"
+                    value={productData.businessName || "---"}
+                  />
                   <DisplayField
                     label="Items"
                     value={
@@ -179,16 +193,22 @@ export function ProductDetailModal({
                         value={
                           productData.displayPromotionType === "PERCENTAGE"
                             ? `${productData.displayPromotionValue}%`
-                            : formatCurrency(productData.displayPromotionValue || 0)
+                            : formatCurrency(
+                                productData.displayPromotionValue || 0,
+                              )
                         }
                       />
                       <DisplayField
                         label="Promotion Valid From"
-                        value={dateTimeFormat(productData.displayPromotionFromDate ?? "")}
+                        value={dateTimeFormat(
+                          productData.displayPromotionFromDate ?? "",
+                        )}
                       />
                       <DisplayField
                         label="Promotion Valid Until"
-                        value={dateTimeFormat(productData.displayPromotionToDate ?? "")}
+                        value={dateTimeFormat(
+                          productData.displayPromotionToDate ?? "",
+                        )}
                       />
                     </>
                   )}
@@ -241,9 +261,11 @@ export function ProductDetailModal({
                               {size.name}
                             </h4>
                             <Badge
-                              variant={size.hasPromotion ? "default" : "outline"}
+                              variant={
+                                size.hasPromotion ? "default" : "outline"
+                              }
                             >
-                              {size.hasPromotion ? "On Sale" : "Regular"}
+                              {size.hasPromotion ? "Promotion" : "Regular"}
                             </Badge>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
@@ -271,7 +293,9 @@ export function ProductDetailModal({
                                 />
                                 <DisplayField
                                   label="Valid Until"
-                                  value={dateTimeFormat(size.promotionToDate ?? "")}
+                                  value={dateTimeFormat(
+                                    size.promotionToDate ?? "",
+                                  )}
                                 />
                               </>
                             )}
@@ -292,11 +316,19 @@ export function ProductDetailModal({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DisplayField
                     label="View Count"
-                    value={productData.viewCount ? productData.viewCount.toLocaleString() : "0"}
+                    value={
+                      productData.viewCount
+                        ? productData.viewCount.toLocaleString()
+                        : "0"
+                    }
                   />
                   <DisplayField
                     label="Favorite Count"
-                    value={productData.favoriteCount ? productData.favoriteCount.toLocaleString() : "0"}
+                    value={
+                      productData.favoriteCount
+                        ? productData.favoriteCount.toLocaleString()
+                        : "0"
+                    }
                   />
                 </div>
               </CardContent>
