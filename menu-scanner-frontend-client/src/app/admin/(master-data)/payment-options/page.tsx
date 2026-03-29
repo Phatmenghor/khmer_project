@@ -98,9 +98,7 @@ export default function PaymentOptionsPage() {
     });
   };
 
-  const handleEditPaymentOption = (
-    paymentOption: PaymentOptionResponse,
-  ) => {
+  const handleEditPaymentOption = (paymentOption: PaymentOptionResponse) => {
     setModalState({
       isOpen: true,
       mode: ModalMode.UPDATE_MODE,
@@ -108,9 +106,7 @@ export default function PaymentOptionsPage() {
     });
   };
 
-  const handleDeletePaymentOption = (
-    paymentOption: PaymentOptionResponse,
-  ) => {
+  const handleDeletePaymentOption = (paymentOption: PaymentOptionResponse) => {
     setDeleteState({
       isOpen: true,
       paymentOption: paymentOption,
@@ -122,7 +118,9 @@ export default function PaymentOptionsPage() {
   ) => {
     try {
       const newStatus =
-        paymentOption.status === Status.ACTIVE ? Status.INACTIVE : Status.ACTIVE;
+        paymentOption.status === Status.ACTIVE
+          ? Status.INACTIVE
+          : Status.ACTIVE;
       await dispatch(
         updatePaymentOptionService({
           id: paymentOption.id,
@@ -221,10 +219,6 @@ export default function PaymentOptionsPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
-            { label: "Payment Options", href: "" },
-          ]}
           title="Payment Options Information"
           buttonTooltip="Create a new payment option"
           searchValue={filters.search}
