@@ -83,11 +83,21 @@ const exchnageRateSlice = createSlice({
       action: PayloadAction<ExchangeRateResponseModel>
     ) => {
       if (state.data?.content) {
-        const index = state.data.content.findIndex(
-          (rate) => rate.id === action.payload.id
-        );
-        if (index !== -1) {
-          state.data.content[index] = action.payload;
+        // If updating to ACTIVE, deactivate all other rates
+        if (action.payload.status === "ACTIVE") {
+          state.data.content = state.data.content.map((rate) =>
+            rate.id === action.payload.id
+              ? action.payload
+              : { ...rate, status: "INACTIVE" as const }
+          );
+        } else {
+          // If not setting to ACTIVE, just update the specific rate
+          const index = state.data.content.findIndex(
+            (rate) => rate.id === action.payload.id
+          );
+          if (index !== -1) {
+            state.data.content[index] = action.payload;
+          }
         }
       }
     },
