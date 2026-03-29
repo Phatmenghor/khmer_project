@@ -95,6 +95,8 @@ public interface ProductMapper {
     @Mapping(source = "displayPromotionType", target = "displayPromotionType", qualifiedByName = "promotionTypeToString")
     @Mapping(target = "hasPromotion", source = "hasActivePromotion")
     @Mapping(target = "isFavorited", constant = "false")
+    @Mapping(target = "images", source = "images")
+    @Mapping(target = "sizes", source = "sizes")
     ProductDetailDto toDetailDto(Product product);
 
     List<ProductDetailDto> toDetailDtos(List<Product> products);

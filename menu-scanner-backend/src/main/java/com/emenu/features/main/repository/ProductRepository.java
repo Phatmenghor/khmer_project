@@ -23,13 +23,14 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     /**
-     * Find product by ID with all related details (category, brand, business, sizes)
+     * Find product by ID with all related details (category, brand, business, sizes, images)
      */
     @Query("SELECT DISTINCT p FROM Product p " +
            "LEFT JOIN FETCH p.category c " +
            "LEFT JOIN FETCH p.brand b " +
            "LEFT JOIN FETCH p.business bus " +
            "LEFT JOIN FETCH p.sizes sz " +
+           "LEFT JOIN FETCH p.images img " +
            "WHERE p.id = :id AND p.isDeleted = false " +
            "AND (sz.isDeleted = false OR sz.isDeleted IS NULL)")
     Optional<Product> findByIdWithAllDetails(@Param("id") UUID id);
@@ -96,9 +97,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
      * OPTIMIZED: Uses has_active_promotion field instead of expensive EXISTS subqueries
      */
     @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN p.category c " +
-           "LEFT JOIN p.brand b " +
-           "LEFT JOIN p.business bus " +
+           "LEFT JOIN FETCH p.category c " +
+           "LEFT JOIN FETCH p.brand b " +
+           "LEFT JOIN FETCH p.business bus " +
+           "LEFT JOIN FETCH p.images img " +
            "WHERE p.isDeleted = false " +
            "AND (:businessId IS NULL OR p.businessId = :businessId) " +
            "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
@@ -131,9 +133,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
      * OPTIMIZED: Uses has_active_promotion field instead of expensive EXISTS subqueries
      */
     @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN p.category c " +
-           "LEFT JOIN p.brand b " +
-           "LEFT JOIN p.business bus " +
+           "LEFT JOIN FETCH p.category c " +
+           "LEFT JOIN FETCH p.brand b " +
+           "LEFT JOIN FETCH p.business bus " +
+           "LEFT JOIN FETCH p.images img " +
            "WHERE p.isDeleted = false " +
            "AND (:businessId IS NULL OR p.businessId = :businessId) " +
            "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
