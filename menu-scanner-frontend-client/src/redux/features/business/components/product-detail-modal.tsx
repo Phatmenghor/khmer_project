@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { Loading } from "@/components/shared/common/loading";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 
 interface ProductDetailModalProps {
   productId?: string;
@@ -80,33 +81,6 @@ export function ProductDetailModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">Product Details - {productData.name}</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-start gap-4">
-            <CustomAvatar
-              imageUrl={productData.mainImageUrl}
-              name={productData.name}
-              size="lg"
-            />
-            <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-foreground">
-                Product Details
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                View detailed information about the product
-              </p>
-              <div className="mt-3 space-y-1">
-                <p className="text-sm font-medium text-foreground">
-                  {productData.name}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {productData.categoryName} • {productData.brandName}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
@@ -124,7 +98,10 @@ export function ProductDetailModal({
                   />
                   <DisplayField label="Category" value={productData.categoryName || "---"} />
                   <DisplayField label="Brand" value={productData.brandName || "---"} />
-                  <DisplayField label="Status" value={productData.status || "---"} />
+                  <DisplayField
+                    label="Status"
+                    value={formatEnumValue(productData.status) || "---"}
+                  />
                   <DisplayField label="SKU" value={productData.sku || "---"} />
                   <DisplayField label="Barcode" value={productData.barcode || "---"} />
                   <DisplayField
@@ -136,6 +113,10 @@ export function ProductDetailModal({
                     }
                   />
                   <DisplayField label="Business" value={productData.businessName || "---"} />
+                  <DisplayField
+                    label="Total Stock"
+                    value={productData.totalStock?.toLocaleString() || "0"}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -183,22 +164,6 @@ export function ProductDetailModal({
                       />
                     </>
                   )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Stock Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Stock Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <DisplayField
-                    label="Total Stock"
-                    value={productData.totalStock?.toLocaleString() || "0"}
-                  />
-                  <DisplayField label="Quantity" value={productData.quantity?.toString() || "0"} />
                 </div>
               </CardContent>
             </Card>
@@ -308,18 +273,6 @@ export function ProductDetailModal({
                   <DisplayField
                     label="Favorite Count"
                     value={productData.favoriteCount?.toLocaleString() || "0"}
-                  />
-                  <DisplayField
-                    label="Is Favorited"
-                    value={
-                      <Badge
-                        variant={
-                          productData.isFavorited ? "default" : "outline"
-                        }
-                      >
-                        {productData.isFavorited ? "Yes" : "No"}
-                      </Badge>
-                    }
                   />
                 </div>
               </CardContent>
