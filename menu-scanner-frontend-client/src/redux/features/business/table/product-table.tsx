@@ -1,6 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Edit, Eye, Trash, Package, Gift, Zap, Check } from "lucide-react";
+import { Edit, Eye, Trash, Package, RotateCcw, Zap, Check } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
@@ -373,7 +373,7 @@ export const productTableColumns = ({
           />
           {brand?.hasPromotion && (
             <ActionButton
-              icon={<Gift className="w-4 h-4" />}
+              icon={<RotateCcw className="w-4 h-4" />}
               tooltip="Reset Promotion"
               onClick={() => handleResetPromotion?.(brand)}
               variant="outline"
