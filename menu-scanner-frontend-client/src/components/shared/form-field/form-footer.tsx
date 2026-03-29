@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 interface FormFooterProps {
   isSubmitting: boolean;
   isDirty: boolean;
-  isCreate: boolean;
+  isCreate?: boolean;
   createMessage?: string;
   updateMessage?: string;
   noChangesMessage?: string;
@@ -18,7 +18,7 @@ interface FormFooterProps {
 export function FormFooter({
   isSubmitting,
   isDirty,
-  isCreate,
+  isCreate = true,
   createMessage = "Creating...",
   updateMessage = "Updating...",
   noChangesMessage = "No changes made",
