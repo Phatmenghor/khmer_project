@@ -623,7 +623,33 @@ export default function ProductModal({
                 {!hasSizes && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Pricing Information</CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>Pricing Information</CardTitle>
+                        {showPromotionFields && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setValue("promotionType", "NONE", {
+                                shouldDirty: true,
+                              });
+                              setValue("promotionValue", undefined, {
+                                shouldDirty: true,
+                              });
+                              setValue("promotionFromDate", "", {
+                                shouldDirty: true,
+                              });
+                              setValue("promotionToDate", "", {
+                                shouldDirty: true,
+                              });
+                            }}
+                            disabled={isProcessing}
+                          >
+                            Reset Promotion
+                          </Button>
+                        )}
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -747,20 +773,54 @@ export default function ProductModal({
                               key={field.id}
                               className="border rounded-lg p-4 space-y-4"
                             >
-                              <div className="flex items-center justify-between">
+                              <div className="flex items-center justify-between gap-2">
                                 <h4 className="font-semibold text-foreground">
                                   Size {index + 1}
                                 </h4>
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => removeSize(index)}
-                                  disabled={isProcessing}
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Remove
-                                </Button>
+                                <div className="flex items-center gap-2">
+                                  {showSizePromotionFields && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        setValue(
+                                          `sizes.${index}.promotionType`,
+                                          "NONE",
+                                          { shouldDirty: true }
+                                        );
+                                        setValue(
+                                          `sizes.${index}.promotionValue`,
+                                          undefined,
+                                          { shouldDirty: true }
+                                        );
+                                        setValue(
+                                          `sizes.${index}.promotionFromDate`,
+                                          "",
+                                          { shouldDirty: true }
+                                        );
+                                        setValue(
+                                          `sizes.${index}.promotionToDate`,
+                                          "",
+                                          { shouldDirty: true }
+                                        );
+                                      }}
+                                      disabled={isProcessing}
+                                    >
+                                      Reset
+                                    </Button>
+                                  )}
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => removeSize(index)}
+                                    disabled={isProcessing}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Remove
+                                  </Button>
+                                </div>
                               </div>
 
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
