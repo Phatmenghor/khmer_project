@@ -81,16 +81,14 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
       {sizes.map((size) => (
         <div key={size.id} className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded whitespace-nowrap flex-shrink-0">
           <span className="text-xs font-medium text-primary">{size.name}</span>
-          {size.hasPromotion ? (
+          <span className="text-xs font-semibold text-foreground">${size.finalPrice}</span>
+          {size.hasPromotion && (
             <>
-              <span className="text-xs text-muted-foreground line-through">${size.price}</span>
-              <span className="text-xs font-semibold text-green-600">${size.finalPrice}</span>
-              <span className="text-xs text-green-600">
+              <span className="text-xs text-muted-foreground">/</span>
+              <span className="text-xs font-semibold text-red-600">
                 {size.promotionType === "FIXED_AMOUNT" ? `-$${size.promotionValue}` : `-${size.promotionValue}%`}
               </span>
             </>
-          ) : (
-            <span className="text-xs text-muted-foreground">${size.price}</span>
           )}
         </div>
       ))}
