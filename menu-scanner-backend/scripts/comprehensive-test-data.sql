@@ -968,6 +968,19 @@ SELECT
 FROM generate_series(1, 50) AS t(i);
 
 -- ============================================================================
+-- 41B. SYNC DENORMALIZED NAMES (populate category_name, brand_name, business_name)
+-- ============================================================================
+
+UPDATE products p SET
+    category_name = c.name,
+    brand_name = b.name,
+    business_name = 'Phatmenghor Business'
+FROM categories c, brands b
+WHERE p.category_id = c.id
+  AND p.brand_id = b.id
+  AND p.is_deleted = false;
+
+-- ============================================================================
 -- 42. IMAGES
 -- ============================================================================
 

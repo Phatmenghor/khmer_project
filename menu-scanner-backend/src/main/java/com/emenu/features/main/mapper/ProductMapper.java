@@ -104,11 +104,15 @@ public interface ProductMapper {
 
     /**
      * Convert to lightweight admin list DTO without images
-     * Used for /api/v1/products/admin/my-business/all endpoint
+     * Uses denormalized fields (categoryName, brandName, businessName) from Product entity
+     * Avoids JOINs and lazy-loading relationships
      */
     @Mapping(target = "promotionType", source = "promotionType", qualifiedByName = "promotionTypeToString")
     @Mapping(target = "displayPromotionType", source = "displayPromotionType", qualifiedByName = "promotionTypeToString")
     @Mapping(target = "hasPromotion", source = "hasActivePromotion")
+    @Mapping(target = "categoryName", source = "categoryName")
+    @Mapping(target = "brandName", source = "brandName")
+    @Mapping(target = "businessName", source = "businessName")
     @Mapping(target = "sizes", source = "sizes")
     ProductAdminListDto toAdminListDto(Product product);
 
