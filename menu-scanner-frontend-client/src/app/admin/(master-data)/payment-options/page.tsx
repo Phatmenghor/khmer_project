@@ -159,8 +159,8 @@ export default function PaymentOptionsPage() {
     dispatch(setSearchFilter(e.target.value));
   };
 
-  const handleStatusChange = (status: Status) => {
-    dispatch(setStatusFilter(status));
+  const handleStatusChange = (status: string) => {
+    dispatch(setStatusFilter(status as Status));
   };
 
   const handlePageChangeWrapper = (page: number) => {
@@ -240,17 +240,18 @@ export default function PaymentOptionsPage() {
 
         {/* Data Table */}
         <DataTableWithPagination
-          columns={columns}
           data={paymentOptionsContent}
-          isLoading={isLoading.fetch}
-          pagination={{
-            pageNo: pagination.currentPage,
-            pageSize: pagination.pageSize,
-            totalElements: pagination.totalElements,
-            totalPages: pagination.totalPages,
-          }}
+          columns={columns}
+          loading={isLoading.fetch}
+          emptyMessage="No payment options found"
+          getRowKey={(option) => option.id}
+          currentPage={pagination.currentPage}
+          totalElements={pagination.totalElements}
+          totalPages={pagination.totalPages}
           onPageChange={handlePageChangeWrapper}
+          pageSize={globalPageSize}
           onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
 
@@ -268,7 +269,6 @@ export default function PaymentOptionsPage() {
         onDelete={handleDelete}
         title="Delete Payment Option"
         description={`Are you sure you want to delete the payment option "${deleteState.paymentOption?.name}"? This action cannot be undone.`}
-        isLoading={operations.delete}
       />
     </div>
   );
