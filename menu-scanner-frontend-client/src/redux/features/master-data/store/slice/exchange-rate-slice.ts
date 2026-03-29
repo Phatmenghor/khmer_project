@@ -90,8 +90,53 @@ const exchnageRateSlice = createSlice({
               ? action.payload
               : { ...rate, status: "INACTIVE" as const }
           );
+        } else if (action.payload.status === "INACTIVE") {
+          // If deactivating the only ACTIVE rate, activate the most recently created one
+          const currentRate = state.data.content.find(
+            (rate) => rate.id === action.payload.id
+          );
+          const isCurrentRateActive = currentRate?.status === "ACTIVE";
+          const activeRatesCount = state.data.content.filter(
+            (rate) => rate.status === "ACTIVE"
+          ).length;
+
+          if (isCurrentRateActive && activeRatesCount === 1) {
+            // Find the most recently created INACTIVE rate (sorted by createdAt desc)
+            const inactiveRates = state.data.content
+              .filter((rate) => rate.status === "INACTIVE" && rate.id !== action.payload.id)
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+            if (inactiveRates.length > 0) {
+              // Activate the most recent INACTIVE rate
+              const rateToActivate = inactiveRates[0];
+              state.data.content = state.data.content.map((rate) => {
+                if (rate.id === action.payload.id) {
+                  return action.payload; // Deactivate the current rate
+                } else if (rate.id === rateToActivate.id) {
+                  return { ...rate, status: "ACTIVE" as const }; // Activate the next one
+                }
+                return rate;
+              });
+            } else {
+              // No other inactive rates, just update the current one
+              const index = state.data.content.findIndex(
+                (rate) => rate.id === action.payload.id
+              );
+              if (index !== -1) {
+                state.data.content[index] = action.payload;
+              }
+            }
+          } else {
+            // Not the only active rate or already inactive, just update the specific rate
+            const index = state.data.content.findIndex(
+              (rate) => rate.id === action.payload.id
+            );
+            if (index !== -1) {
+              state.data.content[index] = action.payload;
+            }
+          }
         } else {
-          // If not setting to ACTIVE, just update the specific rate
+          // For any other status updates, just update the specific rate
           const index = state.data.content.findIndex(
             (rate) => rate.id === action.payload.id
           );

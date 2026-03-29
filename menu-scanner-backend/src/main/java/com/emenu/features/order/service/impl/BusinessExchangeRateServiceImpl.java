@@ -112,6 +112,20 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
                 log.info("Deactivated {} other active rate(s) for business {} when activating rate {}",
                         deactivatedCount, businessId, id);
             }
+        } else if (request.getStatus() != null &&
+                   request.getStatus() == BusinessExchangeRate.ExchangeRateStatus.INACTIVE &&
+                   exchangeRate.isActive()) {
+            // If deactivating the only ACTIVE rate, activate the most recently created INACTIVE rate
+            if (exchangeRateRepository.countActiveRates(businessId) == 1) {
+                Optional<BusinessExchangeRate> nextActiveRate = exchangeRateRepository.findMostRecentInactiveRateByBusinessId(businessId);
+                if (nextActiveRate.isPresent()) {
+                    BusinessExchangeRate rateToActivate = nextActiveRate.get();
+                    rateToActivate.activate();
+                    exchangeRateRepository.save(rateToActivate);
+                    log.info("Activated rate {} when deactivating the only active rate {}",
+                            rateToActivate.getId(), id);
+                }
+            }
         }
 
         exchangeRateMapper.updateEntity(request, exchangeRate);
