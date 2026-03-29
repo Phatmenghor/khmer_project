@@ -69,7 +69,7 @@ function ProductImagePreview({ product }: { product: ProductDetailResponseModel 
 }
 
 /**
- * SizesDisplay - Display product sizes with details
+ * SizesDisplay - Display product sizes with details in a row
  */
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   if (!sizes || sizes.length === 0) {
@@ -77,17 +77,13 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-wrap gap-2">
       {sizes.map((size) => (
-        <div key={size.id} className="flex items-center gap-2 text-xs">
-          <span className="px-2 py-1 bg-primary/10 rounded text-primary font-medium">
-            {size.name}
-          </span>
-          <span className="text-muted-foreground">${size.price}</span>
+        <div key={size.id} className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded whitespace-nowrap">
+          <span className="text-xs font-medium text-primary">{size.name}</span>
+          <span className="text-xs text-muted-foreground">${size.price}</span>
           {size.hasPromotion && (
-            <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-xs font-semibold">
-              -${size.promotionValue}
-            </span>
+            <span className="text-xs text-green-600 font-semibold">-${size.promotionValue}</span>
           )}
         </div>
       ))}
@@ -108,9 +104,9 @@ function StatusSelect({
   productId: string;
 }) {
   const statusOptions = [
-    { value: "ACTIVE", label: "Active - Available for customers" },
-    { value: "INACTIVE", label: "Inactive - Hidden from customers" },
-    { value: "OUT_OF_STOCK", label: "Out of Stock - Temporarily unavailable" },
+    { value: "ACTIVE", label: "Active" },
+    { value: "INACTIVE", label: "Inactive" },
+    { value: "OUT_OF_STOCK", label: "Out Of Stock" },
   ];
 
   const getStatusColor = (status: string) => {
@@ -126,10 +122,23 @@ function StatusSelect({
     }
   };
 
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "ACTIVE":
+        return "Active";
+      case "INACTIVE":
+        return "Inactive";
+      case "OUT_OF_STOCK":
+        return "Out Of Stock";
+      default:
+        return status;
+    }
+  };
+
   return (
     <Select value={value} onValueChange={(newStatus) => onStatusChange?.(productId, newStatus)}>
-      <SelectTrigger className={cn("w-40 h-8 text-xs", getStatusColor(value))}>
-        <SelectValue />
+      <SelectTrigger className={cn("w-32 h-8 text-xs", getStatusColor(value))}>
+        <SelectValue>{getStatusDisplay(value)}</SelectValue>
       </SelectTrigger>
       <SelectContent>
         {statusOptions.map((option) => (
