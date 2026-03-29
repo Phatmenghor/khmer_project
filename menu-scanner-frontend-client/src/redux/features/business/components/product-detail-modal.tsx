@@ -138,10 +138,6 @@ export function ProductDetailModal({
                   />
                   <DisplayField label="Business" value={productData.businessName || "---"} />
                   <DisplayField
-                    label="Total Stock"
-                    value={productData.totalStock?.toLocaleString() || "0"}
-                  />
-                  <DisplayField
                     label="Items"
                     value={
                       productData.sizes && productData.sizes.length > 0
@@ -172,7 +168,7 @@ export function ProductDetailModal({
                     label="Display Origin Price"
                     value={formatCurrency(productData.displayOriginPrice)}
                   />
-                  {productData.hasPromotion && (
+                  {productData.hasActivePromotion && (
                     <>
                       <DisplayField
                         label="Promotion Type"
@@ -257,11 +253,7 @@ export function ProductDetailModal({
                             />
                             <DisplayField
                               label="Final Price"
-                              value={
-                                <span className="text-green-600 font-semibold">
-                                  {formatCurrency(size.finalPrice)}
-                                </span>
-                              }
+                              value={formatCurrency(size.finalPrice)}
                             />
                             {size.hasPromotion && (
                               <>
@@ -300,11 +292,11 @@ export function ProductDetailModal({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DisplayField
                     label="View Count"
-                    value={productData.viewCount?.toLocaleString() || "0"}
+                    value={productData.viewCount ? productData.viewCount.toLocaleString() : "0"}
                   />
                   <DisplayField
                     label="Favorite Count"
-                    value={productData.favoriteCount?.toLocaleString() || "0"}
+                    value={productData.favoriteCount ? productData.favoriteCount.toLocaleString() : "0"}
                   />
                 </div>
               </CardContent>
