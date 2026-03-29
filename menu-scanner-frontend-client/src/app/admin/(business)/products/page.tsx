@@ -154,16 +154,37 @@ export default function ProductPage() {
 
   const handleStatusChange = async (productId: string, status: string) => {
     try {
+      // Find the product to get all required fields
+      const product = productContent.find((p) => p.id === productId);
+      if (!product) {
+        showToast.error("Product not found");
+        return;
+      }
+
       // Optimistic update - update local state first
-      const updatedContent = productContent.map((product) =>
-        product.id === productId ? { ...product, status } : product
+      const updatedContent = productContent.map((p) =>
+        p.id === productId ? { ...p, status } : p
       );
+
+      // Build complete product data for API (send all required fields)
+      const productData = {
+        name: product.name,
+        description: product.description,
+        categoryId: product.categoryId,
+        brandId: product.brandId,
+        price: product.price,
+        sku: product.sku,
+        barcode: product.barcode,
+        status,
+        mainImageUrl: product.mainImageUrl,
+        promotion: product.promotion,
+      };
 
       // Call API in background
       await dispatch(
         updateProductService({
           productId,
-          productData: { status },
+          productData,
         })
       ).unwrap();
 
