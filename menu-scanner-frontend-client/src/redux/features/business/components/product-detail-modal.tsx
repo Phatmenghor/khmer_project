@@ -87,7 +87,7 @@ export function ProductDetailModal({
             <CustomAvatar
               imageUrl={productData.mainImageUrl}
               name={productData.name}
-              size="2xl"
+              size="xxl"
             />
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-foreground">
