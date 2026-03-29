@@ -220,10 +220,6 @@ export default function DeliveryOptionsPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
-            { label: "Delivery Options", href: "" },
-          ]}
           title="Delivery Options Information"
           buttonTooltip="Create a new delivery options"
           searchValue={filters.search}
@@ -276,7 +272,7 @@ export default function DeliveryOptionsPage() {
         onClose={closeDetailModal}
       />
 
-{/* Modals Delete name platform */}
+      {/* Modals Delete name platform */}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}
