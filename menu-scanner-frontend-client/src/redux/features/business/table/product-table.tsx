@@ -73,49 +73,26 @@ function ProductImagePreview({
 }
 
 /**
- * SizesDisplay - Display product sizes with simplified styling
+ * SizesDisplay - Display product sizes in simple text format
  */
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }
 
-  const getSizeBgColor = (sizeName: string) => {
-    switch (sizeName?.toLowerCase()) {
-      case "small":
-      case "s":
-        return "bg-blue-100 text-blue-700 border-blue-200";
-      case "medium":
-      case "m":
-        return "bg-green-100 text-green-700 border-green-200";
-      case "large":
-      case "l":
-        return "bg-orange-100 text-orange-700 border-orange-200";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
-
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap gap-2">
       {sizes.map((size) => (
-        <div
-          key={size.id}
-          className={cn(
-            "px-2 py-1 rounded border text-xs font-medium whitespace-nowrap transition-colors hover:opacity-80",
-            getSizeBgColor(size.name),
-          )}
-        >
-          <span>{size.name}</span>
-          <span className="ml-1 font-semibold">${size.finalPrice}</span>
+        <span key={size.id} className="text-xs text-foreground">
+          {size.name} ${size.finalPrice}
           {size.hasPromotion && (
-            <span className="ml-1 font-bold text-red-600">
+            <span className="text-red-600 font-semibold ml-1">
               {size.promotionType === "FIXED_AMOUNT"
                 ? `-$${size.promotionValue}`
                 : `-${size.promotionValue}%`}
             </span>
           )}
-        </div>
+        </span>
       ))}
     </div>
   );
