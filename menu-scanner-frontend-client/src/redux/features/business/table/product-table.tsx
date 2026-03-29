@@ -73,33 +73,47 @@ function ProductImagePreview({
 }
 
 /**
- * SizesDisplay - Display product sizes with details in a single row
+ * SizesDisplay - Display product sizes with simplified styling
  */
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }
 
+  const getSizeBgColor = (sizeName: string) => {
+    switch (sizeName?.toLowerCase()) {
+      case "small":
+      case "s":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "medium":
+      case "m":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "large":
+      case "l":
+        return "bg-orange-100 text-orange-700 border-orange-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
+    }
+  };
+
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1">
+    <div className="flex flex-wrap gap-1.5">
       {sizes.map((size) => (
         <div
           key={size.id}
-          className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded whitespace-nowrap flex-shrink-0"
+          className={cn(
+            "px-2 py-1 rounded border text-xs font-medium whitespace-nowrap transition-colors hover:opacity-80",
+            getSizeBgColor(size.name),
+          )}
         >
-          <span className="text-xs font-medium text-primary">{size.name}</span>
-          <span className="text-xs font-semibold text-foreground">
-            ${size.finalPrice}
-          </span>
+          <span>{size.name}</span>
+          <span className="ml-1 font-semibold">${size.finalPrice}</span>
           {size.hasPromotion && (
-            <>
-              <span className="text-xs text-muted-foreground">/</span>
-              <span className="text-xs font-semibold text-red-600">
-                {size.promotionType === "FIXED_AMOUNT"
-                  ? `-$${size.promotionValue}`
-                  : `-${size.promotionValue}%`}
-              </span>
-            </>
+            <span className="ml-1 font-bold text-red-600">
+              {size.promotionType === "FIXED_AMOUNT"
+                ? `-$${size.promotionValue}`
+                : `-${size.promotionValue}%`}
+            </span>
           )}
         </div>
       ))}
