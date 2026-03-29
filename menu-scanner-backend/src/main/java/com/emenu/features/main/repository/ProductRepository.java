@@ -94,7 +94,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     /**
      * Find all products with dynamic filtering - OPTIMIZED FOR LIST VIEW
-     * NO category/brand/business/images JOINs - uses stored names instead
+     * NO category/brand/business/images JOINs - searches only product name/description
      * ~20-30x faster than full detail query
      */
     @Query("SELECT DISTINCT p FROM Product p " +
@@ -110,9 +110,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:maxPrice IS NULL OR p.displayPrice <= :maxPrice) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.categoryName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.brandName) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Product> findAllWithFiltersOptimized(
         @Param("businessId") UUID businessId,
         @Param("categoryId") UUID categoryId,
