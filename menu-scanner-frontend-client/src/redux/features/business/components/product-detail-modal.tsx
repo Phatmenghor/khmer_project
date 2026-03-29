@@ -83,18 +83,19 @@ export function ProductDetailModal({
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-start gap-4">
-            <CustomAvatar
-              imageUrl={productData.mainImageUrl}
-              name={productData.name}
-              size="lg"
-            />
-            <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-semibold text-foreground">
+              Product Details
+            </h2>
+            <p className="text-sm text-foreground mt-1">
+              View detailed information about the product
+            </p>
+            <div className="mt-3 space-y-1">
               <p className="text-sm font-medium text-foreground">
                 {productData.name}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {productData.description || "---"}
+              <p className="text-sm text-muted-foreground">
+                {productData.categoryName} • {productData.brandName}
               </p>
             </div>
           </div>
