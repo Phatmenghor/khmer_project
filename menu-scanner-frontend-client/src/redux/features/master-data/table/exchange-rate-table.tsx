@@ -7,6 +7,12 @@ import {
   ExchangeRateResponseModel,
 } from "../store/models/response/exchange-rate-response";
 import { ActionButton } from "@/components/shared/button/action-button";
+import {
+  formatKhrRate,
+  formatCnyRate,
+  formatVndRate,
+  formatExchangeRateStatus,
+} from "@/utils/format/exchange-rate-formatter";
 
 interface HandlersTableHandlers {
   handleEditRate: (param: ExchangeRateResponseModel) => void;
@@ -40,49 +46,37 @@ export const exchangeRateTableColumns = ({
 
     {
       key: "usdToKhrRate",
-      label: "USD To KHR Rate",
+      label: "USD To KHR",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (parameter) => (
-        <span className="text-xs text-muted-foreground">
-          {parameter?.formattedKhrRate || "---"}
+        <span className="text-xs text-muted-foreground font-medium">
+          {formatKhrRate(parameter?.usdToKhrRate)}
         </span>
       ),
     },
     {
       key: "usdToCnyRate",
-      label: "USD To CNY Rate",
+      label: "USD To CNY",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (parameter) => (
         <span className="text-xs text-muted-foreground">
-          {parameter?.formattedCnyRate || "---"}
-        </span>
-      ),
-    },
-    {
-      key: "usdToThbRate",
-      label: "USD To THB Rate",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (parameter) => (
-        <span className="text-xs text-muted-foreground">
-          {parameter?.formattedThbRate || "---"}
+          {formatCnyRate(parameter?.usdToCnyRate)}
         </span>
       ),
     },
     {
       key: "usdToVndRate",
-      label: "USD To VND Rate",
+      label: "USD To VND",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (parameter) => (
         <span className="text-xs text-muted-foreground">
-          {parameter?.formattedVndRate || "---"}
+          {formatVndRate(parameter?.usdToVndRate)}
         </span>
       ),
     },
@@ -94,8 +88,14 @@ export const exchangeRateTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (parameter) => (
-        <span className="text-xs text-muted-foreground">
-          {parameter?.isActive || "---"}
+        <span
+          className={`text-xs font-medium px-2 py-1 rounded-full ${
+            parameter?.status === "ACTIVE"
+              ? "bg-green-100 text-green-800"
+              : "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {formatExchangeRateStatus(parameter?.status)}
         </span>
       ),
     },
