@@ -4,7 +4,7 @@ import com.emenu.features.auth.models.User;
 import com.emenu.features.order.dto.filter.PaymentOptionFilterRequest;
 import com.emenu.features.order.dto.request.PaymentOptionRequest;
 import com.emenu.features.order.dto.response.PaymentOptionResponse;
-import com.emenu.features.order.service.IPaymentOptionService;
+import com.emenu.features.order.service.PaymentOptionService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
@@ -23,7 +23,7 @@ import java.util.UUID;
 @Slf4j
 public class PaymentOptionController {
 
-    private final IPaymentOptionService paymentOptionService;
+    private final PaymentOptionService paymentOptionService;
     private final SecurityUtils securityUtils;
 
     /**
