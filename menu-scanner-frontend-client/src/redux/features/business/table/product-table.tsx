@@ -1,6 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Edit, Eye, Trash } from "lucide-react";
+import { Edit, Eye, Trash, Package } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
@@ -8,6 +8,13 @@ import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AllProductResponseModel,
   ProductDetailResponseModel,
@@ -17,6 +24,7 @@ interface ProductTableHandlers {
   handleEditProduct: (brand: ProductDetailResponseModel) => void;
   handleProductViewDetail: (brand: ProductDetailResponseModel) => void;
   handleDeleteProduct: (brand: ProductDetailResponseModel) => void;
+  handleStatusChange?: (productId: string, status: string) => void;
 }
 
 interface ProductTableOptions {
@@ -60,11 +68,85 @@ function ProductImagePreview({ product }: { product: ProductDetailResponseModel 
   );
 }
 
+/**
+ * SizesDisplay - Display product sizes with details
+ */
+function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
+  if (!sizes || sizes.length === 0) {
+    return <span className="text-xs text-muted-foreground">No sizes</span>;
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      {sizes.map((size) => (
+        <div key={size.id} className="flex items-center gap-2 text-xs">
+          <span className="px-2 py-1 bg-primary/10 rounded text-primary font-medium">
+            {size.name}
+          </span>
+          <span className="text-muted-foreground">${size.price}</span>
+          {size.hasPromotion && (
+            <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-xs font-semibold">
+              -${size.promotionValue}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * StatusSelect - Select component for status updates
+ */
+function StatusSelect({
+  value,
+  onStatusChange,
+  productId,
+}: {
+  value: string;
+  onStatusChange?: (productId: string, status: string) => void;
+  productId: string;
+}) {
+  const statusOptions = [
+    { value: "ACTIVE", label: "Active - Available for customers" },
+    { value: "INACTIVE", label: "Inactive - Hidden from customers" },
+    { value: "OUT_OF_STOCK", label: "Out of Stock - Temporarily unavailable" },
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "ACTIVE":
+        return "bg-green-100 text-green-700";
+      case "INACTIVE":
+        return "bg-gray-100 text-gray-700";
+      case "OUT_OF_STOCK":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  return (
+    <Select value={value} onValueChange={(newStatus) => onStatusChange?.(productId, newStatus)}>
+      <SelectTrigger className={cn("w-40 h-8 text-xs", getStatusColor(value))}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {statusOptions.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 export const productTableColumns = ({
   data,
   handlers,
 }: ProductTableOptions): TableColumn<ProductDetailResponseModel>[] => {
-  const { handleEditProduct, handleProductViewDetail, handleDeleteProduct } =
+  const { handleEditProduct, handleProductViewDetail, handleDeleteProduct, handleStatusChange } =
     handlers;
 
   return [
@@ -103,14 +185,66 @@ export const productTableColumns = ({
     },
 
     {
-      key: "displayPrice",
-      label: "Price",
+      key: "sku",
+      label: "SKU",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "120px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.sku || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "barcode",
+      label: "Barcode",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.barcode || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "categoryName",
+      label: "Category",
+      minWidth: "10px",
+      maxWidth: "150px",
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
-          {product?.displayPrice || "---"}
+          {product?.categoryName || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "brandName",
+      label: "Brand",
+      minWidth: "10px",
+      maxWidth: "150px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground">
+          {product?.brandName || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "displayPrice",
+      label: "Price",
+      minWidth: "10px",
+      maxWidth: "100px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs font-semibold text-foreground">
+          ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
         </span>
       ),
     },
@@ -119,38 +253,34 @@ export const productTableColumns = ({
       key: "displayOriginPrice",
       label: "Origin Price",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "120px",
       truncate: true,
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.displayOriginPrice || "---"}
+        <span className="text-xs text-muted-foreground line-through">
+          ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
         </span>
       ),
     },
 
     {
-      key: "hasSizes",
-      label: "Has Sizes",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.hasSizes ? "Have Size" : "None Size"}
-        </span>
-      ),
+      key: "sizes",
+      label: "Sizes",
+      minWidth: "150px",
+      maxWidth: "300px",
+      render: (product) => <SizesDisplay sizes={product?.sizes} />,
     },
 
     {
       key: "status",
       label: "Status",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
+      minWidth: "150px",
+      maxWidth: "300px",
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.status || "---"}
-        </span>
+        <StatusSelect
+          value={product?.status || "ACTIVE"}
+          onStatusChange={handleStatusChange}
+          productId={product?.id || ""}
+        />
       ),
     },
 
