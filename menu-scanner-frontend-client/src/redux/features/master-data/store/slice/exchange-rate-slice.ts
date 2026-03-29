@@ -263,8 +263,11 @@ const exchnageRateSlice = createSlice({
       })
       .addCase(deleteExchangeRateService.fulfilled, (state, action) => {
         if (state.data) {
+          // Extract ID from payload (could be string or object)
+          const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
+
           state.data.content = state.data.content.filter(
-            (user) => user.id !== action.payload
+            (rate) => rate.id !== deletedId
           );
           state.data.totalElements -= 1;
           state.data.totalPages = Math.ceil(
