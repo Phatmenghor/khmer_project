@@ -154,36 +154,16 @@ export default function ProductPage() {
 
   const handleStatusChange = async (productId: string, status: string) => {
     try {
-      // Find the product to get all its data
-      const product = productContent.find((p) => p.id === productId);
-      if (!product) return;
-
-      // Prepare complete product data (merge status with existing data)
-      const productData = {
-        name: product.name,
-        description: product.description,
-        categoryId: product.categoryId,
-        brandId: product.brandId,
-        price: parseFloat(product.price),
-        mainImageUrl: product.mainImageUrl,
-        status: status,
-        // Include promotion data if exists
-        promotionType: product.promotionType,
-        promotionValue: product.promotionValue,
-        promotionFromDate: product.promotionFromDate,
-        promotionToDate: product.promotionToDate,
-      };
-
       // Optimistic update - update local state first
-      const updatedContent = productContent.map((p) =>
-        p.id === productId ? { ...p, status } : p
+      const updatedContent = productContent.map((product) =>
+        product.id === productId ? { ...product, status } : product
       );
 
-      // Call API in background with complete product data
+      // Call API in background
       await dispatch(
         updateProductService({
           productId,
-          productData,
+          productData: { status },
         })
       ).unwrap();
 
