@@ -4,6 +4,10 @@ import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import Image from "next/image";
+import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import {
   AllProductResponseModel,
   ProductDetailResponseModel,
@@ -18,6 +22,42 @@ interface ProductTableHandlers {
 interface ProductTableOptions {
   data: AllProductResponseModel | null;
   handlers: ProductTableHandlers;
+}
+
+/**
+ * ProductImagePreview - Display product image with preview styling
+ */
+function ProductImagePreview({ product }: { product: ProductDetailResponseModel }) {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  return (
+    <div className="relative w-14 h-14 flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
+      {!imageError && product?.mainImageUrl ? (
+        <>
+          {!imageLoaded && (
+            <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
+          )}
+          <Image
+            src={product.mainImageUrl}
+            alt={product.name}
+            width={56}
+            height={56}
+            className={cn(
+              "w-full h-full object-cover transition-all duration-300 hover:scale-105",
+              imageLoaded ? "opacity-100" : "opacity-0"
+            )}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+          />
+        </>
+      ) : (
+        <span className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
+          {product?.name?.charAt(0).toUpperCase() || "P"}
+        </span>
+      )}
+    </div>
+  );
 }
 
 export const productTableColumns = ({
@@ -45,13 +85,7 @@ export const productTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (product) => {
-        return (
-          <CustomAvatar
-            imageUrl={product?.mainImageUrl}
-            name={product?.name}
-            size="md"
-          />
-        );
+        return <ProductImagePreview product={product} />;
       },
     },
 
