@@ -283,7 +283,7 @@ export const productTableColumns = ({
 
     {
       key: "hasPromotion",
-      label: "Promo",
+      label: "Promotion",
       minWidth: "10px",
       maxWidth: "100px",
       truncate: true,
@@ -306,7 +306,7 @@ export const productTableColumns = ({
 
     {
       key: "displayOriginPrice",
-      label: "Origin Price",
+      label: "Original Price",
       minWidth: "10px",
       maxWidth: "120px",
       truncate: true,
