@@ -3,20 +3,19 @@
 import { useEffect } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import {
   selectIsFetchingDetail,
   selectSelectedProduct,
 } from "../store/selectors/product-selector";
 import { fetchProductByIdService } from "../store/thunks/product-thunks";
 import { clearSelectedProduct } from "../store/slice/product-slice";
-import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { Loading } from "@/components/shared/common/loading";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
+import { Badge } from "@/components/ui/badge";
 
 interface ProductDetailModalProps {
   productId?: string;
@@ -83,12 +82,20 @@ export function ProductDetailModal({
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-6">
-            <CustomAvatar
-              imageUrl={productData.mainImageUrl}
-              name={productData.name}
-              size="xxl"
-            />
+          <div className="flex items-start gap-6">
+            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
+              {productData.mainImageUrl ? (
+                <img
+                  src={productData.mainImageUrl}
+                  alt={productData.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-xs text-muted-foreground">No image</span>
+                </div>
+              )}
+            </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-foreground">
                 Product Details
@@ -126,9 +133,7 @@ export function ProductDetailModal({
                   <DisplayField
                     label="Has Sizes"
                     value={
-                      <Badge variant={productData.hasSizes ? "default" : "outline"}>
-                        {productData.hasSizes ? "Yes" : "No"}
-                      </Badge>
+                      productData.hasSizes ? "Yes" : "No"
                     }
                   />
                   <DisplayField label="Business" value={productData.businessName || "---"} />
