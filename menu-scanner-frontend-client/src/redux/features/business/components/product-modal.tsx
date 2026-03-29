@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -472,27 +472,20 @@ export default function ProductModal({
         <DialogTitle className="sr-only">
           {isCreate ? "Create New Product" : `Edit Product - ${productName}`}
         </DialogTitle>
-        {/* Header */}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-start gap-6">
-            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted flex items-center justify-center">
-              <Package className="w-10 h-10 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-foreground">
-                {isCreate ? "Create New Product" : "Edit Product"}
-              </h2>
-              <p className="text-sm text-foreground mt-1">
-                {isCreate
-                  ? "Fill out the form to create a new product"
-                  : "Update product information below"}
-              </p>
-            </div>
-          </div>
-        </div>
+
+        <FormHeader
+          title={isCreate ? "Create New Product" : "Edit Product"}
+          description={
+            isCreate
+              ? "Fill out the form to create a new product"
+              : "Update product information below"
+          }
+          avatarName={productName || "Product"}
+          isCreate={isCreate}
+        />
 
         {!isCreate && isFetchingDetail ? (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -500,9 +493,8 @@ export default function ProductModal({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="p-6 space-y-6">
+            <FormBody>
+              <div className="space-y-6">
                 {reduxError && (
                   <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
                     <p className="text-sm text-destructive font-medium">
@@ -1018,10 +1010,19 @@ export default function ProductModal({
                   </CardContent>
                 </Card>
               </div>
-            </div>
+            </FormBody>
 
-            {/* Footer */}
-            <div className="px-6 py-4 border-t bg-muted/30 flex-shrink-0 flex items-center justify-end gap-3">
+            <FormFooter
+              isSubmitting={isProcessing}
+              isDirty={isDirty}
+              isCreate={isCreate}
+              createMessage={
+                isUploadingImage ? "Uploading images..." : "Creating product..."
+              }
+              updateMessage={
+                isUploadingImage ? "Uploading images..." : "Updating product..."
+              }
+            >
               <CancelButton onClick={handleClose} disabled={isProcessing} />
               <SubmitButton
                 isSubmitting={isProcessing}
@@ -1036,7 +1037,7 @@ export default function ProductModal({
                   isUploadingImage ? "Uploading..." : "Updating..."
                 }
               />
-            </div>
+            </FormFooter>
           </form>
         )}
       </DialogContent>
