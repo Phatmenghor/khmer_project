@@ -172,7 +172,7 @@ export function ProductDetailModal({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DisplayField
                     label="Base Price"
-                    value={formatCurrency(productData.price)}
+                    value={formatCurrency(parseFloat(productData.price))}
                   />
                   <DisplayField
                     label="Display Price"
