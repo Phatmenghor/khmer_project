@@ -19,23 +19,12 @@ public interface PaymentOptionService {
     PaymentOptionResponse createPaymentOption(UUID businessId, PaymentOptionRequest request);
 
     /**
-     * Get all payment options for a business
+     * Get all payment options with filters and pagination
      */
-    List<PaymentOptionResponse> getAllPaymentOptions(UUID businessId);
-
-    /**
-     * Get all active payment options for a business
-     */
-    List<PaymentOptionResponse> getActivePaymentOptions(UUID businessId);
-
-    /**
-     * Search payment options with pagination
-     */
-    Page<PaymentOptionResponse> searchPaymentOptions(
+    PaginationResponse<PaymentOptionResponse> getAllPaymentOptionsWithFilters(
             UUID businessId,
-            String search,
-            Status status,
-            Pageable pageable);
+            PaymentOptionFilterRequest filter);
+
 
     /**
      * Get payment option by ID
@@ -55,15 +44,5 @@ public interface PaymentOptionService {
      */
     void deletePaymentOption(UUID businessId, UUID id);
 
-    /**
-     * Get all payment options with filters and pagination
-     */
-    PaginationResponse<PaymentOptionResponse> getAllPaymentOptionsWithFilters(
-            UUID businessId,
-            PaymentOptionFilterRequest filter);
 
-    /**
-     * Get all active payment options (public - no pagination)
-     */
-    List<PaymentOptionResponse> getAllActivePaymentOptions();
 }

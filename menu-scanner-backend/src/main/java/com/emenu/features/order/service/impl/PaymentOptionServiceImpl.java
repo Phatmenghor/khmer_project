@@ -54,43 +54,6 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentOptionResponse> getAllPaymentOptions(UUID businessId) {
-        log.info("Getting all payment options for business: {}", businessId);
-        List<PaymentOption> options = paymentOptionRepository.findByBusinessIdAndIsDeletedFalse(businessId);
-        return options.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<PaymentOptionResponse> getActivePaymentOptions(UUID businessId) {
-        log.info("Getting active payment options for business: {}", businessId);
-        List<PaymentOption> options = paymentOptionRepository.findActiveByBusinessId(businessId);
-        return options.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<PaymentOptionResponse> searchPaymentOptions(
-            UUID businessId,
-            String search,
-            Status status,
-            Pageable pageable) {
-        log.info("Searching payment options for business: {} with filters", businessId);
-        Page<PaymentOption> page = paymentOptionRepository.searchByBusinessId(
-                businessId,
-                search,
-                status,
-                pageable
-        );
-        return page.map(this::mapToResponse);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public PaymentOptionResponse getPaymentOptionById(UUID businessId, UUID id) {
         log.info("Getting payment option: {} for business: {}", id, businessId);
         PaymentOption option = paymentOptionRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
@@ -169,16 +132,6 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
                 .hasNext(page.hasNext())
                 .hasPrevious(page.hasPrevious())
                 .build();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<PaymentOptionResponse> getAllActivePaymentOptions() {
-        log.info("Getting all active payment options");
-        List<PaymentOption> options = paymentOptionRepository.findAllActive();
-        return options.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
     }
 
     /**

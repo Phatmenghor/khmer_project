@@ -30,7 +30,7 @@ public class PaymentOption extends BaseUUIDEntity {
     private Business business;
 
     @Column(name = "name", nullable = false)
-    private String name; // Ex: "Cash", "ABA", "ACE", "Khmer Bank"
+    private String name;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_option_type", nullable = false)
