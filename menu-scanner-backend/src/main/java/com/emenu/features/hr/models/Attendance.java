@@ -13,13 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "attendances", indexes = {
-    @Index(name = "idx_att_user", columnList = "user_id"),
-    @Index(name = "idx_att_business", columnList = "business_id"),
-    @Index(name = "idx_att_date", columnList = "attendance_date"),
-    @Index(name = "idx_att_schedule", columnList = "work_schedule_id"),
-    @Index(name = "idx_att_user_date", columnList = "user_id,attendance_date")
-})
+@Table(name = "attendances")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder

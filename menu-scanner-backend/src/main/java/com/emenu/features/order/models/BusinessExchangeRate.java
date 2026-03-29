@@ -11,10 +11,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "business_exchange_rates", indexes = {
-        @Index(name = "idx_business_exchange_rate_business", columnList = "business_id, is_deleted"),
-        @Index(name = "idx_business_exchange_rate_status", columnList = "business_id, status, is_deleted")
-})
+@Table(name = "business_exchange_rates")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

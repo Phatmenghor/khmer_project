@@ -12,11 +12,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "leaves", indexes = {
-    @Index(name = "idx_leave_user", columnList = "user_id"),
-    @Index(name = "idx_leave_business", columnList = "business_id"),
-    @Index(name = "idx_leave_status", columnList = "status")
-})
+@Table(name = "leaves")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder

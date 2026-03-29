@@ -12,10 +12,6 @@ import lombok.EqualsAndHashCode;
         name = "location_province_cbc",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_province_code", columnNames = "province_code")
-        },
-        indexes = {
-                @Index(name = "idx_province_code", columnList = "province_code"),
-                @Index(name = "idx_province_deleted", columnList = "is_deleted")
         }
 )
 public class Province extends BaseUUIDEntity {

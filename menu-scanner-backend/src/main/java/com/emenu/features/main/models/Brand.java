@@ -13,21 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "brands", indexes = {
-        // ✅ ESSENTIAL INDEXES ONLY for Brand
-
-        // 1. Business brands (most common in product filtering)
-        @Index(name = "idx_brands_business_deleted",
-                columnList = "business_id, is_deleted"),
-
-        // 2. Business brands by status
-        @Index(name = "idx_brands_business_status_deleted",
-                columnList = "business_id, status, is_deleted"),
-
-        // 3. Base soft delete index
-        @Index(name = "idx_brands_deleted",
-                columnList = "is_deleted")
-})
+@Table(name = "brands")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
