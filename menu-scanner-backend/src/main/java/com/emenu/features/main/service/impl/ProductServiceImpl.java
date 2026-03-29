@@ -302,6 +302,9 @@ public class ProductServiceImpl implements ProductService {
             validateBusinessAccess(product, currentUser.get());
         }
 
+        // Clear images to avoid lazy-loading overhead (images not included in detail response)
+        product.setImages(new java.util.ArrayList<>());
+
         // Recalculate display fields from current sizes (fixes stale DB values)
         product.syncDisplayFieldsFromSizes();
 
@@ -320,6 +323,9 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Product not found: " + id));
 
         productRepository.incrementViewCount(id);
+
+        // Clear images to avoid lazy-loading overhead (images not included in detail response)
+        product.setImages(new java.util.ArrayList<>());
 
         // Recalculate display fields from current sizes (fixes stale DB values)
         product.syncDisplayFieldsFromSizes();

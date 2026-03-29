@@ -23,14 +23,12 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     /**
-     * Find product by ID with all related details (category, brand, business, sizes, images)
+     * Find product by ID with details - FETCHES ONLY SIZES
+     * Note: Cannot FETCH both images and sizes due to Hibernate MultipleBagFetchException
+     * Images are set to empty list in service layer
      */
     @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN FETCH p.category c " +
-           "LEFT JOIN FETCH p.brand b " +
-           "LEFT JOIN FETCH p.business bus " +
            "LEFT JOIN FETCH p.sizes sz " +
-           "LEFT JOIN FETCH p.images img " +
            "WHERE p.id = :id AND p.isDeleted = false " +
            "AND (sz.isDeleted = false OR sz.isDeleted IS NULL)")
     Optional<Product> findByIdWithAllDetails(@Param("id") UUID id);
