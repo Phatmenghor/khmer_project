@@ -15,7 +15,6 @@ import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { showToast } from "@/components/shared/common/show-toast";
 import {
   selectError,
-  selectIsFetchingDetail,
   selectOperations,
 } from "../store/selectors/exchange-rate-selector";
 import {
@@ -26,7 +25,6 @@ import {
 } from "../store/models/schema/exchange-rate-schema";
 import {
   createExchangeRateService,
-  fetchExchangeRateByIdService,
   updateExchangeRateService,
 } from "../store/thunks/exchange-rate-thunks";
 import {
@@ -35,10 +33,11 @@ import {
 } from "../store/slice/exchange-rate-slice";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { Loading } from "@/components/shared/common/loading";
+import { ExchangeRateResponseModel } from "../store/models/response/exchange-rate-response";
 
 type Props = {
   mode: ModalMode;
-  exchangeRateId?: string;
+  exchangeRate?: ExchangeRateResponseModel | null;
   onClose: () => void;
   isOpen: boolean;
 };
@@ -46,7 +45,7 @@ type Props = {
 export default function ExchangeRateModal({
   isOpen,
   onClose,
-  exchangeRateId,
+  exchangeRate,
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
@@ -54,7 +53,6 @@ export default function ExchangeRateModal({
   const dispatch = useAppDispatch();
 
   const operations = useAppSelector(selectOperations);
-  const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
@@ -70,54 +68,32 @@ export default function ExchangeRateModal({
     defaultValues: {
       usdToKhrRate: undefined,
       usdToCnyRate: undefined,
-      usdToThbRate: undefined,
       usdToVndRate: undefined,
       notes: "",
     },
     mode: "onChange",
   });
 
-  // Reset form when modal opens in create mode
+  // Reset form when modal opens in create mode or when exchangeRate changes
   useEffect(() => {
-    if (isOpen && isCreate) {
+    if (!isOpen) return;
+
+    if (isCreate) {
       reset({
         usdToKhrRate: undefined,
         usdToCnyRate: undefined,
-        usdToThbRate: undefined,
         usdToVndRate: undefined,
         notes: "",
       });
+    } else if (exchangeRate) {
+      reset({
+        usdToKhrRate: exchangeRate.usdToKhrRate || undefined,
+        usdToCnyRate: exchangeRate.usdToCnyRate || undefined,
+        usdToVndRate: exchangeRate.usdToVndRate || undefined,
+        notes: exchangeRate.notes || "",
+      });
     }
-  }, [isOpen, isCreate, reset]);
-
-  // Fetch exchange rate data for edit mode
-  useEffect(() => {
-    const fetchExchangeRateData = async () => {
-      if (!exchangeRateId || !isOpen || isCreate) return;
-
-      try {
-        const resultAction = await dispatch(
-          fetchExchangeRateByIdService(exchangeRateId),
-        );
-
-        if (fetchExchangeRateByIdService.fulfilled.match(resultAction)) {
-          const data = resultAction.payload;
-
-          reset({
-            usdToKhrRate: data?.usdToKhrRate || undefined,
-            usdToCnyRate: data?.usdToCnyRate || undefined,
-            usdToThbRate: data?.usdToThbRate || undefined,
-            usdToVndRate: data?.usdToVndRate || undefined,
-            notes: data?.notes || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching exchange rate data:", error);
-      }
-    };
-
-    fetchExchangeRateData();
-  }, [exchangeRateId, isOpen, isCreate, reset, dispatch]);
+  }, [isOpen, isCreate, exchangeRate, reset]);
 
   // Clear errors when modal opens
   useEffect(() => {
@@ -131,7 +107,6 @@ export default function ExchangeRateModal({
       const payload: CreateExchangeRateData = {
         usdToKhrRate: data.usdToKhrRate,
         usdToCnyRate: data.usdToCnyRate,
-        usdToThbRate: data.usdToThbRate,
         usdToVndRate: data.usdToVndRate,
         notes: data.notes,
       };
@@ -143,7 +118,7 @@ export default function ExchangeRateModal({
       } else {
         await dispatch(
           updateExchangeRateService({
-            id: exchangeRateId!,
+            id: exchangeRate?.id!,
             payload,
           }),
         ).unwrap();
@@ -217,17 +192,6 @@ export default function ExchangeRateModal({
                 valueAsNumber
                 disabled={isSubmitting}
                 error={errors.usdToCnyRate}
-              />
-
-              <TextField
-                control={control}
-                name="usdToThbRate"
-                label="USD To THB Rate"
-                placeholder="Enter USD to THB rate (optional)"
-                type="number"
-                valueAsNumber
-                disabled={isSubmitting}
-                error={errors.usdToThbRate}
               />
 
               <TextField

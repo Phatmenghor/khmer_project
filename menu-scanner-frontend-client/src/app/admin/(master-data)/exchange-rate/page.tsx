@@ -55,7 +55,7 @@ export default function ExchangeRatePage() {
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
-    exchangeRateId: "",
+    exchangeRate: null as ExchangeRateResponseModel | null,
   });
 
   const [detailModalState, setDetailModalState] = useState({
@@ -104,7 +104,7 @@ export default function ExchangeRatePage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.CREATE_MODE,
-      exchangeRateId: "",
+      exchangeRate: null,
     });
   };
 
@@ -112,7 +112,7 @@ export default function ExchangeRatePage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.UPDATE_MODE,
-      exchangeRateId: exchage?.id || "",
+      exchangeRate: exchage,
     });
   };
 
@@ -209,7 +209,7 @@ export default function ExchangeRatePage() {
     setModalState({
       isOpen: false,
       mode: ModalMode.CREATE_MODE,
-      exchangeRateId: "",
+      exchangeRate: null,
     });
   };
 
@@ -274,7 +274,7 @@ export default function ExchangeRatePage() {
       <ExchangeRateModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
-        exchangeRateId={modalState.exchangeRateId}
+        exchangeRate={modalState.exchangeRate}
         mode={modalState.mode}
       />
 

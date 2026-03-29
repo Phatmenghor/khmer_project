@@ -14,6 +14,12 @@ import {
 } from "../store/selectors/exchange-rate-selector";
 import { fetchExchangeRateByIdService } from "../store/thunks/exchange-rate-thunks";
 import { clearSelectedExchangeRate } from "../store/slice/exchange-rate-slice";
+import {
+  formatKhrRate,
+  formatCnyRate,
+  formatVndRate,
+  formatExchangeRateStatus,
+} from "@/utils/format/exchange-rate-formatter";
 
 interface DetailModalProps {
   exchangeRateId?: string;
@@ -56,39 +62,34 @@ export function ExchangeRateDetailModal({
       isLoading={isFetchingDetail}
       title={"Exchange Rate information Details"}
       description={
-        detailData?.formattedKhrRate || "Loading Exchange Rate information..."
+        formatKhrRate(detailData?.usdToKhrRate) || "Loading Exchange Rate information..."
       }
     >
       {detailData ? (
         <div className="space-y-6">
-          {/* Brand Information */}
+          {/* Exchange Rate Information */}
           <DetailSection title="Exchange Rate Information">
             <DetailRow
               label="USD To KHR Rate"
-              value={detailData?.formattedKhrRate || "---"}
+              value={formatKhrRate(detailData?.usdToKhrRate) || "---"}
             />
 
             <DetailRow
               label="USD To CNY Rate"
-              value={detailData?.formattedCnyRate || "---"}
-            />
-
-            <DetailRow
-              label="USD To THB Rate"
-              value={detailData?.formattedThbRate || "---"}
+              value={formatCnyRate(detailData?.usdToCnyRate) || "---"}
             />
 
             <DetailRow
               label="USD To VND Rate"
-              value={detailData?.formattedVndRate || "---"}
+              value={formatVndRate(detailData?.usdToVndRate) || "---"}
             />
 
             <DetailRow
-              label="Active ExchangeRate"
-              value={detailData?.isActive || "---"}
+              label="Status"
+              value={formatExchangeRateStatus(detailData?.status) || "---"}
             />
 
-            <DetailRow label="Noted" value={detailData?.notes || "---"} />
+            <DetailRow label="Notes" value={detailData?.notes || "---"} />
           </DetailSection>
 
           {/* System Information */}
