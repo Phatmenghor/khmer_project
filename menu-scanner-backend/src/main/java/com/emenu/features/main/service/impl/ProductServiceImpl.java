@@ -238,11 +238,13 @@ public class ProductServiceImpl implements ProductService {
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
+        // Clear images to keep response lightweight for admin listing
+        productPage.getContent().forEach(p -> p.setImages(Collections.emptyList()));
+
         List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
 
         enrichTotalStockForDetails(dtoList, productPage.getContent());
 
-        // Images already empty from optimized query - no need to clear
         return paginationMapper.toPaginationResponse(productPage, dtoList);
     }
 
