@@ -182,7 +182,7 @@ export function ProductDetailModal({
                     label="Display Origin Price"
                     value={formatCurrency(productData.displayOriginPrice)}
                   />
-                  {productData.hasActivePromotion && (
+                  {productData.hasPromotion && (
                     <>
                       <DisplayField
                         label="Promotion Type"

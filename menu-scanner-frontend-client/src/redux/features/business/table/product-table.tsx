@@ -267,22 +267,6 @@ export const productTableColumns = ({
     },
 
     {
-      key: "hasActivePromotion",
-      label: "Promotion",
-      minWidth: "10px",
-      maxWidth: "100px",
-      truncate: true,
-      render: (product) => (
-        <Badge
-          variant={product?.hasActivePromotion ? "default" : "secondary"}
-          className="text-xs"
-        >
-          {product?.hasActivePromotion ? "Yes" : "No"}
-        </Badge>
-      ),
-    },
-
-    {
       key: "displayPrice",
       label: "Price",
       minWidth: "10px",
@@ -292,6 +276,22 @@ export const productTableColumns = ({
         <span className="text-xs font-semibold text-foreground">
           ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
         </span>
+      ),
+    },
+
+    {
+      key: "hasActivePromotion",
+      label: "Promotion",
+      minWidth: "10px",
+      maxWidth: "100px",
+      truncate: true,
+      render: (product) => (
+        <Badge
+          variant={product?.hasPromotion ? "default" : "secondary"}
+          className="text-xs"
+        >
+          {product?.hasPromotion ? "Yes" : "No"}
+        </Badge>
       ),
     },
 
