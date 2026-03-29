@@ -1,5 +1,6 @@
 package com.emenu.features.order.dto.response;
 
+import com.emenu.enums.common.Status;
 import com.emenu.features.order.models.BusinessExchangeRate;
 import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
@@ -21,6 +22,6 @@ public class BusinessExchangeRateResponse extends BaseAuditResponse {
     private Double usdToCnyRate;
     private Double usdToVndRate;
 
-    private BusinessExchangeRate.ExchangeRateStatus status;
+    private Status status;
     private String notes;
 }
