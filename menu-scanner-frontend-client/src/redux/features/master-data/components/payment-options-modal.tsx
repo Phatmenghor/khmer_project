@@ -21,7 +21,9 @@ import {
 } from "../store/thunks/payment-options-thunks";
 import {
   selectPaymentOptionsOperations,
+  selectPaymentOptionsError,
 } from "../store/selectors/payment-options-selectors";
+import { clearError } from "../store/slice/payment-options-slice";
 import {
   createPaymentOptionSchema,
   updatePaymentOptionSchema,
@@ -54,6 +56,7 @@ export default function PaymentOptionsModal({
 }: PaymentOptionsModalProps) {
   const dispatch = useAppDispatch();
   const operations = useAppSelector(selectPaymentOptionsOperations);
+  const reduxError = useAppSelector(selectPaymentOptionsError);
   const isCreate = mode === ModalMode.CREATE_MODE;
   const isSubmitting = isCreate ? operations.isCreating : operations.isUpdating;
 
@@ -92,6 +95,13 @@ export default function PaymentOptionsModal({
     }
   }, [isOpen, isCreate, paymentOption, reset]);
 
+  // Clear errors when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(clearError());
+    }
+  }, [isOpen, dispatch]);
+
   const onSubmit = async (data: PaymentOptionFormData) => {
     try {
       if (isCreate) {
@@ -120,15 +130,27 @@ export default function PaymentOptionsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="w-full max-w-2xl p-0 flex flex-col">
         <FormHeader
-          title={isCreate ? "Create Payment Option" : "Edit Payment Option"}
-          description={isCreate ? "Add a new payment method" : "Update payment method details"}
+          title={isCreate ? "Create New Payment Option" : "Edit Payment Option"}
+          description={
+            isCreate
+              ? "Fill out the form to create a new payment option"
+              : "Update payment option information below"
+          }
           isCreate={isCreate}
         />
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
           <FormBody>
+            {reduxError && (
+              <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
+                <p className="text-sm text-destructive font-medium">
+                  {reduxError}
+                </p>
+              </div>
+            )}
+
             <div className="space-y-4">
               <TextField
                 control={control}
@@ -172,7 +194,15 @@ export default function PaymentOptionsModal({
             updateMessage="Updating payment option..."
           >
             <CancelButton onClick={handleClose} disabled={isSubmitting} />
-            <SubmitButton isSubmitting={isSubmitting} label={isCreate ? "Create" : "Update"} />
+            <SubmitButton
+              isSubmitting={isSubmitting}
+              isDirty={isDirty}
+              isCreate={isCreate}
+              createText="Create Payment Option"
+              updateText="Update Payment Option"
+              submittingCreateText="Creating..."
+              submittingUpdateText="Updating..."
+            />
           </FormFooter>
         </form>
       </DialogContent>
