@@ -234,6 +234,9 @@ public class ProductServiceImpl implements ProductService {
 
         enrichTotalStockForDetails(dtoList, productPage.getContent());
 
+        // Clear images for admin/all endpoint to improve performance
+        dtoList.forEach(dto -> dto.setImages(Collections.emptyList()));
+
         return paginationMapper.toPaginationResponse(productPage, dtoList);
     }
 
