@@ -265,7 +265,24 @@ const exchnageRateSlice = createSlice({
         if (state.data) {
           // Extract ID from payload (could be string or object)
           const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
+          const deletedRate = state.data.content.find((rate) => rate.id === deletedId);
 
+          // If deleting an ACTIVE rate, activate the most recent INACTIVE rate
+          if (deletedRate?.status === "ACTIVE") {
+            const inactiveRates = state.data.content
+              .filter((rate) => rate.status === "INACTIVE" && rate.id !== deletedId)
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+            if (inactiveRates.length > 0) {
+              // Activate the most recent INACTIVE rate
+              const rateToActivate = inactiveRates[0];
+              state.data.content = state.data.content.map((rate) =>
+                rate.id === rateToActivate.id ? { ...rate, status: "ACTIVE" as const } : rate
+              );
+            }
+          }
+
+          // Remove the deleted rate
           state.data.content = state.data.content.filter(
             (rate) => rate.id !== deletedId
           );
