@@ -286,10 +286,7 @@ export const productTableColumns = ({
       maxWidth: "100px",
       truncate: true,
       render: (product) => (
-        <Badge
-          variant={product?.hasPromotion ? "default" : "secondary"}
-          className="text-xs"
-        >
+        <Badge variant={"outline"} className="text-xs">
           {product?.hasPromotion ? "Yes" : "No"}
         </Badge>
       ),
