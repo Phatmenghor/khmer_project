@@ -65,7 +65,7 @@ export default function ExchangeRateModal({
     handleSubmit,
     reset,
     formState: { errors, isDirty },
-  } = useForm<ExchangeRateFormData, any, CreateExchangeRateData>({
+  } = useForm<ExchangeRateFormData>({
     resolver: zodResolver(
       isCreate ? createExchangeRateSchema : updateExchangeRateSchema,
     ),
@@ -109,7 +109,7 @@ export default function ExchangeRateModal({
     }
   }, [isOpen, dispatch]);
 
-  const onSubmit = async (data: CreateExchangeRateData) => {
+  const onSubmit = async (data: ExchangeRateFormData) => {
     try {
       const payload: any = {
         usdToKhrRate: data.usdToKhrRate,
