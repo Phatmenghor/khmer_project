@@ -76,6 +76,11 @@ export default function ProductPage() {
     product: null as ProductDetailResponseModel | null,
   });
 
+  const [resetPromotionState, setResetPromotionState] = useState({
+    isOpen: false,
+    product: null as ProductDetailResponseModel | null,
+  });
+
   // Global page size from global settings (synced across all admin pages)
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
@@ -139,6 +144,13 @@ export default function ProductPage() {
     });
   };
 
+  const handleResetPromotion = (product: ProductDetailResponseModel) => {
+    setResetPromotionState({
+      isOpen: true,
+      product: product,
+    });
+  };
+
   const handleStatusChange = async (productId: string, status: string) => {
     // You can implement status update API call here
     showToast.info(`Status updated to ${status}`);
@@ -149,6 +161,7 @@ export default function ProductPage() {
       handleEditProduct,
       handleProductViewDetail,
       handleDeleteProduct,
+      handleResetPromotion,
       handleStatusChange,
     }),
     [],
@@ -217,6 +230,13 @@ export default function ProductPage() {
 
   const closeDeleteModal = () => {
     setDeleteState({
+      isOpen: false,
+      product: null,
+    });
+  };
+
+  const closeResetPromotionModal = () => {
+    setResetPromotionState({
       isOpen: false,
       product: null,
     });
@@ -317,6 +337,19 @@ export default function ProductPage() {
         }?`}
         itemName={deleteState.product?.name || ""}
         isSubmitting={operations.isDeleting}
+      />
+
+      {/* Modals Reset Promotion */}
+      <DeleteConfirmationModal
+        isOpen={resetPromotionState.isOpen}
+        onClose={closeResetPromotionModal}
+        onDelete={() => {}}
+        title="Reset Promotion"
+        description={`Are you sure you want to reset the promotion for this product ${
+          resetPromotionState.product?.name || ""
+        }?`}
+        itemName={resetPromotionState.product?.name || ""}
+        isSubmitting={false}
       />
     </div>
   );
