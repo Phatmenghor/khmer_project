@@ -106,7 +106,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
         paymentMapper.updateEntity(request, payment);
         if (request.getAmount() != null) {
-            Double rate = exchangeRateService.getCurrentRateValue();
+            Double rate = exchangeRateService.getCurrentActiveRate().getUsdToKhrRate();
             payment.calculateAmountKhr(rate);
         }
         Payment updated = paymentRepository.save(payment);
@@ -221,7 +221,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private PaymentResponse savePayment(Payment payment) {
-        Double rate = exchangeRateService.getCurrentRateValue();
+        Double rate = exchangeRateService.getCurrentActiveRate().getUsdToKhrRate();
         payment.calculateAmountKhr(rate);
         Payment saved = paymentRepository.save(payment);
         Payment withRelations = paymentRepository.findByIdWithRelationships(saved.getId()).orElse(saved);
