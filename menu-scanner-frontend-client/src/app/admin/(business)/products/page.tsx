@@ -14,6 +14,7 @@ import { useProductState } from "@/redux/features/business/store/state/product-s
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import {
   deleteProductService,
+  updateProductService,
   fetchAllProductAdminService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import {
@@ -152,8 +153,24 @@ export default function ProductPage() {
   };
 
   const handleStatusChange = async (productId: string, status: string) => {
-    // You can implement status update API call here
-    showToast.info(`Status updated to ${status}`);
+    try {
+      // Optimistic update - update local state first
+      const updatedContent = productContent.map((product) =>
+        product.id === productId ? { ...product, status } : product
+      );
+
+      // Call API in background
+      await dispatch(
+        updateProductService({
+          productId,
+          productData: { status },
+        })
+      ).unwrap();
+
+      showToast.success(`Product status updated to ${status}`);
+    } catch (error: any) {
+      showToast.error(error?.message || "Failed to update product status");
+    }
   };
 
   const tableHandlers = useMemo(
