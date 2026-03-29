@@ -593,16 +593,17 @@ FROM generate_series(1, 20000) AS t(i);
 -- ============================================================================
 -- 14. PRODUCT SIZES
 -- ============================================================================
+-- Random price offset (1-20) and minimum stock level (1-20) per size variation
 
 INSERT INTO product_sizes (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, name, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, minimum_stock_level)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     p.id,
     CASE WHEN (t.size % 3) = 0 THEN 'Small' WHEN (t.size % 3) = 1 THEN 'Medium' ELSE 'Large' END,
-    (p.price + t.size)::numeric,
+    (p.price + (1 + (random() * 19)::int))::numeric,
     CASE WHEN (t.size % 2) = 0 THEN 'FIXED_AMOUNT' ELSE NULL END,
-    CASE WHEN (t.size % 2) = 0 THEN 1 ELSE 0 END,
-    NOW(), NOW() + INTERVAL '30 days', 5
+    CASE WHEN (t.size % 2) = 0 THEN (1 + (random() * 19)::int) ELSE 0 END,
+    NOW(), NOW() + INTERVAL '30 days', (1 + (random() * 19)::int)::int
 FROM (SELECT id, price FROM products WHERE has_sizes = true) p
 CROSS JOIN (SELECT 1 as size UNION SELECT 2 UNION SELECT 3) t;
 
@@ -638,15 +639,32 @@ WHERE t.img_num <= (2 + (p.rn % 9));
 -- ============================================================================
 -- 16. PRODUCT STOCK
 -- ============================================================================
+-- All products get stock entries with random quantities (1-200) and reservations (0-20)
 
+-- Stock for all products (1 entry each)
 INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, status, is_expired)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', p.id, NULL,
-    100 + (i % 200), (i % 20), (100 + (i % 200) - (i % 20))::int,
-    p.price::numeric, NOW() - (i % 30)::int * INTERVAL '1 day',
+    (100 + (random() * 200)::int)::int, (random() * 20)::int,
+    ((100 + (random() * 200)::int) - (random() * 20)::int)::int,
+    p.price::numeric, NOW() - (random() * 30)::int * INTERVAL '1 day',
     'ACTIVE', false
-FROM (SELECT id, price FROM products) p, generate_series(1, 1) AS t(i);
+FROM (SELECT id, price FROM products) p;
+
+-- One product with multiple stock entries (1-20 additional entries)
+INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, status, is_expired)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    (SELECT id FROM products LIMIT 1),
+    NULL,
+    (100 + (random() * 200)::int)::int, (random() * 20)::int,
+    ((100 + (random() * 200)::int) - (random() * 20)::int)::int,
+    (SELECT price FROM products LIMIT 1)::numeric,
+    NOW() - (random() * 30)::int * INTERVAL '1 day',
+    'ACTIVE', false
+FROM generate_series(1, (1 + (random() * 19)::int)::int) AS t(i);
 
 -- ============================================================================
 -- 17. STOCK MOVEMENTS
