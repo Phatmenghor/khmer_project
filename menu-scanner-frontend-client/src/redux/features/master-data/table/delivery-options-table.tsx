@@ -91,7 +91,7 @@ export const deliveryOptionsTableColumns = ({
       truncate: true,
       render: (deliveryOptions) => (
         <span className="text-xs text-muted-foreground">
-          {deliveryOptions?.price || "---"}
+          {deliveryOptions?.price ? `$${deliveryOptions.price.toFixed(2)}` : "---"}
         </span>
       ),
     },
