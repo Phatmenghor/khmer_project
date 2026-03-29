@@ -92,3 +92,20 @@ export const deleteDeliveryOptionsService = createApiThunk<any, string>(
     return response.data.data;
   }
 );
+
+/**
+ * Toggle DeliveryOptions Status
+ */
+export const toggleDeliveryOptionsStatusService = createApiThunk<any, any>(
+  "delivery-options/toggleStatus",
+  async (deliveryOptions) => {
+    const response = await axiosClientWithAuth.put(
+      `/api/v1/delivery-options/${deliveryOptions.id}`,
+      {
+        ...deliveryOptions,
+        status: deliveryOptions.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+      }
+    );
+    return response.data.data;
+  }
+);

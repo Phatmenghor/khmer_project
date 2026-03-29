@@ -23,6 +23,7 @@ import {
 import {
   deleteDeliveryOptionsService,
   fetchMyBusinessDeliveryOptionsService,
+  toggleDeliveryOptionsStatusService,
 } from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
 import { deliveryOptionsTableColumns } from "@/redux/features/master-data/table/delivery-options-table";
 import DeliveryOptionsModal from "@/redux/features/master-data/components/delivery-options-modal";
@@ -131,11 +132,22 @@ export default function DeliveryOptionsPage() {
     });
   };
 
+  const handleToggleDeliveryOptionsStatus = (deliveryOption: DeliveryOptionsResponseModel) => {
+    if (!deliveryOption?.id) return;
+    try {
+      dispatch(toggleDeliveryOptionsStatusService(deliveryOption));
+      showToast.success("Delivery option status updated successfully");
+    } catch (error: any) {
+      showToast.error(error || "Failed to update delivery option status");
+    }
+  };
+
   const tableHandlers = useMemo(
     () => ({
       handleEditDeliveryOptions,
       handleDeliveryOptionsViewDetail,
       handleDeleteDeliveryOptions,
+      handleToggleDeliveryOptionsStatus,
     }),
     [],
   );

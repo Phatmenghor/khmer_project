@@ -5,6 +5,7 @@ import { TableColumn } from "@/components/shared/common/data-table";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { Switch } from "@/components/ui/switch";
 import {
   AllDeliveryOptionsResponseModel,
   DeliveryOptionsResponseModel,
@@ -16,6 +17,7 @@ interface DeliveryOptionsTableHandlers {
     delivery: DeliveryOptionsResponseModel
   ) => void;
   handleDeleteDeliveryOptions: (delivery: DeliveryOptionsResponseModel) => void;
+  handleToggleDeliveryOptionsStatus: (delivery: DeliveryOptionsResponseModel) => void;
 }
 
 interface DeliveryOptionsTableOptions {
@@ -31,6 +33,7 @@ export const deliveryOptionsTableColumns = ({
     handleEditDeliveryOptions,
     handleDeliveryOptionsViewDetail,
     handleDeleteDeliveryOptions,
+    handleToggleDeliveryOptionsStatus,
   } = handlers;
 
   return [
@@ -102,17 +105,17 @@ export const deliveryOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (deliveryOptions) => {
-        const statusColor = deliveryOptions?.status === "ACTIVE"
-          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
-          : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-200";
-
-        return (
-          <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${statusColor}`}>
+      render: (deliveryOptions) => (
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={deliveryOptions?.status === "ACTIVE"}
+            onCheckedChange={() => handleToggleDeliveryOptionsStatus(deliveryOptions)}
+          />
+          <span className="text-xs text-muted-foreground">
             {deliveryOptions?.status ? formatEnumValue(deliveryOptions.status) : "---"}
           </span>
-        );
-      },
+        </div>
+      ),
     },
 
     {

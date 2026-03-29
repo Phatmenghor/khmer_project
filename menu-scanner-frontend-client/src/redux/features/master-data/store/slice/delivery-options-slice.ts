@@ -12,6 +12,7 @@ import {
   fetchAllDeliveryOptionsService,
   fetchDeliveryOptionsByIdService,
   updateDeliveryOptionsService,
+  toggleDeliveryOptionsStatusService,
 } from "../thunks/delivery-options-thunks";
 
 /**
@@ -177,6 +178,21 @@ const deliveryOptionsSlice = createSlice({
       .addCase(deleteDeliveryOptionsService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.operations.isDeleting = false;
+      });
+
+    builder
+      .addCase(toggleDeliveryOptionsStatusService.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(toggleDeliveryOptionsStatusService.fulfilled, (state, action) => {
+        if (state.data) {
+          state.data.content = state.data.content.map((deliveryOption) =>
+            deliveryOption.id === action.payload.id ? action.payload : deliveryOption
+          );
+        }
+      })
+      .addCase(toggleDeliveryOptionsStatusService.rejected, (state, action) => {
+        state.error = action.payload as string;
       });
   },
 });
