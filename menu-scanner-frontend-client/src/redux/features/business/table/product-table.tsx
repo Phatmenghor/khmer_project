@@ -73,7 +73,7 @@ function ProductImagePreview({
 }
 
 /**
- * SizesDisplay - Display product sizes in simple text format
+ * SizesDisplay - Display product sizes in simple bordered boxes
  */
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   if (!sizes || sizes.length === 0) {
@@ -83,7 +83,10 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   return (
     <div className="flex flex-wrap gap-2">
       {sizes.map((size) => (
-        <span key={size.id} className="text-xs text-foreground">
+        <div
+          key={size.id}
+          className="px-2 py-1 border border-gray-300 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
+        >
           {size.name} ${size.finalPrice}
           {size.hasPromotion && (
             <span className="text-red-600 font-semibold ml-1">
@@ -92,7 +95,7 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
                 : `-${size.promotionValue}%`}
             </span>
           )}
-        </span>
+        </div>
       ))}
     </div>
   );
