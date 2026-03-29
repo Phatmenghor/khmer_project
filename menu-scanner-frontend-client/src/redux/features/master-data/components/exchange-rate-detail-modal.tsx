@@ -1,11 +1,9 @@
 "use client";
 
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { DetailModal } from "@/components/shared/modal/detail-modal";
-import {
-  DetailRow,
-  DetailSection,
-} from "@/components/shared/modal/detail-section";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DisplayField } from "@/components/shared/form-field/display-field";
 import {
   formatKhrRate,
   formatCnyRate,
@@ -13,6 +11,7 @@ import {
   formatExchangeRateStatus,
 } from "@/utils/format/exchange-rate-formatter";
 import { ExchangeRateResponseModel } from "../store/models/response/exchange-rate-response";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface DetailModalProps {
   exchangeRate: ExchangeRateResponseModel | null;
@@ -29,83 +28,95 @@ export function ExchangeRateDetailModal({
     onClose();
   };
 
+  if (!exchangeRate) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <VisuallyHidden asChild>
+          <DialogTitle>Exchange Rate Details</DialogTitle>
+        </VisuallyHidden>
+        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-full">
+            <p className="text-muted-foreground">No exchange rate data available</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
-    <DetailModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isLoading={false}
-      title="Exchange Rate Details"
-      description={
-        exchangeRate ? formatKhrRate(exchangeRate?.usdToKhrRate) : "No Exchange Rate selected"
-      }
-    >
-      {exchangeRate ? (
-        <div className="space-y-6">
-          {/* Exchange Rate Information */}
-          <DetailSection title="Exchange Rate Information">
-            <DetailRow
-              label="USD To KHR Rate"
-              value={formatKhrRate(exchangeRate?.usdToKhrRate) || "---"}
-            />
-
-            <DetailRow
-              label="USD To CNY Rate"
-              value={formatCnyRate(exchangeRate?.usdToCnyRate) || "---"}
-            />
-
-            <DetailRow
-              label="USD To VND Rate"
-              value={formatVndRate(exchangeRate?.usdToVndRate) || "---"}
-            />
-
-            <DetailRow
-              label="Status"
-              value={formatExchangeRateStatus(exchangeRate?.status) || "---"}
-            />
-
-            <DetailRow label="Notes" value={exchangeRate?.notes || "---"} />
-          </DetailSection>
-
-          {/* System Information */}
-          <DetailSection title="System Information">
-            <DetailRow
-              label="Exchange Rate ID"
-              value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
-                  {exchangeRate?.id}
-                </span>
-              }
-            />
-            <DetailRow
-              label="Business Name"
-              value={exchangeRate?.businessName || "---"}
-            />
-            <DetailRow
-              label="Created At"
-              value={dateTimeFormat(exchangeRate?.createdAt ?? "")}
-            />
-            <DetailRow
-              label="Created By"
-              value={exchangeRate?.createdBy || "---"}
-            />
-            <DetailRow
-              label="Last Updated"
-              value={dateTimeFormat(exchangeRate?.updatedAt ?? "")}
-            />
-            <DetailRow
-              label="Updated By"
-              value={exchangeRate?.updatedBy || "---"}
-              isLast
-            />
-          </DetailSection>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <VisuallyHidden asChild>
+        <DialogTitle>Exchange Rate Details - {formatKhrRate(exchangeRate.usdToKhrRate)}</DialogTitle>
+      </VisuallyHidden>
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-semibold text-foreground">
+              Exchange Rate Details
+            </h2>
+            <p className="text-sm text-foreground mt-1">
+              {formatKhrRate(exchangeRate.usdToKhrRate)}
+            </p>
+          </div>
         </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            No Exchange Rate data available
-          </p>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* Exchange Rate Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Exchange Rate Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField
+                    label="USD To KHR Rate"
+                    value={formatKhrRate(exchangeRate.usdToKhrRate) || "---"}
+                  />
+                  <DisplayField
+                    label="USD To CNY Rate"
+                    value={formatCnyRate(exchangeRate.usdToCnyRate) || "---"}
+                  />
+                  <DisplayField
+                    label="USD To VND Rate"
+                    value={formatVndRate(exchangeRate.usdToVndRate) || "---"}
+                  />
+                  <DisplayField
+                    label="Status"
+                    value={formatExchangeRateStatus(exchangeRate.status) || "---"}
+                  />
+                  <DisplayField label="Notes" value={exchangeRate.notes || "---"} />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* System Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>System Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField label="Exchange Rate ID" value={exchangeRate.id} />
+                  <DisplayField label="Business Name" value={exchangeRate.businessName || "---"} />
+                  <DisplayField
+                    label="Created At"
+                    value={dateTimeFormat(exchangeRate.createdAt ?? "")}
+                  />
+                  <DisplayField label="Created By" value={exchangeRate.createdBy || "---"} />
+                  <DisplayField
+                    label="Last Updated"
+                    value={dateTimeFormat(exchangeRate.updatedAt ?? "")}
+                  />
+                  <DisplayField label="Updated By" value={exchangeRate.updatedBy || "---"} />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      )}
-    </DetailModal>
+      </DialogContent>
+    </Dialog>
   );
 }
