@@ -41,12 +41,12 @@ public class ProductController {
     }
 
     @PostMapping("/admin/all")
-    public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getAllProductAdmin(
+    public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdmin(
             @Valid @RequestBody ProductFilterDto filter) {
 
         log.info("Get products by admin - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
 
-        PaginationResponse<ProductListDto> products = productService.getAllProductsAdmin(filter);
+        PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdmin(filter);
 
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Found %d products", products.getTotalElements()),

@@ -197,7 +197,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public PaginationResponse<ProductListDto> getAllProductsAdmin(ProductFilterDto filter) {
+    public PaginationResponse<ProductDetailDto> getAllProductsAdmin(ProductFilterDto filter) {
         Optional<User> currentUser = securityUtils.getCurrentUserOptional();
         if (currentUser.isPresent() && currentUser.get().isBusinessUser() && filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.get().getBusinessId());
@@ -223,12 +223,16 @@ public class ProductServiceImpl implements ProductService {
                 pageable
         );
 
+        if (productPage.getContent().isEmpty()) {
+            return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
+        }
+
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
-        List<ProductListDto> dtoList = productMapper.toListDtos(productPage.getContent());
+        List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
 
-        enrichTotalStock(dtoList, productPage.getContent());
+        enrichTotalStockForDetails(dtoList, productPage.getContent());
 
         return paginationMapper.toPaginationResponse(productPage, dtoList);
     }
