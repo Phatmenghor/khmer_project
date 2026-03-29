@@ -6,6 +6,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ExchangeRateManagementState } from "../models/type/exchange-rate-type";
 import { ExchangeRateStatus } from "@/constants/status/status";
+import { ExchangeRateResponseModel } from "../models/response/exchange-rate-response";
 import {
   createExchangeRateService,
   deleteExchangeRateService,
@@ -74,6 +75,34 @@ const exchnageRateSlice = createSlice({
 
     resetState: () => {
       return initialState;
+    },
+
+    // Optimistic update actions
+    updateExchangeRateInList: (
+      state,
+      action: PayloadAction<ExchangeRateResponseModel>
+    ) => {
+      if (state.data?.content) {
+        const index = state.data.content.findIndex(
+          (rate) => rate.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.data.content[index] = action.payload;
+        }
+      }
+    },
+
+    addExchangeRateToList: (
+      state,
+      action: PayloadAction<ExchangeRateResponseModel>
+    ) => {
+      if (state.data) {
+        state.data.content = [action.payload, ...state.data.content];
+        state.data.totalElements += 1;
+        state.data.totalPages = Math.ceil(
+          state.data.totalElements / state.data.pageSize
+        );
+      }
     },
   },
 
@@ -207,6 +236,8 @@ export const {
   clearSelectedExchangeRate,
   resetFilters,
   resetState,
+  updateExchangeRateInList,
+  addExchangeRateToList,
 } = exchnageRateSlice.actions;
 
 export default exchnageRateSlice.reducer;

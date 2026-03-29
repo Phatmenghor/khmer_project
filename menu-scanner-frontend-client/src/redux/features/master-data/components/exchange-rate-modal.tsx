@@ -31,10 +31,13 @@ import {
 import {
   clearError,
   clearSelectedExchangeRate,
+  updateExchangeRateInList,
+  addExchangeRateToList,
 } from "../store/slice/exchange-rate-slice";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { Loading } from "@/components/shared/common/loading";
 import { ExchangeRateResponseModel } from "../store/models/response/exchange-rate-response";
+import { selectSelectedExchangeRate } from "../store/selectors/exchange-rate-selector";
 
 type Props = {
   mode: ModalMode;
@@ -121,18 +124,46 @@ export default function ExchangeRateModal({
       }
 
       if (isCreate) {
-        await dispatch(createExchangeRateService(payload)).unwrap();
+        // Optimistic update: close modal immediately
         showToast.success("Exchange rate created successfully");
         handleClose();
+
+        // Make API call in background (fire and forget with error handling)
+        dispatch(createExchangeRateService(payload))
+          .unwrap()
+          .catch((error: any) => {
+            showToast.error(
+              error?.message || "Failed to create exchange rate"
+            );
+          });
       } else {
-        await dispatch(
+        // Optimistic update: update local state and close modal immediately
+        const updatedRate = {
+          ...exchangeRate!,
+          usdToKhrRate: data.usdToKhrRate,
+          usdToCnyRate: data.usdToCnyRate,
+          usdToVndRate: data.usdToVndRate,
+          status: (data.status || exchangeRate?.status) as "ACTIVE" | "INACTIVE",
+          notes: data.notes || "",
+        };
+
+        dispatch(updateExchangeRateInList(updatedRate));
+        showToast.success("Exchange rate updated successfully");
+        handleClose();
+
+        // Make API call in background (fire and forget with error handling)
+        dispatch(
           updateExchangeRateService({
             id: exchangeRate?.id!,
             payload,
           }),
-        ).unwrap();
-        showToast.success("Exchange rate updated successfully");
-        handleClose();
+        )
+          .unwrap()
+          .catch((error: any) => {
+            showToast.error(
+              error?.message || "Failed to update exchange rate"
+            );
+          });
       }
     } catch (error: any) {
       showToast.error(
