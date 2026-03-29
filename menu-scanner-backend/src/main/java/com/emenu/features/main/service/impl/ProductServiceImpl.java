@@ -35,6 +35,7 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -302,8 +303,8 @@ public class ProductServiceImpl implements ProductService {
             validateBusinessAccess(product, currentUser.get());
         }
 
-        // Clear images to avoid lazy-loading overhead (images not included in detail response)
-        product.setImages(new java.util.ArrayList<>());
+        // Initialize images for detail view (avoids MultipleBagFetchException by loading separately)
+        Hibernate.initialize(product.getImages());
 
         // Recalculate display fields from current sizes (fixes stale DB values)
         product.syncDisplayFieldsFromSizes();
@@ -324,8 +325,8 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.incrementViewCount(id);
 
-        // Clear images to avoid lazy-loading overhead (images not included in detail response)
-        product.setImages(new java.util.ArrayList<>());
+        // Initialize images for detail view (avoids MultipleBagFetchException by loading separately)
+        Hibernate.initialize(product.getImages());
 
         // Recalculate display fields from current sizes (fixes stale DB values)
         product.syncDisplayFieldsFromSizes();
