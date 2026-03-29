@@ -3,7 +3,6 @@ package com.emenu.features.main.mapper;
 import com.emenu.enums.product.PromotionType;
 import com.emenu.features.main.dto.helper.ProductCreateHelper;
 import com.emenu.features.main.dto.request.ProductCreateDto;
-import com.emenu.features.main.dto.response.ProductAdminListDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
@@ -89,9 +88,9 @@ public interface ProductMapper {
 
     List<ProductListDto> toListDtos(List<Product> products);
 
-    @Mapping(source = "business.name", target = "businessName")
-    @Mapping(source = "category.name", target = "categoryName")
-    @Mapping(source = "brand.name", target = "brandName")
+    @Mapping(source = "businessName", target = "businessName")
+    @Mapping(source = "categoryName", target = "categoryName")
+    @Mapping(source = "brandName", target = "brandName")
     @Mapping(source = "promotionType", target = "promotionType", qualifiedByName = "promotionTypeToString")
     @Mapping(source = "displayPromotionType", target = "displayPromotionType", qualifiedByName = "promotionTypeToString")
     @Mapping(target = "hasPromotion", source = "hasActivePromotion")
@@ -101,22 +100,6 @@ public interface ProductMapper {
     ProductDetailDto toDetailDto(Product product);
 
     List<ProductDetailDto> toDetailDtos(List<Product> products);
-
-    /**
-     * Convert to lightweight admin list DTO without images
-     * Uses denormalized fields (categoryName, brandName, businessName) from Product entity
-     * Avoids JOINs and lazy-loading relationships
-     */
-    @Mapping(target = "promotionType", source = "promotionType", qualifiedByName = "promotionTypeToString")
-    @Mapping(target = "displayPromotionType", source = "displayPromotionType", qualifiedByName = "promotionTypeToString")
-    @Mapping(target = "hasPromotion", source = "hasActivePromotion")
-    @Mapping(target = "categoryName", source = "categoryName")
-    @Mapping(target = "brandName", source = "brandName")
-    @Mapping(target = "businessName", source = "businessName")
-    @Mapping(target = "sizes", source = "sizes")
-    ProductAdminListDto toAdminListDto(Product product);
-
-    List<ProductAdminListDto> toAdminListDtos(List<Product> products);
 
     @Named("stringToPromotionType")
     default PromotionType stringToPromotionType(String promotionType) {
