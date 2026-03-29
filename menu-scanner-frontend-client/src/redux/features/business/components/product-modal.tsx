@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Package } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -475,20 +475,8 @@ export default function ProductModal({
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
-            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
-              {mainImageUrl ? (
-                <img
-                  src={mainImageUrl}
-                  alt={productName}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                  <span className="text-2xl font-semibold text-primary">
-                    {productName?.charAt(0)?.toUpperCase() || "P"}
-                  </span>
-                </div>
-              )}
+            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted flex items-center justify-center">
+              <Package className="w-10 h-10 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-foreground">
