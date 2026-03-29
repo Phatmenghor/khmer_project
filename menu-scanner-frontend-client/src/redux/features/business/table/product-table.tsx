@@ -35,7 +35,11 @@ interface ProductTableOptions {
 /**
  * ProductImagePreview - Display product image with preview styling
  */
-function ProductImagePreview({ product }: { product: ProductDetailResponseModel }) {
+function ProductImagePreview({
+  product,
+}: {
+  product: ProductDetailResponseModel;
+}) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -53,7 +57,7 @@ function ProductImagePreview({ product }: { product: ProductDetailResponseModel 
             height={56}
             className={cn(
               "w-full h-full object-cover transition-all duration-300 hover:scale-105",
-              imageLoaded ? "opacity-100" : "opacity-0"
+              imageLoaded ? "opacity-100" : "opacity-0",
             )}
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
@@ -79,14 +83,21 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   return (
     <div className="flex gap-2 overflow-x-auto pb-1">
       {sizes.map((size) => (
-        <div key={size.id} className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded whitespace-nowrap flex-shrink-0">
+        <div
+          key={size.id}
+          className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded whitespace-nowrap flex-shrink-0"
+        >
           <span className="text-xs font-medium text-primary">{size.name}</span>
-          <span className="text-xs font-semibold text-foreground">${size.finalPrice}</span>
+          <span className="text-xs font-semibold text-foreground">
+            ${size.finalPrice}
+          </span>
           {size.hasPromotion && (
             <>
               <span className="text-xs text-muted-foreground">/</span>
               <span className="text-xs font-semibold text-red-600">
-                {size.promotionType === "FIXED_AMOUNT" ? `-$${size.promotionValue}` : `-${size.promotionValue}%`}
+                {size.promotionType === "FIXED_AMOUNT"
+                  ? `-$${size.promotionValue}`
+                  : `-${size.promotionValue}%`}
               </span>
             </>
           )}
@@ -141,7 +152,10 @@ function StatusSelect({
   };
 
   return (
-    <Select value={value} onValueChange={(newStatus) => onStatusChange?.(productId, newStatus)}>
+    <Select
+      value={value}
+      onValueChange={(newStatus) => onStatusChange?.(productId, newStatus)}
+    >
       <SelectTrigger className={cn("w-32 h-8 text-xs", getStatusColor(value))}>
         <SelectValue>{getStatusDisplay(value)}</SelectValue>
       </SelectTrigger>
@@ -160,8 +174,12 @@ export const productTableColumns = ({
   data,
   handlers,
 }: ProductTableOptions): TableColumn<ProductDetailResponseModel>[] => {
-  const { handleEditProduct, handleProductViewDetail, handleDeleteProduct, handleStatusChange } =
-    handlers;
+  const {
+    handleEditProduct,
+    handleProductViewDetail,
+    handleDeleteProduct,
+    handleStatusChange,
+  } = handlers;
 
   return [
     {
@@ -271,7 +289,10 @@ export const productTableColumns = ({
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground line-through">
-          ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
+          $
+          {parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(
+            2,
+          )}
         </span>
       ),
     },
@@ -280,7 +301,7 @@ export const productTableColumns = ({
       key: "sizes",
       label: "Sizes",
       minWidth: "150px",
-      maxWidth: "300px",
+      maxWidth: "1000px",
       render: (product) => <SizesDisplay sizes={product?.sizes} />,
     },
 
