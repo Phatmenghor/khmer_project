@@ -11,6 +11,7 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { ModalMode } from "@/constants/status/status";
+import { SelectField } from "@/components/shared/form-field/select-field";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { showToast } from "@/components/shared/common/show-toast";
 import {
@@ -69,6 +70,7 @@ export default function ExchangeRateModal({
       usdToKhrRate: undefined,
       usdToCnyRate: undefined,
       usdToVndRate: undefined,
+      status: "ACTIVE",
       notes: "",
     },
     mode: "onChange",
@@ -83,6 +85,7 @@ export default function ExchangeRateModal({
         usdToKhrRate: undefined,
         usdToCnyRate: undefined,
         usdToVndRate: undefined,
+        status: "ACTIVE",
         notes: "",
       });
     } else if (exchangeRate) {
@@ -90,6 +93,7 @@ export default function ExchangeRateModal({
         usdToKhrRate: exchangeRate.usdToKhrRate || undefined,
         usdToCnyRate: exchangeRate.usdToCnyRate || undefined,
         usdToVndRate: exchangeRate.usdToVndRate || undefined,
+        status: exchangeRate.status || "ACTIVE",
         notes: exchangeRate.notes || "",
       });
     }
@@ -104,12 +108,17 @@ export default function ExchangeRateModal({
 
   const onSubmit = async (data: CreateExchangeRateData) => {
     try {
-      const payload: CreateExchangeRateData = {
+      const payload: any = {
         usdToKhrRate: data.usdToKhrRate,
         usdToCnyRate: data.usdToCnyRate,
         usdToVndRate: data.usdToVndRate,
         notes: data.notes,
       };
+
+      // Add status only when updating (not for create)
+      if (!isCreate && data.status) {
+        payload.status = data.status;
+      }
 
       if (isCreate) {
         await dispatch(createExchangeRateService(payload)).unwrap();
@@ -204,6 +213,20 @@ export default function ExchangeRateModal({
                 disabled={isSubmitting}
                 error={errors.usdToVndRate}
               />
+
+              {!isCreate && (
+                <SelectField
+                  control={control}
+                  name="status"
+                  label="Status"
+                  disabled={isSubmitting}
+                  error={errors.status}
+                  options={[
+                    { value: "ACTIVE", label: "Active" },
+                    { value: "INACTIVE", label: "Inactive" },
+                  ]}
+                />
+              )}
             </div>
 
             {/* Notes - Separate Row */}
