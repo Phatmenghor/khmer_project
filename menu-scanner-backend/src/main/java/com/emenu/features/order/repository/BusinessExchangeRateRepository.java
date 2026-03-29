@@ -53,6 +53,13 @@ public interface BusinessExchangeRateRepository extends JpaRepository<BusinessEx
     int deactivateAllRatesForBusiness(@Param("businessId") UUID businessId);
 
     /**
+     * Deactivates all active exchange rates for a business EXCEPT the specified rate ID
+     */
+    @Modifying
+    @Query("UPDATE BusinessExchangeRate ber SET ber.status = 'INACTIVE' WHERE ber.businessId = :businessId AND ber.id != :excludeId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
+    int deactivateAllRatesForBusinessExcept(@Param("businessId") UUID businessId, @Param("excludeId") UUID excludeId);
+
+    /**
      * Counts active exchange rates for a business
      */
     @Query("SELECT COUNT(ber) FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")

@@ -44,12 +44,16 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
 
         UUID businessId = determineBusinessId(request.getBusinessId());
 
-        // Validate busin¶ess exists
+        // Validate business exists
         Business business = businessRepository.findByIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new NotFoundException("Business not found"));
 
-        // Deactivate existing active rate for this business
-        deactivateCurrentActiveRate(businessId);
+        // Deactivate all existing active rates for this business (new rate will be the only ACTIVE one)
+        int deactivatedCount = exchangeRateRepository.deactivateAllRatesForBusiness(businessId);
+        if (deactivatedCount > 0) {
+            log.info("Deactivated {} existing active rate(s) for business {} when creating new rate",
+                    deactivatedCount, businessId);
+        }
 
         BusinessExchangeRate exchangeRate = exchangeRateMapper.toEntity(request);
         exchangeRate.setStatus(BusinessExchangeRate.ExchangeRateStatus.ACTIVE); // New rate is always active
@@ -99,18 +103,22 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         BusinessExchangeRate exchangeRate = findExchangeRateById(id);
         UUID businessId = exchangeRate.getBusinessId();
 
-        // If updating to ACTIVE status, deactivate other active rates for this business
+        // If updating to ACTIVE status, deactivate all other active rates for this business
         if (request.getStatus() != null &&
-            request.getStatus() == BusinessExchangeRate.ExchangeRateStatus.ACTIVE &&
-            !exchangeRate.isActive()) {
-            deactivateCurrentActiveRate(businessId);
+            request.getStatus() == BusinessExchangeRate.ExchangeRateStatus.ACTIVE) {
+            // Deactivate all OTHER active rates (except this one)
+            int deactivatedCount = exchangeRateRepository.deactivateAllRatesForBusinessExcept(businessId, id);
+            if (deactivatedCount > 0) {
+                log.info("Deactivated {} other active rate(s) for business {} when activating rate {}",
+                        deactivatedCount, businessId, id);
+            }
         }
 
         exchangeRateMapper.updateEntity(request, exchangeRate);
         BusinessExchangeRate updatedExchangeRate = exchangeRateRepository.save(exchangeRate);
 
-        log.info("Business exchange rate updated successfully: {} - New rate: {}",
-                id, updatedExchangeRate.getUsdToKhrRate());
+        log.info("Business exchange rate updated successfully: {} - New rate: {} - Status: {}",
+                id, updatedExchangeRate.getUsdToKhrRate(), updatedExchangeRate.getStatus());
 
         return exchangeRateMapper.toResponse(updatedExchangeRate);
     }
@@ -173,16 +181,5 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         }
 
         return currentUser.getBusinessId();
-    }
-
-    private void deactivateCurrentActiveRate(UUID businessId) {
-        Optional<BusinessExchangeRate> existingActiveRate = exchangeRateRepository.findActiveRateByBusinessId(businessId);
-        if (existingActiveRate.isPresent()) {
-            BusinessExchangeRate rate = existingActiveRate.get();
-            rate.deactivate();
-            exchangeRateRepository.save(rate);
-            log.info("Deactivated existing active rate for business {}: {} KHR",
-                    businessId, rate.getUsdToKhrRate());
-        }
     }
 }
