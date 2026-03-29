@@ -2,15 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { Trash2 } from "lucide-react";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
@@ -73,12 +72,12 @@ export function DeleteConfirmationModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-xl p-0 flex flex-col">
-        <div className="p-6 border-b border-border bg-destructive/5 flex items-start gap-4">
-          <Trash2 className="w-6 h-6 text-destructive flex-shrink-0 mt-1" />
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-            <p className="text-sm text-muted-foreground mt-2">{description}</p>
-          </div>
+        <VisuallyHidden asChild>
+          <DialogTitle>{title}</DialogTitle>
+        </VisuallyHidden>
+        <div className="p-6 border-b border-border bg-destructive/5">
+          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+          <p className="text-sm text-muted-foreground mt-2">{description}</p>
         </div>
 
         <FormBody>
