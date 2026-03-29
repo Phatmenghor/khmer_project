@@ -573,12 +573,20 @@ FROM generate_series(1, 20) AS t(i);
 -- 13. PRODUCTS
 -- ============================================================================
 
+WITH category_list AS (
+    SELECT id, name, ROW_NUMBER() OVER (ORDER BY created_at) AS cat_num
+    FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+),
+brand_list AS (
+    SELECT id, name, ROW_NUMBER() OVER (ORDER BY created_at) AS brand_num
+    FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+)
 INSERT INTO products (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, category_id, brand_id, name, description, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, has_active_promotion, main_image_url, status, has_sizes, view_count, favorite_count, minimum_stock_level, sku, barcode, category_name, brand_name, business_name)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    (SELECT id FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i % 20)),
-    (SELECT id FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i % 20)),
+    c.id,
+    b.id,
     'Product ' || i::text, 'Description for product ' || i::text, (15 + (i % 100))::numeric,
     CASE WHEN (i % 3) = 0 THEN 'PERCENTAGE' WHEN (i % 3) = 1 THEN 'FIXED_AMOUNT' ELSE 'PERCENTAGE' END,
     CASE WHEN (i % 3) = 0 THEN 10 WHEN (i % 3) = 1 THEN 2 ELSE 5 END,
@@ -587,10 +595,10 @@ SELECT
     'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400',
     CASE WHEN (i % 20) = 0 THEN 'INACTIVE' WHEN (i % 25) = 0 THEN 'OUT_OF_STOCK' ELSE 'ACTIVE' END,
     (i % 3) = 0, (i % 500)::bigint, (i % 200)::bigint, 5, 'SKU-' || i::text, 'BARCODE-' || i::text,
-    (SELECT name FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i % 20)),
-    (SELECT name FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i % 20)),
-    'Phatmenghor Business'
-FROM generate_series(1, 20000) AS t(i);
+    c.name, b.name, 'Phatmenghor Business'
+FROM generate_series(1, 20000) AS t(i)
+CROSS JOIN (SELECT * FROM category_list WHERE cat_num = ((t.i-1) % 20 + 1)) c
+CROSS JOIN (SELECT * FROM brand_list WHERE brand_num = ((t.i-1) % 20 + 1)) b;
 
 -- ============================================================================
 -- 14. PRODUCT SIZES
