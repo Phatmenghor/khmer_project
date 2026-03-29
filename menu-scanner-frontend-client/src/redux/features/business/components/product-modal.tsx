@@ -98,6 +98,8 @@ export default function ProductModal({
       description: "",
       categoryId: "",
       brandId: "",
+      sku: "",
+      barcode: "",
       price: 0,
       mainImageUrl: "",
       promotionType: "NONE",
@@ -259,6 +261,8 @@ export default function ProductModal({
             description: data.description || "",
             categoryId: data.categoryId || "",
             brandId: data.brandId || "",
+            sku: data.sku || "",
+            barcode: data.barcode || "",
             price: data.price || 0,
             mainImageUrl: data.mainImageUrl || "",
             promotionType: data.promotionType || "NONE",
@@ -288,6 +292,8 @@ export default function ProductModal({
         description: "",
         categoryId: "",
         brandId: "",
+        sku: "",
+        barcode: "",
         price: 0,
         mainImageUrl: "",
         promotionType: "NONE",
@@ -396,6 +402,8 @@ export default function ProductModal({
         description: data.description,
         categoryId: data.categoryId,
         brandId: data.brandId || undefined,
+        sku: data.sku || undefined,
+        barcode: data.barcode || undefined,
         mainImageUrl: finalMainImageUrl,
         images: validImages.length > 0 ? validImages : undefined,
         sizes: cleanedSizes.length > 0 ? cleanedSizes : undefined,
@@ -460,21 +468,40 @@ export default function ProductModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 flex flex-col">
-        <FormHeader
-          title={isCreate ? "Create New Product" : "Edit Product"}
-          description={
-            isCreate
-              ? "Fill out the form to create a new product"
-              : "Update product information below"
-          }
-          avatarName={productName}
-          avatarImageUrl={mainImageUrl}
-          isCreate={isCreate}
-        />
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-start gap-6">
+            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
+              {mainImageUrl ? (
+                <img
+                  src={mainImageUrl}
+                  alt={productName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                  <span className="text-2xl font-semibold text-primary">
+                    {productName?.charAt(0)?.toUpperCase() || "P"}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-foreground">
+                {isCreate ? "Create New Product" : "Edit Product"}
+              </h2>
+              <p className="text-sm text-foreground mt-1">
+                {isCreate
+                  ? "Fill out the form to create a new product"
+                  : "Update product information below"}
+              </p>
+            </div>
+          </div>
+        </div>
 
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="flex-1 flex items-center justify-center">
             <Loading />
           </div>
         ) : (
@@ -482,401 +509,265 @@ export default function ProductModal({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            <FormBody>
-              {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
-                  <p className="text-sm text-destructive font-medium">
-                    {reduxError}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-6">
-                {/* Main Product Image */}
-                <div className="space-y-3">
-                  <ClickableImageUpload
-                    label="Main Product Image"
-                    value={mainImageUrl}
-                    onChange={(base64) =>
-                      setValue("mainImageUrl", base64, { shouldDirty: true })
-                    }
-                    aspectRatio="square"
-                    height="h-56"
-                    maxSize={5}
-                    required
-                    error={errors.mainImageUrl}
-                    placeholder="Click to upload main product image"
-                    helperText="PNG, JPG up to 5MB"
-                  />
-                </div>
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-6 space-y-6">
+                {reduxError && (
+                  <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
+                    <p className="text-sm text-destructive font-medium">
+                      {reduxError}
+                    </p>
+                  </div>
+                )}
 
                 {/* Basic Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Basic Information</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <TextField
-                      control={control}
-                      name="name"
-                      label="Product Name"
-                      placeholder="Enter product name"
-                      required
-                      disabled={isProcessing}
-                      error={errors.name}
-                    />
-
-                    <ComboboxSelectCategories
-                      dataSelect={selectedCategory}
-                      onChangeSelected={(category) => {
-                        setSelectedCategory(category);
-                        setValue("categoryId", category?.id || "", {
-                          shouldDirty: true,
-                        });
-                      }}
-                      label="Category"
-                      placeholder="Select category"
-                      required
-                      disabled={isProcessing}
-                      error={errors.categoryId?.message}
-                      showAllOption={false}
-                    />
-
-                    <ComboboxSelectBrand
-                      dataSelect={selectedBrand}
-                      onChangeSelected={(brand) => {
-                        setSelectedBrand(brand);
-                        setValue("brandId", brand?.id || "", {
-                          shouldDirty: true,
-                        });
-                      }}
-                      label="Brand (Optional)"
-                      placeholder="Select brand"
-                      disabled={isProcessing}
-                      error={errors.brandId?.message}
-                      showAllOption={false}
-                    />
-
-                    <SelectField
-                      control={control}
-                      name="status"
-                      label="Status"
-                      placeholder="Select status"
-                      options={PRODUCT_STATUS_CREATE_UPDATE}
-                      required
-                      disabled={isProcessing}
-                      error={errors.status}
-                    />
-
-                    <div className="col-span-2">
-                      <TextareaField
-                        control={control}
-                        name="description"
-                        label="Description"
-                        placeholder="Enter product description"
-                        rows={4}
-                        required
-                        disabled={isProcessing}
-                        error={errors.description}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Pricing Section - Only show if no sizes */}
-                {!hasSizes && (
-                  <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
-                    <h3 className="text-lg font-semibold">
-                      Pricing Information
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Basic Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <TextField
                         control={control}
-                        name="price"
-                        label="Base Price"
-                        type="number"
-                        placeholder="Enter price"
+                        name="name"
+                        label="Product Name"
+                        placeholder="Enter product name"
                         required
                         disabled={isProcessing}
-                        error={errors.price}
-                        valueAsNumber={true}
-                        min={0}
-                        step="0.01"
-                        allowZero={true}
+                        error={errors.name}
+                      />
+
+                      <ComboboxSelectCategories
+                        dataSelect={selectedCategory}
+                        onChangeSelected={(category) => {
+                          setSelectedCategory(category);
+                          setValue("categoryId", category?.id || "", {
+                            shouldDirty: true,
+                          });
+                        }}
+                        label="Category"
+                        placeholder="Select category"
+                        required
+                        disabled={isProcessing}
+                        error={errors.categoryId?.message}
+                        showAllOption={false}
+                      />
+
+                      <ComboboxSelectBrand
+                        dataSelect={selectedBrand}
+                        onChangeSelected={(brand) => {
+                          setSelectedBrand(brand);
+                          setValue("brandId", brand?.id || "", {
+                            shouldDirty: true,
+                          });
+                        }}
+                        label="Brand (Optional)"
+                        placeholder="Select brand"
+                        disabled={isProcessing}
+                        error={errors.brandId?.message}
+                        showAllOption={false}
+                      />
+
+                      <TextField
+                        control={control}
+                        name="sku"
+                        label="SKU"
+                        placeholder="Enter SKU"
+                        disabled={isProcessing}
+                        error={errors.sku}
+                      />
+
+                      <TextField
+                        control={control}
+                        name="barcode"
+                        label="Barcode"
+                        placeholder="Enter barcode"
+                        disabled={isProcessing}
+                        error={errors.barcode}
                       />
 
                       <SelectField
                         control={control}
-                        name="promotionType"
-                        label="Promotion Type"
-                        placeholder="Select promotion type"
-                        options={PROMOTION_TYPE_CREATE_UPDATE}
+                        name="status"
+                        label="Status"
+                        placeholder="Select status"
+                        options={PRODUCT_STATUS_CREATE_UPDATE}
+                        required
                         disabled={isProcessing}
-                        error={errors.promotionType}
+                        error={errors.status}
                       />
 
-                      {/* Only show promotion fields when type is not NONE */}
-                      {showPromotionFields && (
-                        <>
-                          <TextField
-                            control={control}
-                            name="promotionValue"
-                            label="Promotion Value"
-                            type="number"
-                            placeholder="Enter promotion value"
-                            disabled={isProcessing}
-                            error={errors.promotionValue as any}
-                            valueAsNumber={true}
-                            min={0}
-                            step="0.01"
-                            allowZero={false}
-                          />
-
-                          <div className="col-span-2 grid grid-cols-2 gap-4">
-                            <DateTimePickerField
-                              control={control}
-                              name="promotionFromDate"
-                              label="Promotion From"
-                              mode="datetime"
-                              placeholder="Select start date & time"
-                              disabled={isProcessing}
-                              error={errors.promotionFromDate}
-                            />
-
-                            <DateTimePickerField
-                              control={control}
-                              name="promotionToDate"
-                              label="Promotion To"
-                              mode="datetime"
-                              placeholder="Select end date & time"
-                              disabled={isProcessing}
-                              error={errors.promotionToDate}
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Product Images */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">Product Images</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {imageFields.length > 0
-                          ? `${
-                              imageFields.length
-                            }/${MAX_PRODUCT_IMAGES} images uploaded${
-                              !canAddMore ? " (Maximum reached)" : ""
-                            }`
-                          : `Upload up to ${MAX_PRODUCT_IMAGES} additional product images`}
-                      </p>
-                    </div>
-                    {canAddMore && (
-                      <div className="flex gap-2">
-                        <input
-                          type="file"
-                          id="multiple-image-upload"
-                          multiple
-                          accept="image/*"
-                          onChange={handleMultipleImageUpload}
-                          className="hidden"
+                      <div className="col-span-1 md:col-span-2">
+                        <TextareaField
+                          control={control}
+                          name="description"
+                          label="Description"
+                          placeholder="Enter product description"
+                          rows={3}
+                          required
                           disabled={isProcessing}
+                          error={errors.description}
                         />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            document
-                              .getElementById("multiple-image-upload")
-                              ?.click()
-                          }
-                          disabled={isProcessing}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          {isProcessingImages
-                            ? "Processing..."
-                            : `Upload Images (${remainingSlots} left)`}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  {imageFields.length === 0 ? (
-                    <div className="text-center py-12 border-2 border-dashed rounded-lg bg-muted/10">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Plus className="h-8 w-8 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">
-                            No additional images
-                          </p>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Upload up to {MAX_PRODUCT_IMAGES} product images at
-                            once
-                          </p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            document
-                              .getElementById("multiple-image-upload")
-                              ?.click()
-                          }
-                          disabled={isProcessing}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Upload Images
-                        </Button>
                       </div>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        {imageFields.map((field, index) => (
-                          <Card key={field.id} className="overflow-hidden">
-                            <CardContent className="p-3">
-                              <div className="space-y-2">
-                                <div className="relative group">
-                                  <ClickableImageUpload
-                                    label=""
-                                    value={
-                                      watch(`images.${index}.imageUrl`) || ""
-                                    }
-                                    onChange={(base64) =>
-                                      setValue(
-                                        `images.${index}.imageUrl`,
-                                        base64,
-                                        {
-                                          shouldDirty: true,
-                                        },
-                                      )
-                                    }
-                                    aspectRatio="square"
-                                    height="h-32"
-                                    maxSize={5}
-                                    disabled={isProcessing}
-                                    error={
-                                      errors.images?.[index]?.imageUrl as any
-                                    }
-                                    showPreviewText={false}
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute top-2 right-2 h-7 w-7 z-20 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                                    onClick={() => removeImage(index)}
-                                    disabled={isProcessing}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                                <p className="text-xs text-center text-muted-foreground">
-                                  Image {index + 1}
-                                </p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
+                  </CardContent>
+                </Card>
 
-                      <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg border">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium">
-                            {imageFields.length}/{MAX_PRODUCT_IMAGES} images
-                          </p>
-                          {canAddMore && (
-                            <span className="text-xs text-muted-foreground">
-                              • {remainingSlots} slot
-                              {remainingSlots > 1 ? "s" : ""} remaining
-                            </span>
-                          )}
-                          {!canAddMore && (
-                            <span className="text-xs text-amber-600 font-medium">
-                              • Maximum reached
-                            </span>
-                          )}
-                        </div>
-                        {canAddMore && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              document
-                                .getElementById("multiple-image-upload")
-                                ?.click()
-                            }
-                            disabled={isProcessing}
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add More
-                          </Button>
+                {/* Main Product Image */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Product Image</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ClickableImageUpload
+                      label="Main Product Image"
+                      value={mainImageUrl}
+                      onChange={(base64) =>
+                        setValue("mainImageUrl", base64, { shouldDirty: true })
+                      }
+                      aspectRatio="square"
+                      height="h-48"
+                      maxSize={5}
+                      required
+                      error={errors.mainImageUrl}
+                      placeholder="Click to upload main product image"
+                      helperText="PNG, JPG up to 5MB"
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Pricing Section - Only show if no sizes */}
+                {!hasSizes && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Pricing Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <TextField
+                          control={control}
+                          name="price"
+                          label="Base Price"
+                          type="number"
+                          placeholder="Enter price"
+                          required
+                          disabled={isProcessing}
+                          error={errors.price}
+                          valueAsNumber={true}
+                          min={0}
+                          step="0.01"
+                          allowZero={true}
+                        />
+
+                        <SelectField
+                          control={control}
+                          name="promotionType"
+                          label="Promotion Type"
+                          placeholder="Select promotion type"
+                          options={PROMOTION_TYPE_CREATE_UPDATE}
+                          disabled={isProcessing}
+                          error={errors.promotionType}
+                        />
+
+                        {/* Only show promotion fields when type is not NONE */}
+                        {showPromotionFields && (
+                          <>
+                            <TextField
+                              control={control}
+                              name="promotionValue"
+                              label="Promotion Value"
+                              type="number"
+                              placeholder="Enter promotion value"
+                              disabled={isProcessing}
+                              error={errors.promotionValue as any}
+                              valueAsNumber={true}
+                              min={0}
+                              step="0.01"
+                              allowZero={false}
+                            />
+
+                            <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <DateTimePickerField
+                                control={control}
+                                name="promotionFromDate"
+                                label="Promotion From"
+                                mode="datetime"
+                                placeholder="Select start date & time"
+                                disabled={isProcessing}
+                                error={errors.promotionFromDate}
+                              />
+
+                              <DateTimePickerField
+                                control={control}
+                                name="promotionToDate"
+                                label="Promotion To"
+                                mode="datetime"
+                                placeholder="Select end date & time"
+                                disabled={isProcessing}
+                                error={errors.promotionToDate}
+                              />
+                            </div>
+                          </>
                         )}
                       </div>
-                    </div>
-                  )}
-                </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Product Sizes */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">Product Sizes</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {hasSizes
-                          ? "Pricing will come from sizes. Main product pricing is disabled."
-                          : "No sizes defined. Using main product pricing."}
-                      </p>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Product Sizes</CardTitle>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          appendSize({
+                            name: "",
+                            price: 0,
+                            promotionType: "NONE",
+                            promotionValue: undefined,
+                            promotionFromDate: "",
+                            promotionToDate: "",
+                          })
+                        }
+                        disabled={isProcessing}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Size
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        appendSize({
-                          name: "",
-                          price: 0,
-                          promotionType: "NONE",
-                          promotionValue: undefined,
-                          promotionFromDate: "",
-                          promotionToDate: "",
-                        })
-                      }
-                      disabled={isProcessing}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Size
-                    </Button>
-                  </div>
+                  </CardHeader>
+                  <CardContent>
+                    {sizeFields.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-sm text-muted-foreground">
+                          {hasSizes
+                            ? "No sizes defined."
+                            : "No sizes defined. Product will use main pricing."}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {sizeFields.map((field, index) => {
+                          const sizePromotionType = watch(
+                            `sizes.${index}.promotionType`,
+                          );
+                          const showSizePromotionFields =
+                            sizePromotionType &&
+                            sizePromotionType !== "NONE";
 
-                  {sizeFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">
-                        No sizes defined. Product will use main pricing.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {sizeFields.map((field, index) => {
-                        const sizePromotionType = watch(
-                          `sizes.${index}.promotionType`,
-                        );
-                        const showSizePromotionFields =
-                          sizePromotionType && sizePromotionType !== "NONE";
-
-                        return (
-                          <Card key={field.id}>
-                            <CardHeader className="pb-4">
+                          return (
+                            <div
+                              key={field.id}
+                              className="border rounded-lg p-4 space-y-4"
+                            >
                               <div className="flex items-center justify-between">
-                                <CardTitle className="text-base">
+                                <h4 className="font-semibold text-foreground">
                                   Size {index + 1}
-                                </CardTitle>
+                                </h4>
                                 <Button
                                   type="button"
                                   variant="destructive"
@@ -888,9 +779,8 @@ export default function ProductModal({
                                   Remove
                                 </Button>
                               </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="grid grid-cols-2 gap-4">
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <TextField
                                   control={control}
                                   name={`sizes.${index}.name`}
@@ -973,27 +863,174 @@ export default function ProductModal({
                                   </>
                                 )}
                               </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </FormBody>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
-            <FormFooter
-              isSubmitting={isProcessing}
-              isDirty={isDirty}
-              isCreate={isCreate}
-              createMessage={
-                isUploadingImage ? "Uploading images..." : "Creating product..."
-              }
-              updateMessage={
-                isUploadingImage ? "Uploading images..." : "Updating product..."
-              }
-            >
+                {/* Product Images */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Product Images</CardTitle>
+                      {canAddMore && (
+                        <div className="flex gap-2">
+                          <input
+                            type="file"
+                            id="multiple-image-upload"
+                            multiple
+                            accept="image/*"
+                            onChange={handleMultipleImageUpload}
+                            className="hidden"
+                            disabled={isProcessing}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              document
+                                .getElementById("multiple-image-upload")
+                                ?.click()
+                            }
+                            disabled={isProcessing}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            {isProcessingImages
+                              ? "Processing..."
+                              : `Upload (${remainingSlots} left)`}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {imageFields.length === 0 ? (
+                      <div className="text-center py-12 border-2 border-dashed rounded-lg bg-muted/10">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Plus className="h-8 w-8 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">
+                              No additional images
+                            </p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Upload up to {MAX_PRODUCT_IMAGES} product images
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              document
+                                .getElementById("multiple-image-upload")
+                                ?.click()
+                            }
+                            disabled={isProcessing}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Upload Images
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          {imageFields.map((field, index) => (
+                            <div
+                              key={field.id}
+                              className="border rounded-lg p-3 overflow-hidden"
+                            >
+                              <div className="space-y-2">
+                                <div className="relative group">
+                                  <ClickableImageUpload
+                                    label=""
+                                    value={
+                                      watch(`images.${index}.imageUrl`) || ""
+                                    }
+                                    onChange={(base64) =>
+                                      setValue(
+                                        `images.${index}.imageUrl`,
+                                        base64,
+                                        {
+                                          shouldDirty: true,
+                                        },
+                                      )
+                                    }
+                                    aspectRatio="square"
+                                    height="h-24"
+                                    maxSize={5}
+                                    disabled={isProcessing}
+                                    error={
+                                      errors.images?.[index]?.imageUrl as any
+                                    }
+                                    showPreviewText={false}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute top-1 right-1 h-6 w-6 z-20 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                    onClick={() => removeImage(index)}
+                                    disabled={isProcessing}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                                <p className="text-xs text-center text-muted-foreground">
+                                  {index + 1}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 bg-muted/20 rounded-lg border text-sm">
+                          <span>
+                            {imageFields.length}/{MAX_PRODUCT_IMAGES} images
+                            {canAddMore && (
+                              <span className="text-muted-foreground ml-2">
+                                • {remainingSlots} slot
+                                {remainingSlots > 1 ? "s" : ""} left
+                              </span>
+                            )}
+                            {!canAddMore && (
+                              <span className="text-amber-600 font-medium ml-2">
+                                • Maximum reached
+                              </span>
+                            )}
+                          </span>
+                          {canAddMore && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                document
+                                  .getElementById("multiple-image-upload")
+                                  ?.click()
+                              }
+                              disabled={isProcessing}
+                            >
+                              <Plus className="h-4 w-4 mr-1" />
+                              Add
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t bg-muted/30 flex-shrink-0 flex items-center justify-end gap-3">
               <CancelButton onClick={handleClose} disabled={isProcessing} />
               <SubmitButton
                 isSubmitting={isProcessing}
@@ -1008,7 +1045,7 @@ export default function ProductModal({
                   isUploadingImage ? "Uploading..." : "Updating..."
                 }
               />
-            </FormFooter>
+            </div>
           </form>
         )}
       </DialogContent>

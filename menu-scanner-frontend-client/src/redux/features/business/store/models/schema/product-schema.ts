@@ -78,6 +78,8 @@ const baseProductSchema = z.object({
   description: z.string().min(1, "Description is required"),
   categoryId: z.string().min(1, "Category is required"),
   brandId: z.string().optional(),
+  sku: z.string().optional(),
+  barcode: z.string().optional(),
   mainImageUrl: z
     .string()
     .url("Invalid main image URL")
@@ -238,6 +240,8 @@ export type ProductFormData = {
   description: string;
   categoryId: string;
   brandId?: string;
+  sku?: string;
+  barcode?: string;
   price: number;
   mainImageUrl: string;
   promotionType?: string;
