@@ -198,10 +198,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProductDetailDto> getAllProductsAdmin(ProductFilterDto filter) {
-        Optional<User> currentUser = securityUtils.getCurrentUserOptional();
-        if (currentUser.isPresent() && currentUser.get().isBusinessUser() && filter.getBusinessId() == null) {
-            filter.setBusinessId(currentUser.get().getBusinessId());
-        }
 
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(),

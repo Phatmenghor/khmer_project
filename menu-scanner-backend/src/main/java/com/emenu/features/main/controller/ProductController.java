@@ -1,11 +1,13 @@
 package com.emenu.features.main.controller;
 
+import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.ProductFilterDto;
 import com.emenu.features.main.dto.request.ProductCreateDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
 import com.emenu.features.main.service.ProductService;
+import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
 
@@ -25,6 +28,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final SecurityUtils securityUtils;
 
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getAllProducts(
@@ -68,12 +72,13 @@ public class ProductController {
         ));
     }
 
-    @PostMapping("/business/all")
+    @PostMapping("/admin/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductBusiness(
             @Valid @RequestBody ProductFilterDto filter) {
 
         log.info("Get products by business user - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
-
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        filter.setBusinessId(businessId);
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdmin(filter);
 
         return ResponseEntity.ok(ApiResponse.success(
