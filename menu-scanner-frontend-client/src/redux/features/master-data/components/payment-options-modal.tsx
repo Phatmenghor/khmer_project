@@ -13,19 +13,20 @@ import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { showToast } from "@/components/shared/common/show-toast";
-import { ModalMode } from "@/constants/status/status";
+import { ModalMode, Status } from "@/constants/status/status";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   createPaymentOptionService,
   updatePaymentOptionService,
-  fetchPaymentOptionByIdService,
 } from "../store/thunks/payment-options-thunks";
-import { selectSelectedPaymentOption } from "../store/selectors/payment-options-selectors";
-import { clearSelectedPaymentOption } from "../store/slice/payment-options-slice";
+import {
+  selectPaymentOptionsOperations,
+} from "../store/selectors/payment-options-selectors";
 import {
   createPaymentOptionSchema,
   updatePaymentOptionSchema,
 } from "../store/models/schema/payment-options-schema";
+import { PaymentOptionResponse } from "../store/models/response/payment-option-response";
 
 type PaymentOptionFormData = z.infer<typeof createPaymentOptionSchema>;
 
@@ -41,25 +42,26 @@ const STATUS_OPTIONS = [
 interface PaymentOptionsModalProps {
   isOpen: boolean;
   mode: ModalMode;
-  paymentOptionId?: string;
+  paymentOption: PaymentOptionResponse | null;
   onClose: () => void;
 }
 
 export default function PaymentOptionsModal({
   isOpen,
   mode,
-  paymentOptionId,
+  paymentOption,
   onClose,
 }: PaymentOptionsModalProps) {
   const dispatch = useAppDispatch();
-  const selectedOption = useAppSelector(selectSelectedPaymentOption);
+  const operations = useAppSelector(selectPaymentOptionsOperations);
   const isCreate = mode === ModalMode.CREATE_MODE;
+  const isSubmitting = isCreate ? operations.isCreating : operations.isUpdating;
 
   const {
     control,
     handleSubmit,
     reset,
-    formState: { errors, isDirty, isSubmitting },
+    formState: { errors, isDirty },
   } = useForm<PaymentOptionFormData>({
     resolver: zodResolver(
       isCreate ? createPaymentOptionSchema : updatePaymentOptionSchema
@@ -67,45 +69,45 @@ export default function PaymentOptionsModal({
     defaultValues: {
       name: "",
       paymentOptionType: "",
-      status: "ACTIVE",
+      status: Status.ACTIVE,
     },
     mode: "onChange",
   });
 
   useEffect(() => {
-    if (isCreate || !isOpen) return;
-    if (paymentOptionId) {
-      dispatch(fetchPaymentOptionByIdService(paymentOptionId));
-    }
-  }, [isCreate, paymentOptionId, isOpen, dispatch]);
+    if (!isOpen) return;
 
-  useEffect(() => {
-    if (selectedOption && !isCreate) {
+    if (isCreate) {
       reset({
-        name: selectedOption.name,
-        paymentOptionType: selectedOption.paymentOptionType,
-        status: selectedOption.status,
+        name: "",
+        paymentOptionType: "",
+        status: Status.ACTIVE,
+      });
+    } else if (paymentOption) {
+      reset({
+        name: paymentOption.name || "",
+        paymentOptionType: paymentOption.paymentOptionType || "",
+        status: paymentOption.status || Status.ACTIVE,
       });
     }
-  }, [selectedOption, isCreate, reset]);
+  }, [isOpen, isCreate, paymentOption, reset]);
 
   const onSubmit = async (data: PaymentOptionFormData) => {
     try {
       if (isCreate) {
         await dispatch(createPaymentOptionService(data)).unwrap();
         showToast.success("Payment option created successfully");
-      } else {
+        handleClose();
+      } else if (paymentOption?.id) {
         await dispatch(
           updatePaymentOptionService({
-            id: paymentOptionId!,
+            id: paymentOption.id,
             payload: data,
           })
         ).unwrap();
         showToast.success("Payment option updated successfully");
+        handleClose();
       }
-      reset();
-      dispatch(clearSelectedPaymentOption());
-      onClose();
     } catch (error: any) {
       showToast.error(error || "Failed to save payment option");
     }
@@ -113,7 +115,6 @@ export default function PaymentOptionsModal({
 
   const handleClose = () => {
     reset();
-    dispatch(clearSelectedPaymentOption());
     onClose();
   };
 

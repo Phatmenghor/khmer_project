@@ -15,7 +15,7 @@ import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import PaymentOptionsModal from "@/redux/features/master-data/components/payment-options-modal";
 import { STATUS_FILTER } from "@/constants/status/filter-status";
 import { usePaymentOptionsState } from "@/redux/features/master-data/store/state/payment-options-state";
@@ -27,7 +27,8 @@ import {
 } from "@/redux/features/master-data/store/slice/payment-options-slice";
 import {
   deletePaymentOptionService,
-  fetchAllPaymentOptionsService,
+  fetchMyBusinessPaymentOptionsService,
+  updatePaymentOptionService,
 } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
 import { paymentOptionsTableColumns } from "@/redux/features/master-data/table/payment-options-table";
 import { PaymentOptionResponse } from "@/redux/features/master-data/store/models/response/payment-option-response";
@@ -52,7 +53,7 @@ export default function PaymentOptionsPage() {
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
-    paymentOptionId: "",
+    paymentOption: null as PaymentOptionResponse | null,
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -70,10 +71,10 @@ export default function PaymentOptionsPage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Fetch payment options when filters change
+  // Fetch payment options for current user's business when filters change
   useEffect(() => {
     dispatch(
-      fetchAllPaymentOptionsService({
+      fetchMyBusinessPaymentOptionsService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
@@ -93,7 +94,7 @@ export default function PaymentOptionsPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.CREATE_MODE,
-      paymentOptionId: "",
+      paymentOption: null,
     });
   };
 
@@ -103,7 +104,7 @@ export default function PaymentOptionsPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.UPDATE_MODE,
-      paymentOptionId: paymentOption?.id || "",
+      paymentOption: paymentOption,
     });
   };
 
@@ -116,10 +117,33 @@ export default function PaymentOptionsPage() {
     });
   };
 
+  const handleTogglePaymentOptionStatus = async (
+    paymentOption: PaymentOptionResponse,
+  ) => {
+    try {
+      const newStatus =
+        paymentOption.status === Status.ACTIVE ? Status.INACTIVE : Status.ACTIVE;
+      await dispatch(
+        updatePaymentOptionService({
+          id: paymentOption.id,
+          payload: {
+            name: paymentOption.name,
+            paymentOptionType: paymentOption.paymentOptionType,
+            status: newStatus,
+          },
+        }),
+      ).unwrap();
+      showToast.success("Payment option status updated");
+    } catch (error: any) {
+      showToast.error(error || "Failed to update payment option status");
+    }
+  };
+
   const tableHandlers = useMemo(
     () => ({
       handleEditPaymentOption,
       handleDeletePaymentOption,
+      handleTogglePaymentOptionStatus,
     }),
     [],
   );
@@ -182,7 +206,7 @@ export default function PaymentOptionsPage() {
     setModalState({
       isOpen: false,
       mode: ModalMode.CREATE_MODE,
-      paymentOptionId: "",
+      paymentOption: null,
     });
   };
 
@@ -240,7 +264,7 @@ export default function PaymentOptionsPage() {
       <PaymentOptionsModal
         isOpen={modalState.isOpen}
         mode={modalState.mode}
-        paymentOptionId={modalState.paymentOptionId}
+        paymentOption={modalState.paymentOption}
         onClose={closeModal}
       />
 

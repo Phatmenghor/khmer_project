@@ -10,6 +10,7 @@ import {
   createPaymentOptionService,
   deletePaymentOptionService,
   fetchAllPaymentOptionsService,
+  fetchMyBusinessPaymentOptionsService,
   fetchPaymentOptionByIdService,
   updatePaymentOptionService,
 } from "../thunks/payment-options-thunks";
@@ -89,6 +90,20 @@ const paymentOptionsSlice = createSlice({
       });
 
     builder
+      .addCase(fetchMyBusinessPaymentOptionsService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchMyBusinessPaymentOptionsService.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchMyBusinessPaymentOptionsService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.isLoading = false;
+      });
+
+    builder
       .addCase(fetchPaymentOptionByIdService.pending, (state) => {
         state.operations.isFetchingDetail = true;
         state.error = null;
@@ -161,8 +176,10 @@ const paymentOptionsSlice = createSlice({
       })
       .addCase(deletePaymentOptionService.fulfilled, (state, action) => {
         if (state.data) {
+          // Extract ID from payload (could be string or object)
+          const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
           state.data.content = state.data.content.filter(
-            (option) => option.id !== action.payload
+            (option) => option.id !== deletedId
           );
           state.data.totalElements -= 1;
           state.data.totalPages = Math.ceil(

@@ -18,7 +18,21 @@ export const fetchAllPaymentOptionsService = createApiThunk<any, AllPaymentOptio
   "paymentOptions/fetchAll",
   async (params) => {
     const response = await axiosClientWithAuth.post(
-      "/api/v1/admin/payment-options/all",
+      "/api/v1/payment-options/all",
+      params
+    );
+    return response.data.data;
+  }
+);
+
+/**
+ * Fetch my business payment options with filters and pagination
+ */
+export const fetchMyBusinessPaymentOptionsService = createApiThunk<any, AllPaymentOptionsRequest>(
+  "paymentOptions/fetchMyBusiness",
+  async (params) => {
+    const response = await axiosClientWithAuth.post(
+      "/api/v1/payment-options/my-business/all",
       params
     );
     return response.data.data;
@@ -32,7 +46,7 @@ export const fetchPaymentOptionByIdService = createApiThunk<any, string>(
   "paymentOptions/fetchById",
   async (id) => {
     const response = await axiosClientWithAuth.get(
-      `/api/v1/admin/payment-options/${id}`
+      `/api/v1/payment-options/${id}`
     );
     return response.data.data;
   }
@@ -46,7 +60,7 @@ export const createPaymentOptionService = createApiThunk<
   CreatePaymentOptionData
 >("paymentOptions/create", async (payload) => {
   const response = await axiosClientWithAuth.post(
-    "/api/v1/admin/payment-options",
+    "/api/v1/payment-options",
     payload
   );
   return response.data.data;
@@ -60,7 +74,7 @@ export const updatePaymentOptionService = createApiThunk<
   UpdatePaymentOptionParams
 >("paymentOptions/update", async ({ id, payload }) => {
   const response = await axiosClientWithAuth.put(
-    `/api/v1/admin/payment-options/${id}`,
+    `/api/v1/payment-options/${id}`,
     payload
   );
   return response.data.data;
@@ -72,9 +86,7 @@ export const updatePaymentOptionService = createApiThunk<
 export const deletePaymentOptionService = createApiThunk<any, string>(
   "paymentOptions/delete",
   async (id) => {
-    await axiosClientWithAuth.delete(`/api/v1/admin/payment-options/${id}`);
-    return id;
+    const response = await axiosClientWithAuth.delete(`/api/v1/payment-options/${id}`);
+    return response.data.data;
   }
 );
-
-

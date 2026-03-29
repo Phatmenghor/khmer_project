@@ -2,7 +2,9 @@ import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { ActionButton } from "@/components/shared/button/action-button";
+import { Switch } from "@/components/ui/switch";
 import {
   AllPaymentOptionResponseModel,
   PaymentOptionResponse,
@@ -11,6 +13,7 @@ import {
 interface PaymentOptionsTableHandlers {
   handleEditPaymentOption: (option: PaymentOptionResponse) => void;
   handleDeletePaymentOption: (option: PaymentOptionResponse) => void;
+  handleTogglePaymentOptionStatus: (option: PaymentOptionResponse) => void;
 }
 
 interface PaymentOptionsTableOptions {
@@ -22,7 +25,7 @@ export const paymentOptionsTableColumns = ({
   data,
   handlers,
 }: PaymentOptionsTableOptions): TableColumn<PaymentOptionResponse>[] => {
-  const { handleEditPaymentOption, handleDeletePaymentOption } = handlers;
+  const { handleEditPaymentOption, handleDeletePaymentOption, handleTogglePaymentOptionStatus } = handlers;
 
   return [
     {
@@ -72,9 +75,15 @@ export const paymentOptionsTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (option) => (
-        <span className="text-xs text-muted-foreground">
-          {option?.status || "---"}
-        </span>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={option?.status === "ACTIVE"}
+            onCheckedChange={() => handleTogglePaymentOptionStatus(option)}
+          />
+          <span className="text-xs text-muted-foreground">
+            {option?.status ? formatEnumValue(option.status) : "---"}
+          </span>
+        </div>
       ),
     },
     {
