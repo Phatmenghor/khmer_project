@@ -37,6 +37,8 @@ export interface ProductDetailResponseModel {
   categoryName: string;
   brandId: string;
   brandName: string;
+  barcode: string;
+  sku: string;
   images: ProductImage[];
   sizes: ProductSize[];
 }
