@@ -728,25 +728,56 @@ export default function ProductModal({
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Product Sizes</CardTitle>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          appendSize({
-                            name: "",
-                            price: 0,
-                            promotionType: "NONE",
-                            promotionValue: undefined,
-                            promotionFromDate: "",
-                            promotionToDate: "",
-                          })
-                        }
-                        disabled={isProcessing}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Size
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        {hasSizes && sizeFields.some((_, idx) => {
+                          const sizePromotionType = watch(`sizes.${idx}.promotionType`);
+                          return sizePromotionType && sizePromotionType !== "NONE";
+                        }) && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              sizeFields.forEach((_, idx) => {
+                                setValue(`sizes.${idx}.promotionType`, "NONE", {
+                                  shouldDirty: true,
+                                });
+                                setValue(`sizes.${idx}.promotionValue`, undefined, {
+                                  shouldDirty: true,
+                                });
+                                setValue(`sizes.${idx}.promotionFromDate`, "", {
+                                  shouldDirty: true,
+                                });
+                                setValue(`sizes.${idx}.promotionToDate`, "", {
+                                  shouldDirty: true,
+                                });
+                              });
+                            }}
+                            disabled={isProcessing}
+                          >
+                            Reset All Promotions
+                          </Button>
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            appendSize({
+                              name: "",
+                              price: 0,
+                              promotionType: "NONE",
+                              promotionValue: undefined,
+                              promotionFromDate: "",
+                              promotionToDate: "",
+                            })
+                          }
+                          disabled={isProcessing}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Size
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
