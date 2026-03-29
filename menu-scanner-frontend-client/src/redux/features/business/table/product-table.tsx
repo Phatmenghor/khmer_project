@@ -286,9 +286,13 @@ export const productTableColumns = ({
       maxWidth: "100px",
       truncate: true,
       render: (product) => (
-        <Badge variant={"outline"} className="text-xs">
-          {product?.hasPromotion ? "Yes" : "No"}
-        </Badge>
+        <span
+          className={`text-xs font-medium ${
+            product?.hasPromotion ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {product?.hasPromotion ? "Promotion" : "Regular"}
+        </span>
       ),
     },
 
