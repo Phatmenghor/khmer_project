@@ -509,76 +509,88 @@ export default function ProductModal({
                     <CardTitle>Basic Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <TextField
-                        control={control}
-                        name="name"
-                        label="Product Name"
-                        placeholder="Enter product name"
-                        required
-                        disabled={isProcessing}
-                        error={errors.name}
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                      <div>
+                        <TextField
+                          control={control}
+                          name="name"
+                          label="Product Name"
+                          placeholder="Enter product name"
+                          required
+                          disabled={isProcessing}
+                          error={errors.name}
+                        />
+                      </div>
 
-                      <ComboboxSelectCategories
-                        dataSelect={selectedCategory}
-                        onChangeSelected={(category) => {
-                          setSelectedCategory(category);
-                          setValue("categoryId", category?.id || "", {
-                            shouldDirty: true,
-                          });
-                        }}
-                        label="Category"
-                        placeholder="Select category"
-                        required
-                        disabled={isProcessing}
-                        error={errors.categoryId?.message}
-                        showAllOption={false}
-                      />
+                      <div>
+                        <ComboboxSelectCategories
+                          dataSelect={selectedCategory}
+                          onChangeSelected={(category) => {
+                            setSelectedCategory(category);
+                            setValue("categoryId", category?.id || "", {
+                              shouldDirty: true,
+                            });
+                          }}
+                          label="Category"
+                          placeholder="Select category"
+                          required
+                          disabled={isProcessing}
+                          error={errors.categoryId?.message}
+                          showAllOption={false}
+                        />
+                      </div>
 
-                      <ComboboxSelectBrand
-                        dataSelect={selectedBrand}
-                        onChangeSelected={(brand) => {
-                          setSelectedBrand(brand);
-                          setValue("brandId", brand?.id || "", {
-                            shouldDirty: true,
-                          });
-                        }}
-                        label="Brand (Optional)"
-                        placeholder="Select brand"
-                        disabled={isProcessing}
-                        error={errors.brandId?.message}
-                        showAllOption={false}
-                      />
+                      <div>
+                        <ComboboxSelectBrand
+                          dataSelect={selectedBrand}
+                          onChangeSelected={(brand) => {
+                            setSelectedBrand(brand);
+                            setValue("brandId", brand?.id || "", {
+                              shouldDirty: true,
+                            });
+                          }}
+                          label="Brand (Optional)"
+                          placeholder="Select brand"
+                          disabled={isProcessing}
+                          error={errors.brandId?.message}
+                          showAllOption={false}
+                        />
+                      </div>
 
-                      <TextField
-                        control={control}
-                        name="sku"
-                        label="SKU"
-                        placeholder="Enter SKU"
-                        disabled={isProcessing}
-                        error={errors.sku}
-                      />
+                      <div>
+                        <TextField
+                          control={control}
+                          name="sku"
+                          label="SKU"
+                          placeholder="Enter SKU"
+                          disabled={isProcessing}
+                          error={errors.sku}
+                        />
+                      </div>
 
-                      <TextField
-                        control={control}
-                        name="barcode"
-                        label="Barcode"
-                        placeholder="Enter barcode"
-                        disabled={isProcessing}
-                        error={errors.barcode}
-                      />
+                      <div>
+                        <TextField
+                          control={control}
+                          name="barcode"
+                          label="Barcode"
+                          placeholder="Enter barcode"
+                          disabled={isProcessing}
+                          error={errors.barcode}
+                        />
+                      </div>
 
-                      <SelectField
-                        control={control}
-                        name="status"
-                        label="Status"
-                        placeholder="Select status"
-                        options={PRODUCT_STATUS_CREATE_UPDATE}
-                        required
-                        disabled={isProcessing}
-                        error={errors.status}
-                      />
+                      <div>
+                        <SelectField
+                          control={control}
+                          name="status"
+                          label="Status"
+                          placeholder="Select status"
+                          options={PRODUCT_STATUS_CREATE_UPDATE}
+                          required
+                          disabled={isProcessing}
+                          error={errors.status}
+                        />
+                      </div>
 
                       <div className="col-span-1 md:col-span-2">
                         <TextareaField
@@ -586,7 +598,7 @@ export default function ProductModal({
                           name="description"
                           label="Description"
                           placeholder="Enter product description"
-                          rows={3}
+                          rows={1}
                           required
                           disabled={isProcessing}
                           error={errors.description}
@@ -652,69 +664,79 @@ export default function ProductModal({
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <TextField
-                          control={control}
-                          name="price"
-                          label="Base Price"
-                          type="number"
-                          placeholder="Enter price"
-                          required
-                          disabled={isProcessing}
-                          error={errors.price}
-                          valueAsNumber={true}
-                          min={0}
-                          step="0.01"
-                          allowZero={true}
-                        />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                        <div>
+                          <TextField
+                            control={control}
+                            name="price"
+                            label="Base Price"
+                            type="number"
+                            placeholder="Enter price"
+                            required
+                            disabled={isProcessing}
+                            error={errors.price}
+                            valueAsNumber={true}
+                            min={0}
+                            step="0.01"
+                            allowZero={true}
+                          />
+                        </div>
 
-                        <SelectField
-                          control={control}
-                          name="promotionType"
-                          label="Promotion Type"
-                          placeholder="Select promotion type"
-                          options={PROMOTION_TYPE_CREATE_UPDATE}
-                          disabled={isProcessing}
-                          error={errors.promotionType}
-                        />
+                        <div>
+                          <SelectField
+                            control={control}
+                            name="promotionType"
+                            label="Promotion Type"
+                            placeholder="Select promotion type"
+                            options={PROMOTION_TYPE_CREATE_UPDATE}
+                            disabled={isProcessing}
+                            error={errors.promotionType}
+                          />
+                        </div>
 
                         {/* Only show promotion fields when type is not NONE */}
                         {showPromotionFields && (
                           <>
-                            <TextField
-                              control={control}
-                              name="promotionValue"
-                              label="Promotion Value"
-                              type="number"
-                              placeholder="Enter promotion value"
-                              disabled={isProcessing}
-                              error={errors.promotionValue as any}
-                              valueAsNumber={true}
-                              min={0}
-                              step="0.01"
-                              allowZero={false}
-                            />
-
-                            <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <DateTimePickerField
+                            <div>
+                              <TextField
                                 control={control}
-                                name="promotionFromDate"
-                                label="Promotion From"
-                                mode="datetime"
-                                placeholder="Select start date & time"
+                                name="promotionValue"
+                                label="Promotion Value"
+                                type="number"
+                                placeholder="Enter promotion value"
                                 disabled={isProcessing}
-                                error={errors.promotionFromDate}
+                                error={errors.promotionValue as any}
+                                valueAsNumber={true}
+                                min={0}
+                                step="0.01"
+                                allowZero={false}
                               />
+                            </div>
 
-                              <DateTimePickerField
-                                control={control}
-                                name="promotionToDate"
-                                label="Promotion To"
-                                mode="datetime"
-                                placeholder="Select end date & time"
-                                disabled={isProcessing}
-                                error={errors.promotionToDate}
-                              />
+                            <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                              <div>
+                                <DateTimePickerField
+                                  control={control}
+                                  name="promotionFromDate"
+                                  label="Promotion From"
+                                  mode="datetime"
+                                  placeholder="Select start date & time"
+                                  disabled={isProcessing}
+                                  error={errors.promotionFromDate}
+                                />
+                              </div>
+
+                              <div>
+                                <DateTimePickerField
+                                  control={control}
+                                  name="promotionToDate"
+                                  label="Promotion To"
+                                  mode="datetime"
+                                  placeholder="Select end date & time"
+                                  disabled={isProcessing}
+                                  error={errors.promotionToDate}
+                                />
+                              </div>
                             </div>
                           </>
                         )}
@@ -854,86 +876,100 @@ export default function ProductModal({
                                 </div>
                               </div>
 
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <TextField
-                                  control={control}
-                                  name={`sizes.${index}.name`}
-                                  label="Size Name"
-                                  placeholder="e.g., Small, Medium, Large"
-                                  disabled={isProcessing}
-                                  error={errors.sizes?.[index]?.name as any}
-                                />
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                                <div>
+                                  <TextField
+                                    control={control}
+                                    name={`sizes.${index}.name`}
+                                    label="Size Name"
+                                    placeholder="e.g., Small, Medium, Large"
+                                    disabled={isProcessing}
+                                    error={errors.sizes?.[index]?.name as any}
+                                  />
+                                </div>
 
-                                <TextField
-                                  control={control}
-                                  name={`sizes.${index}.price`}
-                                  label="Price"
-                                  type="number"
-                                  placeholder="Enter price"
-                                  disabled={isProcessing}
-                                  error={errors.sizes?.[index]?.price as any}
-                                  valueAsNumber={true}
-                                  min={0}
-                                  step="0.01"
-                                  allowZero={true}
-                                />
+                                <div>
+                                  <TextField
+                                    control={control}
+                                    name={`sizes.${index}.price`}
+                                    label="Price"
+                                    type="number"
+                                    placeholder="Enter price"
+                                    disabled={isProcessing}
+                                    error={errors.sizes?.[index]?.price as any}
+                                    valueAsNumber={true}
+                                    min={0}
+                                    step="0.01"
+                                    allowZero={true}
+                                  />
+                                </div>
 
-                                <SelectField
-                                  control={control}
-                                  name={`sizes.${index}.promotionType`}
-                                  label="Promotion Type"
-                                  placeholder="Select promotion type"
-                                  options={PROMOTION_TYPE_CREATE_UPDATE}
-                                  disabled={isProcessing}
-                                  error={
-                                    errors.sizes?.[index]?.promotionType as any
-                                  }
-                                />
+                                <div>
+                                  <SelectField
+                                    control={control}
+                                    name={`sizes.${index}.promotionType`}
+                                    label="Promotion Type"
+                                    placeholder="Select promotion type"
+                                    options={PROMOTION_TYPE_CREATE_UPDATE}
+                                    disabled={isProcessing}
+                                    error={
+                                      errors.sizes?.[index]?.promotionType as any
+                                    }
+                                  />
+                                </div>
 
                                 {showSizePromotionFields && (
                                   <>
-                                    <TextField
-                                      control={control}
-                                      name={`sizes.${index}.promotionValue`}
-                                      label="Promotion Value"
-                                      type="number"
-                                      placeholder="Enter promotion value"
-                                      disabled={isProcessing}
-                                      error={
-                                        errors.sizes?.[index]
-                                          ?.promotionValue as any
-                                      }
-                                      valueAsNumber={true}
-                                      min={0}
-                                      step="0.01"
-                                      allowZero={false}
-                                    />
+                                    <div>
+                                      <TextField
+                                        control={control}
+                                        name={`sizes.${index}.promotionValue`}
+                                        label="Promotion Value"
+                                        type="number"
+                                        placeholder="Enter promotion value"
+                                        disabled={isProcessing}
+                                        error={
+                                          errors.sizes?.[index]
+                                            ?.promotionValue as any
+                                        }
+                                        valueAsNumber={true}
+                                        min={0}
+                                        step="0.01"
+                                        allowZero={false}
+                                      />
+                                    </div>
 
-                                    <DateTimePickerField
-                                      control={control}
-                                      name={`sizes.${index}.promotionFromDate`}
-                                      label="Promotion From"
-                                      mode="datetime"
-                                      placeholder="Select start date & time"
-                                      disabled={isProcessing}
-                                      error={
-                                        errors.sizes?.[index]
-                                          ?.promotionFromDate as any
-                                      }
-                                    />
+                                    <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                                      <div>
+                                        <DateTimePickerField
+                                          control={control}
+                                          name={`sizes.${index}.promotionFromDate`}
+                                          label="Promotion From"
+                                          mode="datetime"
+                                          placeholder="Select start date & time"
+                                          disabled={isProcessing}
+                                          error={
+                                            errors.sizes?.[index]
+                                              ?.promotionFromDate as any
+                                          }
+                                        />
+                                      </div>
 
-                                    <DateTimePickerField
-                                      control={control}
-                                      name={`sizes.${index}.promotionToDate`}
-                                      label="Promotion To"
-                                      mode="datetime"
-                                      placeholder="Select end date & time"
-                                      disabled={isProcessing}
-                                      error={
-                                        errors.sizes?.[index]
-                                          ?.promotionToDate as any
-                                      }
-                                    />
+                                      <div>
+                                        <DateTimePickerField
+                                          control={control}
+                                          name={`sizes.${index}.promotionToDate`}
+                                          label="Promotion To"
+                                          mode="datetime"
+                                          placeholder="Select end date & time"
+                                          disabled={isProcessing}
+                                          error={
+                                            errors.sizes?.[index]
+                                              ?.promotionToDate as any
+                                          }
+                                        />
+                                      </div>
+                                    </div>
                                   </>
                                 )}
                               </div>
