@@ -85,7 +85,10 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
       {sizes.map((size) => (
         <div
           key={size.id}
-          className="px-2 py-1 border border-gray-300 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
+          className="px-2 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
+          style={{
+            border: "0.5px solid #FCD34D",
+          }}
         >
           {size.name} ${size.finalPrice}
           {size.hasPromotion && (
