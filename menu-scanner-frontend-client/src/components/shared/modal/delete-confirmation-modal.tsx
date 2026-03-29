@@ -23,6 +23,7 @@ interface DeleteConfirmationDialogProps {
   requireConfirmation?: boolean;
   confirmationText?: string;
   errorMessage?: string;
+  maxWidth?: "sm" | "md" | "lg" | "xl";
 }
 
 export function DeleteConfirmationModal({
@@ -37,6 +38,7 @@ export function DeleteConfirmationModal({
   requireConfirmation = false,
   confirmationText = "DELETE",
   errorMessage,
+  maxWidth = "sm",
 }: DeleteConfirmationDialogProps) {
   const [confirmationValue, setConfirmationValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -69,9 +71,16 @@ export function DeleteConfirmationModal({
 
   const isCritical = variant === "critical";
 
+  const maxWidthClass = {
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-xl",
+  }[maxWidth];
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-sm p-0 flex flex-col">
+      <DialogContent className={`w-full ${maxWidthClass} p-0 flex flex-col`}>
         <FormHeader
           title={title}
           description={description}

@@ -279,20 +279,26 @@ export default function ExchangeRatePage() {
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete name platform */}
+      {/* Modals Delete exchange rate */}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}
         onDelete={handleDelete}
-        title="Delete Exchage Rate"
-        description={`Are you sure you want to delete this Exchage Rate ${
-          deleteState.exchage?.usdToKhrRate || deleteState.exchage?.notes
-        }?`}
+        title="Delete Exchange Rate"
+        description={
+          deleteState.exchage?.status === "ACTIVE" && exchangeRateContent.filter(r => r.status === "ACTIVE").length === 1
+            ? `This is the only ACTIVE exchange rate. When deleted, the next most recent exchange rate will be automatically activated to maintain business operations.`
+            : `Are you sure you want to delete this exchange rate?`
+        }
         itemName={
-          deleteState.exchage?.usdToKhrRate.toString() ||
-          deleteState.exchage?.notes
+          deleteState.exchage
+            ? `USD to KHR: ${deleteState.exchage.usdToKhrRate}${
+                deleteState.exchage.notes ? ` (${deleteState.exchage.notes})` : ""
+              }`
+            : ""
         }
         isSubmitting={operations.isDeleting}
+        maxWidth="lg"
       />
     </div>
   );
