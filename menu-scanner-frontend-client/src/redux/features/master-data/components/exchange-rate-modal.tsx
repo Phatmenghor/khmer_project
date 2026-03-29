@@ -223,7 +223,7 @@ export default function ExchangeRateModal({
             {/* Exchange Rate Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <TextField
-                control={control}
+                control={control as any}
                 name="usdToKhrRate"
                 label="USD To KHR Rate"
                 placeholder="Enter USD to KHR rate"
@@ -235,7 +235,7 @@ export default function ExchangeRateModal({
               />
 
               <TextField
-                control={control}
+                control={control as any}
                 name="usdToCnyRate"
                 label="USD To CNY Rate"
                 placeholder="Enter USD to CNY rate (optional)"
@@ -246,7 +246,7 @@ export default function ExchangeRateModal({
               />
 
               <TextField
-                control={control}
+                control={control as any}
                 name="usdToVndRate"
                 label="USD To VND Rate"
                 placeholder="Enter USD to VND rate (optional)"
@@ -258,7 +258,7 @@ export default function ExchangeRateModal({
 
               {!isCreate && (
                 <SelectField
-                  control={control}
+                  control={control as any}
                   name="status"
                   label="Status"
                   disabled={isSubmitting}
@@ -273,7 +273,7 @@ export default function ExchangeRateModal({
 
             {/* Notes - Separate Row */}
             <TextareaField
-              control={control}
+              control={control as any}
               name="notes"
               label="Remark"
               placeholder="Enter any additional notes (optional)"
