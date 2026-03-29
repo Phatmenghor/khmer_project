@@ -2,11 +2,6 @@
 
 import { useEffect } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { DetailModal } from "@/components/shared/modal/detail-modal";
-import {
-  DetailRow,
-  DetailSection,
-} from "@/components/shared/modal/detail-section";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import {
@@ -17,6 +12,10 @@ import { fetchProductByIdService } from "../store/thunks/product-thunks";
 import { clearSelectedProduct } from "../store/slice/product-slice";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/utils/common/currency-format";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { DisplayField } from "@/components/shared/form-field/display-field";
+import { Loading } from "@/components/shared/common/loading";
 
 interface ProductDetailModalProps {
   productId?: string;
@@ -51,289 +50,311 @@ export function ProductDetailModal({
     onClose();
   };
 
+  if (isFetchingDetail) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogTitle className="sr-only">Product Details Loading</DialogTitle>
+        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-full">
+            <Loading />
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!productData) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogTitle className="sr-only">Product Details</DialogTitle>
+        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-full">
+            <p className="text-muted-foreground">No product data available</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
-    <DetailModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isLoading={isFetchingDetail}
-      title="Product Details"
-      description={productData?.name || "Loading product information..."}
-    >
-      {productData ? (
-        <div className="space-y-6">
-          {/* Product Basic Information */}
-          <DetailSection title="Product Information">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogTitle className="sr-only">Product Details - {productData.name}</DialogTitle>
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-start gap-4">
             <CustomAvatar
               imageUrl={productData.mainImageUrl}
               name={productData.name}
-              size="xl"
+              size="lg"
             />
-
-            <DetailRow label="Product Name" value={productData.name} />
-
-            <DetailRow
-              label="Description"
-              value={productData.description || "---"}
-            />
-
-            <DetailRow
-              label="Status"
-              value={
-                <Badge
-                  variant={
-                    productData.status === "ACTIVE" ? "default" : "secondary"
-                  }
-                >
-                  {productData.status}
-                </Badge>
-              }
-            />
-
-            <DetailRow
-              label="Category"
-              value={productData.categoryName || "---"}
-            />
-
-            <DetailRow label="Brand" value={productData.brandName || "---"} />
-
-            <DetailRow label="SKU" value={productData.sku || "---"} />
-
-            <DetailRow label="Barcode" value={productData.barcode || "---"} />
-
-            <DetailRow
-              label="Has Sizes"
-              value={
-                <Badge variant={productData.hasSizes ? "default" : "outline"}>
-                  {productData.hasSizes ? "Yes" : "No"}
-                </Badge>
-              }
-            />
-          </DetailSection>
-
-          {/* Stock Information */}
-          <DetailSection title="Stock Information">
-            <DetailRow
-              label="Total Stock"
-              value={productData.totalStock?.toLocaleString() || "0"}
-              isLast
-            />
-          </DetailSection>
-
-          {/* Pricing Information */}
-          <DetailSection title="Pricing Information">
-            <DetailRow
-              label="Base Price"
-              value={formatCurrency(productData.price)}
-            />
-
-            {productData.hasPromotion && (
-              <>
-                <DetailRow
-                  label="Promotion Type"
-                  value={productData.displayPromotionType || "---"}
-                />
-
-                <DetailRow
-                  label="Promotion Value"
-                  value={
-                    productData.displayPromotionType === "PERCENTAGE"
-                      ? `${productData.displayPromotionValue}%`
-                      : formatCurrency(productData.displayPromotionValue || 0)
-                  }
-                />
-
-                <DetailRow
-                  label="Promotion Period"
-                  value={
-                    productData.displayPromotionFromDate &&
-                    productData.displayPromotionToDate
-                      ? `${dateTimeFormat(
-                          productData.displayPromotionFromDate
-                        )} - ${dateTimeFormat(
-                          productData.displayPromotionToDate
-                        )}`
-                      : "---"
-                  }
-                />
-
-                <DetailRow
-                  label="Display Price"
-                  value={
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold text-green-600">
-                        {formatCurrency(productData.displayPrice)}
-                      </span>
-                      <span className="text-sm line-through text-muted-foreground">
-                        {formatCurrency(productData.displayOriginPrice)}
-                      </span>
-                    </div>
-                  }
-                />
-              </>
-            )}
-
-            {!productData.hasPromotion && (
-              <DetailRow
-                label="Display Price"
-                value={formatCurrency(productData.displayPrice)}
-              />
-            )}
-          </DetailSection>
-
-          {/* Product Images */}
-          {productData.images && productData.images.length > 0 && (
-            <DetailSection title="Product Images">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {productData.images.map((image, index) => (
-                  <div
-                    key={image.id}
-                    className="relative aspect-square rounded-lg overflow-hidden border"
-                  >
-                    <img
-                      src={image.imageUrl}
-                      alt={`Product image ${index + 1}`}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                ))}
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-foreground">
+                Product Details
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                View detailed information about the product
+              </p>
+              <div className="mt-3 space-y-1">
+                <p className="text-sm font-medium text-foreground">
+                  {productData.name}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {productData.categoryName} • {productData.brandName}
+                </p>
               </div>
-            </DetailSection>
-          )}
+            </div>
+          </div>
+        </div>
 
-          {/* Product Sizes */}
-          {productData.hasSizes &&
-            productData.sizes &&
-            productData.sizes.length > 0 && (
-              <DetailSection title="Available Sizes">
-                <div className="space-y-3">
-                  {productData.sizes.map((size) => (
-                    <div
-                      key={size.id}
-                      className="p-4 border rounded-lg bg-muted/50"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold">{size.name}</h4>
-                        <Badge
-                          variant={size.hasPromotion ? "default" : "secondary"}
-                        >
-                          {size.hasPromotion ? "On Sale" : "Regular"}
-                        </Badge>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Price:</span>
-                          <span className="ml-2 font-medium">
-                            {formatCurrency(size.price)}
-                          </span>
-                        </div>
-
-                        <div>
-                          <span className="text-muted-foreground">
-                            Final Price:
-                          </span>
-                          <span className="ml-2 font-medium text-green-600">
-                            {formatCurrency(size.finalPrice)}
-                          </span>
-                        </div>
-
-                        {size.hasPromotion && (
-                          <>
-                            <div>
-                              <span className="text-muted-foreground">
-                                Promotion:
-                              </span>
-                              <span className="ml-2">
-                                {size.promotionType === "PERCENTAGE"
-                                  ? `${size.promotionValue}%`
-                                  : formatCurrency(size.promotionValue || 0)}
-                              </span>
-                            </div>
-
-                            <div>
-                              <span className="text-muted-foreground">
-                                Valid Until:
-                              </span>
-                              <span className="ml-2 text-xs">
-                                {dateTimeFormat(size.promotionToDate ?? "")}
-                              </span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* Product Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Product Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField label="Product Name" value={productData.name} />
+                  <DisplayField
+                    label="Description"
+                    value={productData.description || "---"}
+                  />
+                  <DisplayField label="Category" value={productData.categoryName || "---"} />
+                  <DisplayField label="Brand" value={productData.brandName || "---"} />
+                  <DisplayField label="Status" value={productData.status || "---"} />
+                  <DisplayField label="SKU" value={productData.sku || "---"} />
+                  <DisplayField label="Barcode" value={productData.barcode || "---"} />
+                  <DisplayField
+                    label="Has Sizes"
+                    value={
+                      <Badge variant={productData.hasSizes ? "default" : "outline"}>
+                        {productData.hasSizes ? "Yes" : "No"}
+                      </Badge>
+                    }
+                  />
+                  <DisplayField label="Business" value={productData.businessName || "---"} />
                 </div>
-              </DetailSection>
+              </CardContent>
+            </Card>
+
+            {/* Pricing Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Pricing Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField
+                    label="Base Price"
+                    value={formatCurrency(productData.price)}
+                  />
+                  <DisplayField
+                    label="Display Price"
+                    value={formatCurrency(productData.displayPrice)}
+                  />
+                  <DisplayField
+                    label="Display Origin Price"
+                    value={formatCurrency(productData.displayOriginPrice)}
+                  />
+                  {productData.hasPromotion && (
+                    <>
+                      <DisplayField
+                        label="Promotion Type"
+                        value={productData.displayPromotionType || "---"}
+                      />
+                      <DisplayField
+                        label="Promotion Value"
+                        value={
+                          productData.displayPromotionType === "PERCENTAGE"
+                            ? `${productData.displayPromotionValue}%`
+                            : formatCurrency(productData.displayPromotionValue || 0)
+                        }
+                      />
+                      <DisplayField
+                        label="Promotion Valid From"
+                        value={dateTimeFormat(productData.displayPromotionFromDate ?? "")}
+                      />
+                      <DisplayField
+                        label="Promotion Valid Until"
+                        value={dateTimeFormat(productData.displayPromotionToDate ?? "")}
+                      />
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Stock Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Stock Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField
+                    label="Total Stock"
+                    value={productData.totalStock?.toLocaleString() || "0"}
+                  />
+                  <DisplayField label="Quantity" value={productData.quantity?.toString() || "0"} />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Product Images */}
+            {productData.images && productData.images.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Product Images</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {productData.images.map((image, index) => (
+                      <div
+                        key={image.id}
+                        className="relative aspect-square rounded-lg overflow-hidden border hover:shadow-md transition-shadow"
+                      >
+                        <img
+                          src={image.imageUrl}
+                          alt={`Product image ${index + 1}`}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
-          {/* Statistics */}
-          <DetailSection title="Statistics">
-            <DetailRow
-              label="View Count"
-              value={productData.viewCount?.toLocaleString() || "0"}
-            />
+            {/* Product Sizes */}
+            {productData.hasSizes &&
+              productData.sizes &&
+              productData.sizes.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Available Sizes</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {productData.sizes.map((size) => (
+                        <div
+                          key={size.id}
+                          className="border rounded-lg p-4 space-y-4"
+                        >
+                          <div className="flex justify-between items-center">
+                            <h4 className="font-semibold text-foreground">
+                              {size.name}
+                            </h4>
+                            <Badge
+                              variant={size.hasPromotion ? "default" : "outline"}
+                            >
+                              {size.hasPromotion ? "On Sale" : "Regular"}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                            <DisplayField
+                              label="Price"
+                              value={formatCurrency(size.price)}
+                            />
+                            <DisplayField
+                              label="Final Price"
+                              value={
+                                <span className="text-green-600 font-semibold">
+                                  {formatCurrency(size.finalPrice)}
+                                </span>
+                              }
+                            />
+                            {size.hasPromotion && (
+                              <>
+                                <DisplayField
+                                  label="Promotion Type"
+                                  value={size.promotionType || "---"}
+                                />
+                                <DisplayField
+                                  label="Promotion Value"
+                                  value={
+                                    size.promotionType === "PERCENTAGE"
+                                      ? `${size.promotionValue}%`
+                                      : formatCurrency(size.promotionValue || 0)
+                                  }
+                                />
+                                <DisplayField
+                                  label="Valid Until"
+                                  value={dateTimeFormat(size.promotionToDate ?? "")}
+                                />
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-            <DetailRow
-              label="Favorite Count"
-              value={productData.favoriteCount?.toLocaleString() || "0"}
-            />
+            {/* Engagement Statistics */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Engagement Statistics</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField
+                    label="View Count"
+                    value={productData.viewCount?.toLocaleString() || "0"}
+                  />
+                  <DisplayField
+                    label="Favorite Count"
+                    value={productData.favoriteCount?.toLocaleString() || "0"}
+                  />
+                  <DisplayField
+                    label="Is Favorited"
+                    value={
+                      <Badge
+                        variant={
+                          productData.isFavorited ? "default" : "outline"
+                        }
+                      >
+                        {productData.isFavorited ? "Yes" : "No"}
+                      </Badge>
+                    }
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-            <DetailRow
-              label="Is Favorited"
-              value={
-                <Badge
-                  variant={productData.isFavorited ? "default" : "outline"}
-                >
-                  {productData.isFavorited ? "Yes" : "No"}
-                </Badge>
-              }
-            />
-          </DetailSection>
-
-          {/* System Information */}
-          <DetailSection title="System Information">
-            <DetailRow
-              label="Product ID"
-              value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
-                  {productData.id}
-                </span>
-              }
-            />
-
-            <DetailRow
-              label="Business Name"
-              value={productData.businessName || "---"}
-            />
-
-            <DetailRow
-              label="Created At"
-              value={dateTimeFormat(productData.createdAt ?? "")}
-            />
-
-            <DetailRow
-              label="Created By"
-              value={productData.createdBy || "---"}
-            />
-
-            <DetailRow
-              label="Last Updated"
-              value={dateTimeFormat(productData.updatedAt ?? "")}
-            />
-
-            <DetailRow
-              label="Updated By"
-              value={productData.updatedBy || "---"}
-              isLast
-            />
-          </DetailSection>
+            {/* System Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>System Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField label="Product ID" value={productData.id} />
+                  <DisplayField
+                    label="Created At"
+                    value={dateTimeFormat(productData.createdAt ?? "")}
+                  />
+                  <DisplayField
+                    label="Created By"
+                    value={productData.createdBy || "---"}
+                  />
+                  <DisplayField
+                    label="Last Updated"
+                    value={dateTimeFormat(productData.updatedAt ?? "")}
+                  />
+                  <DisplayField
+                    label="Updated By"
+                    value={productData.updatedBy || "---"}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">No product data available</p>
-        </div>
-      )}
-    </DetailModal>
+      </DialogContent>
+    </Dialog>
   );
 }
