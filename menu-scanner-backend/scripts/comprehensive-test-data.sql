@@ -597,8 +597,8 @@ SELECT
     (i % 3) = 0, (i % 500)::bigint, (i % 200)::bigint, 5, 'SKU-' || i::text, 'BARCODE-' || i::text,
     c.name, b.name, 'Phatmenghor Business'
 FROM generate_series(1, 20000) AS t(i)
-CROSS JOIN (SELECT * FROM category_list WHERE cat_num = ((t.i-1) % 20 + 1)) c
-CROSS JOIN (SELECT * FROM brand_list WHERE brand_num = ((t.i-1) % 20 + 1)) b;
+CROSS JOIN LATERAL (SELECT * FROM category_list WHERE cat_num = ((t.i-1) % 20 + 1)) c
+CROSS JOIN LATERAL (SELECT * FROM brand_list WHERE brand_num = ((t.i-1) % 20 + 1)) b;
 
 -- ============================================================================
 -- 14. PRODUCT SIZES
