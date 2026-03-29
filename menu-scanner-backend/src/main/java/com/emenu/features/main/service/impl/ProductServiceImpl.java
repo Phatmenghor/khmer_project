@@ -95,6 +95,9 @@ public class ProductServiceImpl implements ProductService {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
+        // Batch initialize sizes to avoid lazy-loading (prevents Hibernate pagination warning)
+        productPage.getContent().forEach(p -> Hibernate.initialize(p.getSizes()));
+
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
@@ -236,6 +239,9 @@ public class ProductServiceImpl implements ProductService {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
+        // Batch initialize sizes to avoid lazy-loading (prevents Hibernate pagination warning)
+        productPage.getContent().forEach(p -> Hibernate.initialize(p.getSizes()));
+
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
@@ -281,6 +287,9 @@ public class ProductServiceImpl implements ProductService {
         if (productPage.getContent().isEmpty()) {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
+
+        // Batch initialize sizes to avoid lazy-loading (prevents Hibernate pagination warning)
+        productPage.getContent().forEach(p -> Hibernate.initialize(p.getSizes()));
 
         // Clear images to avoid lazy-loading overhead (images not needed in listing)
         productPage.getContent().forEach(p -> p.setImages(new ArrayList<>()));

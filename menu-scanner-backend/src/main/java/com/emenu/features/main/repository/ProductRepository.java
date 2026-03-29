@@ -92,11 +92,11 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     /**
      * Find all products with dynamic filtering - OPTIMIZED FOR LIST VIEW
-     * Uses denormalized categoryName/brandName fields - NO JOINs needed
+     * Uses denormalized categoryName/brandName fields - NO JOINs/FETCH needed
+     * Sizes are loaded separately to avoid Hibernate pagination warning
      * ~20-30x faster than full detail query
      */
     @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN FETCH p.sizes sz " +
            "WHERE p.isDeleted = false " +
            "AND (:businessId IS NULL OR p.businessId = :businessId) " +
            "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
@@ -127,13 +127,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     /**
      * Find all products with dynamic filtering - paginated - LEGACY (for detail views)
      * OPTIMIZED: Uses has_active_promotion field instead of expensive EXISTS subqueries
-     * Includes category/brand/business/images for full detail responses
+     * Uses denormalized categoryName/brandName fields - no FETCH joins (prevents Hibernate pagination warning)
+     * Collections are batch-loaded separately in service layer after pagination
      */
     @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN FETCH p.category c " +
-           "LEFT JOIN FETCH p.brand b " +
-           "LEFT JOIN FETCH p.business bus " +
-           "LEFT JOIN FETCH p.images img " +
            "WHERE p.isDeleted = false " +
            "AND (:businessId IS NULL OR p.businessId = :businessId) " +
            "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
@@ -146,8 +143,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "     LOWER(p.categoryName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "     LOWER(p.brandName) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Product> findAllWithFilters(
         @Param("businessId") UUID businessId,
         @Param("categoryId") UUID categoryId,
