@@ -238,8 +238,8 @@ public class ProductServiceImpl implements ProductService {
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
-        // Images not fetched in optimized query (LAZY by default) - won't be queried
-        List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
+        // Use lightweight admin list DTO - no images, no quantity field
+        List<ProductDetailDto> dtoList = (List<ProductDetailDto>)(List<?>) productMapper.toAdminListDtos(productPage.getContent());
 
         enrichTotalStockForDetails(dtoList, productPage.getContent());
 

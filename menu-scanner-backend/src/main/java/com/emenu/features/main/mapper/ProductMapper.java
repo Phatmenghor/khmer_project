@@ -3,6 +3,7 @@ package com.emenu.features.main.mapper;
 import com.emenu.enums.product.PromotionType;
 import com.emenu.features.main.dto.helper.ProductCreateHelper;
 import com.emenu.features.main.dto.request.ProductCreateDto;
+import com.emenu.features.main.dto.response.ProductAdminListDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
@@ -100,6 +101,18 @@ public interface ProductMapper {
     ProductDetailDto toDetailDto(Product product);
 
     List<ProductDetailDto> toDetailDtos(List<Product> products);
+
+    /**
+     * Convert to lightweight admin list DTO without images
+     * Used for /api/v1/products/admin/my-business/all endpoint
+     */
+    @Mapping(target = "promotionType", source = "promotionType", qualifiedByName = "promotionTypeToString")
+    @Mapping(target = "displayPromotionType", source = "displayPromotionType", qualifiedByName = "promotionTypeToString")
+    @Mapping(target = "hasPromotion", source = "hasActivePromotion")
+    @Mapping(target = "sizes", source = "sizes")
+    ProductAdminListDto toAdminListDto(Product product);
+
+    List<ProductAdminListDto> toAdminListDtos(List<Product> products);
 
     @Named("stringToPromotionType")
     default PromotionType stringToPromotionType(String promotionType) {
