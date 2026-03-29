@@ -195,7 +195,7 @@ export const productTableColumns = ({
     },
     {
       key: "imageUrl",
-      label: "Product Image",
+      label: "Image",
       minWidth: "10px",
       maxWidth: "400px",
       render: (product) => {
