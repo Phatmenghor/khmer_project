@@ -26,6 +26,7 @@ import {
 } from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
 import { deliveryOptionsTableColumns } from "@/redux/features/master-data/table/delivery-options-table";
 import DeliveryOptionsModal from "@/redux/features/master-data/components/delivery-options-modal";
+import { DeliveryOptionsDetailModal } from "@/redux/features/master-data/components/delivery-options-detail-modal";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
@@ -269,7 +270,11 @@ export default function DeliveryOptionsPage() {
       />
 
       {/* Modals DeliveryOptions Detail */}
-      {/* TODO: Create detail modal component if needed */}
+      <DeliveryOptionsDetailModal
+        deliveryOptions={detailModalState.deliveryOptions}
+        isOpen={detailModalState.isOpen}
+        onClose={closeDetailModal}
+      />
 
 {/* Modals Delete name platform */}
       <DeleteConfirmationModal
