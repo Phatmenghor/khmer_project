@@ -1,6 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Edit, Eye, Trash, Package, RotateCcw } from "lucide-react";
+import { Edit, Eye, Trash, Package, RotateCcw, Zap, Check } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
@@ -282,19 +282,25 @@ export const productTableColumns = ({
     },
 
     {
-      key: "hasActivePromotion",
+      key: "hasPromotion",
       label: "Promotion",
       minWidth: "10px",
       maxWidth: "100px",
       truncate: true,
       render: (product) => (
-        <span
-          className={`text-xs font-medium ${
-            product?.hasPromotion ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {product?.hasPromotion ? "Promotion" : "Regular"}
-        </span>
+        <div className="flex items-center gap-1">
+          {product?.hasPromotion ? (
+            <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200">
+              <Zap className="w-3 h-3" />
+              Active
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="gap-1">
+              <Check className="w-3 h-3" />
+              Regular
+            </Badge>
+          )}
+        </div>
       ),
     },
 
@@ -365,7 +371,7 @@ export const productTableColumns = ({
             tooltip="Edit Product"
             onClick={() => handleEditProduct(brand)}
           />
-          {brand?.hasActivePromotion && (
+          {brand?.hasPromotion && (
             <ActionButton
               icon={<RotateCcw className="w-4 h-4" />}
               tooltip="Reset Promotion"
