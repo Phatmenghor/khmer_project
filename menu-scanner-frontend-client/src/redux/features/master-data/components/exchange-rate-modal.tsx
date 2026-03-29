@@ -138,16 +138,27 @@ export default function ExchangeRateModal({
           });
       } else {
         // Optimistic update: update local state and close modal immediately
-        const updatedRate = {
-          ...exchangeRate!,
-          usdToKhrRate: data.usdToKhrRate,
-          usdToCnyRate: data.usdToCnyRate,
-          usdToVndRate: data.usdToVndRate,
-          status: (data.status || exchangeRate?.status) as "ACTIVE" | "INACTIVE",
-          notes: data.notes || "",
-        };
+        if (exchangeRate) {
+          const updatedRate: ExchangeRateResponseModel = {
+            ...exchangeRate,
+            usdToKhrRate: data.usdToKhrRate || exchangeRate.usdToKhrRate,
+            usdToCnyRate: data.usdToCnyRate || exchangeRate.usdToCnyRate,
+            usdToVndRate: data.usdToVndRate || exchangeRate.usdToVndRate,
+            status: (data.status || exchangeRate.status) as "ACTIVE" | "INACTIVE",
+            notes: data.notes || exchangeRate.notes,
+            // Preserve other fields
+            id: exchangeRate.id,
+            businessId: exchangeRate.businessId,
+            businessName: exchangeRate.businessName,
+            createdAt: exchangeRate.createdAt,
+            updatedAt: exchangeRate.updatedAt,
+            createdBy: exchangeRate.createdBy,
+            updatedBy: exchangeRate.updatedBy,
+          };
 
-        dispatch(updateExchangeRateInList(updatedRate));
+          dispatch(updateExchangeRateInList(updatedRate));
+        }
+
         showToast.success("Exchange rate updated successfully");
         handleClose();
 
