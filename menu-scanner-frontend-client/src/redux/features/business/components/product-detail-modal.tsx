@@ -95,6 +95,28 @@ export function ProductDetailModal({
             />
 
             <DetailRow label="Brand" value={productData.brandName || "---"} />
+
+            <DetailRow label="SKU" value={productData.sku || "---"} />
+
+            <DetailRow label="Barcode" value={productData.barcode || "---"} />
+
+            <DetailRow
+              label="Has Sizes"
+              value={
+                <Badge variant={productData.hasSizes ? "default" : "outline"}>
+                  {productData.hasSizes ? "Yes" : "No"}
+                </Badge>
+              }
+            />
+          </DetailSection>
+
+          {/* Stock Information */}
+          <DetailSection title="Stock Information">
+            <DetailRow
+              label="Total Stock"
+              value={productData.totalStock?.toLocaleString() || "0"}
+              isLast
+            />
           </DetailSection>
 
           {/* Pricing Information */}
