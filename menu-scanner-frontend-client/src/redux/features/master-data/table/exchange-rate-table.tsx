@@ -31,6 +31,11 @@ export const exchangeRateTableColumns = ({
 }: TableOptions): TableColumn<ExchangeRateResponseModel>[] => {
   const { handleEditRate, handleViewRateDetail, handleDeleteRate } = handlers;
 
+  // Count active rates to prevent deletion of the only active rate
+  const activeRatesCount = data?.content?.filter(
+    (rate) => rate.status === "ACTIVE"
+  ).length || 0;
+
   return [
     {
       key: "index",
@@ -117,26 +122,36 @@ export const exchangeRateTableColumns = ({
       label: "Actions",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (parameter) => (
-        <div className="flex items-center gap-2">
-          <ActionButton
-            icon={<Eye className="w-4 h-4" />}
-            tooltip="View Details"
-            onClick={() => handleViewRateDetail(parameter)}
-          />
-          <ActionButton
-            icon={<Edit className="w-4 h-4" />}
-            tooltip="Edit Rate"
-            onClick={() => handleEditRate(parameter)}
-          />
-          <ActionButton
-            icon={<Trash className="w-4 h-4" />}
-            tooltip="Delete Rate"
-            onClick={() => handleDeleteRate(parameter)}
-            variant="destructive"
-          />
-        </div>
-      ),
+      render: (parameter) => {
+        const isOnlyActiveRate =
+          parameter.status === "ACTIVE" && activeRatesCount === 1;
+
+        return (
+          <div className="flex items-center gap-2">
+            <ActionButton
+              icon={<Eye className="w-4 h-4" />}
+              tooltip="View Details"
+              onClick={() => handleViewRateDetail(parameter)}
+            />
+            <ActionButton
+              icon={<Edit className="w-4 h-4" />}
+              tooltip="Edit Rate"
+              onClick={() => handleEditRate(parameter)}
+            />
+            <ActionButton
+              icon={<Trash className="w-4 h-4" />}
+              tooltip={
+                isOnlyActiveRate
+                  ? "Cannot delete the only active rate"
+                  : "Delete Rate"
+              }
+              onClick={() => handleDeleteRate(parameter)}
+              variant="destructive"
+              disabled={isOnlyActiveRate}
+            />
+          </div>
+        );
+      },
     },
   ];
 };
