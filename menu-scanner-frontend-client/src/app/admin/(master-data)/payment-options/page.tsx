@@ -17,6 +17,7 @@ import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import PaymentOptionsModal from "@/redux/features/master-data/components/payment-options-modal";
+import { PaymentOptionDetailModal } from "@/redux/features/master-data/components/payment-options-detail-modal";
 import { STATUS_FILTER } from "@/constants/status/filter-status";
 import { usePaymentOptionsState } from "@/redux/features/master-data/store/state/payment-options-state";
 import {
@@ -57,6 +58,11 @@ export default function PaymentOptionsPage() {
   });
 
   const [deleteState, setDeleteState] = useState({
+    isOpen: false,
+    paymentOption: null as PaymentOptionResponse | null,
+  });
+
+  const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     paymentOption: null as PaymentOptionResponse | null,
   });
@@ -137,8 +143,18 @@ export default function PaymentOptionsPage() {
     }
   };
 
+  const handleViewPaymentOption = (
+    paymentOption: PaymentOptionResponse,
+  ) => {
+    setDetailModalState({
+      isOpen: true,
+      paymentOption: paymentOption,
+    });
+  };
+
   const tableHandlers = useMemo(
     () => ({
+      handleViewPaymentOption,
       handleEditPaymentOption,
       handleDeletePaymentOption,
       handleTogglePaymentOptionStatus,
@@ -215,6 +231,13 @@ export default function PaymentOptionsPage() {
     });
   };
 
+  const closeDetailModal = () => {
+    setDetailModalState({
+      isOpen: false,
+      paymentOption: null,
+    });
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
@@ -269,6 +292,12 @@ export default function PaymentOptionsPage() {
         onDelete={handleDelete}
         title="Delete Payment Option"
         description={`Are you sure you want to delete the payment option "${deleteState.paymentOption?.name}"? This action cannot be undone.`}
+      />
+
+      <PaymentOptionDetailModal
+        paymentOption={detailModalState.paymentOption}
+        isOpen={detailModalState.isOpen}
+        onClose={closeDetailModal}
       />
     </div>
   );

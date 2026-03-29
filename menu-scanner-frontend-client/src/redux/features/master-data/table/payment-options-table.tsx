@@ -1,6 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { ActionButton } from "@/components/shared/button/action-button";
@@ -11,6 +11,7 @@ import {
 } from "../store/models/response/payment-option-response";
 
 interface PaymentOptionsTableHandlers {
+  handleViewPaymentOption: (option: PaymentOptionResponse) => void;
   handleEditPaymentOption: (option: PaymentOptionResponse) => void;
   handleDeletePaymentOption: (option: PaymentOptionResponse) => void;
   handleTogglePaymentOptionStatus: (option: PaymentOptionResponse) => void;
@@ -25,7 +26,7 @@ export const paymentOptionsTableColumns = ({
   data,
   handlers,
 }: PaymentOptionsTableOptions): TableColumn<PaymentOptionResponse>[] => {
-  const { handleEditPaymentOption, handleDeletePaymentOption, handleTogglePaymentOptionStatus } = handlers;
+  const { handleViewPaymentOption, handleEditPaymentOption, handleDeletePaymentOption, handleTogglePaymentOptionStatus } = handlers;
 
   return [
     {
@@ -104,6 +105,11 @@ export const paymentOptionsTableColumns = ({
       maxWidth: "400px",
       render: (option) => (
         <div className="flex items-center gap-2">
+          <ActionButton
+            icon={<Eye className="w-4 h-4" />}
+            tooltip="View Details"
+            onClick={() => handleViewPaymentOption(option)}
+          />
           <ActionButton
             icon={<Edit className="w-4 h-4" />}
             tooltip="Edit Payment Option"
