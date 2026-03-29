@@ -10,6 +10,7 @@ import {
   createDeliveryOptionsService,
   deleteDeliveryOptionsService,
   fetchAllDeliveryOptionsService,
+  fetchMyBusinessDeliveryOptionsService,
   fetchDeliveryOptionsByIdService,
   updateDeliveryOptionsService,
   toggleDeliveryOptionsStatusService,
@@ -85,6 +86,20 @@ const deliveryOptionsSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchAllDeliveryOptionsService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.isLoading = false;
+      });
+
+    builder
+      .addCase(fetchMyBusinessDeliveryOptionsService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchMyBusinessDeliveryOptionsService.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchMyBusinessDeliveryOptionsService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.isLoading = false;
       });
