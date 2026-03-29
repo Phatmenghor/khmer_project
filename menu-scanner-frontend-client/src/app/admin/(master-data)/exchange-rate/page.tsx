@@ -298,7 +298,6 @@ export default function ExchangeRatePage() {
             : ""
         }
         isSubmitting={operations.isDeleting}
-        maxWidth="lg"
       />
     </div>
   );

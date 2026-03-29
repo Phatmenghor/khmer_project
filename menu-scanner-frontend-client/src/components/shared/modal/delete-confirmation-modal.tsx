@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { Trash2 } from "lucide-react";
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
@@ -23,7 +24,6 @@ interface DeleteConfirmationDialogProps {
   requireConfirmation?: boolean;
   confirmationText?: string;
   errorMessage?: string;
-  maxWidth?: "sm" | "md" | "lg" | "xl";
 }
 
 export function DeleteConfirmationModal({
@@ -38,7 +38,6 @@ export function DeleteConfirmationModal({
   requireConfirmation = false,
   confirmationText = "DELETE",
   errorMessage,
-  maxWidth = "sm",
 }: DeleteConfirmationDialogProps) {
   const [confirmationValue, setConfirmationValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -71,20 +70,16 @@ export function DeleteConfirmationModal({
 
   const isCritical = variant === "critical";
 
-  const maxWidthClass = {
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-lg",
-    xl: "max-w-xl",
-  }[maxWidth];
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`w-full ${maxWidthClass} p-0 flex flex-col`}>
-        <FormHeader
-          title={title}
-          description={description}
-        />
+      <DialogContent className="w-full max-w-xl p-0 flex flex-col">
+        <div className="p-6 border-b border-border bg-destructive/5 flex items-start gap-4">
+          <Trash2 className="w-6 h-6 text-destructive flex-shrink-0 mt-1" />
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+            <p className="text-sm text-muted-foreground mt-2">{description}</p>
+          </div>
+        </div>
 
         <FormBody>
           {itemName && (
