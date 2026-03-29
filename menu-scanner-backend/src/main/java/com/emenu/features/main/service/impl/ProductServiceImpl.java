@@ -282,6 +282,9 @@ public class ProductServiceImpl implements ProductService {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
+        // Clear images to avoid lazy-loading overhead (images not needed in listing)
+        productPage.getContent().forEach(p -> p.setImages(new ArrayList<>()));
+
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
