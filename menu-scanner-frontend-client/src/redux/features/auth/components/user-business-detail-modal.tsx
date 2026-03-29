@@ -237,7 +237,7 @@ export function UserBusinessDetailModal({
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <DisplayField label="Type" value={doc.type ? formatEnumValue(doc.type) : "-"} />
-                            <DisplayField label="Number" value={doc.number} />
+                            <DisplayField label="Number" value={doc.number?.toString() || "-"} />
                           </div>
                           {doc.fileUrl && (
                             <div className="mt-4">
@@ -276,10 +276,10 @@ export function UserBusinessDetailModal({
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <DisplayField label="Field of Study" value={edu.fieldOfStudy} />
-                            <DisplayField label="Start Year" value={edu.startYear} />
+                            <DisplayField label="Start Year" value={edu.startYear?.toString() || "-"} />
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <DisplayField label="End Year" value={edu.endYear} />
+                            <DisplayField label="End Year" value={edu.endYear?.toString() || "-"} />
                             <DisplayField label="Graduation" value={edu.isGraduated ? "Yes" : "No"} />
                           </div>
                           {edu.certificateUrl && (
