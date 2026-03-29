@@ -588,7 +588,7 @@ SELECT
     'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400',
     CASE WHEN (i % 20) = 0 THEN 'INACTIVE' WHEN (i % 25) = 0 THEN 'OUT_OF_STOCK' ELSE 'ACTIVE' END,
     (i % 3) = 0, (i % 500)::bigint, (i % 200)::bigint, 5, 'SKU-' || i::text, 'BARCODE-' || i::text
-FROM generate_series(1, 100) AS t(i);
+FROM generate_series(1, 20000) AS t(i);
 
 -- ============================================================================
 -- 14. PRODUCT SIZES
@@ -603,7 +603,7 @@ SELECT
     CASE WHEN (t.size % 2) = 0 THEN 'FIXED_AMOUNT' ELSE NULL END,
     CASE WHEN (t.size % 2) = 0 THEN 1 ELSE 0 END,
     NOW(), NOW() + INTERVAL '30 days', 5
-FROM (SELECT id, price FROM products WHERE has_sizes = true LIMIT 30) p
+FROM (SELECT id, price FROM products WHERE has_sizes = true) p
 CROSS JOIN (SELECT 1 as size UNION SELECT 2 UNION SELECT 3) t;
 
 -- ============================================================================
@@ -646,7 +646,7 @@ SELECT
     100 + (i % 200), (i % 20), (100 + (i % 200) - (i % 20))::int,
     p.price::numeric, NOW() - (i % 30)::int * INTERVAL '1 day',
     'ACTIVE', false
-FROM (SELECT id, price FROM products LIMIT 100) p, generate_series(1, 1) AS t(i);
+FROM (SELECT id, price FROM products) p, generate_series(1, 1) AS t(i);
 
 -- ============================================================================
 -- 17. STOCK MOVEMENTS
@@ -660,7 +660,7 @@ SELECT
     CASE WHEN (i % 5) IN (0, 3) THEN (5 + i % 10) ELSE -(5 + i % 10) END,
     100, 100 + (CASE WHEN (i % 5) IN (0, 3) THEN (5 + i % 10) ELSE -(5 + i % 10) END),
     NULL, NULL, 'Stock movement ' || i::text, 'Admin'
-FROM (SELECT id FROM product_stock LIMIT 30) ps, generate_series(1, 3) AS t(i);
+FROM (SELECT id FROM product_stock LIMIT 500) ps, generate_series(1, 3) AS t(i);
 
 -- ============================================================================
 -- 18. PRODUCT FAVORITES
@@ -674,7 +674,7 @@ SELECT
            (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 1 OFFSET 1),
            (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 1 OFFSET 2)])[(i % 4) + 1],
     p.id
-FROM (SELECT id FROM products LIMIT 30) p, generate_series(1, 2) AS t(i)
+FROM (SELECT id FROM products LIMIT 500) p, generate_series(1, 2) AS t(i)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
