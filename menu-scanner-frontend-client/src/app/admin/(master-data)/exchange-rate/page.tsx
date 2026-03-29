@@ -21,7 +21,7 @@ import { useExchangeRateState } from "@/redux/features/master-data/store/state/e
 import { ExchangeRateResponseModel } from "@/redux/features/master-data/store/models/response/exchange-rate-response";
 import {
   deleteExchangeRateService,
-  fetchAllExchangeRateService,
+  fetchAllMyBusinessExchangeRateService,
 } from "@/redux/features/master-data/store/thunks/exchange-rate-thunks";
 import {
   setExchangeRateStatusFilter,
@@ -78,19 +78,17 @@ export default function ExchangeRatePage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Fetch exchage rate when filters change
+  // Fetch exchange rate when filters change
   useEffect(() => {
     dispatch(
-      fetchAllExchangeRateService({
+      fetchAllMyBusinessExchangeRateService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
-        isActive:
+        status:
           filters.isActive === ExchangeRateStatus.ALL
             ? undefined
-            : filters.isActive == ExchangeRateStatus.ACTIVE
-              ? true
-              : false,
+            : (filters.isActive as "ACTIVE" | "INACTIVE"),
       }),
     );
   }, [

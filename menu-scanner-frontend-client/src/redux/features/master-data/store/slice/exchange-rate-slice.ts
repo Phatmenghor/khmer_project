@@ -10,6 +10,7 @@ import {
   createExchangeRateService,
   deleteExchangeRateService,
   fetchAllExchangeRateService,
+  fetchAllMyBusinessExchangeRateService,
   fetchExchangeRateByIdService,
   updateExchangeRateService,
 } from "../thunks/exchange-rate-thunks";
@@ -87,6 +88,20 @@ const exchnageRateSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchAllExchangeRateService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.isLoading = false;
+      });
+
+    builder
+      .addCase(fetchAllMyBusinessExchangeRateService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllMyBusinessExchangeRateService.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchAllMyBusinessExchangeRateService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.isLoading = false;
       });

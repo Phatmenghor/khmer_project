@@ -26,6 +26,20 @@ export const fetchAllExchangeRateService = createApiThunk<
 });
 
 /**
+ * Fetch all ExchangeRate for current business
+ */
+export const fetchAllMyBusinessExchangeRateService = createApiThunk<
+  any,
+  AllExchangeRateRequest
+>("business-exchange-rates/fetchMyBusiness", async (params) => {
+  const response = await axiosClientWithAuth.post(
+    "/api/v1/business-exchange-rates/my-business/all",
+    params
+  );
+  return response.data.data;
+});
+
+/**
  * Fetch ExchangeRate by ID
  */
 export const fetchExchangeRateByIdService = createApiThunk<any, string>(
