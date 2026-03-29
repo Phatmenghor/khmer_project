@@ -13,6 +13,9 @@ export const createExchangeRateSchema = z.object({
     .number()
     .min(0.01, "USD To VND rate must be greater than 0")
     .optional(),
+  status: z.enum(["ACTIVE", "INACTIVE"], {
+    errorMap: () => ({ message: "Status must be ACTIVE or INACTIVE" }),
+  }).optional(),
   notes: z.string().optional(),
 });
 
@@ -37,11 +40,4 @@ export const updateExchangeRateSchema = z.object({
 
 export type CreateExchangeRateData = z.infer<typeof createExchangeRateSchema>;
 export type UpdateExchangeRateData = z.infer<typeof updateExchangeRateSchema>;
-
-export type ExchangeRateFormData = {
-  usdToKhrRate: number;
-  usdToCnyRate?: number;
-  usdToVndRate?: number;
-  status?: "ACTIVE" | "INACTIVE";
-  notes?: string;
-};
+export type ExchangeRateFormData = z.infer<typeof createExchangeRateSchema>;
