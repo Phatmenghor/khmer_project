@@ -858,9 +858,16 @@ export default function ProductModal({
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>Product Images</CardTitle>
+                      <div>
+                        <CardTitle>Product Images</CardTitle>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {imageFields.length > 0
+                            ? `${imageFields.length}/${MAX_PRODUCT_IMAGES} images uploaded`
+                            : `Upload up to ${MAX_PRODUCT_IMAGES} product images`}
+                        </p>
+                      </div>
                       {canAddMore && (
-                        <div className="flex gap-2">
+                        <div>
                           <input
                             type="file"
                             id="multiple-image-upload"
@@ -882,9 +889,7 @@ export default function ProductModal({
                             disabled={isProcessing}
                           >
                             <Plus className="h-4 w-4 mr-2" />
-                            {isProcessingImages
-                              ? "Processing..."
-                              : `Upload (${remainingSlots} left)`}
+                            {isProcessingImages ? "Processing..." : "Upload"}
                           </Button>
                         </div>
                       )}
@@ -892,119 +897,55 @@ export default function ProductModal({
                   </CardHeader>
                   <CardContent>
                     {imageFields.length === 0 ? (
-                      <div className="text-center py-12 border-2 border-dashed rounded-lg bg-muted/10">
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Plus className="h-8 w-8 text-primary" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-foreground">
-                              No additional images
-                            </p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Upload up to {MAX_PRODUCT_IMAGES} product images
-                            </p>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              document
-                                .getElementById("multiple-image-upload")
-                                ?.click()
-                            }
-                            disabled={isProcessing}
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Upload Images
-                          </Button>
-                        </div>
+                      <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                        <p className="text-sm text-muted-foreground">
+                          No images uploaded yet
+                        </p>
                       </div>
                     ) : (
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                          {imageFields.map((field, index) => (
-                            <div
-                              key={field.id}
-                              className="border rounded-lg p-3 overflow-hidden"
-                            >
-                              <div className="space-y-2">
-                                <div className="relative group">
-                                  <ClickableImageUpload
-                                    label=""
-                                    value={
-                                      watch(`images.${index}.imageUrl`) || ""
-                                    }
-                                    onChange={(base64) =>
-                                      setValue(
-                                        `images.${index}.imageUrl`,
-                                        base64,
-                                        {
-                                          shouldDirty: true,
-                                        },
-                                      )
-                                    }
-                                    aspectRatio="square"
-                                    height="h-24"
-                                    maxSize={5}
-                                    disabled={isProcessing}
-                                    error={
-                                      errors.images?.[index]?.imageUrl as any
-                                    }
-                                    showPreviewText={false}
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute top-1 right-1 h-6 w-6 z-20 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                                    onClick={() => removeImage(index)}
-                                    disabled={isProcessing}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                                <p className="text-xs text-center text-muted-foreground">
-                                  {index + 1}
-                                </p>
-                              </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                        {imageFields.map((field, index) => (
+                          <div
+                            key={field.id}
+                            className="relative aspect-square rounded-md overflow-hidden border bg-muted"
+                          >
+                            <div className="w-full h-full">
+                              <ClickableImageUpload
+                                label=""
+                                value={
+                                  watch(`images.${index}.imageUrl`) || ""
+                                }
+                                onChange={(base64) =>
+                                  setValue(
+                                    `images.${index}.imageUrl`,
+                                    base64,
+                                    {
+                                      shouldDirty: true,
+                                    },
+                                  )
+                                }
+                                aspectRatio="square"
+                                height="h-full"
+                                maxSize={5}
+                                disabled={isProcessing}
+                                error={
+                                  errors.images?.[index]?.imageUrl as any
+                                }
+                                showPreviewText={false}
+                              />
                             </div>
-                          ))}
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-muted/20 rounded-lg border text-sm">
-                          <span>
-                            {imageFields.length}/{MAX_PRODUCT_IMAGES} images
-                            {canAddMore && (
-                              <span className="text-muted-foreground ml-2">
-                                • {remainingSlots} slot
-                                {remainingSlots > 1 ? "s" : ""} left
-                              </span>
-                            )}
-                            {!canAddMore && (
-                              <span className="text-amber-600 font-medium ml-2">
-                                • Maximum reached
-                              </span>
-                            )}
-                          </span>
-                          {canAddMore && (
                             <Button
                               type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                document
-                                  .getElementById("multiple-image-upload")
-                                  ?.click()
-                              }
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-1 right-1 h-7 w-7 z-20 opacity-0 hover:opacity-100 transition-opacity shadow-lg"
+                              onClick={() => removeImage(index)}
                               disabled={isProcessing}
                             >
-                              <Plus className="h-4 w-4 mr-1" />
-                              Add
+                              <Trash2 className="h-4 w-4" />
                             </Button>
-                          )}
-                        </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </CardContent>
