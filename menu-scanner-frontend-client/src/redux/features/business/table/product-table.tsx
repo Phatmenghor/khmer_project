@@ -4,6 +4,7 @@ import { Edit, Eye, Trash, Package } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -262,6 +263,22 @@ export const productTableColumns = ({
         <span className="text-xs text-muted-foreground">
           {product?.brandName || "---"}
         </span>
+      ),
+    },
+
+    {
+      key: "hasActivePromotion",
+      label: "Promotion",
+      minWidth: "10px",
+      maxWidth: "100px",
+      truncate: true,
+      render: (product) => (
+        <Badge
+          variant={product?.hasActivePromotion ? "default" : "secondary"}
+          className="text-xs"
+        >
+          {product?.hasActivePromotion ? "Yes" : "No"}
+        </Badge>
       ),
     },
 
