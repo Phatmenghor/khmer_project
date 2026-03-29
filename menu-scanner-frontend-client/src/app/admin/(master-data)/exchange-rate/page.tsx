@@ -10,10 +10,6 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { usePagination } from "@/redux/store/use-pagination";
-import {
-  setPageNo,
-  setSearchFilter,
-} from "@/redux/features/auth/store/slice/users-slice";
 import { ExchangeRateStatus, ModalMode } from "@/constants/status/status";
 import ExchangeRateModal from "@/redux/features/master-data/components/exchange-rate-modal";
 import { ExchangeRateDetailModal } from "@/redux/features/master-data/components/exchange-rate-detail-modal";
@@ -26,6 +22,8 @@ import {
 import {
   setExchangeRateStatusFilter,
   resetState,
+  setPageNo,
+  setSearchFilter,
 } from "@/redux/features/master-data/store/slice/exchange-rate-slice";
 import { exchangeRateTableColumns } from "@/redux/features/master-data/table/exchange-rate-table";
 import { EXCHAGE_RATE_FILTER } from "@/constants/status/filter-status";
@@ -60,7 +58,7 @@ export default function ExchangeRatePage() {
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
-    exchangeRateId: "",
+    exchangeRate: null as ExchangeRateResponseModel | null,
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -119,7 +117,7 @@ export default function ExchangeRatePage() {
   const handleViewRateDetail = (exchage: ExchangeRateResponseModel) => {
     setDetailModalState({
       isOpen: true,
-      exchangeRateId: exchage.id || "",
+      exchangeRate: exchage,
     });
   };
 
@@ -212,7 +210,7 @@ export default function ExchangeRatePage() {
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
-      exchangeRateId: "",
+      exchangeRate: null,
     });
   };
 
@@ -276,7 +274,7 @@ export default function ExchangeRatePage() {
 
       {/* Modals exchange rate platform Detail */}
       <ExchangeRateDetailModal
-        exchangeRateId={detailModalState.exchangeRateId}
+        exchangeRate={detailModalState.exchangeRate}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
