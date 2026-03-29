@@ -238,8 +238,10 @@ public class ProductServiceImpl implements ProductService {
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
+        // Clear images to prevent lazy-loading (not needed for admin listing)
+        productPage.getContent().forEach(p -> p.setImages(new ArrayList<>()));
+
         // Use detail DTOs - mapper uses denormalized fields, not relationships
-        // Query doesn't fetch images/category/brand/business, so they won't be queried
         List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
 
         enrichTotalStockForDetails(dtoList, productPage.getContent());
