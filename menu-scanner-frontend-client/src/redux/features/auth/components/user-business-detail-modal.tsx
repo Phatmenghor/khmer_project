@@ -85,11 +85,19 @@ export function UserBusinessDetailModal({
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
-              <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                <span className="text-2xl font-semibold text-primary">
-                  {userData.fullName?.charAt(0)?.toUpperCase() || "U"}
-                </span>
-              </div>
+              {userData.profileImageUrl ? (
+                <img
+                  src={userData.profileImageUrl}
+                  alt={userData.fullName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                  <span className="text-2xl font-semibold text-primary">
+                    {userData.fullName?.charAt(0)?.toUpperCase() || "U"}
+                  </span>
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-foreground">
