@@ -23,12 +23,10 @@ import {
 } from "../store/models/schema/delivery-options-schema";
 import {
   createDeliveryOptionsService,
-  fetchDeliveryOptionsByIdService,
   updateDeliveryOptionsService,
 } from "../store/thunks/delivery-options-thunks";
 import {
   selectError,
-  selectIsFetchingDetail,
   selectOperations,
 } from "../store/selectors/delivery-options-selector";
 import {
@@ -39,9 +37,11 @@ import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { Loading } from "@/components/shared/common/loading";
 
+import { DeliveryOptionsResponseModel } from "../store/models/response/delivery-options-response";
+
 type Props = {
   mode: ModalMode;
-  deliveryOptionsId?: string;
+  deliveryOptions?: DeliveryOptionsResponseModel | null;
   onClose: () => void;
   isOpen: boolean;
 };
@@ -49,7 +49,7 @@ type Props = {
 export default function DeliveryOptionsModal({
   isOpen,
   onClose,
-  deliveryOptionsId,
+  deliveryOptions,
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
@@ -60,7 +60,6 @@ export default function DeliveryOptionsModal({
   const dispatch = useAppDispatch();
 
   const operations = useAppSelector(selectOperations);
-  const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
@@ -88,7 +87,9 @@ export default function DeliveryOptionsModal({
   const imageUrl = watch("imageUrl");
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+
+    if (isCreate) {
       reset({
         name: "",
         description: "",
@@ -96,37 +97,16 @@ export default function DeliveryOptionsModal({
         price: 0,
         status: Status.ACTIVE,
       });
+    } else if (deliveryOptions) {
+      reset({
+        name: deliveryOptions.name || "",
+        description: deliveryOptions.description || "",
+        imageUrl: deliveryOptions.imageUrl || "",
+        price: deliveryOptions.price || 0,
+        status: deliveryOptions.status || Status.ACTIVE,
+      });
     }
-  }, [isOpen, deliveryOptionsId, reset]);
-
-  // Fetch delivery options data for edit mode
-  useEffect(() => {
-    const fetchDeliveryOptionsData = async () => {
-      if (!deliveryOptionsId || !isOpen || isCreate) return;
-
-      try {
-        const resultAction = await dispatch(
-          fetchDeliveryOptionsByIdService(deliveryOptionsId),
-        );
-
-        if (fetchDeliveryOptionsByIdService.fulfilled.match(resultAction)) {
-          const data = resultAction.payload;
-
-          reset({
-            name: data?.name || "",
-            description: data?.description || "",
-            imageUrl: data?.imageUrl || "",
-            price: data?.price || 0,
-            status: data?.status || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching delivery options data:", error);
-      }
-    };
-
-    fetchDeliveryOptionsData();
-  }, [deliveryOptionsId, isOpen, isCreate, reset, dispatch]);
+  }, [isOpen, isCreate, deliveryOptions, reset]);
 
   // Clear errors when modal opens
   useEffect(() => {
@@ -168,11 +148,13 @@ export default function DeliveryOptionsModal({
         showToast.success("Delivery options created successfully");
         handleClose();
       } else {
-        await dispatch(
-          updateDeliveryOptionsService({ id: deliveryOptionsId!, payload }),
-        ).unwrap();
-        showToast.success("Delivery options updated successfully");
-        handleClose();
+        if (deliveryOptions?.id) {
+          await dispatch(
+            updateDeliveryOptionsService({ id: deliveryOptions.id, payload }),
+          ).unwrap();
+          showToast.success("Delivery options updated successfully");
+          handleClose();
+        }
       }
     } catch (error: any) {
       showToast.error(
@@ -208,8 +190,8 @@ export default function DeliveryOptionsModal({
           isCreate={isCreate}
         />
 
-        {/* Show loading spinner in edit mode while fetching or when form is empty */}
-        {!isCreate && (isFetchingDetail || !imageUrl) ? (
+        {/* Show loading spinner in edit mode when form is empty */}
+        {!isCreate && !imageUrl ? (
           <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>

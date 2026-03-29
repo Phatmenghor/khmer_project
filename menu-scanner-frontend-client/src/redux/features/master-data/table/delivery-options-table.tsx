@@ -2,7 +2,7 @@ import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
-
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import {
@@ -52,11 +52,21 @@ export const deliveryOptionsTableColumns = ({
       maxWidth: "400px",
       render: (deliveryOptions) => {
         return (
-          <CustomAvatar
-            imageUrl={deliveryOptions.imageUrl}
-            name={deliveryOptions?.name}
-            size="md"
-          />
+          <div className="h-12 w-12 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+            {deliveryOptions.imageUrl ? (
+              <img
+                src={deliveryOptions.imageUrl}
+                alt={deliveryOptions?.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
+                <span className="text-xs font-semibold text-primary">
+                  {deliveryOptions?.name?.charAt(0)?.toUpperCase() || "D"}
+                </span>
+              </div>
+            )}
+          </div>
         );
       },
     },
@@ -92,11 +102,17 @@ export const deliveryOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (deliveryOptions) => (
-        <span className="text-xs text-muted-foreground">
-          {deliveryOptions?.status || "---"}
-        </span>
-      ),
+      render: (deliveryOptions) => {
+        const statusColor = deliveryOptions?.status === "ACTIVE"
+          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
+          : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-200";
+
+        return (
+          <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${statusColor}`}>
+            {deliveryOptions?.status ? formatEnumValue(deliveryOptions.status) : "---"}
+          </span>
+        );
+      },
     },
 
     {

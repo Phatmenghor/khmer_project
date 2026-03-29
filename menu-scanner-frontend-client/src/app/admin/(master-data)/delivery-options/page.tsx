@@ -22,7 +22,7 @@ import {
 } from "@/redux/features/master-data/store/slice/delivery-options-slice";
 import {
   deleteDeliveryOptionsService,
-  fetchAllDeliveryOptionsService,
+  fetchMyBusinessDeliveryOptionsService,
 } from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
 import { deliveryOptionsTableColumns } from "@/redux/features/master-data/table/delivery-options-table";
 import DeliveryOptionsModal from "@/redux/features/master-data/components/delivery-options-modal";
@@ -52,12 +52,12 @@ export default function DeliveryOptionsPage() {
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
-    deliveryOptionsId: "",
+    deliveryOptions: null as DeliveryOptionsResponseModel | null,
   });
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
-    deliveryOptionsId: "",
+    deliveryOptions: null as DeliveryOptionsResponseModel | null,
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -78,7 +78,7 @@ export default function DeliveryOptionsPage() {
   // Fetch delivery options when filters change
   useEffect(() => {
     dispatch(
-      fetchAllDeliveryOptionsService({
+      fetchMyBusinessDeliveryOptionsService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
@@ -98,7 +98,7 @@ export default function DeliveryOptionsPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.CREATE_MODE,
-      deliveryOptionsId: "",
+      deliveryOptions: null,
     });
   };
 
@@ -108,7 +108,7 @@ export default function DeliveryOptionsPage() {
     setModalState({
       isOpen: true,
       mode: ModalMode.UPDATE_MODE,
-      deliveryOptionsId: deliveryOptions?.id || "",
+      deliveryOptions: deliveryOptions,
     });
   };
 
@@ -117,7 +117,7 @@ export default function DeliveryOptionsPage() {
   ) => {
     setDetailModalState({
       isOpen: true,
-      deliveryOptionsId: deliveryOptions.id || "",
+      deliveryOptions: deliveryOptions,
     });
   };
 
@@ -197,14 +197,14 @@ export default function DeliveryOptionsPage() {
     setModalState({
       isOpen: false,
       mode: ModalMode.CREATE_MODE,
-      deliveryOptionsId: "",
+      deliveryOptions: null,
     });
   };
 
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
-      deliveryOptionsId: "",
+      deliveryOptions: null,
     });
   };
 
@@ -264,9 +264,12 @@ export default function DeliveryOptionsPage() {
       <DeliveryOptionsModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
-        deliveryOptionsId={modalState.deliveryOptionsId}
+        deliveryOptions={modalState.deliveryOptions}
         mode={modalState.mode}
       />
+
+      {/* Modals DeliveryOptions Detail */}
+      {/* TODO: Create detail modal component if needed */}
 
 {/* Modals Delete name platform */}
       <DeleteConfirmationModal

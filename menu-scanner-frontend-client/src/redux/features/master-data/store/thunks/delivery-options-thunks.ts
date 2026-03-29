@@ -26,6 +26,20 @@ export const fetchAllDeliveryOptionsService = createApiThunk<
 });
 
 /**
+ * Fetch my business DeliveryOptions from /api/v1/delivery-options/my-business/all
+ */
+export const fetchMyBusinessDeliveryOptionsService = createApiThunk<
+  any,
+  AllDeliveryOptionsRequest
+>("delivery-options/fetchMyBusiness", async (params) => {
+  const response = await axiosClientWithAuth.post(
+    "/api/v1/delivery-options/my-business/all",
+    params
+  );
+  return response.data.data;
+});
+
+/**
  * Fetch DeliveryOptions by ID
  */
 export const fetchDeliveryOptionsByIdService = createApiThunk<any, string>(
