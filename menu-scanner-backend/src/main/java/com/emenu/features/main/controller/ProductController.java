@@ -68,6 +68,20 @@ public class ProductController {
         ));
     }
 
+    @PostMapping("/business/all")
+    public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductBusiness(
+            @Valid @RequestBody ProductFilterDto filter) {
+
+        log.info("Get products by business user - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
+
+        PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdmin(filter);
+
+        return ResponseEntity.ok(ApiResponse.success(
+                String.format("Found %d products", products.getTotalElements()),
+                products
+        ));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> getProductById(@PathVariable UUID id) {
         log.info("Get product: {}", id);
