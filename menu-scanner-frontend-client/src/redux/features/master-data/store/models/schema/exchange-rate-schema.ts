@@ -9,10 +9,6 @@ export const createExchangeRateSchema = z.object({
     .number()
     .min(0.01, "USD To CNY rate must be greater than 0")
     .optional(),
-  usdToThbRate: z
-    .number()
-    .min(0.01, "USD To THB rate must be greater than 0")
-    .optional(),
   usdToVndRate: z
     .number()
     .min(0.01, "USD To VND rate must be greater than 0")
@@ -31,7 +27,6 @@ export type UpdateExchangeRateData = z.infer<typeof updateExchangeRateSchema>;
 export type ExchangeRateFormData = {
   usdToKhrRate: number;
   usdToCnyRate?: number;
-  usdToThbRate?: number;
   usdToVndRate?: number;
   notes?: string;
 };

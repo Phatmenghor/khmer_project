@@ -13,13 +13,8 @@ export interface ExchangeRateResponseModel {
   businessId: string;
   businessName: string;
   usdToKhrRate: number;
-  formattedKhrRate: string;
   usdToCnyRate: number;
-  formattedCnyRate: string;
-  usdToThbRate: any;
-  formattedThbRate: string;
-  usdToVndRate: any;
-  formattedVndRate: string;
-  isActive: boolean;
+  usdToVndRate: number;
+  status: "ACTIVE" | "INACTIVE";
   notes: string;
 }
