@@ -81,6 +81,25 @@ export function ProductDetailModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">Product Details - {productData.name}</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-start gap-4">
+            <CustomAvatar
+              imageUrl={productData.mainImageUrl}
+              name={productData.name}
+              size="lg"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">
+                {productData.name}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {productData.description || "---"}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
@@ -116,6 +135,14 @@ export function ProductDetailModal({
                   <DisplayField
                     label="Total Stock"
                     value={productData.totalStock?.toLocaleString() || "0"}
+                  />
+                  <DisplayField
+                    label="Items"
+                    value={
+                      productData.sizes && productData.sizes.length > 0
+                        ? `${productData.sizes.length} items`
+                        : "No items"
+                    }
                   />
                 </div>
               </CardContent>
