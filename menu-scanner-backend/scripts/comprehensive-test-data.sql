@@ -610,13 +610,30 @@ CROSS JOIN (SELECT 1 as size UNION SELECT 2 UNION SELECT 3) t;
 -- 15. PRODUCT IMAGES
 -- ============================================================================
 
+-- All 100 products get between 2 and 10 images each (varies by product row number mod 9)
+-- Image count per product: 2 + (rn % 9)  →  min 2, max 10
 INSERT INTO product_images (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, image_url)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     p.id,
-    CASE WHEN (t.img % 2) = 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=600' ELSE 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=600' END
-FROM (SELECT id FROM products LIMIT 50) p
-CROSS JOIN (SELECT 1 as img UNION SELECT 2) t;
+    CASE ((p.rn + t.img_num) % 10)
+        WHEN 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=600'
+        WHEN 1 THEN 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=600'
+        WHEN 2 THEN 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600'
+        WHEN 3 THEN 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?q=80&w=600'
+        WHEN 4 THEN 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=600'
+        WHEN 5 THEN 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=600'
+        WHEN 6 THEN 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600'
+        WHEN 7 THEN 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=600'
+        WHEN 8 THEN 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600'
+        ELSE       'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?q=80&w=600'
+    END
+FROM (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) AS rn
+    FROM products
+) p
+CROSS JOIN generate_series(1, 10) AS t(img_num)
+WHERE t.img_num <= (2 + (p.rn % 9));
 
 -- ============================================================================
 -- 16. PRODUCT STOCK
