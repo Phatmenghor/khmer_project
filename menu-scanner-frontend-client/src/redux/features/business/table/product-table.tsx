@@ -77,9 +77,9 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex gap-2 overflow-x-auto pb-1">
       {sizes.map((size) => (
-        <div key={size.id} className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded whitespace-nowrap">
+        <div key={size.id} className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded whitespace-nowrap flex-shrink-0">
           <span className="text-xs font-medium text-primary">{size.name}</span>
           <span className="text-xs text-muted-foreground">${size.price}</span>
           {size.hasPromotion && (
