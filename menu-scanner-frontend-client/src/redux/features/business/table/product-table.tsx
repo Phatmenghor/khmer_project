@@ -81,7 +81,7 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
       {sizes.map((size) => (
         <div
           key={size.id}
@@ -297,7 +297,7 @@ export const productTableColumns = ({
     {
       key: "sizes",
       label: "Sizes",
-      minWidth: "150px",
+      minWidth: "250px",
       maxWidth: "1000px",
       render: (product) => <SizesDisplay sizes={product?.sizes} />,
     },
