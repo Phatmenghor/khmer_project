@@ -178,9 +178,11 @@ const categoriesSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteCategoriesService.fulfilled, (state, action) => {
+        // Extract ID from payload (could be string or object)
+        const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
+
+        // Update both data and dataWithProductCount
         if (state.data) {
-          // Extract ID from payload (could be string or object)
-          const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
           state.data.content = state.data.content.filter(
             (user) => user.id !== deletedId
           );
@@ -191,6 +193,19 @@ const categoriesSlice = createSlice({
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
+        }
+
+        if (state.dataWithProductCount) {
+          state.dataWithProductCount.content = state.dataWithProductCount.content.filter(
+            (user) => user.id !== deletedId
+          );
+          state.dataWithProductCount.totalElements -= 1;
+          state.dataWithProductCount.totalPages = Math.ceil(
+            state.dataWithProductCount.totalElements / state.dataWithProductCount.pageSize
+          );
+          state.dataWithProductCount.last = state.dataWithProductCount.pageNo >= state.dataWithProductCount.totalPages;
+          state.dataWithProductCount.hasNext = !state.dataWithProductCount.last;
+          state.dataWithProductCount.hasPrevious = state.dataWithProductCount.pageNo > 1;
         }
         state.operations.isDeleting = false;
       })
