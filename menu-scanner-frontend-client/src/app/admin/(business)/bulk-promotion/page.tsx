@@ -515,34 +515,28 @@ export default function BulkPromotionCreationPage() {
                   )}
                 </div>
 
-                {/* Separator */}
-                <Separator className="bg-border/20" />
-
                 {/* Start Date */}
-                <div className="flex flex-col gap-2">
-                  <DateTimePickerField
-                    control={form.control}
-                    className="h-10"
-                    name="promotionFromDate"
-                    label="Start Date"
-                    required
-                    mode="datetime"
-                    error={form.formState.errors.promotionFromDate}
-                  />
-                </div>
+
+                <DateTimePickerField
+                  control={form.control}
+                  className="h-10"
+                  name="promotionFromDate"
+                  label="Start Date"
+                  required
+                  mode="datetime"
+                  error={form.formState.errors.promotionFromDate}
+                />
 
                 {/* End Date */}
-                <div className="flex flex-col gap-2">
-                  <DateTimePickerField
-                    control={form.control}
-                    className="h-10"
-                    name="promotionToDate"
-                    label="End Date"
-                    required
-                    mode="datetime"
-                    error={form.formState.errors.promotionToDate}
-                  />
-                </div>
+                <DateTimePickerField
+                  control={form.control}
+                  className="h-10"
+                  name="promotionToDate"
+                  label="End Date"
+                  required
+                  mode="datetime"
+                  error={form.formState.errors.promotionToDate}
+                />
               </div>
 
               {/* Summary Card */}
