@@ -46,11 +46,17 @@ import { selectSelectedProductIds } from "@/redux/features/business/store/select
 import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
 
 export default function BulkPromotionCreationPage() {
+  console.log("## ===== COMPONENT MOUNTED =====");
+
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { productContent, filters, pagination, isLoading } = useProductState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const selectedProductIdsFromRedux = useAppSelector(selectSelectedProductIds);
+
+  console.log("## Component rendered, Redux state loaded");
+  console.log("## selectedProductIdsFromRedux:", selectedProductIdsFromRedux);
+  console.log("## productContent length:", productContent.length);
 
   // Convert array to Map for efficient lookup
   const selectedProductIds = useMemo(() => {
