@@ -7,7 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/card";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
+import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
@@ -132,235 +134,249 @@ export default function BulkPromotionCreationPage() {
   }, [form.watch("promotionType"), form.watch("promotionValue")]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h1 className="text-2xl font-bold">Create Bulk Promotion</h1>
-          </div>
-          <p className="text-sm text-gray-600 ml-11">Select products and set promotion details</p>
-        </div>
+    <div className="flex flex-1 flex-col gap-4 px-2">
+      {/* Header with back button */}
+      <div className="flex items-center gap-3 mb-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleCancel}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <h1 className="text-2xl font-bold">Create Bulk Promotion</h1>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <div className="space-y-4">
+        {/* Header Section */}
+        <CardHeaderSection
+          title="Select Products & Set Promotion Details"
+          searchPlaceholder="Search products..."
+        />
+
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* 2-Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Left Column - Product Selection */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold mb-6">Select Products</h2>
-
-                {/* Select All */}
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-100 mb-4">
-                  <Checkbox
-                    checked={allSelected || someSelected}
-                    onCheckedChange={handleSelectAll}
-                    disabled={isLoading}
-                  />
-                  <label className="text-sm font-medium cursor-pointer">
-                    Select all ({selectedProductIds.size} selected)
-                  </label>
-                </div>
-
-                {/* Products List */}
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <p className="text-sm text-gray-500">Loading products...</p>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {/* Select All */}
+                    <div className="flex items-center gap-3 pb-4 border-b">
+                      <Checkbox
+                        checked={allSelected || someSelected}
+                        onCheckedChange={handleSelectAll}
+                        disabled={isLoading}
+                      />
+                      <span className="text-sm font-medium">
+                        Select All ({selectedProductIds.size} selected)
+                      </span>
                     </div>
-                  ) : productContent.length === 0 ? (
-                    <div className="flex items-center justify-center py-12">
-                      <p className="text-sm text-gray-500">No products found</p>
-                    </div>
-                  ) : (
-                    productContent.map((product) => (
-                      <div
-                        key={product.id}
-                        className="flex items-center gap-3 p-3 rounded hover:bg-gray-50 transition-colors"
-                      >
-                        <Checkbox
-                          checked={selectedProductIds.has(product.id)}
-                          onCheckedChange={() => handleSelectProduct(product.id)}
-                          disabled={isLoading}
-                        />
-                        <CustomAvatar
-                          imageUrl={product.mainImageUrl}
-                          name={product.name}
-                          size="sm"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{product.name}</p>
-                          <p className="text-xs text-gray-500">
-                            {product.categoryName} • ${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}
-                          </p>
+
+                    {/* Products List */}
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                      {isLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                          <p className="text-sm text-muted-foreground">Loading products...</p>
                         </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+                      ) : productContent.length === 0 ? (
+                        <div className="flex items-center justify-center py-12">
+                          <p className="text-sm text-muted-foreground">No products found</p>
+                        </div>
+                      ) : (
+                        productContent.map((product) => (
+                          <div
+                            key={product.id}
+                            className="flex items-center gap-3 p-3 rounded hover:bg-muted/50 transition-colors cursor-pointer"
+                            onClick={() => handleSelectProduct(product.id)}
+                          >
+                            <Checkbox
+                              checked={selectedProductIds.has(product.id)}
+                              onCheckedChange={(e) => {
+                                e.stopPropagation?.();
+                                handleSelectProduct(product.id);
+                              }}
+                              disabled={isLoading}
+                              className="cursor-pointer"
+                            />
+                            <CustomAvatar
+                              imageUrl={product.mainImageUrl}
+                              name={product.name}
+                              size="sm"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{product.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {product.categoryName} • ${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
 
-                {/* Pagination */}
-                {pagination.totalPages > 1 && (
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(filters.pageNo - 1)}
-                      disabled={filters.pageNo === 1 || isLoading}
-                      className="gap-1"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                      Previous
-                    </Button>
-                    <span className="text-xs text-gray-500">
-                      Page {filters.pageNo} of {pagination.totalPages}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(filters.pageNo + 1)}
-                      disabled={filters.pageNo === pagination.totalPages || isLoading}
-                      className="gap-1"
-                    >
-                      Next
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
+                    {/* Pagination */}
+                    {pagination.totalPages > 1 && (
+                      <div className="flex items-center justify-between pt-4 border-t">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(filters.pageNo - 1)}
+                          disabled={filters.pageNo === 1 || isLoading}
+                          className="gap-1"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          Previous
+                        </Button>
+                        <span className="text-xs text-muted-foreground">
+                          Page {filters.pageNo} of {pagination.totalPages}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(filters.pageNo + 1)}
+                          disabled={filters.pageNo === pagination.totalPages || isLoading}
+                          className="gap-1"
+                        >
+                          Next
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Right Column - Promotion Details */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-8 h-fit">
-                <h2 className="text-lg font-semibold mb-6">Promotion Details</h2>
-
-                <div className="space-y-6">
-                  {/* Promotion Type */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Promotion Type <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      {...form.register("promotionType")}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      disabled={isSubmitting}
-                    >
-                      <option value="">Select type...</option>
-                      {PROMOTION_TYPES.map((type) => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                    {form.formState.errors.promotionType && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {form.formState.errors.promotionType.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Promotion Value */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      {form.watch("promotionType") === "PERCENTAGE"
-                        ? "Discount (%)"
-                        : "Discount Amount ($)"}{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      placeholder={
-                        form.watch("promotionType") === "PERCENTAGE"
-                          ? "0-100"
-                          : "Amount"
-                      }
-                      step="0.01"
-                      min="0"
-                      max={form.watch("promotionType") === "PERCENTAGE" ? "100" : ""}
-                      disabled={isSubmitting}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      {...form.register("promotionValue", {
-                        valueAsNumber: true,
-                      })}
-                    />
-                    {form.formState.errors.promotionValue && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {form.formState.errors.promotionValue.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* From Date */}
-                  <DateTimePickerField
-                    control={form.control}
-                    name="promotionFromDate"
-                    label="From Date"
-                    required
-                    mode="datetime"
-                    error={form.formState.errors.promotionFromDate}
-                  />
-
-                  {/* To Date */}
-                  <DateTimePickerField
-                    control={form.control}
-                    name="promotionToDate"
-                    label="To Date"
-                    required
-                    mode="datetime"
-                    error={form.formState.errors.promotionToDate}
-                  />
-
-                  {/* Summary */}
-                  {selectedProductIds.size > 0 && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-                      <p className="text-xs font-semibold text-blue-900 mb-3">Summary</p>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs text-blue-800">
-                          <span>Products Selected:</span>
-                          <span className="font-semibold">{selectedProductIds.size}</span>
-                        </div>
-                        {discountDisplay && (
-                          <div className="flex justify-between text-xs text-blue-800">
-                            <span>Discount:</span>
-                            <span className="font-semibold">{discountDisplay}</span>
-                          </div>
-                        )}
-                      </div>
+              <Card className="sticky top-4 h-fit">
+                <CardContent className="p-6">
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="font-semibold text-base mb-4">Promotion Details</h3>
                     </div>
-                  )}
-                </div>
-              </div>
+
+                    {/* Promotion Type */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Promotion Type <span className="text-destructive">*</span>
+                      </label>
+                      <select
+                        {...form.register("promotionType")}
+                        className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                        disabled={isSubmitting}
+                      >
+                        <option value="">Select type...</option>
+                        {PROMOTION_TYPES.map((type) => (
+                          <option key={type.value} value={type.value}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
+                      {form.formState.errors.promotionType && (
+                        <p className="text-xs text-destructive mt-1">
+                          {form.formState.errors.promotionType.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Promotion Value */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        {form.watch("promotionType") === "PERCENTAGE"
+                          ? "Discount (%)"
+                          : "Discount Amount ($)"}{" "}
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        placeholder={
+                          form.watch("promotionType") === "PERCENTAGE"
+                            ? "0-100"
+                            : "Amount"
+                        }
+                        step="0.01"
+                        min="0"
+                        max={form.watch("promotionType") === "PERCENTAGE" ? "100" : ""}
+                        disabled={isSubmitting}
+                        className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                        {...form.register("promotionValue", {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      {form.formState.errors.promotionValue && (
+                        <p className="text-xs text-destructive mt-1">
+                          {form.formState.errors.promotionValue.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* From Date */}
+                    <DateTimePickerField
+                      control={form.control}
+                      name="promotionFromDate"
+                      label="From Date"
+                      required
+                      mode="datetime"
+                      error={form.formState.errors.promotionFromDate}
+                    />
+
+                    {/* To Date */}
+                    <DateTimePickerField
+                      control={form.control}
+                      name="promotionToDate"
+                      label="To Date"
+                      required
+                      mode="datetime"
+                      error={form.formState.errors.promotionToDate}
+                    />
+
+                    {/* Summary Card */}
+                    {selectedProductIds.size > 0 && (
+                      <Card className="bg-blue-50 border-blue-200">
+                        <CardContent className="p-4">
+                          <p className="text-xs font-semibold text-blue-900 mb-3">Summary</p>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs text-blue-800">
+                              <span>Products:</span>
+                              <span className="font-semibold">{selectedProductIds.size}</span>
+                            </div>
+                            {discountDisplay && (
+                              <div className="flex justify-between text-xs text-blue-800">
+                                <span>Discount:</span>
+                                <span className="font-semibold">{discountDisplay}</span>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+          <div className="flex justify-end gap-2 pt-4 border-t">
             <Button
               type="button"
               variant="outline"
               onClick={handleCancel}
               disabled={isSubmitting}
+              className="gap-2"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={selectedProductIds.size === 0 || isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="gap-2"
             >
               {isSubmitting ? "Creating..." : "Create Promotion"}
             </Button>
