@@ -539,37 +539,6 @@ export default function BulkPromotionCreationPage() {
                 </div>
               </div>
 
-              {/* Summary Card - Enhanced Design */}
-              {selectedIds.length > 0 && discountDisplay && (
-                <div className="space-y-2">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">
-                    Summary
-                  </p>
-                  <Card className="bg-gradient-to-br from-primary/95 to-primary/85 border-0 text-primary-foreground shadow-lg hover:shadow-xl hover:from-primary hover:to-primary/90 transition-all duration-300 overflow-hidden">
-                    <CardContent className="p-5 sm:p-6 md:p-5 lg:p-6 space-y-4 sm:space-y-5 md:space-y-4 lg:space-y-5">
-                      <div className="grid grid-cols-2 gap-4 sm:gap-5 md:gap-4 lg:gap-5">
-                        <div className="space-y-1.5">
-                          <p className="text-xs font-semibold opacity-85 uppercase tracking-wider">
-                            Items
-                          </p>
-                          <p className="text-2xl sm:text-3xl md:text-2xl lg:text-3xl font-bold">
-                            {selectedIds.length}
-                          </p>
-                        </div>
-                        <div className="space-y-1.5 text-right">
-                          <p className="text-xs font-semibold opacity-85 uppercase tracking-wider">
-                            Discount
-                          </p>
-                          <p className="text-2xl sm:text-3xl md:text-2xl lg:text-3xl font-bold">
-                            {discountDisplay}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
               {/* Action Buttons - Modern Style */}
               <div className="flex gap-3 sm:gap-4 md:gap-3 lg:gap-4 pt-2 sm:pt-4 md:pt-2 lg:pt-4">
                 <Button
