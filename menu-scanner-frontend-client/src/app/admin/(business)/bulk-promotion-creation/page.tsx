@@ -167,9 +167,10 @@ export default function BulkPromotionCreationPage() {
   const isFormValid =
     selectedProductIds.size > 0 && promotionType && promotionValue > 0;
 
-  // Define table columns for products WITHOUT useMemo
-  // Render functions access current selectedProductIds through closure
-  const columns: TableColumn<ProductDetailResponseModel>[] = [
+  // Memoize columns with only stable dependencies
+  // Render functions capture selectedProductIds through closure
+  // This avoids infinite loop while keeping checkboxes responsive
+  const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(() => [
     {
       key: "checkbox",
       label: "",
@@ -209,7 +210,7 @@ export default function BulkPromotionCreationPage() {
       className: "text-right",
       render: (product) => `$${(product.displayPrice ?? 0).toFixed(2)}`,
     },
-  ];
+  ], [handleSelectProduct, isLoading]);
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background">
