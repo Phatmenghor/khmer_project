@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, CheckSquare, Square, Trash2 } from "lucide-react";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
@@ -280,7 +281,7 @@ export default function BulkPromotionCreationPage() {
       // Clear selections after successful creation
       dispatch(clearSelectedProducts());
       clearSelections();
-      router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
+      form.reset();
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -541,16 +542,15 @@ export default function BulkPromotionCreationPage() {
 
               {/* Action Buttons - Modern Style */}
               <div className="flex gap-3 sm:gap-4 md:gap-3 lg:gap-4 pt-2 sm:pt-4 md:pt-2 lg:pt-4">
-                <Button
-                  type="button"
+                <CustomButton
                   variant="outline"
                   onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
                   disabled={isSubmitting}
                   className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold rounded-lg border-2 hover:bg-muted/50 transition-all duration-200"
                 >
                   Cancel
-                </Button>
-                <Button
+                </CustomButton>
+                <CustomButton
                   type="submit"
                   disabled={!isFormValid || isSubmitting}
                   className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
@@ -567,7 +567,7 @@ export default function BulkPromotionCreationPage() {
                       <span className="sm:hidden">Apply</span>
                     </>
                   )}
-                </Button>
+                </CustomButton>
               </div>
             </div>
           </div>
