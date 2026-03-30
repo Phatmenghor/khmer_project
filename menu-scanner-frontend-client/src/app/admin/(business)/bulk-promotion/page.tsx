@@ -97,11 +97,14 @@ export default function BulkPromotionCreationPage() {
   // Save to localStorage whenever selections change
   useEffect(() => {
     try {
+      console.log(`📊 Redux state changed: ${selectedProductIdsFromRedux.length} products selected`, selectedProductIdsFromRedux);
+
       if (selectedProductIdsFromRedux.length > 0) {
         const data = selectedProductIdsFromRedux.map((id) => [id, true]);
         localStorage.setItem("bulk-promotion:selected-products", JSON.stringify(data));
         console.log(
-          `💾 Saved ${selectedProductIdsFromRedux.length} selected products to localStorage`
+          `💾 Saved ${selectedProductIdsFromRedux.length} selected products to localStorage`,
+          data
         );
       } else {
         localStorage.removeItem("bulk-promotion:selected-products");
@@ -129,6 +132,7 @@ export default function BulkPromotionCreationPage() {
   // Toggle product selection
   const handleSelectProduct = useCallback(
     (productId: string) => {
+      console.log(`🔄 Toggling product: ${productId}`);
       dispatch(toggleSelectedProduct(productId));
     },
     [dispatch]
