@@ -286,39 +286,41 @@ export default function BulkPromotionCreationPage() {
         {/* Right Column - Promotion Settings */}
         <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth">
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-2 sm:px-4 py-4 space-y-4 sm:space-y-6">
+            <div className="px-2 sm:px-4 py-4 space-y-4 sm:space-y-4">
               {/* Selected Count Card */}
-              <div className="p-3 sm:p-4 rounded-lg bg-muted/50 border border-border">
+              <div className="h-20 p-3 sm:p-4 rounded-lg bg-muted/50 border border-border flex flex-col justify-center">
                 <p className="text-xs text-muted-foreground font-semibold uppercase">
                   Selected Products
                 </p>
-                <p className="text-2xl sm:text-3xl font-bold text-foreground mt-2">
+                <p className="text-2xl sm:text-3xl font-bold text-foreground mt-1">
                   {selectedIds.length}
                 </p>
               </div>
 
               {/* Discount Type */}
-              <CustomSelect
-                label="Discount Type"
-                placeholder="Choose discount type..."
-                options={PROMOTION_TYPES}
-                value={promotionType}
-                onValueChange={(value) =>
-                  form.setValue("promotionType", value as "FIXED_AMOUNT" | "PERCENTAGE")
-                }
-                disabled={isSubmitting}
-                required
-                size="md"
-              />
-              {form.formState.errors.promotionType && (
-                <p className="text-xs text-destructive font-medium">
-                  ⚠️ {form.formState.errors.promotionType.message}
-                </p>
-              )}
+              <div className="h-20 flex flex-col justify-center">
+                <CustomSelect
+                  label="Discount Type"
+                  placeholder="Choose discount type..."
+                  options={PROMOTION_TYPES}
+                  value={promotionType}
+                  onValueChange={(value) =>
+                    form.setValue("promotionType", value as "FIXED_AMOUNT" | "PERCENTAGE")
+                  }
+                  disabled={isSubmitting}
+                  required
+                  size="md"
+                />
+                {form.formState.errors.promotionType && (
+                  <p className="text-xs text-destructive font-medium mt-1">
+                    ⚠️ {form.formState.errors.promotionType.message}
+                  </p>
+                )}
+              </div>
 
               {/* Promotion Value */}
-              <div className="space-y-2">
-                <label className="block text-xs sm:text-sm font-semibold text-foreground">
+              <div className="h-20 flex flex-col justify-center">
+                <label className="block text-xs sm:text-sm font-semibold text-foreground mb-1">
                   {promotionType === "PERCENTAGE"
                     ? "Discount Percentage"
                     : "Discount Amount"}{" "}
@@ -346,7 +348,7 @@ export default function BulkPromotionCreationPage() {
                   )}
                 </div>
                 {form.formState.errors.promotionValue && (
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-destructive font-medium mt-1">
                     ⚠️ {form.formState.errors.promotionValue.message}
                   </p>
                 )}
@@ -355,26 +357,30 @@ export default function BulkPromotionCreationPage() {
               <Separator className="bg-border" />
 
               {/* Date Range */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <p className="text-xs sm:text-sm font-semibold text-foreground">
                   Promotion Duration
                 </p>
-                <DateTimePickerField
-                  control={form.control}
-                  name="promotionFromDate"
-                  label="Start Date"
-                  required
-                  mode="datetime"
-                  error={form.formState.errors.promotionFromDate}
-                />
-                <DateTimePickerField
-                  control={form.control}
-                  name="promotionToDate"
-                  label="End Date"
-                  required
-                  mode="datetime"
-                  error={form.formState.errors.promotionToDate}
-                />
+                <div className="h-20 flex flex-col justify-center">
+                  <DateTimePickerField
+                    control={form.control}
+                    name="promotionFromDate"
+                    label="Start Date"
+                    required
+                    mode="datetime"
+                    error={form.formState.errors.promotionFromDate}
+                  />
+                </div>
+                <div className="h-20 flex flex-col justify-center">
+                  <DateTimePickerField
+                    control={form.control}
+                    name="promotionToDate"
+                    label="End Date"
+                    required
+                    mode="datetime"
+                    error={form.formState.errors.promotionToDate}
+                  />
+                </div>
               </div>
 
               {/* Summary Card */}
