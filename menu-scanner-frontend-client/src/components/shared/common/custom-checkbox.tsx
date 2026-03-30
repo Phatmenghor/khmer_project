@@ -74,21 +74,21 @@ export function CustomCheckbox({
   const variantConfig = {
     default: {
       unchecked:
-        "bg-white border border-input shadow-sm hover:border-input/70 hover:shadow-md active:scale-95",
+        "bg-white border-2 border-gray-300 shadow-sm hover:border-gray-400 hover:shadow-md hover:bg-gray-50/50 active:scale-95",
       checked:
         "bg-primary border-2 border-primary shadow-md hover:shadow-lg hover:bg-primary/95 active:scale-95",
       icon: "text-white",
     },
     accent: {
       unchecked:
-        "bg-white border border-input shadow-sm hover:border-input/70 hover:shadow-md active:scale-95",
+        "bg-white border-2 border-gray-300 shadow-sm hover:border-gray-400 hover:shadow-md hover:bg-gray-50/50 active:scale-95",
       checked:
         "bg-primary border-2 border-primary shadow-md hover:shadow-lg hover:bg-primary/95 active:scale-95",
       icon: "text-white",
     },
     outline: {
       unchecked:
-        "bg-transparent border-2 border-input shadow-sm hover:border-input/70 hover:shadow-md active:scale-95",
+        "bg-transparent border-2 border-gray-300 shadow-sm hover:border-gray-400 hover:shadow-md active:scale-95",
       checked:
         "bg-primary border-2 border-primary shadow-md hover:shadow-lg hover:bg-primary/95 active:scale-95",
       icon: "text-white",
