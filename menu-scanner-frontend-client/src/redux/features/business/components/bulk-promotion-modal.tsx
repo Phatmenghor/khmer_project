@@ -46,20 +46,20 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<BulkPromotionFormData>({
-    resolver: zodResolver(bulkPromotionSchema),
-    defaultValues: {
-      productIds: [],
-      promotionType: undefined,
-      promotionValue: undefined,
-      promotionFromDate: new Date().toISOString(),
-      promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  });
-
-  // Fetch products for selection
+  // Fetch products for selection and reset form when modal opens
   useEffect(() => {
     if (isOpen) {
+      // Reset form and selections
+      form.reset({
+        productIds: [],
+        promotionType: undefined,
+        promotionValue: undefined,
+        promotionFromDate: new Date().toISOString(),
+        promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+      setSelectedProductIds(new Set());
+
+      // Fetch products
       dispatch(
         fetchAllProductAdminService({
           search: "",
@@ -69,7 +69,19 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
         })
       );
     }
-  }, [isOpen, dispatch, globalPageSize]);
+  }, [isOpen, dispatch, globalPageSize, form]);
+
+  const form = useForm<BulkPromotionFormData>({
+    resolver: zodResolver(bulkPromotionSchema),
+    mode: "onChange",
+    defaultValues: {
+      productIds: [],
+      promotionType: undefined,
+      promotionValue: undefined,
+      promotionFromDate: new Date().toISOString(),
+      promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  });
 
   const handleSelectProduct = useCallback((productId: string) => {
     setSelectedProductIds((prev) => {
@@ -84,7 +96,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
   }, []);
 
   const handleSelectAll = useCallback((selected: boolean) => {
-    if (selected) {
+    if (selected && productContent && productContent.length > 0) {
       const allIds = new Set(productContent.map((p) => p.id));
       setSelectedProductIds(allIds);
     } else {
@@ -153,6 +165,10 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
     setSelectedProductIds(new Set());
     onClose();
   };
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
