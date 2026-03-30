@@ -252,9 +252,9 @@ export default function BulkPromotionCreationPage() {
         </div>
 
         {/* Right Column - Promotion Settings */}
-        <div className="w-full lg:w-96 flex flex-col gap-3 px-2 sm:px-4 py-4 overflow-hidden border-t lg:border-t-0 lg:border-l border-border min-h-0">
+        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0">
           <ScrollArea className="flex-1 min-h-0">
-            <div className="pr-2 sm:pr-4 space-y-4 sm:space-y-6">
+            <div className="px-2 sm:px-4 py-4 space-y-4 sm:space-y-6">
               {/* Selected Count */}
               <div className="p-3 sm:p-4 rounded-lg bg-muted/50 border border-border">
                 <p className="text-xs text-muted-foreground font-semibold uppercase">
@@ -376,7 +376,7 @@ export default function BulkPromotionCreationPage() {
           </ScrollArea>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 pt-2 sm:pt-3 border-t border-border">
+          <div className="flex gap-2 px-2 sm:px-4 py-3 sm:py-4 border-t border-border shrink-0">
             <Button
               type="button"
               variant="outline"
