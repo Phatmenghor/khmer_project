@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
+import { CustomSelect, SelectOption } from "@/components/shared/common/custom-select";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import {
@@ -32,7 +33,7 @@ import {
 } from "@/redux/features/business/store/models/schema/bulk-promotion-schema";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 
-const PROMOTION_TYPES = [
+const PROMOTION_TYPES: SelectOption[] = [
   { value: "FIXED_AMOUNT", label: "Fixed Amount ($)" },
   { value: "PERCENTAGE", label: "Percentage (%)" },
 ];
@@ -265,28 +266,21 @@ export default function BulkPromotionCreationPage() {
               </div>
 
               {/* Promotion Type */}
-              <div className="space-y-2">
-                <label className="block text-xs sm:text-sm font-semibold text-foreground">
-                  Discount Type <span className="text-destructive">*</span>
-                </label>
-                <select
-                  {...form.register("promotionType")}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background hover:border-border"
-                  disabled={isSubmitting}
-                >
-                  <option value="">Choose discount type...</option>
-                  {PROMOTION_TYPES.map((type) => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-                {form.formState.errors.promotionType && (
-                  <p className="text-xs text-destructive font-medium">
-                    ⚠️ {form.formState.errors.promotionType.message}
-                  </p>
-                )}
-              </div>
+              <CustomSelect
+                label="Discount Type"
+                placeholder="Choose discount type..."
+                options={PROMOTION_TYPES}
+                value={promotionType}
+                onValueChange={(value) => form.setValue("promotionType", value as "FIXED_AMOUNT" | "PERCENTAGE")}
+                disabled={isSubmitting}
+                required
+                size="md"
+              />
+              {form.formState.errors.promotionType && (
+                <p className="text-xs text-destructive font-medium">
+                  ⚠️ {form.formState.errors.promotionType.message}
+                </p>
+              )}
 
               {/* Promotion Value */}
               <div className="space-y-2">
