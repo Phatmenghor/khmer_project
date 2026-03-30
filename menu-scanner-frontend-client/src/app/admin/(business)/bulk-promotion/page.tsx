@@ -381,14 +381,6 @@ export default function BulkPromotionCreationPage() {
                 {/* Right Side - Filters (aligned to the end) */}
                 <div className="flex flex-wrap items-end gap-2 flex-shrink-0">
                   <div className="max-w-[150px]">
-                    <ComboboxSelectBrand
-                      dataSelect={selectedBrand}
-                      onChangeSelected={handleBrandChange}
-                      placeholder="All Brand"
-                      showAllOption={true}
-                    />
-                  </div>
-                  <div className="max-w-[150px]">
                     <ComboboxSelectCategories
                       dataSelect={selectedCategories}
                       onChangeSelected={handleCategoriesChange}
@@ -396,6 +388,16 @@ export default function BulkPromotionCreationPage() {
                       showAllOption={true}
                     />
                   </div>
+
+                  <div className="max-w-[150px]">
+                    <ComboboxSelectBrand
+                      dataSelect={selectedBrand}
+                      onChangeSelected={handleBrandChange}
+                      placeholder="All Brand"
+                      showAllOption={true}
+                    />
+                  </div>
+
                   <div className="">
                     <CustomSelect
                       options={PRODUCT_STATUS_FILTER}
