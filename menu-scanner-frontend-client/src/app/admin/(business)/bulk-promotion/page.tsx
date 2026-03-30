@@ -513,14 +513,8 @@ export default function BulkPromotionCreationPage() {
                   </div>
                 </div>
 
-                {/* Separator */}
-                <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-
                 {/* Duration Section */}
                 <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
-                  <h3 className="text-sm font-bold text-foreground uppercase tracking-wider px-1">
-                    Promotion Duration
-                  </h3>
                   <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
                     <DateTimePickerField
                       control={form.control}
@@ -600,7 +594,6 @@ export default function BulkPromotionCreationPage() {
                     </div>
                   ) : (
                     <>
-                      <Check className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 mr-2" />
                       <span className="hidden sm:inline">Apply Promotion</span>
                       <span className="sm:hidden">Apply</span>
                     </>
