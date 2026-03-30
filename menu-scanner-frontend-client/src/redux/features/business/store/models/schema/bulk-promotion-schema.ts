@@ -30,7 +30,7 @@ export const bulkPromotionSchema = z
       errorMap: () => ({ message: "Promotion type is required" }),
     }),
     promotionValue: z
-      .number()
+      .coerce.number()
       .min(0.01, "Promotion value must be greater than 0"),
     promotionFromDate: dateTimeSchema,
     promotionToDate: dateTimeSchema,
