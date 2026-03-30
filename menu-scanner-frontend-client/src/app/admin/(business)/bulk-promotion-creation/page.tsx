@@ -139,7 +139,7 @@ export default function BulkPromotionCreationPage() {
     form.watch("promotionValue") > 0;
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50">
+    <div className="flex flex-col h-full w-full bg-slate-50">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 shrink-0 shadow-sm">
         <div className="flex items-center gap-4">
@@ -273,9 +273,9 @@ export default function BulkPromotionCreationPage() {
         </div>
 
         {/* Right Column - Promotion Details & Actions */}
-        <div className="w-96 flex flex-col bg-gradient-to-b from-slate-50 to-slate-100 border-l border-slate-200">
+        <div className="w-96 flex flex-col bg-gradient-to-b from-slate-50 to-slate-100 border-l border-slate-200 overflow-hidden">
           {/* Form Content */}
-          <ScrollArea className="flex-1 overflow-hidden">
+          <ScrollArea className="flex-1 w-full">
             <div className="p-6 space-y-6">
               {/* Section Header */}
               <div>
@@ -401,35 +401,38 @@ export default function BulkPromotionCreationPage() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Action Buttons */}
+              <div className="pt-2">
+                <Separator className="bg-slate-200 mb-6" />
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                    disabled={isSubmitting}
+                    className="flex-1 h-10 font-semibold hover:bg-slate-50"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={!isFormValid || isSubmitting}
+                    className="flex-1 h-10 font-semibold bg-blue-600 hover:bg-blue-700 text-white disabled:bg-slate-300 disabled:text-slate-500"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                        Creating...
+                      </div>
+                    ) : (
+                      "Create Promotion"
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
           </ScrollArea>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 p-6 border-t border-slate-200 bg-white shrink-0 shadow-lg">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-              className="flex-1 h-11 font-semibold hover:bg-slate-50"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={!isFormValid || isSubmitting}
-              className="flex-1 h-11 font-semibold bg-blue-600 hover:bg-blue-700 text-white disabled:bg-slate-300 disabled:text-slate-500"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                  Creating...
-                </div>
-              ) : (
-                "Create Promotion"
-              )}
-            </Button>
-          </div>
         </div>
       </form>
     </div>
