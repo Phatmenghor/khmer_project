@@ -359,7 +359,7 @@ export default function BulkPromotionCreationPage() {
                     </span>
                   </div>
 
-                  {/* Count Badge + Clear Button */}
+                  {/* Clear Button */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {selectedIds.length > 0 && (
                       <button
