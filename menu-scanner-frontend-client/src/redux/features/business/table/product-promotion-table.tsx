@@ -1,6 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Edit, Eye, Trash, RotateCcw } from "lucide-react";
+import { Edit, Eye, Trash, RotateCcw, Zap } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
@@ -193,26 +193,52 @@ export const productPromotionTableColumns = ({
       key: "displayPromotionType",
       label: "Promo Type",
       minWidth: "10px",
-      maxWidth: "100px",
+      maxWidth: "120px",
       truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.displayPromotionType || "---"}
-        </span>
-      ),
+      render: (product) => {
+        const typeLabel =
+          product?.displayPromotionType === "FIXED_AMOUNT"
+            ? "Fixed Amount"
+            : product?.displayPromotionType === "PERCENTAGE"
+              ? "Percentage"
+              : "---";
+
+        return (
+          <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200 whitespace-nowrap">
+            <Zap className="w-3 h-3" />
+            {typeLabel}
+          </Badge>
+        );
+      },
     },
 
     {
       key: "displayPromotionValue",
       label: "Promo Value",
       minWidth: "10px",
-      maxWidth: "100px",
+      maxWidth: "120px",
       truncate: true,
-      render: (product) => (
-        <span className="text-xs font-semibold text-foreground">
-          {product?.displayPromotionValue || "---"}
-        </span>
-      ),
+      render: (product) => {
+        const value = product?.displayPromotionValue;
+        const type = product?.displayPromotionType;
+
+        let displayValue = "---";
+        if (value) {
+          if (type === "PERCENTAGE") {
+            displayValue = `${value}%`;
+          } else if (type === "FIXED_AMOUNT") {
+            displayValue = `$${parseFloat(value.toString()).toFixed(2)}`;
+          } else {
+            displayValue = value;
+          }
+        }
+
+        return (
+          <span className="text-xs font-semibold text-red-600">
+            {displayValue}
+          </span>
+        );
+      },
     },
 
     {
