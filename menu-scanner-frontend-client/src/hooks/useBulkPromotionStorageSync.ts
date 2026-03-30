@@ -82,12 +82,18 @@ export function useBulkPromotionStorageSync(
   // LOAD from localStorage on mount (ONCE ONLY)
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!enabled || isInitializedRef.current) return;
+    console.log("## [HOOK] Load effect running, enabled:", enabled, "initialized:", isInitializedRef.current);
+    if (!enabled || isInitializedRef.current) {
+      console.log("## [HOOK] Skipping load - enabled:", enabled, "already initialized:", isInitializedRef.current);
+      return;
+    }
 
     isInitializedRef.current = true;
+    console.log("## [HOOK] Starting initialization...");
 
     try {
       const saved = localStorage.getItem(storageKey);
+      console.log("## [HOOK] Loaded from localStorage:", saved);
 
       if (saved) {
         const parsedIds = JSON.parse(saved) as [string, boolean][];
@@ -125,8 +131,14 @@ export function useBulkPromotionStorageSync(
   // SAVE to localStorage when selections change (DEBOUNCED)
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
+    console.log("## [HOOK] Save effect triggered, enabled:", enabled, "initialized:", isInitializedRef.current);
     // Don't save if not initialized or disabled
-    if (!enabled || !isInitializedRef.current) return;
+    if (!enabled || !isInitializedRef.current) {
+      console.log("## [HOOK] Skipping save - enabled:", enabled, "initialized:", isInitializedRef.current);
+      return;
+    }
+
+    console.log("## [HOOK] Setting up save debounce for", selectedProductIds.length, "products");
 
     // Clear previous timeout
     if (saveTimeoutRef.current) {
@@ -135,6 +147,7 @@ export function useBulkPromotionStorageSync(
 
     // Debounce the save
     saveTimeoutRef.current = setTimeout(() => {
+      console.log("## [HOOK] Save timeout fired, saving to localStorage");
       try {
         if (selectedProductIds.length > 0) {
           const data = selectedProductIds.map((id) => [id, true]);
@@ -162,6 +175,8 @@ export function useBulkPromotionStorageSync(
         }
       }
     }, debounceMs);
+
+    console.log("## [HOOK] Debounce timeout set for", debounceMs, "ms");
 
     // Cleanup
     return () => {
