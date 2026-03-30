@@ -451,42 +451,44 @@ export default function BulkPromotionCreationPage() {
               </div>
 
               {/* Form Sections Container */}
-              <div className="space-y-3.5">
+              <div className="space-y-4">
                 {/* Discount Type */}
-                <div className="h-20 flex flex-col justify-center">
-                  <label className="block text-xs sm:text-sm font-semibold text-foreground mb-2">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs sm:text-sm font-semibold text-foreground">
                     Discount Type <span className="text-destructive">*</span>
                   </label>
-                  <CustomSelect
-                    placeholder="Choose discount type..."
-                    options={PROMOTION_TYPES}
-                    value={promotionType}
-                    onValueChange={(value) =>
-                      form.setValue(
-                        "promotionType",
-                        value as "FIXED_AMOUNT" | "PERCENTAGE",
-                      )
-                    }
-                    disabled={isSubmitting}
-                    required
-                    size="md"
-                  />
+                  <div className="h-10">
+                    <CustomSelect
+                      placeholder="Choose discount type..."
+                      options={PROMOTION_TYPES}
+                      value={promotionType}
+                      onValueChange={(value) =>
+                        form.setValue(
+                          "promotionType",
+                          value as "FIXED_AMOUNT" | "PERCENTAGE",
+                        )
+                      }
+                      disabled={isSubmitting}
+                      required
+                      size="md"
+                    />
+                  </div>
                   {form.formState.errors.promotionType && (
-                    <p className="text-xs text-destructive font-medium mt-1">
+                    <p className="text-xs text-destructive font-medium">
                       {form.formState.errors.promotionType.message}
                     </p>
                   )}
                 </div>
 
                 {/* Promotion Value */}
-                <div className="h-20 flex flex-col justify-center">
-                  <label className="block text-xs sm:text-sm font-semibold text-foreground mb-2">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs sm:text-sm font-semibold text-foreground">
                     {promotionType === "PERCENTAGE"
                       ? "Discount Percentage"
                       : "Discount Amount"}{" "}
                     <span className="text-destructive">*</span>
                   </label>
-                  <div className="relative">
+                  <div className="relative h-10">
                     <input
                       type="number"
                       placeholder={
@@ -496,7 +498,7 @@ export default function BulkPromotionCreationPage() {
                       min="0"
                       max={promotionType === "PERCENTAGE" ? "100" : ""}
                       disabled={isSubmitting}
-                      className="w-full h-10 px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
+                      className="w-full h-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
                       {...form.register("promotionValue", {
                         valueAsNumber: true,
                       })}
@@ -508,7 +510,7 @@ export default function BulkPromotionCreationPage() {
                     )}
                   </div>
                   {form.formState.errors.promotionValue && (
-                    <p className="text-xs text-destructive font-medium mt-1">
+                    <p className="text-xs text-destructive font-medium">
                       {form.formState.errors.promotionValue.message}
                     </p>
                   )}
@@ -518,27 +520,31 @@ export default function BulkPromotionCreationPage() {
                 <Separator className="bg-border/20" />
 
                 {/* Start Date */}
-                <div className="h-20 flex flex-col justify-center">
-                  <DateTimePickerField
-                    control={form.control}
-                    name="promotionFromDate"
-                    label="Start Date"
-                    required
-                    mode="datetime"
-                    error={form.formState.errors.promotionFromDate}
-                  />
+                <div className="flex flex-col gap-2">
+                  <div className="h-10">
+                    <DateTimePickerField
+                      control={form.control}
+                      name="promotionFromDate"
+                      label="Start Date"
+                      required
+                      mode="datetime"
+                      error={form.formState.errors.promotionFromDate}
+                    />
+                  </div>
                 </div>
 
                 {/* End Date */}
-                <div className="h-20 flex flex-col justify-center">
-                  <DateTimePickerField
-                    control={form.control}
-                    name="promotionToDate"
-                    label="End Date"
-                    required
-                    mode="datetime"
-                    error={form.formState.errors.promotionToDate}
-                  />
+                <div className="flex flex-col gap-2">
+                  <div className="h-10">
+                    <DateTimePickerField
+                      control={form.control}
+                      name="promotionToDate"
+                      label="End Date"
+                      required
+                      mode="datetime"
+                      error={form.formState.errors.promotionToDate}
+                    />
+                  </div>
                 </div>
               </div>
 
