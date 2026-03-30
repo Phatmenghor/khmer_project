@@ -293,29 +293,35 @@ export default function BulkPromotionCreationPage() {
         {/* Left Column - Product Selection */}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
           {/* Filters Section */}
-          <div className="flex flex-wrap items-end gap-2">
-            <ComboboxSelectBrand
-              dataSelect={selectedBrand}
-              onChangeSelected={handleBrandChange}
-              placeholder="All Brand"
-              showAllOption={true}
-            />
-            <ComboboxSelectCategories
-              dataSelect={selectedCategories}
-              onChangeSelected={handleCategoriesChange}
-              placeholder="All Categories"
-              showAllOption={true}
-            />
-            <CustomSelect
-              options={PRODUCT_STATUS_FILTER}
-              value={filters.status}
-              placeholder="All Status"
-              onValueChange={(value) =>
-                handleProductStatusChange(value as ProductStatus)
-              }
-              label="Product Status"
-              size="md"
-            />
+          <div className="flex flex-wrap items-end gap-2 shrink-0">
+            <div className="flex-1 min-w-max">
+              <ComboboxSelectBrand
+                dataSelect={selectedBrand}
+                onChangeSelected={handleBrandChange}
+                placeholder="All Brand"
+                showAllOption={true}
+              />
+            </div>
+            <div className="flex-1 min-w-max">
+              <ComboboxSelectCategories
+                dataSelect={selectedCategories}
+                onChangeSelected={handleCategoriesChange}
+                placeholder="All Categories"
+                showAllOption={true}
+              />
+            </div>
+            <div className="flex-1 min-w-max">
+              <CustomSelect
+                options={PRODUCT_STATUS_FILTER}
+                value={filters.status}
+                placeholder="All Status"
+                onValueChange={(value) =>
+                  handleProductStatusChange(value as ProductStatus)
+                }
+                label="Product Status"
+                size="md"
+              />
+            </div>
           </div>
 
           {/* Select All Control */}
