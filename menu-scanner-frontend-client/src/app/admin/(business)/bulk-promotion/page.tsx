@@ -38,6 +38,7 @@ import { BrandResponseModel } from "@/redux/features/master-data/store/models/re
 import { ProductStatus } from "@/constants/status/status";
 import { selectProductStatus } from "@/redux/features/business/store/slice/product-slice";
 import {
+  setSelectedProducts,
   toggleSelectedProduct,
   clearSelectedProducts,
 } from "@/redux/features/business/store/slice/bulk-promotion-slice";
