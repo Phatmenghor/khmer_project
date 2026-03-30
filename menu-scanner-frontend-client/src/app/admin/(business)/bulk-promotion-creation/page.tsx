@@ -188,8 +188,8 @@ export default function BulkPromotionCreationPage() {
           </div>
 
           {/* Products List */}
-          <ScrollArea className="flex-1 w-full">
-            <div className="space-y-1 p-2">
+          <ScrollArea className="flex-1 w-full h-0">
+            <div className="space-y-1 p-2 w-full">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 space-y-3">
                   <div className="h-10 w-10 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin" />
@@ -277,8 +277,8 @@ export default function BulkPromotionCreationPage() {
         {/* Right Column - Promotion Details & Actions */}
         <div className="w-96 flex flex-col bg-gradient-to-b from-slate-50 to-slate-100 border-l border-slate-200 overflow-hidden min-h-0">
           {/* Form Content */}
-          <ScrollArea className="flex-1 w-full min-h-0">
-            <div className="p-6 space-y-6">
+          <ScrollArea className="flex-1 w-full h-0">
+            <div className="p-6 space-y-6 w-full">
               {/* Section Header */}
               <div>
                 <h2 className="text-lg font-bold text-slate-900">Promotion Settings</h2>
