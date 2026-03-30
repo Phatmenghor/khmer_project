@@ -214,8 +214,7 @@ export default function BulkPromotionCreationPage() {
                 <tr className="border-b border-border">
                   <th className="w-12 px-3 py-3 text-left">
                     <Checkbox
-                      checked={allSelected}
-                      indeterminate={someSelected}
+                      checked={allSelected || someSelected}
                       onCheckedChange={handleSelectAll}
                       disabled={isLoading || productContent.length === 0}
                       aria-label="Select all products on this page"
