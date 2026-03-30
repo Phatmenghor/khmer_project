@@ -438,139 +438,170 @@ export default function BulkPromotionCreationPage() {
         </div>
 
         {/* Right Column - Promotion Settings */}
-        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-gradient-to-b from-background to-muted/5">
+        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-gradient-to-b from-background via-background to-primary/5">
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-3 sm:px-4 py-4 space-y-3 sm:space-y-4">
-              {/* Selected Count Card */}
-              <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-200">
-                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2">
-                  Selected Products
-                </p>
-                <p className="text-3xl sm:text-4xl font-bold text-primary">
-                  {selectedIds.length}
+            <div className="px-4 sm:px-5 md:px-4 lg:px-5 py-6 sm:py-8 md:py-6 lg:py-8 space-y-6 sm:space-y-8 md:space-y-6 lg:space-y-8">
+              {/* Header Section */}
+              <div className="space-y-1">
+                <h2 className="text-lg sm:text-xl font-bold text-foreground">
+                  Promotion Setup
+                </h2>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Configure discount details below
                 </p>
               </div>
 
-              {/* Form Sections Container */}
-              <div className="space-y-4">
-                {/* Discount Type */}
-                <div className="space-y-2">
-                  <CustomSelect
-                    placeholder="Choose discount type..."
-                    label="Discount Type"
-                    options={PROMOTION_TYPES}
-                    value={promotionType}
-                    onValueChange={(value) =>
-                      form.setValue(
-                        "promotionType",
-                        value as "FIXED_AMOUNT" | "PERCENTAGE",
-                      )
-                    }
-                    disabled={isSubmitting}
-                    required
-                  />
-                  {form.formState.errors.promotionType && (
-                    <p className="text-xs text-destructive font-medium px-0.5">
-                      {form.formState.errors.promotionType.message}
+              {/* Selected Count Card - Premium Design */}
+              <div className="relative overflow-hidden rounded-xl p-5 sm:p-6 md:p-5 lg:p-6 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 border border-primary/30 shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-300">
+                <div className="absolute inset-0 bg-grid-small-white/5 opacity-30" />
+                <div className="relative space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary/80">
+                    Selection Status
+                  </p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-4xl sm:text-5xl md:text-4xl lg:text-5xl font-bold text-primary">
+                      {selectedIds.length}
                     </p>
-                  )}
+                    <span className="text-sm text-muted-foreground font-medium">
+                      items selected
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Sections - Grouped */}
+              <div className="space-y-6 sm:space-y-7 md:space-y-6 lg:space-y-7">
+                {/* Discount Section */}
+                <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
+                  <h3 className="text-sm font-bold text-foreground uppercase tracking-wider px-1">
+                    Discount Settings
+                  </h3>
+                  <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
+                    <CustomSelect
+                      placeholder="Choose discount type..."
+                      label="Discount Type"
+                      options={PROMOTION_TYPES}
+                      value={promotionType}
+                      onValueChange={(value) =>
+                        form.setValue(
+                          "promotionType",
+                          value as "FIXED_AMOUNT" | "PERCENTAGE",
+                        )
+                      }
+                      disabled={isSubmitting}
+                      required
+                    />
+                    {form.formState.errors.promotionType && (
+                      <p className="text-xs text-destructive font-medium px-1">
+                        {form.formState.errors.promotionType.message}
+                      </p>
+                    )}
+
+                    <PromotionValueField
+                      control={form.control}
+                      name="promotionValue"
+                      label={
+                        promotionType === "PERCENTAGE"
+                          ? "Discount Percentage"
+                          : "Discount Amount"
+                      }
+                      promotionType={promotionType}
+                      error={form.formState.errors.promotionValue}
+                      disabled={isSubmitting}
+                      required
+                    />
+                  </div>
                 </div>
 
-                {/* Promotion Value */}
-                <PromotionValueField
-                  control={form.control}
-                  name="promotionValue"
-                  label={
-                    promotionType === "PERCENTAGE"
-                      ? "Discount Percentage"
-                      : "Discount Amount"
-                  }
-                  promotionType={promotionType}
-                  error={form.formState.errors.promotionValue}
-                  disabled={isSubmitting}
-                  required
-                />
+                {/* Separator */}
+                <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
 
-                {/* Start Date */}
+                {/* Duration Section */}
+                <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
+                  <h3 className="text-sm font-bold text-foreground uppercase tracking-wider px-1">
+                    Promotion Duration
+                  </h3>
+                  <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
+                    <DateTimePickerField
+                      control={form.control}
+                      className="h-10"
+                      name="promotionFromDate"
+                      label="Start Date"
+                      required
+                      mode="datetime"
+                      error={form.formState.errors.promotionFromDate}
+                    />
 
-                <DateTimePickerField
-                  control={form.control}
-                  className="h-10"
-                  name="promotionFromDate"
-                  label="Start Date"
-                  required
-                  mode="datetime"
-                  error={form.formState.errors.promotionFromDate}
-                />
-
-                {/* End Date */}
-                <DateTimePickerField
-                  control={form.control}
-                  className="h-10"
-                  name="promotionToDate"
-                  label="End Date"
-                  required
-                  mode="datetime"
-                  error={form.formState.errors.promotionToDate}
-                />
+                    <DateTimePickerField
+                      control={form.control}
+                      className="h-10"
+                      name="promotionToDate"
+                      label="End Date"
+                      required
+                      mode="datetime"
+                      error={form.formState.errors.promotionToDate}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Summary Card */}
+              {/* Summary Card - Enhanced Design */}
               {selectedIds.length > 0 && discountDisplay && (
-                <Card className="bg-gradient-to-br from-primary to-primary/90 border-0 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden">
-                  <CardContent className="p-4 sm:p-5">
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-90 mb-3 sm:mb-4">
-                      Summary
-                    </p>
-                    <div className="space-y-2.5">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs sm:text-sm opacity-90">
-                          Items
-                        </span>
-                        <span className="font-bold text-sm sm:text-base">
-                          {selectedIds.length}
-                        </span>
+                <div className="space-y-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">
+                    Summary
+                  </p>
+                  <Card className="bg-gradient-to-br from-primary/95 to-primary/85 border-0 text-primary-foreground shadow-lg hover:shadow-xl hover:from-primary hover:to-primary/90 transition-all duration-300 overflow-hidden">
+                    <CardContent className="p-5 sm:p-6 md:p-5 lg:p-6 space-y-4 sm:space-y-5 md:space-y-4 lg:space-y-5">
+                      <div className="grid grid-cols-2 gap-4 sm:gap-5 md:gap-4 lg:gap-5">
+                        <div className="space-y-1.5">
+                          <p className="text-xs font-semibold opacity-85 uppercase tracking-wider">
+                            Items
+                          </p>
+                          <p className="text-2xl sm:text-3xl md:text-2xl lg:text-3xl font-bold">
+                            {selectedIds.length}
+                          </p>
+                        </div>
+                        <div className="space-y-1.5 text-right">
+                          <p className="text-xs font-semibold opacity-85 uppercase tracking-wider">
+                            Discount
+                          </p>
+                          <p className="text-2xl sm:text-3xl md:text-2xl lg:text-3xl font-bold">
+                            {discountDisplay}
+                          </p>
+                        </div>
                       </div>
-                      <div className="w-full h-px bg-primary-foreground opacity-20" />
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs sm:text-sm opacity-90">
-                          Discount
-                        </span>
-                        <span className="font-bold text-base sm:text-lg">
-                          {discountDisplay}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
+              {/* Action Buttons - Modern Style */}
+              <div className="flex gap-3 sm:gap-4 md:gap-3 lg:gap-4 pt-2 sm:pt-4 md:pt-2 lg:pt-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
                   disabled={isSubmitting}
-                  className="flex-1 h-9 sm:h-10 text-xs sm:text-sm"
+                  className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold rounded-lg border-2 hover:bg-muted/50 transition-all duration-200"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={!isFormValid || isSubmitting}
-                  className="flex-1 h-9 sm:h-10 text-xs sm:text-sm bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <div className="flex items-center gap-2">
-                      <div className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
                       <span className="hidden sm:inline">Applying...</span>
                       <span className="sm:hidden">Apply...</span>
                     </div>
                   ) : (
                     <>
-                      <Check className="w-4 h-4 mr-1" />
-                      <span className="hidden sm:inline">Apply</span>
+                      <Check className="w-4 h-4 sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 mr-2" />
+                      <span className="hidden sm:inline">Apply Promotion</span>
                       <span className="sm:hidden">Apply</span>
                     </>
                   )}
