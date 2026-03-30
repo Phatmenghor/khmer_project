@@ -84,6 +84,11 @@ export default function BulkPromotionCreationPage() {
     enabled: true,
   });
 
+  // Debug: Log Redux state changes
+  useEffect(() => {
+    console.log("🔍 Redux selectedProductIds updated:", selectedProductIdsFromRedux);
+  }, [selectedProductIdsFromRedux]);
+
   // Fetch products on mount and when filters change
   useEffect(() => {
     dispatch(
