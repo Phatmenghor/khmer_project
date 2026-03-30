@@ -164,9 +164,9 @@ export default function BulkPromotionCreationPage() {
         </div>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1 overflow-hidden">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1 overflow-hidden min-h-0">
         {/* Left Column - Product Selection (Full scrollable) */}
-        <div className="flex-1 flex flex-col bg-white border-r border-slate-200">
+        <div className="flex-1 flex flex-col bg-white border-r border-slate-200 overflow-hidden">
           {/* Select All Header */}
           <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-200 shrink-0">
             <div className="flex items-center gap-3">
@@ -188,7 +188,7 @@ export default function BulkPromotionCreationPage() {
           </div>
 
           {/* Products List */}
-          <ScrollArea className="flex-1 w-full overflow-hidden">
+          <ScrollArea className="flex-1 w-full">
             <div className="space-y-1 p-2">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 space-y-3">
@@ -275,9 +275,9 @@ export default function BulkPromotionCreationPage() {
         </div>
 
         {/* Right Column - Promotion Details & Actions */}
-        <div className="w-96 flex flex-col bg-gradient-to-b from-slate-50 to-slate-100 border-l border-slate-200 overflow-hidden">
+        <div className="w-96 flex flex-col bg-gradient-to-b from-slate-50 to-slate-100 border-l border-slate-200 overflow-hidden min-h-0">
           {/* Form Content */}
-          <ScrollArea className="flex-1 w-full">
+          <ScrollArea className="flex-1 w-full min-h-0">
             <div className="p-6 space-y-6">
               {/* Section Header */}
               <div>
