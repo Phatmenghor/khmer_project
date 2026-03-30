@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, memo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,6 +7,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+
+// Constants
+const PAGINATION_ITEMS_THRESHOLD = 7;
+const PAGINATION_START_OFFSET = 2;
+const PAGINATION_WINDOW_SIZE = 4;
+const PAGINATION_SIDE_ITEMS = 3;
 
 // Page Size Selector Component
 interface PageSizeSelectorProps {
@@ -21,7 +27,7 @@ interface PageSizeSelectorProps {
   };
 }
 
-function PageSizeSelector({
+const PageSizeSelector = memo(function PageSizeSelector({
   pageSize,
   pageSizeOptions,
   onPageSizeChange,
@@ -75,7 +81,7 @@ function PageSizeSelector({
       </Popover>
     </div>
   );
-}
+});
 
 export interface TableColumn<T = any> {
   key: string;
@@ -160,27 +166,27 @@ export function DataTableWithPagination<T = any>({
   const getPaginationItems = (): (number | "ellipsis")[] => {
     const items: (number | "ellipsis")[] = [];
 
-    if (totalPages <= 7) {
+    if (totalPages <= PAGINATION_ITEMS_THRESHOLD) {
       for (let i = 1; i <= totalPages; i++) {
         items.push(i);
       }
     } else {
       items.push(1);
 
-      let start = Math.max(2, currentPage - 1);
+      let start = Math.max(PAGINATION_START_OFFSET, currentPage - 1);
       let end = Math.min(totalPages - 1, currentPage + 1);
 
-      if (currentPage <= 3) {
-        start = 2;
-        end = 4;
+      if (currentPage <= PAGINATION_SIDE_ITEMS) {
+        start = PAGINATION_START_OFFSET;
+        end = PAGINATION_WINDOW_SIZE;
       }
 
       if (currentPage >= totalPages - 2) {
-        start = totalPages - 3;
+        start = totalPages - PAGINATION_SIDE_ITEMS;
         end = totalPages - 1;
       }
 
-      if (start > 2) {
+      if (start > PAGINATION_START_OFFSET) {
         items.push("ellipsis");
       }
 

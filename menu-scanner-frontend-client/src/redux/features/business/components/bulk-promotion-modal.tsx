@@ -19,16 +19,12 @@ import { setPageNo } from "../store/slice/product-slice";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useProductState } from "../store/state/product-state";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const PROMOTION_TYPES = [
-  { value: "FIXED_AMOUNT", label: "Fixed Amount ($)" },
-  { value: "PERCENTAGE", label: "Percentage (%)" },
-];
 
 export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const dispatch = useAppDispatch();
@@ -48,7 +44,9 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
       promotionType: undefined,
       promotionValue: 0,
       promotionFromDate: new Date().toISOString(),
-      promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      promotionToDate: new Date(
+        Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000
+      ).toISOString(),
     },
   });
 
@@ -61,7 +59,9 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
         promotionType: undefined,
         promotionValue: 0,
         promotionFromDate: new Date().toISOString(),
-        promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        promotionToDate: new Date(
+        Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000
+      ).toISOString(),
       });
       setSelectedProductIds(new Set());
 
@@ -145,10 +145,15 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
           status: undefined,
         })
       );
-    } catch (error: any) {
-      showToast.error(
-        error?.message || "Failed to create bulk promotion"
-      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" && error !== null && "message" in error
+          ? (error as Record<string, unknown>).message
+          : "Failed to create bulk promotion";
+
+      showToast.error(String(errorMessage));
     } finally {
       setIsSubmitting(false);
     }

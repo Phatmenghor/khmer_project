@@ -36,8 +36,8 @@ export function DateTimePickerField<T extends FieldValues>({
 }: DateTimePickerFieldProps<T>) {
   return (
     <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={name} className="text-[12px] font-normal text-gray-300">
-        {label} {required && <span className="text-red-500 ml-1">*</span>}
+      <Label htmlFor={name} className="text-xs sm:text-sm font-semibold text-foreground">
+        {label} {required && <span className="text-destructive ml-1">*</span>}
       </Label>
       <Controller
         control={control}
@@ -54,7 +54,7 @@ export function DateTimePickerField<T extends FieldValues>({
           />
         )}
       />
-      {error && <p className="text-xs text-red-500">{error?.message}</p>}
+      {error && <p className="text-xs text-destructive font-medium">{error?.message}</p>}
     </div>
   );
 }

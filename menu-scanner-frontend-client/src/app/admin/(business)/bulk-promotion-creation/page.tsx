@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
-import { CustomSelect, SelectOption } from "@/components/shared/common/custom-select";
+import { CustomSelect } from "@/components/shared/common/custom-select";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import {
@@ -31,11 +31,7 @@ import {
   BulkPromotionFormData,
 } from "@/redux/features/business/store/models/schema/bulk-promotion-schema";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
-
-const PROMOTION_TYPES: SelectOption[] = [
-  { value: "FIXED_AMOUNT", label: "Fixed Amount ($)" },
-  { value: "PERCENTAGE", label: "Percentage (%)" },
-];
+import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
@@ -57,7 +53,7 @@ export default function BulkPromotionCreationPage() {
       promotionValue: 0,
       promotionFromDate: new Date().toISOString(),
       promotionToDate: new Date(
-        Date.now() + 7 * 24 * 60 * 60 * 1000,
+        Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000,
       ).toISOString(),
     },
   });
@@ -139,8 +135,15 @@ export default function BulkPromotionCreationPage() {
         result.message || "Bulk promotion created successfully!",
       );
       router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to create bulk promotion");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" && error !== null && "message" in error
+          ? (error as Record<string, unknown>).message
+          : "Failed to create bulk promotion";
+
+      showToast.error(String(errorMessage));
     } finally {
       setIsSubmitting(false);
     }
@@ -164,8 +167,9 @@ export default function BulkPromotionCreationPage() {
   const isFormValid =
     selectedProductIds.size > 0 && promotionType && promotionValue > 0;
 
-  // Define table columns for products
-  const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(() => [
+  // Define table columns for products WITHOUT useMemo
+  // Render functions access current selectedProductIds through closure
+  const columns: TableColumn<ProductDetailResponseModel>[] = [
     {
       key: "checkbox",
       label: "",
@@ -176,6 +180,7 @@ export default function BulkPromotionCreationPage() {
           onCheckedChange={() => handleSelectProduct(product.id)}
           disabled={isLoading}
           className="h-4 w-4"
+          aria-label={`Select ${product.name}`}
         />
       ),
     },
@@ -202,9 +207,9 @@ export default function BulkPromotionCreationPage() {
       key: "price",
       label: "Price",
       className: "text-right",
-      render: (product) => `$${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}`,
+      render: (product) => `$${(product.displayPrice ?? 0).toFixed(2)}`,
     },
-  ], [selectedProductIds.size]);
+  ];
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background">

@@ -1,6 +1,24 @@
 import { z } from "zod";
 
 /**
+ * Validates ISO 8601 date strings and datetime-local formats
+ */
+const dateTimeSchema = z
+  .string()
+  .min(1, "Date is required")
+  .refine(
+    (date) => {
+      try {
+        const parsed = new Date(date);
+        return !isNaN(parsed.getTime());
+      } catch {
+        return false;
+      }
+    },
+    { message: "Invalid date format" }
+  );
+
+/**
  * Bulk Promotion Schema with validation
  */
 export const bulkPromotionSchema = z
@@ -14,21 +32,18 @@ export const bulkPromotionSchema = z
     promotionValue: z
       .number()
       .min(0.01, "Promotion value must be greater than 0"),
-    promotionFromDate: z
-      .string()
-      .min(1, "Promotion from date is required")
-      .datetime("Invalid date format"),
-    promotionToDate: z
-      .string()
-      .min(1, "Promotion to date is required")
-      .datetime("Invalid date format"),
+    promotionFromDate: dateTimeSchema,
+    promotionToDate: dateTimeSchema,
   })
   .refine(
     (data) => {
-      // Validate that end date is after start date
-      return (
-        new Date(data.promotionToDate) > new Date(data.promotionFromDate)
-      );
+      try {
+        const fromDate = new Date(data.promotionFromDate);
+        const toDate = new Date(data.promotionToDate);
+        return toDate > fromDate;
+      } catch {
+        return false;
+      }
     },
     {
       message: "Promotion end date must be after start date",
@@ -37,7 +52,6 @@ export const bulkPromotionSchema = z
   )
   .refine(
     (data) => {
-      // Validate promotion value based on type
       if (data.promotionType === "PERCENTAGE") {
         return data.promotionValue > 0 && data.promotionValue <= 100;
       }

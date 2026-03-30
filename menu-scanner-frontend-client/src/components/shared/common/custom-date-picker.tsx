@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar, ChevronLeft, ChevronRight, X, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DATE_RANGE_CALENDAR_DAYS, YEAR_RANGE_OFFSET } from "@/constants/form-options";
 
 interface DateTimePickerProps {
   value?: string;
@@ -41,9 +42,9 @@ const MONTHS = [
   "Oct",
   "Nov",
   "Dec",
-];
+] as const;
 
-const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
+const DAYS = ["S", "M", "T", "W", "T", "F", "S"] as const;
 
 export function CustomDateTimePicker({
   value,
@@ -104,10 +105,10 @@ export function CustomDateTimePicker({
     return dateStr;
   };
 
-  // Format date for form submission
+  // Format date for form submission - use ISO 8601 format for consistency
   const formatDateForForm = (date: Date): string => {
     if (mode === "datetime") {
-      return date.toISOString().slice(0, 16);
+      return date.toISOString();
     }
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -196,7 +197,7 @@ export function CustomDateTimePicker({
     const days = [];
     const currentDate = new Date(startDate);
 
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < DATE_RANGE_CALENDAR_DAYS; i++) {
       const dayObj = {
         date: new Date(currentDate),
         day: currentDate.getDate(),
@@ -217,7 +218,7 @@ export function CustomDateTimePicker({
   const generateYearOptions = () => {
     const currentYear = new Date().getFullYear();
     const years = [];
-    for (let i = currentYear - 50; i <= currentYear + 50; i++) {
+    for (let i = currentYear - YEAR_RANGE_OFFSET; i <= currentYear + YEAR_RANGE_OFFSET; i++) {
       years.push(i.toString());
     }
     return years;
