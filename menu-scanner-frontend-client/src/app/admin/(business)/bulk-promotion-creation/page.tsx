@@ -14,7 +14,6 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { useProductState } from "@/redux/features/business/store/state/product-state";
 import {
@@ -30,6 +29,50 @@ import {
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { indexDisplay } from "@/utils/common/common";
+import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+
+/**
+ * ProductImagePreview - Display product image with square rounded styling
+ */
+function ProductImagePreview({
+  product,
+}: {
+  product: ProductDetailResponseModel;
+}) {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  return (
+    <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
+      {!imageError && product?.mainImageUrl ? (
+        <>
+          {!imageLoaded && (
+            <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
+          )}
+          <Image
+            src={product.mainImageUrl}
+            alt={product.name}
+            width={48}
+            height={48}
+            className={cn(
+              "w-full h-full object-cover transition-all duration-300 hover:scale-105",
+              imageLoaded ? "opacity-100" : "opacity-0"
+            )}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+          />
+        </>
+      ) : (
+        <span className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
+          {product?.name?.charAt(0).toUpperCase() || "P"}
+        </span>
+      )}
+    </div>
+  );
+}
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
@@ -133,6 +176,17 @@ export default function BulkPromotionCreationPage() {
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
     () => [
       {
+        key: "index",
+        label: "#",
+        width: "50px",
+        className: "px-2",
+        render: (_, index) => (
+          <span className="font-medium text-xs">
+            {indexDisplay(filters.pageNo || 1, pageSize || 10, index + 1)}
+          </span>
+        ),
+      },
+      {
         key: "checkbox",
         label: "",
         width: "48px",
@@ -147,33 +201,54 @@ export default function BulkPromotionCreationPage() {
         ),
       },
       {
+        key: "imageUrl",
+        label: "Image",
+        width: "60px",
+        className: "px-2",
+        render: (product) => <ProductImagePreview product={product} />,
+      },
+      {
         key: "name",
-        label: "Product",
+        label: "Product Name",
         className: "px-4",
         render: (product) => (
-          <div className="flex items-center gap-2">
-            <CustomAvatar
-              imageUrl={product.mainImageUrl}
-              name={product.name}
-              size="sm"
-            />
-            <span className="font-medium truncate max-w-xs">{product.name}</span>
-          </div>
+          <span className="text-xs font-medium truncate max-w-xs">
+            {product.name}
+          </span>
+        ),
+      },
+      {
+        key: "brandName",
+        label: "Brand",
+        className: "px-4",
+        render: (product) => (
+          <span className="text-xs text-muted-foreground">
+            {product.brandName || "---"}
+          </span>
         ),
       },
       {
         key: "categoryName",
         label: "Category",
         className: "px-4",
+        render: (product) => (
+          <span className="text-xs text-muted-foreground">
+            {product.categoryName || "---"}
+          </span>
+        ),
       },
       {
         key: "displayPrice",
         label: "Price",
         className: "px-4 text-right",
-        render: (product) => `$${(product.displayPrice ?? 0).toFixed(2)}`,
+        render: (product) => (
+          <span className="text-xs font-semibold">
+            ${(product.displayPrice ?? 0).toFixed(2)}
+          </span>
+        ),
       },
     ],
-    [selectedProductIds, isLoading, handleSelectProduct]
+    [selectedProductIds, isLoading, handleSelectProduct, filters.pageNo, pageSize]
   );
 
   // Handle page change
