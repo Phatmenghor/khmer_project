@@ -535,9 +535,9 @@
 }
 
 @layer base {
-  /* 25% smaller = 75% of original size */
+  /* 20% smaller = 80% of original size (matches browser 80% zoom) */
   html {
-    font-size: 75%;
+    font-size: 80%;
   }
 
   :root {
