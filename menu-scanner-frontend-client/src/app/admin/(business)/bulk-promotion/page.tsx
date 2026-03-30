@@ -38,14 +38,49 @@ import { BrandResponseModel } from "@/redux/features/master-data/store/models/re
 import { ProductStatus } from "@/constants/status/status";
 import { selectProductStatus } from "@/redux/features/business/store/slice/product-slice";
 
+const BULK_PROMOTION_STORAGE_KEY = "bulk-promotion-selected-products";
+
+// localStorage utilities
+const loadSelectedProductsFromStorage = (): Map<string, boolean> => {
+  if (typeof window === "undefined") return new Map();
+  try {
+    const stored = localStorage.getItem(BULK_PROMOTION_STORAGE_KEY);
+    if (stored) {
+      const ids = JSON.parse(stored);
+      return new Map(ids);
+    }
+  } catch (error) {
+    console.error("Failed to load from localStorage:", error);
+  }
+  return new Map();
+};
+
+const saveSelectedProductsToStorage = (selectedIds: Map<string, boolean>) => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(BULK_PROMOTION_STORAGE_KEY, JSON.stringify(Array.from(selectedIds)));
+  } catch (error) {
+    console.error("Failed to save to localStorage:", error);
+  }
+};
+
+const clearSelectedProductsStorage = () => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(BULK_PROMOTION_STORAGE_KEY);
+  } catch (error) {
+    console.error("Failed to clear localStorage:", error);
+  }
+};
+
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { productContent, filters, pagination, isLoading } = useProductState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
-  // Simple state for selected product IDs
-  const [selectedProductIds, setSelectedProductIds] = useState<Map<string, boolean>>(new Map());
+  // Simple state for selected product IDs (loaded from localStorage)
+  const [selectedProductIds, setSelectedProductIds] = useState<Map<string, boolean>>(() => loadSelectedProductsFromStorage());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pageSize, setPageSize] = useState<number>(globalPageSize);
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(null);
@@ -64,6 +99,11 @@ export default function BulkPromotionCreationPage() {
       ).toISOString(),
     },
   });
+
+  // Save selected products to localStorage whenever they change
+  useEffect(() => {
+    saveSelectedProductsToStorage(selectedProductIds);
+  }, [selectedProductIds]);
 
   // Fetch products on mount and when filters change
   useEffect(() => {
@@ -225,6 +265,8 @@ export default function BulkPromotionCreationPage() {
       showToast.success(
         result.message || "Bulk promotion created successfully!"
       );
+      // Clear localStorage after successful creation
+      clearSelectedProductsStorage();
       router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
     } catch (error) {
       const errorMessage =
