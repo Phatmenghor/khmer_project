@@ -90,7 +90,7 @@ export default function ProductPromotionPage() {
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.PRODUCTS,
+    baseRoute: ROUTES.ADMIN.PRODUCTS_PROMOTION,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
