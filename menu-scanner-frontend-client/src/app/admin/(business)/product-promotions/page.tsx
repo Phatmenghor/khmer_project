@@ -287,31 +287,29 @@ export default function ProductPromotionPage() {
           onSearchChange={handleSearchChange}
           openModal={handleCreateBrand}
         >
-          <div className="flex flex-wrap items-center gap-2">
-            <ComboboxSelectBrand
-              dataSelect={selectedBrand}
-              onChangeSelected={handleBrandChange}
-              placeholder="All Brand"
-              showAllOption={true}
-            />
+          <ComboboxSelectBrand
+            dataSelect={selectedBrand}
+            onChangeSelected={handleBrandChange}
+            placeholder="All Brand"
+            showAllOption={true}
+          />
 
-            <ComboboxSelectCategories
-              dataSelect={selectedCategories}
-              onChangeSelected={handleCategoriesChange}
-              placeholder="All Categires"
-              showAllOption={true}
-            />
+          <ComboboxSelectCategories
+            dataSelect={selectedCategories}
+            onChangeSelected={handleCategoriesChange}
+            placeholder="All Categires"
+            showAllOption={true}
+          />
 
-            <CustomSelect
-              options={PRODUCT_STATUS_FILTER}
-              value={filters.status}
-              placeholder="All Status"
-              onValueChange={(value) =>
-                handleProductStatusChange(value as ProductStatus)
-              }
-              label="Product Status"
-            />
-          </div>
+          <CustomSelect
+            options={PRODUCT_STATUS_FILTER}
+            value={filters.status}
+            placeholder="All Status"
+            onValueChange={(value) =>
+              handleProductStatusChange(value as ProductStatus)
+            }
+            label="Product Status"
+          />
         </CardHeaderSection>
 
         {/* Data Table with Your Custom Pagination */}
