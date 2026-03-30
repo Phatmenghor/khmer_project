@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -133,56 +134,80 @@ export default function BulkPromotionCreationPage() {
     return type === "PERCENTAGE" ? `${value}%` : `$${value}`;
   }, [form.watch("promotionType"), form.watch("promotionValue")]);
 
+  const isFormValid = selectedProductIds.size > 0 &&
+    form.watch("promotionType") &&
+    form.watch("promotionValue") > 0;
+
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="fixed inset-0 flex flex-col bg-slate-50">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b bg-white shrink-0">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleCancel}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-xl font-bold">Create Bulk Promotion</h1>
-          <p className="text-xs text-muted-foreground">Select products and set promotion details</p>
+      <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 shrink-0 shadow-sm">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleCancel}
+            className="h-9 w-9 hover:bg-slate-100"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Create Bulk Promotion</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Select products and configure discount settings</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-semibold text-slate-900">{selectedProductIds.size}</p>
+          <p className="text-xs text-slate-500">Products Selected</p>
         </div>
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1 overflow-hidden">
         {/* Left Column - Product Selection (Full scrollable) */}
-        <div className="flex-1 flex flex-col overflow-hidden border-r">
+        <div className="flex-1 flex flex-col bg-white border-r border-slate-200">
           {/* Select All Header */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b bg-muted/20 shrink-0">
-            <Checkbox
-              checked={allSelected || someSelected}
-              onCheckedChange={handleSelectAll}
-              disabled={isLoading}
-            />
-            <span className="text-sm font-medium">
-              Select All ({selectedProductIds.size} selected)
-            </span>
+          <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-200 shrink-0">
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={allSelected || someSelected}
+                onCheckedChange={handleSelectAll}
+                disabled={isLoading}
+                className="h-5 w-5"
+              />
+              <span className="text-sm font-semibold text-slate-700">
+                {allSelected ? "All Selected" : someSelected ? "Partially Selected" : "Select Products"}
+              </span>
+            </div>
+            {productContent.length > 0 && (
+              <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
+                {productContent.length} available
+              </span>
+            )}
           </div>
 
           {/* Products List */}
           <ScrollArea className="flex-1 w-full overflow-hidden">
-            <div className="space-y-1 p-3">
+            <div className="space-y-1 p-2">
               {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <p className="text-sm text-muted-foreground">Loading products...</p>
+                <div className="flex flex-col items-center justify-center py-20 space-y-3">
+                  <div className="h-10 w-10 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin" />
+                  <p className="text-sm text-slate-500 font-medium">Loading products...</p>
                 </div>
               ) : productContent.length === 0 ? (
-                <div className="flex items-center justify-center py-12">
-                  <p className="text-sm text-muted-foreground">No products found</p>
+                <div className="flex flex-col items-center justify-center py-20 space-y-2">
+                  <p className="text-sm text-slate-500 font-medium">No products found</p>
+                  <p className="text-xs text-slate-400">Try adjusting your filters</p>
                 </div>
               ) : (
                 productContent.map((product) => (
                   <div
                     key={product.id}
-                    className="flex items-center gap-3 p-3 rounded hover:bg-muted/50 transition-colors cursor-pointer"
                     onClick={() => handleSelectProduct(product.id)}
+                    className={`flex items-center gap-3 p-3 rounded-lg transition-all cursor-pointer ${
+                      selectedProductIds.has(product.id)
+                        ? "bg-blue-50 border border-blue-200"
+                        : "hover:bg-slate-50 border border-transparent"
+                    }`}
                   >
                     <Checkbox
                       checked={selectedProductIds.has(product.id)}
@@ -191,7 +216,7 @@ export default function BulkPromotionCreationPage() {
                         handleSelectProduct(product.id);
                       }}
                       disabled={isLoading}
-                      className="cursor-pointer"
+                      className="h-5 w-5"
                     />
                     <CustomAvatar
                       imageUrl={product.mainImageUrl}
@@ -199,11 +224,14 @@ export default function BulkPromotionCreationPage() {
                       size="sm"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {product.categoryName} • ${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}
+                      <p className="text-sm font-medium text-slate-900 truncate">{product.name}</p>
+                      <p className="text-xs text-slate-500">
+                        {product.categoryName} • <span className="font-semibold">${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}</span>
                       </p>
                     </div>
+                    {selectedProductIds.has(product.id) && (
+                      <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                    )}
                   </div>
                 ))
               )}
@@ -212,28 +240,30 @@ export default function BulkPromotionCreationPage() {
 
           {/* Pagination Footer */}
           {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between gap-2 px-4 py-3 border-t bg-muted/10 shrink-0">
+            <div className="flex items-center justify-between gap-3 px-6 py-4 bg-slate-50 border-t border-slate-200 shrink-0">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(filters.pageNo - 1)}
                 disabled={filters.pageNo === 1 || isLoading}
-                className="gap-1"
+                className="gap-2"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Previous
               </Button>
-              <span className="text-xs text-muted-foreground">
-                Page {filters.pageNo} of {pagination.totalPages}
-              </span>
+              <div className="text-center">
+                <p className="text-xs font-medium text-slate-600">
+                  Page <span className="font-bold text-slate-900">{filters.pageNo}</span> of <span className="font-bold text-slate-900">{pagination.totalPages}</span>
+                </p>
+              </div>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(filters.pageNo + 1)}
                 disabled={filters.pageNo === pagination.totalPages || isLoading}
-                className="gap-1"
+                className="gap-2"
               >
                 Next
                 <ChevronRight className="w-4 h-4" />
@@ -243,105 +273,129 @@ export default function BulkPromotionCreationPage() {
         </div>
 
         {/* Right Column - Promotion Details & Actions */}
-        <div className="w-80 flex flex-col overflow-hidden bg-white">
+        <div className="w-96 flex flex-col bg-gradient-to-b from-slate-50 to-slate-100 border-l border-slate-200">
           {/* Form Content */}
           <ScrollArea className="flex-1 overflow-hidden">
-            <div className="p-4 space-y-6">
+            <div className="p-6 space-y-6">
+              {/* Section Header */}
               <div>
-                <h3 className="font-semibold text-base mb-1">Promotion Details</h3>
-                <p className="text-xs text-muted-foreground">Set discount and dates</p>
+                <h2 className="text-lg font-bold text-slate-900">Promotion Settings</h2>
+                <p className="text-sm text-slate-500 mt-1">Configure discount details for selected products</p>
               </div>
 
+              <Separator className="bg-slate-200" />
+
               {/* Promotion Type */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Type <span className="text-destructive">*</span>
-                </label>
-                <select
-                  {...form.register("promotionType")}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                  disabled={isSubmitting}
-                >
-                  <option value="">Select type...</option>
-                  {PROMOTION_TYPES.map((type) => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-                {form.formState.errors.promotionType && (
-                  <p className="text-xs text-destructive mt-1">
-                    {form.formState.errors.promotionType.message}
-                  </p>
-                )}
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                    Discount Type <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    {...form.register("promotionType")}
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white hover:border-slate-400"
+                    disabled={isSubmitting}
+                  >
+                    <option value="">Choose discount type...</option>
+                    {PROMOTION_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  {form.formState.errors.promotionType && (
+                    <p className="text-xs text-red-500 mt-1.5 font-medium">
+                      ⚠️ {form.formState.errors.promotionType.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Promotion Value */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {form.watch("promotionType") === "PERCENTAGE"
-                    ? "Discount (%)"
-                    : "Amount ($)"}{" "}
-                  <span className="text-destructive">*</span>
-                </label>
-                <input
-                  type="number"
-                  placeholder={
-                    form.watch("promotionType") === "PERCENTAGE"
-                      ? "0-100"
-                      : "Amount"
-                  }
-                  step="0.01"
-                  min="0"
-                  max={form.watch("promotionType") === "PERCENTAGE" ? "100" : ""}
-                  disabled={isSubmitting}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                  {...form.register("promotionValue", {
-                    valueAsNumber: true,
-                  })}
-                />
-                {form.formState.errors.promotionValue && (
-                  <p className="text-xs text-destructive mt-1">
-                    {form.formState.errors.promotionValue.message}
-                  </p>
-                )}
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                    {form.watch("promotionType") === "PERCENTAGE"
+                      ? "Discount Percentage"
+                      : "Discount Amount"}{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      placeholder={
+                        form.watch("promotionType") === "PERCENTAGE"
+                          ? "Enter 0-100"
+                          : "Enter amount"
+                      }
+                      step="0.01"
+                      min="0"
+                      max={form.watch("promotionType") === "PERCENTAGE" ? "100" : ""}
+                      disabled={isSubmitting}
+                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white hover:border-slate-400"
+                      {...form.register("promotionValue", {
+                        valueAsNumber: true,
+                      })}
+                    />
+                    {form.watch("promotionType") && (
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-600">
+                        {form.watch("promotionType") === "PERCENTAGE" ? "%" : "$"}
+                      </span>
+                    )}
+                  </div>
+                  {form.formState.errors.promotionValue && (
+                    <p className="text-xs text-red-500 mt-1.5 font-medium">
+                      ⚠️ {form.formState.errors.promotionValue.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* From Date */}
-              <DateTimePickerField
-                control={form.control}
-                name="promotionFromDate"
-                label="From Date"
-                required
-                mode="datetime"
-                error={form.formState.errors.promotionFromDate}
-              />
+              <Separator className="bg-slate-200" />
 
-              {/* To Date */}
-              <DateTimePickerField
-                control={form.control}
-                name="promotionToDate"
-                label="To Date"
-                required
-                mode="datetime"
-                error={form.formState.errors.promotionToDate}
-              />
+              {/* Date Range */}
+              <div className="space-y-4">
+                <p className="text-sm font-semibold text-slate-900">Promotion Duration</p>
+
+                <DateTimePickerField
+                  control={form.control}
+                  name="promotionFromDate"
+                  label="Start Date"
+                  required
+                  mode="datetime"
+                  error={form.formState.errors.promotionFromDate}
+                />
+
+                <DateTimePickerField
+                  control={form.control}
+                  name="promotionToDate"
+                  label="End Date"
+                  required
+                  mode="datetime"
+                  error={form.formState.errors.promotionToDate}
+                />
+              </div>
+
+              <Separator className="bg-slate-200" />
 
               {/* Summary Card */}
               {selectedProductIds.size > 0 && (
-                <Card className="bg-blue-50 border-blue-200">
-                  <CardContent className="p-4">
-                    <p className="text-xs font-semibold text-blue-900 mb-3">Summary</p>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-xs text-blue-800">
-                        <span>Products:</span>
-                        <span className="font-semibold">{selectedProductIds.size}</span>
+                <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-0 text-white shadow-lg">
+                  <CardContent className="p-5">
+                    <p className="text-xs font-bold uppercase tracking-wide opacity-90 mb-3">Summary</p>
+                    <div className="space-y-2.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium opacity-90">Products Selected</span>
+                        <span className="text-xl font-bold">{selectedProductIds.size}</span>
                       </div>
                       {discountDisplay && (
-                        <div className="flex justify-between text-xs text-blue-800">
-                          <span>Discount:</span>
-                          <span className="font-semibold">{discountDisplay}</span>
-                        </div>
+                        <>
+                          <div className="w-full h-px bg-white opacity-20" />
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium opacity-90">Discount</span>
+                            <span className="text-lg font-bold">{discountDisplay}</span>
+                          </div>
+                        </>
                       )}
                     </div>
                   </CardContent>
@@ -351,22 +405,29 @@ export default function BulkPromotionCreationPage() {
           </ScrollArea>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 p-4 border-t bg-muted/20 shrink-0">
+          <div className="flex gap-3 p-6 border-t border-slate-200 bg-white shrink-0 shadow-lg">
             <Button
               type="button"
               variant="outline"
               onClick={handleCancel}
               disabled={isSubmitting}
-              className="flex-1"
+              className="flex-1 h-11 font-semibold hover:bg-slate-50"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={selectedProductIds.size === 0 || isSubmitting}
-              className="flex-1"
+              disabled={!isFormValid || isSubmitting}
+              className="flex-1 h-11 font-semibold bg-blue-600 hover:bg-blue-700 text-white disabled:bg-slate-300 disabled:text-slate-500"
             >
-              {isSubmitting ? "Creating..." : "Create"}
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                  Creating...
+                </div>
+              ) : (
+                "Create Promotion"
+              )}
             </Button>
           </div>
         </div>
