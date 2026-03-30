@@ -43,7 +43,7 @@ function ProductImagePreview({
             height={48}
             className={cn(
               "w-full h-full object-cover transition-all duration-300 hover:scale-105",
-              imageLoaded ? "opacity-100" : "opacity-0"
+              imageLoaded ? "opacity-100" : "opacity-0",
             )}
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
@@ -73,7 +73,7 @@ export const bulkPromotionTableColumns = ({
       key: "checkbox",
       label: "",
       width: "50px",
-      className: "pl-3 pr-1 flex items-center justify-center",
+      className: "pl-4",
       render: (product) => (
         <CustomCheckbox
           checked={selectedProductIds.has(product.id)}
@@ -89,7 +89,7 @@ export const bulkPromotionTableColumns = ({
       key: "index",
       label: "#",
       width: "50px",
-      className: "px-2 pointer-events-none select-none",
+      className: "pr-2",
       render: (_, index) => (
         <span className="font-medium text-xs pointer-events-none">
           {indexDisplay(pageNo || 1, pageSize || 10, index + 1)}
