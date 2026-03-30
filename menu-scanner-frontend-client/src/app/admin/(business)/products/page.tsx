@@ -31,7 +31,7 @@ import { productTableColumns } from "@/redux/features/business/table/product-tab
 import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
+import { PRODUCT_STATUS_FILTER, PRODUCT_PROMOTION_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
@@ -68,6 +68,7 @@ export default function ProductPage() {
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
     null,
   );
+  const [promotionFilter, setPromotionFilter] = useState("ALL");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
 
@@ -97,6 +98,15 @@ export default function ProductPage() {
   });
 
   useEffect(() => {
+    // Determine hasPromotion filter value
+    let hasPromotion: boolean | undefined;
+    if (promotionFilter === "HAS_PROMOTION") {
+      hasPromotion = true;
+    } else if (promotionFilter === "NO_PROMOTION") {
+      hasPromotion = false;
+    }
+    // if ALL, hasPromotion remains undefined (no filter)
+
     dispatch(
       fetchAllProductAdminService({
         search: debouncedSearch,
@@ -106,6 +116,7 @@ export default function ProductPage() {
           filters.status == ProductStatus.ALL ? undefined : filters.status,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
+        hasPromotion,
       }),
     );
   }, [
@@ -116,6 +127,7 @@ export default function ProductPage() {
     globalPageSize,
     selectedBrand,
     selectedCategories,
+    promotionFilter,
   ]);
 
   // Event handlers
@@ -289,6 +301,10 @@ export default function ProductPage() {
     dispatch(selectProductStatus(status));
   };
 
+  const handlePromotionFilterChange = (value: string) => {
+    setPromotionFilter(value);
+  };
+
   const handleBrandChange = (brand: BrandResponseModel | null) => {
     setSelectedBrand(brand);
   };
@@ -334,6 +350,14 @@ export default function ProductPage() {
               handleProductStatusChange(value as ProductStatus)
             }
             label="Product Status"
+          />
+
+          <CustomSelect
+            options={PRODUCT_PROMOTION_FILTER}
+            value={promotionFilter}
+            placeholder="All Products"
+            onValueChange={handlePromotionFilterChange}
+            label="Promotion Status"
           />
         </CardHeaderSection>
 

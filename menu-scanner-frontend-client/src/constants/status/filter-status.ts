@@ -124,3 +124,9 @@ export const PRODUCT_STATUS_FILTER = [
   { value: ProductStatus.INACTIVE, label: "Draft" },
   { value: ProductStatus.OUT_OF_STOCK, label: "Out of Stock" },
 ];
+
+export const PRODUCT_PROMOTION_FILTER = [
+  { value: "ALL", label: "All Products" },
+  { value: "HAS_PROMOTION", label: "Has Promotion" },
+  { value: "NO_PROMOTION", label: "No Promotion" },
+];
