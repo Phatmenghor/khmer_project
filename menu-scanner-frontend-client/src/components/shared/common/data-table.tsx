@@ -1,3 +1,5 @@
+"use client";
+
 import { ReactNode, useState, memo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,43 +39,52 @@ const PageSizeSelector = memo(function PageSizeSelector({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground whitespace-nowrap">
+      <span className="text-xs sm:text-sm text-muted-foreground font-semibold whitespace-nowrap">
         Rows per page:
       </span>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
+            role="combobox"
             className={cn(
-              "justify-between gap-2 min-w-[70px]",
+              "justify-between gap-2 min-w-[70px] transition-colors",
               classes.select
             )}
+            aria-label={`Select rows per page, currently showing ${pageSize} rows`}
           >
-            <span>{pageSize}</span>
-            <ChevronDown className="h-3 w-3 opacity-50" />
+            <span className="font-medium">{pageSize}</span>
+            <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[70px] p-0">
-          <div className="space-y-1">
+        <PopoverContent className="w-[80px] p-0" align="start">
+          <div className="space-y-1 p-1">
             {pageSizeOptions.map((size) => (
               <button
                 key={size}
+                type="button"
                 onClick={() => {
                   onPageSizeChange(size);
                   setOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
-                  pageSize === size && "bg-accent text-accent-foreground"
+                  "w-full flex items-center gap-2 px-3 py-2 text-sm text-left rounded transition-colors",
+                  "hover:bg-accent hover:text-accent-foreground cursor-pointer",
+                  pageSize === size
+                    ? "bg-accent text-accent-foreground"
+                    : "text-foreground"
                 )}
+                aria-label={`Show ${size} rows per page`}
+                aria-pressed={pageSize === size}
               >
                 <Check
                   className={cn(
-                    "h-4 w-4",
+                    "h-4 w-4 flex-shrink-0",
                     pageSize === size ? "opacity-100" : "opacity-0"
                   )}
+                  aria-hidden="true"
                 />
-                {size}
+                <span>{size}</span>
               </button>
             ))}
           </div>
