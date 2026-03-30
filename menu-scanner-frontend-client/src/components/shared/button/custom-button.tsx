@@ -11,7 +11,7 @@ export interface CustomButtonProps extends ButtonProps {
 export const CustomButton = React.forwardRef<
   HTMLButtonElement,
   CustomButtonProps
->(({ onClick, className, children, ...props }, ref) => {
+>(({ onClick, className, children, type = "button", ...props }, ref) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (onClick) {
       onClick(e);
@@ -21,7 +21,7 @@ export const CustomButton = React.forwardRef<
   return (
     <Button
       ref={ref}
-      type="button"
+      type={type}
       onClick={handleClick}
       className={cn(className)}
       {...props}
