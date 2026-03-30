@@ -227,7 +227,7 @@ export default function ProductPage() {
   };
 
 
-  const handleResetPromotion = async () => {
+  const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
 
     try {
@@ -388,7 +388,7 @@ export default function ProductPage() {
       <DeleteConfirmationModal
         isOpen={resetPromotionState.isOpen}
         onClose={closeResetPromotionModal}
-        onDelete={handleResetPromotion}
+        onDelete={handleConfirmResetPromotion}
         title="Reset Promotion"
         description={`Are you sure you want to reset the promotion for this product ${
           resetPromotionState.product?.name || ""
