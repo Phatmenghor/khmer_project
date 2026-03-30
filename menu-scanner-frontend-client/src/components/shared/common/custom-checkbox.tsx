@@ -46,21 +46,25 @@ export function CustomCheckbox({
   const sizeConfig = {
     sm: {
       box: "w-4 h-4",
+      innerBox: "w-2 h-2",
       icon: "w-3 h-3",
       text: "text-xs",
     },
     md: {
       box: "w-5 h-5",
+      innerBox: "w-2.5 h-2.5",
       icon: "w-4 h-4",
       text: "text-sm",
     },
     lg: {
       box: "w-6 h-6",
+      innerBox: "w-3 h-3",
       icon: "w-5 h-5",
       text: "text-base",
     },
     xl: {
       box: "w-8 h-8",
+      innerBox: "w-4 h-4",
       icon: "w-6 h-6",
       text: "text-lg",
     },
@@ -72,21 +76,21 @@ export function CustomCheckbox({
       unchecked:
         "bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50",
       checked:
-        "bg-blue-600 border-2 border-blue-600 hover:bg-blue-700 hover:border-blue-700",
+        "bg-primary border-2 border-primary hover:bg-primary/90 hover:border-primary/90",
       icon: "text-white",
     },
     accent: {
       unchecked:
-        "bg-white border-2 border-purple-300 hover:border-purple-400 hover:bg-purple-50",
+        "bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50",
       checked:
-        "bg-purple-600 border-2 border-purple-600 hover:bg-purple-700 hover:border-purple-700",
+        "bg-primary border-2 border-primary hover:bg-primary/90 hover:border-primary/90",
       icon: "text-white",
     },
     outline: {
       unchecked:
         "bg-transparent border-2 border-gray-400 hover:border-gray-500 hover:bg-gray-100",
       checked:
-        "bg-gray-800 border-2 border-gray-800 hover:bg-gray-900 hover:border-gray-900",
+        "bg-primary border-2 border-primary hover:bg-primary/90 hover:border-primary/90",
       icon: "text-white",
     },
   };
@@ -108,24 +112,32 @@ export function CustomCheckbox({
     className
   );
 
+  const checkboxContent = (
+    <>
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={handleChange}
+        disabled={disabled}
+        className="absolute w-full h-full opacity-0 cursor-pointer"
+        aria-label={ariaLabel || label}
+        title={title}
+      />
+      {checked ? (
+        <Check className={cn(config.icon, varConfig.icon, "pointer-events-none")} />
+      ) : (
+        <div className={cn(config.innerBox, "bg-gray-300 rounded transition-all duration-200 pointer-events-none")} />
+      )}
+    </>
+  );
+
   // Wrapper for label (if provided)
   if (label) {
     return (
       <div className="flex items-center gap-2">
         <div className={baseCheckboxClass} title={title}>
-          <input
-            id={id}
-            type="checkbox"
-            checked={checked}
-            onChange={handleChange}
-            disabled={disabled}
-            className="absolute w-full h-full opacity-0 cursor-pointer"
-            aria-label={ariaLabel || label}
-            title={title}
-          />
-          {checked && (
-            <Check className={cn(config.icon, varConfig.icon, "pointer-events-none")} />
-          )}
+          {checkboxContent}
         </div>
         {label && (
           <label
@@ -146,19 +158,7 @@ export function CustomCheckbox({
   // Checkbox only (no label)
   return (
     <div className={baseCheckboxClass} title={title}>
-      <input
-        id={id}
-        type="checkbox"
-        checked={checked}
-        onChange={handleChange}
-        disabled={disabled}
-        className="absolute w-full h-full opacity-0 cursor-pointer"
-        aria-label={ariaLabel}
-        title={title}
-      />
-      {checked && (
-        <Check className={cn(config.icon, varConfig.icon, "pointer-events-none")} />
-      )}
+      {checkboxContent}
     </div>
   );
 }
