@@ -278,7 +278,12 @@ export default function ProductPromotionPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          title="Product Information"
+          breadcrumbs={[
+            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
+            { label: "Product", href: ROUTES.ADMIN.PRODUCTS },
+            { label: "Promotions", href: "" },
+          ]}
+          title="Product Promotions"
           searchValue={filters.search}
           searchPlaceholder="Search product..."
           buttonTooltip="Create a new product"
