@@ -164,7 +164,10 @@ export default function BulkPromotionCreationPage() {
   const isFormValid =
     selectedProductIds.size > 0 && promotionType && promotionValue > 0;
 
-  // Define table columns for products - stable memoization
+  // Track selection changes
+  const selectionKey = Array.from(selectedProductIds).sort().join(',');
+
+  // Define table columns for products - update when selection changes
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(() => [
     {
       key: "checkbox",
@@ -172,7 +175,6 @@ export default function BulkPromotionCreationPage() {
       width: "48px",
       render: (product) => (
         <Checkbox
-          key={`checkbox-${product.id}-${selectedProductIds.has(product.id)}`}
           checked={selectedProductIds.has(product.id)}
           onCheckedChange={() => handleSelectProduct(product.id)}
           disabled={isLoading}
@@ -210,7 +212,7 @@ export default function BulkPromotionCreationPage() {
       className: "text-right",
       render: (product) => `$${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}`,
     },
-  ], []);
+  ], [selectionKey]);
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background">
@@ -241,7 +243,7 @@ export default function BulkPromotionCreationPage() {
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-hidden min-h-0 lg:border-r lg:border-border">
           <div className="flex-1 overflow-hidden min-h-0">
             <DataTableWithPagination
-              key={`table-${selectedProductIds.size}`}
+              key={`table-${selectionKey}`}
               data={productContent}
               columns={columns}
               loading={isLoading}
