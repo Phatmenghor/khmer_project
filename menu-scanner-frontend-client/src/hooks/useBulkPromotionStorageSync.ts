@@ -1,10 +1,14 @@
 /**
  * useBulkPromotionStorageSync Hook
- * Syncs selected product IDs with localStorage
- * Similar to POS cart localStorage sync
+ * Syncs Redux bulk promotion selected products with localStorage
+ * Pattern: Same as useLocalStorageSync (POS cart sync)
+ * Automatically loads from localStorage on mount and saves on changes
  */
 
 import { useEffect, useRef } from "react";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { setSelectedProducts } from "@/redux/features/business/store/slice/bulk-promotion-slice";
+import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
 
 interface UseBulkPromotionStorageSyncOptions {
   /**
@@ -14,43 +18,65 @@ interface UseBulkPromotionStorageSyncOptions {
   storageKey?: string;
 
   /**
+   * Debounce time before saving (ms)
+   * @default 1000
+   */
+  debounceMs?: number;
+
+  /**
    * Enable/disable sync
    * @default true
    */
   enabled?: boolean;
 
   /**
-   * Callback when products loaded from storage
+   * Callback when products loaded from localStorage
    */
   onProductsLoaded?: (productIds: string[]) => void;
 
   /**
-   * Callback when products saved to storage
+   * Callback when products saved to localStorage
    */
   onProductsSaved?: (productIds: string[]) => void;
 }
 
 /**
- * Hook that syncs selected product IDs with localStorage
+ * Hook that syncs Redux bulk promotion selections with localStorage
  *
  * Features:
  * - Auto-load selected products from localStorage on mount
  * - Auto-save selected products to localStorage on changes
+ * - Debounced saves (prevent excessive writes)
  * - Error handling & validation
  * - Console logging with emojis (like POS)
+ * - Works exactly like useLocalStorageSync
+ *
+ * Usage in component:
+ * ```
+ * useBulkPromotionStorageSync({
+ *   storageKey: "bulk-promotion:selected-products",
+ *   debounceMs: 1000,
+ *   enabled: true,
+ * });
+ * ```
  */
 export function useBulkPromotionStorageSync(
-  selectedProductIds: Map<string, boolean>,
   options: UseBulkPromotionStorageSyncOptions = {}
 ) {
   const {
     storageKey = "bulk-promotion:selected-products",
+    debounceMs = 1000,
     enabled = true,
     onProductsLoaded,
     onProductsSaved,
   } = options;
 
+  const dispatch = useAppDispatch();
+  const selectedProductIds = useAppSelector(selectSelectedProductIds);
+
+  // Track initialization and debouncing
   const isInitializedRef = useRef(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout>();
 
   // ─────────────────────────────────────────────────────────────
   // LOAD from localStorage on mount (ONCE ONLY)
@@ -74,6 +100,7 @@ export function useBulkPromotionStorageSync(
 
           if (isValid) {
             const productIds = parsedIds.map((item) => item[0]);
+            dispatch(setSelectedProducts(productIds));
             console.log(
               `✅ Loaded ${productIds.length} selected products from localStorage (${storageKey})`
             );
@@ -92,49 +119,64 @@ export function useBulkPromotionStorageSync(
     } catch (error) {
       console.error(`❌ Error loading products from localStorage (${storageKey}):`, error);
     }
-  }, [enabled, storageKey, onProductsLoaded]);
+  }, [enabled, storageKey, dispatch, onProductsLoaded]);
 
   // ─────────────────────────────────────────────────────────────
-  // SAVE to localStorage when selections change
+  // SAVE to localStorage when selections change (DEBOUNCED)
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     // Don't save if not initialized or disabled
     if (!enabled || !isInitializedRef.current) return;
 
-    try {
-      if (selectedProductIds.size > 0) {
-        const data = Array.from(selectedProductIds);
-        localStorage.setItem(storageKey, JSON.stringify(data));
-        const sizeKB = (JSON.stringify(data).length / 1024).toFixed(2);
-        console.log(
-          `💾 Saved ${selectedProductIds.size} selected products to localStorage (${sizeKB}KB)`
-        );
-
-        if (onProductsSaved) {
-          onProductsSaved(Array.from(selectedProductIds.keys()));
-        }
-      } else {
-        // Clear if empty
-        localStorage.removeItem(storageKey);
-        console.log(`🗑️ Cleared empty selection from localStorage`);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.name === "QuotaExceededError") {
-          console.error("❌ localStorage quota exceeded! Too many products selected.");
-        } else {
-          console.error(`❌ Error saving products to localStorage:`, error);
-        }
-      }
+    // Clear previous timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
     }
-  }, [selectedProductIds, enabled, storageKey, onProductsSaved]);
+
+    // Debounce the save
+    saveTimeoutRef.current = setTimeout(() => {
+      try {
+        if (selectedProductIds.length > 0) {
+          const data = selectedProductIds.map((id) => [id, true]);
+          localStorage.setItem(storageKey, JSON.stringify(data));
+          const sizeKB = (JSON.stringify(data).length / 1024).toFixed(2);
+          console.log(
+            `💾 Saved ${selectedProductIds.length} selected products to localStorage (${sizeKB}KB)`
+          );
+
+          if (onProductsSaved) {
+            onProductsSaved(selectedProductIds);
+          }
+        } else {
+          // Clear if empty
+          localStorage.removeItem(storageKey);
+          console.log(`🗑️ Cleared empty selection from localStorage`);
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.name === "QuotaExceededError") {
+            console.error("❌ localStorage quota exceeded! Too many products selected.");
+          } else {
+            console.error(`❌ Error saving products to localStorage:`, error);
+          }
+        }
+      }
+    }, debounceMs);
+
+    // Cleanup
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [selectedProductIds, enabled, storageKey, debounceMs, onProductsSaved]);
 
   // ─────────────────────────────────────────────────────────────
   // PUBLIC API
   // ─────────────────────────────────────────────────────────────
 
   /**
-   * Manually clear selected products from localStorage
+   * Manually clear selections from localStorage
    */
   const clearSelections = () => {
     try {
@@ -157,7 +199,7 @@ export function useBulkPromotionStorageSync(
       return {
         selectionSize: sizeBytes,
         selectionSizeMB: sizeMB,
-        itemCount: selectedProductIds.size,
+        itemCount: selectedProductIds.length,
         totalStorageLimit: "~10 MB",
       };
     } catch (error) {
@@ -168,7 +210,7 @@ export function useBulkPromotionStorageSync(
 
   return {
     isInitialized: isInitializedRef.current,
-    itemCount: selectedProductIds.size,
+    itemCount: selectedProductIds.length,
     clearSelections,
     getStorageInfo,
   };

@@ -38,11 +38,11 @@ import { BrandResponseModel } from "@/redux/features/master-data/store/models/re
 import { ProductStatus } from "@/constants/status/status";
 import { selectProductStatus } from "@/redux/features/business/store/slice/product-slice";
 import {
-  setSelectedProducts,
   toggleSelectedProduct,
   clearSelectedProducts,
 } from "@/redux/features/business/store/slice/bulk-promotion-slice";
 import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
+import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
@@ -75,45 +75,13 @@ export default function BulkPromotionCreationPage() {
     },
   });
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("bulk-promotion:selected-products");
-      if (stored) {
-        const parsedIds = JSON.parse(stored) as [string, boolean][];
-        const productIds = parsedIds.map((item) => item[0]);
-        if (Array.isArray(productIds) && productIds.length > 0) {
-          dispatch(setSelectedProducts(productIds));
-          console.log(
-            `✅ Loaded ${productIds.length} selected products from localStorage`
-          );
-        }
-      }
-    } catch (error) {
-      console.error("Error loading from localStorage:", error);
-    }
-  }, [dispatch]);
-
-  // Save to localStorage whenever selections change
-  useEffect(() => {
-    try {
-      console.log(`📊 Redux state changed: ${selectedProductIdsFromRedux.length} products selected`, selectedProductIdsFromRedux);
-
-      if (selectedProductIdsFromRedux.length > 0) {
-        const data = selectedProductIdsFromRedux.map((id) => [id, true]);
-        localStorage.setItem("bulk-promotion:selected-products", JSON.stringify(data));
-        console.log(
-          `💾 Saved ${selectedProductIdsFromRedux.length} selected products to localStorage`,
-          data
-        );
-      } else {
-        localStorage.removeItem("bulk-promotion:selected-products");
-        console.log(`🗑️ Cleared empty selection from localStorage`);
-      }
-    } catch (error) {
-      console.error("Error saving to localStorage:", error);
-    }
-  }, [selectedProductIdsFromRedux]);
+  // ─── localStorage Sync with Redux (Bulk Promotion Selections) ───
+  // Same pattern as POS cart sync - clean and simple!
+  const { clearSelections } = useBulkPromotionStorageSync({
+    storageKey: "bulk-promotion:selected-products",
+    debounceMs: 1000,
+    enabled: true,
+  });
 
   // Fetch products on mount and when filters change
   useEffect(() => {
@@ -132,7 +100,6 @@ export default function BulkPromotionCreationPage() {
   // Toggle product selection
   const handleSelectProduct = useCallback(
     (productId: string) => {
-      console.log(`🔄 Toggling product: ${productId}`);
       dispatch(toggleSelectedProduct(productId));
     },
     [dispatch]
@@ -182,12 +149,7 @@ export default function BulkPromotionCreationPage() {
   // Clear all selections (for testing/resetting)
   const handleClearAllSelections = () => {
     dispatch(clearSelectedProducts());
-    try {
-      localStorage.removeItem("bulk-promotion:selected-products");
-      console.log(`🗑️ Selected products cleared from localStorage`);
-    } catch (error) {
-      console.error("Error clearing localStorage:", error);
-    }
+    clearSelections();
     showToast.success("All selections cleared");
   };
 
@@ -281,12 +243,7 @@ export default function BulkPromotionCreationPage() {
       );
       // Clear selections after successful creation
       dispatch(clearSelectedProducts());
-      try {
-        localStorage.removeItem("bulk-promotion:selected-products");
-        console.log(`🗑️ Selections cleared after successful promotion creation`);
-      } catch (error) {
-        console.error("Error clearing localStorage:", error);
-      }
+      clearSelections();
       router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
     } catch (error) {
       const errorMessage =
