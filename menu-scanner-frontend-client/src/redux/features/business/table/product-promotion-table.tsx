@@ -74,6 +74,38 @@ function ProductImagePreview({
 }
 
 /**
+ * SizesDisplay - Display product sizes in simple bordered boxes
+ */
+function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
+  if (!sizes || sizes.length === 0) {
+    return <span className="text-xs text-muted-foreground">No sizes</span>;
+  }
+
+  return (
+    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
+      {sizes.map((size) => (
+        <div
+          key={size.id}
+          className="px-2 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
+          style={{
+            border: "0.5px solid #FCD34D",
+          }}
+        >
+          {size.name} ${size.finalPrice}
+          {size.hasPromotion && (
+            <span className="text-red-600 font-semibold ml-1">
+              {size.promotionType === "FIXED_AMOUNT"
+                ? `-$${size.promotionValue}`
+                : `-${size.promotionValue}%`}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
  * StatusDisplay - Display product status with consistent styling
  */
 function StatusDisplay({ value }: { value: string }) {
@@ -224,6 +256,14 @@ export const productPromotionTableColumns = ({
           )}
         </span>
       ),
+    },
+
+    {
+      key: "sizes",
+      label: "Sizes",
+      minWidth: "25px",
+      maxWidth: "1000px",
+      render: (product) => <SizesDisplay sizes={product?.sizes} />,
     },
 
     {
