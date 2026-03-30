@@ -329,43 +329,7 @@ export default function BulkPromotionCreationPage() {
           {productContent.length > 0 && (
             <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 py-3 gap-4">
-                {/* Left Side - Filters */}
-                <div className="flex flex-wrap items-end gap-2 flex-1">
-                  <div className="max-w-[150px]">
-                    <ComboboxSelectBrand
-                      dataSelect={selectedBrand}
-                      onChangeSelected={handleBrandChange}
-                      placeholder="All Brand"
-                      showAllOption={true}
-                    />
-                  </div>
-                  <div className="max-w-[150px]">
-                    <ComboboxSelectCategories
-                      dataSelect={selectedCategories}
-                      onChangeSelected={handleCategoriesChange}
-                      placeholder="All Categories"
-                      showAllOption={true}
-                    />
-                  </div>
-                  <div className="">
-                    <CustomSelect
-                      options={PRODUCT_STATUS_FILTER}
-                      value={filters.status}
-                      placeholder="All Status"
-                      onValueChange={(value) =>
-                        handleProductStatusChange(value as ProductStatus)
-                      }
-                      className="w-[150px]"
-                      label="Product Status"
-                      size="md"
-                    />
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="hidden sm:block h-8 w-px bg-border/40"></div>
-
-                {/* Right Side - Select All Control */}
+                {/* Left Side - Select All Control */}
                 <div className="flex items-center gap-3 flex-1 sm:flex-none min-w-0">
                   <CustomCheckbox
                     checked={allSelected}
@@ -415,6 +379,42 @@ export default function BulkPromotionCreationPage() {
                         </button>
                       </>
                     )}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="hidden sm:block h-8 w-px bg-border/40"></div>
+
+                {/* Right Side - Filters */}
+                <div className="flex flex-wrap items-end gap-2 flex-1">
+                  <div className="max-w-[150px]">
+                    <ComboboxSelectBrand
+                      dataSelect={selectedBrand}
+                      onChangeSelected={handleBrandChange}
+                      placeholder="All Brand"
+                      showAllOption={true}
+                    />
+                  </div>
+                  <div className="max-w-[150px]">
+                    <ComboboxSelectCategories
+                      dataSelect={selectedCategories}
+                      onChangeSelected={handleCategoriesChange}
+                      placeholder="All Categories"
+                      showAllOption={true}
+                    />
+                  </div>
+                  <div className="">
+                    <CustomSelect
+                      options={PRODUCT_STATUS_FILTER}
+                      value={filters.status}
+                      placeholder="All Status"
+                      onValueChange={(value) =>
+                        handleProductStatusChange(value as ProductStatus)
+                      }
+                      className="w-[150px]"
+                      label="Product Status"
+                      size="md"
+                    />
                   </div>
                 </div>
               </div>
