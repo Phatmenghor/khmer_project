@@ -72,14 +72,14 @@ export const bulkPromotionTableColumns = ({
     {
       key: "checkbox",
       label: "",
-      width: "60px",
+      width: "50px",
       className: "pl-3 pr-1 flex items-center justify-center",
       render: (product) => (
         <CustomCheckbox
           checked={selectedProductIds.has(product.id)}
           onCheckedChange={() => onSelectProduct(product.id)}
           disabled={isLoading}
-          size="xl"
+          size="lg"
           variant="default"
           ariaLabel={`Select ${product.name}`}
         />
