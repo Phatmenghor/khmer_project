@@ -1,6 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Edit, Eye, Trash } from "lucide-react";
+import { Edit, Eye, Trash, RotateCcw } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
@@ -13,6 +13,7 @@ interface ProductTableHandlers {
   handleEditProduct: (brand: ProductDetailResponseModel) => void;
   handleProductViewDetail: (brand: ProductDetailResponseModel) => void;
   handleDeleteProduct: (brand: ProductDetailResponseModel) => void;
+  handleResetPromotion?: (brand: ProductDetailResponseModel) => void;
 }
 
 interface ProductPromotionTableOptions {
@@ -24,7 +25,7 @@ export const productPromotionTableColumns = ({
   data,
   handlers,
 }: ProductPromotionTableOptions): TableColumn<ProductDetailResponseModel>[] => {
-  const { handleEditProduct, handleProductViewDetail, handleDeleteProduct } =
+  const { handleEditProduct, handleProductViewDetail, handleDeleteProduct, handleResetPromotion } =
     handlers;
 
   return [
@@ -201,6 +202,14 @@ export const productPromotionTableColumns = ({
             tooltip="Edit Product"
             onClick={() => handleEditProduct(brand)}
           />
+          {handleResetPromotion && brand?.hasPromotion && (
+            <ActionButton
+              icon={<RotateCcw className="w-4 h-4" />}
+              tooltip="Reset Promotion"
+              onClick={() => handleResetPromotion(brand)}
+              variant="secondary"
+            />
+          )}
           <ActionButton
             icon={<Trash className="w-4 h-4" />}
             tooltip="Delete Product"

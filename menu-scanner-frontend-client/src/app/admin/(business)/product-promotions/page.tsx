@@ -6,6 +6,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
+import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
@@ -15,12 +16,14 @@ import { ProductDetailResponseModel } from "@/redux/features/business/store/mode
 import {
   deleteProductService,
   fetchAllProductAdminService,
+  resetProductPromotionService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import {
   selectProductStatus,
   setPageNo,
   setSearchFilter,
   resetState,
+  resetProductPromotionOptimistic,
 } from "@/redux/features/business/store/slice/product-slice";
 import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
@@ -76,6 +79,11 @@ export default function ProductPromotionPage() {
     product: null as ProductDetailResponseModel | null,
   });
 
+  const [resetPromotionState, setResetPromotionState] = useState({
+    isOpen: false,
+    product: null as ProductDetailResponseModel | null,
+  });
+
   // Global page size from global settings (synced across all admin pages)
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
@@ -95,6 +103,8 @@ export default function ProductPromotionPage() {
         hasPromotion: true,
         status:
           filters.status == ProductStatus.ALL ? undefined : filters.status,
+        brandId: selectedBrand?.id,
+        categoryId: selectedCategories?.id,
       }),
     );
   }, [
@@ -103,6 +113,8 @@ export default function ProductPromotionPage() {
     filters.pageNo,
     filters.status,
     globalPageSize,
+    selectedBrand,
+    selectedCategories,
   ]);
 
   // Event handlers
@@ -136,11 +148,19 @@ export default function ProductPromotionPage() {
     });
   };
 
+  const handleResetPromotion = (product: ProductDetailResponseModel) => {
+    setResetPromotionState({
+      isOpen: true,
+      product: product,
+    });
+  };
+
   const tableHandlers = useMemo(
     () => ({
       handleEditProduct,
       handleProductViewDetail,
       handleDeleteProduct,
+      handleResetPromotion,
     }),
     [],
   );
@@ -211,6 +231,33 @@ export default function ProductPromotionPage() {
       isOpen: false,
       product: null,
     });
+  };
+
+  const closeResetPromotionModal = () => {
+    setResetPromotionState({
+      isOpen: false,
+      product: null,
+    });
+  };
+
+  const handleConfirmResetPromotion = async () => {
+    if (!resetPromotionState.product?.id) return;
+
+    // Optimistic update - update state immediately
+    dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
+
+    closeResetPromotionModal();
+
+    // Call API in background without blocking UI
+    dispatch(resetProductPromotionService(resetPromotionState.product.id))
+      .then(() => {
+        showToast.success(
+          `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
+        );
+      })
+      .catch((error: any) => {
+        showToast.error(error?.message || "Failed to reset promotion");
+      });
   };
 
   const handleProductStatusChange = (status: ProductStatus) => {
@@ -314,6 +361,21 @@ export default function ProductPromotionPage() {
         }?`}
         itemName={deleteState.product?.name || ""}
         isSubmitting={operations.isDeleting}
+      />
+
+      {/* Modals Reset Promotion */}
+      <ConfirmationModal
+        isOpen={resetPromotionState.isOpen}
+        onClose={closeResetPromotionModal}
+        onConfirm={handleConfirmResetPromotion}
+        title="Reset Promotion"
+        description="Clear all promotional discounts and restore product to regular pricing"
+        itemName={resetPromotionState.product?.name || ""}
+        actionLabel="Reset Promotion"
+        actionVariant="secondary"
+        headerBgColor="bg-yellow-50"
+        buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
+        isDangerous={false}
       />
     </div>
   );
