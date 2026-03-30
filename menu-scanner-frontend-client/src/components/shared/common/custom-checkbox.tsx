@@ -10,7 +10,7 @@ interface CustomCheckboxProps {
   disabled?: boolean;
   id?: string;
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   variant?: "default" | "accent" | "outline";
   label?: string;
   title?: string;
@@ -24,7 +24,7 @@ interface CustomCheckboxProps {
  * @param disabled - Whether checkbox is disabled
  * @param id - HTML id attribute
  * @param className - Additional CSS classes
- * @param size - Size variant: sm (16px), md (20px), lg (24px)
+ * @param size - Size variant: sm (16px), md (20px), lg (24px), xl (32px)
  * @param variant - Style variant: default, accent, outline
  * @param label - Optional label text
  * @param title - Tooltip text
@@ -58,6 +58,11 @@ export function CustomCheckbox({
       box: "w-6 h-6",
       icon: "w-5 h-5",
       text: "text-base",
+    },
+    xl: {
+      box: "w-8 h-8",
+      icon: "w-6 h-6",
+      text: "text-lg",
     },
   };
 

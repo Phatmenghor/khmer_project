@@ -30,49 +30,6 @@ import { ProductDetailResponseModel } from "@/redux/features/business/store/mode
 import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { indexDisplay } from "@/utils/common/common";
-import Image from "next/image";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
-
-/**
- * ProductImagePreview - Display product image with square rounded styling
- */
-function ProductImagePreview({
-  product,
-}: {
-  product: ProductDetailResponseModel;
-}) {
-  const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  return (
-    <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
-      {!imageError && product?.mainImageUrl ? (
-        <>
-          {!imageLoaded && (
-            <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
-          )}
-          <Image
-            src={product.mainImageUrl}
-            alt={product.name}
-            width={48}
-            height={48}
-            className={cn(
-              "w-full h-full object-cover transition-all duration-300 hover:scale-105",
-              imageLoaded ? "opacity-100" : "opacity-0"
-            )}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-          />
-        </>
-      ) : (
-        <span className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
-          {product?.name?.charAt(0).toUpperCase() || "P"}
-        </span>
-      )}
-    </div>
-  );
-}
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
@@ -176,6 +133,22 @@ export default function BulkPromotionCreationPage() {
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
     () => [
       {
+        key: "checkbox",
+        label: "",
+        width: "60px",
+        className: "pl-3 pr-1 flex items-center justify-center",
+        render: (product) => (
+          <CustomCheckbox
+            checked={selectedProductIds.has(product.id)}
+            onCheckedChange={() => handleSelectProduct(product.id)}
+            disabled={isLoading}
+            size="xl"
+            variant="default"
+            ariaLabel={`Select ${product.name}`}
+          />
+        ),
+      },
+      {
         key: "index",
         label: "#",
         width: "50px",
@@ -185,29 +158,6 @@ export default function BulkPromotionCreationPage() {
             {indexDisplay(filters.pageNo || 1, pageSize || 10, index + 1)}
           </span>
         ),
-      },
-      {
-        key: "checkbox",
-        label: "",
-        width: "48px",
-        className: "pl-3 pr-1",
-        render: (product) => (
-          <CustomCheckbox
-            checked={selectedProductIds.has(product.id)}
-            onCheckedChange={() => handleSelectProduct(product.id)}
-            disabled={isLoading}
-            size="md"
-            variant="default"
-            ariaLabel={`Select ${product.name}`}
-          />
-        ),
-      },
-      {
-        key: "imageUrl",
-        label: "Image",
-        width: "60px",
-        className: "px-2",
-        render: (product) => <ProductImagePreview product={product} />,
       },
       {
         key: "name",
@@ -355,7 +305,7 @@ export default function BulkPromotionCreationPage() {
                 checked={allSelected || someSelected}
                 onCheckedChange={handleSelectAll}
                 disabled={isLoading}
-                size="md"
+                size="xl"
                 variant="default"
                 ariaLabel="Select all products on this page"
               />
