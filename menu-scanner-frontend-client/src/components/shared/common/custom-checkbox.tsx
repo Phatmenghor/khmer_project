@@ -101,6 +101,8 @@ export function CustomCheckbox({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onCheckedChange && !disabled) {
       onCheckedChange(e.target.checked);
+      // Blur input to allow scroll immediately after click
+      e.currentTarget.blur();
     }
   };
 
