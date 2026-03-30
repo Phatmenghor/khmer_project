@@ -266,7 +266,7 @@ export function DataTableWithPagination<T = any>({
       {showPagination && (
         <div className="flex items-center justify-between gap-4 p-4 flex-wrap">
           {/* Page Size Selector */}
-          {showPageSizeSelector && totalElements >= 5 && (
+          {showPageSizeSelector && totalPages > 1 ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground whitespace-nowrap">
                 Rows per page:
@@ -287,6 +287,8 @@ export function DataTableWithPagination<T = any>({
                 </SelectContent>
               </Select>
             </div>
+          ) : (
+            <div />
           )}
 
           {/* Page Navigation */}

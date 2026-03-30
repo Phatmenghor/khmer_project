@@ -14,14 +14,23 @@ import { DateTimePickerField } from "@/components/shared/form-field/date-picker-
 import { PageFormHeader } from "@/components/shared/form-field/page-form-header";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
-import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
+import {
+  DataTableWithPagination,
+  TableColumn,
+} from "@/components/shared/common/data-table";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { useProductState } from "@/redux/features/business/store/state/product-state";
-import { fetchAllProductAdminService, createBulkPromotionsService } from "@/redux/features/business/store/thunks/product-thunks";
+import {
+  fetchAllProductAdminService,
+  createBulkPromotionsService,
+} from "@/redux/features/business/store/thunks/product-thunks";
 import { setPageNo } from "@/redux/features/business/store/slice/product-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { bulkPromotionSchema, BulkPromotionFormData } from "@/redux/features/business/store/models/schema/bulk-promotion-schema";
+import {
+  bulkPromotionSchema,
+  BulkPromotionFormData,
+} from "@/redux/features/business/store/models/schema/bulk-promotion-schema";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 
 const PROMOTION_TYPES = [
@@ -35,7 +44,9 @@ export default function BulkPromotionCreationPage() {
   const { productContent, filters, pagination, isLoading } = useProductState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
-  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<BulkPromotionFormData>({
@@ -46,7 +57,9 @@ export default function BulkPromotionCreationPage() {
       promotionType: undefined,
       promotionValue: 0,
       promotionFromDate: new Date().toISOString(),
-      promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      promotionToDate: new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
     },
   });
 
@@ -58,13 +71,16 @@ export default function BulkPromotionCreationPage() {
         pageNo: 1,
         pageSize: globalPageSize,
         status: undefined,
-      })
+      }),
     );
   }, [dispatch, globalPageSize]);
 
   // Calculate checkbox states
-  const allSelected = productContent.length > 0 && productContent.every((p) => selectedProductIds.has(p.id));
-  const someSelected = productContent.some((p) => selectedProductIds.has(p.id)) && !allSelected;
+  const allSelected =
+    productContent.length > 0 &&
+    productContent.every((p) => selectedProductIds.has(p.id));
+  const someSelected =
+    productContent.some((p) => selectedProductIds.has(p.id)) && !allSelected;
 
   const handleSelectProduct = useCallback((productId: string) => {
     setSelectedProductIds((prev) => {
@@ -78,14 +94,17 @@ export default function BulkPromotionCreationPage() {
     });
   }, []);
 
-  const handleSelectAll = useCallback((selected: boolean) => {
-    if (selected && productContent && productContent.length > 0) {
-      const allIds = new Set(productContent.map((p) => p.id));
-      setSelectedProductIds(allIds);
-    } else {
-      setSelectedProductIds(new Set());
-    }
-  }, [productContent]);
+  const handleSelectAll = useCallback(
+    (selected: boolean) => {
+      if (selected && productContent && productContent.length > 0) {
+        const allIds = new Set(productContent.map((p) => p.id));
+        setSelectedProductIds(allIds);
+      } else {
+        setSelectedProductIds(new Set());
+      }
+    },
+    [productContent],
+  );
 
   const handlePageChange = (page: number) => {
     dispatch(setPageNo(page));
@@ -95,7 +114,7 @@ export default function BulkPromotionCreationPage() {
         pageNo: page,
         pageSize: globalPageSize,
         status: undefined,
-      })
+      }),
     );
   };
 
@@ -114,10 +133,12 @@ export default function BulkPromotionCreationPage() {
           promotionValue: data.promotionValue,
           promotionFromDate: data.promotionFromDate,
           promotionToDate: data.promotionToDate,
-        })
+        }),
       ).unwrap();
 
-      showToast.success(result.message || "Bulk promotion created successfully!");
+      showToast.success(
+        result.message || "Bulk promotion created successfully!",
+      );
       router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
     } catch (error: any) {
       showToast.error(error?.message || "Failed to create bulk promotion");
@@ -136,54 +157,59 @@ export default function BulkPromotionCreationPage() {
 
   const discountDisplay = useMemo(() => {
     if (!promotionType || !promotionValue) return null;
-    return promotionType === "PERCENTAGE" ? `${promotionValue}%` : `$${promotionValue}`;
+    return promotionType === "PERCENTAGE"
+      ? `${promotionValue}%`
+      : `$${promotionValue}`;
   }, [promotionType, promotionValue]);
 
-  const isFormValid = selectedProductIds.size > 0 &&
-    promotionType &&
-    promotionValue > 0;
+  const isFormValid =
+    selectedProductIds.size > 0 && promotionType && promotionValue > 0;
 
   // Define table columns for products
-  const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(() => [
-    {
-      key: "checkbox",
-      label: "",
-      width: "48px",
-      render: (product) => (
-        <Checkbox
-          checked={selectedProductIds.has(product.id)}
-          onCheckedChange={() => handleSelectProduct(product.id)}
-          disabled={isLoading}
-          className="h-4 w-4"
-        />
-      ),
-    },
-    {
-      key: "name",
-      label: "Product",
-      render: (product) => (
-        <div className="flex items-center gap-2">
-          <CustomAvatar
-            imageUrl={product.mainImageUrl}
-            name={product.name}
-            size="sm"
+  const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
+    () => [
+      {
+        key: "checkbox",
+        label: "",
+        width: "48px",
+        render: (product) => (
+          <Checkbox
+            checked={selectedProductIds.has(product.id)}
+            onCheckedChange={() => handleSelectProduct(product.id)}
+            disabled={isLoading}
+            className="h-4 w-4"
           />
-          <span className="font-medium truncate">{product.name}</span>
-        </div>
-      ),
-    },
-    {
-      key: "categoryName",
-      label: "Category",
-      render: (product) => product.categoryName,
-    },
-    {
-      key: "price",
-      label: "Price",
-      className: "text-right",
-      render: (product) => `$${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}`,
-    },
-  ], [selectedProductIds, isLoading]);
+        ),
+      },
+      {
+        key: "name",
+        label: "Product",
+        render: (product) => (
+          <div className="flex items-center gap-2">
+            <CustomAvatar
+              imageUrl={product.mainImageUrl}
+              name={product.name}
+              size="sm"
+            />
+            <span className="font-medium truncate">{product.name}</span>
+          </div>
+        ),
+      },
+      {
+        key: "categoryName",
+        label: "Category",
+        render: (product) => product.categoryName,
+      },
+      {
+        key: "price",
+        label: "Price",
+        className: "text-right",
+        render: (product) =>
+          `$${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}`,
+      },
+    ],
+    [selectedProductIds, isLoading],
+  );
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background">
@@ -194,7 +220,10 @@ export default function BulkPromotionCreationPage() {
         isCreate
       />
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1 flex-col lg:flex-row overflow-hidden min-h-0">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-1 flex-col lg:flex-row overflow-hidden min-h-0"
+      >
         {/* Left Column - Product Selection */}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-hidden min-h-0 lg:border-r lg:border-border">
           <div className="flex-1 overflow-hidden min-h-0">
@@ -210,7 +239,6 @@ export default function BulkPromotionCreationPage() {
               totalElements={pagination.totalElements}
               onPageChange={handlePageChange}
               showPagination={pagination.totalPages > 1}
-              showPageSizeSelector={false}
             />
           </div>
         </div>
@@ -221,8 +249,12 @@ export default function BulkPromotionCreationPage() {
             <div className="pr-2 sm:pr-4 space-y-4 sm:space-y-6">
               {/* Selected Count */}
               <div className="p-3 sm:p-4 rounded-lg bg-muted/50 border border-border">
-                <p className="text-xs text-muted-foreground font-semibold uppercase">Selected Products</p>
-                <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{selectedProductIds.size}</p>
+                <p className="text-xs text-muted-foreground font-semibold uppercase">
+                  Selected Products
+                </p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">
+                  {selectedProductIds.size}
+                </p>
               </div>
 
               {/* Promotion Type */}
@@ -252,19 +284,25 @@ export default function BulkPromotionCreationPage() {
               {/* Promotion Value */}
               <div className="space-y-2">
                 <label className="block text-xs sm:text-sm font-semibold text-foreground">
-                  {promotionType === "PERCENTAGE" ? "Discount Percentage" : "Discount Amount"}{" "}
+                  {promotionType === "PERCENTAGE"
+                    ? "Discount Percentage"
+                    : "Discount Amount"}{" "}
                   <span className="text-destructive">*</span>
                 </label>
                 <div className="relative">
                   <input
                     type="number"
-                    placeholder={promotionType === "PERCENTAGE" ? "0-100" : "Amount"}
+                    placeholder={
+                      promotionType === "PERCENTAGE" ? "0-100" : "Amount"
+                    }
                     step="0.01"
                     min="0"
                     max={promotionType === "PERCENTAGE" ? "100" : ""}
                     disabled={isSubmitting}
                     className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background hover:border-border"
-                    {...form.register("promotionValue", { valueAsNumber: true })}
+                    {...form.register("promotionValue", {
+                      valueAsNumber: true,
+                    })}
                   />
                   {promotionType && (
                     <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-xs sm:text-sm font-semibold text-muted-foreground">
@@ -283,7 +321,9 @@ export default function BulkPromotionCreationPage() {
 
               {/* Date Range */}
               <div className="space-y-4">
-                <p className="text-xs sm:text-sm font-semibold text-foreground">Promotion Duration</p>
+                <p className="text-xs sm:text-sm font-semibold text-foreground">
+                  Promotion Duration
+                </p>
                 <DateTimePickerField
                   control={form.control}
                   name="promotionFromDate"
@@ -306,16 +346,26 @@ export default function BulkPromotionCreationPage() {
               {selectedProductIds.size > 0 && discountDisplay && (
                 <Card className="bg-primary border-0 text-primary-foreground shadow-lg">
                   <CardContent className="p-3 sm:p-4">
-                    <p className="text-xs font-bold uppercase tracking-wide opacity-90 mb-2 sm:mb-3">Summary</p>
+                    <p className="text-xs font-bold uppercase tracking-wide opacity-90 mb-2 sm:mb-3">
+                      Summary
+                    </p>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-xs sm:text-sm opacity-90">Items</span>
-                        <span className="font-bold text-sm sm:text-base">{selectedProductIds.size}</span>
+                        <span className="text-xs sm:text-sm opacity-90">
+                          Items
+                        </span>
+                        <span className="font-bold text-sm sm:text-base">
+                          {selectedProductIds.size}
+                        </span>
                       </div>
                       <div className="w-full h-px bg-primary-foreground opacity-20" />
                       <div className="flex justify-between items-center">
-                        <span className="text-xs sm:text-sm opacity-90">Discount</span>
-                        <span className="font-bold text-base sm:text-lg">{discountDisplay}</span>
+                        <span className="text-xs sm:text-sm opacity-90">
+                          Discount
+                        </span>
+                        <span className="font-bold text-base sm:text-lg">
+                          {discountDisplay}
+                        </span>
                       </div>
                     </div>
                   </CardContent>
