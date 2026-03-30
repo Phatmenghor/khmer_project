@@ -52,7 +52,7 @@ export const BulkPromotionProductTable: React.FC<Props> = ({
       <div className="flex items-center gap-3 pb-3 border-b">
         <Checkbox
           checked={allSelected}
-          indeterminate={someSelected}
+          indeterminate={someSelected ? true : undefined}
           onCheckedChange={handleSelectAll}
           disabled={isLoading}
         />
