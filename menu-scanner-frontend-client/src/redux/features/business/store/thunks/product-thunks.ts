@@ -9,6 +9,7 @@ import {
   AllProductRequest,
   UpdateProductParams,
 } from "../models/request/product-request";
+import { BulkPromotionRequest, BulkPromotionResponse } from "../models/request/promotion-request";
 import { CreateProductData } from "../models/schema/product-schema";
 
 /**
@@ -101,6 +102,23 @@ export const resetProductPromotionService = createApiThunk<any, string>(
   async (productId) => {
     const response = await axiosClientWithAuth.put(
       `/api/v1/products/${productId}/reset-promotion`
+    );
+    return response.data.data;
+  }
+);
+
+/**
+ * Create Bulk Promotions
+ */
+export const createBulkPromotionsService = createApiThunk<
+  BulkPromotionResponse,
+  BulkPromotionRequest
+>(
+  "products/createBulkPromotions",
+  async (promotionData) => {
+    const response = await axiosClientWithAuth.post(
+      "/api/v1/products/bulk-create-promotions",
+      promotionData
     );
     return response.data.data;
   }
