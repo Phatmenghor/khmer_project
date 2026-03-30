@@ -152,9 +152,9 @@ export default function BulkPromotionCreationPage() {
         key: "index",
         label: "#",
         width: "50px",
-        className: "px-2",
+        className: "px-2 pointer-events-none select-none",
         render: (_, index) => (
-          <span className="font-medium text-xs">
+          <span className="font-medium text-xs pointer-events-none">
             {indexDisplay(filters.pageNo || 1, pageSize || 10, index + 1)}
           </span>
         ),
