@@ -165,108 +165,121 @@ export default function BulkPromotionCreationPage() {
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1 overflow-hidden min-h-0">
-        {/* Left Column - Product Selection (Full scrollable) */}
+        {/* Left Column - Product Selection (Table) */}
         <div className="flex-1 flex flex-col bg-white border-r border-slate-200 overflow-hidden">
-          {/* Select All Header */}
-          <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-200 shrink-0">
-            <div className="flex items-center gap-3">
-              <Checkbox
-                checked={allSelected || someSelected}
-                onCheckedChange={handleSelectAll}
-                disabled={isLoading}
-                className="h-5 w-5"
-              />
-              <span className="text-sm font-semibold text-slate-700">
-                {allSelected ? "All Selected" : someSelected ? "Partially Selected" : "Select Products"}
-              </span>
-            </div>
-            {productContent.length > 0 && (
-              <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
-                {productContent.length} available
-              </span>
-            )}
-          </div>
-
-          {/* Products List */}
+          {/* Table */}
           <ScrollArea className="flex-1 w-full overflow-hidden">
-            <div className="space-y-1 p-3 w-full">
-              {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 space-y-3">
-                  <div className="h-10 w-10 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin" />
-                  <p className="text-sm text-slate-500 font-medium">Loading products...</p>
-                </div>
-              ) : productContent.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 space-y-2">
-                  <p className="text-sm text-slate-500 font-medium">No products found</p>
-                  <p className="text-xs text-slate-400">Try adjusting your filters</p>
-                </div>
-              ) : (
-                productContent.map((product) => (
-                  <div
-                    key={product.id}
-                    onClick={() => handleSelectProduct(product.id)}
-                    className={`flex items-center gap-3 p-3 rounded-lg transition-all cursor-pointer ${
-                      selectedProductIds.has(product.id)
-                        ? "bg-blue-50 border border-blue-200"
-                        : "hover:bg-slate-50 border border-transparent"
-                    }`}
-                  >
-                    <Checkbox
-                      checked={selectedProductIds.has(product.id)}
-                      onCheckedChange={() => {
-                        handleSelectProduct(product.id);
-                      }}
-                      disabled={isLoading}
-                      className="h-5 w-5"
-                    />
-                    <CustomAvatar
-                      imageUrl={product.mainImageUrl}
-                      name={product.name}
-                      size="sm"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900 truncate">{product.name}</p>
-                      <p className="text-xs text-slate-500">
-                        {product.categoryName} • <span className="font-semibold">${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}</span>
-                      </p>
-                    </div>
-                    {selectedProductIds.has(product.id) && (
-                      <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                    )}
+            <div className="w-full">
+              <table className="w-full text-sm border-collapse">
+                <thead className="sticky top-0 bg-slate-100 border-b border-slate-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-xs text-slate-700 w-12">
+                      <Checkbox
+                        checked={allSelected || someSelected}
+                        onCheckedChange={handleSelectAll}
+                        disabled={isLoading}
+                        className="h-4 w-4"
+                      />
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-xs text-slate-700">Product</th>
+                    <th className="px-4 py-3 text-left font-semibold text-xs text-slate-700">Category</th>
+                    <th className="px-4 py-3 text-right font-semibold text-xs text-slate-700 w-24">Price</th>
+                  </tr>
+                </thead>
+              </table>
+              <div className="w-full">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin" />
                   </div>
-                ))
-              )}
+                ) : productContent.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <p className="text-sm text-slate-500 font-medium">No products found</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-sm">
+                    <tbody>
+                      {productContent.map((product) => (
+                        <tr
+                          key={product.id}
+                          onClick={() => handleSelectProduct(product.id)}
+                          className={`cursor-pointer transition-colors ${
+                            selectedProductIds.has(product.id)
+                              ? "bg-blue-50 hover:bg-blue-100"
+                              : "hover:bg-slate-50 border-b border-slate-100"
+                          }`}
+                        >
+                          <td className="px-4 py-3">
+                            <Checkbox
+                              checked={selectedProductIds.has(product.id)}
+                              onCheckedChange={() => handleSelectProduct(product.id)}
+                              disabled={isLoading}
+                              className="h-4 w-4"
+                            />
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <CustomAvatar
+                                imageUrl={product.mainImageUrl}
+                                name={product.name}
+                                size="sm"
+                              />
+                              <span className="font-medium text-slate-900 truncate">{product.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-slate-600">{product.categoryName}</td>
+                          <td className="px-4 py-3 text-right font-medium text-slate-900">
+                            ${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
           </ScrollArea>
 
-          {/* Pagination Footer */}
+          {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between gap-3 px-6 py-4 bg-slate-50 border-t border-slate-200 shrink-0">
+            <div className="flex items-center justify-center gap-2 px-6 py-4 bg-slate-50 border-t border-slate-200 shrink-0">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(filters.pageNo - 1)}
                 disabled={filters.pageNo === 1 || isLoading}
-                className="gap-2"
+                className="gap-2 h-9"
               >
                 <ChevronLeft className="w-4 h-4" />
-                Previous
+                <span className="hidden sm:inline">Previous</span>
               </Button>
-              <div className="text-center">
-                <p className="text-xs font-medium text-slate-600">
-                  Page <span className="font-bold text-slate-900">{filters.pageNo}</span> of <span className="font-bold text-slate-900">{pagination.totalPages}</span>
-                </p>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`h-9 min-w-9 px-2 rounded-lg font-medium text-sm transition-all ${
+                      filters.pageNo === page
+                        ? "bg-blue-600 text-white shadow-sm"
+                        : "border border-slate-300 text-slate-900 hover:bg-slate-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
               </div>
+
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(filters.pageNo + 1)}
                 disabled={filters.pageNo === pagination.totalPages || isLoading}
-                className="gap-2"
+                className="gap-2 h-9"
               >
-                Next
+                <span className="hidden sm:inline">Next</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
