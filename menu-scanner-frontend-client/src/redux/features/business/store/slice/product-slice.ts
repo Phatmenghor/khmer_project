@@ -72,6 +72,15 @@ const productSlice = createSlice({
     resetState: () => {
       return initialState;
     },
+
+    updateProductOptimistic: (state, action: PayloadAction<any>) => {
+      // Update product in the list optimistically
+      if (state.data) {
+        state.data.content = state.data.content.map((product) =>
+          product.id === action.payload.id ? { ...product, ...action.payload } : product
+        );
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -204,6 +213,7 @@ export const {
   clearSelectedProduct,
   resetFilters,
   resetState,
+  updateProductOptimistic,
 } = productSlice.actions;
 
 export default productSlice.reducer;

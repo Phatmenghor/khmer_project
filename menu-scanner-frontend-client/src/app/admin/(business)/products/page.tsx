@@ -23,6 +23,7 @@ import {
   setPageNo,
   setSearchFilter,
   resetState,
+  updateProductOptimistic,
 } from "@/redux/features/business/store/slice/product-slice";
 import { productTableColumns } from "@/redux/features/business/table/product-table";
 import ProductModal from "@/redux/features/business/components/product-modal";
@@ -153,20 +154,26 @@ export default function ProductPage() {
     });
   };
 
-  const handleStatusChange = async (productId: string, status: string) => {
-    try {
-      // Call API to update only the status
-      await dispatch(
-        updateProductService({
-          productId,
-          productData: { status },
-        })
-      ).unwrap();
+  const handleStatusChange = (productId: string, status: string) => {
+    // Optimistic update - update local state immediately for instant UI feedback
+    dispatch(
+      updateProductOptimistic({
+        id: productId,
+        status,
+      })
+    );
 
+    // Call API in background without blocking UI
+    dispatch(
+      updateProductService({
+        productId,
+        productData: { status },
+      })
+    ).then(() => {
       showToast.success(`Product status updated to ${status}`);
-    } catch (error: any) {
+    }).catch((error: any) => {
       showToast.error(error?.message || "Failed to update product status");
-    }
+    });
   };
 
   const tableHandlers = useMemo(
