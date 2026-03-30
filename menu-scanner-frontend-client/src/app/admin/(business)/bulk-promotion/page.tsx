@@ -362,24 +362,15 @@ export default function BulkPromotionCreationPage() {
                   {/* Count Badge + Clear Button */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {selectedIds.length > 0 && (
-                      <>
-                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/30">
-                          <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-                            {selectedIds.length}
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={handleClearAllSelections}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150"
-                          title="Clear all selections (stored in browser)"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          <span>Clear</span>
-                        </button>
-                      </>
+                      <button
+                        type="button"
+                        onClick={handleClearAllSelections}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150"
+                        title="Clear all selections (stored in browser)"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Clear</span>
+                      </button>
                     )}
                   </div>
                 </div>
