@@ -451,9 +451,9 @@ export default function BulkPromotionCreationPage() {
               </div>
 
               {/* Form Sections Container */}
-              <div className="space-y-3 sm:space-y-3.5">
+              <div className="space-y-4">
                 {/* Discount Type */}
-                <div className="p-3.5 sm:p-4 rounded-lg border border-border/50 bg-card hover:border-border/80 transition-all duration-200">
+                <div className="min-h-20 flex flex-col justify-center">
                   <CustomSelect
                     label="Discount Type"
                     placeholder="Choose discount type..."
@@ -470,15 +470,15 @@ export default function BulkPromotionCreationPage() {
                     size="md"
                   />
                   {form.formState.errors.promotionType && (
-                    <p className="text-xs text-destructive font-medium mt-2">
+                    <p className="text-xs text-destructive font-medium mt-1">
                       ⚠️ {form.formState.errors.promotionType.message}
                     </p>
                   )}
                 </div>
 
                 {/* Promotion Value */}
-                <div className="p-3.5 sm:p-4 rounded-lg border border-border/50 bg-card hover:border-border/80 transition-all duration-200">
-                  <label className="block text-xs sm:text-sm font-semibold text-foreground mb-2.5">
+                <div className="min-h-20 flex flex-col justify-center">
+                  <label className="block text-xs sm:text-sm font-semibold text-foreground mb-1">
                     {promotionType === "PERCENTAGE"
                       ? "Discount Percentage"
                       : "Discount Amount"}{" "}
@@ -494,7 +494,7 @@ export default function BulkPromotionCreationPage() {
                       min="0"
                       max={promotionType === "PERCENTAGE" ? "100" : ""}
                       disabled={isSubmitting}
-                      className="w-full px-3 sm:px-4 py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
                       {...form.register("promotionValue", {
                         valueAsNumber: true,
                       })}
@@ -506,43 +506,38 @@ export default function BulkPromotionCreationPage() {
                     )}
                   </div>
                   {form.formState.errors.promotionValue && (
-                    <p className="text-xs text-destructive font-medium mt-2">
+                    <p className="text-xs text-destructive font-medium mt-1">
                       ⚠️ {form.formState.errors.promotionValue.message}
                     </p>
                   )}
                 </div>
 
-                {/* Separator with Label */}
-                <div className="flex items-center gap-2 py-1">
-                  <Separator className="flex-1 bg-border/30" />
-                  <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-                    Duration
-                  </span>
-                  <Separator className="flex-1 bg-border/30" />
+                {/* Separator */}
+                <Separator className="bg-border/30" />
+
+                {/* Start Date */}
+                <div className="min-h-20 flex flex-col justify-center">
+                  <DateTimePickerField
+                    control={form.control}
+                    name="promotionFromDate"
+                    label="Start Date"
+                    required
+                    mode="datetime"
+                    error={form.formState.errors.promotionFromDate}
+                  />
                 </div>
 
-                {/* Date Range */}
-                <div className="space-y-3">
-                  <div className="p-3.5 sm:p-4 rounded-lg border border-border/50 bg-card hover:border-border/80 transition-all duration-200">
-                    <DateTimePickerField
-                      control={form.control}
-                      name="promotionFromDate"
-                      label="Start Date"
-                      required
-                      mode="datetime"
-                      error={form.formState.errors.promotionFromDate}
-                    />
-                  </div>
-                  <div className="p-3.5 sm:p-4 rounded-lg border border-border/50 bg-card hover:border-border/80 transition-all duration-200">
-                    <DateTimePickerField
-                      control={form.control}
-                      name="promotionToDate"
-                      label="End Date"
-                      required
-                      mode="datetime"
-                      error={form.formState.errors.promotionToDate}
-                    />
-                  </div>
+                {/* End Date */}
+                <div className="min-h-20 flex flex-col justify-center">
+                  <DateTimePickerField
+                    control={form.control}
+                    name="promotionToDate"
+                    label="End Date"
+                    required
+                    mode="datetime"
+                    error={form.formState.errors.promotionToDate}
+                  />
+                </div>
                 </div>
               </div>
 
