@@ -37,16 +37,25 @@ import { CategoriesResponseModel } from "@/redux/features/master-data/store/mode
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { ProductStatus } from "@/constants/status/status";
 import { selectProductStatus } from "@/redux/features/business/store/slice/product-slice";
-import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
+import {
+  setSelectedProducts,
+  toggleSelectedProduct,
+  clearSelectedProducts,
+} from "@/redux/features/business/store/slice/bulk-promotion-slice";
+import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { productContent, filters, pagination, isLoading } = useProductState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const selectedProductIdsFromRedux = useAppSelector(selectSelectedProductIds);
 
-  // Simple state for selected product IDs
-  const [selectedProductIds, setSelectedProductIds] = useState<Map<string, boolean>>(new Map());
+  // Convert array to Map for efficient lookup
+  const selectedProductIds = useMemo(() => {
+    return new Map(selectedProductIdsFromRedux.map((id) => [id, true]));
+  }, [selectedProductIdsFromRedux]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pageSize, setPageSize] = useState<number>(globalPageSize);
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(null);
@@ -66,19 +75,42 @@ export default function BulkPromotionCreationPage() {
     },
   });
 
-  // Sync selected products with localStorage (like POS cart)
-  const { clearSelections, getStorageInfo } = useBulkPromotionStorageSync(
-    selectedProductIds,
-    {
-      storageKey: "bulk-promotion:selected-products",
-      enabled: true,
-      onProductsLoaded: (productIds) => {
-        // Restore selections from localStorage
-        const restoredMap = new Map(productIds.map((id) => [id, true]));
-        setSelectedProductIds(restoredMap);
-      },
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("bulk-promotion:selected-products");
+      if (stored) {
+        const parsedIds = JSON.parse(stored) as [string, boolean][];
+        const productIds = parsedIds.map((item) => item[0]);
+        if (Array.isArray(productIds) && productIds.length > 0) {
+          dispatch(setSelectedProducts(productIds));
+          console.log(
+            `✅ Loaded ${productIds.length} selected products from localStorage`
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error loading from localStorage:", error);
     }
-  );
+  }, [dispatch]);
+
+  // Save to localStorage whenever selections change
+  useEffect(() => {
+    try {
+      if (selectedProductIdsFromRedux.length > 0) {
+        const data = selectedProductIdsFromRedux.map((id) => [id, true]);
+        localStorage.setItem("bulk-promotion:selected-products", JSON.stringify(data));
+        console.log(
+          `💾 Saved ${selectedProductIdsFromRedux.length} selected products to localStorage`
+        );
+      } else {
+        localStorage.removeItem("bulk-promotion:selected-products");
+        console.log(`🗑️ Cleared empty selection from localStorage`);
+      }
+    } catch (error) {
+      console.error("Error saving to localStorage:", error);
+    }
+  }, [selectedProductIdsFromRedux]);
 
   // Fetch products on mount and when filters change
   useEffect(() => {
@@ -95,36 +127,27 @@ export default function BulkPromotionCreationPage() {
   }, [dispatch, globalPageSize, filters.status, selectedBrand, selectedCategories]);
 
   // Toggle product selection
-  const handleSelectProduct = useCallback((productId: string) => {
-    setSelectedProductIds((prev) => {
-      const newMap = new Map(prev);
-      if (newMap.has(productId)) {
-        newMap.delete(productId);
-      } else {
-        newMap.set(productId, true);
-      }
-      return newMap;
-    });
-  }, []);
+  const handleSelectProduct = useCallback(
+    (productId: string) => {
+      dispatch(toggleSelectedProduct(productId));
+    },
+    [dispatch]
+  );
 
   // Select/deselect all products on current page
   const handleSelectAll = useCallback(
     (checked: boolean) => {
       if (checked && productContent.length > 0) {
-        const newMap = new Map(selectedProductIds);
-        productContent.forEach((product) => {
-          newMap.set(product.id, true);
-        });
-        setSelectedProductIds(newMap);
+        const currentPageIds = productContent.map((p) => p.id);
+        const combined = new Set([...selectedProductIdsFromRedux, ...currentPageIds]);
+        dispatch(setSelectedProducts(Array.from(combined)));
       } else {
-        const newMap = new Map(selectedProductIds);
-        productContent.forEach((product) => {
-          newMap.delete(product.id);
-        });
-        setSelectedProductIds(newMap);
+        const pageIdsSet = new Set(productContent.map((p) => p.id));
+        const filtered = selectedProductIdsFromRedux.filter((id) => !pageIdsSet.has(id));
+        dispatch(setSelectedProducts(filtered));
       }
     },
-    [selectedProductIds, productContent]
+    [selectedProductIdsFromRedux, productContent, dispatch]
   );
 
   // Check if all products on current page are selected
@@ -154,8 +177,13 @@ export default function BulkPromotionCreationPage() {
 
   // Clear all selections (for testing/resetting)
   const handleClearAllSelections = () => {
-    setSelectedProductIds(new Map());
-    clearSelections();
+    dispatch(clearSelectedProducts());
+    try {
+      localStorage.removeItem("bulk-promotion:selected-products");
+      console.log(`🗑️ Selected products cleared from localStorage`);
+    } catch (error) {
+      console.error("Error clearing localStorage:", error);
+    }
     showToast.success("All selections cleared");
   };
 
@@ -248,7 +276,13 @@ export default function BulkPromotionCreationPage() {
         result.message || "Bulk promotion created successfully!"
       );
       // Clear selections after successful creation
-      clearSelections();
+      dispatch(clearSelectedProducts());
+      try {
+        localStorage.removeItem("bulk-promotion:selected-products");
+        console.log(`🗑️ Selections cleared after successful promotion creation`);
+      } catch (error) {
+        console.error("Error clearing localStorage:", error);
+      }
       router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
     } catch (error) {
       const errorMessage =
