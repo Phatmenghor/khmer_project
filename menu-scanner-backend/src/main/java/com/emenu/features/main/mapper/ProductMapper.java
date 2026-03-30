@@ -75,6 +75,7 @@ public interface ProductMapper {
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "sizes", ignore = true)
     @Mapping(source = "promotionType", target = "promotionType", qualifiedByName = "stringToPromotionType")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(ProductUpdateDto dto, @MappingTarget Product entity);
 
     @Named("truncateToDay")

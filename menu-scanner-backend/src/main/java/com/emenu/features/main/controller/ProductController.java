@@ -129,6 +129,15 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", product));
     }
 
+    @PutMapping("/{id}/reset-promotion")
+    public ResponseEntity<ApiResponse<ProductDetailDto>> resetProductPromotion(@PathVariable UUID id) {
+        log.info("Reset promotion for product: {}", id);
+
+        ProductDetailDto product = productService.resetProductPromotion(id);
+
+        return ResponseEntity.ok(ApiResponse.success("Product promotion reset successfully", product));
+    }
+
     @PostMapping("/admin/sync-promotions")
     public ResponseEntity<ApiResponse<String>> syncExpiredPromotions() {
         log.info("Manual sync: clearing expired promotion display fields");

@@ -16,6 +16,7 @@ import {
   deleteProductService,
   updateProductService,
   fetchAllProductAdminService,
+  resetProductPromotionService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import {
   selectProductStatus,
@@ -154,37 +155,11 @@ export default function ProductPage() {
 
   const handleStatusChange = async (productId: string, status: string) => {
     try {
-      // Find the product to get all required fields
-      const product = productContent.find((p) => p.id === productId);
-      if (!product) {
-        showToast.error("Product not found");
-        return;
-      }
-
-      // Optimistic update - update local state first
-      const updatedContent = productContent.map((p) =>
-        p.id === productId ? { ...p, status } : p
-      );
-
-      // Build complete product data for API (send all required fields)
-      const productData = {
-        name: product.name,
-        description: product.description,
-        categoryId: product.categoryId,
-        brandId: product.brandId,
-        price: product.price,
-        sku: product.sku,
-        barcode: product.barcode,
-        status,
-        mainImageUrl: product.mainImageUrl,
-        promotion: product.promotion,
-      };
-
-      // Call API in background
+      // Call API to update only the status
       await dispatch(
         updateProductService({
           productId,
-          productData,
+          productData: { status },
         })
       ).unwrap();
 
@@ -248,6 +223,38 @@ export default function ProductPage() {
       }
     } catch (error: any) {
       showToast.error(error || "Failed to delete product");
+    }
+  };
+
+
+  const handleResetPromotion = async () => {
+    if (!resetPromotionState.product?.id) return;
+
+    try {
+      await dispatch(
+        resetProductPromotionService(resetPromotionState.product.id)
+      ).unwrap();
+
+      showToast.success(
+        `Promotion reset for product "${resetPromotionState.product.name ?? ""}"`,
+      );
+
+      closeResetPromotionModal();
+
+      // Refresh the product list
+      dispatch(
+        fetchAllProductAdminService({
+          search: filters.search,
+          pageNo: filters.pageNo,
+          pageSize: globalPageSize,
+          status:
+            filters.status == ProductStatus.ALL ? undefined : filters.status,
+          brandId: selectedBrand?.id,
+          categoryId: selectedCategories?.id,
+        }),
+      );
+    } catch (error: any) {
+      showToast.error(error?.message || "Failed to reset promotion");
     }
   };
 
@@ -381,7 +388,7 @@ export default function ProductPage() {
       <DeleteConfirmationModal
         isOpen={resetPromotionState.isOpen}
         onClose={closeResetPromotionModal}
-        onDelete={() => {}}
+        onDelete={handleResetPromotion}
         title="Reset Promotion"
         description={`Are you sure you want to reset the promotion for this product ${
           resetPromotionState.product?.name || ""
