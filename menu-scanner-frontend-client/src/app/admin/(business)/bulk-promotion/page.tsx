@@ -9,6 +9,7 @@ import { ArrowLeft, Check, CheckSquare, Square, Trash2 } from "lucide-react";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
+import { CancelButton } from "@/components/shared/button/cancel-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
@@ -573,14 +574,13 @@ export default function BulkPromotionCreationPage() {
 
               {/* Action Buttons - Modern Style */}
               <div className="flex gap-3 sm:gap-4 md:gap-3 lg:gap-4 pt-2 sm:pt-4 md:pt-2 lg:pt-4">
-                <CustomButton
-                  variant="outline"
+                <CancelButton
                   onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
                   disabled={isSubmitting}
-                  className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold rounded-lg border-2 hover:bg-muted/50 transition-all duration-200"
-                >
-                  Cancel
-                </CustomButton>
+                  variant="outline"
+                  className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold rounded-lg border-2 hover:bg-muted/50"
+                  text="Cancel"
+                />
                 <SubmitButton
                   isSubmitting={isSubmitting}
                   isDirty={selectedIds.length > 0}
