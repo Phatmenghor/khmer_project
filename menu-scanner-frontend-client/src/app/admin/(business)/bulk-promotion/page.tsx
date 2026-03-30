@@ -177,6 +177,13 @@ export default function BulkPromotionCreationPage() {
     dispatch(setPageNo(1));
   };
 
+  // Clear all selections (for testing/resetting)
+  const handleClearAllSelections = () => {
+    setSelectedProductIds(new Map());
+    clearSelectedProductsStorage();
+    showToast.success("All selections cleared");
+  };
+
   // Get selected product IDs as array
   const selectedIds = Array.from(selectedProductIds.keys());
 
@@ -343,24 +350,36 @@ export default function BulkPromotionCreationPage() {
 
           {/* Select All Control */}
           {productContent.length > 0 && (
-            <div className="flex items-center gap-2 px-2 py-2 bg-muted/30 rounded-lg">
-              <CustomCheckbox
-                checked={allSelected || someSelected}
-                onCheckedChange={handleSelectAll}
-                disabled={isLoading}
-                size="lg"
-                variant="default"
-                ariaLabel="Select all products on this page"
-              />
-              <span className="text-sm text-muted-foreground">
-                {allSelected
-                  ? "All selected"
-                  : someSelected
-                  ? `${Array.from(selectedProductIds.keys()).filter((id) =>
-                      productContent.some((p) => p.id === id)
-                    ).length} selected`
-                  : "Select all on this page"}
-              </span>
+            <div className="flex items-center justify-between gap-2 px-2 py-2 bg-muted/30 rounded-lg">
+              <div className="flex items-center gap-2">
+                <CustomCheckbox
+                  checked={allSelected || someSelected}
+                  onCheckedChange={handleSelectAll}
+                  disabled={isLoading}
+                  size="lg"
+                  variant="default"
+                  ariaLabel="Select all products on this page"
+                />
+                <span className="text-sm text-muted-foreground">
+                  {allSelected
+                    ? "All selected"
+                    : someSelected
+                    ? `${Array.from(selectedProductIds.keys()).filter((id) =>
+                        productContent.some((p) => p.id === id)
+                      ).length} selected`
+                    : "Select all on this page"}
+                </span>
+              </div>
+              {selectedIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClearAllSelections}
+                  className="text-xs text-destructive hover:text-destructive/80 font-medium"
+                  title="Clear all selections (stored in browser)"
+                >
+                  Clear All
+                </button>
+              )}
             </div>
           )}
 
