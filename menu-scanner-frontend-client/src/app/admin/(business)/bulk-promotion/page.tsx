@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, CheckSquare, Square, Trash2 } from "lucide-react";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -358,40 +358,63 @@ export default function BulkPromotionCreationPage() {
             </div>
           </div>
 
-          {/* Select All Control */}
+          {/* Select All Control - Enhanced UI/UX */}
           {productContent.length > 0 && (
-            <div className="flex items-center justify-between gap-2 px-2 py-2 bg-muted/30 rounded-lg">
-              <div className="flex items-center gap-2">
-                <CustomCheckbox
-                  checked={allSelected || someSelected}
-                  onCheckedChange={handleSelectAll}
-                  disabled={isLoading}
-                  size="lg"
-                  variant="default"
-                  ariaLabel="Select all products on this page"
-                />
-                <span className="text-sm text-muted-foreground">
-                  {allSelected
-                    ? "All selected"
-                    : someSelected
-                      ? `${
-                          Array.from(selectedProductIds.keys()).filter((id) =>
-                            productContent.some((p) => p.id === id),
-                          ).length
-                        } selected`
-                      : "Select all on this page"}
-                </span>
+            <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 gap-3">
+                {/* Left Side - Checkbox and Status */}
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <CustomCheckbox
+                    checked={allSelected}
+                    onCheckedChange={handleSelectAll}
+                    disabled={isLoading}
+                    size="lg"
+                    variant="default"
+                    ariaLabel="Select all products on this page"
+                    className="flex-shrink-0"
+                  />
+
+                  {/* Status Text */}
+                  <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                    <span className="text-sm font-semibold text-foreground">
+                      {allSelected
+                        ? "All products selected"
+                        : someSelected
+                          ? `${Array.from(selectedProductIds.keys()).filter((id) =>
+                              productContent.some((p) => p.id === id),
+                            ).length} products selected`
+                          : "Select all products"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {productContent.length} products on this page
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right Side - Actions */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {selectedIds.length > 0 && (
+                    <>
+                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/30">
+                        <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                          {selectedIds.length}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleClearAllSelections}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive/90 transition-colors duration-150"
+                        title="Clear all selections (stored in browser)"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Clear</span>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
-              {selectedIds.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleClearAllSelections}
-                  className="text-xs text-destructive hover:text-destructive/80 font-medium"
-                  title="Clear all selections (stored in browser)"
-                >
-                  Clear All
-                </button>
-              )}
             </div>
           )}
 
