@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { CustomSelect } from "@/components/shared/common/custom-select";
+import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
@@ -28,6 +29,7 @@ import {
 } from "@/redux/features/business/store/models/schema/bulk-promotion-schema";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
@@ -38,6 +40,7 @@ export default function BulkPromotionCreationPage() {
   // Simple state for selected product IDs
   const [selectedProductIds, setSelectedProductIds] = useState<Map<string, boolean>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pageSize, setPageSize] = useState<number>(globalPageSize);
 
   const form = useForm<BulkPromotionFormData>({
     resolver: zodResolver(bulkPromotionSchema),
@@ -126,6 +129,53 @@ export default function BulkPromotionCreationPage() {
   const isFormValid =
     selectedIds.length > 0 && promotionType && promotionValue > 0;
 
+  // Define table columns
+  const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
+    () => [
+      {
+        key: "checkbox",
+        label: "",
+        width: "48px",
+        className: "pl-3 pr-1",
+        render: (product) => (
+          <Checkbox
+            checked={selectedProductIds.has(product.id)}
+            onCheckedChange={() => handleSelectProduct(product.id)}
+            disabled={isLoading}
+            aria-label={`Select ${product.name}`}
+          />
+        ),
+      },
+      {
+        key: "name",
+        label: "Product",
+        className: "px-4",
+        render: (product) => (
+          <div className="flex items-center gap-2">
+            <CustomAvatar
+              imageUrl={product.mainImageUrl}
+              name={product.name}
+              size="sm"
+            />
+            <span className="font-medium truncate max-w-xs">{product.name}</span>
+          </div>
+        ),
+      },
+      {
+        key: "categoryName",
+        label: "Category",
+        className: "px-4",
+      },
+      {
+        key: "displayPrice",
+        label: "Price",
+        className: "px-4 text-right",
+        render: (product) => `$${(product.displayPrice ?? 0).toFixed(2)}`,
+      },
+    ],
+    [selectedProductIds, isLoading, handleSelectProduct]
+  );
+
   // Handle page change
   const handlePageChange = (page: number) => {
     dispatch(setPageNo(page));
@@ -133,7 +183,21 @@ export default function BulkPromotionCreationPage() {
       fetchAllProductAdminService({
         search: "",
         pageNo: page,
-        pageSize: globalPageSize,
+        pageSize: pageSize,
+        status: undefined,
+      })
+    );
+  };
+
+  // Handle page size change
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    dispatch(setPageNo(1));
+    dispatch(
+      fetchAllProductAdminService({
+        search: "",
+        pageNo: 1,
+        pageSize: newPageSize,
         status: undefined,
       })
     );
@@ -207,134 +271,45 @@ export default function BulkPromotionCreationPage() {
       >
         {/* Left Column - Product Selection */}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-hidden min-h-0 lg:border-r lg:border-border">
-          {/* Products Table */}
-          <div className="flex-1 overflow-y-auto min-h-0 border border-border rounded-lg">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-muted/50">
-                <tr className="border-b border-border">
-                  <th className="w-12 px-3 py-3 text-left">
-                    <Checkbox
-                      checked={allSelected || someSelected}
-                      onCheckedChange={handleSelectAll}
-                      disabled={isLoading || productContent.length === 0}
-                      aria-label="Select all products on this page"
-                    />
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground">
-                    Product
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground">
-                    Category
-                  </th>
-                  <th className="px-4 py-3 text-right font-semibold text-xs text-muted-foreground">
-                    Price
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  // Loading skeleton
-                  [...Array(5)].map((_, i) => (
-                    <tr key={`skeleton-${i}`} className="border-b border-border/50">
-                      <td className="px-3 py-3">
-                        <div className="h-4 w-4 bg-muted animate-pulse rounded" />
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="h-4 bg-muted animate-pulse rounded w-32" />
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="h-4 bg-muted animate-pulse rounded w-24" />
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="h-4 bg-muted animate-pulse rounded w-16 ml-auto" />
-                      </td>
-                    </tr>
-                  ))
-                ) : productContent.length === 0 ? (
-                  // Empty state
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="px-4 py-8 text-center text-muted-foreground"
-                    >
-                      No products found
-                    </td>
-                  </tr>
-                ) : (
-                  // Product rows
-                  productContent.map((product) => (
-                    <tr
-                      key={product.id}
-                      className="border-b border-border/50 hover:bg-muted/30 transition-colors"
-                    >
-                      <td className="px-3 py-3">
-                        <Checkbox
-                          checked={selectedProductIds.has(product.id)}
-                          onCheckedChange={() => handleSelectProduct(product.id)}
-                          disabled={isLoading}
-                          aria-label={`Select ${product.name}`}
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <CustomAvatar
-                            imageUrl={product.mainImageUrl}
-                            name={product.name}
-                            size="sm"
-                          />
-                          <span className="font-medium truncate max-w-xs">
-                            {product.name}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        {product.categoryName}
-                      </td>
-                      <td className="px-4 py-3 text-right font-medium">
-                        ${(product.displayPrice ?? 0).toFixed(2)}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between px-2 py-2 border-t border-border text-xs">
-              <div className="text-muted-foreground">
-                Page {filters.pageNo} of {pagination.totalPages}
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    filters.pageNo > 1 && handlePageChange(filters.pageNo - 1)
-                  }
-                  disabled={filters.pageNo === 1 || isLoading}
-                >
-                  Previous
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    filters.pageNo < pagination.totalPages &&
-                    handlePageChange(filters.pageNo + 1)
-                  }
-                  disabled={
-                    filters.pageNo === pagination.totalPages || isLoading
-                  }
-                >
-                  Next
-                </Button>
-              </div>
+          {/* Select All Control */}
+          {productContent.length > 0 && (
+            <div className="flex items-center gap-2 px-2 py-2 bg-muted/30 rounded-lg">
+              <Checkbox
+                checked={allSelected || someSelected}
+                onCheckedChange={handleSelectAll}
+                disabled={isLoading}
+                aria-label="Select all products on this page"
+              />
+              <span className="text-sm text-muted-foreground">
+                {allSelected
+                  ? "All selected"
+                  : someSelected
+                  ? `${Array.from(selectedProductIds.keys()).filter((id) =>
+                      productContent.some((p) => p.id === id)
+                    ).length} selected`
+                  : "Select all on this page"}
+              </span>
             </div>
           )}
+
+          {/* Products Table with DataTableWithPagination */}
+          <div className="flex-1 overflow-hidden min-h-0">
+            <DataTableWithPagination<ProductDetailResponseModel>
+              data={productContent}
+              columns={columns}
+              loading={isLoading}
+              currentPage={filters.pageNo}
+              totalPages={pagination.totalPages}
+              totalElements={pagination.totalElements}
+              onPageChange={handlePageChange}
+              pageSize={pageSize}
+              onPageSizeChange={handlePageSizeChange}
+              pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
+              showPagination={pagination.totalPages > 1}
+              showPageSizeSelector={true}
+              emptyMessage="No products found"
+            />
+          </div>
         </div>
 
         {/* Right Column - Promotion Settings */}
