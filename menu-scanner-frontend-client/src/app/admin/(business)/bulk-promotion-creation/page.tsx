@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -13,10 +13,6 @@ import { DateTimePickerField } from "@/components/shared/form-field/date-picker-
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
-import {
-  DataTableWithPagination,
-  TableColumn,
-} from "@/components/shared/common/data-table";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { useProductState } from "@/redux/features/business/store/state/product-state";
@@ -39,10 +35,8 @@ export default function BulkPromotionCreationPage() {
   const { productContent, filters, pagination, isLoading } = useProductState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
-  // Simple local state for selected product IDs
-  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(
-    new Set()
-  );
+  // Simple state for selected product IDs
+  const [selectedProductIds, setSelectedProductIds] = useState<Map<string, boolean>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<BulkPromotionFormData>({
@@ -54,12 +48,12 @@ export default function BulkPromotionCreationPage() {
       promotionValue: 0,
       promotionFromDate: new Date().toISOString(),
       promotionToDate: new Date(
-        Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000,
+        Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000
       ).toISOString(),
     },
   });
 
-  // Fetch products on page load
+  // Fetch products on mount
   useEffect(() => {
     dispatch(
       fetchAllProductAdminService({
@@ -67,40 +61,72 @@ export default function BulkPromotionCreationPage() {
         pageNo: 1,
         pageSize: globalPageSize,
         status: undefined,
-      }),
+      })
     );
   }, [dispatch, globalPageSize]);
 
-  // Calculate checkbox states
-  const allSelected =
-    productContent.length > 0 &&
-    productContent.every((p) => selectedProductIds.has(p.id));
-  const someSelected =
-    productContent.some((p) => selectedProductIds.has(p.id)) && !allSelected;
-
+  // Toggle product selection
   const handleSelectProduct = useCallback((productId: string) => {
     setSelectedProductIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(productId)) {
-        newSet.delete(productId);
+      const newMap = new Map(prev);
+      if (newMap.has(productId)) {
+        newMap.delete(productId);
       } else {
-        newSet.add(productId);
+        newMap.set(productId, true);
       }
-      return newSet;
+      return newMap;
     });
   }, []);
 
+  // Select/deselect all products on current page
   const handleSelectAll = useCallback(
-    (selected: boolean) => {
-      if (selected && productContent && productContent.length > 0) {
-        setSelectedProductIds(new Set(productContent.map((p) => p.id)));
+    (checked: boolean) => {
+      if (checked && productContent.length > 0) {
+        const newMap = new Map(selectedProductIds);
+        productContent.forEach((product) => {
+          newMap.set(product.id, true);
+        });
+        setSelectedProductIds(newMap);
       } else {
-        setSelectedProductIds(new Set());
+        const newMap = new Map(selectedProductIds);
+        productContent.forEach((product) => {
+          newMap.delete(product.id);
+        });
+        setSelectedProductIds(newMap);
       }
     },
-    [productContent]
+    [selectedProductIds, productContent]
   );
 
+  // Check if all products on current page are selected
+  const allSelected =
+    productContent.length > 0 &&
+    productContent.every((p) => selectedProductIds.has(p.id));
+
+  // Check if some products are selected
+  const someSelected =
+    productContent.some((p) => selectedProductIds.has(p.id)) && !allSelected;
+
+  // Get selected product IDs as array
+  const selectedIds = Array.from(selectedProductIds.keys());
+
+  // Watch form values
+  const promotionType = form.watch("promotionType");
+  const promotionValue = form.watch("promotionValue");
+
+  // Discount display
+  const discountDisplay = useMemo(() => {
+    if (!promotionType || !promotionValue) return null;
+    return promotionType === "PERCENTAGE"
+      ? `${promotionValue}%`
+      : `$${promotionValue}`;
+  }, [promotionType, promotionValue]);
+
+  // Form validity
+  const isFormValid =
+    selectedIds.length > 0 && promotionType && promotionValue > 0;
+
+  // Handle page change
   const handlePageChange = (page: number) => {
     dispatch(setPageNo(page));
     dispatch(
@@ -109,12 +135,13 @@ export default function BulkPromotionCreationPage() {
         pageNo: page,
         pageSize: globalPageSize,
         status: undefined,
-      }),
+      })
     );
   };
 
+  // Handle form submission
   const onSubmit = async (data: BulkPromotionFormData) => {
-    if (selectedProductIds.size === 0) {
+    if (selectedIds.length === 0) {
       showToast.error("Please select at least one product");
       return;
     }
@@ -123,16 +150,16 @@ export default function BulkPromotionCreationPage() {
     try {
       const result = await dispatch(
         createBulkPromotionsService({
-          productIds: Array.from(selectedProductIds),
+          productIds: selectedIds,
           promotionType: data.promotionType,
           promotionValue: data.promotionValue,
           promotionFromDate: data.promotionFromDate,
           promotionToDate: data.promotionToDate,
-        }),
+        })
       ).unwrap();
 
       showToast.success(
-        result.message || "Bulk promotion created successfully!",
+        result.message || "Bulk promotion created successfully!"
       );
       router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
     } catch (error) {
@@ -149,85 +176,27 @@ export default function BulkPromotionCreationPage() {
     }
   };
 
-  const handleCancel = () => {
-    router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
-  };
-
-  // Watch form values without dependency issues
-  const promotionType = form.watch("promotionType");
-  const promotionValue = form.watch("promotionValue");
-
-  const discountDisplay = useMemo(() => {
-    if (!promotionType || !promotionValue) return null;
-    return promotionType === "PERCENTAGE"
-      ? `${promotionValue}%`
-      : `$${promotionValue}`;
-  }, [promotionType, promotionValue]);
-
-  const isFormValid =
-    selectedProductIds.size > 0 && promotionType && promotionValue > 0;
-
-  // Define table columns - NOT memoized to avoid circular dependencies
-  // Render functions have access to selectedProductIds through closure
-  const columns: TableColumn<ProductDetailResponseModel>[] = [
-    {
-      key: "checkbox",
-      label: "",
-      width: "48px",
-      render: (product) => (
-        <Checkbox
-          checked={selectedProductIds.has(product.id)}
-          onCheckedChange={() => handleSelectProduct(product.id)}
-          disabled={isLoading}
-          className="h-4 w-4"
-          aria-label={`Select ${product.name}`}
-        />
-      ),
-    },
-    {
-      key: "name",
-      label: "Product",
-      render: (product) => (
-        <div className="flex items-center gap-2">
-          <CustomAvatar
-            imageUrl={product.mainImageUrl}
-            name={product.name}
-            size="sm"
-          />
-          <span className="font-medium truncate">{product.name}</span>
-        </div>
-      ),
-    },
-    {
-      key: "categoryName",
-      label: "Category",
-      render: (product) => product.categoryName,
-    },
-    {
-      key: "price",
-      label: "Price",
-      className: "text-right",
-      render: (product) => `$${(product.displayPrice ?? 0).toFixed(2)}`,
-    },
-  ];
-
   return (
     <div className="flex flex-1 flex-col h-full bg-background">
-      {/* Header with Back Button */}
+      {/* Header */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-4 bg-background border-b border-border shrink-0">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleCancel}
+            onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
             className="h-9 w-9 hover:bg-muted"
             title="Go back"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex flex-col">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Create Bulk Promotion</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Select products and apply discount settings</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+              Create Bulk Promotion
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              Select products and apply discount settings
+            </p>
           </div>
         </div>
       </div>
@@ -238,44 +207,160 @@ export default function BulkPromotionCreationPage() {
       >
         {/* Left Column - Product Selection */}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-hidden min-h-0 lg:border-r lg:border-border">
-          <div className="flex-1 overflow-hidden min-h-0">
-            <DataTableWithPagination
-              data={productContent}
-              columns={columns}
-              loading={isLoading}
-              emptyMessage="No products found"
-              getRowKey={(product) => product.id}
-              onRowClick={(product) => handleSelectProduct(product.id)}
-              currentPage={filters.pageNo}
-              totalPages={pagination.totalPages}
-              totalElements={pagination.totalElements}
-              onPageChange={handlePageChange}
-              showPagination={pagination.totalPages > 1}
-            />
+          {/* Products Table */}
+          <div className="flex-1 overflow-y-auto min-h-0 border border-border rounded-lg">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-muted/50">
+                <tr className="border-b border-border">
+                  <th className="w-12 px-3 py-3 text-left">
+                    <Checkbox
+                      checked={allSelected}
+                      indeterminate={someSelected}
+                      onCheckedChange={handleSelectAll}
+                      disabled={isLoading || productContent.length === 0}
+                      aria-label="Select all products on this page"
+                    />
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground">
+                    Product
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-right font-semibold text-xs text-muted-foreground">
+                    Price
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  // Loading skeleton
+                  [...Array(5)].map((_, i) => (
+                    <tr key={`skeleton-${i}`} className="border-b border-border/50">
+                      <td className="px-3 py-3">
+                        <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-4 bg-muted animate-pulse rounded w-32" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-4 bg-muted animate-pulse rounded w-24" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-4 bg-muted animate-pulse rounded w-16 ml-auto" />
+                      </td>
+                    </tr>
+                  ))
+                ) : productContent.length === 0 ? (
+                  // Empty state
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-4 py-8 text-center text-muted-foreground"
+                    >
+                      No products found
+                    </td>
+                  </tr>
+                ) : (
+                  // Product rows
+                  productContent.map((product) => (
+                    <tr
+                      key={product.id}
+                      className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="px-3 py-3">
+                        <Checkbox
+                          checked={selectedProductIds.has(product.id)}
+                          onCheckedChange={() => handleSelectProduct(product.id)}
+                          disabled={isLoading}
+                          aria-label={`Select ${product.name}`}
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <CustomAvatar
+                            imageUrl={product.mainImageUrl}
+                            name={product.name}
+                            size="sm"
+                          />
+                          <span className="font-medium truncate max-w-xs">
+                            {product.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {product.categoryName}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium">
+                        ${(product.displayPrice ?? 0).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
+
+          {/* Pagination */}
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between px-2 py-2 border-t border-border text-xs">
+              <div className="text-muted-foreground">
+                Page {filters.pageNo} of {pagination.totalPages}
+              </div>
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    filters.pageNo > 1 && handlePageChange(filters.pageNo - 1)
+                  }
+                  disabled={filters.pageNo === 1 || isLoading}
+                >
+                  Previous
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    filters.pageNo < pagination.totalPages &&
+                    handlePageChange(filters.pageNo + 1)
+                  }
+                  disabled={
+                    filters.pageNo === pagination.totalPages || isLoading
+                  }
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column - Promotion Settings */}
         <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden">
           <div className="flex-1 min-h-0 overflow-y-auto">
             <div className="px-2 sm:px-4 py-4 space-y-4 sm:space-y-6">
-              {/* Selected Count */}
+              {/* Selected Count Card */}
               <div className="p-3 sm:p-4 rounded-lg bg-muted/50 border border-border">
                 <p className="text-xs text-muted-foreground font-semibold uppercase">
                   Selected Products
                 </p>
-                <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">
-                  {selectedProductIds.size}
+                <p className="text-2xl sm:text-3xl font-bold text-foreground mt-2">
+                  {selectedIds.length}
                 </p>
               </div>
 
-              {/* Promotion Type */}
+              {/* Discount Type */}
               <CustomSelect
                 label="Discount Type"
                 placeholder="Choose discount type..."
                 options={PROMOTION_TYPES}
                 value={promotionType}
-                onValueChange={(value) => form.setValue("promotionType", value as "FIXED_AMOUNT" | "PERCENTAGE")}
+                onValueChange={(value) =>
+                  form.setValue("promotionType", value as "FIXED_AMOUNT" | "PERCENTAGE")
+                }
                 disabled={isSubmitting}
                 required
                 size="md"
@@ -304,7 +389,7 @@ export default function BulkPromotionCreationPage() {
                     min="0"
                     max={promotionType === "PERCENTAGE" ? "100" : ""}
                     disabled={isSubmitting}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background hover:border-border"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
                     {...form.register("promotionValue", {
                       valueAsNumber: true,
                     })}
@@ -348,7 +433,7 @@ export default function BulkPromotionCreationPage() {
               </div>
 
               {/* Summary Card */}
-              {selectedProductIds.size > 0 && discountDisplay && (
+              {selectedIds.length > 0 && discountDisplay && (
                 <Card className="bg-primary border-0 text-primary-foreground shadow-lg">
                   <CardContent className="p-3 sm:p-4">
                     <p className="text-xs font-bold uppercase tracking-wide opacity-90 mb-2 sm:mb-3">
@@ -360,7 +445,7 @@ export default function BulkPromotionCreationPage() {
                           Items
                         </span>
                         <span className="font-bold text-sm sm:text-base">
-                          {selectedProductIds.size}
+                          {selectedIds.length}
                         </span>
                       </div>
                       <div className="w-full h-px bg-primary-foreground opacity-20" />
@@ -380,11 +465,11 @@ export default function BulkPromotionCreationPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 px-2 sm:px-4 py-3 sm:py-4 border-t border-border shrink-0">
+          <div className="flex gap-2 px-2 sm:px-4 py-3 sm:py-4 border-t border-border shrink-0 bg-background">
             <Button
               type="button"
               variant="outline"
-              onClick={handleCancel}
+              onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
               disabled={isSubmitting}
               className="flex-1 h-9 sm:h-10 text-xs sm:text-sm"
             >
@@ -403,6 +488,7 @@ export default function BulkPromotionCreationPage() {
                 </div>
               ) : (
                 <>
+                  <Check className="w-4 h-4 mr-1" />
                   <span className="hidden sm:inline">Create Promotion</span>
                   <span className="sm:hidden">Create</span>
                 </>
