@@ -325,45 +325,48 @@ export default function BulkPromotionCreationPage() {
       >
         {/* Left Column - Product Selection */}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
-          {/* Filters Section */}
-          <div className="flex flex-wrap items-end gap-2 shrink-0">
-            <div className="max-w-[150px]">
-              <ComboboxSelectBrand
-                dataSelect={selectedBrand}
-                onChangeSelected={handleBrandChange}
-                placeholder="All Brand"
-                showAllOption={true}
-              />
-            </div>
-            <div className="max-w-[150px]">
-              <ComboboxSelectCategories
-                dataSelect={selectedCategories}
-                onChangeSelected={handleCategoriesChange}
-                placeholder="All Categories"
-                showAllOption={true}
-              />
-            </div>
-            <div className="">
-              <CustomSelect
-                options={PRODUCT_STATUS_FILTER}
-                value={filters.status}
-                placeholder="All Status"
-                onValueChange={(value) =>
-                  handleProductStatusChange(value as ProductStatus)
-                }
-                className="w-[150px]"
-                label="Product Status"
-                size="md"
-              />
-            </div>
-          </div>
-
-          {/* Select All Control - Enhanced UI/UX */}
+          {/* Filters + Select All Control - Combined Row */}
           {productContent.length > 0 && (
             <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 gap-3">
-                {/* Left Side - Checkbox and Status */}
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 py-3 gap-4">
+                {/* Left Side - Filters */}
+                <div className="flex flex-wrap items-end gap-2 flex-1">
+                  <div className="max-w-[150px]">
+                    <ComboboxSelectBrand
+                      dataSelect={selectedBrand}
+                      onChangeSelected={handleBrandChange}
+                      placeholder="All Brand"
+                      showAllOption={true}
+                    />
+                  </div>
+                  <div className="max-w-[150px]">
+                    <ComboboxSelectCategories
+                      dataSelect={selectedCategories}
+                      onChangeSelected={handleCategoriesChange}
+                      placeholder="All Categories"
+                      showAllOption={true}
+                    />
+                  </div>
+                  <div className="">
+                    <CustomSelect
+                      options={PRODUCT_STATUS_FILTER}
+                      value={filters.status}
+                      placeholder="All Status"
+                      onValueChange={(value) =>
+                        handleProductStatusChange(value as ProductStatus)
+                      }
+                      className="w-[150px]"
+                      label="Product Status"
+                      size="md"
+                    />
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="hidden sm:block h-8 w-px bg-border/40"></div>
+
+                {/* Right Side - Select All Control */}
+                <div className="flex items-center gap-3 flex-1 sm:flex-none min-w-0">
                   <CustomCheckbox
                     checked={allSelected}
                     onCheckedChange={handleSelectAll}
@@ -389,30 +392,30 @@ export default function BulkPromotionCreationPage() {
                       {productContent.length} products on this page
                     </span>
                   </div>
-                </div>
 
-                {/* Right Side - Actions */}
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {selectedIds.length > 0 && (
-                    <>
-                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/30">
-                        <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                        <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-                          {selectedIds.length}
-                        </span>
-                      </div>
+                  {/* Count Badge + Clear Button */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {selectedIds.length > 0 && (
+                      <>
+                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/30">
+                          <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                            {selectedIds.length}
+                          </span>
+                        </div>
 
-                      <button
-                        type="button"
-                        onClick={handleClearAllSelections}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive/90 transition-colors duration-150"
-                        title="Clear all selections (stored in browser)"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        <span>Clear</span>
-                      </button>
-                    </>
-                  )}
+                        <button
+                          type="button"
+                          onClick={handleClearAllSelections}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive/90 transition-colors duration-150"
+                          title="Clear all selections (stored in browser)"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Clear</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
