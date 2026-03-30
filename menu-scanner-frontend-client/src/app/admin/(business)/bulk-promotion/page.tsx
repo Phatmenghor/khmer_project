@@ -470,7 +470,6 @@ export default function BulkPromotionCreationPage() {
                     }
                     disabled={isSubmitting}
                     required
-                    size="md"
                   />
                   {form.formState.errors.promotionType && (
                     <p className="text-xs text-destructive font-medium">
