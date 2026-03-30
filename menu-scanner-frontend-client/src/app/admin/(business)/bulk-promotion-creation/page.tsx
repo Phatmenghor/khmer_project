@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { CustomSelect, SelectOption } from "@/components/shared/common/custom-select";
@@ -252,8 +251,8 @@ export default function BulkPromotionCreationPage() {
         </div>
 
         {/* Right Column - Promotion Settings */}
-        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0">
-          <ScrollArea className="flex-1 min-h-0">
+        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             <div className="px-2 sm:px-4 py-4 space-y-4 sm:space-y-6">
               {/* Selected Count */}
               <div className="p-3 sm:p-4 rounded-lg bg-muted/50 border border-border">
@@ -373,7 +372,7 @@ export default function BulkPromotionCreationPage() {
                 </Card>
               )}
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-2 px-2 sm:px-4 py-3 sm:py-4 border-t border-border shrink-0">
