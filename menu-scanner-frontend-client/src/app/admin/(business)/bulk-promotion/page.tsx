@@ -258,6 +258,11 @@ export default function BulkPromotionCreationPage() {
 
   // Handle form submission
   const onSubmit = async (data: BulkPromotionFormData) => {
+    console.log("Form submitted with data:", data);
+    console.log("Selected IDs:", selectedIds);
+    console.log("Form valid:", form.formState.isValid);
+    console.log("Form errors:", form.formState.errors);
+
     if (selectedIds.length === 0) {
       showToast.error("Please select at least one product");
       return;
@@ -265,6 +270,14 @@ export default function BulkPromotionCreationPage() {
 
     setIsSubmitting(true);
     try {
+      console.log("Calling API with:", {
+        productIds: selectedIds,
+        promotionType: data.promotionType,
+        promotionValue: data.promotionValue,
+        promotionFromDate: data.promotionFromDate,
+        promotionToDate: data.promotionToDate,
+      });
+
       const result = await dispatch(
         createBulkPromotionsService({
           productIds: selectedIds,
@@ -275,6 +288,7 @@ export default function BulkPromotionCreationPage() {
         }),
       ).unwrap();
 
+      console.log("API response:", result);
       showToast.success(
         result.message || "Bulk promotion created successfully!",
       );
@@ -283,6 +297,7 @@ export default function BulkPromotionCreationPage() {
       clearSelections();
       form.reset();
     } catch (error) {
+      console.error("API error:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -323,6 +338,7 @@ export default function BulkPromotionCreationPage() {
 
       <form
         onSubmit={form.handleSubmit(onSubmit)}
+        data-no-progress="true"
         className="flex flex-1 flex-col lg:flex-row overflow-hidden min-h-0"
       >
         {/* Left Column - Product Selection */}
