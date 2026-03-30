@@ -293,16 +293,19 @@ export default function BulkPromotionCreationPage() {
 
   // Handle form submission
   const onSubmit = async (data: BulkPromotionFormData) => {
+    console.log("=== FORM SUBMISSION STARTED ===");
     console.log("Form submitted with data:", data);
     console.log("Selected IDs:", selectedIds);
     console.log("Form valid:", form.formState.isValid);
     console.log("Form errors:", form.formState.errors);
 
     if (selectedIds.length === 0) {
+      console.error("No products selected!");
       showToast.error("Please select at least one product");
       return;
     }
 
+    console.log("✓ Validation passed, starting API call...");
     setIsSubmitting(true);
     try {
       console.log("Calling API with:", {
@@ -323,7 +326,7 @@ export default function BulkPromotionCreationPage() {
         }),
       ).unwrap();
 
-      console.log("API response:", result);
+      console.log("✓ API SUCCESS:", result);
       showToast.success(
         result.message || "Bulk promotion created successfully!",
       );
@@ -332,7 +335,7 @@ export default function BulkPromotionCreationPage() {
       clearSelections();
       form.reset();
     } catch (error) {
-      console.error("API error:", error);
+      console.error("✗ API ERROR:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -343,7 +346,18 @@ export default function BulkPromotionCreationPage() {
       showToast.error(String(errorMessage));
     } finally {
       setIsSubmitting(false);
+      console.log("=== FORM SUBMISSION ENDED ===");
     }
+  };
+
+  // Handle apply button click
+  const handleApplyClick = async () => {
+    console.log("Apply button clicked!");
+    console.log("Current form validity:", isFormValid);
+    console.log("Is submitting:", isSubmitting);
+
+    // Trigger form submission manually
+    form.handleSubmit(onSubmit)();
   };
 
   return (
@@ -608,6 +622,7 @@ export default function BulkPromotionCreationPage() {
                   createText="Apply Promotion"
                   submittingCreateText="Applying..."
                   disabled={!isFormValid}
+                  onClick={handleApplyClick}
                   variant="default"
                   className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg disabled:opacity-50"
                 />

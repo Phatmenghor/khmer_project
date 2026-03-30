@@ -53,7 +53,7 @@ export function SubmitButton({
 
   return (
     <Button
-      type="submit"
+      type={onClick ? "button" : "submit"}
       onClick={onClick}
       disabled={isDisabled}
       variant={variant}
