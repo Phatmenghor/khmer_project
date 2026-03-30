@@ -11,7 +11,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
+import {
+  DataTableWithPagination,
+  TableColumn,
+} from "@/components/shared/common/data-table";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
@@ -27,7 +30,10 @@ import {
   BulkPromotionFormData,
 } from "@/redux/features/business/store/models/schema/bulk-promotion-schema";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
-import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
+import {
+  PROMOTION_TYPES,
+  PROMOTION_DEFAULT_DURATION_DAYS,
+} from "@/constants/form-options";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { bulkPromotionTableColumns } from "@/redux/features/business/table/bulk-promotion-table";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
@@ -59,8 +65,11 @@ export default function BulkPromotionCreationPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pageSize, setPageSize] = useState<number>(globalPageSize);
-  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<CategoriesResponseModel | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
+    null,
+  );
+  const [selectedCategories, setSelectedCategories] =
+    useState<CategoriesResponseModel | null>(null);
 
   const form = useForm<BulkPromotionFormData>({
     resolver: zodResolver(bulkPromotionSchema),
@@ -71,7 +80,7 @@ export default function BulkPromotionCreationPage() {
       promotionValue: 0,
       promotionFromDate: new Date().toISOString(),
       promotionToDate: new Date(
-        Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000
+        Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000,
       ).toISOString(),
     },
   });
@@ -84,7 +93,6 @@ export default function BulkPromotionCreationPage() {
     enabled: true,
   });
 
-
   // Fetch products on mount and when filters change
   useEffect(() => {
     dispatch(
@@ -92,19 +100,26 @@ export default function BulkPromotionCreationPage() {
         search: "",
         pageNo: 1,
         pageSize: globalPageSize,
-        status: filters.status === ProductStatus.ALL ? undefined : filters.status,
+        status:
+          filters.status === ProductStatus.ALL ? undefined : filters.status,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
-      })
+      }),
     );
-  }, [dispatch, globalPageSize, filters.status, selectedBrand, selectedCategories]);
+  }, [
+    dispatch,
+    globalPageSize,
+    filters.status,
+    selectedBrand,
+    selectedCategories,
+  ]);
 
   // Toggle product selection
   const handleSelectProduct = useCallback(
     (productId: string) => {
       dispatch(toggleSelectedProduct(productId));
     },
-    [dispatch, selectedProductIdsFromRedux]
+    [dispatch, selectedProductIdsFromRedux],
   );
 
   // Select/deselect all products on current page
@@ -112,15 +127,20 @@ export default function BulkPromotionCreationPage() {
     (checked: boolean) => {
       if (checked && productContent.length > 0) {
         const currentPageIds = productContent.map((p) => p.id);
-        const combined = new Set([...selectedProductIdsFromRedux, ...currentPageIds]);
+        const combined = new Set([
+          ...selectedProductIdsFromRedux,
+          ...currentPageIds,
+        ]);
         dispatch(setSelectedProducts(Array.from(combined)));
       } else {
         const pageIdsSet = new Set(productContent.map((p) => p.id));
-        const filtered = selectedProductIdsFromRedux.filter((id) => !pageIdsSet.has(id));
+        const filtered = selectedProductIdsFromRedux.filter(
+          (id) => !pageIdsSet.has(id),
+        );
         dispatch(setSelectedProducts(filtered));
       }
     },
-    [selectedProductIdsFromRedux, productContent, dispatch]
+    [selectedProductIdsFromRedux, productContent, dispatch],
   );
 
   // Check if all products on current page are selected
@@ -138,7 +158,9 @@ export default function BulkPromotionCreationPage() {
     dispatch(setPageNo(1));
   };
 
-  const handleCategoriesChange = (categories: CategoriesResponseModel | null) => {
+  const handleCategoriesChange = (
+    categories: CategoriesResponseModel | null,
+  ) => {
     setSelectedCategories(categories);
     dispatch(setPageNo(1));
   };
@@ -187,7 +209,16 @@ export default function BulkPromotionCreationPage() {
         pageNo: filters.pageNo,
         pageSize,
       }),
-    [selectedProductIds, handleSelectProduct, handleSelectAll, allSelected, someSelected, isLoading, filters.pageNo, pageSize]
+    [
+      selectedProductIds,
+      handleSelectProduct,
+      handleSelectAll,
+      allSelected,
+      someSelected,
+      isLoading,
+      filters.pageNo,
+      pageSize,
+    ],
   );
 
   // Handle page change
@@ -198,10 +229,11 @@ export default function BulkPromotionCreationPage() {
         search: "",
         pageNo: page,
         pageSize: pageSize,
-        status: filters.status === ProductStatus.ALL ? undefined : filters.status,
+        status:
+          filters.status === ProductStatus.ALL ? undefined : filters.status,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
-      })
+      }),
     );
   };
 
@@ -214,10 +246,11 @@ export default function BulkPromotionCreationPage() {
         search: "",
         pageNo: 1,
         pageSize: newPageSize,
-        status: filters.status === ProductStatus.ALL ? undefined : filters.status,
+        status:
+          filters.status === ProductStatus.ALL ? undefined : filters.status,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
-      })
+      }),
     );
   };
 
@@ -237,11 +270,11 @@ export default function BulkPromotionCreationPage() {
           promotionValue: data.promotionValue,
           promotionFromDate: data.promotionFromDate,
           promotionToDate: data.promotionToDate,
-        })
+        }),
       ).unwrap();
 
       showToast.success(
-        result.message || "Bulk promotion created successfully!"
+        result.message || "Bulk promotion created successfully!",
       );
       // Clear selections after successful creation
       dispatch(clearSelectedProducts());
@@ -252,8 +285,8 @@ export default function BulkPromotionCreationPage() {
         error instanceof Error
           ? error.message
           : typeof error === "object" && error !== null && "message" in error
-          ? (error as Record<string, unknown>).message
-          : "Failed to create bulk promotion";
+            ? (error as Record<string, unknown>).message
+            : "Failed to create bulk promotion";
 
       showToast.error(String(errorMessage));
     } finally {
@@ -294,7 +327,7 @@ export default function BulkPromotionCreationPage() {
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
           {/* Filters Section */}
           <div className="flex flex-wrap items-end gap-2 shrink-0">
-            <div className="max-w-[250px]">
+            <div className="max-w-[150px]">
               <ComboboxSelectBrand
                 dataSelect={selectedBrand}
                 onChangeSelected={handleBrandChange}
@@ -302,7 +335,7 @@ export default function BulkPromotionCreationPage() {
                 showAllOption={true}
               />
             </div>
-            <div className="max-w-[250px]">
+            <div className="max-w-[150px]">
               <ComboboxSelectCategories
                 dataSelect={selectedCategories}
                 onChangeSelected={handleCategoriesChange}
@@ -310,7 +343,7 @@ export default function BulkPromotionCreationPage() {
                 showAllOption={true}
               />
             </div>
-            <div className="max-w-[250px]">
+            <div className="">
               <CustomSelect
                 options={PRODUCT_STATUS_FILTER}
                 value={filters.status}
@@ -318,6 +351,7 @@ export default function BulkPromotionCreationPage() {
                 onValueChange={(value) =>
                   handleProductStatusChange(value as ProductStatus)
                 }
+                className="w-[150px]"
                 label="Product Status"
                 size="md"
               />
@@ -340,10 +374,12 @@ export default function BulkPromotionCreationPage() {
                   {allSelected
                     ? "All selected"
                     : someSelected
-                    ? `${Array.from(selectedProductIds.keys()).filter((id) =>
-                        productContent.some((p) => p.id === id)
-                      ).length} selected`
-                    : "Select all on this page"}
+                      ? `${
+                          Array.from(selectedProductIds.keys()).filter((id) =>
+                            productContent.some((p) => p.id === id),
+                          ).length
+                        } selected`
+                      : "Select all on this page"}
                 </span>
               </div>
               {selectedIds.length > 0 && (
@@ -401,7 +437,10 @@ export default function BulkPromotionCreationPage() {
                   options={PROMOTION_TYPES}
                   value={promotionType}
                   onValueChange={(value) =>
-                    form.setValue("promotionType", value as "FIXED_AMOUNT" | "PERCENTAGE")
+                    form.setValue(
+                      "promotionType",
+                      value as "FIXED_AMOUNT" | "PERCENTAGE",
+                    )
                   }
                   disabled={isSubmitting}
                   required
