@@ -164,7 +164,7 @@ export default function BulkPromotionCreationPage() {
   const isFormValid =
     selectedProductIds.size > 0 && promotionType && promotionValue > 0;
 
-  // Define table columns for products - stable memoization to prevent infinite loop
+  // Define table columns for products - update when selectedProductIds changes
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(() => [
     {
       key: "checkbox",
@@ -209,7 +209,7 @@ export default function BulkPromotionCreationPage() {
       className: "text-right",
       render: (product) => `$${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}`,
     },
-  ], []);
+  ], [selectedProductIds]);
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background">
