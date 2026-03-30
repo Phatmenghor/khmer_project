@@ -96,6 +96,11 @@ export default function BulkPromotionCreationPage() {
     enabled: true,
   });
 
+  // Sync selected products to form
+  useEffect(() => {
+    form.setValue("productIds", selectedIds);
+  }, [selectedIds, form]);
+
   // Fetch products on mount and when filters change
   useEffect(() => {
     dispatch(
