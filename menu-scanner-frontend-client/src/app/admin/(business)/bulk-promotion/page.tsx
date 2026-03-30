@@ -328,9 +328,9 @@ export default function BulkPromotionCreationPage() {
           {/* Filters + Select All Control - Combined Row */}
           {productContent.length > 0 && (
             <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 py-3 gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center px-4 py-3 gap-4">
                 {/* Left Side - Select All Control */}
-                <div className="flex items-center gap-3 flex-1 sm:flex-none min-w-0">
+                <div className="flex items-center gap-3 flex-shrink-0">
                   <CustomCheckbox
                     checked={allSelected}
                     onCheckedChange={handleSelectAll}
@@ -342,7 +342,7 @@ export default function BulkPromotionCreationPage() {
                   />
 
                   {/* Status Text */}
-                  <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                  <div className="flex flex-col gap-0.5 min-w-0">
                     <span className="text-sm font-semibold text-foreground">
                       {allSelected
                         ? "All products selected"
@@ -382,11 +382,11 @@ export default function BulkPromotionCreationPage() {
                   </div>
                 </div>
 
-                {/* Divider */}
-                <div className="hidden sm:block h-8 w-px bg-border/40"></div>
+                {/* Spacer - pushes filters to the right */}
+                <div className="hidden sm:block flex-1"></div>
 
-                {/* Right Side - Filters */}
-                <div className="flex flex-wrap items-end gap-2 flex-1">
+                {/* Right Side - Filters (aligned to the end) */}
+                <div className="flex flex-wrap items-end gap-2 flex-shrink-0">
                   <div className="max-w-[150px]">
                     <ComboboxSelectBrand
                       dataSelect={selectedBrand}
