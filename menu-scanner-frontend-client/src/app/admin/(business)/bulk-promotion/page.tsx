@@ -451,11 +451,13 @@ export default function BulkPromotionCreationPage() {
               </div>
 
               {/* Form Sections Container */}
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 {/* Discount Type */}
-                <div className="h-28 flex flex-col justify-center">
+                <div className="h-20 flex flex-col justify-center">
+                  <label className="block text-xs sm:text-sm font-semibold text-foreground mb-2">
+                    Discount Type <span className="text-destructive">*</span>
+                  </label>
                   <CustomSelect
-                    label="Discount Type"
                     placeholder="Choose discount type..."
                     options={PROMOTION_TYPES}
                     value={promotionType}
@@ -471,14 +473,14 @@ export default function BulkPromotionCreationPage() {
                   />
                   {form.formState.errors.promotionType && (
                     <p className="text-xs text-destructive font-medium mt-1">
-                      ⚠️ {form.formState.errors.promotionType.message}
+                      {form.formState.errors.promotionType.message}
                     </p>
                   )}
                 </div>
 
                 {/* Promotion Value */}
-                <div className="h-28 flex flex-col justify-center">
-                  <label className="block text-xs sm:text-sm font-semibold text-foreground mb-1">
+                <div className="h-20 flex flex-col justify-center">
+                  <label className="block text-xs sm:text-sm font-semibold text-foreground mb-2">
                     {promotionType === "PERCENTAGE"
                       ? "Discount Percentage"
                       : "Discount Amount"}{" "}
@@ -494,7 +496,7 @@ export default function BulkPromotionCreationPage() {
                       min="0"
                       max={promotionType === "PERCENTAGE" ? "100" : ""}
                       disabled={isSubmitting}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
+                      className="w-full h-10 px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
                       {...form.register("promotionValue", {
                         valueAsNumber: true,
                       })}
@@ -507,16 +509,16 @@ export default function BulkPromotionCreationPage() {
                   </div>
                   {form.formState.errors.promotionValue && (
                     <p className="text-xs text-destructive font-medium mt-1">
-                      ⚠️ {form.formState.errors.promotionValue.message}
+                      {form.formState.errors.promotionValue.message}
                     </p>
                   )}
                 </div>
 
                 {/* Separator */}
-                <Separator className="bg-border/30" />
+                <Separator className="bg-border/20" />
 
                 {/* Start Date */}
-                <div className="h-28 flex flex-col justify-center">
+                <div className="h-20 flex flex-col justify-center">
                   <DateTimePickerField
                     control={form.control}
                     name="promotionFromDate"
@@ -528,7 +530,7 @@ export default function BulkPromotionCreationPage() {
                 </div>
 
                 {/* End Date */}
-                <div className="h-28 flex flex-col justify-center">
+                <div className="h-20 flex flex-col justify-center">
                   <DateTimePickerField
                     control={form.control}
                     name="promotionToDate"
