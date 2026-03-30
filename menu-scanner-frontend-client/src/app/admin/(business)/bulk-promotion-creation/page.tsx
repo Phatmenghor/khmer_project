@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -183,13 +183,18 @@ export default function BulkPromotionCreationPage() {
       key: "name",
       label: "Product",
       render: (product) => (
-        <div className="flex items-center gap-2">
-          <CustomAvatar
-            imageUrl={product.mainImageUrl}
-            name={product.name}
-            size="sm"
-          />
-          <span className="font-medium truncate">{product.name}</span>
+        <div className="flex items-center gap-2 justify-between">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <CustomAvatar
+              imageUrl={product.mainImageUrl}
+              name={product.name}
+              size="sm"
+            />
+            <span className="font-medium truncate">{product.name}</span>
+          </div>
+          {selectedProductIds.has(product.id) && (
+            <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+          )}
         </div>
       ),
     },
