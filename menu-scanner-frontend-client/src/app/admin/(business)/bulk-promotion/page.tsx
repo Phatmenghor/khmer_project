@@ -30,6 +30,13 @@ import { ProductDetailResponseModel } from "@/redux/features/business/store/mode
 import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { bulkPromotionTableColumns } from "@/redux/features/business/table/bulk-promotion-table";
+import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
+import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
+import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
+import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { ProductStatus } from "@/constants/status/status";
+import { selectProductStatus } from "@/redux/features/business/store/slice/product-slice";
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
@@ -41,6 +48,8 @@ export default function BulkPromotionCreationPage() {
   const [selectedProductIds, setSelectedProductIds] = useState<Map<string, boolean>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pageSize, setPageSize] = useState<number>(globalPageSize);
+  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<CategoriesResponseModel | null>(null);
 
   const form = useForm<BulkPromotionFormData>({
     resolver: zodResolver(bulkPromotionSchema),
@@ -56,17 +65,19 @@ export default function BulkPromotionCreationPage() {
     },
   });
 
-  // Fetch products on mount
+  // Fetch products on mount and when filters change
   useEffect(() => {
     dispatch(
       fetchAllProductAdminService({
         search: "",
         pageNo: 1,
         pageSize: globalPageSize,
-        status: undefined,
+        status: filters.status === ProductStatus.ALL ? undefined : filters.status,
+        brandId: selectedBrand?.id,
+        categoryId: selectedCategories?.id,
       })
     );
-  }, [dispatch, globalPageSize]);
+  }, [dispatch, globalPageSize, filters.status, selectedBrand, selectedCategories]);
 
   // Toggle product selection
   const handleSelectProduct = useCallback((productId: string) => {
@@ -109,6 +120,22 @@ export default function BulkPromotionCreationPage() {
   // Check if some products are selected
   const someSelected =
     productContent.some((p) => selectedProductIds.has(p.id)) && !allSelected;
+
+  // Filter handlers
+  const handleBrandChange = (brand: BrandResponseModel | null) => {
+    setSelectedBrand(brand);
+    dispatch(setPageNo(1));
+  };
+
+  const handleCategoriesChange = (categories: CategoriesResponseModel | null) => {
+    setSelectedCategories(categories);
+    dispatch(setPageNo(1));
+  };
+
+  const handleProductStatusChange = (status: ProductStatus) => {
+    dispatch(selectProductStatus(status));
+    dispatch(setPageNo(1));
+  };
 
   // Get selected product IDs as array
   const selectedIds = Array.from(selectedProductIds.keys());
@@ -153,7 +180,9 @@ export default function BulkPromotionCreationPage() {
         search: "",
         pageNo: page,
         pageSize: pageSize,
-        status: undefined,
+        status: filters.status === ProductStatus.ALL ? undefined : filters.status,
+        brandId: selectedBrand?.id,
+        categoryId: selectedCategories?.id,
       })
     );
   };
@@ -167,7 +196,9 @@ export default function BulkPromotionCreationPage() {
         search: "",
         pageNo: 1,
         pageSize: newPageSize,
-        status: undefined,
+        status: filters.status === ProductStatus.ALL ? undefined : filters.status,
+        brandId: selectedBrand?.id,
+        categoryId: selectedCategories?.id,
       })
     );
   };
@@ -240,6 +271,34 @@ export default function BulkPromotionCreationPage() {
       >
         {/* Left Column - Product Selection */}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
+          {/* Filters Section */}
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <ComboboxSelectBrand
+                dataSelect={selectedBrand}
+                onChangeSelected={handleBrandChange}
+                placeholder="All Brand"
+                showAllOption={true}
+              />
+              <ComboboxSelectCategories
+                dataSelect={selectedCategories}
+                onChangeSelected={handleCategoriesChange}
+                placeholder="All Categories"
+                showAllOption={true}
+              />
+            </div>
+            <CustomSelect
+              options={PRODUCT_STATUS_FILTER}
+              value={filters.status}
+              placeholder="All Status"
+              onValueChange={(value) =>
+                handleProductStatusChange(value as ProductStatus)
+              }
+              label="Product Status"
+              size="md"
+            />
+          </div>
+
           {/* Select All Control */}
           {productContent.length > 0 && (
             <div className="flex items-center gap-2 px-2 py-2 bg-muted/30 rounded-lg">
@@ -247,7 +306,7 @@ export default function BulkPromotionCreationPage() {
                 checked={allSelected || someSelected}
                 onCheckedChange={handleSelectAll}
                 disabled={isLoading}
-                size="xl"
+                size="lg"
                 variant="default"
                 ariaLabel="Select all products on this page"
               />
