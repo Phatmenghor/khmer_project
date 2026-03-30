@@ -13,11 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Table,
   TableBody,
   TableCell,
@@ -39,9 +34,7 @@ import {
   CheckCircle2,
   XCircle,
   Eye,
-  Check,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { adminGetSessionsService } from "@/redux/features/auth/store/thunks/session-thunks";
 import { AdminSessionResponse } from "@/redux/features/auth/store/models/response/session-response";
@@ -54,77 +47,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { AdminSessionDetailModal } from "@/components/shared/modal/admin-session-detail-modal";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { Loading } from "@/components/shared/common/loading";
-
-/**
- * PageSizeSelect Component - Custom Popover-based page size selector
- * Consistent with SelectField pattern across the application
- */
-interface PageSizeSelectProps {
-  pageSize: number;
-  pageSizeOptions: number[];
-  onPageSizeChange: (size: number) => void;
-}
-
-function PageSizeSelect({
-  pageSize,
-  pageSizeOptions,
-  onPageSizeChange,
-}: PageSizeSelectProps) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs sm:text-sm text-muted-foreground font-semibold whitespace-nowrap">
-        Rows per page:
-      </span>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            className="justify-between gap-2 min-w-[80px] transition-colors"
-            aria-label={`Select rows per page, currently showing ${pageSize} rows`}
-          >
-            <span className="font-medium">{pageSize}</span>
-            <ChevronLeft className="h-4 w-4 opacity-50 shrink-0 rotate-90" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[90px] p-0" align="start">
-          <div className="space-y-1 p-1">
-            {pageSizeOptions.map((size) => (
-              <button
-                key={size}
-                type="button"
-                onClick={() => {
-                  onPageSizeChange(size);
-                  setOpen(false);
-                }}
-                className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2 text-sm text-left rounded transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground cursor-pointer",
-                  pageSize === size
-                    ? "bg-accent text-accent-foreground"
-                    : "text-foreground"
-                )}
-                aria-label={`Show ${size} rows per page`}
-                aria-pressed={pageSize === size}
-              >
-                <Check
-                  className={cn(
-                    "h-4 w-4 flex-shrink-0",
-                    pageSize === size ? "opacity-100" : "opacity-0"
-                  )}
-                  aria-hidden="true"
-                />
-                <span>{size}</span>
-              </button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-}
+import { PageSizeSelectField } from "@/components/shared/form-field/page-size-select-field";
 
 export default function AdminSessionsPage() {
   const dispatch = useAppDispatch();
@@ -335,8 +258,8 @@ export default function AdminSessionsPage() {
                 </SelectContent>
               </Select>
 
-              {/* Page Size Selector - Custom Popover */}
-              <PageSizeSelect
+              {/* Page Size Selector */}
+              <PageSizeSelectField
                 pageSize={filters.pageSize}
                 pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
                 onPageSizeChange={(size) =>

@@ -1,13 +1,9 @@
 "use client";
 
-import { ReactNode, useState, memo } from "react";
-import { ChevronLeft, ChevronRight, ChevronDown, Check } from "lucide-react";
+import { ReactNode, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { PageSizeSelectField } from "@/components/shared/form-field/page-size-select-field";
 import { cn } from "@/lib/utils";
 
 // Constants
@@ -15,84 +11,6 @@ const PAGINATION_ITEMS_THRESHOLD = 7;
 const PAGINATION_START_OFFSET = 2;
 const PAGINATION_WINDOW_SIZE = 4;
 const PAGINATION_SIDE_ITEMS = 3;
-
-// Page Size Selector Component
-interface PageSizeSelectorProps {
-  pageSize: number;
-  pageSizeOptions: number[];
-  onPageSizeChange: (size: number) => void;
-  classes: {
-    button: string;
-    icon: string;
-    pageButton: string;
-    select: string;
-  };
-}
-
-const PageSizeSelector = memo(function PageSizeSelector({
-  pageSize,
-  pageSizeOptions,
-  onPageSizeChange,
-  classes,
-}: PageSizeSelectorProps) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs sm:text-sm text-muted-foreground font-semibold whitespace-nowrap">
-        Rows per page:
-      </span>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            className={cn(
-              "justify-between gap-2 min-w-[70px] transition-colors",
-              classes.select
-            )}
-            aria-label={`Select rows per page, currently showing ${pageSize} rows`}
-          >
-            <span className="font-medium">{pageSize}</span>
-            <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[80px] p-0" align="start">
-          <div className="space-y-1 p-1">
-            {pageSizeOptions.map((size) => (
-              <button
-                key={size}
-                type="button"
-                onClick={() => {
-                  onPageSizeChange(size);
-                  setOpen(false);
-                }}
-                className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2 text-sm text-left rounded transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground cursor-pointer",
-                  pageSize === size
-                    ? "bg-accent text-accent-foreground"
-                    : "text-foreground"
-                )}
-                aria-label={`Show ${size} rows per page`}
-                aria-pressed={pageSize === size}
-              >
-                <Check
-                  className={cn(
-                    "h-4 w-4 flex-shrink-0",
-                    pageSize === size ? "opacity-100" : "opacity-0"
-                  )}
-                  aria-hidden="true"
-                />
-                <span>{size}</span>
-              </button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-});
 
 export interface TableColumn<T = any> {
   key: string;
@@ -156,19 +74,16 @@ export function DataTableWithPagination<T = any>({
       button: "h-8 px-3 text-xs",
       icon: "h-3 w-3",
       pageButton: "h-8 min-w-8 text-xs",
-      select: "h-8 text-xs",
     },
     md: {
       button: "h-9 px-4 text-sm",
       icon: "h-4 w-4",
       pageButton: "h-9 min-w-9 text-sm",
-      select: "h-9 text-sm",
     },
     lg: {
       button: "h-10 px-5 text-base",
       icon: "h-5 w-5",
       pageButton: "h-10 min-w-10 text-base",
-      select: "h-10 text-base",
     },
   };
 
@@ -353,11 +268,10 @@ export function DataTableWithPagination<T = any>({
         <div className="flex items-center justify-between gap-4 p-4 flex-wrap">
           {/* Page Size Selector */}
           {showPageSizeSelector && totalPages > 1 ? (
-            <PageSizeSelector
+            <PageSizeSelectField
               pageSize={pageSize}
               pageSizeOptions={pageSizeOptions}
               onPageSizeChange={onPageSizeChange}
-              classes={classes}
             />
           ) : (
             <div />
