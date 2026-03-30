@@ -42,30 +42,30 @@ export function CustomCheckbox({
   title,
   ariaLabel,
 }: CustomCheckboxProps) {
-  // Size configuration
+  // Size configuration (20% smaller)
   const sizeConfig = {
     sm: {
-      box: "w-4 h-4",
-      innerBox: "w-2 h-2",
-      icon: "w-3 h-3",
+      box: "w-[12.8px] h-[12.8px]",
+      innerBox: "w-[6.4px] h-[6.4px]",
+      icon: "w-[9.6px] h-[9.6px]",
       text: "text-xs",
     },
     md: {
-      box: "w-5 h-5",
-      innerBox: "w-2.5 h-2.5",
-      icon: "w-4 h-4",
+      box: "w-4 h-4",
+      innerBox: "w-2 h-2",
+      icon: "w-3 h-3",
       text: "text-sm",
     },
     lg: {
-      box: "w-6 h-6",
-      innerBox: "w-3 h-3",
-      icon: "w-5 h-5",
+      box: "w-[19.2px] h-[19.2px]",
+      innerBox: "w-[9.6px] h-[9.6px]",
+      icon: "w-4 h-4",
       text: "text-base",
     },
     xl: {
-      box: "w-8 h-8",
-      innerBox: "w-4 h-4",
-      icon: "w-6 h-6",
+      box: "w-[25.6px] h-[25.6px]",
+      innerBox: "w-[12.8px] h-[12.8px]",
+      icon: "w-5 h-5",
       text: "text-lg",
     },
   };
