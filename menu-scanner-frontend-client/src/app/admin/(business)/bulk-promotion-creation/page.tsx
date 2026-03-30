@@ -158,8 +158,7 @@ export default function BulkPromotionCreationPage() {
                     {/* Select All */}
                     <div className="flex items-center gap-3 pb-3 border-b">
                       <Checkbox
-                        checked={allSelected}
-                        indeterminate={someSelected ? "indeterminate" : undefined}
+                        checked={allSelected || someSelected}
                         onCheckedChange={handleSelectAll}
                         disabled={isLoading}
                       />
@@ -357,7 +356,7 @@ export default function BulkPromotionCreationPage() {
             </div>
           </div>
 
-          <FormFooter>
+          <FormFooter isSubmitting={isSubmitting} isDirty={form.formState.isDirty} isCreate>
             <CancelButton onClick={handleCancel} disabled={isSubmitting} />
             <SubmitButton
               isLoading={isSubmitting}
