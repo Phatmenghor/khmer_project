@@ -25,6 +25,7 @@ import {
   setSearchFilter,
   resetState,
   updateProductOptimistic,
+  resetProductPromotionOptimistic,
 } from "@/redux/features/business/store/slice/product-slice";
 import { productTableColumns } from "@/redux/features/business/table/product-table";
 import ProductModal from "@/redux/features/business/components/product-modal";
@@ -235,35 +236,24 @@ export default function ProductPage() {
   };
 
 
-  const handleConfirmResetPromotion = async () => {
+  const handleConfirmResetPromotion = () => {
     if (!resetPromotionState.product?.id) return;
 
-    try {
-      await dispatch(
-        resetProductPromotionService(resetPromotionState.product.id)
-      ).unwrap();
+    // Optimistic update - update state immediately
+    dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
 
-      showToast.success(
-        `Promotion reset for product "${resetPromotionState.product.name ?? ""}"`,
-      );
+    closeResetPromotionModal();
 
-      closeResetPromotionModal();
-
-      // Refresh the product list
-      dispatch(
-        fetchAllProductAdminService({
-          search: filters.search,
-          pageNo: filters.pageNo,
-          pageSize: globalPageSize,
-          status:
-            filters.status == ProductStatus.ALL ? undefined : filters.status,
-          brandId: selectedBrand?.id,
-          categoryId: selectedCategories?.id,
-        }),
-      );
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to reset promotion");
-    }
+    // Call API in background without blocking UI
+    dispatch(resetProductPromotionService(resetPromotionState.product.id))
+      .then(() => {
+        showToast.success(
+          `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
+        );
+      })
+      .catch((error: any) => {
+        showToast.error(error?.message || "Failed to reset promotion");
+      });
   };
 
   const closeModal = () => {
@@ -403,7 +393,7 @@ export default function ProductPage() {
         actionLabel="Reset Promotion"
         actionVariant="secondary"
         headerBgColor="bg-yellow-50"
-        buttonColor="bg-yellow-500 hover:bg-yellow-600 text-gray-800 font-semibold"
+        buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
         isDangerous={false}
       />
     </div>

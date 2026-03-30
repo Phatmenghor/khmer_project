@@ -81,6 +81,24 @@ const productSlice = createSlice({
         );
       }
     },
+
+    resetProductPromotionOptimistic: (state, action: PayloadAction<string>) => {
+      // Reset promotion fields for a product optimistically
+      if (state.data) {
+        state.data.content = state.data.content.map((product) =>
+          product.id === action.payload
+            ? {
+                ...product,
+                hasPromotion: false,
+                displayPromotionType: null,
+                displayPromotionValue: null,
+                displayPrice: product.price,
+                displayOriginPrice: product.price,
+              }
+            : product
+        );
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -214,6 +232,7 @@ export const {
   resetFilters,
   resetState,
   updateProductOptimistic,
+  resetProductPromotionOptimistic,
 } = productSlice.actions;
 
 export default productSlice.reducer;
