@@ -25,9 +25,9 @@ import {
   resetState,
   resetProductPromotionOptimistic,
 } from "@/redux/features/business/store/slice/product-slice";
+import { useRouter } from "next/navigation";
 import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
-import { BulkPromotionModal } from "@/redux/features/business/components/bulk-promotion-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
@@ -42,6 +42,8 @@ import { useAppSelector } from "@/redux/store";
 import { productPromotionTableColumns } from "@/redux/features/business/table/product-promotion-table";
 
 export default function ProductPromotionPage() {
+  const router = useRouter();
+
   // Clean up state when leaving admin area (performance optimization)
   useAdminCleanup(resetState);
 
@@ -63,8 +65,6 @@ export default function ProductPromotionPage() {
     mode: ModalMode.CREATE_MODE,
     productId: "",
   });
-
-  const [bulkPromotionModalOpen, setBulkPromotionModalOpen] = useState(false);
 
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
     null,
@@ -122,7 +122,7 @@ export default function ProductPromotionPage() {
 
   // Event handlers
   const handleCreatePromotion = () => {
-    setBulkPromotionModalOpen(true);
+    router.push(ROUTES.ADMIN.BULK_PROMOTION_CREATION);
   };
 
   const handleEditProduct = (product: ProductDetailResponseModel) => {
@@ -374,12 +374,6 @@ export default function ProductPromotionPage() {
         headerBgColor="bg-yellow-50"
         buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
         isDangerous={false}
-      />
-
-      {/* Bulk Promotion Modal */}
-      <BulkPromotionModal
-        isOpen={bulkPromotionModalOpen}
-        onClose={() => setBulkPromotionModalOpen(false)}
       />
     </div>
   );

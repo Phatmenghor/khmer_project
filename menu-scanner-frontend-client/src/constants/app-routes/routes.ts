@@ -32,6 +32,7 @@ export const ROUTES = {
     PAYMENT_OPTIONS: "/admin/payment-options",
     PRODUCTS: "/admin/products",
     PRODUCTS_PROMOTION: "/admin/product-promotions",
+    BULK_PROMOTION_CREATION: "/admin/bulk-promotion-creation",
     ORDERS: "/admin/orders",
     ORDERS_CREATE: "/admin/orders/create",
     POS: "/admin/pos",
