@@ -268,7 +268,7 @@ export default function BulkPromotionCreationPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col h-full bg-background">
+    <div className="flex flex-1 flex-col h-full bg-background scroll-smooth">
       {/* Header */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-4 bg-background border-b border-border shrink-0">
         <div className="flex items-center gap-3">
@@ -297,7 +297,7 @@ export default function BulkPromotionCreationPage() {
         className="flex flex-1 flex-col lg:flex-row overflow-hidden min-h-0"
       >
         {/* Left Column - Product Selection */}
-        <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-hidden min-h-0 lg:border-r lg:border-border">
+        <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-hidden min-h-0 lg:border-r lg:border-border scroll-smooth">
           {/* Select All Control */}
           {productContent.length > 0 && (
             <div className="flex items-center gap-2 px-2 py-2 bg-muted/30 rounded-lg">
@@ -342,7 +342,7 @@ export default function BulkPromotionCreationPage() {
         </div>
 
         {/* Right Column - Promotion Settings */}
-        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden">
+        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth">
           <div className="flex-1 min-h-0 overflow-y-auto">
             <div className="px-2 sm:px-4 py-4 space-y-4 sm:space-y-6">
               {/* Selected Count Card */}
