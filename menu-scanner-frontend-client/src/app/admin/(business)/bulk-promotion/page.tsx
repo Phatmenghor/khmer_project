@@ -96,11 +96,6 @@ export default function BulkPromotionCreationPage() {
     enabled: true,
   });
 
-  // Sync selected products to form
-  useEffect(() => {
-    form.setValue("productIds", selectedIds);
-  }, [selectedIds, form]);
-
   // Fetch products on mount and when filters change
   useEffect(() => {
     dispatch(
@@ -187,6 +182,11 @@ export default function BulkPromotionCreationPage() {
 
   // Get selected product IDs as array
   const selectedIds = Array.from(selectedProductIds.keys());
+
+  // Sync selected products to form
+  useEffect(() => {
+    form.setValue("productIds", selectedIds);
+  }, [selectedIds, form]);
 
   // Watch form values
   const promotionType = form.watch("promotionType");
