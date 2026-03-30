@@ -6,6 +6,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
+import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
@@ -392,16 +393,16 @@ export default function ProductPage() {
       />
 
       {/* Modals Reset Promotion */}
-      <DeleteConfirmationModal
+      <ConfirmationModal
         isOpen={resetPromotionState.isOpen}
         onClose={closeResetPromotionModal}
-        onDelete={handleConfirmResetPromotion}
+        onConfirm={handleConfirmResetPromotion}
         title="Reset Promotion"
-        description={`Are you sure you want to reset the promotion for this product ${
-          resetPromotionState.product?.name || ""
-        }?`}
+        description="Clear all promotional discounts and restore product to regular pricing"
         itemName={resetPromotionState.product?.name || ""}
-        isSubmitting={false}
+        actionLabel="Reset Promotion"
+        actionVariant="secondary"
+        isDangerous={false}
       />
     </div>
   );
