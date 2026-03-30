@@ -18,8 +18,9 @@ interface ConfirmationModalProps {
   itemName?: string;
   isSubmitting?: boolean;
   actionLabel?: string;
-  actionVariant?: "default" | "destructive" | "secondary";
-  icon?: React.ReactNode;
+  actionVariant?: "default" | "destructive" | "secondary" | "warning";
+  headerBgColor?: string;
+  buttonColor?: string;
   isDangerous?: boolean;
 }
 
@@ -33,7 +34,8 @@ export function ConfirmationModal({
   isSubmitting = false,
   actionLabel = "Confirm",
   actionVariant = "default",
-  icon,
+  headerBgColor = "bg-blue-50",
+  buttonColor = "",
   isDangerous = false,
 }: ConfirmationModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -60,27 +62,16 @@ export function ConfirmationModal({
   };
 
   const isDisabled = isSubmitting || isProcessing;
-  const headerBgColor = isDangerous ? "bg-destructive/5" : "bg-blue-50";
-  const headerIcon = icon || (isDangerous ? null : <RotateCcw className="w-4 h-4" />);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-xl p-0 flex flex-col">
+      <DialogContent className="w-full max-w-xl p-0 flex flex-col shadow-lg shadow-yellow-200">
         <VisuallyHidden asChild>
           <DialogTitle>{title}</DialogTitle>
         </VisuallyHidden>
         <div className={`p-6 border-b border-border ${headerBgColor}`}>
-          <div className="flex items-center gap-3">
-            {headerIcon && (
-              <div className={isDangerous ? "text-red-600" : "text-blue-600"}>
-                {headerIcon}
-              </div>
-            )}
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-              <p className="text-sm text-muted-foreground mt-2">{description}</p>
-            </div>
-          </div>
+          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+          <p className="text-sm text-muted-foreground mt-2">{description}</p>
         </div>
 
         <FormBody>
@@ -126,9 +117,9 @@ export function ConfirmationModal({
             variant={actionVariant}
             onClick={handleConfirm}
             disabled={isDisabled}
-            className="flex-1 sm:flex-initial gap-2"
+            className={`flex-1 sm:flex-initial gap-2 ${buttonColor}`}
           >
-            {icon && !isDangerous && <RotateCcw className="w-4 h-4" />}
+            <RotateCcw className="w-4 h-4" />
             {isProcessing || isSubmitting ? (
               <>Processing...</>
             ) : (

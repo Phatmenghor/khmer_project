@@ -402,6 +402,8 @@ export default function ProductPage() {
         itemName={resetPromotionState.product?.name || ""}
         actionLabel="Reset Promotion"
         actionVariant="secondary"
+        headerBgColor="bg-yellow-50"
+        buttonColor="bg-yellow-500 hover:bg-yellow-600 text-gray-800 font-semibold"
         isDangerous={false}
       />
     </div>
