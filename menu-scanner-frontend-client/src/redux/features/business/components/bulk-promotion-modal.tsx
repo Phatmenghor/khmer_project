@@ -15,12 +15,9 @@ import { BulkPromotionProductTable } from "./bulk-promotion-product-table";
 import { bulkPromotionSchema, BulkPromotionFormData } from "../store/models/schema/bulk-promotion-schema";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { fetchAllProductAdminService, createBulkPromotionsService } from "../store/thunks/product-thunks";
-import { selectProductStatus, setPageNo } from "../store/slice/product-slice";
+import { setPageNo } from "../store/slice/product-slice";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useProductState } from "../store/state/product-state";
-import { usePagination } from "@/redux/store/use-pagination";
-import { ROUTES } from "@/constants/app-routes/routes";
-import { ProductStatus } from "@/constants/status/status";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 
 interface Props {
@@ -62,7 +59,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
       form.reset({
         productIds: [],
         promotionType: undefined,
-        promotionValue: undefined,
+        promotionValue: 0,
         promotionFromDate: new Date().toISOString(),
         promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       });
@@ -169,139 +166,152 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
         <DialogTitle className="sr-only">Create Bulk Promotion</DialogTitle>
 
         <FormHeader title="Create Bulk Promotion" />
 
         <FormBody>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Product Selection Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Step 1: Select Products</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BulkPromotionProductTable
-                  products={productContent}
-                  selectedProductIds={selectedProductIds}
-                  onSelectProduct={handleSelectProduct}
-                  onSelectAll={handleSelectAll}
-                  currentPage={filters.pageNo}
-                  totalPages={pagination.totalPages}
-                  onPageChange={handlePageChange}
-                  isLoading={isLoading}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Promotion Details Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Step 2: Set Promotion Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Promotion Type */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Promotion Type</label>
-                  <select
-                    {...form.register("promotionType")}
-                    className="w-full px-3 py-2 border rounded-md text-sm"
-                    disabled={isSubmitting}
-                  >
-                    <option value="">Select promotion type...</option>
-                    {PROMOTION_TYPES.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                  {form.formState.errors.promotionType && (
-                    <p className="text-xs text-red-500">
-                      {form.formState.errors.promotionType.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Promotion Value */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {form.watch("promotionType") === "PERCENTAGE"
-                      ? "Discount Percentage (%)"
-                      : "Discount Amount ($)"}
-                  </label>
-                  <input
-                    type="number"
-                    placeholder={
-                      form.watch("promotionType") === "PERCENTAGE"
-                        ? "Enter percentage (0-100)"
-                        : "Enter amount"
-                    }
-                    step="0.01"
-                    min="0"
-                    max={form.watch("promotionType") === "PERCENTAGE" ? "100" : ""}
-                    disabled={isSubmitting}
-                    className="w-full px-3 py-2 border rounded-md text-sm"
-                    {...form.register("promotionValue", {
-                      valueAsNumber: true,
-                    })}
-                  />
-                  {form.formState.errors.promotionValue && (
-                    <p className="text-xs text-red-500">
-                      {form.formState.errors.promotionValue.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Date Range */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Promotion From</label>
-                    <input
-                      type="datetime-local"
-                      disabled={isSubmitting}
-                      className="w-full px-3 py-2 border rounded-md text-sm"
-                      {...form.register("promotionFromDate")}
+            {/* Main Grid Layout - 2 Columns */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Left Column - Product Selection */}
+              <div>
+                <Card className="h-full">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Step 1: Select Products</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <BulkPromotionProductTable
+                      products={productContent}
+                      selectedProductIds={selectedProductIds}
+                      onSelectProduct={handleSelectProduct}
+                      onSelectAll={handleSelectAll}
+                      currentPage={filters.pageNo}
+                      totalPages={pagination.totalPages}
+                      onPageChange={handlePageChange}
+                      isLoading={isLoading}
                     />
-                    {form.formState.errors.promotionFromDate && (
-                      <p className="text-xs text-red-500">
-                        {form.formState.errors.promotionFromDate.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Promotion To</label>
-                    <input
-                      type="datetime-local"
-                      disabled={isSubmitting}
-                      className="w-full px-3 py-2 border rounded-md text-sm"
-                      {...form.register("promotionToDate")}
-                    />
-                    {form.formState.errors.promotionToDate && (
-                      <p className="text-xs text-red-500">
-                        {form.formState.errors.promotionToDate.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              </div>
 
-            {/* Summary */}
-            {selectedProductIds.size > 0 && (
-              <Card className="bg-blue-50 border-blue-200">
-                <CardContent className="pt-6">
-                  <p className="text-sm text-blue-900">
-                    <strong>{selectedProductIds.size}</strong> product(s) will be updated with{" "}
-                    <strong>
-                      {form.watch("promotionType") === "PERCENTAGE"
-                        ? `${form.watch("promotionValue")}% discount`
-                        : `$${form.watch("promotionValue")} discount`}
-                    </strong>
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+              {/* Right Column - Promotion Details */}
+              <div>
+                <Card className="h-full">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Step 2: Promotion Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Promotion Type */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Promotion Type *</label>
+                      <select
+                        {...form.register("promotionType")}
+                        className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        disabled={isSubmitting}
+                      >
+                        <option value="">Select promotion type...</option>
+                        {PROMOTION_TYPES.map((type) => (
+                          <option key={type.value} value={type.value}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
+                      {form.formState.errors.promotionType && (
+                        <p className="text-xs text-red-500">
+                          {form.formState.errors.promotionType.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Promotion Value */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        {form.watch("promotionType") === "PERCENTAGE"
+                          ? "Discount Percentage (%)"
+                          : "Discount Amount ($)"} *
+                      </label>
+                      <input
+                        type="number"
+                        placeholder={
+                          form.watch("promotionType") === "PERCENTAGE"
+                            ? "Enter 0-100"
+                            : "Enter amount"
+                        }
+                        step="0.01"
+                        min="0"
+                        max={form.watch("promotionType") === "PERCENTAGE" ? "100" : ""}
+                        disabled={isSubmitting}
+                        className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        {...form.register("promotionValue", {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      {form.formState.errors.promotionValue && (
+                        <p className="text-xs text-red-500">
+                          {form.formState.errors.promotionValue.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Date Range */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">From Date *</label>
+                      <input
+                        type="datetime-local"
+                        disabled={isSubmitting}
+                        className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        {...form.register("promotionFromDate")}
+                      />
+                      {form.formState.errors.promotionFromDate && (
+                        <p className="text-xs text-red-500">
+                          {form.formState.errors.promotionFromDate.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">To Date *</label>
+                      <input
+                        type="datetime-local"
+                        disabled={isSubmitting}
+                        className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        {...form.register("promotionToDate")}
+                      />
+                      {form.formState.errors.promotionToDate && (
+                        <p className="text-xs text-red-500">
+                          {form.formState.errors.promotionToDate.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Summary */}
+                    {selectedProductIds.size > 0 && (
+                      <Card className="bg-blue-50 border-blue-200 mt-4">
+                        <CardContent className="pt-4">
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-blue-900">Summary:</p>
+                            <p className="text-xs text-blue-800">
+                              <strong>{selectedProductIds.size}</strong> product(s) selected
+                            </p>
+                            {form.watch("promotionType") && (
+                              <p className="text-xs text-blue-800">
+                                Discount: <strong>
+                                  {form.watch("promotionType") === "PERCENTAGE"
+                                    ? `${form.watch("promotionValue")}%`
+                                    : `$${form.watch("promotionValue")}`}
+                                </strong>
+                              </p>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
 
             <FormFooter>
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
