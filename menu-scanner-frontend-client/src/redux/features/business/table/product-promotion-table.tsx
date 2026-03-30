@@ -10,6 +10,13 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   AllProductResponseModel,
   ProductDetailResponseModel,
 } from "../store/models/response/product-response";
@@ -62,6 +69,36 @@ function ProductImagePreview({
           {product?.name?.charAt(0).toUpperCase() || "P"}
         </span>
       )}
+    </div>
+  );
+}
+
+/**
+ * StatusDisplay - Display product status with consistent styling
+ */
+function StatusDisplay({ value }: { value: string }) {
+  const statusOptions = [
+    { value: "ACTIVE", label: "Active" },
+    { value: "INACTIVE", label: "Inactive" },
+    { value: "OUT_OF_STOCK", label: "Out Of Stock" },
+  ];
+
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "ACTIVE":
+        return "Active";
+      case "INACTIVE":
+        return "Inactive";
+      case "OUT_OF_STOCK":
+        return "Out Of Stock";
+      default:
+        return status;
+    }
+  };
+
+  return (
+    <div className="w-36 h-8 px-3 py-2 rounded-md bg-gray-100 text-gray-700 text-xs flex items-center">
+      {getStatusDisplay(value)}
     </div>
   );
 }
@@ -270,13 +307,10 @@ export const productPromotionTableColumns = ({
     {
       key: "status",
       label: "Status",
-      minWidth: "10px",
-      maxWidth: "100px",
-      truncate: true,
+      minWidth: "150px",
+      maxWidth: "350px",
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.status || "---"}
-        </span>
+        <StatusDisplay value={product?.status || "ACTIVE"} />
       ),
     },
 
