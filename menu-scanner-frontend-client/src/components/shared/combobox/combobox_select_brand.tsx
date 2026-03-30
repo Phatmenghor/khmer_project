@@ -178,7 +178,7 @@ export function ComboboxSelectBrand({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-[150px]",
+              "w-full justify-between min-w-[150px] px-3 py-2",
               sizeClasses[size],
               !dataSelect && "text-muted-foreground",
               disabled && "opacity-50 cursor-not-allowed",
