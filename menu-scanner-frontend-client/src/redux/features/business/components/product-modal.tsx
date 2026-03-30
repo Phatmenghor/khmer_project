@@ -713,30 +713,28 @@ export default function ProductModal({
                               />
                             </div>
 
-                            <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
-                              <div>
-                                <DateTimePickerField
-                                  control={control}
-                                  name="promotionFromDate"
-                                  label="Promotion From"
-                                  mode="datetime"
-                                  placeholder="Select start date & time"
-                                  disabled={isProcessing}
-                                  error={errors.promotionFromDate}
-                                />
-                              </div>
+                            <div>
+                              <DateTimePickerField
+                                control={control}
+                                name="promotionFromDate"
+                                label="Promotion From"
+                                mode="datetime"
+                                placeholder="Select start date & time"
+                                disabled={isProcessing}
+                                error={errors.promotionFromDate}
+                              />
+                            </div>
 
-                              <div>
-                                <DateTimePickerField
-                                  control={control}
-                                  name="promotionToDate"
-                                  label="Promotion To"
-                                  mode="datetime"
-                                  placeholder="Select end date & time"
-                                  disabled={isProcessing}
-                                  error={errors.promotionToDate}
-                                />
-                              </div>
+                            <div>
+                              <DateTimePickerField
+                                control={control}
+                                name="promotionToDate"
+                                label="Promotion To"
+                                mode="datetime"
+                                placeholder="Select end date & time"
+                                disabled={isProcessing}
+                                error={errors.promotionToDate}
+                              />
                             </div>
                           </>
                         )}
