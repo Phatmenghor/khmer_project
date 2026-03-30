@@ -4,6 +4,11 @@ import { Edit, Eye, Trash, RotateCcw } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import {
   AllProductResponseModel,
   ProductDetailResponseModel,
@@ -19,6 +24,46 @@ interface ProductTableHandlers {
 interface ProductPromotionTableOptions {
   data: AllProductResponseModel | null;
   handlers: ProductTableHandlers;
+}
+
+/**
+ * ProductImagePreview - Display product image with preview styling
+ */
+function ProductImagePreview({
+  product,
+}: {
+  product: ProductDetailResponseModel;
+}) {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  return (
+    <div className="relative w-14 h-14 flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
+      {!imageError && product?.mainImageUrl ? (
+        <>
+          {!imageLoaded && (
+            <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
+          )}
+          <Image
+            src={product.mainImageUrl}
+            alt={product.name}
+            width={56}
+            height={56}
+            className={cn(
+              "w-full h-full object-cover transition-all duration-300 hover:scale-105",
+              imageLoaded ? "opacity-100" : "opacity-0",
+            )}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+          />
+        </>
+      ) : (
+        <span className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
+          {product?.name?.charAt(0).toUpperCase() || "P"}
+        </span>
+      )}
+    </div>
+  );
 }
 
 export const productPromotionTableColumns = ({
@@ -42,17 +87,11 @@ export const productPromotionTableColumns = ({
     },
     {
       key: "imageUrl",
-      label: "Product Image",
+      label: "Image",
       minWidth: "10px",
       maxWidth: "400px",
       render: (product) => {
-        return (
-          <CustomAvatar
-            imageUrl={product?.mainImageUrl}
-            name={product?.name}
-            size="md"
-          />
-        );
+        return <ProductImagePreview product={product} />;
       },
     },
 
@@ -70,49 +109,65 @@ export const productPromotionTableColumns = ({
     },
 
     {
-      key: "displayPrice",
-      label: "Price",
+      key: "categoryName",
+      label: "Category",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "150px",
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
-          {product?.displayPrice || "---"}
+          {product?.categoryName || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "brandName",
+      label: "Brand",
+      minWidth: "10px",
+      maxWidth: "150px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground">
+          {product?.brandName || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "displayPrice",
+      label: "Price",
+      minWidth: "10px",
+      maxWidth: "100px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs font-semibold text-foreground">
+          ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
         </span>
       ),
     },
 
     {
       key: "displayOriginPrice",
-      label: "Origin Price",
+      label: "Original Price",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "120px",
       truncate: true,
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.displayOriginPrice || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "hasSizes",
-      label: "Has Sizes",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.hasSizes ? "Have Size" : "None Size"}
+        <span className="text-xs text-muted-foreground line-through">
+          $
+          {parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(
+            2,
+          )}
         </span>
       ),
     },
 
     {
       key: "displayPromotionType",
-      label: "Promotion Type",
+      label: "Promo Type",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "100px",
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
@@ -123,12 +178,12 @@ export const productPromotionTableColumns = ({
 
     {
       key: "displayPromotionValue",
-      label: "Promotion Value",
+      label: "Promo Value",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "100px",
       truncate: true,
       render: (product) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-semibold text-foreground">
           {product?.displayPromotionValue || "---"}
         </span>
       ),
@@ -136,9 +191,9 @@ export const productPromotionTableColumns = ({
 
     {
       key: "displayPromotionFromDate",
-      label: "Promotion From Date",
+      label: "From Date",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "150px",
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
@@ -149,9 +204,9 @@ export const productPromotionTableColumns = ({
 
     {
       key: "displayPromotionToDate",
-      label: "Promotion To Date",
+      label: "To Date",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "150px",
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
@@ -164,7 +219,7 @@ export const productPromotionTableColumns = ({
       key: "status",
       label: "Status",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "100px",
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
