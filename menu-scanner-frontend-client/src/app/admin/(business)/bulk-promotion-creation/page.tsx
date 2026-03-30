@@ -194,10 +194,10 @@ export default function BulkPromotionCreationPage() {
         isCreate
       />
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1 overflow-hidden min-h-0">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1 flex-col lg:flex-row overflow-hidden min-h-0">
         {/* Left Column - Product Selection */}
-        <div className="flex-1 flex flex-col gap-4 px-4 py-4 overflow-hidden">
-          <div className="flex-1 overflow-hidden">
+        <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-hidden min-h-0 lg:border-r lg:border-border">
+          <div className="flex-1 overflow-hidden min-h-0">
             <DataTableWithPagination
               data={productContent}
               columns={columns}
@@ -216,23 +216,23 @@ export default function BulkPromotionCreationPage() {
         </div>
 
         {/* Right Column - Promotion Settings */}
-        <div className="w-96 flex flex-col gap-4 px-4 py-4 overflow-hidden border-l border-border">
-          <ScrollArea className="flex-1 min-h-0 overflow-hidden">
-            <div className="pr-4 space-y-6">
+        <div className="w-full lg:w-96 flex flex-col gap-3 px-2 sm:px-4 py-4 overflow-hidden border-t lg:border-t-0 lg:border-l border-border min-h-0">
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="pr-2 sm:pr-4 space-y-4 sm:space-y-6">
               {/* Selected Count */}
-              <div className="p-4 rounded-lg bg-muted/50 border border-border">
+              <div className="p-3 sm:p-4 rounded-lg bg-muted/50 border border-border">
                 <p className="text-xs text-muted-foreground font-semibold uppercase">Selected Products</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{selectedProductIds.size}</p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{selectedProductIds.size}</p>
               </div>
 
               {/* Promotion Type */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-foreground">
+                <label className="block text-xs sm:text-sm font-semibold text-foreground">
                   Discount Type <span className="text-destructive">*</span>
                 </label>
                 <select
                   {...form.register("promotionType")}
-                  className="w-full px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background hover:border-border"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background hover:border-border"
                   disabled={isSubmitting}
                 >
                   <option value="">Choose discount type...</option>
@@ -251,23 +251,23 @@ export default function BulkPromotionCreationPage() {
 
               {/* Promotion Value */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-foreground">
+                <label className="block text-xs sm:text-sm font-semibold text-foreground">
                   {promotionType === "PERCENTAGE" ? "Discount Percentage" : "Discount Amount"}{" "}
                   <span className="text-destructive">*</span>
                 </label>
                 <div className="relative">
                   <input
                     type="number"
-                    placeholder={promotionType === "PERCENTAGE" ? "Enter 0-100" : "Enter amount"}
+                    placeholder={promotionType === "PERCENTAGE" ? "0-100" : "Amount"}
                     step="0.01"
                     min="0"
                     max={promotionType === "PERCENTAGE" ? "100" : ""}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background hover:border-border"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background hover:border-border"
                     {...form.register("promotionValue", { valueAsNumber: true })}
                   />
                   {promotionType && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
+                    <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-xs sm:text-sm font-semibold text-muted-foreground">
                       {promotionType === "PERCENTAGE" ? "%" : "$"}
                     </span>
                   )}
@@ -283,7 +283,7 @@ export default function BulkPromotionCreationPage() {
 
               {/* Date Range */}
               <div className="space-y-4">
-                <p className="text-sm font-semibold text-foreground">Promotion Duration</p>
+                <p className="text-xs sm:text-sm font-semibold text-foreground">Promotion Duration</p>
                 <DateTimePickerField
                   control={form.control}
                   name="promotionFromDate"
@@ -305,17 +305,17 @@ export default function BulkPromotionCreationPage() {
               {/* Summary Card */}
               {selectedProductIds.size > 0 && discountDisplay && (
                 <Card className="bg-primary border-0 text-primary-foreground shadow-lg">
-                  <CardContent className="p-4">
-                    <p className="text-xs font-bold uppercase tracking-wide opacity-90 mb-3">Summary</p>
+                  <CardContent className="p-3 sm:p-4">
+                    <p className="text-xs font-bold uppercase tracking-wide opacity-90 mb-2 sm:mb-3">Summary</p>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm opacity-90">Items</span>
-                        <span className="font-bold">{selectedProductIds.size}</span>
+                        <span className="text-xs sm:text-sm opacity-90">Items</span>
+                        <span className="font-bold text-sm sm:text-base">{selectedProductIds.size}</span>
                       </div>
                       <div className="w-full h-px bg-primary-foreground opacity-20" />
                       <div className="flex justify-between items-center">
-                        <span className="text-sm opacity-90">Discount</span>
-                        <span className="font-bold text-lg">{discountDisplay}</span>
+                        <span className="text-xs sm:text-sm opacity-90">Discount</span>
+                        <span className="font-bold text-base sm:text-lg">{discountDisplay}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -325,28 +325,32 @@ export default function BulkPromotionCreationPage() {
           </ScrollArea>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 pt-2 border-t border-border">
+          <div className="flex gap-2 pt-2 sm:pt-3 border-t border-border">
             <Button
               type="button"
               variant="outline"
               onClick={handleCancel}
               disabled={isSubmitting}
-              className="flex-1 h-10"
+              className="flex-1 h-9 sm:h-10 text-xs sm:text-sm"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!isFormValid || isSubmitting}
-              className="flex-1 h-10 bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="flex-1 h-9 sm:h-10 text-xs sm:text-sm bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
-                  Creating...
+                  <div className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
+                  <span className="hidden sm:inline">Creating...</span>
+                  <span className="sm:hidden">Create...</span>
                 </div>
               ) : (
-                "Create Promotion"
+                <>
+                  <span className="hidden sm:inline">Create Promotion</span>
+                  <span className="sm:hidden">Create</span>
+                </>
               )}
             </Button>
           </div>
