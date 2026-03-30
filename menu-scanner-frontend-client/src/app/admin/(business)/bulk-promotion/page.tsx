@@ -453,13 +453,10 @@ export default function BulkPromotionCreationPage() {
               {/* Form Sections Container */}
               <div className="space-y-4">
                 {/* Discount Type */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs sm:text-sm font-semibold text-foreground">
-                    Discount Type <span className="text-destructive">*</span>
-                  </label>
+                <div className="space-y-2">
                   <CustomSelect
                     placeholder="Choose discount type..."
-                    className="h-10"
+                    label="Discount Type"
                     options={PROMOTION_TYPES}
                     value={promotionType}
                     onValueChange={(value) =>
@@ -472,21 +469,21 @@ export default function BulkPromotionCreationPage() {
                     required
                   />
                   {form.formState.errors.promotionType && (
-                    <p className="text-xs text-destructive font-medium">
+                    <p className="text-xs text-destructive font-medium px-0.5">
                       {form.formState.errors.promotionType.message}
                     </p>
                   )}
                 </div>
 
                 {/* Promotion Value */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs sm:text-sm font-semibold text-foreground">
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-semibold text-foreground px-0.5">
                     {promotionType === "PERCENTAGE"
                       ? "Discount Percentage"
                       : "Discount Amount"}{" "}
                     <span className="text-destructive">*</span>
                   </label>
-                  <div className="relative">
+                  <div className="relative h-10 overflow-hidden rounded-md border border-border hover:border-primary/50 transition-colors duration-200">
                     <input
                       type="number"
                       placeholder={
@@ -496,19 +493,19 @@ export default function BulkPromotionCreationPage() {
                       min="0"
                       max={promotionType === "PERCENTAGE" ? "100" : ""}
                       disabled={isSubmitting}
-                      className="w-full  h-10 px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
+                      className="w-full h-full px-3 sm:px-4 py-2 sm:py-2.5 border-0 text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset transition-all bg-background"
                       {...form.register("promotionValue", {
                         valueAsNumber: true,
                       })}
                     />
                     {promotionType && (
-                      <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-xs sm:text-sm font-semibold text-muted-foreground">
+                      <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-xs sm:text-sm font-semibold text-muted-foreground pointer-events-none">
                         {promotionType === "PERCENTAGE" ? "%" : "$"}
                       </span>
                     )}
                   </div>
                   {form.formState.errors.promotionValue && (
-                    <p className="text-xs text-destructive font-medium">
+                    <p className="text-xs text-destructive font-medium px-0.5">
                       {form.formState.errors.promotionValue.message}
                     </p>
                   )}
