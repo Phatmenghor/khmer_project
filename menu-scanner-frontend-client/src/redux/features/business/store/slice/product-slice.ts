@@ -83,20 +83,37 @@ const productSlice = createSlice({
     },
 
     resetProductPromotionOptimistic: (state, action: PayloadAction<string>) => {
-      // Reset promotion fields for a product optimistically
+      // Reset promotion fields for a product and all sizes optimistically
       if (state.data) {
-        state.data.content = state.data.content.map((product) =>
-          product.id === action.payload
-            ? {
-                ...product,
+        state.data.content = state.data.content.map((product) => {
+          if (product.id === action.payload) {
+            // Reset product-level promotion
+            const updated = {
+              ...product,
+              hasPromotion: false,
+              displayPromotionType: null,
+              displayPromotionValue: null,
+              displayPrice: product.price,
+              displayOriginPrice: product.price,
+            };
+
+            // Reset all size promotions and recalculate display prices
+            if (updated.sizes && updated.sizes.length > 0) {
+              updated.sizes = updated.sizes.map((size: any) => ({
+                ...size,
+                promotionType: null,
+                promotionValue: null,
+                promotionFromDate: null,
+                promotionToDate: null,
+                finalPrice: size.price,
                 hasPromotion: false,
-                displayPromotionType: null,
-                displayPromotionValue: null,
-                displayPrice: product.price,
-                displayOriginPrice: product.price,
-              }
-            : product
-        );
+              }));
+            }
+
+            return updated;
+          }
+          return product;
+        });
       }
     },
   },
