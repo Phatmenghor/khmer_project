@@ -139,7 +139,7 @@ export default function BulkPromotionCreationPage() {
     form.watch("promotionValue") > 0;
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-slate-50">
+    <div className="flex flex-col h-screen bg-slate-50">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 shrink-0 shadow-sm">
         <div className="flex items-center gap-4">
