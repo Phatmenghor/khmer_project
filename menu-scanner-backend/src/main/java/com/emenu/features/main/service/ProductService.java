@@ -2,8 +2,10 @@ package com.emenu.features.main.service;
 
 import com.emenu.features.main.dto.filter.ProductFilterDto;
 import com.emenu.features.main.dto.request.ProductCreateDto;
+import com.emenu.features.main.dto.request.BulkPromotionCreateDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
+import com.emenu.features.main.dto.response.BulkPromotionResultDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
 import com.emenu.shared.dto.PaginationResponse;
 
@@ -21,6 +23,7 @@ public interface ProductService {
     ProductDetailDto deleteProduct(UUID id);
     ProductDetailDto getProductByIdPublic(UUID id);
     ProductDetailDto resetProductPromotion(UUID id);
+    BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request);
     int[] syncExpiredPromotions();
     int[] syncStartedPromotions();
 }

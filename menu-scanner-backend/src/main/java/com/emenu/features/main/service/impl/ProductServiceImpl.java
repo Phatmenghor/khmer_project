@@ -7,8 +7,10 @@ import com.emenu.features.main.dto.filter.ProductFilterDto;
 import com.emenu.features.main.dto.request.ProductCreateDto;
 import com.emenu.features.main.dto.request.ProductImageCreateDto;
 import com.emenu.features.main.dto.request.ProductSizeCreateDto;
+import com.emenu.features.main.dto.request.BulkPromotionCreateDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
+import com.emenu.features.main.dto.response.BulkPromotionResultDto;
 import com.emenu.features.main.dto.update.ProductImageUpdateDto;
 import com.emenu.features.main.dto.update.ProductSizeUpdateDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
@@ -428,6 +430,68 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepository.save(product);
         return getProductById(savedProduct.getId());
+    }
+
+    @Override
+    @Transactional
+    public BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request) {
+        User currentUser = securityUtils.getCurrentUser();
+        validateUserBusinessAssociation(currentUser);
+
+        List<UUID> failedProductIds = new ArrayList<>();
+        int successCount = 0;
+
+        // Fetch all requested products
+        List<Product> products = productRepository.findAllById(request.getProductIds());
+
+        for (Product product : products) {
+            try {
+                // Verify business ownership
+                if (!product.getBusinessId().equals(currentUser.getBusinessId())) {
+                    failedProductIds.add(product.getId());
+                    continue;
+                }
+
+                // Set promotion fields on product
+                product.setPromotionType(request.getPromotionType());
+                product.setPromotionValue(request.getPromotionValue());
+                product.setPromotionFromDate(request.getPromotionFromDate());
+                product.setPromotionToDate(request.getPromotionToDate());
+
+                // Apply promotion to sizes if product has sizes
+                if (product.getHasSizes()) {
+                    List<ProductSize> sizes = productSizeRepository.findByProductId(product.getId());
+                    for (ProductSize size : sizes) {
+                        if (!size.getIsDeleted()) {
+                            size.setPromotionType(request.getPromotionType());
+                            size.setPromotionValue(request.getPromotionValue());
+                            size.setPromotionFromDate(request.getPromotionFromDate());
+                            size.setPromotionToDate(request.getPromotionToDate());
+                        }
+                    }
+                    productSizeRepository.saveAll(sizes);
+
+                    // Sync display fields from sizes
+                    product.syncDisplayFieldsFromSizes();
+                } else {
+                    // Initialize display fields for product without sizes
+                    product.initializeDisplayFields();
+                }
+
+                productRepository.save(product);
+                successCount++;
+            } catch (Exception e) {
+                failedProductIds.add(product.getId());
+            }
+        }
+
+        return BulkPromotionResultDto.builder()
+                .successCount(successCount)
+                .failedCount(failedProductIds.size())
+                .failedProductIds(failedProductIds)
+                .message(String.format("Successfully created promotion for %d product(s)", successCount))
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
     }
 
     @Override

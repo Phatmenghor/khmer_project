@@ -3,8 +3,10 @@ package com.emenu.features.main.controller;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.ProductFilterDto;
 import com.emenu.features.main.dto.request.ProductCreateDto;
+import com.emenu.features.main.dto.request.BulkPromotionCreateDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
+import com.emenu.features.main.dto.response.BulkPromotionResultDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
 import com.emenu.features.main.service.ProductService;
 import com.emenu.security.SecurityUtils;
@@ -136,6 +138,17 @@ public class ProductController {
         ProductDetailDto product = productService.resetProductPromotion(id);
 
         return ResponseEntity.ok(ApiResponse.success("Product promotion reset successfully", product));
+    }
+
+    @PostMapping("/bulk-create-promotions")
+    public ResponseEntity<ApiResponse<BulkPromotionResultDto>> createBulkPromotions(
+            @Valid @RequestBody BulkPromotionCreateDto request) {
+        log.info("Create bulk promotions for {} products", request.getProductIds().size());
+
+        BulkPromotionResultDto result = productService.createBulkPromotions(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Bulk promotion creation completed", result));
     }
 
     @PostMapping("/admin/sync-promotions")
