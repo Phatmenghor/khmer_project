@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
@@ -192,11 +192,13 @@ export default function BulkPromotionCreationPage() {
         width: "48px",
         className: "pl-3 pr-1",
         render: (product) => (
-          <Checkbox
+          <CustomCheckbox
             checked={selectedProductIds.has(product.id)}
             onCheckedChange={() => handleSelectProduct(product.id)}
             disabled={isLoading}
-            aria-label={`Select ${product.name}`}
+            size="md"
+            variant="default"
+            ariaLabel={`Select ${product.name}`}
           />
         ),
       },
@@ -349,11 +351,13 @@ export default function BulkPromotionCreationPage() {
           {/* Select All Control */}
           {productContent.length > 0 && (
             <div className="flex items-center gap-2 px-2 py-2 bg-muted/30 rounded-lg">
-              <Checkbox
+              <CustomCheckbox
                 checked={allSelected || someSelected}
                 onCheckedChange={handleSelectAll}
                 disabled={isLoading}
-                aria-label="Select all products on this page"
+                size="md"
+                variant="default"
+                ariaLabel="Select all products on this page"
               />
               <span className="text-sm text-muted-foreground">
                 {allSelected
