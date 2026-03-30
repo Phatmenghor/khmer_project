@@ -293,21 +293,19 @@ export default function BulkPromotionCreationPage() {
         {/* Left Column - Product Selection */}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
           {/* Filters Section */}
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <ComboboxSelectBrand
-                dataSelect={selectedBrand}
-                onChangeSelected={handleBrandChange}
-                placeholder="All Brand"
-                showAllOption={true}
-              />
-              <ComboboxSelectCategories
-                dataSelect={selectedCategories}
-                onChangeSelected={handleCategoriesChange}
-                placeholder="All Categories"
-                showAllOption={true}
-              />
-            </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <ComboboxSelectBrand
+              dataSelect={selectedBrand}
+              onChangeSelected={handleBrandChange}
+              placeholder="All Brand"
+              showAllOption={true}
+            />
+            <ComboboxSelectCategories
+              dataSelect={selectedCategories}
+              onChangeSelected={handleCategoriesChange}
+              placeholder="All Categories"
+              showAllOption={true}
+            />
             <CustomSelect
               options={PRODUCT_STATUS_FILTER}
               value={filters.status}
