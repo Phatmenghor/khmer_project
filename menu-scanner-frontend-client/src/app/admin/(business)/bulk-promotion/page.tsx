@@ -439,56 +439,55 @@ export default function BulkPromotionCreationPage() {
         {/* Right Column - Promotion Settings */}
         <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-gradient-to-b from-background to-muted/5">
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-3 sm:px-4 py-6 sm:py-8 space-y-7 sm:space-y-8">
+            <div className="px-3 sm:px-4 py-4 space-y-3 sm:space-y-4">
               {/* Selected Count Card */}
-              <div className="p-6 sm:p-7 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-200">
-                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-3">
+              <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-200">
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2">
                   Selected Products
                 </p>
-                <p className="text-4xl sm:text-5xl font-bold text-primary">
+                <p className="text-3xl sm:text-4xl font-bold text-primary">
                   {selectedIds.length}
                 </p>
               </div>
 
               {/* Form Sections Container */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Discount Type */}
-                <div className="space-y-3">
-                  <label className="text-xs sm:text-sm font-semibold text-foreground px-0.5">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs sm:text-sm font-semibold text-foreground">
                     Discount Type <span className="text-destructive">*</span>
                   </label>
-                  <div className="h-10 overflow-hidden rounded-md">
-                    <CustomSelect
-                      placeholder="Choose discount type..."
-                      options={PROMOTION_TYPES}
-                      value={promotionType}
-                      onValueChange={(value) =>
-                        form.setValue(
-                          "promotionType",
-                          value as "FIXED_AMOUNT" | "PERCENTAGE",
-                        )
-                      }
-                      disabled={isSubmitting}
-                      required
-                      size="md"
-                    />
-                  </div>
+                  <CustomSelect
+                    placeholder="Choose discount type..."
+                    className="h-10"
+                    options={PROMOTION_TYPES}
+                    value={promotionType}
+                    onValueChange={(value) =>
+                      form.setValue(
+                        "promotionType",
+                        value as "FIXED_AMOUNT" | "PERCENTAGE",
+                      )
+                    }
+                    disabled={isSubmitting}
+                    required
+                    size="md"
+                  />
                   {form.formState.errors.promotionType && (
-                    <p className="text-xs text-destructive font-medium px-0.5 mt-1">
+                    <p className="text-xs text-destructive font-medium">
                       {form.formState.errors.promotionType.message}
                     </p>
                   )}
                 </div>
 
                 {/* Promotion Value */}
-                <div className="space-y-3">
-                  <label className="text-xs sm:text-sm font-semibold text-foreground px-0.5">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs sm:text-sm font-semibold text-foreground">
                     {promotionType === "PERCENTAGE"
                       ? "Discount Percentage"
                       : "Discount Amount"}{" "}
                     <span className="text-destructive">*</span>
                   </label>
-                  <div className="relative h-10 overflow-hidden rounded-md">
+                  <div className="relative">
                     <input
                       type="number"
                       placeholder={
@@ -498,74 +497,62 @@ export default function BulkPromotionCreationPage() {
                       min="0"
                       max={promotionType === "PERCENTAGE" ? "100" : ""}
                       disabled={isSubmitting}
-                      className="w-full h-full px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-md text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
+                      className="w-full  h-10 px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-lg text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-background"
                       {...form.register("promotionValue", {
                         valueAsNumber: true,
                       })}
                     />
                     {promotionType && (
-                      <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-xs sm:text-sm font-semibold text-muted-foreground pointer-events-none">
+                      <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-xs sm:text-sm font-semibold text-muted-foreground">
                         {promotionType === "PERCENTAGE" ? "%" : "$"}
                       </span>
                     )}
                   </div>
                   {form.formState.errors.promotionValue && (
-                    <p className="text-xs text-destructive font-medium px-0.5 mt-1">
+                    <p className="text-xs text-destructive font-medium">
                       {form.formState.errors.promotionValue.message}
                     </p>
                   )}
                 </div>
 
                 {/* Separator */}
-                <Separator className="bg-border/15 my-1" />
+                <Separator className="bg-border/20" />
 
                 {/* Start Date */}
-                <div className="space-y-3">
-                  <div className="h-10 overflow-hidden rounded-md">
-                    <DateTimePickerField
-                      control={form.control}
-                      name="promotionFromDate"
-                      label="Start Date"
-                      required
-                      mode="datetime"
-                      error={form.formState.errors.promotionFromDate}
-                    />
-                  </div>
-                  {form.formState.errors.promotionFromDate && (
-                    <p className="text-xs text-destructive font-medium px-0.5">
-                      {form.formState.errors.promotionFromDate.message}
-                    </p>
-                  )}
+                <div className="flex flex-col gap-2">
+                  <DateTimePickerField
+                    control={form.control}
+                    className="h-10"
+                    name="promotionFromDate"
+                    label="Start Date"
+                    required
+                    mode="datetime"
+                    error={form.formState.errors.promotionFromDate}
+                  />
                 </div>
 
                 {/* End Date */}
-                <div className="space-y-3">
-                  <div className="h-10 overflow-hidden rounded-md">
-                    <DateTimePickerField
-                      control={form.control}
-                      name="promotionToDate"
-                      label="End Date"
-                      required
-                      mode="datetime"
-                      error={form.formState.errors.promotionToDate}
-                    />
-                  </div>
-                  {form.formState.errors.promotionToDate && (
-                    <p className="text-xs text-destructive font-medium px-0.5">
-                      {form.formState.errors.promotionToDate.message}
-                    </p>
-                  )}
+                <div className="flex flex-col gap-2">
+                  <DateTimePickerField
+                    control={form.control}
+                    className="h-10"
+                    name="promotionToDate"
+                    label="End Date"
+                    required
+                    mode="datetime"
+                    error={form.formState.errors.promotionToDate}
+                  />
                 </div>
               </div>
 
               {/* Summary Card */}
               {selectedIds.length > 0 && discountDisplay && (
                 <Card className="bg-gradient-to-br from-primary to-primary/90 border-0 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden">
-                  <CardContent className="p-5 sm:p-6">
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-90 mb-4 sm:mb-5">
+                  <CardContent className="p-4 sm:p-5">
+                    <p className="text-xs font-bold uppercase tracking-widest opacity-90 mb-3 sm:mb-4">
                       Summary
                     </p>
-                    <div className="space-y-4">
+                    <div className="space-y-2.5">
                       <div className="flex justify-between items-center">
                         <span className="text-xs sm:text-sm opacity-90">
                           Items
@@ -589,7 +576,7 @@ export default function BulkPromotionCreationPage() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 sm:pt-6">
+              <div className="flex gap-2 pt-2">
                 <Button
                   type="button"
                   variant="outline"
