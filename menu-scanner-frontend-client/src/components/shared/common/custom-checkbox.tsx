@@ -18,7 +18,7 @@ interface CustomCheckboxProps {
 }
 
 /**
- * CustomCheckbox - Fully customizable checkbox without shadcn/ui dependency
+ * CustomCheckbox - Modern, accessible checkbox with smooth animations
  * @param checked - Whether checkbox is checked
  * @param onCheckedChange - Callback when checkbox state changes
  * @param disabled - Whether checkbox is disabled
@@ -70,27 +70,27 @@ export function CustomCheckbox({
     },
   };
 
-  // Variant configuration (shadcn/ui style)
+  // Modern variant configuration with smooth transitions
   const variantConfig = {
     default: {
       unchecked:
-        "bg-white border border-input hover:border-input/80",
+        "bg-white border border-input shadow-sm hover:border-input/70 hover:shadow-md active:scale-95",
       checked:
-        "bg-primary border-2 border-primary hover:bg-primary/90 hover:border-primary/90",
+        "bg-primary border-2 border-primary shadow-md hover:shadow-lg hover:bg-primary/95 active:scale-95",
       icon: "text-white",
     },
     accent: {
       unchecked:
-        "bg-white border border-input hover:border-input/80",
+        "bg-white border border-input shadow-sm hover:border-input/70 hover:shadow-md active:scale-95",
       checked:
-        "bg-primary border-2 border-primary hover:bg-primary/90 hover:border-primary/90",
+        "bg-primary border-2 border-primary shadow-md hover:shadow-lg hover:bg-primary/95 active:scale-95",
       icon: "text-white",
     },
     outline: {
       unchecked:
-        "bg-white border border-input hover:border-input/80",
+        "bg-transparent border-2 border-input shadow-sm hover:border-input/70 hover:shadow-md active:scale-95",
       checked:
-        "bg-primary border-2 border-primary hover:bg-primary/90 hover:border-primary/90",
+        "bg-primary border-2 border-primary shadow-md hover:shadow-lg hover:bg-primary/95 active:scale-95",
       icon: "text-white",
     },
   };
@@ -99,16 +99,25 @@ export function CustomCheckbox({
   const varConfig = variantConfig[variant];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (onCheckedChange) {
+    if (onCheckedChange && !disabled) {
       onCheckedChange(e.target.checked);
     }
   };
 
   const baseCheckboxClass = cn(
-    "relative inline-flex items-center justify-center rounded transition-all duration-200 cursor-pointer",
+    // Base styles
+    "relative inline-flex items-center justify-center rounded-md",
+    // Smooth transitions and animations
+    "transition-all duration-200 ease-out",
+    // Size
     config.box,
+    // State colors
     checked ? varConfig.checked : varConfig.unchecked,
+    // Cursor and disabled state
+    !disabled && "cursor-pointer",
     disabled && "opacity-50 cursor-not-allowed",
+    // Focus ring for accessibility
+    "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-1",
     className
   );
 
@@ -125,9 +134,21 @@ export function CustomCheckbox({
         title={title}
       />
       {checked ? (
-        <Check className={cn(config.icon, varConfig.icon, "pointer-events-none")} />
+        <Check
+          className={cn(
+            config.icon,
+            varConfig.icon,
+            "pointer-events-none",
+            "animate-checkbox-check"
+          )}
+        />
       ) : (
-        <div className={cn(config.innerBox, "bg-gray-300 rounded transition-all duration-200 pointer-events-none")} />
+        <div
+          className={cn(
+            config.innerBox,
+            "bg-input rounded-sm transition-all duration-200 pointer-events-none"
+          )}
+        />
       )}
     </>
   );
@@ -135,23 +156,23 @@ export function CustomCheckbox({
   // Wrapper for label (if provided)
   if (label) {
     return (
-      <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2 cursor-pointer group">
         <div className={baseCheckboxClass} title={title}>
           {checkboxContent}
         </div>
         {label && (
-          <label
-            htmlFor={id}
+          <span
             className={cn(
               config.text,
-              "font-medium text-gray-700 cursor-pointer select-none",
+              "font-medium text-foreground select-none",
+              "group-hover:text-primary transition-colors duration-200",
               disabled && "opacity-50 cursor-not-allowed"
             )}
           >
             {label}
-          </label>
+          </span>
         )}
-      </div>
+      </label>
     );
   }
 
