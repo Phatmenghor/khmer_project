@@ -27,6 +27,7 @@ import {
 } from "@/redux/features/business/store/slice/product-slice";
 import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
+import { BulkPromotionModal } from "@/redux/features/business/components/bulk-promotion-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
@@ -62,6 +63,8 @@ export default function ProductPromotionPage() {
     mode: ModalMode.CREATE_MODE,
     productId: "",
   });
+
+  const [bulkPromotionModalOpen, setBulkPromotionModalOpen] = useState(false);
 
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
     null,
@@ -118,12 +121,8 @@ export default function ProductPromotionPage() {
   ]);
 
   // Event handlers
-  const handleCreateBrand = () => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.CREATE_MODE,
-      productId: "",
-    });
+  const handleCreatePromotion = () => {
+    setBulkPromotionModalOpen(true);
   };
 
   const handleEditProduct = (product: ProductDetailResponseModel) => {
@@ -278,14 +277,19 @@ export default function ProductPromotionPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
+          breadcrumbs={[
+            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
+            { label: "Product", href: ROUTES.ADMIN.PRODUCTS },
+            { label: "Promotions", href: "" },
+          ]}
           title="Product Promotions"
           searchValue={filters.search}
           searchPlaceholder="Search product..."
-          buttonTooltip="Create a new product"
+          buttonTooltip="Create bulk promotion for multiple products"
           buttonIcon={<Plus className="w-3 h-3" />}
-          buttonText="New"
+          buttonText="Create Promotion"
           onSearchChange={handleSearchChange}
-          openModal={handleCreateBrand}
+          openModal={handleCreatePromotion}
         >
           <ComboboxSelectBrand
             dataSelect={selectedBrand}
@@ -370,6 +374,12 @@ export default function ProductPromotionPage() {
         headerBgColor="bg-yellow-50"
         buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
         isDangerous={false}
+      />
+
+      {/* Bulk Promotion Modal */}
+      <BulkPromotionModal
+        isOpen={bulkPromotionModalOpen}
+        onClose={() => setBulkPromotionModalOpen(false)}
       />
     </div>
   );
