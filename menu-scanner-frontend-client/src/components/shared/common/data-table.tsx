@@ -1,12 +1,81 @@
-import { ReactNode } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ReactNode, useState } from "react";
+import { ChevronLeft, ChevronRight, ChevronDown, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
+// Page Size Selector Component
+interface PageSizeSelectorProps {
+  pageSize: number;
+  pageSizeOptions: number[];
+  onPageSizeChange: (size: number) => void;
+  classes: {
+    button: string;
+    icon: string;
+    pageButton: string;
+    select: string;
+  };
+}
+
+function PageSizeSelector({
+  pageSize,
+  pageSizeOptions,
+  onPageSizeChange,
+  classes,
+}: PageSizeSelectorProps) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted-foreground whitespace-nowrap">
+        Rows per page:
+      </span>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn(
+              "justify-between gap-2 min-w-[70px]",
+              classes.select
+            )}
+          >
+            <span>{pageSize}</span>
+            <ChevronDown className="h-3 w-3 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[70px] p-0">
+          <div className="space-y-1">
+            {pageSizeOptions.map((size) => (
+              <button
+                key={size}
+                onClick={() => {
+                  onPageSizeChange(size);
+                  setOpen(false);
+                }}
+                className={cn(
+                  "w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
+                  pageSize === size && "bg-accent text-accent-foreground"
+                )}
+              >
+                <Check
+                  className={cn(
+                    "h-4 w-4",
+                    pageSize === size ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {size}
+              </button>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
 
 export interface TableColumn<T = any> {
   key: string;
@@ -267,26 +336,12 @@ export function DataTableWithPagination<T = any>({
         <div className="flex items-center justify-between gap-4 p-4 flex-wrap">
           {/* Page Size Selector */}
           {showPageSizeSelector && totalPages > 1 ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground whitespace-nowrap">
-                Rows per page:
-              </span>
-              <Select
-                value={pageSize.toString()}
-                onValueChange={(value) => onPageSizeChange(Number(value))}
-              >
-                <SelectTrigger className={`w-[70px] ${classes.select}`}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {pageSizeOptions.map((size) => (
-                    <SelectItem key={size} value={size.toString()}>
-                      {size}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <PageSizeSelector
+              pageSize={pageSize}
+              pageSizeOptions={pageSizeOptions}
+              onPageSizeChange={onPageSizeChange}
+              classes={classes}
+            />
           ) : (
             <div />
           )}

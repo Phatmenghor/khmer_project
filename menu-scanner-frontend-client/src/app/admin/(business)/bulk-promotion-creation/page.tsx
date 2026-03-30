@@ -246,7 +246,6 @@ export default function BulkPromotionCreationPage() {
               totalElements={pagination.totalElements}
               onPageChange={handlePageChange}
               showPagination={pagination.totalPages > 1}
-              showPageSizeSelector={false}
             />
           </div>
         </div>
