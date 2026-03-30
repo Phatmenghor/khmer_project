@@ -365,7 +365,7 @@ export default function BulkPromotionCreationPage() {
                       <button
                         type="button"
                         onClick={handleClearAllSelections}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150"
+                        className="inline-flex ml-3 items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150"
                         title="Clear all selections (stored in browser)"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
