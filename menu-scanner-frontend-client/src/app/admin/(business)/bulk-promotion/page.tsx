@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, CheckSquare, Square, Trash2 } from "lucide-react";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SubmitButton } from "@/components/shared/button/submit-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
@@ -565,24 +566,16 @@ export default function BulkPromotionCreationPage() {
                 >
                   Cancel
                 </CustomButton>
-                <CustomButton
-                  type="submit"
-                  disabled={!isFormValid || isSubmitting}
-                  className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
-                >
-                  {isSubmitting ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
-                      <span className="hidden sm:inline">Applying...</span>
-                      <span className="sm:hidden">Apply...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="hidden sm:inline">Apply Promotion</span>
-                      <span className="sm:hidden">Apply</span>
-                    </>
-                  )}
-                </CustomButton>
+                <SubmitButton
+                  isSubmitting={isSubmitting}
+                  isDirty={selectedIds.length > 0}
+                  isCreate={true}
+                  createText="Apply Promotion"
+                  submittingCreateText="Applying..."
+                  disabled={!isFormValid}
+                  variant="default"
+                  className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg disabled:opacity-50"
+                />
               </div>
             </div>
           </div>
