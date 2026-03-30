@@ -47,11 +47,11 @@ export interface CreateProductRequest {
 }
 
 export interface UpdateProductRequest {
-  name: string;
-  description: string;
-  categoryId: string;
+  name?: string;
+  description?: string;
+  categoryId?: string;
   brandId?: string; // Optional
-  mainImageUrl: string;
+  mainImageUrl?: string;
 
   // Pricing - null if sizes exist
   price?: number | null;
@@ -67,7 +67,7 @@ export interface UpdateProductRequest {
   images?: ProductImageRequest[];
   sizes?: ProductSizeRequest[];
 
-  status: string;
+  status?: string;
 }
 
 export interface UpdateProductParams {
