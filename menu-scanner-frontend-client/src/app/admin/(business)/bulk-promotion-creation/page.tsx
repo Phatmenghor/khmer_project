@@ -420,26 +420,26 @@ export default function BulkPromotionCreationPage() {
                   variant="outline"
                   onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
                   disabled={isSubmitting}
-                  className="h-9 sm:h-10 text-xs sm:text-sm"
+                  className="flex-1 h-9 sm:h-10 text-xs sm:text-sm"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={!isFormValid || isSubmitting}
-                  className="h-9 sm:h-10 text-xs sm:text-sm bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="flex-1 h-9 sm:h-10 text-xs sm:text-sm bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">
                       <div className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
-                      <span className="hidden sm:inline">Creating...</span>
-                      <span className="sm:hidden">Create...</span>
+                      <span className="hidden sm:inline">Applying...</span>
+                      <span className="sm:hidden">Apply...</span>
                     </div>
                   ) : (
                     <>
                       <Check className="w-4 h-4 mr-1" />
-                      <span className="hidden sm:inline">Create Promotion</span>
-                      <span className="sm:hidden">Create</span>
+                      <span className="hidden sm:inline">Apply</span>
+                      <span className="sm:hidden">Apply</span>
                     </>
                   )}
                 </Button>
