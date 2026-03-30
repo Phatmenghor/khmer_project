@@ -10,6 +10,7 @@ import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
+import { PromotionValueField } from "@/components/shared/form-field/promotion-value-field";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import {
   DataTableWithPagination,
@@ -476,40 +477,19 @@ export default function BulkPromotionCreationPage() {
                 </div>
 
                 {/* Promotion Value */}
-                <div className="space-y-2">
-                  <label className="text-xs sm:text-sm font-semibold text-foreground px-0.5">
-                    {promotionType === "PERCENTAGE"
+                <PromotionValueField
+                  control={form.control}
+                  name="promotionValue"
+                  label={
+                    promotionType === "PERCENTAGE"
                       ? "Discount Percentage"
-                      : "Discount Amount"}{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <div className="relative h-10 overflow-hidden rounded-md border border-border hover:border-primary/50 transition-colors duration-200">
-                    <input
-                      type="number"
-                      placeholder={
-                        promotionType === "PERCENTAGE" ? "0-100" : "Amount"
-                      }
-                      step="0.01"
-                      min="0"
-                      max={promotionType === "PERCENTAGE" ? "100" : ""}
-                      disabled={isSubmitting}
-                      className="w-full h-full px-3 sm:px-4 py-2 sm:py-2.5 border-0 text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset transition-all bg-background"
-                      {...form.register("promotionValue", {
-                        valueAsNumber: true,
-                      })}
-                    />
-                    {promotionType && (
-                      <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-xs sm:text-sm font-semibold text-muted-foreground pointer-events-none">
-                        {promotionType === "PERCENTAGE" ? "%" : "$"}
-                      </span>
-                    )}
-                  </div>
-                  {form.formState.errors.promotionValue && (
-                    <p className="text-xs text-destructive font-medium px-0.5">
-                      {form.formState.errors.promotionValue.message}
-                    </p>
-                  )}
-                </div>
+                      : "Discount Amount"
+                  }
+                  promotionType={promotionType}
+                  error={form.formState.errors.promotionValue}
+                  disabled={isSubmitting}
+                  required
+                />
 
                 {/* Start Date */}
 
