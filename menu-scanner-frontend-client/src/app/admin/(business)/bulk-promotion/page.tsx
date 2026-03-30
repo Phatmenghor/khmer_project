@@ -439,21 +439,21 @@ export default function BulkPromotionCreationPage() {
         {/* Right Column - Promotion Settings */}
         <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-gradient-to-b from-background to-muted/5">
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-3 sm:px-4 py-4 space-y-3 sm:space-y-4">
+            <div className="px-3 sm:px-4 py-6 sm:py-8 space-y-7 sm:space-y-8">
               {/* Selected Count Card */}
-              <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-200">
-                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2">
+              <div className="p-6 sm:p-7 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-200">
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-3">
                   Selected Products
                 </p>
-                <p className="text-3xl sm:text-4xl font-bold text-primary">
+                <p className="text-4xl sm:text-5xl font-bold text-primary">
                   {selectedIds.length}
                 </p>
               </div>
 
               {/* Form Sections Container */}
-              <div className="space-y-5">
+              <div className="space-y-6">
                 {/* Discount Type */}
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   <label className="text-xs sm:text-sm font-semibold text-foreground px-0.5">
                     Discount Type <span className="text-destructive">*</span>
                   </label>
@@ -481,7 +481,7 @@ export default function BulkPromotionCreationPage() {
                 </div>
 
                 {/* Promotion Value */}
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   <label className="text-xs sm:text-sm font-semibold text-foreground px-0.5">
                     {promotionType === "PERCENTAGE"
                       ? "Discount Percentage"
@@ -520,7 +520,7 @@ export default function BulkPromotionCreationPage() {
                 <Separator className="bg-border/15 my-1" />
 
                 {/* Start Date */}
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   <div className="h-10 overflow-hidden rounded-md">
                     <DateTimePickerField
                       control={form.control}
@@ -539,7 +539,7 @@ export default function BulkPromotionCreationPage() {
                 </div>
 
                 {/* End Date */}
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   <div className="h-10 overflow-hidden rounded-md">
                     <DateTimePickerField
                       control={form.control}
@@ -561,11 +561,11 @@ export default function BulkPromotionCreationPage() {
               {/* Summary Card */}
               {selectedIds.length > 0 && discountDisplay && (
                 <Card className="bg-gradient-to-br from-primary to-primary/90 border-0 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden">
-                  <CardContent className="p-4 sm:p-5">
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-90 mb-3 sm:mb-4">
+                  <CardContent className="p-5 sm:p-6">
+                    <p className="text-xs font-bold uppercase tracking-widest opacity-90 mb-4 sm:mb-5">
                       Summary
                     </p>
-                    <div className="space-y-2.5">
+                    <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-xs sm:text-sm opacity-90">
                           Items
@@ -589,7 +589,7 @@ export default function BulkPromotionCreationPage() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-3 pt-4 sm:pt-6">
                 <Button
                   type="button"
                   variant="outline"
