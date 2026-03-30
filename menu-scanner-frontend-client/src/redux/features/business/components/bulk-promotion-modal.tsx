@@ -9,11 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { TextField } from "@/components/shared/form-field/text-field";
-import { SelectField } from "@/components/shared/form-field/select-field";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
-import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { BulkPromotionProductTable } from "./bulk-promotion-product-table";
 import { bulkPromotionSchema, BulkPromotionFormData } from "../store/models/schema/bulk-promotion-schema";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
@@ -48,11 +45,11 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   const form = useForm<BulkPromotionFormData>({
     resolver: zodResolver(bulkPromotionSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       productIds: [],
       promotionType: undefined,
-      promotionValue: undefined,
+      promotionValue: 0,
       promotionFromDate: new Date().toISOString(),
       promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     },
@@ -205,62 +202,87 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Promotion Type */}
-                <SelectField
-                  label="Promotion Type"
-                  placeholder="Select promotion type..."
-                  options={PROMOTION_TYPES}
-                  error={form.formState.errors.promotionType?.message}
-                  disabled={isSubmitting}
-                  {...form.register("promotionType")}
-                  onValueChange={(value) =>
-                    form.setValue("promotionType", value as any)
-                  }
-                  value={form.watch("promotionType")}
-                />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Promotion Type</label>
+                  <select
+                    {...form.register("promotionType")}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                    disabled={isSubmitting}
+                  >
+                    <option value="">Select promotion type...</option>
+                    {PROMOTION_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  {form.formState.errors.promotionType && (
+                    <p className="text-xs text-red-500">
+                      {form.formState.errors.promotionType.message}
+                    </p>
+                  )}
+                </div>
 
                 {/* Promotion Value */}
-                <TextField
-                  label={
-                    form.watch("promotionType") === "PERCENTAGE"
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {form.watch("promotionType") === "PERCENTAGE"
                       ? "Discount Percentage (%)"
-                      : "Discount Amount ($)"
-                  }
-                  type="number"
-                  placeholder={
-                    form.watch("promotionType") === "PERCENTAGE"
-                      ? "Enter percentage (0-100)"
-                      : "Enter amount"
-                  }
-                  step="0.01"
-                  min="0"
-                  max={form.watch("promotionType") === "PERCENTAGE" ? "100" : ""}
-                  error={form.formState.errors.promotionValue?.message}
-                  disabled={isSubmitting}
-                  {...form.register("promotionValue", {
-                    valueAsNumber: true,
-                  })}
-                />
+                      : "Discount Amount ($)"}
+                  </label>
+                  <input
+                    type="number"
+                    placeholder={
+                      form.watch("promotionType") === "PERCENTAGE"
+                        ? "Enter percentage (0-100)"
+                        : "Enter amount"
+                    }
+                    step="0.01"
+                    min="0"
+                    max={form.watch("promotionType") === "PERCENTAGE" ? "100" : ""}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                    {...form.register("promotionValue", {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  {form.formState.errors.promotionValue && (
+                    <p className="text-xs text-red-500">
+                      {form.formState.errors.promotionValue.message}
+                    </p>
+                  )}
+                </div>
 
                 {/* Date Range */}
                 <div className="grid grid-cols-2 gap-4">
-                  <DateTimePickerField
-                    label="Promotion From"
-                    error={form.formState.errors.promotionFromDate?.message}
-                    disabled={isSubmitting}
-                    value={form.watch("promotionFromDate")}
-                    onChange={(value) =>
-                      form.setValue("promotionFromDate", value || "")
-                    }
-                  />
-                  <DateTimePickerField
-                    label="Promotion To"
-                    error={form.formState.errors.promotionToDate?.message}
-                    disabled={isSubmitting}
-                    value={form.watch("promotionToDate")}
-                    onChange={(value) =>
-                      form.setValue("promotionToDate", value || "")
-                    }
-                  />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Promotion From</label>
+                    <input
+                      type="datetime-local"
+                      disabled={isSubmitting}
+                      className="w-full px-3 py-2 border rounded-md text-sm"
+                      {...form.register("promotionFromDate")}
+                    />
+                    {form.formState.errors.promotionFromDate && (
+                      <p className="text-xs text-red-500">
+                        {form.formState.errors.promotionFromDate.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Promotion To</label>
+                    <input
+                      type="datetime-local"
+                      disabled={isSubmitting}
+                      className="w-full px-3 py-2 border rounded-md text-sm"
+                      {...form.register("promotionToDate")}
+                    />
+                    {form.formState.errors.promotionToDate && (
+                      <p className="text-xs text-red-500">
+                        {form.formState.errors.promotionToDate.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
