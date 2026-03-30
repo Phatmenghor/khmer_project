@@ -204,7 +204,7 @@ export default function BulkPromotionCreationPage() {
       className: "text-right",
       render: (product) => `$${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}`,
     },
-  ], []);
+  ], [selectedProductIds.size]);
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background">
