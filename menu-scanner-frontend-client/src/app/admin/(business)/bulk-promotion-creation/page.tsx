@@ -29,7 +29,7 @@ import {
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { indexDisplay } from "@/utils/common/common";
+import { bulkPromotionTableColumns } from "@/redux/features/business/table/bulk-promotion-table";
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
@@ -129,78 +129,20 @@ export default function BulkPromotionCreationPage() {
   const isFormValid =
     selectedIds.length > 0 && promotionType && promotionValue > 0;
 
-  // Define table columns
+  // Define table columns using bulk promotion table
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
-    () => [
-      {
-        key: "checkbox",
-        label: "",
-        width: "60px",
-        className: "pl-3 pr-1 flex items-center justify-center",
-        render: (product) => (
-          <CustomCheckbox
-            checked={selectedProductIds.has(product.id)}
-            onCheckedChange={() => handleSelectProduct(product.id)}
-            disabled={isLoading}
-            size="xl"
-            variant="default"
-            ariaLabel={`Select ${product.name}`}
-          />
-        ),
-      },
-      {
-        key: "index",
-        label: "#",
-        width: "50px",
-        className: "px-2 pointer-events-none select-none",
-        render: (_, index) => (
-          <span className="font-medium text-xs pointer-events-none">
-            {indexDisplay(filters.pageNo || 1, pageSize || 10, index + 1)}
-          </span>
-        ),
-      },
-      {
-        key: "name",
-        label: "Product Name",
-        className: "px-4",
-        render: (product) => (
-          <span className="text-xs font-medium truncate max-w-xs">
-            {product.name}
-          </span>
-        ),
-      },
-      {
-        key: "brandName",
-        label: "Brand",
-        className: "px-4",
-        render: (product) => (
-          <span className="text-xs text-muted-foreground">
-            {product.brandName || "---"}
-          </span>
-        ),
-      },
-      {
-        key: "categoryName",
-        label: "Category",
-        className: "px-4",
-        render: (product) => (
-          <span className="text-xs text-muted-foreground">
-            {product.categoryName || "---"}
-          </span>
-        ),
-      },
-      {
-        key: "displayPrice",
-        label: "Price",
-        className: "px-4 text-right",
-        render: (product) => (
-          <span className="text-xs font-semibold">
-            ${(product.displayPrice ?? 0).toFixed(2)}
-          </span>
-        ),
-      },
-    ],
-    [selectedProductIds, isLoading, handleSelectProduct, filters.pageNo, pageSize]
+    () =>
+      bulkPromotionTableColumns({
+        selectedProductIds,
+        onSelectProduct: handleSelectProduct,
+        onSelectAll: handleSelectAll,
+        allSelected,
+        someSelected,
+        isLoading,
+        pageNo: filters.pageNo,
+        pageSize,
+      }),
+    [selectedProductIds, handleSelectProduct, handleSelectAll, allSelected, someSelected, isLoading, filters.pageNo, pageSize]
   );
 
   // Handle page change
