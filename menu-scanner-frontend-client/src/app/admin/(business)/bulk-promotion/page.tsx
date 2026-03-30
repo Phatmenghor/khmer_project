@@ -194,9 +194,8 @@ export default function BulkPromotionCreationPage() {
       : `$${promotionValue}`;
   }, [promotionType, promotionValue]);
 
-  // Form validity
-  const isFormValid =
-    selectedIds.length > 0 && promotionType && promotionValue > 0;
+  // Form validity - use actual form validation + product selection
+  const isFormValid = form.formState.isValid && selectedIds.length > 0;
 
   // Define table columns using bulk promotion table
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
