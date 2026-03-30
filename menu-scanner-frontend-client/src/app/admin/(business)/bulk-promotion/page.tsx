@@ -215,29 +215,6 @@ export default function BulkPromotionCreationPage() {
     hasValidDates &&
     hasSelectedProducts;
 
-  // Debug logs for form state
-  useEffect(() => {
-    console.log("Form State Debug:", {
-      hasValidPromotionType,
-      hasValidPromotionValue,
-      hasValidDates,
-      hasSelectedProducts,
-      isFormValid,
-      promotionType,
-      promotionValue,
-      selectedIds: selectedIds.length,
-    });
-  }, [
-    hasValidPromotionType,
-    hasValidPromotionValue,
-    hasValidDates,
-    hasSelectedProducts,
-    isFormValid,
-    promotionType,
-    promotionValue,
-    selectedIds.length,
-  ]);
-
   // Define table columns using bulk promotion table
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
     () =>
@@ -298,29 +275,13 @@ export default function BulkPromotionCreationPage() {
 
   // Handle form submission
   const onSubmit = async (data: BulkPromotionFormData) => {
-    console.log("=== FORM SUBMISSION STARTED ===");
-    console.log("Form submitted with data:", data);
-    console.log("Selected IDs:", selectedIds);
-    console.log("Form valid:", form.formState.isValid);
-    console.log("Form errors:", form.formState.errors);
-
     if (selectedIds.length === 0) {
-      console.error("No products selected!");
       showToast.error("Please select at least one product");
       return;
     }
 
-    console.log("✓ Validation passed, starting API call...");
     setIsSubmitting(true);
     try {
-      console.log("Calling API with:", {
-        productIds: selectedIds,
-        promotionType: data.promotionType,
-        promotionValue: data.promotionValue,
-        promotionFromDate: data.promotionFromDate,
-        promotionToDate: data.promotionToDate,
-      });
-
       const result = await dispatch(
         createBulkPromotionsService({
           productIds: selectedIds,
@@ -331,7 +292,6 @@ export default function BulkPromotionCreationPage() {
         }),
       ).unwrap();
 
-      console.log("✓ API SUCCESS:", result);
       showToast.success(
         result.message || "Bulk promotion created successfully!",
       );
@@ -340,7 +300,6 @@ export default function BulkPromotionCreationPage() {
       clearSelections();
       form.reset();
     } catch (error) {
-      console.error("✗ API ERROR:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -351,41 +310,20 @@ export default function BulkPromotionCreationPage() {
       showToast.error(String(errorMessage));
     } finally {
       setIsSubmitting(false);
-      console.log("=== FORM SUBMISSION ENDED ===");
     }
   };
 
   // Handle apply button click
   const handleApplyClick = async () => {
-    console.log("Apply button clicked!");
-    console.log("Current form validity:", isFormValid);
-    console.log("Is submitting:", isSubmitting);
-    console.log("Form state:", {
-      isValid: form.formState.isValid,
-      isDirty: form.formState.isDirty,
-      isSubmitting: form.formState.isSubmitting,
-      errors: form.formState.errors,
-    });
-    console.log("Form values:", form.getValues());
-    console.log("Selected IDs:", selectedIds);
-
     // Manually trigger validation first
     const isValidForm = await form.trigger();
-    console.log("Form trigger result:", isValidForm);
 
     if (!isValidForm) {
-      console.error("Form validation failed!", form.formState.errors);
       return;
     }
 
-    console.log("✓ Form validation passed, submitting...");
-    // Trigger form submission manually
-    try {
-      await form.handleSubmit(onSubmit)();
-      console.log("✓ Form submission completed");
-    } catch (err) {
-      console.error("✗ Form submission error:", err);
-    }
+    // Trigger form submission
+    await form.handleSubmit(onSubmit)();
   };
 
   return (
