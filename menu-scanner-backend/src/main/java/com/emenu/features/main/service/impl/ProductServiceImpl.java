@@ -409,7 +409,7 @@ public class ProductServiceImpl implements ProductService {
         if (product.getHasSizes()) {
             List<ProductSize> sizes = productSizeRepository.findByProductId(id);
             for (ProductSize size : sizes) {
-                if (!size.isDeleted()) {
+                if (!size.getIsDeleted()) {
                     size.setPromotionType(null);
                     size.setPromotionValue(null);
                     size.setPromotionFromDate(null);
