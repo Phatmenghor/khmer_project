@@ -124,19 +124,6 @@ function StatusSelect({
     { value: "OUT_OF_STOCK", label: "Out Of Stock" },
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "bg-green-100 text-green-700";
-      case "INACTIVE":
-        return "bg-gray-100 text-gray-700";
-      case "OUT_OF_STOCK":
-        return "bg-red-100 text-red-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
-
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case "ACTIVE":
@@ -155,7 +142,9 @@ function StatusSelect({
       value={value}
       onValueChange={(newStatus) => onStatusChange?.(productId, newStatus)}
     >
-      <SelectTrigger className={cn("w-32 h-8 text-xs", getStatusColor(value))}>
+      <SelectTrigger
+        className={cn("w-36 h-8 text-xs bg-gray-100 text-gray-700")}
+      >
         <SelectValue>{getStatusDisplay(value)}</SelectValue>
       </SelectTrigger>
       <SelectContent>
@@ -332,7 +321,7 @@ export const productTableColumns = ({
       key: "status",
       label: "Status",
       minWidth: "150px",
-      maxWidth: "300px",
+      maxWidth: "350px",
       render: (product) => (
         <StatusSelect
           value={product?.status || "ACTIVE"}
