@@ -20,6 +20,12 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { useProductState } from "../store/state/product-state";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
+import {
+  toggleProductSelection,
+  selectAllProducts,
+  deselectAllProducts,
+  clearProductSelections,
+} from "../store/slice/product-slice";
 
 interface Props {
   isOpen: boolean;
@@ -31,10 +37,13 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { productContent, filters, pagination, isLoading } = useProductState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
-  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(
-    new Set()
-  );
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Calculate selected product IDs from Redux state (isSelected field)
+  const selectedProductIds = React.useMemo(
+    () => new Set(productContent.filter((p) => p.isSelected).map((p) => p.id)),
+    [productContent]
+  );
 
   const form = useForm<BulkPromotionFormData>({
     resolver: zodResolver(bulkPromotionSchema),
@@ -63,7 +72,8 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
         Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000
       ).toISOString(),
       });
-      setSelectedProductIds(new Set());
+      // Clear selections from Redux state
+      dispatch(clearProductSelections());
 
       // Fetch products
       dispatch(
@@ -77,26 +87,23 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   }, [isOpen, dispatch, globalPageSize]);
 
-  const handleSelectProduct = useCallback((productId: string) => {
-    setSelectedProductIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(productId)) {
-        newSet.delete(productId);
-      } else {
-        newSet.add(productId);
-      }
-      return newSet;
-    });
-  }, []);
+  const handleSelectProduct = useCallback(
+    (productId: string) => {
+      dispatch(toggleProductSelection(productId));
+    },
+    [dispatch]
+  );
 
-  const handleSelectAll = useCallback((selected: boolean) => {
-    if (selected && productContent && productContent.length > 0) {
-      const allIds = new Set(productContent.map((p) => p.id));
-      setSelectedProductIds(allIds);
-    } else {
-      setSelectedProductIds(new Set());
-    }
-  }, [productContent]);
+  const handleSelectAll = useCallback(
+    (selected: boolean) => {
+      if (selected && productContent && productContent.length > 0) {
+        dispatch(selectAllProducts());
+      } else {
+        dispatch(deselectAllProducts());
+      }
+    },
+    [dispatch, productContent]
+  );
 
   const handlePageChange = (page: number) => {
     dispatch(setPageNo(page));
@@ -132,7 +139,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       // Reset form and close modal
       form.reset();
-      setSelectedProductIds(new Set());
+      dispatch(clearProductSelections());
       onClose();
 
       // Refresh products list

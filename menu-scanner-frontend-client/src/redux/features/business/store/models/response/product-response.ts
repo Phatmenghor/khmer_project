@@ -41,6 +41,7 @@ export interface ProductDetailResponseModel {
   sku: string;
   images: ProductImage[];
   sizes: ProductSize[];
+  isSelected?: boolean; // Frontend state for bulk operations (default: false)
 }
 
 interface ProductImage {

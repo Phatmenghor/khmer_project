@@ -73,6 +73,48 @@ const productSlice = createSlice({
       return initialState;
     },
 
+    // Bulk selection actions
+    toggleProductSelection: (state, action: PayloadAction<string>) => {
+      // Toggle isSelected field for a specific product
+      if (state.data) {
+        state.data.content = state.data.content.map((product) =>
+          product.id === action.payload
+            ? { ...product, isSelected: !product.isSelected }
+            : product
+        );
+      }
+    },
+
+    selectAllProducts: (state) => {
+      // Select all products on current page
+      if (state.data) {
+        state.data.content = state.data.content.map((product) => ({
+          ...product,
+          isSelected: true,
+        }));
+      }
+    },
+
+    deselectAllProducts: (state) => {
+      // Deselect all products on current page
+      if (state.data) {
+        state.data.content = state.data.content.map((product) => ({
+          ...product,
+          isSelected: false,
+        }));
+      }
+    },
+
+    clearProductSelections: (state) => {
+      // Clear all selections across all pages
+      if (state.data) {
+        state.data.content = state.data.content.map((product) => ({
+          ...product,
+          isSelected: false,
+        }));
+      }
+    },
+
     updateProductOptimistic: (state, action: PayloadAction<any>) => {
       // Update product in the list optimistically
       if (state.data) {
@@ -250,6 +292,10 @@ export const {
   resetState,
   updateProductOptimistic,
   resetProductPromotionOptimistic,
+  toggleProductSelection,
+  selectAllProducts,
+  deselectAllProducts,
+  clearProductSelections,
 } = productSlice.actions;
 
 export default productSlice.reducer;
