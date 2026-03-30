@@ -685,22 +685,11 @@
     border: 1px solid hsl(var(--border));
     border-radius: var(--card-radius);
     backdrop-filter: blur(8px);
-    /* Prevent modal from scaling with html font-size */
-    font-size: revert;
-    transform: scale(1.333); /* 1 / 0.75 to counteract 75% zoom */
-    transform-origin: center;
   }
 
   dialog::backdrop {
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(2px);
-  }
-
-  /* Radix Dialog - Full screen and not affected by zoom */
-  [data-radix-dialog-content] {
-    font-size: revert !important;
-    transform: scale(1.333) !important; /* 1 / 0.75 */
-    transform-origin: center !important;
   }
 }
 
