@@ -212,24 +212,8 @@ const logger = {
     if (isBrowser) {
       console.group(`%c${timestamp} ${logId}${messagePrefix}`, colors.purple);
 
-      // Log the raw body
+      // Log the raw body only
       console.log("%cRequest payload:", colors.cyan, formatRequestData(data));
-
-      // If it's an object, also log its structure separately
-      if (data && typeof data === "object" && !Array.isArray(data)) {
-        console.log("%cPayload structure:", colors.cyan);
-        // Log each top-level property separately for better visibility
-        Object.entries(data as Record<string, unknown>).forEach(
-          ([key, value]) => {
-            const valueType = Array.isArray(value)
-              ? `Array[${(value as []).length}]`
-              : value && typeof value === "object"
-              ? "Object"
-              : typeof value;
-            console.log(`%c${key}: ${valueType}`, colors.cyan, value);
-          }
-        );
-      }
 
       console.groupEnd();
     } else {
