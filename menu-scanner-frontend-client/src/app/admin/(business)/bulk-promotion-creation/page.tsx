@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,12 +32,6 @@ import {
 } from "@/redux/features/business/store/models/schema/bulk-promotion-schema";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import { PROMOTION_TYPES, PROMOTION_DEFAULT_DURATION_DAYS } from "@/constants/form-options";
-import {
-  toggleProductSelection,
-  selectAllProducts,
-  deselectAllProducts,
-  clearProductSelections,
-} from "@/redux/features/business/store/slice/product-slice";
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
@@ -45,13 +39,11 @@ export default function BulkPromotionCreationPage() {
   const { productContent, filters, pagination, isLoading } = useProductState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Calculate selected product IDs from Redux state (isSelected field)
-  const selectedProductIds = useMemo(
-    () => new Set(productContent.filter((p) => p.isSelected).map((p) => p.id)),
-    [productContent]
+  // Simple local state for selected product IDs
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(
+    new Set()
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<BulkPromotionFormData>({
     resolver: zodResolver(bulkPromotionSchema),
@@ -67,12 +59,8 @@ export default function BulkPromotionCreationPage() {
     },
   });
 
-  // Fetch products and clear selections on page load
+  // Fetch products on page load
   useEffect(() => {
-    // Clear previous selections when page loads
-    dispatch(clearProductSelections());
-
-    // Fetch products
     dispatch(
       fetchAllProductAdminService({
         search: "",
@@ -90,22 +78,27 @@ export default function BulkPromotionCreationPage() {
   const someSelected =
     productContent.some((p) => selectedProductIds.has(p.id)) && !allSelected;
 
-  const handleSelectProduct = useCallback(
-    (productId: string) => {
-      dispatch(toggleProductSelection(productId));
-    },
-    [dispatch]
-  );
+  const handleSelectProduct = useCallback((productId: string) => {
+    setSelectedProductIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  }, []);
 
   const handleSelectAll = useCallback(
     (selected: boolean) => {
       if (selected && productContent && productContent.length > 0) {
-        dispatch(selectAllProducts());
+        setSelectedProductIds(new Set(productContent.map((p) => p.id)));
       } else {
-        dispatch(deselectAllProducts());
+        setSelectedProductIds(new Set());
       }
     },
-    [dispatch, productContent]
+    [productContent]
   );
 
   const handlePageChange = (page: number) => {
@@ -141,8 +134,6 @@ export default function BulkPromotionCreationPage() {
       showToast.success(
         result.message || "Bulk promotion created successfully!",
       );
-      // Clear selections before navigating
-      dispatch(clearProductSelections());
       router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
     } catch (error) {
       const errorMessage =
@@ -176,17 +167,16 @@ export default function BulkPromotionCreationPage() {
   const isFormValid =
     selectedProductIds.size > 0 && promotionType && promotionValue > 0;
 
-  // Memoize columns with only stable dependencies
-  // Render functions use isSelected field from product (Redux state)
-  // This avoids infinite loop while keeping checkboxes responsive
-  const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(() => [
+  // Define table columns - NOT memoized to avoid circular dependencies
+  // Render functions have access to selectedProductIds through closure
+  const columns: TableColumn<ProductDetailResponseModel>[] = [
     {
       key: "checkbox",
       label: "",
       width: "48px",
       render: (product) => (
         <Checkbox
-          checked={product.isSelected ?? false}
+          checked={selectedProductIds.has(product.id)}
           onCheckedChange={() => handleSelectProduct(product.id)}
           disabled={isLoading}
           className="h-4 w-4"
@@ -219,7 +209,7 @@ export default function BulkPromotionCreationPage() {
       className: "text-right",
       render: (product) => `$${(product.displayPrice ?? 0).toFixed(2)}`,
     },
-  ], [handleSelectProduct, isLoading]);
+  ];
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background">
