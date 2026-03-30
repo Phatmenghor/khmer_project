@@ -27,6 +27,8 @@ interface CustomSelectProps {
   size?: "sm" | "md" | "lg";
   label?: string;
   required?: boolean;
+  layout?: "vertical" | "horizontal";
+  labelSize?: "xs" | "sm" | "md";
 }
 
 const CUSTOM_SELECT_SIZES = {
@@ -62,15 +64,27 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   size = "md",
   label,
   required = false,
+  layout = "vertical",
+  labelSize = "xs",
 }) => {
   const [open, setOpen] = useState(false);
   const sizeConfig = CUSTOM_SELECT_SIZES[size];
   const selectedOption = options.find((opt) => opt.value === value);
 
+  const labelSizeClass = {
+    xs: "text-xs",
+    sm: "text-sm",
+    md: "text-base",
+  }[labelSize];
+
+  const wrapperClass = layout === "vertical"
+    ? "flex flex-col gap-1 w-full"
+    : "flex flex-row items-center gap-2 w-full";
+
   return (
-    <div className="space-y-2 w-full">
+    <div className={wrapperClass}>
       {label && (
-        <Label className="text-xs sm:text-sm font-semibold text-foreground">
+        <Label className={cn(labelSizeClass, "font-semibold text-foreground")}>
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
         </Label>
