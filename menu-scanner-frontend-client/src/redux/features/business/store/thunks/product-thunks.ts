@@ -92,3 +92,16 @@ export const deleteProductService = createApiThunk<any, string>(
     return response.data.data;
   }
 );
+
+/**
+ * Reset Product Promotion
+ */
+export const resetProductPromotionService = createApiThunk<any, string>(
+  "products/resetPromotion",
+  async (productId) => {
+    const response = await axiosClientWithAuth.put(
+      `/api/v1/products/${productId}/reset-promotion`
+    );
+    return response.data.data;
+  }
+);

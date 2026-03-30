@@ -384,6 +384,41 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductDetailDto resetProductPromotion(UUID id) {
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new NotFoundException("Product not found: " + id));
+
+        User currentUser = securityUtils.getCurrentUser();
+        validateBusinessOwnership(product, currentUser);
+
+        // Clear all promotion fields
+        product.setPromotionType(null);
+        product.setPromotionValue(null);
+        product.setPromotionFromDate(null);
+        product.setPromotionToDate(null);
+
+        // Reset display fields
+        product.setHasActivePromotion(false);
+        product.setDisplayPromotionType(null);
+        product.setDisplayPromotionValue(null);
+        product.setDisplayPromotionFromDate(null);
+        product.setDisplayPromotionToDate(null);
+
+        // Reset display prices to base price/sizes
+        if (product.getHasSizes()) {
+            // Will be recalculated from sizes
+            product.setDisplayPrice(null);
+            product.setDisplayOriginPrice(null);
+        } else {
+            product.setDisplayPrice(product.getPrice());
+            product.setDisplayOriginPrice(product.getPrice());
+        }
+
+        Product savedProduct = productRepository.save(product);
+        return getProductById(savedProduct.getId());
+    }
+
+    @Override
     @Transactional
     public int[] syncExpiredPromotions() {
         int noSizes = productRepository.clearExpiredPromotionsForProductsWithoutSizes();

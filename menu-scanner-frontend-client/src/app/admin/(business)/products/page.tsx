@@ -16,6 +16,7 @@ import {
   deleteProductService,
   updateProductService,
   fetchAllProductAdminService,
+  resetProductPromotionService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import {
   selectProductStatus,
@@ -230,14 +231,8 @@ export default function ProductPage() {
     if (!resetPromotionState.product?.id) return;
 
     try {
-      // Call API to reset promotion (set to null)
       await dispatch(
-        updateProductService({
-          productId: resetPromotionState.product.id,
-          productData: { 
-            status: resetPromotionState.product.status,
-          },
-        })
+        resetProductPromotionService(resetPromotionState.product.id)
       ).unwrap();
 
       showToast.success(
@@ -245,6 +240,19 @@ export default function ProductPage() {
       );
 
       closeResetPromotionModal();
+
+      // Refresh the product list
+      dispatch(
+        fetchAllProductAdminService({
+          search: filters.search,
+          pageNo: filters.pageNo,
+          pageSize: globalPageSize,
+          status:
+            filters.status == ProductStatus.ALL ? undefined : filters.status,
+          brandId: selectedBrand?.id,
+          categoryId: selectedCategories?.id,
+        }),
+      );
     } catch (error: any) {
       showToast.error(error?.message || "Failed to reset promotion");
     }

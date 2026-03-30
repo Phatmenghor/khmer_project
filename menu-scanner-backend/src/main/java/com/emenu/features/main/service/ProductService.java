@@ -20,6 +20,7 @@ public interface ProductService {
     ProductDetailDto updateProduct(UUID id, ProductUpdateDto request);
     ProductDetailDto deleteProduct(UUID id);
     ProductDetailDto getProductByIdPublic(UUID id);
+    ProductDetailDto resetProductPromotion(UUID id);
     int[] syncExpiredPromotions();
     int[] syncStartedPromotions();
 }
