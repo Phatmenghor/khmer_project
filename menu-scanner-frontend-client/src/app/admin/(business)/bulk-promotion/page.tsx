@@ -26,7 +26,9 @@ import { useProductState } from "@/redux/features/business/store/state/product-s
 import {
   fetchAllProductAdminService,
   createBulkPromotionsService,
+  resetAllPromotionsService,
 } from "@/redux/features/business/store/thunks/product-thunks";
+import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { setPageNo } from "@/redux/features/business/store/slice/product-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import {
@@ -74,6 +76,8 @@ export default function BulkPromotionCreationPage() {
   );
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const form = useForm<BulkPromotionFormData>({
     resolver: zodResolver(bulkPromotionSchema),
@@ -327,6 +331,36 @@ export default function BulkPromotionCreationPage() {
     await form.handleSubmit(onSubmit)();
   };
 
+  // Handle reset all promotions
+  const handleResetAllPromotions = async () => {
+    try {
+      setIsResetting(true);
+      await dispatch(resetAllPromotionsService()).unwrap();
+      showToast.success("All promotions have been reset successfully!");
+      setShowResetModal(false);
+      // Refresh products list
+      dispatch(
+        fetchAllProductAdminService({
+          search: "",
+          pageNo: filters.pageNo,
+          pageSize: pageSize,
+          status:
+            filters.status === ProductStatus.ALL ? undefined : filters.status,
+          brandId: selectedBrand?.id,
+          categoryId: selectedCategories?.id,
+        }),
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to reset promotions";
+      showToast.error(errorMessage);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className="flex flex-1 flex-col h-full bg-background scroll-smooth">
       {/* Header */}
@@ -350,6 +384,16 @@ export default function BulkPromotionCreationPage() {
             </p>
           </div>
         </div>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => setShowResetModal(true)}
+          className="gap-2"
+          title="Reset all promotions"
+        >
+          <Trash2 className="h-4 w-4" />
+          <span className="hidden sm:inline">Reset All</span>
+        </Button>
       </div>
 
       <form
@@ -597,6 +641,20 @@ export default function BulkPromotionCreationPage() {
           </div>
         </div>
       </form>
+
+      {/* Reset All Promotions Modal */}
+      <ConfirmationModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onConfirm={handleResetAllPromotions}
+        title="Reset All Promotions"
+        description="Are you sure you want to reset all promotions? This will remove all current and future promotion data from all products and sizes."
+        actionLabel="Reset All"
+        actionVariant="destructive"
+        headerBgColor="bg-red-50"
+        isDangerous={true}
+        isSubmitting={isResetting}
+      />
     </div>
   );
 }

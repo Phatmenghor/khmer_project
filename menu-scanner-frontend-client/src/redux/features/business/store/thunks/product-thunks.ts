@@ -108,6 +108,22 @@ export const resetProductPromotionService = createApiThunk<any, string>(
 );
 
 /**
+ * Reset All Business Promotions
+ */
+export const resetAllPromotionsService = createApiThunk<
+  { message: string; resetCount: number },
+  void
+>(
+  "products/resetAllPromotions",
+  async () => {
+    const response = await axiosClientWithAuth.put(
+      "/api/v1/products/reset-all-promotions"
+    );
+    return response.data.data;
+  }
+);
+
+/**
  * Create Bulk Promotions
  */
 export const createBulkPromotionsService = createApiThunk<
