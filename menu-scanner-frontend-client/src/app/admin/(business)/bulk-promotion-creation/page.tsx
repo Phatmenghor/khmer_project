@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FormHeader } from "@/components/shared/form-field/form-header";
+import { PageFormHeader } from "@/components/shared/form-field/page-form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
@@ -141,7 +141,7 @@ export default function BulkPromotionCreationPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
-      <FormHeader title="Create Bulk Promotion" />
+      <PageFormHeader title="Create Bulk Promotion" isCreate />
 
       <FormBody>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
