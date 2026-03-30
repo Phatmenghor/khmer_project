@@ -306,7 +306,7 @@ export const productPromotionTableColumns = ({
           } else if (type === "FIXED_AMOUNT") {
             displayValue = `$${parseFloat(value.toString()).toFixed(2)}`;
           } else {
-            displayValue = value;
+            displayValue = value.toString();
           }
         }
 
