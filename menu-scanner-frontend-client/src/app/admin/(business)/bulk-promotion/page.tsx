@@ -355,9 +355,32 @@ export default function BulkPromotionCreationPage() {
     console.log("Apply button clicked!");
     console.log("Current form validity:", isFormValid);
     console.log("Is submitting:", isSubmitting);
+    console.log("Form state:", {
+      isValid: form.formState.isValid,
+      isDirty: form.formState.isDirty,
+      isSubmitting: form.formState.isSubmitting,
+      errors: form.formState.errors,
+    });
+    console.log("Form values:", form.getValues());
+    console.log("Selected IDs:", selectedIds);
 
+    // Manually trigger validation first
+    const isValidForm = await form.trigger();
+    console.log("Form trigger result:", isValidForm);
+
+    if (!isValidForm) {
+      console.error("Form validation failed!", form.formState.errors);
+      return;
+    }
+
+    console.log("✓ Form validation passed, submitting...");
     // Trigger form submission manually
-    form.handleSubmit(onSubmit)();
+    try {
+      await form.handleSubmit(onSubmit)();
+      console.log("✓ Form submission completed");
+    } catch (err) {
+      console.error("✗ Form submission error:", err);
+    }
   };
 
   return (
