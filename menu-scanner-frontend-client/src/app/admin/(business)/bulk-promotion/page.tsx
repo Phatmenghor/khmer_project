@@ -195,8 +195,43 @@ export default function BulkPromotionCreationPage() {
       : `$${promotionValue}`;
   }, [promotionType, promotionValue]);
 
-  // Form validity - use actual form validation + product selection
-  const isFormValid = form.formState.isValid && selectedIds.length > 0;
+  // Form validity - check required fields manually
+  const hasValidPromotionType = !!promotionType;
+  const hasValidPromotionValue = promotionValue && promotionValue > 0;
+  const hasValidDates =
+    form.watch("promotionFromDate") &&
+    form.watch("promotionToDate") &&
+    new Date(form.watch("promotionFromDate")) < new Date(form.watch("promotionToDate"));
+  const hasSelectedProducts = selectedIds.length > 0;
+
+  const isFormValid =
+    hasValidPromotionType &&
+    hasValidPromotionValue &&
+    hasValidDates &&
+    hasSelectedProducts;
+
+  // Debug logs for form state
+  useEffect(() => {
+    console.log("Form State Debug:", {
+      hasValidPromotionType,
+      hasValidPromotionValue,
+      hasValidDates,
+      hasSelectedProducts,
+      isFormValid,
+      promotionType,
+      promotionValue,
+      selectedIds: selectedIds.length,
+    });
+  }, [
+    hasValidPromotionType,
+    hasValidPromotionValue,
+    hasValidDates,
+    hasSelectedProducts,
+    isFormValid,
+    promotionType,
+    promotionValue,
+    selectedIds.length,
+  ]);
 
   // Define table columns using bulk promotion table
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
