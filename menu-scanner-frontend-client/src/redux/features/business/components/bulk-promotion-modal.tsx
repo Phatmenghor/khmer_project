@@ -46,6 +46,18 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const form = useForm<BulkPromotionFormData>({
+    resolver: zodResolver(bulkPromotionSchema),
+    mode: "onChange",
+    defaultValues: {
+      productIds: [],
+      promotionType: undefined,
+      promotionValue: undefined,
+      promotionFromDate: new Date().toISOString(),
+      promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  });
+
   // Fetch products for selection and reset form when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -69,19 +81,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
         })
       );
     }
-  }, [isOpen, dispatch, globalPageSize, form]);
-
-  const form = useForm<BulkPromotionFormData>({
-    resolver: zodResolver(bulkPromotionSchema),
-    mode: "onChange",
-    defaultValues: {
-      productIds: [],
-      promotionType: undefined,
-      promotionValue: undefined,
-      promotionFromDate: new Date().toISOString(),
-      promotionToDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  });
+  }, [isOpen, dispatch, globalPageSize]);
 
   const handleSelectProduct = useCallback((productId: string) => {
     setSelectedProductIds((prev) => {
