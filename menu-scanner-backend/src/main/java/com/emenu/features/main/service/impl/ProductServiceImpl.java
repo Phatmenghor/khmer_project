@@ -384,6 +384,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductDetailDto resetProductPromotion(UUID id) {
         Product product = productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found: " + id));
@@ -391,7 +392,7 @@ public class ProductServiceImpl implements ProductService {
         User currentUser = securityUtils.getCurrentUser();
         validateBusinessOwnership(product, currentUser);
 
-        // Clear all promotion fields
+        // Clear all promotion fields on product
         product.setPromotionType(null);
         product.setPromotionValue(null);
         product.setPromotionFromDate(null);
@@ -404,8 +405,19 @@ public class ProductServiceImpl implements ProductService {
         product.setDisplayPromotionFromDate(null);
         product.setDisplayPromotionToDate(null);
 
-        // Reset display prices to base price/sizes
+        // Clear promotions on all product sizes
         if (product.getHasSizes()) {
+            List<ProductSize> sizes = productSizeRepository.findByProductId(id);
+            for (ProductSize size : sizes) {
+                if (!size.isDeleted()) {
+                    size.setPromotionType(null);
+                    size.setPromotionValue(null);
+                    size.setPromotionFromDate(null);
+                    size.setPromotionToDate(null);
+                }
+            }
+            productSizeRepository.saveAll(sizes);
+
             // Will be recalculated from sizes
             product.setDisplayPrice(null);
             product.setDisplayOriginPrice(null);
