@@ -213,8 +213,7 @@ export default function BulkPromotionCreationPage() {
                   >
                     <Checkbox
                       checked={selectedProductIds.has(product.id)}
-                      onCheckedChange={(e) => {
-                        e.stopPropagation?.();
+                      onCheckedChange={() => {
                         handleSelectProduct(product.id);
                       }}
                       disabled={isLoading}
