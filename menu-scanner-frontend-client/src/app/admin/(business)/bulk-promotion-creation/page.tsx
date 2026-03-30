@@ -11,7 +11,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
-import { PageFormHeader } from "@/components/shared/form-field/page-form-header";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import {
@@ -165,60 +164,68 @@ export default function BulkPromotionCreationPage() {
   const isFormValid =
     selectedProductIds.size > 0 && promotionType && promotionValue > 0;
 
-  // Define table columns for products
-  const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
-    () => [
-      {
-        key: "checkbox",
-        label: "",
-        width: "48px",
-        render: (product) => (
-          <Checkbox
-            checked={selectedProductIds.has(product.id)}
-            onCheckedChange={() => handleSelectProduct(product.id)}
-            disabled={isLoading}
-            className="h-4 w-4"
+  // Define table columns for products - stable memoization to prevent infinite loop
+  const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(() => [
+    {
+      key: "checkbox",
+      label: "",
+      width: "48px",
+      render: (product) => (
+        <Checkbox
+          checked={selectedProductIds.has(product.id)}
+          onCheckedChange={() => handleSelectProduct(product.id)}
+          disabled={isLoading}
+          className="h-4 w-4"
+        />
+      ),
+    },
+    {
+      key: "name",
+      label: "Product",
+      render: (product) => (
+        <div className="flex items-center gap-2">
+          <CustomAvatar
+            imageUrl={product.mainImageUrl}
+            name={product.name}
+            size="sm"
           />
-        ),
-      },
-      {
-        key: "name",
-        label: "Product",
-        render: (product) => (
-          <div className="flex items-center gap-2">
-            <CustomAvatar
-              imageUrl={product.mainImageUrl}
-              name={product.name}
-              size="sm"
-            />
-            <span className="font-medium truncate">{product.name}</span>
-          </div>
-        ),
-      },
-      {
-        key: "categoryName",
-        label: "Category",
-        render: (product) => product.categoryName,
-      },
-      {
-        key: "price",
-        label: "Price",
-        className: "text-right",
-        render: (product) =>
-          `$${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}`,
-      },
-    ],
-    [selectedProductIds, isLoading],
-  );
+          <span className="font-medium truncate">{product.name}</span>
+        </div>
+      ),
+    },
+    {
+      key: "categoryName",
+      label: "Category",
+      render: (product) => product.categoryName,
+    },
+    {
+      key: "price",
+      label: "Price",
+      className: "text-right",
+      render: (product) => `$${parseFloat(product.displayPrice?.toString() || "0").toFixed(2)}`,
+    },
+  ], []);
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background">
-      {/* Header */}
-      <PageFormHeader
-        title="Create Bulk Promotion"
-        description="Select products and apply discount settings to multiple items"
-        isCreate
-      />
+      {/* Header with Back Button */}
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4 bg-background border-b border-border shrink-0">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleCancel}
+            className="h-9 w-9 hover:bg-muted"
+            title="Go back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex flex-col">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Create Bulk Promotion</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Select products and apply discount settings</p>
+          </div>
+        </div>
+      </div>
 
       <form
         onSubmit={form.handleSubmit(onSubmit)}
