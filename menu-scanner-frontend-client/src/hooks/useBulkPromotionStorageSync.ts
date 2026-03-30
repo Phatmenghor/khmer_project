@@ -82,18 +82,12 @@ export function useBulkPromotionStorageSync(
   // LOAD from localStorage on mount (ONCE ONLY)
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    console.log("## [HOOK] Load effect running, enabled:", enabled, "initialized:", isInitializedRef.current);
-    if (!enabled || isInitializedRef.current) {
-      console.log("## [HOOK] Skipping load - enabled:", enabled, "already initialized:", isInitializedRef.current);
-      return;
-    }
+    if (!enabled || isInitializedRef.current) return;
 
     isInitializedRef.current = true;
-    console.log("## [HOOK] Starting initialization...");
 
     try {
       const saved = localStorage.getItem(storageKey);
-      console.log("## [HOOK] Loaded from localStorage:", saved);
 
       if (saved) {
         const parsedIds = JSON.parse(saved) as [string, boolean][];
@@ -107,23 +101,17 @@ export function useBulkPromotionStorageSync(
           if (isValid) {
             const productIds = parsedIds.map((item) => item[0]);
             dispatch(setSelectedProducts(productIds));
-            console.log(
-              `✅ Loaded ${productIds.length} selected products from localStorage (${storageKey})`
-            );
 
             if (onProductsLoaded) {
               onProductsLoaded(productIds);
             }
           } else {
-            console.warn(`⚠️ Invalid product data in localStorage, clearing (${storageKey})`);
             localStorage.removeItem(storageKey);
           }
         }
-      } else {
-        console.log(`ℹ️ No saved products found in localStorage (${storageKey})`);
       }
     } catch (error) {
-      console.error(`❌ Error loading products from localStorage (${storageKey}):`, error);
+      // Silent error handling
     }
   }, [enabled, storageKey, dispatch, onProductsLoaded]);
 
@@ -131,14 +119,8 @@ export function useBulkPromotionStorageSync(
   // SAVE to localStorage when selections change (DEBOUNCED)
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    console.log("## [HOOK] Save effect triggered, enabled:", enabled, "initialized:", isInitializedRef.current);
     // Don't save if not initialized or disabled
-    if (!enabled || !isInitializedRef.current) {
-      console.log("## [HOOK] Skipping save - enabled:", enabled, "initialized:", isInitializedRef.current);
-      return;
-    }
-
-    console.log("## [HOOK] Setting up save debounce for", selectedProductIds.length, "products");
+    if (!enabled || !isInitializedRef.current) return;
 
     // Clear previous timeout
     if (saveTimeoutRef.current) {
@@ -147,15 +129,10 @@ export function useBulkPromotionStorageSync(
 
     // Debounce the save
     saveTimeoutRef.current = setTimeout(() => {
-      console.log("## [HOOK] Save timeout fired, saving to localStorage");
       try {
         if (selectedProductIds.length > 0) {
           const data = selectedProductIds.map((id) => [id, true]);
           localStorage.setItem(storageKey, JSON.stringify(data));
-          const sizeKB = (JSON.stringify(data).length / 1024).toFixed(2);
-          console.log(
-            `💾 Saved ${selectedProductIds.length} selected products to localStorage (${sizeKB}KB)`
-          );
 
           if (onProductsSaved) {
             onProductsSaved(selectedProductIds);
@@ -163,20 +140,11 @@ export function useBulkPromotionStorageSync(
         } else {
           // Clear if empty
           localStorage.removeItem(storageKey);
-          console.log(`🗑️ Cleared empty selection from localStorage`);
         }
       } catch (error) {
-        if (error instanceof Error) {
-          if (error.name === "QuotaExceededError") {
-            console.error("❌ localStorage quota exceeded! Too many products selected.");
-          } else {
-            console.error(`❌ Error saving products to localStorage:`, error);
-          }
-        }
+        // Silent error handling
       }
     }, debounceMs);
-
-    console.log("## [HOOK] Debounce timeout set for", debounceMs, "ms");
 
     // Cleanup
     return () => {

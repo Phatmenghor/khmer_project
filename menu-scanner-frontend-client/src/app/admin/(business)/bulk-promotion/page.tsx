@@ -46,17 +46,11 @@ import { selectSelectedProductIds } from "@/redux/features/business/store/select
 import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
 
 export default function BulkPromotionCreationPage() {
-  console.log("## ===== COMPONENT MOUNTED =====");
-
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { productContent, filters, pagination, isLoading } = useProductState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const selectedProductIdsFromRedux = useAppSelector(selectSelectedProductIds);
-
-  console.log("## Component rendered, Redux state loaded");
-  console.log("## selectedProductIdsFromRedux:", selectedProductIdsFromRedux);
-  console.log("## productContent length:", productContent.length);
 
   // Convert array to Map for efficient lookup
   const selectedProductIds = useMemo(() => {
@@ -90,15 +84,6 @@ export default function BulkPromotionCreationPage() {
     enabled: true,
   });
 
-  // Debug: Log Redux state changes
-  useEffect(() => {
-    console.log("\n## ===== REDUX STATE CHANGED =====");
-    console.log("## Updated selectedProductIds:", selectedProductIdsFromRedux);
-    console.log("## Count:", selectedProductIdsFromRedux.length);
-    console.log("## Local storage NOW:", localStorage.getItem("bulk-promotion:selected-products"));
-    console.log("## Selected Products Map:", selectedProductIds);
-    console.log("## ===== END REDUX UPDATE =====\n");
-  }, [selectedProductIdsFromRedux, selectedProductIds]);
 
   // Fetch products on mount and when filters change
   useEffect(() => {
@@ -117,15 +102,7 @@ export default function BulkPromotionCreationPage() {
   // Toggle product selection
   const handleSelectProduct = useCallback(
     (productId: string) => {
-      console.log("## ===== CHECKBOX CLICKED =====");
-      console.log("## Product ID:", productId);
-      console.log("## Redux state BEFORE:", selectedProductIdsFromRedux);
-      console.log("## Local storage BEFORE:", localStorage.getItem("bulk-promotion:selected-products"));
-
       dispatch(toggleSelectedProduct(productId));
-
-      console.log("## Action dispatched: toggleSelectedProduct");
-      console.log("## ===== END CHECKBOX EVENT =====\n");
     },
     [dispatch, selectedProductIdsFromRedux]
   );
