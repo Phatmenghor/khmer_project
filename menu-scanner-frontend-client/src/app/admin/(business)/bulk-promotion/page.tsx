@@ -453,7 +453,7 @@ export default function BulkPromotionCreationPage() {
               {/* Form Sections Container */}
               <div className="space-y-4">
                 {/* Discount Type */}
-                <div className="min-h-20 flex flex-col justify-center">
+                <div className="h-20 flex flex-col justify-center">
                   <CustomSelect
                     label="Discount Type"
                     placeholder="Choose discount type..."
@@ -477,7 +477,7 @@ export default function BulkPromotionCreationPage() {
                 </div>
 
                 {/* Promotion Value */}
-                <div className="min-h-20 flex flex-col justify-center">
+                <div className="h-20 flex flex-col justify-center">
                   <label className="block text-xs sm:text-sm font-semibold text-foreground mb-1">
                     {promotionType === "PERCENTAGE"
                       ? "Discount Percentage"
@@ -516,7 +516,7 @@ export default function BulkPromotionCreationPage() {
                 <Separator className="bg-border/30" />
 
                 {/* Start Date */}
-                <div className="min-h-20 flex flex-col justify-center">
+                <div className="h-20 flex flex-col justify-center">
                   <DateTimePickerField
                     control={form.control}
                     name="promotionFromDate"
@@ -528,7 +528,7 @@ export default function BulkPromotionCreationPage() {
                 </div>
 
                 {/* End Date */}
-                <div className="min-h-20 flex flex-col justify-center">
+                <div className="h-20 flex flex-col justify-center">
                   <DateTimePickerField
                     control={form.control}
                     name="promotionToDate"
@@ -537,7 +537,6 @@ export default function BulkPromotionCreationPage() {
                     mode="datetime"
                     error={form.formState.errors.promotionToDate}
                   />
-                </div>
                 </div>
               </div>
 
