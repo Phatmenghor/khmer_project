@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -1040,15 +1040,21 @@ export default function ProductModal({
                                 value={
                                   watch(`images.${index}.imageUrl`) || ""
                                 }
-                                onChange={(base64) =>
-                                  setValue(
-                                    `images.${index}.imageUrl`,
-                                    base64,
-                                    {
-                                      shouldDirty: true,
-                                    },
-                                  )
-                                }
+                                onChange={(base64) => {
+                                  if (base64 === "") {
+                                    // Image removed - delete from array
+                                    removeImage(index);
+                                  } else {
+                                    // Image uploaded/changed
+                                    setValue(
+                                      `images.${index}.imageUrl`,
+                                      base64,
+                                      {
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  }
+                                }}
                                 aspectRatio="square"
                                 height="h-full"
                                 maxSize={5}
@@ -1059,16 +1065,6 @@ export default function ProductModal({
                                 showPreviewText={false}
                               />
                             </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="absolute top-1 right-1 h-6 w-6 z-20 opacity-0 hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white rounded-full"
-                              onClick={() => removeImage(index)}
-                              disabled={isProcessing}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
                           </div>
                         ))}
                       </div>
