@@ -236,7 +236,7 @@ export default function ProductPage() {
   };
 
 
-  const handleConfirmResetPromotion = () => {
+  const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
 
     // Optimistic update - update state immediately
