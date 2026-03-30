@@ -127,16 +127,18 @@ export default function BulkPromotionCreationPage() {
     router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION);
   };
 
+  // Watch form values without dependency issues
+  const promotionType = form.watch("promotionType");
+  const promotionValue = form.watch("promotionValue");
+
   const discountDisplay = useMemo(() => {
-    const type = form.watch("promotionType");
-    const value = form.watch("promotionValue");
-    if (!type || !value) return null;
-    return type === "PERCENTAGE" ? `${value}%` : `$${value}`;
-  }, [form.watch("promotionType"), form.watch("promotionValue")]);
+    if (!promotionType || !promotionValue) return null;
+    return promotionType === "PERCENTAGE" ? `${promotionValue}%` : `$${promotionValue}`;
+  }, [promotionType, promotionValue]);
 
   const isFormValid = selectedProductIds.size > 0 &&
-    form.watch("promotionType") &&
-    form.watch("promotionValue") > 0;
+    promotionType &&
+    promotionValue > 0;
 
   return (
     <div className="flex flex-col h-full w-full bg-slate-50">
@@ -315,7 +317,7 @@ export default function BulkPromotionCreationPage() {
               <div className="space-y-3">
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    {form.watch("promotionType") === "PERCENTAGE"
+                    {promotionType === "PERCENTAGE"
                       ? "Discount Percentage"
                       : "Discount Amount"}{" "}
                     <span className="text-red-500">*</span>
@@ -324,22 +326,22 @@ export default function BulkPromotionCreationPage() {
                     <input
                       type="number"
                       placeholder={
-                        form.watch("promotionType") === "PERCENTAGE"
+                        promotionType === "PERCENTAGE"
                           ? "Enter 0-100"
                           : "Enter amount"
                       }
                       step="0.01"
                       min="0"
-                      max={form.watch("promotionType") === "PERCENTAGE" ? "100" : ""}
+                      max={promotionType === "PERCENTAGE" ? "100" : ""}
                       disabled={isSubmitting}
                       className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white hover:border-slate-400"
                       {...form.register("promotionValue", {
                         valueAsNumber: true,
                       })}
                     />
-                    {form.watch("promotionType") && (
+                    {promotionType && (
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-600">
-                        {form.watch("promotionType") === "PERCENTAGE" ? "%" : "$"}
+                        {promotionType === "PERCENTAGE" ? "%" : "$"}
                       </span>
                     )}
                   </div>
