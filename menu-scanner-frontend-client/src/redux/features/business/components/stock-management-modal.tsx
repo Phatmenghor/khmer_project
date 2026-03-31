@@ -242,10 +242,6 @@ export function StockManagementModal({
                           inputMode="decimal"
                           {...form.register("priceIn", {
                             required: "Price is required",
-                            pattern: {
-                              value: /^\d+(\.\d{1,2})?$/,
-                              message: "Price must be a valid number (e.g., 0.25 or 10.50)",
-                            },
                             validate: (value) => {
                               const num = parseFloat(value);
                               if (isNaN(num)) return "Price must be a valid number";
@@ -271,7 +267,7 @@ export function StockManagementModal({
                         </p>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        Cost per unit for inventory tracking (e.g., 0.221)
+                        Cost per unit for inventory tracking (e.g., 0.25, 10.50, 0.323)
                       </p>
                     </div>
 
