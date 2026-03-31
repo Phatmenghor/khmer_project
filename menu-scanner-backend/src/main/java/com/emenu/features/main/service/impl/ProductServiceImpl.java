@@ -37,7 +37,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +49,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -391,15 +389,61 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDetailDto resetProductPromotion(UUID id) {
-        try {
-            Product product = productRepository.findByIdAndIsDeletedFalse(id)
-                    .orElseThrow(() -> new NotFoundException("Product not found: " + id));
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new NotFoundException("Product not found: " + id));
 
-            User currentUser = securityUtils.getCurrentUser();
-            validateBusinessOwnership(product, currentUser);
+        User currentUser = securityUtils.getCurrentUser();
+        validateBusinessOwnership(product, currentUser);
 
-            boolean hadPromotion = product.getPromotionType() != null;
+        product.setPromotionType(null);
+        product.setPromotionValue(null);
+        product.setPromotionFromDate(null);
+        product.setPromotionToDate(null);
 
+        product.setHasActivePromotion(false);
+        product.setDisplayPromotionType(null);
+        product.setDisplayPromotionValue(null);
+        product.setDisplayPromotionFromDate(null);
+        product.setDisplayPromotionToDate(null);
+
+        if (product.getHasSizes()) {
+            List<ProductSize> sizes = productSizeRepository.findByProductId(id);
+            for (ProductSize size : sizes) {
+                if (!size.getIsDeleted()) {
+                    size.setPromotionType(null);
+                    size.setPromotionValue(null);
+                    size.setPromotionFromDate(null);
+                    size.setPromotionToDate(null);
+                }
+            }
+            if (!sizes.isEmpty()) {
+                productSizeRepository.saveAll(sizes);
+            }
+            product.setDisplayPrice(null);
+            product.setDisplayOriginPrice(null);
+        } else {
+            product.setDisplayPrice(product.getPrice());
+            product.setDisplayOriginPrice(product.getPrice());
+        }
+
+        Product savedProduct = productRepository.save(product);
+        return getProductById(savedProduct.getId());
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> resetAllPromotions() {
+        User currentUser = securityUtils.getCurrentUser();
+        validateUserBusinessAssociation(currentUser);
+
+        List<Product> products = productRepository.findAllWithFilters(
+            currentUser.getBusiness().getId(),
+            null, null, null, null, null, null, null, null, Sort.unsorted());
+
+        int resetProductCount = 0;
+        int resetSizeCount = 0;
+
+        for (Product product : products) {
             product.setPromotionType(null);
             product.setPromotionValue(null);
             product.setPromotionFromDate(null);
@@ -411,16 +455,17 @@ public class ProductServiceImpl implements ProductService {
             product.setDisplayPromotionFromDate(null);
             product.setDisplayPromotionToDate(null);
 
-            int sizesCleared = 0;
+            resetProductCount++;
+
             if (product.getHasSizes()) {
-                List<ProductSize> sizes = productSizeRepository.findByProductId(id);
+                List<ProductSize> sizes = productSizeRepository.findByProductId(product.getId());
                 for (ProductSize size : sizes) {
                     if (!size.getIsDeleted()) {
                         size.setPromotionType(null);
                         size.setPromotionValue(null);
                         size.setPromotionFromDate(null);
                         size.setPromotionToDate(null);
-                        sizesCleared++;
+                        resetSizeCount++;
                     }
                 }
                 if (!sizes.isEmpty()) {
@@ -432,100 +477,25 @@ public class ProductServiceImpl implements ProductService {
                 product.setDisplayPrice(product.getPrice());
                 product.setDisplayOriginPrice(product.getPrice());
             }
-
-            Product savedProduct = productRepository.save(product);
-            log.info("[PRODUCT_RESET_PROMOTION] SUCCESS | ID={} | Name={} | Sizes={} | Status={}",
-                savedProduct.getId(), savedProduct.getName(), sizesCleared, hadPromotion ? "CLEARED" : "NO_PROMOTION");
-
-            return getProductById(savedProduct.getId());
-        } catch (Exception e) {
-            log.error("[PRODUCT_RESET_PROMOTION] FAILED | ID={} | Error={}", id, e.getMessage(), e);
-            throw e;
         }
-    }
 
-    @Override
-    @Transactional
-    public Map<String, Object> resetAllPromotions() {
-        long startTime = System.currentTimeMillis();
-
-        try {
-            User currentUser = securityUtils.getCurrentUser();
-            validateUserBusinessAssociation(currentUser);
-
-            List<Product> products = productRepository.findAllWithFilters(
-                currentUser.getBusiness().getId(),
-                null, null, null, null, null, null, null, null, Sort.unsorted());
-
-            int resetProductCount = 0;
-            int resetSizeCount = 0;
-
-            for (Product product : products) {
-                product.setPromotionType(null);
-                product.setPromotionValue(null);
-                product.setPromotionFromDate(null);
-                product.setPromotionToDate(null);
-
-                product.setHasActivePromotion(false);
-                product.setDisplayPromotionType(null);
-                product.setDisplayPromotionValue(null);
-                product.setDisplayPromotionFromDate(null);
-                product.setDisplayPromotionToDate(null);
-
-                resetProductCount++;
-
-                if (product.getHasSizes()) {
-                    List<ProductSize> sizes = productSizeRepository.findByProductId(product.getId());
-                    for (ProductSize size : sizes) {
-                        if (!size.getIsDeleted()) {
-                            size.setPromotionType(null);
-                            size.setPromotionValue(null);
-                            size.setPromotionFromDate(null);
-                            size.setPromotionToDate(null);
-                            resetSizeCount++;
-                        }
-                    }
-                    if (!sizes.isEmpty()) {
-                        productSizeRepository.saveAll(sizes);
-                    }
-                    product.setDisplayPrice(null);
-                    product.setDisplayOriginPrice(null);
-                } else {
-                    product.setDisplayPrice(product.getPrice());
-                    product.setDisplayOriginPrice(product.getPrice());
-                }
-            }
-
-            if (!products.isEmpty()) {
-                productRepository.saveAll(products);
-            }
-
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("[RESET_ALL_PROMOTIONS] COMPLETED | Business={} | Products={} | Sizes={} | Total={} | Duration={}ms",
-                currentUser.getBusinessId(), resetProductCount, resetSizeCount, resetProductCount + resetSizeCount, duration);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", String.format("Successfully reset promotions for %d products and %d sizes", resetProductCount, resetSizeCount));
-            response.put("resetCount", resetProductCount + resetSizeCount);
-            response.put("productsReset", resetProductCount);
-            response.put("sizesReset", resetSizeCount);
-
-            return response;
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("[RESET_ALL_PROMOTIONS] FAILED | Error={} | Duration={}ms", e.getMessage(), duration, e);
-            throw e;
+        if (!products.isEmpty()) {
+            productRepository.saveAll(products);
         }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", String.format("Successfully reset promotions for %d products and %d sizes", resetProductCount, resetSizeCount));
+        response.put("resetCount", resetProductCount + resetSizeCount);
+        response.put("productsReset", resetProductCount);
+        response.put("sizesReset", resetSizeCount);
+
+        return response;
     }
 
     @Override
     @Transactional
     public BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request) {
-        long startTime = System.currentTimeMillis();
-        UUID businessId = null;
-
         User currentUser = securityUtils.getCurrentUser();
-        businessId = currentUser.getBusinessId();
         validateUserBusinessAssociation(currentUser);
 
         List<UUID> failedProductIds = new ArrayList<>();
@@ -534,9 +504,7 @@ public class ProductServiceImpl implements ProductService {
 
         for (Product product : products) {
             try {
-                if (!product.getBusinessId().equals(businessId)) {
-                    log.warn("[BULK_PROMOTION] BUSINESS_MISMATCH | ProductID={} | Expected={} | Got={}",
-                        product.getId(), businessId, product.getBusinessId());
+                if (!product.getBusinessId().equals(currentUser.getBusinessId())) {
                     failedProductIds.add(product.getId());
                     continue;
                 }
@@ -555,7 +523,6 @@ public class ProductServiceImpl implements ProductService {
                         specifiedSizeIds = request.getProductSizeMapping().get(product.getId());
                     }
 
-                    int appliedSizes = 0;
                     for (ProductSize size : sizes) {
                         if (!size.getIsDeleted()) {
                             boolean shouldApply = specifiedSizeIds == null || specifiedSizeIds.contains(size.getId());
@@ -564,7 +531,6 @@ public class ProductServiceImpl implements ProductService {
                                 size.setPromotionValue(request.getPromotionValue());
                                 size.setPromotionFromDate(request.getPromotionFromDate());
                                 size.setPromotionToDate(request.getPromotionToDate());
-                                appliedSizes++;
                             } else {
                                 size.setPromotionType(null);
                                 size.setPromotionValue(null);
@@ -582,15 +548,9 @@ public class ProductServiceImpl implements ProductService {
                 productRepository.save(product);
                 successCount++;
             } catch (Exception e) {
-                log.error("[BULK_PROMOTION] PRODUCT_FAILED | ProductID={} | Error={}", product.getId(), e.getMessage(), e);
                 failedProductIds.add(product.getId());
             }
         }
-
-        long duration = System.currentTimeMillis() - startTime;
-        log.info("[BULK_PROMOTION] COMPLETED | Type={} | Value={} | Success={} | Failed={} | Total={} | HasSizeMapping={} | Duration={}ms",
-            request.getPromotionType(), request.getPromotionValue(), successCount, failedProductIds.size(),
-            request.getProductIds().size(), request.getProductSizeMapping() != null && !request.getProductSizeMapping().isEmpty(), duration);
 
         return BulkPromotionResultDto.builder()
                 .successCount(successCount)
@@ -619,114 +579,72 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDetailDto createProduct(ProductCreateDto request) {
-        long startTime = System.currentTimeMillis();
-        UUID businessId = null;
+        User currentUser = securityUtils.getCurrentUser();
+        validateUserBusinessAssociation(currentUser);
 
-        try {
-            User currentUser = securityUtils.getCurrentUser();
-            businessId = currentUser.getBusinessId();
-            validateUserBusinessAssociation(currentUser);
+        Product product = productMapper.toEntity(request);
+        productMapper.setBusinessFields(product, currentUser.getBusinessId());
+        product.initializeDisplayFields();
+        syncDenormalizedNames(product);
 
-            Product product = productMapper.toEntity(request);
-            productMapper.setBusinessFields(product, businessId);
-            product.initializeDisplayFields();
-            syncDenormalizedNames(product);
+        Product savedProduct = productRepository.save(product);
 
-            Product savedProduct = productRepository.save(product);
-            int imageCount = request.getImages() != null ? request.getImages().size() : 0;
-            int sizeCount = request.getSizes() != null ? request.getSizes().size() : 0;
+        handleProductImages(savedProduct, request.getImages());
 
-            handleProductImages(savedProduct, request.getImages());
-
-            if (request.getSizes() != null && !request.getSizes().isEmpty()) {
-                handleProductSizes(savedProduct, request.getSizes());
-                List<ProductSize> sizes = productSizeRepository.findByProductId(savedProduct.getId());
-                savedProduct.setSizes(sizes);
-                savedProduct.syncDisplayFieldsFromSizes();
-                savedProduct = productRepository.save(savedProduct);
-            }
-
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("[PRODUCT_CREATE] SUCCESS | ID={} | Name={} | Business={} | Images={} | Sizes={} | Duration={}ms",
-                savedProduct.getId(), savedProduct.getName(), businessId, imageCount, sizeCount, duration);
-
-            return getProductById(savedProduct.getId());
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("[PRODUCT_CREATE] FAILED | Name={} | Business={} | Error={} | Duration={}ms",
-                request.getName(), businessId != null ? businessId : "UNKNOWN", e.getMessage(), duration, e);
-            throw e;
+        if (request.getSizes() != null && !request.getSizes().isEmpty()) {
+            handleProductSizes(savedProduct, request.getSizes());
+            List<ProductSize> sizes = productSizeRepository.findByProductId(savedProduct.getId());
+            savedProduct.setSizes(sizes);
+            savedProduct.syncDisplayFieldsFromSizes();
+            savedProduct = productRepository.save(savedProduct);
         }
+
+        return getProductById(savedProduct.getId());
     }
 
     @Override
     public ProductDetailDto updateProduct(UUID id, ProductUpdateDto request) {
-        long startTime = System.currentTimeMillis();
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new NotFoundException("Product not found: " + id));
 
-        try {
-            Product product = productRepository.findByIdAndIsDeletedFalse(id)
-                    .orElseThrow(() -> new NotFoundException("Product not found: " + id));
+        User currentUser = securityUtils.getCurrentUser();
+        validateBusinessOwnership(product, currentUser);
 
-            User currentUser = securityUtils.getCurrentUser();
-            validateBusinessOwnership(product, currentUser);
+        productMapper.updateEntity(request, product);
 
-            String oldName = product.getName();
-            productMapper.updateEntity(request, product);
-
-            if (!product.getHasSizes()) {
-                product.initializeDisplayFields();
-            }
-
-            syncDenormalizedNames(product);
-            Product updatedProduct = productRepository.save(product);
-
-            int imageCount = request.getImages() != null ? request.getImages().size() : 0;
-            updateProductImages(updatedProduct, request.getImages());
-
-            boolean sizesChanged = updateProductSizes(updatedProduct, request.getSizes());
-            int sizeCount = updatedProduct.getSizes() != null ? updatedProduct.getSizes().size() : 0;
-
-            if (sizesChanged) {
-                List<ProductSize> sizes = productSizeRepository.findByProductId(updatedProduct.getId());
-                updatedProduct.setSizes(sizes);
-                updatedProduct.syncDisplayFieldsFromSizes();
-                updatedProduct = productRepository.save(updatedProduct);
-                sizeCount = sizes.size();
-            }
-
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("[PRODUCT_UPDATE] SUCCESS | ID={} | OldName={} | NewName={} | Images={} | SizesChanged={} | Sizes={} | Duration={}ms",
-                id, oldName, updatedProduct.getName(), imageCount, sizesChanged, sizeCount, duration);
-
-            return getProductById(updatedProduct.getId());
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("[PRODUCT_UPDATE] FAILED | ID={} | Error={} | Duration={}ms",
-                id, e.getMessage(), duration, e);
-            throw e;
+        if (!product.getHasSizes()) {
+            product.initializeDisplayFields();
         }
+
+        syncDenormalizedNames(product);
+        Product updatedProduct = productRepository.save(product);
+
+        updateProductImages(updatedProduct, request.getImages());
+
+        boolean sizesChanged = updateProductSizes(updatedProduct, request.getSizes());
+
+        if (sizesChanged) {
+            List<ProductSize> sizes = productSizeRepository.findByProductId(updatedProduct.getId());
+            updatedProduct.setSizes(sizes);
+            updatedProduct.syncDisplayFieldsFromSizes();
+            updatedProduct = productRepository.save(updatedProduct);
+        }
+
+        return getProductById(updatedProduct.getId());
     }
 
     @Override
     public ProductDetailDto deleteProduct(UUID id) {
-        try {
-            Product product = productRepository.findByIdAndIsDeletedFalse(id)
-                    .orElseThrow(() -> new NotFoundException("Product not found: " + id));
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new NotFoundException("Product not found: " + id));
 
-            User currentUser = securityUtils.getCurrentUser();
-            validateBusinessOwnership(product, currentUser);
+        User currentUser = securityUtils.getCurrentUser();
+        validateBusinessOwnership(product, currentUser);
 
-            product.softDelete();
-            Product deletedProduct = productRepository.save(product);
+        product.softDelete();
+        Product deletedProduct = productRepository.save(product);
 
-            log.info("[PRODUCT_DELETE] SUCCESS | ID={} | Name={} | Business={} | Status=SOFT_DELETED",
-                deletedProduct.getId(), deletedProduct.getName(), deletedProduct.getBusinessId());
-
-            return productMapper.toDetailDto(deletedProduct);
-        } catch (Exception e) {
-            log.error("[PRODUCT_DELETE] FAILED | ID={} | Error={}", id, e.getMessage(), e);
-            throw e;
-        }
+        return productMapper.toDetailDto(deletedProduct);
     }
 
     private void handleProductImages(Product product, List<ProductImageCreateDto> imageDtos) {
