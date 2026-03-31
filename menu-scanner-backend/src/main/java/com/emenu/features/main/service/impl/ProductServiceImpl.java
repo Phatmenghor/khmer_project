@@ -458,7 +458,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             User currentUser = securityUtils.getCurrentUser();
             validateUserBusinessAssociation(currentUser);
-            log.debug("Reset promotions - Current user: {}, Business: {}", currentUser.getUsername(), currentUser.getBusinessId());
+            log.debug("Reset promotions - Current user: {}, Business: {}", currentUser.getUserIdentifier(), currentUser.getBusinessId());
 
             // Get all products for the current user's business
             List<Product> products = productRepository.findAllWithFilters(
@@ -546,7 +546,7 @@ public class ProductServiceImpl implements ProductService {
 
         User currentUser = securityUtils.getCurrentUser();
         validateUserBusinessAssociation(currentUser);
-        log.debug("Bulk promotion - Current user: {}, Business: {}", currentUser.getUsername(), currentUser.getBusinessId());
+        log.debug("Bulk promotion - Current user: {}, Business: {}", currentUser.getUserIdentifier(), currentUser.getBusinessId());
 
         List<UUID> failedProductIds = new ArrayList<>();
         int successCount = 0;
@@ -668,7 +668,7 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             User currentUser = securityUtils.getCurrentUser();
-            log.debug("Current user: {}, Business: {}", currentUser.getUsername(), currentUser.getBusinessId());
+            log.debug("Current user: {}, Business: {}", currentUser.getUserIdentifier(), currentUser.getBusinessId());
             validateUserBusinessAssociation(currentUser);
 
             Product product = productMapper.toEntity(request);
@@ -766,7 +766,7 @@ public class ProductServiceImpl implements ProductService {
 
             User currentUser = securityUtils.getCurrentUser();
             validateBusinessOwnership(product, currentUser);
-            log.debug("Business ownership validation passed for user: {}", currentUser.getUsername());
+            log.debug("Business ownership validation passed for user: {}", currentUser.getUserIdentifier());
 
             product.softDelete();
             log.debug("Product marked for soft delete: {}", id);
