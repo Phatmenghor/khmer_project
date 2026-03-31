@@ -37,10 +37,10 @@ import { ProductDetailResponseModel } from "../store/models/response/product-res
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 
 interface StockFormData {
-  quantityOnHand: number;
-  priceIn: string;
-  expiryDate: string;
-  location: string;
+  quantityOnHand?: number;
+  priceIn?: string;
+  expiryDate?: string;
+  location?: string;
 }
 
 interface StockManagementModalProps {
@@ -72,7 +72,12 @@ export function StockManagementModal({
     if (successMessage) {
       showToast.success(successMessage);
       dispatch(clearSuccess());
-      form.reset();
+      form.reset({
+        quantityOnHand: undefined,
+        priceIn: "",
+        expiryDate: "",
+        location: "",
+      });
     }
   }, [successMessage, dispatch, form]);
 
@@ -99,13 +104,14 @@ export function StockManagementModal({
   const handleCreateStock = async (data: StockFormData) => {
     if (!product) return;
 
-    if (data.quantityOnHand < 0) {
+    const quantity = Number(data.quantityOnHand);
+    if (isNaN(quantity) || quantity < 0) {
       showToast.error("Quantity must be greater than or equal to 0");
       return;
     }
 
     // Validate price is a valid number
-    const price = parseFloat(data.priceIn);
+    const price = parseFloat(data.priceIn || "");
     if (isNaN(price) || price <= 0) {
       showToast.error("Price must be a valid number greater than 0");
       return;
@@ -114,7 +120,7 @@ export function StockManagementModal({
     dispatch(
       createProductStockService({
         productId: product.id || "",
-        quantityOnHand: data.quantityOnHand,
+        quantityOnHand: quantity,
         priceIn: price,
         expiryDate: data.expiryDate || undefined,
         location: data.location || undefined,
@@ -198,9 +204,14 @@ export function StockManagementModal({
                         placeholder="Enter quantity"
                         className="h-10"
                         {...form.register("quantityOnHand", {
-                          valueAsNumber: true,
                           required: "Quantity is required",
-                          min: { value: 0, message: "Quantity must be >= 0" },
+                          validate: (value) => {
+                            if (value === undefined || value === null || value === "") return "Quantity is required";
+                            const num = Number(value);
+                            if (isNaN(num)) return "Quantity must be a valid number";
+                            if (num < 0) return "Quantity must be >= 0";
+                            return true;
+                          },
                         })}
                       />
                       {form.formState.errors.quantityOnHand && (
