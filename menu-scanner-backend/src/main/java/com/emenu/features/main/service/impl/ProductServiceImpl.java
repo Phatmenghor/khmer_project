@@ -458,16 +458,16 @@ public class ProductServiceImpl implements ProductService {
         try {
             User currentUser = securityUtils.getCurrentUser();
             validateUserBusinessAssociation(currentUser);
-            log.debug("Reset promotions - Current user: {}, Business: {}", currentUser.getUserIdentifier(), currentUser.getBusinessId());
 
             // Get all products for the current user's business
             List<Product> products = productRepository.findAllWithFilters(
                 currentUser.getBusiness().getId(),
                 null, null, null, null, null, null, null, null, Sort.unsorted());
-            log.debug("Fetched {} products for promotion reset", products.size());
+            log.info("Fetched {} products for promotion reset", products.size());
 
             int resetProductCount = 0;
             int resetSizeCount = 0;
+            List<ProductSize> allSizesToSave = new ArrayList<>();
 
             for (Product product : products) {
                 // Clear all promotion fields on product
@@ -488,7 +488,6 @@ public class ProductServiceImpl implements ProductService {
                 // Clear promotions on all product sizes
                 if (product.getHasSizes()) {
                     List<ProductSize> sizes = productSizeRepository.findByProductId(product.getId());
-                    int sizesCleared = 0;
                     for (ProductSize size : sizes) {
                         if (!size.getIsDeleted()) {
                             size.setPromotionType(null);
@@ -496,12 +495,8 @@ public class ProductServiceImpl implements ProductService {
                             size.setPromotionFromDate(null);
                             size.setPromotionToDate(null);
                             resetSizeCount++;
-                            sizesCleared++;
+                            allSizesToSave.add(size);
                         }
-                    }
-                    if (!sizes.isEmpty()) {
-                        productSizeRepository.saveAll(sizes);
-                        log.debug("Reset promotions for {} sizes in product: {}", sizesCleared, product.getId());
                     }
 
                     // Will be recalculated from sizes
@@ -513,10 +508,16 @@ public class ProductServiceImpl implements ProductService {
                 }
             }
 
+            // Batch save all sizes at once (much faster than per-product saves)
+            if (!allSizesToSave.isEmpty()) {
+                productSizeRepository.saveAll(allSizesToSave);
+                log.info("Batch saved {} product sizes", allSizesToSave.size());
+            }
+
             // Save all products
             if (!products.isEmpty()) {
                 productRepository.saveAll(products);
-                log.debug("Saved {} products after promotion reset", products.size());
+                log.info("Batch saved {} products after promotion reset", products.size());
             }
 
             long duration = System.currentTimeMillis() - startTime;
