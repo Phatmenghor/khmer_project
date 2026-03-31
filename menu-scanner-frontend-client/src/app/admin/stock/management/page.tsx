@@ -36,13 +36,6 @@ import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/redux/store";
 
-// Filter options for has size
-const HAS_SIZE_FILTER = [
-  { value: "ALL", label: "All Products" },
-  { value: "WITH_SIZES", label: "With Sizes" },
-  { value: "WITHOUT_SIZES", label: "Without Sizes" },
-];
-
 // Filter options for stock status
 const STOCK_STATUS_FILTER = [
   { value: "ALL", label: "All Stock Status" },
@@ -87,7 +80,6 @@ export default function ProductStockPage() {
   );
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
-  const [hasSizeFilter, setHasSizeFilter] = useState("ALL");
   const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
 
   // Global page size from global settings (synced across all admin pages)
@@ -257,10 +249,6 @@ export default function ProductStockPage() {
     setSelectedCategories(categories);
   };
 
-  const handleHasSizeChange = (value: string) => {
-    setHasSizeFilter(value);
-  };
-
   const handleStockStatusChange = (value: string) => {
     setStockStatusFilter(value);
   };
@@ -289,14 +277,6 @@ export default function ProductStockPage() {
             onChangeSelected={handleCategoriesChange}
             placeholder="All Categories"
             showAllOption={true}
-          />
-
-          <CustomSelect
-            options={HAS_SIZE_FILTER}
-            value={hasSizeFilter}
-            placeholder="All Products"
-            onValueChange={handleHasSizeChange}
-            label="Product Type"
           />
 
           <CustomSelect
