@@ -118,6 +118,10 @@ export default function BulkPromotionPage() {
     product: null as ProductDetailResponseModel | null,
   });
 
+  // Clear selected promotions modal state
+  const [showClearSelectedModal, setShowClearSelectedModal] = useState(false);
+  const [isClearingSelected, setIsClearingSelected] = useState(false);
+
   const form = useForm<BulkPromotionFormData>({
     resolver: zodResolver(bulkPromotionSchema),
     mode: "onBlur",
@@ -574,14 +578,18 @@ export default function BulkPromotionPage() {
     }
   };
 
-  // Handle clear selected promotions
-  const handleClearSelectedPromotions = async () => {
+  // Handle clear selected promotions - shows confirmation modal
+  const handleClearSelectedPromotionsClick = () => {
     if (selectedIds.length === 0) {
       showToast.error("Please select at least one product");
       return;
     }
+    setShowClearSelectedModal(true);
+  };
 
-    setIsSubmitting(true);
+  // Execute clear selected promotions after confirmation
+  const handleConfirmClearSelected = async () => {
+    setIsClearingSelected(true);
     try {
       // Build product size mapping
       const productSizeMapping: Record<string, string[]> = {};
@@ -621,6 +629,7 @@ export default function BulkPromotionPage() {
       dispatch(clearSelectedProducts());
       dispatch(clearAllSizeSelections());
       clearSelections();
+      setShowClearSelectedModal(false);
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -628,7 +637,7 @@ export default function BulkPromotionPage() {
           : "Failed to clear promotions";
       showToast.error(String(errorMessage));
     } finally {
-      setIsSubmitting(false);
+      setIsClearingSelected(false);
     }
   };
 
@@ -659,13 +668,13 @@ export default function BulkPromotionPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleClearSelectedPromotions}
+            onClick={handleClearSelectedPromotionsClick}
             disabled={selectedIds.length === 0 || isSubmitting}
             className="gap-2"
-            title="Clear promotion for selected products"
+            title="Clear promotion for selected products and sizes"
           >
             <Trash2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Clear Promotion</span>
+            <span className="hidden sm:inline">Clear Promotion Selected</span>
           </Button>
 
           <Button
@@ -986,6 +995,28 @@ export default function BulkPromotionPage() {
         headerBgColor="bg-red-50"
         isDangerous={true}
         isSubmitting={isResetting}
+      />
+
+      {/* Clear Selected Promotions Modal */}
+      <ConfirmationModal
+        isOpen={showClearSelectedModal}
+        onClose={() => setShowClearSelectedModal(false)}
+        onConfirm={handleConfirmClearSelected}
+        title="Clear Promotions for Selected Items"
+        description={`You are about to clear promotions for ${selectedIds.length} product${selectedIds.length !== 1 ? 's' : ''} ${
+          Array.from(selectedSizes.values()).some((s) => s.size > 0)
+            ? `with ${Array.from(selectedSizes.values()).reduce((sum, s) => sum + s.size, 0)} size${
+                Array.from(selectedSizes.values()).reduce((sum, s) => sum + s.size, 0) !== 1 ? 's' : ''
+              }`
+            : ''
+        }. This will remove all promotion data from the selected products${
+          Array.from(selectedSizes.values()).some((s) => s.size > 0) ? ' and sizes' : ''
+        }.`}
+        actionLabel="Clear Promotion"
+        actionVariant="outline"
+        headerBgColor="bg-yellow-50"
+        isDangerous={false}
+        isSubmitting={isClearingSelected}
       />
     </div>
   );
