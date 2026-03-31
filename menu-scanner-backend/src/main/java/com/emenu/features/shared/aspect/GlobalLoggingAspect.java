@@ -99,8 +99,8 @@ public class GlobalLoggingAspect {
     }
 
     /**
-     * Main logging logic - same for all layers
-     * Logs comprehensive information for monitoring and debugging
+     * Main logging logic - INFO level only for production monitoring
+     * Logs essential information for monitoring without debug clutter
      */
     private Object logOperation(String layer, ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
@@ -108,16 +108,13 @@ public class GlobalLoggingAspect {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String[] paramNames = signature.getParameterNames();
         Object[] paramValues = joinPoint.getArgs();
-        String threadName = Thread.currentThread().getName();
-        String threadId = String.valueOf(Thread.currentThread().getId());
 
         // Build operation identifier
         String operationId = buildOperationId(methodName, paramValues);
         String params = buildParamString(paramNames, paramValues);
 
-        // Log method entry with detailed context
-        log.info("[{}_ENTRY] {}#{} | Operation={} | Thread={}[{}] | Params={}",
-            layer, className, methodName, operationId, threadName, threadId, params);
+        // Log method entry - compact format
+        log.info("[{}] {}#{} {} | {}", layer, className, methodName, operationId, params);
 
         long startTime = System.nanoTime();
         Object result = null;
@@ -130,94 +127,66 @@ public class GlobalLoggingAspect {
         } catch (Exception e) {
             caughtException = e;
             long durationMs = (System.nanoTime() - startTime) / 1_000_000;
-            log.error("[{}_ERROR] {}#{} | Operation={} | Error={} | Duration={}ms | Thread={}[{}]",
-                layer, className, methodName, operationId, e.getClass().getSimpleName() + ": " + e.getMessage(),
-                durationMs, threadName, threadId, e);
+            log.error("[{}_ERROR] {}#{} | {} | Duration={}ms | Error: {}",
+                layer, className, methodName, operationId, durationMs, e.getMessage(), e);
             throw e;
         } finally {
-            // Log method exit (even if exception occurred)
+            // Log method exit with duration
             if (caughtException == null) {
                 long durationMs = (System.nanoTime() - startTime) / 1_000_000;
                 String resultInfo = buildResultInfo(result);
-                log.info("[{}_EXIT] {}#{} | Operation={} | Result={} | Duration={}ms | Thread={}[{}]",
-                    layer, className, methodName, operationId, resultInfo, durationMs, threadName, threadId);
+                log.info("[{}_OK] {}#{} {} | {} | {}ms",
+                    layer, className, methodName, operationId, resultInfo, durationMs);
             }
         }
     }
 
     /**
-     * Build operation identifier from method name and parameters
+     * Build operation identifier - just method name
      */
     private String buildOperationId(String methodName, Object[] paramValues) {
-        // For methods with UUID parameter (usually first parameter)
+        // For methods with UUID (ID tracking)
         if (paramValues.length > 0 && paramValues[0] instanceof UUID) {
-            return methodName + ":" + paramValues[0];
+            UUID id = (UUID) paramValues[0];
+            return methodName + ":" + String.valueOf(id).substring(0, 8);
         }
-
-        // For bulk operations
-        if (methodName.contains("Bulk") && paramValues.length > 0) {
-            Object param = paramValues[0];
-            if (param != null && param.toString().contains("Ids")) {
-                return methodName + ":multiItem";
-            }
-        }
-
         return methodName;
     }
 
     /**
-     * Build parameter string for logging
+     * Build parameter string for logging - compact format
      */
     private String buildParamString(String[] paramNames, Object[] paramValues) {
         if (paramNames == null || paramNames.length == 0) {
-            return "NONE";
+            return "-";
         }
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < paramNames.length; i++) {
-            if (i > 0) sb.append(", ");
+        for (int i = 0; i < Math.min(3, paramNames.length); i++) {  // Limit to first 3 params
+            if (i > 0) sb.append("|");
 
             String paramName = paramNames[i];
             Object paramValue = paramValues[i];
 
-            // Handle different parameter types
             if (paramValue instanceof UUID) {
-                sb.append(paramName).append("=").append(paramValue);
+                sb.append(paramName).append(":").append(String.valueOf(paramValue).substring(0, 8)).append("...");
             } else if (paramValue instanceof String) {
-                sb.append(paramName).append("=").append(paramValue);
-            } else if (paramValue instanceof Boolean) {
-                sb.append(paramName).append("=").append(paramValue);
-            } else if (paramValue instanceof Number) {
-                sb.append(paramName).append("=").append(paramValue);
+                String val = (String) paramValue;
+                sb.append(paramName).append(":").append(val.length() > 15 ? val.substring(0, 15) + "..." : val);
+            } else if (paramValue instanceof Number || paramValue instanceof Boolean) {
+                sb.append(paramName).append(":").append(paramValue);
             } else if (paramValue != null) {
-                // For complex objects, just show class name and toString summary
-                String className = paramValue.getClass().getSimpleName();
-                String summary = getSummaryOfObject(paramValue);
-                sb.append(paramName).append("=").append(className).append(summary);
+                sb.append(paramName).append(":").append(paramValue.getClass().getSimpleName());
             } else {
-                sb.append(paramName).append("=null");
+                sb.append(paramName).append(":null");
             }
         }
+        if (paramNames.length > 3) sb.append("|...");
         return sb.toString();
     }
 
     /**
-     * Get summary of complex objects for logging
-     */
-    private String getSummaryOfObject(Object obj) {
-        try {
-            String str = obj.toString();
-            if (str.length() > 100) {
-                return "{" + str.substring(0, 100) + "...}";
-            }
-            return "{" + str + "}";
-        } catch (Exception e) {
-            return "{object}";
-        }
-    }
-
-    /**
-     * Build result information for logging
+     * Build result information for logging - compact
      */
     private String buildResultInfo(Object result) {
         if (result == null) {
@@ -227,35 +196,19 @@ public class GlobalLoggingAspect {
         try {
             String className = result.getClass().getSimpleName();
 
-            // For DTOs, try to extract ID
-            if (className.contains("Dto")) {
-                try {
-                    Object id = result.getClass().getMethod("getId").invoke(result);
-                    return className + "[id=" + id + "]";
-                } catch (Exception e) {
-                    // ID extraction failed, just return class name
-                }
-            }
-
-            // For response objects
-            if (className.contains("Response")) {
-                return className;
-            }
-
-            // For maps/collections
-            if (result instanceof java.util.Map) {
-                java.util.Map<?, ?> map = (java.util.Map<?, ?>) result;
-                return className + "[size=" + map.size() + "]";
-            }
-
+            // For collections
             if (result instanceof java.util.Collection) {
-                java.util.Collection<?> col = (java.util.Collection<?>) result;
-                return className + "[size=" + col.size() + "]";
+                return className + "[" + ((java.util.Collection<?>) result).size() + "]";
+            }
+
+            // For maps
+            if (result instanceof java.util.Map) {
+                return className + "[" + ((java.util.Map<?, ?>) result).size() + "]";
             }
 
             return className;
         } catch (Exception e) {
-            return result.getClass().getSimpleName();
+            return "result";
         }
     }
 }

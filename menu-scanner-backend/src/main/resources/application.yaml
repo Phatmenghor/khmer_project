@@ -26,6 +26,17 @@ spring:
     caffeine:
       spec: maximumSize=1000,expireAfterWrite=1h
 
+# Logging - INFO level only (GlobalLoggingAspect: all operations logged)
+logging:
+  level:
+    root: INFO
+    com.emenu: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+    com.zaxxer.hikari: WARN
+  file:
+    name: logs/application.log
+
 # Server
 server:
   port: 8080

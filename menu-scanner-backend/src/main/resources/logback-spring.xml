@@ -1,61 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="LOG_PATH" value="logs" />
-    <property name="LOG_FILE_NAME" value="e-menu-scanner" />
-    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
-    <property name="MAX_FILE_SIZE" value="512MB" />
-    <timestamp key="byDay" datePattern="yyyy-MM-dd" />
+  <!-- Production-ready logging: INFO level only, async appender for performance -->
+  <!-- GlobalLoggingAspect: All operations logged automatically -->
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - %msg%n</pattern>
-        </encoder>
-    </appender>
+  <property name="LOG_PATH" value="logs"/>
+  <property name="LOG_FILE" value="${LOG_PATH}/application"/>
+  <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n"/>
+  <property name="CONSOLE_PATTERN" value="%d{HH:mm:ss} %-5level %msg%n"/>
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${LOG_FILE_NAME}-${byDay}.log</file>
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
-            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
-            <maxHistory>10</maxHistory>
-            <totalSizeCap>5GB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
+  <!-- ============ APPENDERS ============ -->
 
-    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${LOG_FILE_NAME}-error-${byDay}.log</file>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>ERROR</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}-error-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
-            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>5GB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
+  <!-- Console: Simple, minimal format -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${CONSOLE_PATTERN}</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+  </appender>
 
-    <logger name="com.internal" level="INFO" additivity="false">
-        <appender-ref ref="FILE" />
-        <appender-ref ref="ERROR_FILE" />
-        <appender-ref ref="CONSOLE" />
-    </logger>
+  <!-- File: Rolling daily, max 10MB per file -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_FILE}.log</file>
+    <encoder>
+      <pattern>${LOG_PATTERN}</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_FILE}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxFileSize>10MB</maxFileSize>
+      <maxHistory>30</maxHistory>
+      <totalSizeCap>500MB</totalSizeCap>
+    </rollingPolicy>
+  </appender>
 
-    <logger name="org.springframework" level="WARN" />
-    <logger name="org.hibernate" level="WARN" />
-    <logger name="com.zaxxer.hikari" level="WARN" />
+  <!-- Errors only: Separate error file for monitoring -->
+  <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/error.log</file>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ERROR</level>
+    </filter>
+    <encoder>
+      <pattern>${LOG_PATTERN}</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}/error-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxFileSize>10MB</maxFileSize>
+      <maxHistory>30</maxHistory>
+      <totalSizeCap>500MB</totalSizeCap>
+    </rollingPolicy>
+  </appender>
 
-    <root level="INFO">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
-        <appender-ref ref="ERROR_FILE" />
+  <!-- Async: Non-blocking, high-performance logging -->
+  <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+    <queueSize>512</queueSize>
+    <discardingThreshold>0</discardingThreshold>
+    <includeCallerData>false</includeCallerData>
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="ERROR_FILE"/>
+  </appender>
+
+  <!-- ============ LOGGERS ============ -->
+
+  <!-- Application: INFO level -->
+  <logger name="com.emenu" level="INFO"/>
+
+  <!-- Global Logging Aspect: INFO level -->
+  <logger name="com.emenu.features.shared.aspect.GlobalLoggingAspect" level="INFO"/>
+
+  <!-- Framework: WARN level to reduce noise -->
+  <logger name="org.springframework" level="WARN"/>
+  <logger name="org.springframework.boot" level="WARN"/>
+  <logger name="org.springframework.security" level="WARN"/>
+  <logger name="org.springframework.web" level="WARN"/>
+  <logger name="org.hibernate" level="WARN"/>
+  <logger name="com.zaxxer.hikari" level="WARN"/>
+  <logger name="org.postgresql" level="WARN"/>
+
+  <!-- ============ ROOT LOGGER ============ -->
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="ASYNC"/>
+  </root>
+
+  <!-- ============ PROFILES ============ -->
+
+  <!-- Development: More details -->
+  <springProfile name="dev">
+    <logger name="com.emenu" level="DEBUG"/>
+    <root level="DEBUG">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+      <appender-ref ref="ERROR_FILE"/>
     </root>
+  </springProfile>
+
+  <!-- Production: Minimal overhead -->
+  <springProfile name="prod">
+    <root level="INFO">
+      <appender-ref ref="ASYNC"/>
+    </root>
+  </springProfile>
+
+  <!-- Test: Errors only -->
+  <springProfile name="test">
+    <root level="ERROR">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
 </configuration>
