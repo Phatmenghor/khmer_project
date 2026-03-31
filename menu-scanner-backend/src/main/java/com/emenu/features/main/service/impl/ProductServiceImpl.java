@@ -531,12 +531,32 @@ public class ProductServiceImpl implements ProductService {
                 // Apply promotion to sizes if product has sizes
                 if (product.getHasSizes()) {
                     List<ProductSize> sizes = productSizeRepository.findByProductId(product.getId());
+
+                    // Check if there's a specific size mapping for this product
+                    List<UUID> specifiedSizeIds = null;
+                    if (request.getProductSizeMapping() != null &&
+                        request.getProductSizeMapping().containsKey(product.getId())) {
+                        specifiedSizeIds = request.getProductSizeMapping().get(product.getId());
+                    }
+
                     for (ProductSize size : sizes) {
                         if (!size.getIsDeleted()) {
-                            size.setPromotionType(request.getPromotionType());
-                            size.setPromotionValue(request.getPromotionValue());
-                            size.setPromotionFromDate(request.getPromotionFromDate());
-                            size.setPromotionToDate(request.getPromotionToDate());
+                            // Apply promotion only to specified sizes, or to all if no specification
+                            boolean shouldApply = specifiedSizeIds == null ||
+                                                specifiedSizeIds.contains(size.getId());
+
+                            if (shouldApply) {
+                                size.setPromotionType(request.getPromotionType());
+                                size.setPromotionValue(request.getPromotionValue());
+                                size.setPromotionFromDate(request.getPromotionFromDate());
+                                size.setPromotionToDate(request.getPromotionToDate());
+                            } else {
+                                // Clear promotion from sizes not in the mapping
+                                size.setPromotionType(null);
+                                size.setPromotionValue(null);
+                                size.setPromotionFromDate(null);
+                                size.setPromotionToDate(null);
+                            }
                         }
                     }
                     productSizeRepository.saveAll(sizes);

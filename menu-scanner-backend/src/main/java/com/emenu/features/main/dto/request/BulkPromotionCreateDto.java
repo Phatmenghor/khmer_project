@@ -9,6 +9,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -29,4 +30,9 @@ public class BulkPromotionCreateDto {
 
     @NotNull(message = "Promotion to date is required")
     private LocalDateTime promotionToDate;
+
+    // Optional: Map of productId -> List of sizeIds for per-size promotions
+    // If provided, promotion will only be applied to specified sizes
+    // If not provided, promotion applies to all sizes in the product
+    private Map<UUID, List<UUID>> productSizeMapping;
 }
