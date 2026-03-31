@@ -341,8 +341,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProductDetailDto> getAllProductsAdminStock(ProductFilterDto filter) {
-        log.debug("Starting getAllProductsAdminStock - Filter: BusinessId={}, Status={}, HasSize={}, StockStatus={}, HasPromotion={}, Search={}",
-                filter.getBusinessId(), filter.getStatus(), filter.getHasSize(), filter.getStockStatus(), filter.getHasPromotion(), filter.getSearch());
+        log.debug("Starting getAllProductsAdminStock - Filter: BusinessId={}, Statuses={}, HasSize={}, StockStatus={}, HasPromotion={}, Search={}",
+                filter.getBusinessId(), filter.getStatuses(), filter.getHasSize(), filter.getStockStatus(), filter.getHasPromotion(), filter.getSearch());
 
         long startTime = System.currentTimeMillis();
 
@@ -360,13 +360,11 @@ public class ProductServiceImpl implements ProductService {
         );
 
         // Fetch products with filters
-        // Use getStatusList() to handle both single status and statuses list
-        List<ProductStatus> statusList = filter.getStatusList();
         Page<Product> productPage = productRepository.findAllWithFilters(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
                 filter.getBrandId(),
-                statusList,
+                (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
                 Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
                 Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
                 filter.getMinPrice(),

@@ -111,18 +111,23 @@ export default function ProductStockPage() {
     }
     // if ALL, stockStatus remains undefined (no filter)
 
+    // Build statuses array (following API pattern)
+    let statuses: string[] | undefined;
+    if (filters.status !== ProductStatus.ALL && filters.status) {
+      statuses = [filters.status];
+    }
+
     dispatch(
       fetchAllProductStockAdminService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
-        status:
-          filters.status == ProductStatus.ALL ? undefined : filters.status,
+        statuses,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
         stockStatus,
-      } as any), // Type assertion to allow status string
+      } as any),
     );
   }, [
     dispatch,
