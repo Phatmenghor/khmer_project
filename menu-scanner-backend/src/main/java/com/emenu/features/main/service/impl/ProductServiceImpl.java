@@ -341,8 +341,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProductDetailDto> getAllProductsAdminStock(ProductFilterDto filter) {
-        log.debug("Starting getAllProductsAdminStock - Filter: BusinessId={}, Statuses={}, HasSize={}, StockStatus={}, HasPromotion={}, Search={}",
-                filter.getBusinessId(), filter.getStatuses(), filter.getHasSize(), filter.getStockStatus(), filter.getHasPromotion(), filter.getSearch());
+        log.debug("Starting getAllProductsAdminStock - Filter: BusinessId={}, Statuses={}, HasSize={}, StockStatuses={}, HasPromotion={}, Search={}",
+                filter.getBusinessId(), filter.getStatuses(), filter.getHasSize(), filter.getStockStatuses(), filter.getHasPromotion(), filter.getSearch());
 
         long startTime = System.currentTimeMillis();
 
