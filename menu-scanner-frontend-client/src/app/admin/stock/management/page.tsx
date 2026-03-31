@@ -12,9 +12,7 @@ import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
 import { usePagination } from "@/redux/store/use-pagination";
 import { useStockState } from "@/redux/features/business/store/state/stock-state";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
-import {
-  fetchAllProductStockAdminService,
-} from "@/redux/features/business/store/thunks/stock-thunks";
+import { fetchAllProductStockAdminService } from "@/redux/features/business/store/thunks/stock-thunks";
 import {
   selectProductStatus,
   setPageNo,
@@ -115,7 +113,8 @@ export default function ProductStockPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         stockStatuses,
-      } as any),
+        hasSize: false,
+      }),
     );
   }, [
     dispatch,
