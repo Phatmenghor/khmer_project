@@ -122,7 +122,7 @@ export default function ProductStockPage() {
         categoryId: selectedCategories?.id,
         hasSize,
         stockStatus,
-      }),
+      } as any), // Type assertion to allow status string
     );
   }, [
     dispatch,
