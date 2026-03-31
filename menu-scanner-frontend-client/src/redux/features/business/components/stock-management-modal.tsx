@@ -249,16 +249,6 @@ export function StockManagementModal({
                               return true;
                             },
                           })}
-                          onInput={(e: React.FormEvent<HTMLInputElement>) => {
-                            const input = e.currentTarget;
-                            // Allow only numbers and decimal point
-                            input.value = input.value.replace(/[^\d.]/g, "");
-                            // Ensure only one decimal point
-                            const parts = input.value.split(".");
-                            if (parts.length > 2) {
-                              input.value = parts[0] + "." + parts[1];
-                            }
-                          }}
                         />
                       </div>
                       {form.formState.errors.priceIn && (
