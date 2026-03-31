@@ -36,7 +36,10 @@ public class ProductDetailDto extends BaseAuditResponse {
 
     private String barcode;
     private String sku;
-    private Integer totalStock;
+
+    // Stock tracking - separated by product type
+    private Integer totalStock; // Total stock for products WITHOUT sizes
+    private Integer totalSizesStock; // Total stock of all sizes combined (for products WITH sizes)
 
     private Long viewCount;
     private Long favoriteCount;

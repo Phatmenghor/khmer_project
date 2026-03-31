@@ -17,5 +17,9 @@ public class ProductSizeDto {
     private BigDecimal finalPrice;
     private Boolean hasPromotion;
     private Integer quantity;
+
+    // Stock tracking for this size
+    private Integer totalStock;
+
     private LocalDateTime createdAt;
 }

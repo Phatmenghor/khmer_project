@@ -17,6 +17,7 @@ public class ProductFilterDto extends BaseFilterRequest {
     private UUID brandId;
     private List<ProductStatus> statuses;
     private Boolean hasPromotion;
+    private Boolean hasSize; // Filter by products with/without sizes
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
 }
