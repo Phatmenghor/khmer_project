@@ -169,6 +169,32 @@ export const stockTableColumns = ({
     },
 
     {
+      key: "sku",
+      label: "SKU",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground">
+          {product?.sku || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "barcode",
+      label: "Barcode",
+      minWidth: "10px",
+      maxWidth: "150px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground">
+          {product?.barcode || "---"}
+        </span>
+      ),
+    },
+
+    {
       key: "totalStock",
       label: "Total Stock",
       minWidth: "10px",
