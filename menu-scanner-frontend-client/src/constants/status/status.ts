@@ -147,6 +147,44 @@ export enum ProductStatus {
   OUT_OF_STOCK = "OUT_OF_STOCK",
 }
 
+// ProductStatus configuration with labels
+export const ProductStatusConfig = {
+  [ProductStatus.ACTIVE]: {
+    label: "Active",
+  },
+  [ProductStatus.INACTIVE]: {
+    label: "Inactive",
+  },
+  [ProductStatus.OUT_OF_STOCK]: {
+    label: "Out of Stock",
+  },
+};
+
+// Helper function for ProductStatus enum
+export const getProductStatusLabel = (status: string): string => {
+  return ProductStatusConfig[status as ProductStatus]?.label || status;
+};
+
+export enum StockStatus {
+  ENABLED = "ENABLED",
+  DISABLED = "DISABLED",
+}
+
+// StockStatus configuration with labels
+export const StockStatusConfig = {
+  [StockStatus.ENABLED]: {
+    label: "Enabled",
+  },
+  [StockStatus.DISABLED]: {
+    label: "Disabled",
+  },
+};
+
+// Helper function for StockStatus enum
+export const getStockStatusLabel = (status: string): string => {
+  return StockStatusConfig[status as StockStatus]?.label || status;
+};
+
 export enum PromotionType {
   ALL = "ALL",
   PERCENTAGE = "PERCENTAGE",

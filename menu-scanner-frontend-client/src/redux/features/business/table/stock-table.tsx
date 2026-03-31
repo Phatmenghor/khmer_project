@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { getStockStatusLabel, getProductStatusLabel } from "@/constants/status/status";
 import {
   AllProductResponseModel,
   ProductDetailResponseModel,
@@ -175,7 +176,7 @@ export const stockTableColumns = ({
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
-          {product?.stockStatus || "---"}
+          {product?.stockStatus ? getStockStatusLabel(product.stockStatus) : "---"}
         </span>
       ),
     },
@@ -188,7 +189,7 @@ export const stockTableColumns = ({
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
-          {product?.status || "---"}
+          {product?.status ? getProductStatusLabel(product.status) : "---"}
         </span>
       ),
     },
