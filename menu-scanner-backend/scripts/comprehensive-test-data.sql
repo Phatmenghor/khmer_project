@@ -647,48 +647,127 @@ CROSS JOIN generate_series(1, 10) AS t(img_num)
 WHERE t.img_num <= (2 + (p.rn % 9));
 
 -- ============================================================================
--- 16. PRODUCT STOCK
+-- 16. PRODUCT STOCK (COMPREHENSIVE - Products with & without sizes)
 -- ============================================================================
--- All products get stock entries with random quantities (1-200) and reservations (0-20)
 
--- Stock for all products (1 entry each)
-INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, status, is_expired)
+-- ============================================================================
+-- Stock for Products WITHOUT SIZES (1 entry per product)
+-- ============================================================================
+INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, location, status, is_expired, expiry_date, inventory_value)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+    gen_random_uuid(), 0, NOW() - (random() * 30)::int * INTERVAL '1 day', NOW() - (random() * 30)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', p.id, NULL,
-    (100 + (random() * 200)::int)::int, (random() * 20)::int,
-    ((100 + (random() * 200)::int) - (random() * 20)::int)::int,
+    (50 + (random() * 200)::int)::int as qty_on_hand,
+    (random() * 10)::int as qty_reserved,
+    ((50 + (random() * 200)::int) - (random() * 10)::int)::int as qty_available,
     p.price::numeric, NOW() - (random() * 30)::int * INTERVAL '1 day',
-    'ACTIVE', false
-FROM (SELECT id, price FROM products) p;
-
--- One product with multiple stock entries (1-20 additional entries)
-INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, status, is_expired)
-SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    (SELECT id FROM products LIMIT 1),
-    NULL,
-    (100 + (random() * 200)::int)::int, (random() * 20)::int,
-    ((100 + (random() * 200)::int) - (random() * 20)::int)::int,
-    (SELECT price FROM products LIMIT 1)::numeric,
-    NOW() - (random() * 30)::int * INTERVAL '1 day',
-    'ACTIVE', false
-FROM generate_series(1, (1 + (random() * 19)::int)::int) AS t(i);
+    CASE WHEN (ROW_NUMBER() OVER() % 5) = 0 THEN 'Shelf A'
+         WHEN (ROW_NUMBER() OVER() % 5) = 1 THEN 'Shelf B'
+         WHEN (ROW_NUMBER() OVER() % 5) = 2 THEN 'Warehouse 1'
+         WHEN (ROW_NUMBER() OVER() % 5) = 3 THEN 'Warehouse 2'
+         ELSE 'Cold Storage' END,
+    'ACTIVE',
+    CASE WHEN (random() * 100) < 5 THEN true ELSE false END,
+    NOW() + (15 + (random() * 60)::int)::int * INTERVAL '1 day',
+    ((50 + (random() * 200)::int)::numeric * p.price)::numeric
+FROM (SELECT id, price, ROW_NUMBER() OVER (ORDER BY id) as rn FROM products WHERE has_sizes = false) p;
 
 -- ============================================================================
--- 17. STOCK MOVEMENTS
+-- Stock for Products WITH SIZES (1-3 batches per size variant)
+-- ============================================================================
+INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, location, status, is_expired, expiry_date, inventory_value)
+SELECT
+    gen_random_uuid(), 0,
+    NOW() - (random() * 30 + batch_num)::int * INTERVAL '1 day',
+    NOW() - (random() * 30 + batch_num)::int * INTERVAL '1 day',
+    'system', 'system', false, NULL, NULL,
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    ps.product_id,
+    ps.id as product_size_id,
+    (30 + (random() * 100)::int)::int as qty_on_hand,
+    (random() * 5)::int as qty_reserved,
+    ((30 + (random() * 100)::int) - (random() * 5)::int)::int as qty_available,
+    ps.price::numeric,
+    NOW() - (random() * 30 + batch_num)::int * INTERVAL '1 day',
+    CASE WHEN (ROW_NUMBER() OVER() % 6) = 0 THEN 'Shelf A'
+         WHEN (ROW_NUMBER() OVER() % 6) = 1 THEN 'Shelf B'
+         WHEN (ROW_NUMBER() OVER() % 6) = 2 THEN 'Shelf C'
+         WHEN (ROW_NUMBER() OVER() % 6) = 3 THEN 'Warehouse 1'
+         WHEN (ROW_NUMBER() OVER() % 6) = 4 THEN 'Warehouse 2'
+         ELSE 'Cold Storage' END,
+    CASE WHEN (random() * 100) < 10 THEN 'INACTIVE' ELSE 'ACTIVE' END,
+    CASE WHEN (random() * 100) < 3 THEN true ELSE false END,
+    NOW() + (10 + (random() * 90)::int)::int * INTERVAL '1 day',
+    ((30 + (random() * 100)::int)::numeric * ps.price)::numeric
+FROM (
+    SELECT
+        ps.id, ps.product_id, ps.price,
+        ROW_NUMBER() OVER (PARTITION BY ps.product_id ORDER BY ps.created_at) as size_num,
+        t.batch_num,
+        ROW_NUMBER() OVER (ORDER BY ps.product_id, ps.id, t.batch_num) as rn
+    FROM product_sizes ps
+    CROSS JOIN (SELECT 1 as batch_num UNION SELECT 2 UNION SELECT 3) t
+) ps
+ORDER BY ps.product_id, ps.id, ps.batch_num;
+
+-- ============================================================================
+-- 17. STOCK MOVEMENTS (Comprehensive audit trail for inventory changes)
 -- ============================================================================
 
 INSERT INTO stock_movements (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_stock_id, movement_type, quantity_change, previous_quantity, new_quantity, reference_type, reference_id, notes, initiated_by_name)
+WITH stock_samples AS (
+    SELECT
+        ps.id as stock_id,
+        ps.quantity_on_hand,
+        ps.product_id,
+        ps.product_size_id,
+        ROW_NUMBER() OVER (ORDER BY ps.id) as stock_num
+    FROM product_stock ps
+)
 SELECT
-    gen_random_uuid(), 0, NOW() - (i % 15)::int * INTERVAL '1 day', NOW() - (i % 15)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
-    '550cad56-cafd-4aba-baef-c4dcd53940d0', ps.id,
-    CASE WHEN (i % 5) = 0 THEN 'STOCK_IN' WHEN (i % 5) = 1 THEN 'STOCK_OUT' WHEN (i % 5) = 2 THEN 'ADJUSTMENT' WHEN (i % 5) = 3 THEN 'RETURN' ELSE 'DAMAGE' END,
-    CASE WHEN (i % 5) IN (0, 3) THEN (5 + i % 10) ELSE -(5 + i % 10) END,
-    100, 100 + (CASE WHEN (i % 5) IN (0, 3) THEN (5 + i % 10) ELSE -(5 + i % 10) END),
-    NULL, NULL, 'Stock movement ' || i::text, 'Admin'
-FROM (SELECT id FROM product_stock LIMIT 500) ps, generate_series(1, 3) AS t(i);
+    gen_random_uuid(), 0,
+    NOW() - (t.movement_day)::int * INTERVAL '1 day',
+    NOW() - (t.movement_day)::int * INTERVAL '1 day',
+    'system', 'system', false, NULL, NULL,
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    ss.stock_id,
+    CASE WHEN (t.movement_num % 5) = 0 THEN 'STOCK_IN'
+         WHEN (t.movement_num % 5) = 1 THEN 'STOCK_OUT'
+         WHEN (t.movement_num % 5) = 2 THEN 'ADJUSTMENT'
+         WHEN (t.movement_num % 5) = 3 THEN 'RETURN'
+         ELSE 'DAMAGE' END as movement_type,
+    CASE WHEN (t.movement_num % 5) IN (0, 3) THEN (5 + (t.movement_num % 10))::int
+         ELSE -(5 + (t.movement_num % 10))::int END as quantity_change,
+    ss.quantity_on_hand as previous_quantity,
+    (ss.quantity_on_hand + CASE WHEN (t.movement_num % 5) IN (0, 3) THEN (5 + (t.movement_num % 10))::int
+                                 ELSE -(5 + (t.movement_num % 10))::int END)::int as new_quantity,
+    CASE WHEN (t.movement_num % 5) IN (0, 3) THEN 'PURCHASE_ORDER'
+         WHEN (t.movement_num % 5) = 1 THEN 'SALES_ORDER'
+         WHEN (t.movement_num % 5) = 2 THEN 'INVENTORY_ADJUSTMENT'
+         WHEN (t.movement_num % 5) = 3 THEN 'CUSTOMER_RETURN'
+         ELSE 'QUALITY_ISSUE' END as reference_type,
+    'REF-' || SUBSTRING(ss.stock_id::text, 1, 8) || '-' || t.movement_num::text as reference_id,
+    CASE WHEN (t.movement_num % 5) = 0 THEN 'Stock received from supplier. Batch date: ' || (NOW() - INTERVAL '1 day')::date::text
+         WHEN (t.movement_num % 5) = 1 THEN 'Inventory deducted for customer order'
+         WHEN (t.movement_num % 5) = 2 THEN 'Manual inventory correction'
+         WHEN (t.movement_num % 5) = 3 THEN 'Customer returned items'
+         ELSE 'Damaged during warehouse operations' END as notes,
+    CASE WHEN (t.movement_num % 4) = 0 THEN 'Supplier: ABC Distributors'
+         WHEN (t.movement_num % 4) = 1 THEN 'Customer Service Team'
+         WHEN (t.movement_num % 4) = 2 THEN 'Warehouse Staff'
+         ELSE 'Quality Inspector' END as initiated_by_name
+FROM stock_samples ss
+CROSS JOIN (
+    SELECT 1 as movement_num, 1 as movement_day
+    UNION SELECT 2, 2
+    UNION SELECT 3, 3
+    UNION SELECT 4, 4
+    UNION SELECT 5, 5
+    UNION SELECT 6, 10
+    UNION SELECT 7, 15
+) t
+WHERE ss.stock_num <= 1000  -- Limit to first 1000 stocks to avoid too much data
+ORDER BY ss.stock_id, t.movement_day;
 
 -- ============================================================================
 -- 18. PRODUCT FAVORITES
