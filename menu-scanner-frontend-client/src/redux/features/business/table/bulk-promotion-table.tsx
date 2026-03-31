@@ -118,7 +118,6 @@ export const bulkPromotionTableColumns = ({
               icon={<RotateCcw className="w-4 h-4" />}
               tooltip="Reset Promotion"
               onClick={() => onResetPromotion?.(product)}
-              variant="warning"
             />
           )}
         </div>
