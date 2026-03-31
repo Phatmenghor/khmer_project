@@ -578,21 +578,32 @@ public class ProductServiceImpl implements ProductService {
                     UUID productId = entry.getKey();
                     List<UUID> sizeIds = entry.getValue();
                     if (!sizeIds.isEmpty()) {
-                        int resetCount = productSizeRepository.resetPromotionsForSpecificSizes(
-                            productId, sizeIds);
-                        sizesReset += resetCount;
-                        log.debug("Reset promotions for {} sizes in product {}", resetCount, productId);
+                        // For each size, manually reset by fetching and updating
+                        // Since we don't have a batch query for specific sizes
+                        List<ProductSize> sizes = productSizeRepository.findAllById(sizeIds);
+                        for (ProductSize size : sizes) {
+                            if (size.getProductId().equals(productId)) {
+                                size.setPromotionType(null);
+                                size.setPromotionValue(null);
+                                size.setPromotionFromDate(null);
+                                size.setPromotionToDate(null);
+                                size.setHasPromotion(false);
+                                sizesReset++;
+                            }
+                        }
+                        productSizeRepository.saveAll(sizes);
+                        log.debug("Reset promotions for {} sizes in product {}", sizesReset, productId);
                     }
                 }
             } else {
                 // Reset all promotions for selected products
                 log.debug("Resetting all promotions for selected products");
-                sizesReset = productSizeRepository.resetPromotionsForProducts(request.getProductIds());
+                sizesReset = productSizeRepository.resetPromotionsBulkForProductSizes(request.getProductIds());
                 log.debug("Reset promotions for {} product sizes", sizesReset);
             }
 
             // Reset product-level promotions
-            productsReset = productRepository.resetPromotionsForProducts(request.getProductIds());
+            productsReset = productRepository.resetPromotionsBulk(request.getProductIds());
             log.debug("Reset promotions for {} products", productsReset);
 
             long duration = System.currentTimeMillis() - startTime;
