@@ -223,16 +223,16 @@ export function ProductDetailModal({
                   <CardTitle>Product Images</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
                     {productData.images.map((image, index) => (
                       <div
                         key={image.id}
-                        className="relative aspect-square rounded-lg overflow-hidden border hover:shadow-lg transition-shadow cursor-pointer"
+                        className="relative aspect-square rounded-md overflow-hidden border hover:shadow-md transition-shadow"
                       >
                         <img
                           src={image.imageUrl}
                           alt={`Product image ${index + 1}`}
-                          className="object-cover w-full h-full hover:scale-105 transition-transform"
+                          className="object-cover w-full h-full"
                         />
                       </div>
                     ))}
