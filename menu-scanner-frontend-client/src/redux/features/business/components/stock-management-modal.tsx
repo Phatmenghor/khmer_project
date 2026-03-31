@@ -260,10 +260,8 @@ export function StockManagementModal({
                         {...form.register("quantityOnHand", {
                           required: "Quantity is required",
                           validate: (value) => {
-                            if (value === undefined || value === null || value === "") return "Quantity is required";
-                            const num = Number(value);
-                            if (isNaN(num)) return "Quantity must be a valid number";
-                            if (num < 0) return "Quantity must be >= 0";
+                            if (value === undefined || value === null) return "Quantity is required";
+                            if (value < 0) return "Quantity must be >= 0";
                             return true;
                           },
                         })}
@@ -293,6 +291,7 @@ export function StockManagementModal({
                           {...form.register("priceIn", {
                             required: "Price is required",
                             validate: (value) => {
+                              if (!value) return "Price is required";
                               const num = parseFloat(value);
                               if (isNaN(num)) return "Price must be a valid number";
                               if (num <= 0) return "Price must be greater than 0";
