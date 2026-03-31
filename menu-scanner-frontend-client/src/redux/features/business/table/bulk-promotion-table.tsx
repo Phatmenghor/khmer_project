@@ -2,6 +2,7 @@ import { indexDisplay } from "@/utils/common/common";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import Image from "next/image";
+import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
