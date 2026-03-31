@@ -96,7 +96,7 @@ export default function ProductStockPage() {
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.STOCK_MANAGEMENT,
+    baseRoute: ROUTES.STOCK.MANAGEMENT,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 

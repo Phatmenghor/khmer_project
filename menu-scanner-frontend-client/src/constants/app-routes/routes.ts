@@ -31,12 +31,15 @@ export const ROUTES = {
     DELIVERY_OPTIONS: "/admin/delivery-options",
     PAYMENT_OPTIONS: "/admin/payment-options",
     PRODUCTS: "/admin/products",
-    STOCK_MANAGEMENT: "/admin/product-stock",
     PRODUCTS_PROMOTION: "/admin/product-promotions",
     BULK_PROMOTION_CREATION: "/admin/bulk-promotion",
     ORDERS: "/admin/orders",
     ORDERS_CREATE: "/admin/orders/create",
     POS: "/admin/pos",
+  },
+
+  STOCK: {
+    MANAGEMENT: "/admin/stock/management",
   },
 
   HR: {
@@ -133,16 +136,22 @@ export const SIDEBAR_MENU: MenuItem[] = [
         href: ROUTES.ADMIN.PRODUCTS,
       },
       {
-        title: "Product Stock",
-        href: ROUTES.ADMIN.STOCK_MANAGEMENT,
-      },
-      {
         title: "Products Promotion",
         href: ROUTES.ADMIN.PRODUCTS_PROMOTION,
       },
       {
         title: "Orders",
         href: ROUTES.ADMIN.ORDERS,
+      },
+    ],
+  },
+  {
+    title: "Stock Management",
+    icon: ShoppingCart,
+    items: [
+      {
+        title: "Product Stock",
+        href: ROUTES.STOCK.MANAGEMENT,
       },
     ],
   },
