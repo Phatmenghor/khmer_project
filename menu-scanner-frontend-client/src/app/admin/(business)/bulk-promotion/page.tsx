@@ -157,14 +157,15 @@ export default function BulkPromotionCreationPage() {
       // Get the product to access its sizes
       const product = productContent.find((p) => p.id === productId);
 
+      // Always toggle the product regardless of sizes
+      dispatch(toggleSelectedProduct(productId));
+
       if (!isCurrentlySelected && product && product.hasSizes && product.sizes) {
-        // Selecting: auto-select all sizes for this product
-        dispatch(toggleSelectedProduct(productId));
+        // Selecting product WITH sizes: auto-select all sizes
         const sizeIds = product.sizes.map((s) => s.id);
         dispatch(selectAllSizesForProduct({ productId, sizeIds }));
       } else if (isCurrentlySelected) {
-        // Deselecting: remove this product and all its sizes
-        dispatch(toggleSelectedProduct(productId));
+        // Deselecting: clear all sizes for this product (if any)
         dispatch(clearSizesForProduct(productId));
       }
     },
@@ -190,7 +191,7 @@ export default function BulkPromotionCreationPage() {
         ]);
         dispatch(setSelectedProducts(Array.from(combined)));
 
-        // Auto-select all sizes for newly selected products
+        // Auto-select all sizes for newly selected products (only if they have sizes)
         productContent.forEach((product) => {
           if (!selectedProductIds.has(product.id) && product.hasSizes && product.sizes) {
             const sizeIds = product.sizes.map((s) => s.id);
