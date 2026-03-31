@@ -296,9 +296,7 @@ export const bulkPromotionTableColumns = ({
         }
 
         if (!product.hasPromotion || !product.displayPromotionType) {
-          return (
-            <span className="text-xs text-muted-foreground">No discount</span>
-          );
+          return <span className="text-xs text-muted-foreground">---</span>;
         }
 
         return (
