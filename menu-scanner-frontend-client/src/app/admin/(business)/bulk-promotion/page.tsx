@@ -31,7 +31,7 @@ import {
 } from "@/redux/features/business/store/thunks/product-thunks";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
-import { setPageNo } from "@/redux/features/business/store/slice/product-slice";
+import { setPageNo, resetProductPromotionOptimistic } from "@/redux/features/business/store/slice/product-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import {
   bulkPromotionSchema,
@@ -317,30 +317,24 @@ export default function BulkPromotionCreationPage() {
   };
 
   // Confirm reset promotion (single product only)
-  const handleConfirmResetPromotion = async () => {
+  const handleConfirmResetPromotion = () => {
     if (!resetPromotionState.product?.id) return;
 
-    const productId = resetPromotionState.product.id;
-    const productName = resetPromotionState.product.name ?? "";
+    // Optimistic update - update state immediately
+    dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
+
     closeResetPromotionModal();
 
-    try {
-      await dispatch(resetProductPromotionService(productId)).unwrap();
-      showToast.success(`Promotion reset for "${productName}"`);
-      dispatch(
-        fetchAllProductAdminService({
-          search: "",
-          pageNo: filters.pageNo,
-          pageSize: pageSize,
-          status:
-            filters.status === ProductStatus.ALL ? undefined : filters.status,
-          brandId: selectedBrand?.id,
-          categoryId: selectedCategories?.id,
-        })
-      );
-    } catch (error: any) {
-      showToast.error(error?.message || error || "Failed to reset promotion");
-    }
+    // Call API in background without blocking UI
+    dispatch(resetProductPromotionService(resetPromotionState.product.id))
+      .then(() => {
+        showToast.success(
+          `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
+        );
+      })
+      .catch((error: any) => {
+        showToast.error(error?.message || "Failed to reset promotion");
+      });
   };
 
   // Sync selected products to form
