@@ -446,31 +446,25 @@ public class ProductServiceImpl implements ProductService {
 
         for (Product product : products) {
             // Clear all promotion fields on product
-            if (product.getPromotionType() != null || product.getPromotionValue() != null ||
-                product.getPromotionFromDate() != null || product.getPromotionToDate() != null) {
+            product.setPromotionType(null);
+            product.setPromotionValue(null);
+            product.setPromotionFromDate(null);
+            product.setPromotionToDate(null);
 
-                product.setPromotionType(null);
-                product.setPromotionValue(null);
-                product.setPromotionFromDate(null);
-                product.setPromotionToDate(null);
+            // Reset display fields
+            product.setHasActivePromotion(false);
+            product.setDisplayPromotionType(null);
+            product.setDisplayPromotionValue(null);
+            product.setDisplayPromotionFromDate(null);
+            product.setDisplayPromotionToDate(null);
 
-                // Reset display fields
-                product.setHasActivePromotion(false);
-                product.setDisplayPromotionType(null);
-                product.setDisplayPromotionValue(null);
-                product.setDisplayPromotionFromDate(null);
-                product.setDisplayPromotionToDate(null);
-
-                resetProductCount++;
-            }
+            resetProductCount++;
 
             // Clear promotions on all product sizes
             if (product.getHasSizes()) {
                 List<ProductSize> sizes = productSizeRepository.findByProductId(product.getId());
                 for (ProductSize size : sizes) {
-                    if (!size.getIsDeleted() && (size.getPromotionType() != null || size.getPromotionValue() != null ||
-                        size.getPromotionFromDate() != null || size.getPromotionToDate() != null)) {
-
+                    if (!size.getIsDeleted()) {
                         size.setPromotionType(null);
                         size.setPromotionValue(null);
                         size.setPromotionFromDate(null);
