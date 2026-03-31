@@ -1,7 +1,6 @@
 package com.emenu.features.main.dto.filter;
 
 import com.emenu.enums.product.ProductStatus;
-import com.emenu.enums.product.StockStatus;
 import com.emenu.shared.dto.BaseFilterRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +18,7 @@ public class ProductFilterDto extends BaseFilterRequest {
     private List<ProductStatus> statuses;
     private Boolean hasPromotion;
     private Boolean hasSize; // Filter by products with/without sizes
-    private StockStatus stockStatus; // Filter by stock status (ENABLED/DISABLED)
+    private String stockStatus; // Filter by stock status (ENABLED/DISABLED) - accepts string from frontend
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
 }
