@@ -15,7 +15,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +27,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class ProductStockServiceImpl implements ProductStockService {
 
@@ -40,7 +38,6 @@ public class ProductStockServiceImpl implements ProductStockService {
 
     @Override
     public ProductStockDto createProductStock(ProductStockCreateRequest request) {
-        log.info("Create product stock - business: {}, product: {}", request.getBusinessId(), request.getProductId());
 
         ProductStock productStock = productStockMapper.toEntity(request);
         productStock.setBusinessId(request.getBusinessId());
@@ -48,7 +45,6 @@ public class ProductStockServiceImpl implements ProductStockService {
         productStock.setExpiryDate(toStartOfDay(request.getExpiryDate()));
 
         ProductStock savedProductStock = productStockRepository.save(productStock);
-        log.info("Created product stock - id: {}", savedProductStock.getId());
 
         ProductStockDto dto = productStockMapper.toDto(savedProductStock);
         enrichWithProductInfo(dto, savedProductStock);
@@ -58,7 +54,6 @@ public class ProductStockServiceImpl implements ProductStockService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProductStockDto> getAllProductStocks(ProductStockFilterRequest request) {
-        log.info("Get all product stocks - business: {}", request.getBusinessId());
 
         if (request.getBusinessId() == null) {
             throw new ValidationException("Business ID is required");
@@ -108,7 +103,6 @@ public class ProductStockServiceImpl implements ProductStockService {
 
     @Override
     public ProductStockDto updateProductStock(UUID productStockId, ProductStockUpdateRequest request) {
-        log.info("Update product stock - id: {}", productStockId);
 
         ProductStock productStock = productStockRepository.findById(productStockId)
                 .orElseThrow(() -> new ValidationException("Product stock not found"));
@@ -127,7 +121,6 @@ public class ProductStockServiceImpl implements ProductStockService {
 
     @Override
     public void deleteProductStock(UUID productStockId) {
-        log.info("Delete product stock - id: {}", productStockId);
 
         ProductStock productStock = productStockRepository.findById(productStockId)
                 .orElseThrow(() -> new ValidationException("Product stock not found"));

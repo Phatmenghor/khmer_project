@@ -21,7 +21,6 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class SubscriptionServiceImpl implements SubscriptionService {
 
@@ -48,7 +46,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public SubscriptionResponse createSubscription(SubscriptionCreateRequest request) {
-        log.info("Creating subscription for business: {} with plan: {}", request.getBusinessId(), request.getPlanId());
         Business business = businessRepository.findById(request.getBusinessId())
                 .orElseThrow(() -> new RuntimeException("Business not found: " + request.getBusinessId()));
         SubscriptionPlan plan = planRepository.findByIdAndIsDeletedFalse(request.getPlanId())
@@ -68,14 +65,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         business.activateSubscription();
         businessRepository.save(business);
         savedSubscription = subscriptionRepository.findByIdWithRelationships(savedSubscription.getId()).orElse(savedSubscription);
-        log.info("Subscription created successfully: {} for business: {}", savedSubscription.getId(), business.getName());
         return subscriptionMapper.toResponse(savedSubscription);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<SubscriptionResponse> getSubscriptions(SubscriptionFilterRequest filter) {
-        log.info("Getting subscriptions - Status: {}, BusinessId: {}", filter.getStatus(), filter.getBusinessId());
         
         Pageable pageable = PaginationUtils.createPageable(filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
         
@@ -105,7 +100,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Transactional(readOnly = true)
     public PaginationResponse<SubscriptionResponse> getCurrentUserBusinessSubscriptions(SubscriptionFilterRequest filter) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.debug("Getting subscriptions for current user: {}", currentUserId);
         Business business = businessRepository.findByOwnerIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> new RuntimeException("No business found for current user"));
         filter.setBusinessId(business.getId());
@@ -115,7 +109,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional(readOnly = true)
     public SubscriptionResponse getSubscriptionById(UUID subscriptionId) {
-        log.debug("Getting subscription by ID: {}", subscriptionId);
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         return subscriptionMapper.toResponse(subscription);
@@ -123,33 +116,28 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public SubscriptionResponse updateSubscription(UUID subscriptionId, SubscriptionUpdateRequest request) {
-        log.info("Updating subscription: {}", subscriptionId);
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         subscriptionMapper.updateEntity(request, subscription);
         Subscription updatedSubscription = subscriptionRepository.save(subscription);
         updateBusinessSubscriptionStatus(updatedSubscription.getBusinessId());
         updatedSubscription = subscriptionRepository.findByIdWithRelationships(updatedSubscription.getId()).orElse(updatedSubscription);
-        log.info("Subscription updated successfully: {}", subscriptionId);
         return subscriptionMapper.toResponse(updatedSubscription);
     }
 
     @Override
     public SubscriptionResponse deleteSubscription(UUID subscriptionId) {
-        log.info("Deleting subscription: {}", subscriptionId);
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         subscription.softDelete();
         Subscription deletedSubscription = subscriptionRepository.save(subscription);
         updateBusinessSubscriptionStatus(deletedSubscription.getBusinessId());
         deletedSubscription = subscriptionRepository.findByIdWithRelationships(deletedSubscription.getId()).orElse(deletedSubscription);
-        log.info("Subscription deleted successfully: {}", subscriptionId);
         return subscriptionMapper.toResponse(deletedSubscription);
     }
 
     @Override
     public SubscriptionResponse renewSubscription(UUID subscriptionId, SubscriptionRenewRequest request) {
-        log.info("Renewing subscription: {} with payment creation: {}", subscriptionId, request.shouldCreatePayment());
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         subscription.renew();
@@ -159,13 +147,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
         updateBusinessSubscriptionStatus(renewedSubscription.getBusinessId());
         renewedSubscription = subscriptionRepository.findByIdWithRelationships(renewedSubscription.getId()).orElse(renewedSubscription);
-        log.info("Subscription renewed successfully: {} - New end date: {}", subscriptionId, renewedSubscription.getEndDate());
         return subscriptionMapper.toResponse(renewedSubscription);
     }
 
     @Override
     public SubscriptionResponse cancelSubscription(UUID subscriptionId, SubscriptionCancelRequest request) {
-        log.info("Cancelling subscription: {} with refund amount: {}", subscriptionId, request.getRefundAmount());
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         subscription.cancel();
@@ -184,28 +170,23 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
         updateBusinessSubscriptionStatus(cancelledSubscription.getBusinessId());
         cancelledSubscription = subscriptionRepository.findByIdWithRelationships(cancelledSubscription.getId()).orElse(cancelledSubscription);
-        log.info("Subscription cancelled successfully: {}", subscriptionId);
         return subscriptionMapper.toResponse(cancelledSubscription);
     }
 
     private void createPaymentForSubscription(Subscription subscription, SubscriptionRenewRequest request) {
-        log.debug("Creating payment for subscription: {}", subscription.getId());
         // Build helper DTO, then use pure MapStruct mapping
         com.emenu.features.order.dto.helper.PaymentCreateHelper helper =
             paymentMapper.buildSubscriptionPaymentHelper(subscription, request);
         Payment payment = paymentMapper.createFromHelper(helper);
         paymentRepository.save(payment);
-        log.info("Payment created for subscription: {} - Amount: ${}", subscription.getId(), payment.getAmount());
     }
 
     private void createRefundForSubscription(Subscription subscription, SubscriptionCancelRequest request) {
-        log.debug("Creating refund for subscription: {}", subscription.getId());
         // Build helper DTO, then use pure MapStruct mapping
         com.emenu.features.order.dto.helper.PaymentCreateHelper helper =
             paymentMapper.buildSubscriptionRefundHelper(subscription, request);
         Payment refund = paymentMapper.createFromHelper(helper);
         paymentRepository.save(refund);
-        log.info("Refund created for subscription: {} - Amount: ${}", subscription.getId(), refund.getAmount());
     }
 
     private void updateBusinessSubscriptionStatus(UUID businessId) {
@@ -218,6 +199,5 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             business.deactivateSubscription();
         }
         businessRepository.save(business);
-        log.info("Updated business subscription status: {} - Active: {}", businessId, activeSubscription.isPresent());
     }
 }

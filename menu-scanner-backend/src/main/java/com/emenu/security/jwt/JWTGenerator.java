@@ -3,7 +3,6 @@ package com.emenu.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-@Slf4j
 public class JWTGenerator {
 
     @Value("${jwt.secret}")
@@ -162,7 +160,6 @@ public class JWTGenerator {
                     .parseSignedClaims(token);
             return true;
         } catch (Exception e) {
-            log.error("JWT validation error: {}", e.getMessage());
             return false;
         }
     }

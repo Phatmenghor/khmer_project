@@ -17,7 +17,6 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class BrandServiceImpl implements BrandService {
 
@@ -39,7 +37,6 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public BrandResponse createBrand(BrandCreateRequest request) {
-        log.info("Creating brand: {}", request.getName());
 
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser.getBusinessId() == null) {
@@ -57,7 +54,6 @@ public class BrandServiceImpl implements BrandService {
 
         Brand savedBrand = brandRepository.save(brand);
 
-        log.info("Brand created successfully: {} for business: {}",
                 savedBrand.getName(), currentUser.getBusinessId());
         return brandMapper.toResponse(savedBrand);
     }
@@ -188,7 +184,6 @@ public class BrandServiceImpl implements BrandService {
         brandMapper.updateEntity(request, brand);
         Brand updatedBrand = brandRepository.save(brand);
 
-        log.info("Brand updated successfully: {}", id);
         return brandMapper.toResponse(updatedBrand);
     }
 
@@ -205,7 +200,6 @@ public class BrandServiceImpl implements BrandService {
         brand.softDelete();
         brand = brandRepository.save(brand);
 
-        log.info("Brand deleted successfully: {}", id);
         return brandMapper.toResponse(brand);
     }
 

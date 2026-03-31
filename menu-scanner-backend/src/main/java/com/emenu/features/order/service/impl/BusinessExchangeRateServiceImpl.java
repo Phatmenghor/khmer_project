@@ -17,7 +17,6 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateService {
 
@@ -40,7 +38,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
 
     @Override
     public BusinessExchangeRateResponse createBusinessExchangeRate(BusinessExchangeRateCreateRequest request) {
-        log.info("Creating business exchange rate for business: {} - Rate: {}", request.getBusinessId(), request.getUsdToKhrRate());
 
         UUID businessId = determineBusinessId(request.getBusinessId());
 
@@ -51,7 +48,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         // Deactivate all existing active rates for this business (new rate will be the only ACTIVE one)
         int deactivatedCount = exchangeRateRepository.deactivateAllRatesForBusiness(businessId);
         if (deactivatedCount > 0) {
-            log.info("Deactivated {} existing active rate(s) for business {} when creating new rate",
                     deactivatedCount, businessId);
         }
 
@@ -60,7 +56,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
 
         BusinessExchangeRate savedExchangeRate = exchangeRateRepository.save(exchangeRate);
 
-        log.info("Business exchange rate created successfully for {}: {} KHR per USD",
                 business.getName(), savedExchangeRate.getUsdToKhrRate());
 
         return exchangeRateMapper.toResponse(savedExchangeRate);
@@ -69,7 +64,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<BusinessExchangeRateResponse> getAllBusinessExchangeRates(BusinessExchangeRateFilterRequest filter) {
-        log.info("Fetching all business exchange rates with filters");
 
         UUID businessId = determineBusinessId(filter.getBusinessId());
         filter.setBusinessId(businessId);
@@ -90,7 +84,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
     @Override
     @Transactional(readOnly = true)
     public BusinessExchangeRateResponse getBusinessExchangeRateById(UUID id) {
-        log.info("Fetching business exchange rate by ID: {}", id);
 
         BusinessExchangeRate exchangeRate = findExchangeRateById(id);
         return exchangeRateMapper.toResponse(exchangeRate);
@@ -98,7 +91,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
 
     @Override
     public BusinessExchangeRateResponse updateBusinessExchangeRate(UUID id, BusinessExchangeRateUpdateRequest request) {
-        log.info("Updating business exchange rate: {}", id);
 
         BusinessExchangeRate exchangeRate = findExchangeRateById(id);
         UUID businessId = exchangeRate.getBusinessId();
@@ -109,7 +101,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
             // Deactivate all OTHER active rates (except this one)
             int deactivatedCount = exchangeRateRepository.deactivateAllRatesForBusinessExcept(businessId, id);
             if (deactivatedCount > 0) {
-                log.info("Deactivated {} other active rate(s) for business {} when activating rate {}",
                         deactivatedCount, businessId, id);
             }
         } else if (request.getStatus() != null &&
@@ -122,7 +113,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
                     BusinessExchangeRate rateToActivate = nextActiveRate.get();
                     rateToActivate.activate();
                     exchangeRateRepository.save(rateToActivate);
-                    log.info("Activated rate {} when deactivating the only active rate {}",
                             rateToActivate.getId(), id);
                 }
             }
@@ -131,7 +121,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         exchangeRateMapper.updateEntity(request, exchangeRate);
         BusinessExchangeRate updatedExchangeRate = exchangeRateRepository.save(exchangeRate);
 
-        log.info("Business exchange rate updated successfully: {} - New rate: {} - Status: {}",
                 id, updatedExchangeRate.getUsdToKhrRate(), updatedExchangeRate.getStatus());
 
         return exchangeRateMapper.toResponse(updatedExchangeRate);
@@ -139,7 +128,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
 
     @Override
     public BusinessExchangeRateResponse deleteBusinessExchangeRate(UUID id) {
-        log.info("Deleting business exchange rate: {}", id);
 
         BusinessExchangeRate exchangeRate = findExchangeRateById(id);
         UUID businessId = exchangeRate.getBusinessId();
@@ -156,20 +144,17 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
             BusinessExchangeRate rateToActivate = nextActiveRate.get();
             rateToActivate.activate();
             exchangeRateRepository.save(rateToActivate);
-            log.info("Activated rate {} when deleting active rate {}", rateToActivate.getId(), id);
         }
 
         exchangeRate.softDelete();
         exchangeRate = exchangeRateRepository.save(exchangeRate);
 
-        log.info("Business exchange rate deleted successfully: {}", id);
         return exchangeRateMapper.toResponse(exchangeRate);
     }
 
     @Override
     @Transactional(readOnly = true)
     public BusinessExchangeRateResponse getActiveRateByBusinessId(UUID businessId) {
-        log.info("Fetching active exchange rate for business: {}", businessId);
 
         BusinessExchangeRate activeRate = exchangeRateRepository.findActiveRateByBusinessId(businessId)
                 .orElseThrow(() -> new NotFoundException("No active exchange rate found for business"));

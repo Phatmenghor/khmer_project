@@ -10,7 +10,6 @@ import com.emenu.features.order.repository.PaymentOptionRepository;
 import com.emenu.features.order.service.PaymentOptionService;
 import com.emenu.shared.dto.PaginationResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PaymentOptionServiceImpl implements PaymentOptionService {
 
     private final PaymentOptionRepository paymentOptionRepository;
@@ -32,7 +30,6 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
     @Override
     @Transactional
     public PaymentOptionResponse createPaymentOption(UUID businessId, PaymentOptionRequest request) {
-        log.info("Creating payment option: {} for business: {}", request.getName(), businessId);
 
         // Check if payment option with same name already exists
         paymentOptionRepository.findByNameAndBusinessId(businessId, request.getName())
@@ -48,14 +45,12 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
                 .build();
 
         PaymentOption saved = paymentOptionRepository.save(paymentOption);
-        log.info("Payment option created: {}", saved.getId());
         return mapToResponse(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PaymentOptionResponse getPaymentOptionById(UUID businessId, UUID id) {
-        log.info("Getting payment option: {} for business: {}", id, businessId);
         PaymentOption option = paymentOptionRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment option not found"));
         return mapToResponse(option);
@@ -67,7 +62,6 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
             UUID businessId,
             UUID id,
             PaymentOptionRequest request) {
-        log.info("Updating payment option: {} for business: {}", id, businessId);
 
         PaymentOption option = paymentOptionRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment option not found"));
@@ -84,20 +78,17 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
         option.setPaymentOptionType(request.getPaymentOptionType());
         option.setStatus(request.getStatus());
         PaymentOption updated = paymentOptionRepository.save(option);
-        log.info("Payment option updated: {}", id);
         return mapToResponse(updated);
     }
 
     @Override
     @Transactional
     public void deletePaymentOption(UUID businessId, UUID id) {
-        log.info("Deleting payment option: {} for business: {}", id, businessId);
         PaymentOption option = paymentOptionRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment option not found"));
 
         option.setIsDeleted(true);
         paymentOptionRepository.save(option);
-        log.info("Payment option deleted: {}", id);
     }
 
     @Override
@@ -105,7 +96,6 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
     public PaginationResponse<PaymentOptionResponse> getAllPaymentOptionsWithFilters(
             UUID businessId,
             PaymentOptionFilterRequest filter) {
-        log.info("Getting payment options for business: {} with filters", businessId);
 
         Sort.Direction direction = Sort.Direction.fromString(filter.getSortDirection());
         Pageable pageable = PageRequest.of(

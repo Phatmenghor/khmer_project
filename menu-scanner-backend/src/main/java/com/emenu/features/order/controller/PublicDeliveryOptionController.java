@@ -9,7 +9,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +21,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/public/delivery-options")
 @RequiredArgsConstructor
-@Slf4j
 public class PublicDeliveryOptionController {
 
     private final DeliveryOptionService deliveryOptionService;
@@ -33,7 +31,6 @@ public class PublicDeliveryOptionController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<DeliveryOptionResponse>>> getDeliveryOptions(
             @Valid @RequestBody DeliveryOptionFilterRequest filter) {
-        log.info("Getting delivery options for current user's business");
 
         PaginationResponse<DeliveryOptionResponse> deliveryOptions = deliveryOptionService.getAllDeliveryOptions(filter);
 
@@ -46,7 +43,6 @@ public class PublicDeliveryOptionController {
     @PostMapping("/all-data")
     public ResponseEntity<ApiResponse<List<DeliveryOptionResponse>>> getAllDeliveryOptions(
             @Valid @RequestBody DeliveryOptionAllFilterRequest filter) {
-        log.info("Getting all delivery options for current user's business");
 
         List<DeliveryOptionResponse> deliveryOptions = deliveryOptionService.getAllItemDeliveryOptions(filter);
 

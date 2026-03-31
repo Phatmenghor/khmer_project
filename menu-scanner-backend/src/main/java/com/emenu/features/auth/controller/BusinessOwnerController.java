@@ -9,7 +9,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/business-owners")
 @RequiredArgsConstructor
-@Slf4j
 public class BusinessOwnerController {
 
     private final BusinessOwnerService businessOwnerService;
@@ -32,7 +30,6 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> createBusinessOwner(
             @Valid @RequestBody BusinessOwnerCreateRequest request) {
         
-        log.info("Creating business owner: {}", request.getBusinessName());
         BusinessOwnerCreateResponse response = businessOwnerService.createBusinessOwner(request);
         
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -49,7 +46,6 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<PaginationResponse<BusinessOwnerDetailResponse>>> getAllBusinessOwners(
             @Valid @RequestBody BusinessOwnerFilterRequest request) {
         
-        log.info("Getting business owners - Page: {}, Search: {}", request.getPageNo(), request.getSearch());
         PaginationResponse<BusinessOwnerDetailResponse> response = businessOwnerService.getAllBusinessOwners(request);
         
         return ResponseEntity.ok(ApiResponse.success(
@@ -66,7 +62,6 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> getBusinessOwnerDetail(
             @PathVariable UUID ownerId) {
         
-        log.info("Getting business owner detail: {}", ownerId);
         BusinessOwnerDetailResponse response = businessOwnerService.getBusinessOwnerDetail(ownerId);
         
         return ResponseEntity.ok(ApiResponse.success(
@@ -83,7 +78,6 @@ public class BusinessOwnerController {
             @PathVariable UUID ownerId,
             @Valid @RequestBody BusinessOwnerSubscriptionRenewRequest request) {
         
-        log.info("Renewing subscription for business owner: {}", ownerId);
         BusinessOwnerDetailResponse response = businessOwnerService.renewSubscription(ownerId, request);
         
         String message = request.getNewPlanId() != null 
@@ -101,7 +95,6 @@ public class BusinessOwnerController {
             @PathVariable UUID ownerId,
             @Valid @RequestBody BusinessOwnerChangePlanRequest request) {
         
-        log.info("Changing plan for business owner: {}", ownerId);
         BusinessOwnerDetailResponse response = businessOwnerService.changePlan(ownerId, request);
         
         return ResponseEntity.ok(ApiResponse.success("Subscription plan changed successfully", response));
@@ -115,7 +108,6 @@ public class BusinessOwnerController {
             @PathVariable UUID ownerId,
             @Valid @RequestBody BusinessOwnerSubscriptionCancelRequest request) {
         
-        log.info("Cancelling subscription for business owner: {}", ownerId);
         BusinessOwnerDetailResponse response = businessOwnerService.cancelSubscription(ownerId, request);
         
         String message = request.hasRefundAmount() 
@@ -132,7 +124,6 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> deleteBusinessOwner(
             @PathVariable UUID ownerId) {
         
-        log.info("Deleting business owner: {}", ownerId);
         BusinessOwnerDetailResponse response = businessOwnerService.deleteBusinessOwner(ownerId);
         
         return ResponseEntity.ok(ApiResponse.success(

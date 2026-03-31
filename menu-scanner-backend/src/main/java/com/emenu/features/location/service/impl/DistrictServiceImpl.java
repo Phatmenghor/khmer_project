@@ -13,7 +13,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class DistrictServiceImpl implements DistrictService {
 
     private final DistrictRepository districtRepository;
@@ -34,7 +32,6 @@ public class DistrictServiceImpl implements DistrictService {
     @Override
     @Transactional  // Keep transaction open during mapping
     public DistrictResponse createDistrict(DistrictRequest request) {
-        log.info("Creating district: {}", request.getDistrictCode());
         
         if (!provinceRepository.existsByProvinceCodeAndIsDeletedFalse(request.getProvinceCode())) {
             throw new ValidationException("Province code does not exist: " + request.getProvinceCode());
@@ -55,7 +52,6 @@ public class DistrictServiceImpl implements DistrictService {
         // Map to response WITHIN transaction
         DistrictResponse response = districtMapper.toResponse(districtWithProvince);
         
-        log.info("District created: {} with province: {}", 
                  districtWithProvince.getDistrictCode(),
                  districtWithProvince.getProvince() != null ? 
                  districtWithProvince.getProvince().getProvinceCode() : "null");
@@ -66,7 +62,6 @@ public class DistrictServiceImpl implements DistrictService {
     @Override
     @Transactional(readOnly = true)  // Keep transaction open during mapping
     public PaginationResponse<DistrictResponse> getAllDistricts(DistrictFilterRequest request) {
-        log.info("Getting all districts with filters");
         
         Pageable pageable = PaginationUtils.createPageable(
             request.getPageNo(), request.getPageSize(),
@@ -118,7 +113,6 @@ public class DistrictServiceImpl implements DistrictService {
     @Override
     @Transactional
     public DistrictResponse updateDistrict(UUID id, DistrictRequest request) {
-        log.info("Updating district: {}", id);
         
         District district = districtRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("District not found"));
@@ -137,7 +131,6 @@ public class DistrictServiceImpl implements DistrictService {
         District updatedDistrict = districtRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("District not found"));
         
-        log.info("District updated: {}", updatedDistrict.getDistrictCode());
         return districtMapper.toResponse(updatedDistrict);
     }
 
@@ -149,6 +142,5 @@ public class DistrictServiceImpl implements DistrictService {
         
         district.softDelete();
         districtRepository.save(district);
-        log.info("District deleted: {}", district.getDistrictCode());
     }
 }

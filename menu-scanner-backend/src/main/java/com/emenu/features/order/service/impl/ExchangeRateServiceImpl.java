@@ -13,7 +13,6 @@ import com.emenu.shared.constants.Constants;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class ExchangeRateServiceImpl implements ExchangeRateService {
 
@@ -34,7 +32,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 
     @Override
     public ExchangeRateResponse createExchangeRate(ExchangeRateCreateRequest request) {
-        log.info("Creating new system exchange rate: {}", request.getUsdToKhrRate());
 
         // Deactivate existing active rate
         deactivateCurrentActiveRate();
@@ -44,7 +41,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 
         ExchangeRate savedExchangeRate = exchangeRateRepository.save(exchangeRate);
 
-        log.info("System exchange rate created successfully: {} KHR per USD", savedExchangeRate.getUsdToKhrRate());
         return exchangeRateMapper.toResponse(savedExchangeRate);
     }
 
@@ -77,7 +73,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
         exchangeRateMapper.updateEntity(request, exchangeRate);
         ExchangeRate updatedExchangeRate = exchangeRateRepository.save(exchangeRate);
 
-        log.info("Exchange rate updated successfully: {} - New rate: {}", id, updatedExchangeRate.getUsdToKhrRate());
         return exchangeRateMapper.toResponse(updatedExchangeRate);
     }
 
@@ -93,7 +88,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
         exchangeRate.softDelete();
         exchangeRate = exchangeRateRepository.save(exchangeRate);
 
-        log.info("Exchange rate deleted successfully: {}", id);
         return exchangeRateMapper.toResponse(exchangeRate);
     }
 
@@ -119,7 +113,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
             ExchangeRate rate = existingActiveRate.get();
             rate.setIsActive(false);
             exchangeRateRepository.save(rate);
-            log.info("Deactivated existing active rate: {}", rate.getUsdToKhrRate());
         }
     }
 

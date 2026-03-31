@@ -7,14 +7,12 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/stock/history")
 @RequiredArgsConstructor
-@Slf4j
 public class StockMovementController {
 
     private final StockService stockService;
@@ -22,7 +20,6 @@ public class StockMovementController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<StockMovementDto>>> getAllMovements(
             @Valid @RequestBody StockMovementFilterRequest request) {
-        log.info("Get all movements - business: {}", request.getBusinessId());
         PaginationResponse<StockMovementDto> result = stockService.getAllMovements(request);
         return ResponseEntity.ok(ApiResponse.success("Stock movements retrieved", result));
     }

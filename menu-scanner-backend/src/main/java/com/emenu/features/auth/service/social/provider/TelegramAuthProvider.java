@@ -4,7 +4,6 @@ import com.emenu.exception.custom.ValidationException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,6 @@ import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class TelegramAuthProvider {
 
     @Value("${app.social.telegram.bot-token:}")
@@ -26,7 +24,6 @@ public class TelegramAuthProvider {
 
     public SocialUserInfo getUserInfo(String authData) {
         try {
-            log.info("## [TELEGRAM PROVIDER] ▶ Parsing Telegram auth data");
             JsonNode data = objectMapper.readTree(authData);
 
             String id = data.get("id").asText();
@@ -35,16 +32,12 @@ public class TelegramAuthProvider {
             String lastName = data.has("last_name") ? data.get("last_name").asText() : null;
             String photoUrl = data.has("photo_url") ? data.get("photo_url").asText() : null;
 
-            log.info("## [TELEGRAM PROVIDER] Parsed fields: id={}, username={}, firstName={}, lastName={}, hasPhoto={}",
                     id, username, firstName, lastName, photoUrl != null);
 
             String hash = data.has("hash") ? data.get("hash").asText() : null;
             if (hash != null && !botToken.isEmpty()) {
-                log.info("## [TELEGRAM PROVIDER] ▶ Verifying hash...");
                 verifyTelegramAuth(data, hash);
-                log.info("## [TELEGRAM PROVIDER] ✓ Hash verified successfully");
             } else {
-                log.warn("## [TELEGRAM PROVIDER] ⚠ Hash verification skipped: hash={}, botTokenConfigured={}",
                         hash != null, !botToken.isEmpty());
             }
 
@@ -57,7 +50,6 @@ public class TelegramAuthProvider {
                     .photoUrl(photoUrl)
                     .build();
         } catch (Exception e) {
-            log.error("## [TELEGRAM PROVIDER] ✗ Failed to parse Telegram auth data: {}", e.getMessage(), e);
             throw new ValidationException("Invalid Telegram authentication data");
         }
     }
@@ -83,7 +75,6 @@ public class TelegramAuthProvider {
                 throw new ValidationException("Invalid Telegram authentication hash");
             }
         } catch (Exception e) {
-            log.error("Failed to verify Telegram auth", e);
             throw new ValidationException("Failed to verify Telegram authentication");
         }
     }

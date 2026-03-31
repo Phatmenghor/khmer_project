@@ -6,7 +6,6 @@ import com.emenu.features.main.service.BannerService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/public/banners")
 @RequiredArgsConstructor
-@Slf4j
 public class PublicBannerController {
     private final BannerService bannerService;
 
@@ -27,7 +25,6 @@ public class PublicBannerController {
      */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<List<BannerResponse>>> getMyBusinessAllBanners(@Valid @RequestBody BannerAllFilterRequest filter) {
-        log.info("Getting my banners for current user's business");
         List<BannerResponse> banners = bannerService.getAllItemBanners(filter);
         return ResponseEntity.ok(ApiResponse.success("Banners retrieved successfully", banners));
     }

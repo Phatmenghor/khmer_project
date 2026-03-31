@@ -14,7 +14,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
-@Slf4j
 public class ProductController {
 
     private final ProductService productService;
@@ -36,7 +34,6 @@ public class ProductController {
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getAllProducts(
             @Valid @RequestBody ProductFilterDto filter) {
         
-        log.info("Get all products - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
         
         PaginationResponse<ProductListDto> products = productService.getAllProducts(filter);
         
@@ -50,7 +47,6 @@ public class ProductController {
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdmin(
             @Valid @RequestBody ProductFilterDto filter) {
 
-        log.info("Get products by admin - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
 
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdmin(filter);
 
@@ -64,7 +60,6 @@ public class ProductController {
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdminPos(
             @Valid @RequestBody ProductFilterDto filter) {
 
-        log.info("Get products by admin for POS - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
 
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdminPos(filter);
 
@@ -78,7 +73,6 @@ public class ProductController {
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductBusiness(
             @Valid @RequestBody ProductFilterDto filter) {
 
-        log.info("Get products by business user - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         filter.setBusinessId(businessId);
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdmin(filter);
@@ -132,7 +126,6 @@ public class ProductController {
 
     @PutMapping("/reset-all-promotions")
     public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> resetAllPromotions() {
-        log.info("Reset all promotions for current business");
 
         java.util.Map<String, Object> result = productService.resetAllPromotions();
 
@@ -150,7 +143,6 @@ public class ProductController {
 
     @PostMapping("/admin/sync-promotions")
     public ResponseEntity<ApiResponse<String>> syncExpiredPromotions() {
-        log.info("Manual sync: clearing expired promotion display fields");
 
         int[] result = productService.syncExpiredPromotions();
         String message = String.format(
@@ -158,7 +150,6 @@ public class ProductController {
             result[0], result[1], result[0] + result[1]
         );
 
-        log.info(message);
         return ResponseEntity.ok(ApiResponse.success(message, null));
     }
 }

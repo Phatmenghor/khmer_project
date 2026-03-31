@@ -9,7 +9,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +20,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/hr/work-schedule")
 @RequiredArgsConstructor
-@Slf4j
 public class WorkScheduleController {
 
     private final WorkScheduleService service;
@@ -32,7 +30,6 @@ public class WorkScheduleController {
     @PostMapping
     public ResponseEntity<ApiResponse<WorkScheduleResponse>> create(
             @Valid @RequestBody WorkScheduleCreateRequest request) {
-        log.info("Creating work schedule: {}", request.getName());
         WorkScheduleResponse response = service.create(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Work schedule created", response));
@@ -43,7 +40,6 @@ public class WorkScheduleController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkScheduleResponse>> getById(@PathVariable UUID id) {
-        log.info("Get work schedule: {}", id);
         WorkScheduleResponse response = service.getById(id);
         return ResponseEntity.ok(ApiResponse.success("Work schedule retrieved", response));
     }
@@ -54,7 +50,6 @@ public class WorkScheduleController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<WorkScheduleResponse>>> getAll(
             @Valid @RequestBody WorkScheduleFilterRequest filter) {
-        log.info("Get all work schedules");
         PaginationResponse<WorkScheduleResponse> response = service.getAll(filter);
         return ResponseEntity.ok(ApiResponse.success("Work schedules retrieved", response));
     }
@@ -65,7 +60,6 @@ public class WorkScheduleController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<List<WorkScheduleResponse>>> getByUserId(
             @PathVariable UUID userId) {
-        log.info("Get work schedules for user: {}", userId);
         List<WorkScheduleResponse> responses = service.getByUserId(userId);
         return ResponseEntity.ok(ApiResponse.success("Work schedules retrieved", responses));
     }
@@ -77,7 +71,6 @@ public class WorkScheduleController {
     public ResponseEntity<ApiResponse<WorkScheduleResponse>> update(
             @PathVariable UUID id,
             @Valid @RequestBody WorkScheduleUpdateRequest request) {
-        log.info("Update work schedule: {}", id);
         WorkScheduleResponse response = service.update(id, request);
         return ResponseEntity.ok(ApiResponse.success("Work schedule updated", response));
     }
@@ -87,7 +80,6 @@ public class WorkScheduleController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkScheduleResponse>> delete(@PathVariable UUID id) {
-        log.info("Delete work schedule: {}", id);
         WorkScheduleResponse response = service.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Work schedule deleted", response));
     }

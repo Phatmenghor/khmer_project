@@ -6,7 +6,6 @@ import com.emenu.exception.custom.*;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +16,6 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class SecurityUtils {
 
     private final UserRepository userRepository;
@@ -70,7 +68,6 @@ public class SecurityUtils {
             if (authentication == null ||
                     !authentication.isAuthenticated() ||
                     "anonymousUser".equals(authentication.getPrincipal())) {
-                log.debug("No authenticated user - public access");
                 return Optional.empty();
             }
 
@@ -78,7 +75,6 @@ public class SecurityUtils {
             Optional<User> userOpt = userRepository.findByUserIdentifierAndIsDeletedFalse(userIdentifier);
 
             if (userOpt.isEmpty()) {
-                log.warn("Authenticated user not found in database: {}", userIdentifier);
                 return Optional.empty();
             }
 
@@ -87,14 +83,12 @@ public class SecurityUtils {
             try {
                 validateAccountStatus(user);
             } catch (Exception e) {
-                log.warn("User account validation failed: {} - {}", userIdentifier, e.getMessage());
                 return Optional.empty();
             }
 
             return Optional.of(user);
 
         } catch (Exception e) {
-            log.debug("Error getting current user (public access mode): {}", e.getMessage());
             return Optional.empty();
         }
     }
@@ -104,7 +98,6 @@ public class SecurityUtils {
             User currentUser = getCurrentUser();
             return currentUser.getBusinessId();
         } catch (Exception e) {
-            log.debug("Error getting business ID: {}", e.getMessage());
             return null;
         }
     }
@@ -118,7 +111,6 @@ public class SecurityUtils {
             User currentUser = getCurrentUser();
             return currentUser.getUserType();
         } catch (Exception e) {
-            log.debug("Error getting user type: {}", e.getMessage());
             return null;
         }
     }

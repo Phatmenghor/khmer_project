@@ -14,7 +14,6 @@ import com.emenu.features.subscription.service.SubscriptionPlanService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
@@ -37,7 +35,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     public SubscriptionPlanResponse createPlan(SubscriptionPlanCreateRequest request) {
-        log.info("Creating subscription plan: {}", request.getName());
 
         // Check if plan with same name already exists
         if (planRepository.existsByNameAndIsDeletedFalse(request.getName())) {
@@ -47,14 +44,12 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         SubscriptionPlan plan = planMapper.toEntity(request);
         SubscriptionPlan savedPlan = planRepository.save(plan);
 
-        log.info("Subscription plan created successfully: {} with ID: {}", savedPlan.getName(), savedPlan.getId());
         return planMapper.toResponse(savedPlan);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<SubscriptionPlanResponse> getAllPlans(SubscriptionPlanFilterRequest filter) {
-        log.debug("Getting subscription plans with filter Search: {}", filter.getSearch());
 
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
@@ -76,7 +71,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     @Override
     @Transactional(readOnly = true)
     public SubscriptionPlanResponse getPlanById(UUID planId) {
-        log.debug("Getting subscription plan by ID: {}", planId);
 
         SubscriptionPlan plan = planRepository.findByIdAndIsDeletedFalse(planId)
                 .orElseThrow(() -> new RuntimeException("Subscription plan not found with ID: " + planId));
@@ -86,7 +80,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     public SubscriptionPlanResponse updatePlan(UUID planId, SubscriptionPlanUpdateRequest request) {
-        log.info("Updating subscription plan: {}", planId);
 
         SubscriptionPlan plan = planRepository.findByIdAndIsDeletedFalse(planId)
                 .orElseThrow(() -> new RuntimeException("Subscription plan not found with ID: " + planId));
@@ -101,13 +94,11 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         planMapper.updateEntity(request, plan);
         SubscriptionPlan updatedPlan = planRepository.save(plan);
 
-        log.info("Subscription plan updated successfully: {} - {}", updatedPlan.getId(), updatedPlan.getName());
         return planMapper.toResponse(updatedPlan);
     }
 
     @Override
     public void deletePlan(UUID planId) {
-        log.info("Deleting subscription plan: {}", planId);
 
         SubscriptionPlan plan = planRepository.findByIdAndIsDeletedFalse(planId)
                 .orElseThrow(() -> new RuntimeException("Subscription plan not found with ID: " + planId));
@@ -120,7 +111,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         plan.softDelete();
         planRepository.save(plan);
 
-        log.info("Subscription plan deleted successfully: {} - {}", plan.getId(), plan.getName());
     }
 
 
@@ -132,7 +122,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     @Transactional(readOnly = true)
     private boolean isPlanInUse(UUID planId) {
         long subscriptionCount = subscriptionRepository.countByPlan(planId);
-        log.debug("Plan {} has {} subscriptions", planId, subscriptionCount);
         return subscriptionCount > 0;
     }
 }

@@ -11,7 +11,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
-@Slf4j
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -32,7 +30,6 @@ public class CategoryController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(@Valid @RequestBody CategoryCreateRequest request) {
-        log.info("Creating category: {}", request.getName());
         CategoryResponse category = categoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Category created successfully", category));
@@ -43,7 +40,6 @@ public class CategoryController {
      */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
-        log.info("Getting all categories for current user's business");
          PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
     }
@@ -53,7 +49,6 @@ public class CategoryController {
      */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getMyBusinessAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
-        log.info("Getting my categories for current user's business");
 
             UUID businessId = securityUtils.getCurrentUserBusinessId();
             filter.setBusinessId(businessId);
@@ -68,7 +63,6 @@ public class CategoryController {
      */
     @PostMapping("/my-business/product/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryWithProductCountResponse>>> getMyBusinessCategoriesWithProductCount(@Valid @RequestBody CategoryFilterRequest filter) {
-        log.info("Getting my business categories with product count");
 
             UUID businessId = securityUtils.getCurrentUserBusinessId();
             filter.setBusinessId(businessId);
@@ -82,7 +76,6 @@ public class CategoryController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable UUID id) {
-        log.info("Getting category by ID: {}", id);
         CategoryResponse category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(ApiResponse.success("Category retrieved successfully", category));
     }
@@ -94,7 +87,6 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(
             @PathVariable UUID id,
             @Valid @RequestBody CategoryUpdateRequest request) {
-        log.info("Updating category: {}", id);
         CategoryResponse category = categoryService.updateCategory(id, request);
         return ResponseEntity.ok(ApiResponse.success("Category updated successfully", category));
     }
@@ -104,7 +96,6 @@ public class CategoryController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> deleteCategory(@PathVariable UUID id) {
-        log.info("Deleting category: {}", id);
         CategoryResponse category = categoryService.deleteCategory(id);
         return ResponseEntity.ok(ApiResponse.success("Category deleted successfully", category));
     }

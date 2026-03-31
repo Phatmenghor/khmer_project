@@ -13,7 +13,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class CommuneServiceImpl implements CommuneService {
 
     private final CommuneRepository communeRepository;
@@ -34,7 +32,6 @@ public class CommuneServiceImpl implements CommuneService {
     @Override
     @Transactional
     public CommuneResponse createCommune(CommuneRequest request) {
-        log.info("Creating commune: {}", request.getCommuneCode());
         
         if (!districtRepository.existsByDistrictCodeAndIsDeletedFalse(request.getDistrictCode())) {
             throw new ValidationException("District code does not exist: " + request.getDistrictCode());
@@ -55,7 +52,6 @@ public class CommuneServiceImpl implements CommuneService {
         // Map to response WITHIN transaction
         CommuneResponse response = communeMapper.toResponse(communeWithRelations);
         
-        log.info("Commune created: {} with district: {} and province: {}", 
                  communeWithRelations.getCommuneCode(),
                  communeWithRelations.getDistrict() != null ? 
                  communeWithRelations.getDistrict().getDistrictCode() : "null",
@@ -69,7 +65,6 @@ public class CommuneServiceImpl implements CommuneService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<CommuneResponse> getAllCommunes(CommuneFilterRequest request) {
-        log.info("Getting all communes with filters");
         
         Pageable pageable = PaginationUtils.createPageable(
             request.getPageNo(), request.getPageSize(),
@@ -120,7 +115,6 @@ public class CommuneServiceImpl implements CommuneService {
     @Override
     @Transactional
     public CommuneResponse updateCommune(UUID id, CommuneRequest request) {
-        log.info("Updating commune: {}", id);
         
         Commune commune = communeRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("Commune not found"));
@@ -139,7 +133,6 @@ public class CommuneServiceImpl implements CommuneService {
         Commune updatedCommune = communeRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("Commune not found"));
         
-        log.info("Commune updated: {}", updatedCommune.getCommuneCode());
         return communeMapper.toResponse(updatedCommune);
     }
 
@@ -151,7 +144,6 @@ public class CommuneServiceImpl implements CommuneService {
         
         commune.softDelete();
         communeRepository.save(commune);
-        log.info("Commune deleted: {}", commune.getCommuneCode());
     }
 
 }

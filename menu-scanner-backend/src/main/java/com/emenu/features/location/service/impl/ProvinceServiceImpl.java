@@ -12,7 +12,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class ProvinceServiceImpl implements ProvinceService {
 
@@ -32,7 +30,6 @@ public class ProvinceServiceImpl implements ProvinceService {
 
     @Override
     public ProvinceResponse createProvince(ProvinceRequest request) {
-        log.info("Creating province: {}", request.getProvinceCode());
         
         if (provinceRepository.existsByProvinceCodeAndIsDeletedFalse(request.getProvinceCode())) {
             throw new ValidationException("Province code already exists");
@@ -41,14 +38,12 @@ public class ProvinceServiceImpl implements ProvinceService {
         Province province = provinceMapper.toEntity(request);
         Province savedProvince = provinceRepository.save(province);
         
-        log.info("Province created: {}", savedProvince.getProvinceCode());
         return provinceMapper.toResponse(savedProvince);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProvinceResponse> getAllProvinces(ProvinceFilterRequest request) {
-        log.info("Getting all provinces with filters");
         
         Pageable pageable = PaginationUtils.createPageable(
             request.getPageNo(), request.getPageSize(), 
@@ -96,7 +91,6 @@ public class ProvinceServiceImpl implements ProvinceService {
 
     @Override
     public ProvinceResponse updateProvince(UUID id, ProvinceRequest request) {
-        log.info("Updating province: {}", id);
         
         Province province = provinceRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("Province not found"));
@@ -104,7 +98,6 @@ public class ProvinceServiceImpl implements ProvinceService {
         provinceMapper.updateEntity(request, province);
         Province updatedProvince = provinceRepository.save(province);
         
-        log.info("Province updated: {}", updatedProvince.getProvinceCode());
         return provinceMapper.toResponse(updatedProvince);
     }
 
@@ -115,7 +108,6 @@ public class ProvinceServiceImpl implements ProvinceService {
         
         province.softDelete();
         provinceRepository.save(province);
-        log.info("Province deleted: {}", province.getProvinceCode());
     }
 
 }

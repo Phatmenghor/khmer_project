@@ -17,7 +17,6 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
 
@@ -39,7 +37,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponse createCategory(CategoryCreateRequest request) {
-        log.info("Creating category: {}", request.getName());
 
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser.getBusinessId() == null) {
@@ -57,7 +54,6 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category savedCategory = categoryRepository.save(category);
 
-        log.info("Category created successfully: {} for business: {}",
                 savedCategory.getName(), currentUser.getBusinessId());
         return categoryMapper.toResponse(savedCategory);
     }
@@ -187,7 +183,6 @@ public class CategoryServiceImpl implements CategoryService {
         categoryMapper.updateEntity(request, category);
         Category updatedCategory = categoryRepository.save(category);
 
-        log.info("Category updated successfully: {}", id);
         return categoryMapper.toResponse(updatedCategory);
     }
 
@@ -198,7 +193,6 @@ public class CategoryServiceImpl implements CategoryService {
         category.softDelete();
         category = categoryRepository.save(category);
 
-        log.info("Category deleted successfully: {}", id);
         return categoryMapper.toResponse(category);
     }
 

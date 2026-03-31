@@ -19,7 +19,6 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class UserServiceImpl implements UserService {
 
@@ -51,7 +49,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserCreateRequest req) {
-        log.info("Creating user: {}", req.getUserIdentifier());
 
         if (userRepository.existsByUserIdentifierAndIsDeletedFalse(req.getUserIdentifier())) {
             throw new ValidationException("User identifier already exists");
@@ -124,7 +121,6 @@ public class UserServiceImpl implements UserService {
         }
 
         saved = userRepository.save(savedRef);
-        log.info("User created: {} type={}", saved.getUserIdentifier(), saved.getUserType());
         return userMapper.toResponse(saved);
     }
 
@@ -156,7 +152,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(UUID userId, UserUpdateRequest req) {
-        log.info("Updating user: {}", userId);
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -212,7 +207,6 @@ public class UserServiceImpl implements UserService {
                 EducationRequest::getId, this::applyEducationFields, r -> buildEducation(r, user));
 
         User updated = userRepository.save(user);
-        log.info("User updated: {}", updated.getUserIdentifier());
         return userMapper.toResponse(updated);
     }
 

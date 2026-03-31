@@ -3,41 +3,34 @@ package com.emenu.features.auth.service;
 import com.emenu.enums.user.UserType;
 import com.emenu.features.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserValidationService {
 
     private final UserRepository userRepository;
 
     public boolean isUsernameAvailable(String userIdentifier, UserType userType, UUID businessId) {
-        log.debug("Checking username availability: {} for type: {} in business: {}", userIdentifier, userType, businessId);
 
         switch (userType) {
             case PLATFORM_USER:
             case CUSTOMER:
                 // For platform users and customers, check global uniqueness within their user type
                 boolean existsByType = userRepository.existsByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userType);
-                log.debug("Username {} exists for type {}: {}", userIdentifier, userType, existsByType);
                 return !existsByType;
 
             case BUSINESS_USER:
                 // For business users, check uniqueness within the specific business
                 if (businessId == null) {
-                    log.warn("Business ID is required for BUSINESS_USER type validation");
                     throw new IllegalArgumentException("Business ID is required for BUSINESS_USER type");
                 }
                 boolean existsInBusiness = userRepository.existsByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessId);
-                log.debug("Username {} exists in business {}: {}", userIdentifier, businessId, existsInBusiness);
                 return !existsInBusiness;
 
             default:
-                log.error("Unknown user type: {}", userType);
                 throw new IllegalArgumentException("Unknown user type: " + userType);
         }
     }

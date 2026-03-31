@@ -1,6 +1,5 @@
 package com.emenu.shared.generate;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -9,7 +8,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
-@Slf4j
 public class PaymentReferenceGenerator {
 
     private final AtomicLong counter = new AtomicLong(System.currentTimeMillis() % 10000);
@@ -20,7 +18,6 @@ public class PaymentReferenceGenerator {
      */
     public String generateUniqueReference() {
         String reference = generateReference();
-        log.debug("Generated reference: {}", reference);
         return reference;
     }
 

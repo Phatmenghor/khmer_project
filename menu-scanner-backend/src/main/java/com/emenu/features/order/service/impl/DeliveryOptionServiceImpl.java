@@ -17,7 +17,6 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
@@ -39,7 +37,6 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
     @Override
     public DeliveryOptionResponse createDeliveryOption(DeliveryOptionCreateRequest request) {
-        log.info("Creating delivery option: {}", request.getName());
 
         User currentUser = securityUtils.getCurrentUser();
         validateUserBusinessAssociation(currentUser);
@@ -55,7 +52,6 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
         DeliveryOption savedDeliveryOption = deliveryOptionRepository.save(deliveryOption);
 
-        log.info("Delivery option created successfully: {} for business: {}",
                 savedDeliveryOption.getName(), currentUser.getBusinessId());
 
         return deliveryOptionMapper.toResponse(savedDeliveryOption);
@@ -124,7 +120,6 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
         deliveryOptionMapper.updateEntity(request, deliveryOption);
         DeliveryOption updatedDeliveryOption = deliveryOptionRepository.save(deliveryOption);
 
-        log.info("Delivery option updated successfully: {}", id);
         return deliveryOptionMapper.toResponse(updatedDeliveryOption);
     }
 
@@ -135,7 +130,6 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
         deliveryOption.softDelete();
         deliveryOption = deliveryOptionRepository.save(deliveryOption);
 
-        log.info("Delivery option deleted successfully: {}", id);
         return deliveryOptionMapper.toResponse(deliveryOption);
     }
 

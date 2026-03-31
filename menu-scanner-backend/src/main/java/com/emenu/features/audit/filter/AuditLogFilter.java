@@ -5,7 +5,6 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
 @RequiredArgsConstructor
-@Slf4j
 public class AuditLogFilter extends OncePerRequestFilter {
 
     private final AuditLogService auditLogService;
@@ -81,7 +79,6 @@ public class AuditLogFilter extends OncePerRequestFilter {
                     requestBody
                 );
             } catch (Exception e) {
-                log.error("Failed to log audit entry: {}", e.getMessage());
             }
 
             // Copy response body to actual response

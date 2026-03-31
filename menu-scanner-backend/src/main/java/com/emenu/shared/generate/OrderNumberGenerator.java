@@ -3,7 +3,6 @@ package com.emenu.shared.generate;
 import com.emenu.features.order.models.OrderCounter;
 import com.emenu.features.order.repository.OrderCounterRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,6 @@ import java.util.function.Predicate;
  * Pattern: ORD-YYYYMMDD-XXXXXX where XXXXXX is a database-backed counter (unlimited, starts from 000001).
  */
 @Component
-@Slf4j
 @RequiredArgsConstructor
 public class OrderNumberGenerator {
 
@@ -72,10 +70,8 @@ public class OrderNumberGenerator {
         }
 
         if (attempts > 0) {
-            log.warn("Had to retry order number generation {} times", attempts);
         }
 
-        log.debug("Generated order number: {}", orderNumber);
         return orderNumber;
     }
 

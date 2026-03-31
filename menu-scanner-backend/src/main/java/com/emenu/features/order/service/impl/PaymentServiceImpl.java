@@ -22,7 +22,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.generate.PaymentReferenceGenerator;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class PaymentServiceImpl implements PaymentService {
 
@@ -49,7 +47,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse createPayment(PaymentCreateRequest request) {
-        log.info("Creating payment: amount={}, type={}", request.getAmount(), request.getPaymentType());
         String referenceNumber = determineReferenceNumber(request);
         PaymentType paymentType = request.getPaymentType();
         PaymentResponse response = switch (paymentType) {
@@ -59,14 +56,12 @@ public class PaymentServiceImpl implements PaymentService {
             case REFUND -> createRefundPayment(request, referenceNumber);
             case OTHER -> createOtherPayment(request, referenceNumber);
         };
-        log.info("Payment created: id={}, reference={}", response.getId(), referenceNumber);
         return response;
     }
 
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<PaymentResponse> getAllPayments(PaymentFilterRequest filter) {
-        log.info("Fetching payments: businessId={}, status={}", filter.getBusinessId(), filter.getStatuses());
         Pageable pageable = PaginationUtils.createPageable(filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
         List<PaymentMethod> paymentMethods = (filter.getPaymentMethods() != null && !filter.getPaymentMethods().isEmpty())
                 ? filter.getPaymentMethods() : null;
@@ -88,7 +83,6 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional(readOnly = true)
     public PaymentResponse getPaymentById(UUID id) {
-        log.info("Fetching payment: id={}", id);
         Payment payment = paymentRepository.findByIdWithRelationships(id)
                 .orElseThrow(() -> new NotFoundException("Payment not found"));
         return paymentMapper.toResponse(payment);
@@ -96,7 +90,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse updatePayment(UUID id, PaymentUpdateRequest request) {
-        log.info("Updating payment: id={}", id);
         Payment payment = findPaymentById(id);
 
         if (request.getSubscriptionId() != null) {
@@ -116,7 +109,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse deletePayment(UUID id) {
-        log.info("Deleting payment: id={}", id);
         Payment payment = findPaymentById(id);
         payment.softDelete();
         payment = paymentRepository.save(payment);
@@ -131,7 +123,6 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private PaymentResponse createSubscriptionPayment(PaymentCreateRequest request, String referenceNumber) {
-        log.info("Creating subscription payment: subscriptionId={}", request.getSubscriptionId());
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(request.getSubscriptionId())
                 .orElseThrow(() -> new NotFoundException("Subscription not found"));
         businessRepository.findByIdAndIsDeletedFalse(subscription.getBusinessId())
@@ -146,7 +137,6 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private PaymentResponse createBusinessPayment(PaymentCreateRequest request, String referenceNumber) {
-        log.info("Creating business payment: businessId={}", request.getBusinessId());
         Business business = businessRepository.findByIdAndIsDeletedFalse(request.getBusinessId())
                 .orElseThrow(() -> new NotFoundException("Business not found"));
         Payment payment = paymentMapper.toEntity(request);
@@ -156,20 +146,17 @@ public class PaymentServiceImpl implements PaymentService {
                 .ifPresent(subscription -> {
                     payment.setPlanId(subscription.getPlanId());
                     payment.setSubscriptionId(subscription.getId());
-                    log.info("Associated payment with active subscription: {}", subscription.getId());
                 });
         return savePayment(payment);
     }
 
     private PaymentResponse createUserPlanPayment(PaymentCreateRequest request, String referenceNumber) {
-        log.info("Creating USER_PLAN payment type");
         Payment payment = paymentMapper.toEntity(request);
         payment.setReferenceNumber(referenceNumber);
         return savePayment(payment);
     }
 
     private PaymentResponse createRefundPayment(PaymentCreateRequest request, String referenceNumber) {
-        log.info("Creating REFUND payment type");
         Payment payment = paymentMapper.toEntity(request);
         payment.setReferenceNumber(referenceNumber);
         if (request.getSubscriptionId() != null) {
@@ -182,14 +169,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private PaymentResponse createOtherPayment(PaymentCreateRequest request, String referenceNumber) {
-        log.info("Creating OTHER payment type");
         Payment payment = paymentMapper.toEntity(request);
         payment.setReferenceNumber(referenceNumber);
         return savePayment(payment);
     }
 
     private void updatePaymentSubscription(Payment payment, UUID subscriptionId) {
-        log.info("Updating payment subscription: paymentId={}, subscriptionId={}", payment.getId(), subscriptionId);
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new NotFoundException("Subscription not found"));
         businessRepository.findByIdAndIsDeletedFalse(subscription.getBusinessId())
@@ -201,7 +186,6 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void updatePaymentBusiness(Payment payment, UUID businessId) {
-        log.info("Updating payment business: paymentId={}, businessId={}", payment.getId(), businessId);
         Business business = businessRepository.findByIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new NotFoundException("Business not found"));
         payment.setBusinessId(business.getId());
@@ -210,12 +194,10 @@ public class PaymentServiceImpl implements PaymentService {
                         subscription -> {
                             payment.setPlanId(subscription.getPlanId());
                             payment.setSubscriptionId(subscription.getId());
-                            log.info("Associated payment with active subscription: {}", subscription.getId());
                         },
                         () -> {
                             payment.setPlanId(null);
                             payment.setSubscriptionId(null);
-                            log.info("No active subscription found for business, cleared subscription fields");
                         }
                 );
     }

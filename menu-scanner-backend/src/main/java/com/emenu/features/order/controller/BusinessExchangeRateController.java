@@ -10,7 +10,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/business-exchange-rates")
 @RequiredArgsConstructor
-@Slf4j
 public class BusinessExchangeRateController {
 
     private final BusinessExchangeRateService exchangeRateService;
@@ -32,7 +30,6 @@ public class BusinessExchangeRateController {
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessExchangeRateResponse>> createBusinessExchangeRate(
             @Valid @RequestBody BusinessExchangeRateCreateRequest request) {
-        log.info("POST /business-exchange-rates - businessId: {}, rate: {}", 
                 request.getBusinessId(), request.getUsdToKhrRate());
         
         BusinessExchangeRateResponse exchangeRate = exchangeRateService.createBusinessExchangeRate(request);
@@ -47,7 +44,6 @@ public class BusinessExchangeRateController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BusinessExchangeRateResponse>>> getAllBusinessExchangeRates(
             @Valid @RequestBody BusinessExchangeRateFilterRequest filter) {
-        log.info("POST /business-exchange-rates/all - page: {}", filter.getPageNo());
 
         PaginationResponse<BusinessExchangeRateResponse> exchangeRates =
                 exchangeRateService.getAllBusinessExchangeRates(filter);
@@ -62,7 +58,6 @@ public class BusinessExchangeRateController {
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BusinessExchangeRateResponse>>> getMyBusinessExchangeRates(
             @Valid @RequestBody BusinessExchangeRateFilterRequest filter) {
-        log.info("POST /business-exchange-rates/my-business/all - page: {}", filter.getPageNo());
 
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         filter.setBusinessId(businessId);
@@ -79,7 +74,6 @@ public class BusinessExchangeRateController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BusinessExchangeRateResponse>> getBusinessExchangeRateById(
             @PathVariable UUID id) {
-        log.info("GET /business-exchange-rates/{}", id);
         
         BusinessExchangeRateResponse exchangeRate = exchangeRateService.getBusinessExchangeRateById(id);
         
@@ -93,7 +87,6 @@ public class BusinessExchangeRateController {
     public ResponseEntity<ApiResponse<BusinessExchangeRateResponse>> updateBusinessExchangeRate(
             @PathVariable UUID id,
             @Valid @RequestBody BusinessExchangeRateUpdateRequest request) {
-        log.info("PUT /business-exchange-rates/{}", id);
         
         BusinessExchangeRateResponse exchangeRate = exchangeRateService.updateBusinessExchangeRate(id, request);
         
@@ -106,7 +99,6 @@ public class BusinessExchangeRateController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<BusinessExchangeRateResponse>> deleteBusinessExchangeRate(
             @PathVariable UUID id) {
-        log.info("DELETE /business-exchange-rates/{}", id);
         
         BusinessExchangeRateResponse exchangeRate = exchangeRateService.deleteBusinessExchangeRate(id);
         
@@ -119,7 +111,6 @@ public class BusinessExchangeRateController {
     @GetMapping("/business/{businessId}/active")
     public ResponseEntity<ApiResponse<BusinessExchangeRateResponse>> getActiveRateByBusinessId(
             @PathVariable UUID businessId) {
-        log.info("GET /business-exchange-rates/business/{}/active", businessId);
 
         BusinessExchangeRateResponse exchangeRate = exchangeRateService.getActiveRateByBusinessId(businessId);
 

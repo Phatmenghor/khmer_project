@@ -5,7 +5,6 @@ import com.emenu.features.auth.repository.BlacklistedTokenRepository;
 import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.jwt.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +13,6 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class TokenBlacklistServiceImpl implements TokenBlacklistService {
 
@@ -24,7 +22,6 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
     @Override
     public void blacklistToken(String token, String userIdentifier, String reason) {
         if (blacklistedTokenRepository.existsByToken(token)) {
-            log.warn("Token already blacklisted: {}", userIdentifier);
             return;
         }
 
@@ -40,10 +37,8 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
             );
 
             blacklistedTokenRepository.save(blacklistedToken);
-            log.info("Token blacklisted: {} - Reason: {}", userIdentifier, reason);
 
         } catch (Exception e) {
-            log.error("Failed to blacklist token: {}", e.getMessage());
         }
     }
 
@@ -51,9 +46,7 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
     public void blacklistAllUserTokens(String userIdentifier, String reason) {
         try {
             blacklistedTokenRepository.deleteByUserIdentifier(userIdentifier);
-            log.info("All tokens invalidated for user: {} - Reason: {}", userIdentifier, reason);
         } catch (Exception e) {
-            log.error("Failed to blacklist all user tokens: {}", e.getMessage());
         }
     }
 
@@ -69,12 +62,10 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
             int deletedCount = blacklistedTokenRepository.deleteExpiredTokens(now);
             
             if (deletedCount > 0) {
-                log.info("Cleaned up {} expired tokens", deletedCount);
             }
             
             return deletedCount;
         } catch (Exception e) {
-            log.error("Failed to cleanup expired tokens: {}", e.getMessage());
             return 0;
         }
     }
@@ -89,7 +80,6 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
 
             return new BlacklistStats(totalTokens, expiredTokens, activeTokens);
         } catch (Exception e) {
-            log.error("Failed to get blacklist stats: {}", e.getMessage());
             return new BlacklistStats(0, 0, 0);
         }
     }

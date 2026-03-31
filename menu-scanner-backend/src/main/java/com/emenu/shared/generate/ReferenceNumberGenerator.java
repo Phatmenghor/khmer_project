@@ -3,7 +3,6 @@ package com.emenu.shared.generate;
 import com.emenu.shared.models.ReferenceCounter;
 import com.emenu.shared.repository.ReferenceCounterRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,6 @@ import java.time.format.DateTimeFormatter;
  * Pattern: PREFIX-YYYYMMDD-XXXXXX (unlimited counter per day per entity type)
  */
 @Component
-@Slf4j
 @RequiredArgsConstructor
 public class ReferenceNumberGenerator {
 

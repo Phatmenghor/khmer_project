@@ -11,7 +11,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/locations")
 @RequiredArgsConstructor
-@Slf4j
 public class LocationController {
 
     private final LocationService addressService;
@@ -32,7 +30,6 @@ public class LocationController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<LocationResponse>> createAddress(@Valid @RequestBody LocationCreateRequest request) {
-        log.info("Creating new address");
         LocationResponse address = addressService.createAddress(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Address created successfully", address));
@@ -43,7 +40,6 @@ public class LocationController {
      */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<LocationResponse>>> getAllAddresses(@Valid @RequestBody LocationFilterRequest filter) {
-        log.info("Getting all addresses for current user");
         PaginationResponse<LocationResponse> addresses = addressService.getAllAddresses(filter);
         return ResponseEntity.ok(ApiResponse.success("Addresses retrieved successfully", addresses));
     }
@@ -53,7 +49,6 @@ public class LocationController {
      */
     @PostMapping("/my-addresses/all")
     public ResponseEntity<ApiResponse<PaginationResponse<LocationResponse>>> getMyAddresses(@Valid @RequestBody LocationFilterRequest filter) {
-        log.info("Getting my addresses for current user");
         User currentUser = securityUtils.getCurrentUser();
         filter.setUserId(currentUser.getId());
         PaginationResponse<LocationResponse> addresses = addressService.getAllAddresses(filter);
@@ -65,7 +60,6 @@ public class LocationController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<LocationResponse>> getAddressById(@PathVariable UUID id) {
-        log.info("Get address by id: {}", id);
         LocationResponse address = addressService.getAddressById(id);
         return ResponseEntity.ok(ApiResponse.success("Address retrieved successfully", address));
     }
@@ -76,7 +70,6 @@ public class LocationController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<LocationResponse>> updateAddress(
             @PathVariable UUID id, @Valid @RequestBody LocationUpdateRequest request) {
-        log.info("Update address: {}", id);
         LocationResponse address = addressService.updateAddress(id, request);
         return ResponseEntity.ok(ApiResponse.success("Address updated successfully", address));
     }
@@ -86,7 +79,6 @@ public class LocationController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<LocationResponse>> deleteAddress(@PathVariable UUID id) {
-        log.info("Delete address: {}", id);
         LocationResponse address = addressService.deleteAddress(id);
         return ResponseEntity.ok(ApiResponse.success("Address deleted successfully", address));
     }
@@ -96,7 +88,6 @@ public class LocationController {
      */
     @GetMapping("/default")
     public ResponseEntity<ApiResponse<LocationResponse>> getDefaultAddress() {
-        log.info("Get default address");
         LocationResponse address = addressService.getDefaultAddress();
         return ResponseEntity.ok(ApiResponse.success("Default address retrieved successfully", address));
     }

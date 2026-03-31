@@ -1,8 +1,6 @@
 package com.emenu.shared.utils;
 
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class UserAgentParser {
 
     public static ParsedUserAgent parse(String userAgent) {
@@ -56,7 +54,6 @@ public class UserAgentParser {
                 }
             }
         } catch (Exception e) {
-            log.debug("Error parsing browser version: {}", e.getMessage());
         }
         return "";
     }

@@ -11,7 +11,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/banners")
 @RequiredArgsConstructor
-@Slf4j
 public class BannerController {
 
     private final BannerService bannerService;
@@ -32,7 +30,6 @@ public class BannerController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<BannerResponse>> createBanner(@Valid @RequestBody BannerCreateRequest request) {
-        log.info("Creating banner for current user's business");
         BannerResponse banner = bannerService.createBanner(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Banner created successfully", banner));
@@ -43,7 +40,6 @@ public class BannerController {
      */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BannerResponse>>> getAllBanners(@Valid @RequestBody BannerFilterRequest filter) {
-        log.info("Getting all banners for current user's business");
         PaginationResponse<BannerResponse> banners = bannerService.getAllBanners(filter);
         return ResponseEntity.ok(ApiResponse.success("Banners retrieved successfully", banners));
     }
@@ -54,7 +50,6 @@ public class BannerController {
      */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BannerResponse>>> getMyBusinessAllBanners(@Valid @RequestBody BannerFilterRequest filter) {
-        log.info("Getting my banners for current user's business");
         User currentUser = securityUtils.getCurrentUser();
 
         // Use businessId from filter if provided, otherwise use current user's business
@@ -71,7 +66,6 @@ public class BannerController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BannerResponse>> getBannerById(@PathVariable UUID id) {
-        log.info("Getting banner by ID: {}", id);
         BannerResponse banner = bannerService.getBannerById(id);
         return ResponseEntity.ok(ApiResponse.success("Banner retrieved successfully", banner));
     }
@@ -83,7 +77,6 @@ public class BannerController {
     public ResponseEntity<ApiResponse<BannerResponse>> updateBanner(
             @PathVariable UUID id,
             @Valid @RequestBody BannerUpdateRequest request) {
-        log.info("Updating banner: {}", id);
         BannerResponse banner = bannerService.updateBanner(id, request);
         return ResponseEntity.ok(ApiResponse.success("Banner updated successfully", banner));
     }
@@ -93,7 +86,6 @@ public class BannerController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<BannerResponse>> deleteBanner(@PathVariable UUID id) {
-        log.info("Deleting banner: {}", id);
         BannerResponse banner = bannerService.deleteBanner(id);
         return ResponseEntity.ok(ApiResponse.success("Banner deleted successfully", banner));
     }

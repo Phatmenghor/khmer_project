@@ -9,7 +9,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +17,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/order-payments")
 @RequiredArgsConstructor
-@Slf4j
 public class OrderPaymentController {
 
     private final OrderPaymentService paymentService;
@@ -29,7 +27,6 @@ public class OrderPaymentController {
      */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<OrderPaymentResponse>>> getAllPayments(@Valid @RequestBody OrderPaymentFilterRequest filter) {
-        log.info("Getting all business payments with filters");
         PaginationResponse<OrderPaymentResponse> payments = paymentService.getAllPayments(filter);
         return ResponseEntity.ok(ApiResponse.success("Payments retrieved successfully", payments));
     }
@@ -39,7 +36,6 @@ public class OrderPaymentController {
      */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<OrderPaymentResponse>>> getMyBusinessPayments(@Valid @RequestBody OrderPaymentFilterRequest filter) {
-        log.info("Getting payments for current user's business");
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(currentUser.getBusinessId());
         PaginationResponse<OrderPaymentResponse> payments = paymentService.getAllPayments(filter);
@@ -51,7 +47,6 @@ public class OrderPaymentController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderPaymentResponse>> getPaymentById(@PathVariable UUID id) {
-        log.info("Getting payment by ID: {}", id);
         OrderPaymentResponse payment = paymentService.getPaymentById(id);
         return ResponseEntity.ok(ApiResponse.success("Payment retrieved successfully", payment));
     }
@@ -61,7 +56,6 @@ public class OrderPaymentController {
      */
     @GetMapping("/order/{orderId}")
     public ResponseEntity<ApiResponse<OrderPaymentResponse>> getPaymentByOrderId(@PathVariable UUID orderId) {
-        log.info("Getting payment for order: {}", orderId);
         OrderPaymentResponse payment = paymentService.getPaymentByOrderId(orderId);
         return ResponseEntity.ok(ApiResponse.success("Payment retrieved successfully", payment));
     }
@@ -71,7 +65,6 @@ public class OrderPaymentController {
      */
     @PostMapping("/cash/all")
     public ResponseEntity<ApiResponse<PaginationResponse<OrderPaymentResponse>>> getCashPayments(@Valid @RequestBody OrderPaymentFilterRequest filter) {
-        log.info("Getting cash payments");
         filter.setPaymentMethod(com.emenu.enums.payment.PaymentMethod.CASH);
         PaginationResponse<OrderPaymentResponse> payments = paymentService.getAllPayments(filter);
         return ResponseEntity.ok(ApiResponse.success("Cash payments retrieved successfully", payments));

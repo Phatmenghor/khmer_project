@@ -12,7 +12,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class StockServiceImpl implements StockService {
 
@@ -56,7 +54,6 @@ public class StockServiceImpl implements StockService {
             null, null, reason, userId, null, stock.getPriceIn()
         );
 
-        log.info("Stock added to product {}: {} units", stock.getProductId(), quantity);
         return mapToDto(movement);
     }
 
@@ -80,7 +77,6 @@ public class StockServiceImpl implements StockService {
             "ORDER", orderId, reason, getCurrentUserId(), orderId, stock.getPriceIn()
         );
 
-        log.info("Stock deducted for order {}: {} units from batch {}", orderId, quantity, stock.getId());
         return mapToDto(movement);
     }
 
@@ -110,11 +106,9 @@ public class StockServiceImpl implements StockService {
             );
 
             remaining -= deduct;
-            log.info("FIFO deducted {} units from batch {}, remaining: {}", deduct, batch.getId(), remaining);
         }
 
         if (remaining > 0) {
-            log.warn("Insufficient stock for product {} size {}: {} units short", productId, sizeId, remaining);
         }
     }
 
@@ -145,7 +139,6 @@ public class StockServiceImpl implements StockService {
             }
         }
 
-        log.info("Stock returned for order {}", orderId);
         return new StockMovementDto();
     }
 
@@ -170,7 +163,6 @@ public class StockServiceImpl implements StockService {
             null, null, reason, userId, null, stock.getPriceIn()
         );
 
-        log.info("Stock marked as expired: product {}", stock.getProductId());
         return mapToDto(movement);
     }
 

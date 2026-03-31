@@ -12,7 +12,6 @@ import com.emenu.features.auth.service.BusinessService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class BusinessServiceImpl implements BusinessService {
 
@@ -36,7 +34,6 @@ public class BusinessServiceImpl implements BusinessService {
      */
     @Override
     public BusinessResponse createBusiness(BusinessCreateRequest request) {
-        log.info("Creating business: {}", request.getName());
 
         if (businessRepository.existsByNameAndIsDeletedFalse(request.getName())) {
             throw new ValidationException("Business name already exists");
@@ -45,7 +42,6 @@ public class BusinessServiceImpl implements BusinessService {
         Business business = businessMapper.toEntity(request);
         Business savedBusiness = businessRepository.save(business);
 
-        log.info("Business created: {}", savedBusiness.getName());
         return businessMapper.toResponse(savedBusiness);
     }
 
@@ -55,7 +51,6 @@ public class BusinessServiceImpl implements BusinessService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<BusinessResponse> getAllBusinesses(BusinessFilterRequest request) {
-        log.info("Getting all businesses with filters");
 
         Pageable pageable = PaginationUtils.createPageable(
                 request.getPageNo(),
@@ -93,7 +88,6 @@ public class BusinessServiceImpl implements BusinessService {
      */
     @Override
     public BusinessResponse updateBusiness(UUID businessId, BusinessCreateRequest request) {
-        log.info("Updating business: {}", businessId);
 
         Business business = businessRepository.findByIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new RuntimeException("Business not found"));
@@ -106,7 +100,6 @@ public class BusinessServiceImpl implements BusinessService {
 
         Business updatedBusiness = businessRepository.save(business);
 
-        log.info("Business updated: {}", updatedBusiness.getName());
         return businessMapper.toResponse(updatedBusiness);
     }
 
@@ -120,6 +113,5 @@ public class BusinessServiceImpl implements BusinessService {
 
         business.softDelete();
         businessRepository.save(business);
-        log.info("Business deleted: {}", business.getName());
     }
 }

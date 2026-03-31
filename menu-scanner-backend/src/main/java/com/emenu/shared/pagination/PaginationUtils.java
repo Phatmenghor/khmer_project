@@ -1,12 +1,10 @@
 package com.emenu.shared.pagination;
 
 import com.emenu.exception.custom.ValidationException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-@Slf4j
 public class PaginationUtils {
 
     private static final int MAX_PAGE_SIZE = 101;

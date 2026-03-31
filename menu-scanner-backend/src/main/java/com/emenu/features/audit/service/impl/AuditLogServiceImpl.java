@@ -16,7 +16,6 @@ import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.utils.ClientIpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuditLogServiceImpl implements AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
@@ -136,7 +134,6 @@ public class AuditLogServiceImpl implements AuditLogService {
             AuditLog auditLog = auditLogMapper.createFromHelper(helper);
             auditLogRepository.save(auditLog);
         } catch (Exception e) {
-            log.error("Failed to save audit log: {}", e.getMessage(), e);
         }
     }
 

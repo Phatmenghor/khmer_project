@@ -27,7 +27,6 @@ import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.jwt.TokenBlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,7 +41,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class AuthServiceImpl implements AuthService {
 
@@ -64,7 +62,6 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public LoginResponse login(LoginRequest request) {
-        log.info("Login attempt: {} (userType: {}, businessId: {})",
                 request.getUserIdentifier(), request.getUserType(), request.getBusinessId());
 
         try {
@@ -89,13 +86,11 @@ public class AuthServiceImpl implements AuthService {
 
                 // Check if business is active
                 if (!business.isActive()) {
-                    log.warn("Login denied: Business is not active - {}", business.getStatus());
                     throw new ValidationException("Your business account is currently " + business.getStatus() + ". Please contact support.");
                 }
 
                 // Check if business has active subscription
                 if (!business.hasActiveSubscription()) {
-                    log.warn("Login denied: Business subscription is not active");
                     throw new ValidationException("Your business subscription has expired. Please renew your subscription to continue.");
                 }
             }
@@ -127,15 +122,12 @@ public class AuthServiceImpl implements AuthService {
                 }
             }
 
-            log.info("Login successful: {} (type: {}, businessId: {})",
                     user.getUserIdentifier(), user.getUserType(), user.getBusinessId());
             return response;
 
         } catch (ValidationException e) {
-            log.warn("Login failed: {} - Reason: {}", request.getUserIdentifier(), e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.warn("Login failed: {} - Error: {}", request.getUserIdentifier(), e.getMessage());
             throw new ValidationException("Invalid credentials");
         }
     }
@@ -164,7 +156,6 @@ public class AuthServiceImpl implements AuthService {
                 );
             }
 
-            log.debug("Looking up business user: {} in business: {}", userIdentifier, businessId);
             return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessId)
                     .orElseThrow(() -> new ValidationException(
                             "User '" + userIdentifier + "' not found in the specified business"
@@ -172,7 +163,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Case 2: CUSTOMER or PLATFORM_USER - global uniqueness per type
-        log.debug("Looking up {} user: {}", userType, userIdentifier);
         return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userType)
                 .orElseThrow(() -> new ValidationException(
                         "User '" + userIdentifier + "' not found as " + userType.name().toLowerCase().replace("_", " ")
@@ -208,7 +198,6 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public UserResponse registerCustomer(RegisterRequest request) {
-        log.info("Customer registration: {}", request.getUserIdentifier());
 
         // Validate username uniqueness for CUSTOMER type (global uniqueness among customers)
         userValidationService.validateUsernameUniqueness(
@@ -233,7 +222,6 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(user);
 
-        log.info("Customer registered: {}", savedUser.getUserIdentifier());
         return userMapper.toResponse(savedUser);
     }
 
@@ -242,7 +230,6 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public void logout(String authorizationHeader) {
-        log.info("Processing logout");
         String token = extractToken(authorizationHeader);
 
         if (token == null || !jwtGenerator.validateToken(token)) {
@@ -259,7 +246,6 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ValidationException("User not found"));
         refreshTokenService.revokeAllUserTokens(user.getId(), "LOGOUT");
 
-        log.info("Logout successful: {}", userIdentifier);
     }
 
     /**
@@ -286,7 +272,6 @@ public class AuthServiceImpl implements AuthService {
         // Revoke all refresh tokens
         refreshTokenService.revokeAllUserTokens(currentUser.getId(), "PASSWORD_CHANGE");
 
-        log.info("Password changed: {}", currentUser.getUserIdentifier());
 
         return userMapper.toResponse(savedUser);
     }
@@ -296,7 +281,6 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public UserResponse adminResetPassword(AdminPasswordResetRequest request) {
-        log.info("Admin password reset: {}", request.getUserId());
 
         User user = userRepository.findByIdAndIsDeletedFalse(request.getUserId())
                 .orElseThrow(() -> new ValidationException("User not found"));
@@ -314,7 +298,6 @@ public class AuthServiceImpl implements AuthService {
         // Revoke all refresh tokens
         refreshTokenService.revokeAllUserTokens(user.getId(), "ADMIN_PASSWORD_RESET");
 
-        log.info("Admin password reset: {}", user.getUserIdentifier());
 
         return userMapper.toResponse(savedUser);
     }
@@ -336,7 +319,6 @@ public class AuthServiceImpl implements AuthService {
                 return attributes.getRequest();
             }
         } catch (Exception e) {
-            log.warn("Failed to get HttpServletRequest", e);
         }
         return null;
     }
@@ -384,7 +366,6 @@ public class AuthServiceImpl implements AuthService {
         String userTypeStr = jwtGenerator.getUserTypeFromJWT(refreshTokenString);
         String businessIdStr = jwtGenerator.getBusinessIdFromJWT(refreshTokenString);
 
-        log.info("Refresh token context: userIdentifier={}, userType={}, businessId={}",
                 userIdentifier, userTypeStr, businessIdStr);
 
         // Verify refresh token exists in database and is valid
@@ -396,7 +377,6 @@ public class AuthServiceImpl implements AuthService {
 
         // Validate that the found user matches the refresh token's userId
         if (!user.getId().equals(refreshToken.getUserId())) {
-            log.error("Security: User ID mismatch! Token userId={}, Found userId={}",
                     refreshToken.getUserId(), user.getId());
             throw new ValidationException("Invalid refresh token");
         }
@@ -410,12 +390,10 @@ public class AuthServiceImpl implements AuthService {
                     .orElseThrow(() -> new ValidationException("Business not found"));
 
             if (!business.isActive()) {
-                log.warn("Refresh denied: Business is not active - {}", business.getStatus());
                 throw new ValidationException("Your business account is currently " + business.getStatus() + ". Please contact support.");
             }
 
             if (!business.hasActiveSubscription()) {
-                log.warn("Refresh denied: Business subscription is not active");
                 throw new ValidationException("Your business subscription has expired. Please renew your subscription to continue.");
             }
         }
@@ -442,7 +420,6 @@ public class AuthServiceImpl implements AuthService {
         // Revoke old refresh token
         refreshTokenService.revokeRefreshToken(refreshTokenString, "TOKEN_REFRESH");
 
-        log.info("Token refresh successful: {} (type: {}, businessId: {})",
                 user.getUserIdentifier(), user.getUserType(), user.getBusinessId());
 
         return new RefreshTokenResponse(newAccessToken, newRefreshToken.getToken());

@@ -20,7 +20,6 @@ import com.emenu.shared.retry.RetryOnOptimisticLock;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class CartServiceImpl implements CartService {
 
@@ -50,7 +48,6 @@ public class CartServiceImpl implements CartService {
         User currentUser = securityUtils.getCurrentUser();
         UUID userId = currentUser.getId();
 
-        log.info("Submit cart item - User: {}, Product: {}, Quantity: {}",
                 userId, request.getProductId(), request.getQuantity());
 
         // Validate product and derive businessId
@@ -69,11 +66,9 @@ public class CartServiceImpl implements CartService {
 
             if (request.getQuantity() == 0) {
                 cartItemRepository.delete(item);
-                log.info("Removed cart item: {} for user: {}", item.getId(), userId);
             } else {
                 item.setQuantity(request.getQuantity());
                 cartItemRepository.save(item);
-                log.info("Updated cart item quantity to: {} for user: {}", request.getQuantity(), userId);
             }
         } else {
             if (request.getQuantity() > 0) {
@@ -84,7 +79,6 @@ public class CartServiceImpl implements CartService {
                         request.getQuantity()
                 );
                 cartItemRepository.save(newItem);
-                log.info("Added new item to cart with quantity: {} for user: {}", request.getQuantity(), userId);
             }
         }
 
@@ -102,7 +96,6 @@ public class CartServiceImpl implements CartService {
     @Transactional(readOnly = true)
     public CartSummaryResponse getCart(UUID businessId) {
         UUID userId = securityUtils.getCurrentUserId();
-        log.info("Getting cart for user: {} and business: {}", userId, businessId);
 
         return loadCartSummary(userId, businessId);
     }
@@ -111,7 +104,6 @@ public class CartServiceImpl implements CartService {
     @Transactional(readOnly = true)
     public CartSummaryResponse getCartPaginated(UUID businessId, int pageNo, int pageSize) {
         UUID userId = securityUtils.getCurrentUserId();
-        log.info("Getting paginated cart for user: {}, business: {}, page: {}, size: {}",
                 userId, businessId, pageNo, pageSize);
 
         Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
@@ -148,7 +140,6 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartSummaryResponse clearCart(UUID businessId) {
         UUID userId = securityUtils.getCurrentUserId();
-        log.info("Clearing cart for user: {} and business: {}", userId, businessId);
 
         Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
         if (cartOpt.isPresent()) {
@@ -157,7 +148,6 @@ public class CartServiceImpl implements CartService {
                 int count = cart.getItems().size();
                 cartItemRepository.deleteAll(cart.getItems());
                 cart.getItems().clear();
-                log.info("Cleared {} items from cart: {}", count, cart.getId());
             }
         }
 
@@ -195,7 +185,6 @@ public class CartServiceImpl implements CartService {
         Cart newCart = cartMapper.createFromHelper(helper);
         Cart savedCart = cartRepository.save(newCart);
 
-        log.info("Created new cart for user: {} and business: {}", userId, businessId);
         return savedCart;
     }
 
@@ -263,7 +252,6 @@ public class CartServiceImpl implements CartService {
         // Remove duplicates from cart collection
         if (!duplicateIds.isEmpty()) {
             cart.getItems().removeIf(item -> duplicateIds.contains(item.getId()));
-            log.warn("Removed {} duplicate cart items from collection", duplicateIds.size());
         }
     }
 
@@ -278,7 +266,6 @@ public class CartServiceImpl implements CartService {
 
         if (!unavailableItems.isEmpty()) {
             cartItemRepository.deleteAll(unavailableItems);
-            log.info("Deleted {} unavailable cart items from cart: {}",
                     unavailableItems.size(), cart.getId());
         }
 
@@ -314,7 +301,6 @@ public class CartServiceImpl implements CartService {
 
             return true;
         } catch (Exception e) {
-            log.error("Error checking cart item availability for item {}: {}", cartItem.getId(), e.getMessage());
             return false;
         }
     }

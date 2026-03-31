@@ -2,11 +2,9 @@ package com.emenu.features.main.scheduler;
 
 import com.emenu.features.main.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ProductPromotionScheduler {
@@ -19,11 +17,9 @@ public class ProductPromotionScheduler {
      */
     @Scheduled(cron = "0 5 0 * * *")
     public void clearExpiredPromotions() {
-        log.info("[Scheduler] Clearing expired product promotions...");
 
         int[] result = productService.syncExpiredPromotions();
 
-        log.info("[Scheduler] Done. Products without sizes: {}, with sizes: {}, total: {}",
                 result[0], result[1], result[0] + result[1]);
     }
 
@@ -33,11 +29,9 @@ public class ProductPromotionScheduler {
      */
     @Scheduled(cron = "0 10 0 * * *")
     public void activateStartedPromotions() {
-        log.info("[Scheduler] Activating newly started product promotions...");
 
         int[] result = productService.syncStartedPromotions();
 
-        log.info("[Scheduler] Done. Products without sizes: {}, with sizes: {}, total: {}",
                 result[0], result[1], result[0] + result[1]);
     }
 }

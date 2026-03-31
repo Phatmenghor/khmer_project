@@ -13,7 +13,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class VillageServiceImpl implements VillageService {
 
     private final VillageRepository villageRepository;
@@ -34,7 +32,6 @@ public class VillageServiceImpl implements VillageService {
     @Override
     @Transactional
     public VillageResponse createVillage(VillageRequest request) {
-        log.info("Creating village: {}", request.getVillageCode());
         
         if (!communeRepository.existsByCommuneCodeAndIsDeletedFalse(request.getCommuneCode())) {
             throw new ValidationException("Commune code does not exist: " + request.getCommuneCode());
@@ -55,7 +52,6 @@ public class VillageServiceImpl implements VillageService {
         // Map to response WITHIN transaction
         VillageResponse response = villageMapper.toResponse(villageWithRelations);
         
-        log.info("Village created: {} with full hierarchy loaded", 
                  villageWithRelations.getVillageCode());
         
         return response;
@@ -64,7 +60,6 @@ public class VillageServiceImpl implements VillageService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<VillageResponse> getAllVillages(VillageFilterRequest request) {
-        log.info("Getting all villages with filters");
         
         Pageable pageable = PaginationUtils.createPageable(
             request.getPageNo(), request.getPageSize(),
@@ -115,7 +110,6 @@ public class VillageServiceImpl implements VillageService {
     @Override
     @Transactional
     public VillageResponse updateVillage(UUID id, VillageRequest request) {
-        log.info("Updating village: {}", id);
         
         Village village = villageRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("Village not found"));
@@ -134,7 +128,6 @@ public class VillageServiceImpl implements VillageService {
         Village updatedVillage = villageRepository.findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new RuntimeException("Village not found"));
         
-        log.info("Village updated: {}", updatedVillage.getVillageCode());
         return villageMapper.toResponse(updatedVillage);
     }
 
@@ -146,6 +139,5 @@ public class VillageServiceImpl implements VillageService {
         
         village.softDelete();
         villageRepository.save(village);
-        log.info("Village deleted: {}", village.getVillageCode());
     }
 }

@@ -31,7 +31,6 @@ import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,7 +44,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
@@ -64,28 +62,23 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
      */
     @Override
     public BusinessOwnerCreateResponse createBusinessOwner(BusinessOwnerCreateRequest request) {
-        log.info("Creating business owner: {}", request.getBusinessName());
 
         validateBusinessOwnerCreation(request);
 
         Business business = createBusiness(request);
-        log.info("Business created: {}", business.getName());
 
         User owner = createOwnerUser(request, business.getId());
-        log.info("Owner created: {}", owner.getUserIdentifier());
 
         business.setOwnerId(owner.getId());
         businessRepository.save(business);
 
         Subscription subscription = createSubscription(business.getId(), request);
-        log.info("Subscription created");
 
         Payment payment = request.hasPaymentInfo() && request.isPaymentInfoComplete()
                 ? createPayment(subscription, request)
                 : null;
 
         if (payment != null) {
-            log.info("Payment created: ${}", payment.getAmount());
         }
 
         business.activateSubscription();
@@ -94,7 +87,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         BusinessOwnerCreateResponse response = mapper.toCreateResponse(owner, business, subscription, payment);
         response.setCreatedComponents(buildCreatedComponentsList(payment != null));
 
-        log.info("Business owner created successfully: {}", owner.getFullName());
         return response;
     }
 
@@ -104,7 +96,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<BusinessOwnerDetailResponse> getAllBusinessOwners(BusinessOwnerFilterRequest filter) {
-        log.info("Getting all business owners with filters");
 
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(),
@@ -170,7 +161,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     @Override
     @Transactional(readOnly = true)
     public BusinessOwnerDetailResponse getBusinessOwnerDetail(UUID ownerId) {
-        log.info("Getting business owner detail: {}", ownerId);
 
         User owner = businessOwnerRepository.findBusinessOwnerById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Business owner not found: " + ownerId));
@@ -183,7 +173,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
      */
     @Override
     public BusinessOwnerDetailResponse renewSubscription(UUID ownerId, BusinessOwnerSubscriptionRenewRequest request) {
-        log.info("Renewing subscription for business owner: {}", ownerId);
 
         User owner = getOwnerOrThrow(ownerId);
         Business business = owner.getBusiness();
@@ -204,7 +193,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                     request.getPaymentMethod(), request.getPaymentReference(), request.getPaymentNotes());
         }
 
-        log.info("Subscription renewed for business owner: {}", ownerId);
         return buildEnrichedDetailResponse(owner);
     }
 
@@ -213,7 +201,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
      */
     @Override
     public BusinessOwnerDetailResponse changePlan(UUID ownerId, BusinessOwnerChangePlanRequest request) {
-        log.info("Changing plan for business owner: {}", ownerId);
 
         User owner = getOwnerOrThrow(ownerId);
         Business business = owner.getBusiness();
@@ -234,7 +221,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                     request.getPaymentMethod(), request.getPaymentReference(), request.getPaymentNotes());
         }
 
-        log.info("Plan changed for business owner: {}", ownerId);
         return buildEnrichedDetailResponse(owner);
     }
 
@@ -243,7 +229,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
      */
     @Override
     public BusinessOwnerDetailResponse cancelSubscription(UUID ownerId, BusinessOwnerSubscriptionCancelRequest request) {
-        log.info("Cancelling subscription for business owner: {}", ownerId);
 
         User owner = getOwnerOrThrow(ownerId);
         Business business = owner.getBusiness();
@@ -272,7 +257,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
             createRefundPayment(currentSubscription, request);
         }
 
-        log.info("Subscription cancelled for business owner: {}", ownerId);
         return buildEnrichedDetailResponse(owner);
     }
 
@@ -281,7 +265,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
      */
     @Override
     public BusinessOwnerDetailResponse deleteBusinessOwner(UUID ownerId) {
-        log.info("Deleting business owner: {}", ownerId);
 
         User owner = getOwnerOrThrow(ownerId);
         Business business = owner.getBusiness();
@@ -301,7 +284,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         owner.softDelete();
         businessOwnerRepository.save(owner);
 
-        log.info("Business owner deleted: {}", ownerId);
         return buildEnrichedDetailResponse(owner);
     }
 

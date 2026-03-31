@@ -8,7 +8,6 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/sessions")
 @RequiredArgsConstructor
-@Slf4j
 public class SessionController {
 
     private final UserSessionService sessionService;
@@ -29,7 +27,6 @@ public class SessionController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserSessionResponse>>> getAllSessions() {
-        log.info("Getting all sessions for current user");
         UUID userId = securityUtils.getCurrentUserId();
         List<UserSessionResponse> allSessions = sessionService.getAllSessions(userId);
         return ResponseEntity.ok(ApiResponse.success("All sessions retrieved successfully", allSessions));
@@ -41,7 +38,6 @@ public class SessionController {
     @GetMapping("/{sessionId}")
     public ResponseEntity<ApiResponse<AdminSessionResponse>> getRoleById(
             @PathVariable UUID sessionId) {
-        log.info("Get session by ID: {}", sessionId);
         AdminSessionResponse response = sessionService.getSessionById(sessionId);
         return ResponseEntity.ok(ApiResponse.success("Session retrieved successfully", response));
     }

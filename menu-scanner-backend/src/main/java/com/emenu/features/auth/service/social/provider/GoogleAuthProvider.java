@@ -4,7 +4,6 @@ import com.emenu.exception.custom.ValidationException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class GoogleAuthProvider {
 
     @Value("${app.social.google.client-id:}")
@@ -48,7 +46,6 @@ public class GoogleAuthProvider {
                     .lastName(familyName)
                     .build();
         } catch (Exception e) {
-            log.error("Failed to fetch Google user info", e);
             throw new ValidationException("Invalid Google access token");
         }
     }

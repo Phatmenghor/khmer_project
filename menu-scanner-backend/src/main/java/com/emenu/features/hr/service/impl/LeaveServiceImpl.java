@@ -17,7 +17,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class LeaveServiceImpl implements LeaveService {
 
@@ -44,7 +42,6 @@ public class LeaveServiceImpl implements LeaveService {
      */
     @Override
     public LeaveResponse create(LeaveCreateRequest request, UUID userId, UUID businessId) {
-        log.info("Creating leave request for user: {}", userId);
 
         double totalDays = ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate()) + 1;
 
@@ -55,7 +52,6 @@ public class LeaveServiceImpl implements LeaveService {
         leave.setStatus(LeaveStatusEnum.PENDING);
 
         Leave savedLeave = repository.save(leave);
-        log.info("Leave request created: {}", savedLeave.getId());
         return enrichWithUserInfo(mapper.toResponse(savedLeave), savedLeave);
     }
 
@@ -145,7 +141,6 @@ public class LeaveServiceImpl implements LeaveService {
         leave.setActionNote(request.getActionNote());
 
         Leave processedLeave = repository.save(leave);
-        log.info("Leave {} {} by user: {}", id, request.getStatus(), actionBy);
         return enrichWithUserInfo(mapper.toResponse(processedLeave), processedLeave);
     }
 

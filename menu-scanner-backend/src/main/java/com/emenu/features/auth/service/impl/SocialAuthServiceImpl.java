@@ -19,7 +19,6 @@ import com.emenu.features.auth.service.social.provider.TelegramAuthProvider;
 import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class SocialAuthServiceImpl implements SocialAuthService {
 
@@ -43,7 +41,6 @@ public class SocialAuthServiceImpl implements SocialAuthService {
 
     @Override
     public SocialAuthResponse authenticate(SocialAuthRequest request) {
-        log.info("## [SOCIAL AUTH] ▶ provider={}, userType={}", request.getProvider(), request.getUserType());
 
         SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(request.getProvider());
         SocialUserInfo userInfo = fetchUserInfo(provider, request.getAccessToken());
@@ -57,7 +54,6 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         String refreshToken = refreshTokenService.createRefreshToken(
                 user, request.getIpAddress(), request.getDeviceInfo()).getToken();
 
-        log.info("## [SOCIAL AUTH] ✓ success: user={}, provider={}", user.getUserIdentifier(), provider);
 
         return SocialAuthResponse.builder()
                 .success(true)
@@ -79,23 +75,18 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     @Override
     public SocialSyncResponse syncSocialAccount(SocialAuthRequest request) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.info("## [SYNC SERVICE] ▶ Starting sync: userId={}, provider={}", currentUserId, request.getProvider());
 
         User user = userRepository.findByIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> new ValidationException("User not found"));
-        log.info("## [SYNC SERVICE] ✓ Found user: identifier={}", user.getUserIdentifier());
 
         SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(request.getProvider());
-        log.info("## [SYNC SERVICE] ▶ Fetching user info from provider: {}", provider);
         SocialUserInfo userInfo = fetchUserInfo(provider, request.getAccessToken());
-        log.info("## [SYNC SERVICE] ✓ Provider info fetched: id={}, username={}", userInfo.getId(), userInfo.getUsername());
 
         syncSocialData(user, provider, userInfo);
         userRepository.save(user);
 
         Long tgId = user.getTelegram() != null ? user.getTelegram().getTelegramId() : null;
         String tgUsername = user.getTelegram() != null ? user.getTelegram().getTelegramUsername() : null;
-        log.info("## [SYNC SERVICE] ✓ User saved: telegramId={}, telegramUsername={}, hasPhoto={}",
                 tgId, tgUsername, user.getTelegram() != null && user.getTelegram().getTelegramPhotoUrl() != null);
 
         SocialSyncResponse.SocialSyncResponseBuilder builder = SocialSyncResponse.builder()
@@ -118,7 +109,6 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     @Override
     public SocialSyncResponse unsyncSocialAccount(String providerKey) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.info("## [UNSYNC SERVICE] ▶ Starting unsync: userId={}, provider={}", currentUserId, providerKey);
 
         User user = userRepository.findByIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> new ValidationException("User not found"));
@@ -128,14 +118,12 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         switch (provider) {
             case TELEGRAM -> {
                 Long tgId = user.getTelegram() != null ? user.getTelegram().getTelegramId() : null;
-                log.info("## [UNSYNC SERVICE] ▶ Clearing Telegram (was telegramId={})", tgId);
                 user.unsyncTelegram();
             }
             default -> throw new ValidationException("Unsupported provider: " + provider);
         }
 
         userRepository.save(user);
-        log.info("## [UNSYNC SERVICE] ✓ {} unsynced successfully", providerKey);
 
         return SocialSyncResponse.builder()
                 .success(true)

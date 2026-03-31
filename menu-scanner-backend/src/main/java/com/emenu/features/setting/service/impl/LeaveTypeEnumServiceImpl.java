@@ -14,7 +14,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
 
@@ -35,7 +33,6 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
 
     @Override
     public LeaveTypeEnumResponse create(LeaveTypeEnumCreateRequest request) {
-        log.info("Creating leave type enum: {}", request.getEnumName());
 
         // Check if enum already exists for this business
         boolean exists = repository.findByBusinessIdAndEnumNameAndIsDeletedFalse(
@@ -48,7 +45,6 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
 
         final LeaveTypeEnum enumRecord = mapper.toEntity(request);
         LeaveTypeEnum savedEnum = repository.save(enumRecord);
-        log.info("Leave type enum created: {}", savedEnum.getId());
 
         return mapper.toResponse(savedEnum);
     }
@@ -109,7 +105,6 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
 
     @Override
     public LeaveTypeEnumResponse update(UUID id, LeaveTypeEnumUpdateRequest request) {
-        log.info("Updating leave type enum: {}", id);
 
         final LeaveTypeEnum enumRecord = repository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave type enum not found"));
@@ -132,21 +127,18 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
 
         mapper.updateEntity(request, enumRecord);
         LeaveTypeEnum updatedEnum = repository.save(enumRecord);
-        log.info("Leave type enum updated: {}", id);
 
         return mapper.toResponse(updatedEnum);
     }
 
     @Override
     public LeaveTypeEnumResponse delete(UUID id) {
-        log.info("Deleting leave type enum: {}", id);
 
         LeaveTypeEnum enumRecord = repository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave type enum not found"));
 
         enumRecord.softDelete();
         enumRecord = repository.save(enumRecord);
-        log.info("Leave type enum deleted: {}", id);
         return mapper.toResponse(enumRecord);
     }
 }

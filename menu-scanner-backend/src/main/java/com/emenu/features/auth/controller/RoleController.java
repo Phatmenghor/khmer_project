@@ -11,7 +11,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +26,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/roles")
 @RequiredArgsConstructor
-@Slf4j
 public class RoleController {
 
     private final RoleService roleService;
@@ -39,7 +37,6 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<ApiResponse<RoleResponse>> createRole(
             @Valid @RequestBody RoleCreateRequest request) {
-        log.info("Create role request: {}", request.getName());
         RoleResponse response = roleService.createRole(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Role created successfully", response));
@@ -52,7 +49,6 @@ public class RoleController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<RoleResponse>>> getAllRoles(
             @Valid @RequestBody RoleFilterRequest request) {
-        log.info("Get all roles with filters and pagination");
         PaginationResponse<RoleResponse> response = roleService.getAllRoles(request);
         return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", response));
     }
@@ -64,7 +60,6 @@ public class RoleController {
     @PostMapping("/all-list")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRolesList(
             @Valid @RequestBody RoleFilterRequest request) {
-        log.info("Get all roles as list with filters");
         List<RoleResponse> response = roleService.getAllRolesList(request);
         return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", response));
     }
@@ -76,7 +71,6 @@ public class RoleController {
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<RoleResponse>>> getMyBusinessRoles(
             @Valid @RequestBody RoleFilterRequest request) {
-        log.info("Get my business roles");
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         request.setBusinessId(businessId);
         PaginationResponse<RoleResponse> response = roleService.getAllRoles(request);
@@ -90,7 +84,6 @@ public class RoleController {
     @PostMapping("/my-business/all-list")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getMyBusinessRolesList(
             @Valid @RequestBody RoleFilterRequest request) {
-        log.info("Get my business roles as list");
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         request.setBusinessId(businessId);
         List<RoleResponse> response = roleService.getAllRolesList(request);
@@ -103,7 +96,6 @@ public class RoleController {
     @GetMapping("/{roleId}")
     public ResponseEntity<ApiResponse<RoleDetailResponse>> getRoleById(
             @PathVariable UUID roleId) {
-        log.info("Get role by ID: {}", roleId);
         RoleDetailResponse response = roleService.getRoleById(roleId);
         return ResponseEntity.ok(ApiResponse.success("Role retrieved", response));
     }
@@ -116,7 +108,6 @@ public class RoleController {
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
             @PathVariable UUID roleId,
             @Valid @RequestBody RoleUpdateRequest request) {
-        log.info("Update role: {}", roleId);
         RoleResponse response = roleService.updateRole(roleId, request);
         return ResponseEntity.ok(ApiResponse.success("Role updated successfully", response));
     }
@@ -129,7 +120,6 @@ public class RoleController {
     @DeleteMapping("/{roleId}")
     public ResponseEntity<ApiResponse<RoleResponse>> deleteRole(
             @PathVariable UUID roleId) {
-        log.info("Delete role: {}", roleId);
         RoleResponse response = roleService.deleteRole(roleId);
         return ResponseEntity.ok(ApiResponse.success("Role deleted successfully", response));
     }

@@ -16,7 +16,6 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class LocationServiceImpl implements LocationService {
 
@@ -50,7 +48,6 @@ public class LocationServiceImpl implements LocationService {
         }
         
         Location savedAddress = addressRepository.save(address);
-        log.info("Address created for user: {}", currentUser.getUserIdentifier());
         
         return addressMapper.toResponse(savedAddress);
     }
@@ -127,7 +124,6 @@ public class LocationServiceImpl implements LocationService {
         address.softDelete();
         addressRepository.save(address);
         
-        log.info("Address deleted for user: {}", currentUser.getUserIdentifier());
         return addressMapper.toResponse(address);
     }
 

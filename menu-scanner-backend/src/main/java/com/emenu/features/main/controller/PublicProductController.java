@@ -8,7 +8,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +17,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/public/products")
 @RequiredArgsConstructor
-@Slf4j
 public class PublicProductController {
 
     private final ProductService productService;
@@ -27,7 +25,6 @@ public class PublicProductController {
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getAllPublicProducts(
             @Valid @RequestBody ProductFilterDto filter) {
         
-        log.info("Public get all - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<ProductListDto> products = productService.getAllProducts(filter);
         
         return ResponseEntity.ok(ApiResponse.success(
@@ -40,7 +37,6 @@ public class PublicProductController {
     public ResponseEntity<ApiResponse<List<ProductListDto>>> getAllDataPublicProducts(
             @Valid @RequestBody ProductFilterDto filter) {
 
-        log.info("Public get all data is fetching");
         List<ProductListDto> products = productService.getAllDataProducts(filter);
 
         return ResponseEntity.ok(ApiResponse.success(
@@ -51,7 +47,6 @@ public class PublicProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> getPublicProductById(@PathVariable UUID id) {
-        log.info("Get public product: {}", id);
         
         ProductDetailDto product = productService.getProductByIdPublic(id);
         

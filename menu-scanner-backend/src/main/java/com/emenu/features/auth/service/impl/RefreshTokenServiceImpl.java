@@ -8,7 +8,6 @@ import com.emenu.features.auth.repository.RefreshTokenRepository;
 import com.emenu.features.auth.service.RefreshTokenService;
 import com.emenu.security.jwt.JWTGenerator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +18,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
@@ -29,7 +27,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public RefreshToken createRefreshToken(User user, String ipAddress, String deviceInfo) {
-        log.info("Creating refresh token for user: {} (type: {}, businessId: {})",
                 user.getUserIdentifier(), user.getUserType(), user.getBusinessId());
 
         // Generate JWT refresh token with userType and businessId
@@ -53,7 +50,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         RefreshToken refreshToken = refreshTokenMapper.createFromHelper(helper);
         RefreshToken saved = refreshTokenRepository.save(refreshToken);
-        log.info("Refresh token created successfully for user: {}", user.getUserIdentifier());
 
         return saved;
     }
@@ -61,17 +57,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional(readOnly = true)
     public Optional<RefreshToken> verifyRefreshToken(String token) {
-        log.debug("Verifying refresh token");
 
         // Validate JWT structure
         if (!jwtGenerator.validateToken(token)) {
-            log.warn("Invalid refresh token JWT structure");
             return Optional.empty();
         }
 
         // Check if token is expired in JWT
         if (jwtGenerator.isTokenExpired(token)) {
-            log.warn("Refresh token is expired (JWT check)");
             return Optional.empty();
         }
 
@@ -79,7 +72,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByTokenAndIsValidTrue(token);
 
         if (refreshTokenOpt.isEmpty()) {
-            log.warn("Refresh token not found or invalid in database");
             return Optional.empty();
         }
 
@@ -87,19 +79,16 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         // Additional validation
         if (!refreshToken.isValid()) {
-            log.warn("Refresh token is not valid: expired={}, revoked={}, deleted={}",
                     refreshToken.isExpired(), refreshToken.getIsRevoked(), refreshToken.getIsDeleted());
             return Optional.empty();
         }
 
-        log.debug("Refresh token verified successfully");
         return Optional.of(refreshToken);
     }
 
     @Override
     @Transactional
     public void revokeRefreshToken(String token, String reason) {
-        log.info("Revoking refresh token with reason: {}", reason);
 
         Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByToken(token);
 
@@ -107,16 +96,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             RefreshToken refreshToken = refreshTokenOpt.get();
             refreshToken.revoke(reason);
             refreshTokenRepository.save(refreshToken);
-            log.info("Refresh token revoked successfully");
         } else {
-            log.warn("Refresh token not found for revocation");
         }
     }
 
     @Override
     @Transactional
     public void revokeAllUserTokens(UUID userId, String reason) {
-        log.info("Revoking all refresh tokens for user: {} with reason: {}", userId, reason);
 
         int revokedCount = refreshTokenRepository.revokeAllByUserId(
                 userId,
@@ -124,6 +110,5 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 reason
         );
 
-        log.info("Revoked {} refresh tokens for user: {}", revokedCount, userId);
     }
 }

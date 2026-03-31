@@ -25,7 +25,6 @@ import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.DateTimeUtils;
 import com.emenu.shared.utils.StringFormatUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class AttendanceServiceImpl implements AttendanceService {
 
@@ -53,7 +51,6 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public AttendanceResponse checkIn(AttendanceCheckInRequest request, UUID userId, UUID businessId) {
-        log.info("Processing check-in for user: {}, type: {}", userId, request.getCheckInType());
 
         WorkSchedule schedule = workScheduleRepository.findByIdAndIsDeletedFalse(request.getWorkScheduleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Work schedule not found"));
@@ -93,7 +90,6 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
 
         attendance = attendanceRepository.save(attendance);
-        log.info("Check-in successful for user: {}, type: {}, status: {}",
                 userId, request.getCheckInType(), attendance.getStatus());
 
         return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
@@ -177,7 +173,6 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendance.setStatus(AttendanceStatusEnum.PRESENT);
         }
 
-        log.info("Calculated attendance status: {}, worked: {} minutes, expected: {} minutes, percentage: {}",
                 attendance.getStatus(), totalWorkMinutes, expectedWorkMinutes,
                 StringFormatUtils.formatPercentage(workPercentage));
     }

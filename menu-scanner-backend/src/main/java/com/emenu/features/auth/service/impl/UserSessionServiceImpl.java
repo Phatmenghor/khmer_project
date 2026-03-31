@@ -21,7 +21,6 @@ import com.emenu.shared.utils.IpGeolocationService;
 import com.emenu.shared.utils.UserAgentParser;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserSessionServiceImpl implements UserSessionService {
 
     private final UserSessionRepository sessionRepository;
@@ -81,7 +79,6 @@ public class UserSessionServiceImpl implements UserSessionService {
         user.setActiveSessionsCount(sessionRepository.countActiveSessionsByUserId(user.getId()).intValue());
         userRepository.save(user);
 
-        log.info("Created session for user: {} on device: {} from {}", user.getUserIdentifier(), session.getDeviceDisplayName(), location);
         return sessionMapper.toResponse(session);
     }
 
@@ -108,7 +105,6 @@ public class UserSessionServiceImpl implements UserSessionService {
         sessionRepository.save(session);
         updateActiveSessionsCount(userId);
 
-        log.info("User {} logged out from session {}", userId, sessionId);
         return sessionMapper.toResponse(session);
     }
 
@@ -127,7 +123,6 @@ public class UserSessionServiceImpl implements UserSessionService {
         }
 
         updateActiveSessionsCount(userId);
-        log.info("User {} logged out from {} other devices", userId, loggedOutSessions.size());
         return sessionMapper.toResponseList(loggedOutSessions);
     }
 
@@ -158,7 +153,6 @@ public class UserSessionServiceImpl implements UserSessionService {
             session.logout("Admin logged out");
             sessionRepository.save(session);
             updateActiveSessionsCount(session.getUserId());
-            log.info("Admin logged out session {}", sessionId);
         }
 
         return sessionMapper.toAdminResponse(session);
@@ -175,7 +169,6 @@ public class UserSessionServiceImpl implements UserSessionService {
         }
 
         updateActiveSessionsCount(userId);
-        log.info("Admin logged out {} sessions for user {}", sessions.size(), userId);
         return sessionMapper.toAdminResponseList(sessions);
     }
 
@@ -204,7 +197,6 @@ public class UserSessionServiceImpl implements UserSessionService {
             IpGeolocationService.GeoLocation geo = geolocationService.getLocation(ipAddress);
             return geo.getLocationDisplay();
         } catch (Exception e) {
-            log.warn("Failed to get location for IP: {}", ipAddress);
             return "Unknown";
         }
     }

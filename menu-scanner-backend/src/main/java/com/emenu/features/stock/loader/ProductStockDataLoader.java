@@ -8,7 +8,6 @@ import com.emenu.features.main.repository.ProductSizeRepository;
 import com.emenu.features.stock.models.ProductStock;
 import com.emenu.features.stock.repository.ProductStockRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
  */
 @Component
 @RequiredArgsConstructor
-@Slf4j
 @Profile("dev")
 public class ProductStockDataLoader implements ApplicationRunner {
 
@@ -53,13 +51,10 @@ public class ProductStockDataLoader implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) throws Exception {
-        log.info("Starting ProductStock data loader...");
 
         try {
             int totalLoaded = loadProductStockData();
-            log.info("ProductStock data loading completed. Total stocks created: {}", totalLoaded);
         } catch (Exception e) {
-            log.error("Error loading product stock data", e);
         }
     }
 
@@ -72,7 +67,6 @@ public class ProductStockDataLoader implements ApplicationRunner {
             .filter(p -> !p.getIsDeleted() && Boolean.TRUE.equals(p.getHasSizes()))
             .collect(Collectors.toList());
 
-        log.info("Found {} products with sizes", productsWithSizes.size());
 
         int totalCreated = 0;
 
@@ -98,7 +92,6 @@ public class ProductStockDataLoader implements ApplicationRunner {
                     ProductStock stock = createProductStock(product, size);
                     productStockRepository.save(stock);
                     totalCreated++;
-                    log.debug("Created stock for product: {} ({}), size: {}",
                         product.getName(), product.getId(), size.getName());
                 }
             }

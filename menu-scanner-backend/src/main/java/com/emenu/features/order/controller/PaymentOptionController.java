@@ -10,7 +10,6 @@ import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/payment-options")
 @RequiredArgsConstructor
-@Slf4j
 public class PaymentOptionController {
 
     private final PaymentOptionService paymentOptionService;
@@ -32,7 +30,6 @@ public class PaymentOptionController {
     @PostMapping
     public ResponseEntity<ApiResponse<PaymentOptionResponse>> createPaymentOption(
             @Valid @RequestBody PaymentOptionRequest request) {
-        log.info("Creating payment option");
         User currentUser = securityUtils.getCurrentUser();
         PaymentOptionResponse response = paymentOptionService.createPaymentOption(
                 currentUser.getBusinessId(),
@@ -48,7 +45,6 @@ public class PaymentOptionController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<PaymentOptionResponse>>> getAllPaymentOptions(
             @Valid @RequestBody PaymentOptionFilterRequest filter) {
-        log.info("Getting all payment options for authenticated user's business");
         User currentUser = securityUtils.getCurrentUser();
         UUID businessId = currentUser.getBusinessId();
 
@@ -67,7 +63,6 @@ public class PaymentOptionController {
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<PaymentOptionResponse>>> getMyBusinessPaymentOptions(
             @Valid @RequestBody PaymentOptionFilterRequest filter) {
-        log.info("Getting payment options for authenticated user's business");
         User currentUser = securityUtils.getCurrentUser();
         UUID businessId = currentUser.getBusinessId();
 
@@ -85,7 +80,6 @@ public class PaymentOptionController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PaymentOptionResponse>> getPaymentOptionById(
             @PathVariable UUID id) {
-        log.info("Getting payment option by ID: {}", id);
         User currentUser = securityUtils.getCurrentUser();
         PaymentOptionResponse option = paymentOptionService.getPaymentOptionById(
                 currentUser.getBusinessId(),
@@ -101,7 +95,6 @@ public class PaymentOptionController {
     public ResponseEntity<ApiResponse<PaymentOptionResponse>> updatePaymentOption(
             @PathVariable UUID id,
             @Valid @RequestBody PaymentOptionRequest request) {
-        log.info("Updating payment option: {}", id);
         User currentUser = securityUtils.getCurrentUser();
         PaymentOptionResponse response = paymentOptionService.updatePaymentOption(
                 currentUser.getBusinessId(),
@@ -117,7 +110,6 @@ public class PaymentOptionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deletePaymentOption(
             @PathVariable UUID id) {
-        log.info("Deleting payment option: {}", id);
         User currentUser = securityUtils.getCurrentUser();
         paymentOptionService.deletePaymentOption(
                 currentUser.getBusinessId(),

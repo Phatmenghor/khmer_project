@@ -16,7 +16,6 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class BannerServiceImpl implements BannerService {
 
@@ -38,7 +36,6 @@ public class BannerServiceImpl implements BannerService {
 
     @Override
     public BannerResponse createBanner(BannerCreateRequest request) {
-        log.info("Creating banner for current user's business");
 
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser.getBusinessId() == null) {
@@ -50,7 +47,6 @@ public class BannerServiceImpl implements BannerService {
 
         Banner savedBanner = bannerRepository.save(banner);
 
-        log.info("Banner created successfully: {} for business: {}", 
                 savedBanner.getId(), currentUser.getBusinessId());
         return bannerMapper.toResponse(savedBanner);
     }
@@ -101,7 +97,6 @@ public class BannerServiceImpl implements BannerService {
         bannerMapper.updateEntity(request, banner);
         Banner updatedBanner = bannerRepository.save(banner);
 
-        log.info("Banner updated successfully: {}", id);
         return bannerMapper.toResponse(updatedBanner);
     }
 
@@ -113,7 +108,6 @@ public class BannerServiceImpl implements BannerService {
         banner.softDelete();
         banner = bannerRepository.save(banner);
 
-        log.info("Banner deleted successfully: {}", id);
         return bannerMapper.toResponse(banner);
     }
 

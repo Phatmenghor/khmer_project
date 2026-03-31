@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class IpGeolocationService {
 
     private static final String IP_API_URL = "http://ip-api.com/json/";
@@ -75,7 +73,6 @@ public class IpGeolocationService {
                 }
             }
         } catch (Exception e) {
-            log.warn("Failed to get geolocation for IP: {} - {}", ipAddress, e.getMessage());
         }
 
         return GeoLocation.unknown();

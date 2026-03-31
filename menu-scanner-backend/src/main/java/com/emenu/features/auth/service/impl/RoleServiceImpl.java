@@ -18,7 +18,6 @@ import com.emenu.features.auth.util.EnumNormalizer;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class RoleServiceImpl implements RoleService {
 
@@ -41,7 +39,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponse createRole(RoleCreateRequest request) {
-        log.info("Creating role: {}", request.getName());
 
         // Normalize role name
         String normalizedName = EnumNormalizer.normalizeString(request.getName());
@@ -70,7 +67,6 @@ public class RoleServiceImpl implements RoleService {
         role.setUserType(normalizedUserType);
 
         Role savedRole = roleRepository.save(role);
-        log.info("Role created: {} with ID: {}", savedRole.getName(), savedRole.getId());
 
         return roleMapper.toResponse(savedRole);
     }
@@ -78,7 +74,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<RoleResponse> getAllRoles(RoleFilterRequest request) {
-        log.debug("Getting all roles with filters and pagination");
 
         Pageable pageable = PaginationUtils.createPageable(
                 request.getPageNo(),
@@ -135,7 +130,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional(readOnly = true)
     public List<RoleResponse> getAllRolesList(RoleFilterRequest request) {
-        log.debug("Getting all roles as list with filters");
 
         // Convert empty list to null to skip filtering
         List<UserType> userTypes = (request.getUserTypes() != null && !request.getUserTypes().isEmpty())
@@ -176,7 +170,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional(readOnly = true)
     public RoleDetailResponse getRoleById(UUID roleId) {
-        log.debug("Getting role by ID: {}", roleId);
         Role role = roleRepository.findByIdAndIsDeletedFalse(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
@@ -190,7 +183,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponse updateRole(UUID roleId, RoleUpdateRequest request) {
-        log.info("Updating role: {}", roleId);
 
         Role role = roleRepository.findByIdAndIsDeletedFalse(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
@@ -220,14 +212,12 @@ public class RoleServiceImpl implements RoleService {
         roleMapper.updateEntity(request, role);
 
         Role savedRole = roleRepository.save(role);
-        log.info("Role updated: {}", savedRole.getName());
 
         return roleMapper.toResponse(savedRole);
     }
 
     @Override
     public RoleResponse deleteRole(UUID roleId) {
-        log.info("Deleting role: {}", roleId);
 
         Role role = roleRepository.findByIdAndIsDeletedFalse(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
@@ -243,7 +233,6 @@ public class RoleServiceImpl implements RoleService {
         role.setDeletedAt(LocalDateTime.now());
         Role deletedRole = roleRepository.save(role);
 
-        log.info("Role soft deleted: {}", deletedRole.getName());
         return roleMapper.toResponse(deletedRole);
     }
 
