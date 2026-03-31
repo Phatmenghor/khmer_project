@@ -120,7 +120,7 @@ export default function BulkPromotionCreationPage() {
   });
 
   // ─── localStorage Sync for Size Selections ───
-  useBulkPromotionSizesStorageSync({
+  const { clearSelections: clearSizeSelections } = useBulkPromotionSizesStorageSync({
     storageKey: "bulk-promotion:selected-sizes",
     debounceMs: 1000,
     enabled: true,
@@ -214,7 +214,9 @@ export default function BulkPromotionCreationPage() {
   // Clear all selections (for testing/resetting)
   const handleClearAllSelections = () => {
     dispatch(clearSelectedProducts());
+    dispatch(clearAllSizeSelections());
     clearSelections();
+    clearSizeSelections();
     showToast.success("All selections cleared");
   };
 
