@@ -101,6 +101,30 @@ export const bulkPromotionTableColumns = ({
       ),
     },
     {
+      key: "actions",
+      label: "Actions",
+      minWidth: "10px",
+      maxWidth: "120px",
+      className: "px-2",
+      render: (product) => (
+        <div className="flex items-center gap-2">
+          <ActionButton
+            icon={<Eye className="w-4 h-4" />}
+            tooltip="View Details"
+            onClick={() => onViewDetails?.(product)}
+          />
+          {product?.hasPromotion && (
+            <ActionButton
+              icon={<RotateCcw className="w-4 h-4" />}
+              tooltip="Reset Promotion"
+              onClick={() => onResetPromotion?.(product)}
+              variant="warning"
+            />
+          )}
+        </div>
+      ),
+    },
+    {
       key: "index",
       label: "#",
       width: "50px",
@@ -226,6 +250,64 @@ export const bulkPromotionTableColumns = ({
       },
     },
     {
+      key: "displayPrice",
+      label: "Display Price",
+      minWidth: "100px",
+      maxWidth: "150px",
+      className: "px-4",
+      render: (product) => {
+        // Only show for products WITHOUT sizes
+        if (product.hasSizes) {
+          return <span className="text-xs text-muted-foreground">---</span>;
+        }
+
+        return (
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-foreground">
+              ${Number(product.displayPrice || 0).toFixed(2)}
+            </span>
+            {product.displayOriginPrice &&
+              product.displayPrice <
+                Number(product.displayOriginPrice || 0) && (
+                <span className="text-xs text-muted-foreground line-through">
+                  ${Number(product.displayOriginPrice).toFixed(2)}
+                </span>
+              )}
+          </div>
+        );
+      },
+    },
+    {
+      key: "discount",
+      label: "Discount",
+      minWidth: "100px",
+      maxWidth: "150px",
+      className: "px-4",
+      render: (product) => {
+        // Only show for products WITHOUT sizes
+        if (product.hasSizes) {
+          return <span className="text-xs text-muted-foreground">---</span>;
+        }
+
+        if (!product.hasPromotion || !product.displayPromotionType) {
+          return (
+            <span className="text-xs text-muted-foreground">No discount</span>
+          );
+        }
+
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-green-100/70 text-green-700 border-green-300/40 text-xs h-fit px-2"
+          >
+            {product.displayPromotionType === "PERCENTAGE"
+              ? `${product.displayPromotionValue}%`
+              : `$${Number(product.displayPromotionValue || 0).toFixed(2)}`}
+          </Badge>
+        );
+      },
+    },
+    {
       key: "promotionStatus",
       label: "Promotion Status",
       minWidth: "10px",
@@ -240,30 +322,6 @@ export const bulkPromotionTableColumns = ({
           <span className="text-sm font-medium text-green-600">Active</span>
         );
       },
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      minWidth: "10px",
-      maxWidth: "250px",
-      className: "px-4",
-      render: (product) => (
-        <div className="flex items-center gap-2">
-          <ActionButton
-            icon={<Eye className="w-4 h-4" />}
-            tooltip="View Details"
-            onClick={() => onViewDetails?.(product)}
-          />
-          {product?.hasPromotion && (
-            <ActionButton
-              icon={<RotateCcw className="w-4 h-4" />}
-              tooltip="Reset Promotion"
-              onClick={() => onResetPromotion?.(product)}
-              variant="outline"
-            />
-          )}
-        </div>
-      ),
     },
   ];
 };
