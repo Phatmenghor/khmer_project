@@ -91,12 +91,8 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> getProductById(@PathVariable UUID id) {
-        log.debug("Get product request - ID: {}", id);
-
         ProductDetailDto product = productService.getProductById(id);
 
-        log.debug("Product retrieved - ID: {}, Name: '{}', Has Sizes: {}",
-            product.getId(), product.getName(), product.getHasSizes());
         return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", product));
     }
 
@@ -104,13 +100,8 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductDetailDto>> createProduct(
             @Valid @RequestBody ProductCreateDto request) {
 
-        log.debug("Product create request - Name: '{}', Category: {}, Brand: {}, Price: {}, Has Sizes: {}",
-            request.getName(), request.getCategoryId(), request.getBrandId(), request.getPrice(),
-            request.getSizes() != null && !request.getSizes().isEmpty());
-
         ProductDetailDto product = productService.createProduct(request);
 
-        log.debug("Product created and returned - ID: {}, Name: '{}'", product.getId(), product.getName());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Product created successfully", product));
     }
@@ -120,32 +111,22 @@ public class ProductController {
             @PathVariable UUID id,
             @Valid @RequestBody ProductUpdateDto request) {
 
-        log.debug("Product update request - ID: {}, Name: '{}', Status: {}",
-            id, request.getName(), request.getStatus());
-
         ProductDetailDto product = productService.updateProduct(id, request);
 
-        log.debug("Product updated successfully - ID: {}, Name: '{}'", product.getId(), product.getName());
         return ResponseEntity.ok(ApiResponse.success("Product updated successfully", product));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> deleteProduct(@PathVariable UUID id) {
-        log.debug("Product delete request - ID: {}", id);
-
         ProductDetailDto product = productService.deleteProduct(id);
 
-        log.info("Product deleted successfully - ID: {}, Name: '{}'", product.getId(), product.getName());
         return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", product));
     }
 
     @PutMapping("/{id}/reset-promotion")
     public ResponseEntity<ApiResponse<ProductDetailDto>> resetProductPromotion(@PathVariable UUID id) {
-        log.debug("Product promotion reset request - ID: {}", id);
-
         ProductDetailDto product = productService.resetProductPromotion(id);
 
-        log.info("Product promotion reset successfully - ID: {}, Name: '{}'", product.getId(), product.getName());
         return ResponseEntity.ok(ApiResponse.success("Product promotion reset successfully", product));
     }
 
@@ -161,14 +142,8 @@ public class ProductController {
     @PostMapping("/bulk-create-promotions")
     public ResponseEntity<ApiResponse<BulkPromotionResultDto>> createBulkPromotions(
             @Valid @RequestBody BulkPromotionCreateDto request) {
-        log.debug("Bulk promotion create request - Products: {}, Type: {}, Value: {}, Has Size Mapping: {}",
-            request.getProductIds().size(), request.getPromotionType(), request.getPromotionValue(),
-            request.getProductSizeMapping() != null && !request.getProductSizeMapping().isEmpty());
-
         BulkPromotionResultDto result = productService.createBulkPromotions(request);
 
-        log.info("Bulk promotion creation completed - Success: {}, Failed: {}, Total: {}",
-            result.getSuccessCount(), result.getFailedCount(), result.getSuccessCount() + result.getFailedCount());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Bulk promotion creation completed", result));
     }
