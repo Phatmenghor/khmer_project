@@ -4,7 +4,6 @@ import com.emenu.features.order.dto.filter.DeliveryOptionAllFilterRequest;
 import com.emenu.features.order.dto.filter.DeliveryOptionFilterRequest;
 import com.emenu.features.order.dto.response.DeliveryOptionResponse;
 import com.emenu.features.order.service.DeliveryOptionService;
-import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/public/delivery-options")

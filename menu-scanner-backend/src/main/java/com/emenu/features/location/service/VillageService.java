@@ -5,7 +5,6 @@ import com.emenu.features.location.dto.request.VillageRequest;
 import com.emenu.features.location.dto.response.VillageResponse;
 import com.emenu.shared.dto.PaginationResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface VillageService {

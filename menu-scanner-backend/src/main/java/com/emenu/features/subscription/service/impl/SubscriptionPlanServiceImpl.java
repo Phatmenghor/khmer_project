@@ -1,7 +1,6 @@
 package com.emenu.features.subscription.service.impl;
 
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
-import com.emenu.enums.user.UserType;
 import com.emenu.features.subscription.dto.filter.SubscriptionPlanFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionPlanCreateRequest;
 import com.emenu.features.subscription.dto.response.SubscriptionPlanResponse;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 

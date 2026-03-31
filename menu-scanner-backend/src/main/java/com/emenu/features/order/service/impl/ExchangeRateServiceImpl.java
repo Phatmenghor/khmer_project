@@ -9,7 +9,6 @@ import com.emenu.features.order.mapper.ExchangeRateMapper;
 import com.emenu.features.order.models.ExchangeRate;
 import com.emenu.features.order.repository.ExchangeRateRepository;
 import com.emenu.features.order.service.ExchangeRateService;
-import com.emenu.shared.constants.Constants;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;

@@ -5,7 +5,6 @@ import com.emenu.features.location.dto.request.ProvinceRequest;
 import com.emenu.features.location.dto.response.ProvinceResponse;
 import com.emenu.shared.dto.PaginationResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface ProvinceService {

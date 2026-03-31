@@ -5,8 +5,6 @@ import com.emenu.features.audit.dto.response.AuditLogResponseDTO;
 import com.emenu.features.audit.dto.response.AuditStatsResponseDTO;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
 

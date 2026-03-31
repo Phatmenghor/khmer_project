@@ -8,7 +8,6 @@ import com.emenu.features.order.dto.response.POSCheckoutResponse;
 import com.emenu.features.order.dto.update.OrderUpdateRequest;
 import com.emenu.shared.dto.PaginationResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface OrderService {

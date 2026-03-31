@@ -1,14 +1,10 @@
 package com.emenu.features.order.service;
 
-import com.emenu.enums.common.Status;
 import com.emenu.features.order.dto.filter.PaymentOptionFilterRequest;
 import com.emenu.features.order.dto.request.PaymentOptionRequest;
 import com.emenu.features.order.dto.response.PaymentOptionResponse;
 import com.emenu.shared.dto.PaginationResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface PaymentOptionService {

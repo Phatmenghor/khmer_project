@@ -6,9 +6,7 @@ import com.emenu.features.subscription.dto.update.SubscriptionUpdateRequest;
 import com.emenu.features.subscription.models.Subscription;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

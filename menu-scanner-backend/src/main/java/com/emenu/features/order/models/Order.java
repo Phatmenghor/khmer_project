@@ -5,7 +5,6 @@ import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.User;
-import com.emenu.features.location.models.Location;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
