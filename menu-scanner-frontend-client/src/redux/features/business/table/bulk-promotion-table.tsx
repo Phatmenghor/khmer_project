@@ -254,11 +254,6 @@ export const bulkPromotionTableColumns = ({
             tooltip="View Details"
             onClick={() => onViewDetails?.(product)}
           />
-          <ActionButton
-            icon={<Edit className="w-4 h-4" />}
-            tooltip="Edit Product"
-            onClick={() => onEditProduct?.(product)}
-          />
           {product?.hasPromotion && (
             <ActionButton
               icon={<RotateCcw className="w-4 h-4" />}
