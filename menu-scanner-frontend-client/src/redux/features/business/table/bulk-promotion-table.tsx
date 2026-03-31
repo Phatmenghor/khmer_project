@@ -178,7 +178,7 @@ export const bulkPromotionTableColumns = ({
         }
 
         return (
-          <div className="flex flex-nowrap gap-1.5 items-center overflow-x-auto pb-1">
+          <div className="flex flex-wrap gap-1.5 items-center">
             {product.sizes.map((size) => {
               const isSelected =
                 selectedSizes.get(product.id)?.has(size.id) || false;
@@ -188,7 +188,7 @@ export const bulkPromotionTableColumns = ({
                 <label
                   key={size.id}
                   className={cn(
-                    "flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap flex-shrink-0",
+                    "flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap",
                     isSelected
                       ? "bg-primary/15 border-primary/50 hover:bg-primary/20 hover:border-primary/70 shadow-sm"
                       : "bg-white border-border/50 hover:bg-gray-50 hover:border-border/70",
