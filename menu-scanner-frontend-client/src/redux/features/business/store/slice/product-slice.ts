@@ -189,41 +189,6 @@ const productSlice = createSlice({
         });
       }
     },
-
-    resetTablePromotionsOptimistic: (state, action: PayloadAction<string[]>) => {
-      // Reset promotions for selected products optimistically
-      if (state.data) {
-        const selectedIds = new Set(action.payload);
-        state.data.content = state.data.content.map((product) => {
-          if (selectedIds.has(product.id)) {
-            const updated = {
-              ...product,
-              hasPromotion: false,
-              displayPromotionType: null,
-              displayPromotionValue: null,
-              displayPrice: product.price,
-              displayOriginPrice: product.price,
-            };
-
-            // Reset all size promotions
-            if (updated.sizes && updated.sizes.length > 0) {
-              updated.sizes = updated.sizes.map((size: any) => ({
-                ...size,
-                promotionType: null,
-                promotionValue: null,
-                promotionFromDate: null,
-                promotionToDate: null,
-                finalPrice: size.price,
-                hasPromotion: false,
-              }));
-            }
-
-            return updated;
-          }
-          return product;
-        });
-      }
-    },
   },
 
   extraReducers: (builder) => {
@@ -359,7 +324,6 @@ export const {
   updateProductOptimistic,
   resetProductPromotionOptimistic,
   resetAllPromotionsOptimistic,
-  resetTablePromotionsOptimistic,
   toggleProductSelection,
   selectAllProducts,
   deselectAllProducts,

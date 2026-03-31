@@ -67,4 +67,5 @@ public interface ProductSizeRepository extends JpaRepository<ProductSize, UUID> 
         "      WHERE p.business_id = :businessId AND p.is_deleted = false" +
         "  )")
     int resetAllPromotionsForProductSizes(@Param("businessId") UUID businessId);
+
 }

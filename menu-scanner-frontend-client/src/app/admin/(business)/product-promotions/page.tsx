@@ -26,7 +26,6 @@ import {
   resetState,
   resetProductPromotionOptimistic,
   resetAllPromotionsOptimistic,
-  resetTablePromotionsOptimistic,
 } from "@/redux/features/business/store/slice/product-slice";
 import { useRouter } from "next/navigation";
 import ProductModal from "@/redux/features/business/components/product-modal";
@@ -185,45 +184,6 @@ export default function ProductPromotionPage() {
   };
 
   // ===== RESET TABLE PROMOTIONS (SELECTED) =====
-  const [resetTableState, setResetTableState] = useState({
-    isOpen: false,
-    selectedProductIds: [] as string[],
-  });
-
-  const handleResetTablePromotions = () => {
-    const selectedIds = productContent?.filter((p) => p.isSelected).map((p) => p.id) || [];
-    if (selectedIds.length === 0) {
-      showToast.error("Please select at least one product to reset");
-      return;
-    }
-    setResetTableState({
-      isOpen: true,
-      selectedProductIds: selectedIds,
-    });
-  };
-
-  const closeResetTableModal = () => {
-    setResetTableState({ isOpen: false, selectedProductIds: [] });
-  };
-
-  const handleConfirmResetTablePromotions = async () => {
-    dispatch(resetTablePromotionsOptimistic(resetTableState.selectedProductIds));
-    closeResetTableModal();
-    const promises = resetTableState.selectedProductIds.map((productId) =>
-      dispatch(resetProductPromotionService(productId))
-    );
-    Promise.all(promises)
-      .then(() => {
-        showToast.success(`Reset promotions for ${resetTableState.selectedProductIds.length} products`);
-      })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to reset promotions");
-      });
-  };
-    () => ({
-      handleEditProduct,
-      handleProductViewDetail,
-      handleDeleteProduct,
       handleResetPromotion,
     }),
     [],
@@ -370,15 +330,10 @@ export default function ProductPromotionPage() {
         {/* Action Buttons for Reset */}
         <div className="flex gap-2">
           <button
-            onClick={handleResetTablePromotions}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
           >
-            Reset Selected
           </button>
 
           <button
-            onClick={handleResetAllPromotions}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
           >
             Reset All
           </button>
@@ -469,19 +424,6 @@ export default function ProductPromotionPage() {
         isDangerous={true}
       />
 
-      {/* Reset Table Promotions Modal */}
-      <ConfirmationModal
-        isOpen={resetTableState.isOpen}
-        onClose={closeResetTableModal}
-        onConfirm={handleConfirmResetTablePromotions}
-        title="Reset Promotions"
-        description={`Clear promotional discounts for ${resetTableState.selectedProductIds.length} selected products`}
-        itemName={`${resetTableState.selectedProductIds.length} products`}
-        actionLabel="Reset Selected"
-        actionVariant="secondary"
-        headerBgColor="bg-yellow-50"
-        buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
-        isDangerous={false}
       />
   );
 }
