@@ -171,13 +171,16 @@ export const bulkPromotionTableColumns = ({
       className: "px-4",
       render: (product) => {
         if (!product.hasSizes || !product.sizes || product.sizes.length === 0) {
-          return <span className="text-xs text-muted-foreground">No sizes</span>;
+          return (
+            <span className="text-xs text-muted-foreground">No sizes</span>
+          );
         }
 
         return (
           <div className="flex flex-row gap-1.5 items-center">
             {product.sizes.map((size) => {
-              const isSelected = selectedSizes.get(product.id)?.has(size.id) || false;
+              const isSelected =
+                selectedSizes.get(product.id)?.has(size.id) || false;
               const hasPromotion = size.promotionType && size.promotionValue;
 
               return (
@@ -187,7 +190,7 @@ export const bulkPromotionTableColumns = ({
                     "flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap flex-shrink-0",
                     isSelected
                       ? "bg-primary/15 border-primary/50 hover:bg-primary/20 hover:border-primary/70 shadow-sm"
-                      : "bg-white border-border/50 hover:bg-gray-50 hover:border-border/70"
+                      : "bg-white border-border/50 hover:bg-gray-50 hover:border-border/70",
                   )}
                 >
                   {/* Custom Checkbox */}
@@ -230,7 +233,7 @@ export const bulkPromotionTableColumns = ({
       maxWidth: "120px",
       className: "px-4",
       render: (product) => {
-        if (!product.hasActivePromotion) {
+        if (!product.hasPromotion) {
           return (
             <Badge variant="outline" className="bg-muted/50">
               No Promotion
@@ -240,7 +243,10 @@ export const bulkPromotionTableColumns = ({
 
         return (
           <div className="flex flex-col gap-1">
-            <Badge variant="default" className="bg-green-500/20 text-green-700 border-green-500/50">
+            <Badge
+              variant="default"
+              className="bg-green-500/20 text-green-700 border-green-500/50"
+            >
               Active
             </Badge>
             <span className="text-xs text-muted-foreground">
@@ -259,7 +265,7 @@ export const bulkPromotionTableColumns = ({
       maxWidth: "120px",
       className: "px-4",
       render: (product) => {
-        if (!product.hasActivePromotion) {
+        if (!product.hasPromotion) {
           return <span className="text-xs text-muted-foreground">---</span>;
         }
 
