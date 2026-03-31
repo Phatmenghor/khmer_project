@@ -1,8 +1,7 @@
 import { indexDisplay } from "@/utils/common/common";
-import { Edit, Eye, Trash, Plus, Package } from "lucide-react";
+import { Edit, Eye, Trash, Plus } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -64,7 +63,7 @@ function ProductImagePreview({
 }
 
 /**
- * StockStatusBadge - Display stock status with color coding
+ * StockStatusBadge - Display stock status with simple color coding
  */
 function StockStatusBadge({
   stock,
@@ -74,38 +73,18 @@ function StockStatusBadge({
   hasSizes: boolean;
 }) {
   if (stock === null || stock === undefined) {
-    return (
-      <Badge variant="secondary" className="gap-1">
-        <Package className="w-3 h-3" />
-        No Data
-      </Badge>
-    );
+    return <span className="text-xs text-muted-foreground">No Data</span>;
   }
 
   if (stock === 0) {
-    return (
-      <Badge className="gap-1 bg-red-100 text-red-700 hover:bg-red-200 border-red-200">
-        <Package className="w-3 h-3" />
-        Out of Stock
-      </Badge>
-    );
+    return <span className="text-xs font-medium text-red-600">{stock} Items</span>;
   }
 
   if (stock < 10) {
-    return (
-      <Badge className="gap-1 bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200">
-        <Package className="w-3 h-3" />
-        Low ({stock})
-      </Badge>
-    );
+    return <span className="text-xs font-medium text-yellow-600">{stock} Items</span>;
   }
 
-  return (
-    <Badge className="gap-1 bg-green-100 text-green-700 hover:bg-green-200 border-green-200">
-      <Package className="w-3 h-3" />
-      Available ({stock})
-    </Badge>
-  );
+  return <span className="text-xs font-medium text-green-600">{stock} Items</span>;
 }
 
 export const stockTableColumns = ({
