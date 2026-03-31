@@ -71,9 +71,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProductListDto> getAllProducts(ProductFilterDto filter) {
+        log.debug("Starting getAllProducts - Filter: BusinessId={}, CategoryId={}, BrandId={}, Search={}",
+                filter.getBusinessId(), filter.getCategoryId(), filter.getBrandId(), filter.getSearch());
+
+        long startTime = System.currentTimeMillis();
         Optional<User> currentUser = securityUtils.getCurrentUserOptional();
+
         if (currentUser.isPresent() && currentUser.get().isBusinessUser() && filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.get().getBusinessId());
+            log.debug("Set BusinessId from current user: {}", currentUser.get().getBusinessId());
         }
 
         Pageable pageable = PaginationUtils.createPageable(
@@ -82,6 +88,8 @@ public class ProductServiceImpl implements ProductService {
                 filter.getSortBy(),
                 filter.getSortDirection()
         );
+        log.debug("Pagination configured - Page: {}, Size: {}, SortBy: {}, Direction: {}",
+                filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
 
         Page<Product> productPage = productRepository.findAllWithFilters(
                 filter.getBusinessId(),
@@ -96,7 +104,11 @@ public class ProductServiceImpl implements ProductService {
                 pageable
         );
 
+        log.info("Products fetched from database - Total: {}, Page: {}, Size: {}",
+                productPage.getTotalElements(), productPage.getNumber(), productPage.getSize());
+
         if (productPage.getContent().isEmpty()) {
+            log.debug("No products found for filters");
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
@@ -140,16 +152,25 @@ public class ProductServiceImpl implements ProductService {
             });
         }
 
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("getAllProducts completed in {}ms - Returned {} products out of {}",
+                duration, dtoList.size(), productPage.getTotalElements());
+
         return paginationMapper.toPaginationResponse(productPage, dtoList);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ProductListDto> getAllDataProducts(ProductFilterDto filter) {
+        log.debug("Starting getAllDataProducts - Filter: BusinessId={}, CategoryId={}, BrandId={}, Search={}",
+                filter.getBusinessId(), filter.getCategoryId(), filter.getBrandId(), filter.getSearch());
+
+        long startTime = System.currentTimeMillis();
         Optional<User> currentUser = securityUtils.getCurrentUserOptional();
 
         if (currentUser.isPresent() && currentUser.get().isBusinessUser() && filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.get().getBusinessId());
+            log.debug("Set BusinessId from current user: {}", currentUser.get().getBusinessId());
         }
 
         List<Product> products = productRepository.findAllWithFilters(
@@ -165,12 +186,15 @@ public class ProductServiceImpl implements ProductService {
                 PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection())
         );
 
+        log.info("Products fetched from database - Total count: {}", products.size());
+
         // Recalculate display fields from current sizes
         products.forEach(Product::syncDisplayFieldsFromSizes);
 
         List<ProductListDto> dtoList = productMapper.toListDtos(products);
 
         if (products.isEmpty()) {
+            log.debug("No products found for filters");
             return dtoList;
         }
 
@@ -205,6 +229,10 @@ public class ProductServiceImpl implements ProductService {
                 dto.setQuantity(0);
             });
         }
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("getAllDataProducts completed in {}ms - Returned {} products",
+                duration, dtoList.size());
 
         return dtoList;
     }
@@ -312,49 +340,91 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductDetailDto getProductById(UUID id) {
-        Product product = productRepository.findByIdWithAllDetails(id)
-                .orElseThrow(() -> new NotFoundException("Product not found: " + id));
+        log.debug("Starting getProductById - ID: {}", id);
+        long startTime = System.currentTimeMillis();
 
-        Optional<User> currentUser = securityUtils.getCurrentUserOptional();
-        if (currentUser.isPresent() && currentUser.get().isBusinessUser()) {
-            validateBusinessAccess(product, currentUser.get());
+        try {
+            Product product = productRepository.findByIdWithAllDetails(id)
+                    .orElseThrow(() -> {
+                        log.error("Product not found - ID: {}", id);
+                        return new NotFoundException("Product not found: " + id);
+                    });
+
+            log.debug("Product found - Name: '{}', BusinessId: {}", product.getName(), product.getBusinessId());
+
+            Optional<User> currentUser = securityUtils.getCurrentUserOptional();
+            if (currentUser.isPresent() && currentUser.get().isBusinessUser()) {
+                validateBusinessAccess(product, currentUser.get());
+                log.debug("Business access validated for user: {}", currentUser.get().getUserIdentifier());
+            }
+
+            // Initialize images for detail view (avoids MultipleBagFetchException by loading separately)
+            Hibernate.initialize(product.getImages());
+            log.debug("Product images initialized - Count: {}", product.getImages().size());
+
+            // Recalculate display fields from current sizes (fixes stale DB values)
+            product.syncDisplayFieldsFromSizes();
+
+            ProductDetailDto dto = productMapper.toDetailDto(product);
+            enrichTotalStockForDetail(dto, product.getId());
+            log.debug("Product detail DTO created with enriched stock");
+
+            populateUserFieldsForDetail(dto, currentUser, product);
+
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("getProductById completed in {}ms - ID: {}, Name: '{}'",
+                    duration, id, product.getName());
+
+            return dto;
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("getProductById failed after {}ms - ID: {}, Error: {}", duration, id, e.getMessage());
+            throw e;
         }
-
-        // Initialize images for detail view (avoids MultipleBagFetchException by loading separately)
-        Hibernate.initialize(product.getImages());
-
-        // Recalculate display fields from current sizes (fixes stale DB values)
-        product.syncDisplayFieldsFromSizes();
-
-        ProductDetailDto dto = productMapper.toDetailDto(product);
-        enrichTotalStockForDetail(dto, product.getId());
-
-        populateUserFieldsForDetail(dto, currentUser, product);
-
-        return dto;
     }
 
     @Override
     @Transactional
     public ProductDetailDto getProductByIdPublic(UUID id) {
-        Product product = productRepository.findByIdWithAllDetails(id)
-                .orElseThrow(() -> new NotFoundException("Product not found: " + id));
+        log.debug("Starting getProductByIdPublic - ID: {}", id);
+        long startTime = System.currentTimeMillis();
 
-        productRepository.incrementViewCount(id);
+        try {
+            Product product = productRepository.findByIdWithAllDetails(id)
+                    .orElseThrow(() -> {
+                        log.error("Product not found (public access) - ID: {}", id);
+                        return new NotFoundException("Product not found: " + id);
+                    });
 
-        // Initialize images for detail view (avoids MultipleBagFetchException by loading separately)
-        Hibernate.initialize(product.getImages());
+            log.debug("Product found for public access - Name: '{}', Views: {}", product.getName(), product.getViewCount());
 
-        // Recalculate display fields from current sizes (fixes stale DB values)
-        product.syncDisplayFieldsFromSizes();
+            productRepository.incrementViewCount(id);
+            log.debug("View count incremented for product - ID: {}", id);
 
-        ProductDetailDto dto = productMapper.toDetailDto(product);
-        enrichTotalStockForDetail(dto, product.getId());
+            // Initialize images for detail view (avoids MultipleBagFetchException by loading separately)
+            Hibernate.initialize(product.getImages());
+            log.debug("Product images initialized - Count: {}", product.getImages().size());
 
-        Optional<User> currentUser = securityUtils.getCurrentUserOptional();
-        populateUserFieldsForDetail(dto, currentUser, product);
+            // Recalculate display fields from current sizes (fixes stale DB values)
+            product.syncDisplayFieldsFromSizes();
 
-        return dto;
+            ProductDetailDto dto = productMapper.toDetailDto(product);
+            enrichTotalStockForDetail(dto, product.getId());
+            log.debug("Product detail DTO created with enriched stock");
+
+            Optional<User> currentUser = securityUtils.getCurrentUserOptional();
+            populateUserFieldsForDetail(dto, currentUser, product);
+
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("getProductByIdPublic completed in {}ms - ID: {}, Name: '{}'",
+                    duration, id, product.getName());
+
+            return dto;
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("getProductByIdPublic failed after {}ms - ID: {}, Error: {}", duration, id, e.getMessage());
+            throw e;
+        }
     }
 
     private void populateUserFieldsForDetail(ProductDetailDto dto, Optional<User> currentUser, Product product) {

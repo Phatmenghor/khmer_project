@@ -35,15 +35,26 @@ public class ProductController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getAllProducts(
             @Valid @RequestBody ProductFilterDto filter) {
-        
-        log.info("Get all products - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
-        
-        PaginationResponse<ProductListDto> products = productService.getAllProducts(filter);
-        
-        return ResponseEntity.ok(ApiResponse.success(
-            String.format("Found %d products", products.getTotalElements()),
-            products
-        ));
+
+        long startTime = System.currentTimeMillis();
+        log.info("GET /api/v1/products/all - Page: {}, Size: {}, Filters: BusinessId={}, CategoryId={}, BrandId={}",
+                filter.getPageNo(), filter.getPageSize(), filter.getBusinessId(), filter.getCategoryId(), filter.getBrandId());
+
+        try {
+            PaginationResponse<ProductListDto> products = productService.getAllProducts(filter);
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("GET /api/v1/products/all succeeded in {}ms - Retrieved {} products, Total: {}",
+                    duration, products.getContent().size(), products.getTotalElements());
+
+            return ResponseEntity.ok(ApiResponse.success(
+                String.format("Found %d products", products.getTotalElements()),
+                products
+            ));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("GET /api/v1/products/all failed after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @PostMapping("/admin/all")
@@ -91,28 +102,47 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> getProductById(@PathVariable UUID id) {
-        log.debug("Get product request - ID: {}", id);
+        long startTime = System.currentTimeMillis();
+        log.debug("GET /api/v1/products/{} - Product detail request", id);
 
-        ProductDetailDto product = productService.getProductById(id);
+        try {
+            ProductDetailDto product = productService.getProductById(id);
+            long duration = System.currentTimeMillis() - startTime;
 
-        log.debug("Product retrieved - ID: {}, Name: '{}', Has Sizes: {}",
-            product.getId(), product.getName(), product.getHasSizes());
-        return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", product));
+            log.info("GET /api/v1/products/{} succeeded in {}ms - Product: Name='{}', HasSizes={}, Status={}",
+                id, duration, product.getName(), product.getHasSizes(), product.getStatus());
+            return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", product));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("GET /api/v1/products/{} failed after {}ms - Error: {}", id, duration, e.getMessage());
+            throw e;
+        }
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductDetailDto>> createProduct(
             @Valid @RequestBody ProductCreateDto request) {
 
-        log.debug("Product create request - Name: '{}', Category: {}, Brand: {}, Price: {}, Has Sizes: {}",
-            request.getName(), request.getCategoryId(), request.getBrandId(), request.getPrice(),
-            request.getSizes() != null && !request.getSizes().isEmpty());
+        long startTime = System.currentTimeMillis();
+        log.info("POST /api/v1/products - Create product request - Name: '{}', Price: {}, HasSizes: {}, HasImages: {}",
+            request.getName(), request.getPrice(),
+            request.getSizes() != null && !request.getSizes().isEmpty(),
+            request.getImages() != null && !request.getImages().isEmpty());
 
-        ProductDetailDto product = productService.createProduct(request);
+        try {
+            ProductDetailDto product = productService.createProduct(request);
+            long duration = System.currentTimeMillis() - startTime;
 
-        log.debug("Product created and returned - ID: {}, Name: '{}'", product.getId(), product.getName());
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Product created successfully", product));
+            log.info("POST /api/v1/products succeeded in {}ms - Created product ID: {}, Name: '{}'",
+                duration, product.getId(), product.getName());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Product created successfully", product));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("POST /api/v1/products failed after {}ms - Name: '{}', Error: {}",
+                duration, request.getName(), e.getMessage(), e);
+            throw e;
+        }
     }
 
     @PutMapping("/{id}")
@@ -120,23 +150,43 @@ public class ProductController {
             @PathVariable UUID id,
             @Valid @RequestBody ProductUpdateDto request) {
 
-        log.debug("Product update request - ID: {}, Name: '{}', Status: {}",
-            id, request.getName(), request.getStatus());
+        long startTime = System.currentTimeMillis();
+        log.info("PUT /api/v1/products/{} - Update product request - Name: '{}', Status: {}, HasImages: {}, HasSizes: {}",
+            id, request.getName(), request.getStatus(),
+            request.getImages() != null && !request.getImages().isEmpty(),
+            request.getSizes() != null && !request.getSizes().isEmpty());
 
-        ProductDetailDto product = productService.updateProduct(id, request);
+        try {
+            ProductDetailDto product = productService.updateProduct(id, request);
+            long duration = System.currentTimeMillis() - startTime;
 
-        log.debug("Product updated successfully - ID: {}, Name: '{}'", product.getId(), product.getName());
-        return ResponseEntity.ok(ApiResponse.success("Product updated successfully", product));
+            log.info("PUT /api/v1/products/{} succeeded in {}ms - Updated product: Name: '{}', Status: {}",
+                id, duration, product.getName(), product.getStatus());
+            return ResponseEntity.ok(ApiResponse.success("Product updated successfully", product));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("PUT /api/v1/products/{} failed after {}ms - Error: {}", id, duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> deleteProduct(@PathVariable UUID id) {
-        log.debug("Product delete request - ID: {}", id);
+        long startTime = System.currentTimeMillis();
+        log.info("DELETE /api/v1/products/{} - Delete product request", id);
 
-        ProductDetailDto product = productService.deleteProduct(id);
+        try {
+            ProductDetailDto product = productService.deleteProduct(id);
+            long duration = System.currentTimeMillis() - startTime;
 
-        log.info("Product deleted successfully - ID: {}, Name: '{}'", product.getId(), product.getName());
-        return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", product));
+            log.info("DELETE /api/v1/products/{} succeeded in {}ms - Deleted product: Name: '{}', Status: {}",
+                id, duration, product.getName(), product.getStatus());
+            return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", product));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("DELETE /api/v1/products/{} failed after {}ms - Error: {}", id, duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @PutMapping("/{id}/reset-promotion")
