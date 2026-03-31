@@ -277,6 +277,18 @@ export function ProductDetailModal({
                               label="Final Price"
                               value={formatCurrency(size.finalPrice)}
                             />
+                            <DisplayField
+                              label="Total Stock"
+                              value={size.totalStock ? size.totalStock.toString() : "0"}
+                            />
+                            <DisplayField
+                              label="Quantity Available"
+                              value={size.quantityAvailable ? size.quantityAvailable.toString() : "0"}
+                            />
+                            <DisplayField
+                              label="Quantity Reserved"
+                              value={size.quantityReserved ? size.quantityReserved.toString() : "0"}
+                            />
                             {size.hasPromotion && (
                               <>
                                 <DisplayField
@@ -306,6 +318,33 @@ export function ProductDetailModal({
                   </CardContent>
                 </Card>
               )}
+
+            {/* Stock Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Stock Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField
+                    label="Total Stock"
+                    value={productData.totalStock ? productData.totalStock.toString() : "0"}
+                  />
+                  <DisplayField
+                    label="Quantity Available"
+                    value={productData.quantityAvailable ? productData.quantityAvailable.toString() : "0"}
+                  />
+                  <DisplayField
+                    label="Quantity Reserved"
+                    value={productData.quantityReserved ? productData.quantityReserved.toString() : "0"}
+                  />
+                  <DisplayField
+                    label="Quantity On Hand"
+                    value={productData.quantityOnHand ? productData.quantityOnHand.toString() : "0"}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Engagement Statistics */}
             <Card>
