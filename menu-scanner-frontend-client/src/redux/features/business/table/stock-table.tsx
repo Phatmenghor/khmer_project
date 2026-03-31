@@ -179,19 +179,6 @@ export const stockTableColumns = ({
     },
 
     {
-      key: "hasSizes",
-      label: "Type",
-      minWidth: "10px",
-      maxWidth: "100px",
-      truncate: true,
-      render: (product) => (
-        <Badge variant={product?.hasSizes ? "secondary" : "outline"}>
-          {product?.hasSizes ? "With Sizes" : "Single"}
-        </Badge>
-      ),
-    },
-
-    {
       key: "sizes",
       label: "Size Stock",
       minWidth: "25px",
