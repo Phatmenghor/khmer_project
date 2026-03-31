@@ -56,6 +56,7 @@ import {
 } from "@/redux/features/business/store/slice/bulk-promotion-slice";
 import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
 import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
+import { useBulkPromotionSizesStorageSync } from "@/hooks/useBulkPromotionSizesStorageSync";
 import {
   toggleSizeForProduct,
   clearAllSizeSelections,
@@ -114,6 +115,13 @@ export default function BulkPromotionCreationPage() {
   // Same pattern as POS cart sync - clean and simple!
   const { clearSelections } = useBulkPromotionStorageSync({
     storageKey: "bulk-promotion:selected-products",
+    debounceMs: 1000,
+    enabled: true,
+  });
+
+  // ─── localStorage Sync for Size Selections ───
+  useBulkPromotionSizesStorageSync({
+    storageKey: "bulk-promotion:selected-sizes",
     debounceMs: 1000,
     enabled: true,
   });
