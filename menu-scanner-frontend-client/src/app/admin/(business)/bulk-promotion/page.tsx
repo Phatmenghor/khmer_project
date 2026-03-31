@@ -27,6 +27,7 @@ import {
   fetchAllProductAdminService,
   createBulkPromotionsService,
   resetAllPromotionsService,
+  resetProductPromotionService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
@@ -315,17 +316,17 @@ export default function BulkPromotionCreationPage() {
     });
   };
 
-  // Confirm reset promotion
+  // Confirm reset promotion (single product only)
   const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
 
+    const productId = resetPromotionState.product.id;
+    const productName = resetPromotionState.product.name ?? "";
+    closeResetPromotionModal();
+
     try {
-      await dispatch(
-        resetAllPromotionsService()
-      ).unwrap();
-      showToast.success("Promotion reset successfully!");
-      closeResetPromotionModal();
-      // Refresh products list
+      await dispatch(resetProductPromotionService(productId)).unwrap();
+      showToast.success(`Promotion reset for "${productName}"`);
       dispatch(
         fetchAllProductAdminService({
           search: "",
@@ -337,14 +338,8 @@ export default function BulkPromotionCreationPage() {
           categoryId: selectedCategories?.id,
         })
       );
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : typeof error === "object" && error !== null && "message" in error
-            ? (error as Record<string, unknown>).message
-            : "Failed to reset promotion";
-      showToast.error(String(errorMessage));
+    } catch (error: any) {
+      showToast.error(error?.message || error || "Failed to reset promotion");
     }
   };
 
