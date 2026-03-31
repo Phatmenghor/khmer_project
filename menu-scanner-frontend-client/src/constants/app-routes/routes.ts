@@ -31,6 +31,7 @@ export const ROUTES = {
     DELIVERY_OPTIONS: "/admin/delivery-options",
     PAYMENT_OPTIONS: "/admin/payment-options",
     PRODUCTS: "/admin/products",
+    STOCK_MANAGEMENT: "/admin/product-stock",
     PRODUCTS_PROMOTION: "/admin/product-promotions",
     BULK_PROMOTION_CREATION: "/admin/bulk-promotion",
     ORDERS: "/admin/orders",
@@ -130,6 +131,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Products",
         href: ROUTES.ADMIN.PRODUCTS,
+      },
+      {
+        title: "Product Stock",
+        href: ROUTES.ADMIN.STOCK_MANAGEMENT,
       },
       {
         title: "Products Promotion",
