@@ -34,9 +34,9 @@ public class ProductFilterDto extends BaseFilterRequest {
 
     @Schema(
         description = "Filter by stock status (ENABLED to show products with stock tracking enabled, DISABLED for stock tracking disabled)",
-        example = "ENABLED"
+        example = "[\"ENABLED\"]"
     )
-    private StockStatus stockStatus;
+    private List<StockStatus> stockStatuses;
 
     private BigDecimal minPrice;
     private BigDecimal maxPrice;

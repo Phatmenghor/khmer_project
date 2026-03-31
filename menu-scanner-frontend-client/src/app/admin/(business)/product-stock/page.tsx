@@ -104,12 +104,12 @@ export default function ProductStockPage() {
     }
     // if ALL, hasSize remains undefined (no filter)
 
-    // Determine stockStatus filter value
-    let stockStatus: string | undefined;
+    // Build stockStatuses array (following API pattern)
+    let stockStatuses: string[] | undefined;
     if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
-      stockStatus = stockStatusFilter;
+      stockStatuses = [stockStatusFilter];
     }
-    // if ALL, stockStatus remains undefined (no filter)
+    // if ALL, stockStatuses remains undefined (no filter)
 
     // Build statuses array (following API pattern)
     let statuses: string[] | undefined;
@@ -126,7 +126,7 @@ export default function ProductStockPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
-        stockStatus,
+        stockStatuses,
       } as any),
     );
   }, [

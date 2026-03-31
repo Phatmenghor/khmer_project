@@ -396,13 +396,13 @@ public class ProductServiceImpl implements ProductService {
             log.debug("Applied hasSize filter - Filtered {} products to {}", productPage.getContent().size(), filteredProducts.size());
         }
 
-        // Apply stockStatus filter in memory if provided
-        if (filter.getStockStatus() != null) {
+        // Apply stockStatuses filter in memory if provided
+        if (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) {
             int beforeFilter = filteredProducts.size();
             filteredProducts = filteredProducts.stream()
-                    .filter(p -> p.getStockStatus() != null && p.getStockStatus().equals(filter.getStockStatus()))
+                    .filter(p -> p.getStockStatus() != null && filter.getStockStatuses().contains(p.getStockStatus()))
                     .toList();
-            log.debug("Applied stockStatus filter - Filtered {} products to {}", beforeFilter, filteredProducts.size());
+            log.debug("Applied stockStatuses filter - Filtered {} products to {}", beforeFilter, filteredProducts.size());
         }
 
         List<ProductDetailDto> dtoList = productMapper.toDetailDtos(filteredProducts);
