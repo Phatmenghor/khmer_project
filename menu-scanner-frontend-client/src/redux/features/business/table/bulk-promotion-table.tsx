@@ -167,7 +167,8 @@ export const bulkPromotionTableColumns = ({
       key: "sizes",
       label: "Sizes",
       minWidth: "10px",
-      maxWidth: "500px",
+      maxWidth: "5000px",
+      truncate: true,
       className: "px-4",
       render: (product) => {
         if (!product.hasSizes || !product.sizes || product.sizes.length === 0) {
