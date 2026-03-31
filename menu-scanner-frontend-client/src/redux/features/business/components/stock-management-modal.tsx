@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { showToast } from "@/components/shared/common/show-toast";
+import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { Package, Trash2 } from "lucide-react";
 import {
   createProductStockService,
@@ -33,6 +35,13 @@ import {
 } from "../store/slice/stock-management-slice";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
+
+interface StockFormData {
+  quantityOnHand: number;
+  priceIn: string;
+  expiryDate: string;
+  location: string;
+}
 
 interface StockManagementModalProps {
   isOpen: boolean;
@@ -49,11 +58,13 @@ export function StockManagementModal({
   const { history, isLoading, isCreating, isDeleting, error, successMessage } =
     useSelector((state: any) => state.stockManagement);
 
-  const [formData, setFormData] = useState({
-    quantityOnHand: 0,
-    priceIn: 0.01,
-    expiryDate: "",
-    location: "",
+  const form = useForm<StockFormData>({
+    defaultValues: {
+      quantityOnHand: 0,
+      priceIn: "0.01",
+      expiryDate: "",
+      location: "",
+    },
   });
 
   // Handle success/error messages
@@ -61,14 +72,9 @@ export function StockManagementModal({
     if (successMessage) {
       showToast.success(successMessage);
       dispatch(clearSuccess());
-      setFormData({
-        quantityOnHand: 0,
-        priceIn: 0.01,
-        expiryDate: "",
-        location: "",
-      });
+      form.reset();
     }
-  }, [successMessage, dispatch]);
+  }, [successMessage, dispatch, form]);
 
   useEffect(() => {
     if (error) {
@@ -90,18 +96,18 @@ export function StockManagementModal({
     }
   }, [isOpen, product, dispatch]);
 
-  const handleCreateStock = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleCreateStock = async (data: StockFormData) => {
     if (!product) return;
 
-    if (formData.quantityOnHand < 0) {
+    if (data.quantityOnHand < 0) {
       showToast.error("Quantity must be greater than or equal to 0");
       return;
     }
 
-    if (formData.priceIn <= 0) {
-      showToast.error("Price must be greater than 0");
+    // Validate price is a valid number
+    const price = parseFloat(data.priceIn);
+    if (isNaN(price) || price <= 0) {
+      showToast.error("Price must be a valid number greater than 0");
       return;
     }
 
@@ -109,10 +115,10 @@ export function StockManagementModal({
       createProductStockService({
         businessId: product.businessId || "",
         productId: product.id || "",
-        quantityOnHand: formData.quantityOnHand,
-        priceIn: formData.priceIn,
-        expiryDate: formData.expiryDate || undefined,
-        location: formData.location || undefined,
+        quantityOnHand: data.quantityOnHand,
+        priceIn: price,
+        expiryDate: data.expiryDate || undefined,
+        location: data.location || undefined,
       } as any)
     );
   };
@@ -121,21 +127,6 @@ export function StockManagementModal({
     if (confirm("Are you sure you want to delete this stock record?")) {
       dispatch(deleteProductStockService(stockId));
     }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string
-  ) => {
-    const value =
-      field === "quantityOnHand" || field === "priceIn"
-        ? parseFloat(e.target.value) || 0
-        : e.target.value;
-
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
   };
 
   if (!product) return null;
@@ -193,25 +184,31 @@ export function StockManagementModal({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleCreateStock} className="space-y-6">
+                <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-6">
                   {/* Form Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Quantity On Hand */}
                     <div className="space-y-2">
-                      <Label htmlFor="quantity" className="text-sm font-medium">
+                      <Label className="text-sm font-medium">
                         Quantity On Hand <span className="text-red-500">*</span>
                       </Label>
                       <Input
-                        id="quantity"
                         type="number"
                         min="0"
                         step="1"
-                        value={formData.quantityOnHand}
-                        onChange={(e) => handleInputChange(e, "quantityOnHand")}
                         placeholder="Enter quantity"
-                        required
                         className="h-10"
+                        {...form.register("quantityOnHand", {
+                          valueAsNumber: true,
+                          required: "Quantity is required",
+                          min: { value: 0, message: "Quantity must be >= 0" },
+                        })}
                       />
+                      {form.formState.errors.quantityOnHand && (
+                        <p className="text-xs text-destructive">
+                          {form.formState.errors.quantityOnHand.message}
+                        </p>
+                      )}
                       <p className="text-xs text-muted-foreground">
                         Total quantity available in stock
                       </p>
@@ -219,57 +216,54 @@ export function StockManagementModal({
 
                     {/* Price In */}
                     <div className="space-y-2">
-                      <Label htmlFor="priceIn" className="text-sm font-medium">
+                      <Label className="text-sm font-medium">
                         Unit Price (Cost) <span className="text-red-500">*</span>
                       </Label>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground">$</span>
                         <Input
-                          id="priceIn"
-                          type="number"
-                          min="0.01"
-                          step="0.01"
-                          value={formData.priceIn}
-                          onChange={(e) => handleInputChange(e, "priceIn")}
                           placeholder="0.00"
-                          required
                           className="h-10 flex-1"
+                          {...form.register("priceIn", {
+                            required: "Price is required",
+                            validate: (value) => {
+                              const num = parseFloat(value);
+                              if (isNaN(num)) return "Price must be a valid number";
+                              if (num <= 0) return "Price must be greater than 0";
+                              return true;
+                            },
+                          })}
                         />
                       </div>
+                      {form.formState.errors.priceIn && (
+                        <p className="text-xs text-destructive">
+                          {form.formState.errors.priceIn.message}
+                        </p>
+                      )}
                       <p className="text-xs text-muted-foreground">
                         Cost per unit for inventory tracking
                       </p>
                     </div>
 
                     {/* Expiry Date */}
-                    <div className="space-y-2">
-                      <Label htmlFor="expiryDate" className="text-sm font-medium">
-                        Expiry Date
-                      </Label>
-                      <Input
-                        id="expiryDate"
-                        type="date"
-                        value={formData.expiryDate}
-                        onChange={(e) => handleInputChange(e, "expiryDate")}
-                        className="h-10"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Optional - leave empty if product does not expire
-                      </p>
-                    </div>
+                    <DateTimePickerField
+                      control={form.control}
+                      className="h-10"
+                      name="expiryDate"
+                      label="Expiry Date"
+                      mode="date"
+                      error={form.formState.errors.expiryDate}
+                    />
 
                     {/* Location */}
                     <div className="space-y-2">
-                      <Label htmlFor="location" className="text-sm font-medium">
+                      <Label className="text-sm font-medium">
                         Storage Location
                       </Label>
                       <Input
-                        id="location"
-                        type="text"
-                        value={formData.location}
-                        onChange={(e) => handleInputChange(e, "location")}
                         placeholder="e.g., Warehouse A, Shelf 3"
                         className="h-10"
+                        {...form.register("location")}
                       />
                       <p className="text-xs text-muted-foreground">
                         Physical location in your warehouse/storage
