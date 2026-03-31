@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { axiosInstance } from "@/utils/axios/axios-instance";
+import { axiosClientWithAuth } from "@/utils/axios";
 import {
   ProductStockCreateRequest,
   ProductStockFilterRequest,
@@ -14,7 +14,7 @@ export const createProductStockService = createAsyncThunk(
   "stock-management/createProductStock",
   async (request: ProductStockCreateRequest, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post<{
+      const response = await axiosClientWithAuth.post<{
         data: ProductStockDto;
       }>("/api/v1/product-stock", request);
       return response.data.data;
@@ -30,7 +30,7 @@ export const getProductStockHistoryService = createAsyncThunk(
   "stock-management/getProductStockHistory",
   async (request: ProductStockFilterRequest, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post<{
+      const response = await axiosClientWithAuth.post<{
         data: ProductStockListResponse;
       }>("/api/v1/product-stock/my-business/all", request);
       return response.data.data;
@@ -52,7 +52,7 @@ export const updateProductStockService = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.put<{
+      const response = await axiosClientWithAuth.put<{
         data: ProductStockDto;
       }>(`/api/v1/product-stock/${stockId}`, request);
       return response.data.data;
@@ -68,7 +68,7 @@ export const deleteProductStockService = createAsyncThunk(
   "stock-management/deleteProductStock",
   async (stockId: string, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/api/v1/product-stock/${stockId}`);
+      await axiosClientWithAuth.delete(`/api/v1/product-stock/${stockId}`);
       return stockId;
     } catch (error: any) {
       return rejectWithValue(
