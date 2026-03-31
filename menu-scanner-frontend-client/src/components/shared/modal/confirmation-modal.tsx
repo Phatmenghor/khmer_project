@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { AlertTriangle, RotateCcw, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -119,11 +119,16 @@ export function ConfirmationModal({
             disabled={isDisabled}
             className={`flex-1 sm:flex-initial gap-2 ${buttonColor}`}
           >
-            <RotateCcw className="w-4 h-4" />
             {isProcessing || isSubmitting ? (
-              <>Processing...</>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Processing...</span>
+              </>
             ) : (
-              <>{actionLabel}</>
+              <>
+                <RotateCcw className="w-4 h-4" />
+                <span>{actionLabel}</span>
+              </>
             )}
           </Button>
         </FormFooter>
