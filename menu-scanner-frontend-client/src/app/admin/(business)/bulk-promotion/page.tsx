@@ -1022,7 +1022,7 @@ export default function BulkPromotionPage() {
           Array.from(selectedSizes.values()).some((s) => s.size > 0) ? ' and sizes' : ''
         }.`}
         actionLabel="Clear Promotion"
-        actionVariant="outline"
+        actionVariant="warning"
         headerBgColor="bg-yellow-50"
         isDangerous={false}
         isSubmitting={isClearingSelected}
