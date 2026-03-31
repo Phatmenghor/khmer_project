@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import {
@@ -13,17 +13,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { Package, Trash2 } from "lucide-react";
+import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import {
   createProductStockService,
   getProductStockHistoryService,
@@ -57,6 +50,8 @@ export function StockManagementModal({
   const dispatch = useDispatch();
   const { history, isLoading, isCreating, isDeleting, error, successMessage } =
     useSelector((state: any) => state.stockManagement);
+  const [historyPageNo, setHistoryPageNo] = useState(1);
+  const [historyPageSize, setHistoryPageSize] = useState(10);
 
   const form = useForm<StockFormData>({
     mode: "onChange",
@@ -83,18 +78,18 @@ export function StockManagementModal({
     }
   }, [error, dispatch]);
 
-  // Load history when modal opens
+  // Load history when modal opens or pagination changes
   useEffect(() => {
     if (isOpen && product) {
       dispatch(
         getProductStockHistoryService({
-          pageNo: 1,
-          pageSize: 10,
+          pageNo: historyPageNo,
+          pageSize: historyPageSize,
           productId: product.id,
         } as any)
       );
     }
-  }, [isOpen, product, dispatch]);
+  }, [isOpen, product, dispatch, historyPageNo, historyPageSize]);
 
   // Reset form when modal opens
   useEffect(() => {
@@ -132,9 +127,65 @@ export function StockManagementModal({
 
   const handleDeleteStock = (stockId: string) => {
     if (confirm("Are you sure you want to delete this stock record?")) {
-      dispatch(deleteProductStockService(stockId));
+      dispatch(deleteProductStockService(stockId) as any);
     }
   };
+
+  const stockHistoryColumns: TableColumn[] = [
+    {
+      key: "quantityOnHand",
+      label: "Quantity",
+      render: (stock) => (
+        <Badge variant="secondary" className="text-sm">
+          {stock.quantityOnHand}
+        </Badge>
+      ),
+    },
+    {
+      key: "priceIn",
+      label: "Unit Price",
+      render: (stock) => <span className="text-sm">${stock.priceIn.toFixed(2)}</span>,
+    },
+    {
+      key: "expiryDate",
+      label: "Expiry Date",
+      render: (stock) =>
+        stock.expiryDate ? (
+          <Badge variant="destructive" className="text-xs">
+            {dateTimeFormat(stock.expiryDate)}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground">---</span>
+        ),
+    },
+    {
+      key: "location",
+      label: "Location",
+      render: (stock) => (
+        <span className="text-sm text-muted-foreground">{stock.location || "---"}</span>
+      ),
+    },
+    {
+      key: "createdAt",
+      label: "Created Date",
+      render: (stock) => <span className="text-xs text-muted-foreground">{dateTimeFormat(stock.createdAt)}</span>,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (stock) => (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => handleDeleteStock(stock.id)}
+          disabled={isDeleting}
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      ),
+    },
+  ];
 
   if (!product) return null;
 
@@ -296,7 +347,7 @@ export function StockManagementModal({
                             <div>
                               <p className="text-xs text-muted-foreground">Product Selling Price</p>
                               <p className="text-lg font-semibold text-foreground">
-                                ${parseFloat(product.price).toFixed(2)}
+                                ${(product.price as unknown as number).toFixed(2)}
                               </p>
                             </div>
                             {product.hasPromotion && (
@@ -333,7 +384,7 @@ export function StockManagementModal({
                               <div className="pt-2 border-t">
                                 <p className="text-muted-foreground">Final Price:</p>
                                 <p className="text-base font-semibold text-green-600">
-                                  ${parseFloat(product.displayPrice).toFixed(2)}
+                                  ${product.displayPrice.toFixed(2)}
                                 </p>
                               </div>
                             </div>
@@ -353,7 +404,7 @@ export function StockManagementModal({
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Selling Price (each):</span>
                               <span className="font-medium">
-                                ${(product.hasPromotion ? parseFloat(product.displayPrice) : parseFloat(product.price)).toFixed(2)}
+                                ${(product.hasPromotion ? product.displayPrice : (product.price as unknown as number)).toFixed(2)}
                               </span>
                             </div>
                             <div className="pt-3 border-t border-muted flex justify-between">
@@ -362,8 +413,8 @@ export function StockManagementModal({
                                 ${(
                                   (form.watch("quantityOnHand") || 0) *
                                   (product.hasPromotion
-                                    ? parseFloat(product.displayPrice)
-                                    : parseFloat(product.price))
+                                    ? product.displayPrice
+                                    : (product.price as unknown as number))
                                 ).toFixed(2)}
                               </span>
                             </div>
@@ -412,70 +463,23 @@ export function StockManagementModal({
                 <CardTitle>Stock History</CardTitle>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <p className="text-muted-foreground">Loading stock history...</p>
-                  </div>
-                ) : history?.content && history.content.length > 0 ? (
-                  <div className="border rounded-lg overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/50">
-                          <TableHead className="text-xs font-semibold">Quantity</TableHead>
-                          <TableHead className="text-xs font-semibold">Unit Price</TableHead>
-                          <TableHead className="text-xs font-semibold">Expiry Date</TableHead>
-                          <TableHead className="text-xs font-semibold">Location</TableHead>
-                          <TableHead className="text-xs font-semibold">Created</TableHead>
-                          <TableHead className="text-xs font-semibold text-right">Action</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {history.content.map((stock) => (
-                          <TableRow key={stock.id} className="hover:bg-muted/50">
-                            <TableCell className="font-medium">
-                              <Badge variant="secondary" className="text-sm">
-                                {stock.quantityOnHand}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              ${stock.priceIn.toFixed(2)}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {stock.expiryDate ? (
-                                <Badge variant="destructive" className="text-xs">
-                                  {dateTimeFormat(stock.expiryDate)}
-                                </Badge>
-                              ) : (
-                                <span className="text-muted-foreground">---</span>
-                              )}
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              {stock.location || "---"}
-                            </TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
-                              {dateTimeFormat(stock.createdAt)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDeleteStock(stock.id)}
-                                disabled={isDeleting}
-                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center py-12">
-                    <p className="text-muted-foreground">No stock history found</p>
-                  </div>
-                )}
+                <div className="overflow-x-auto">
+                  <DataTableWithPagination
+                    data={history?.content || []}
+                    columns={stockHistoryColumns}
+                    loading={isLoading}
+                    emptyMessage="No stock history found"
+                    currentPage={historyPageNo}
+                    totalPages={history?.totalPages || 1}
+                    totalElements={history?.totalElements || 0}
+                    pageSize={historyPageSize}
+                    onPageChange={setHistoryPageNo}
+                    onPageSizeChange={setHistoryPageSize}
+                    pageSizeOptions={[10, 20, 50]}
+                    showPageSizeSelector={true}
+                    showPagination={true}
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
