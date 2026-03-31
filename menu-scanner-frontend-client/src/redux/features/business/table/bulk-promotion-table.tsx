@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 
 interface BulkPromotionTableOptions {
   selectedProductIds: Map<string, boolean>;
@@ -181,40 +181,48 @@ export const bulkPromotionTableColumns = ({
 
             {/* Expanded Horizontal Size List */}
             {expanded && (
-              <div className="flex flex-wrap gap-1.5 p-2 bg-muted/30 rounded-md max-w-sm">
+              <div className="flex flex-wrap gap-2 p-3 bg-muted/30 rounded-md max-w-2xl">
                 {product.sizes.map((size) => {
                   const isSelected = selectedSizes.get(product.id)?.has(size.id) || false;
                   const hasPromotion = size.promotionType && size.promotionValue;
 
                   return (
-                    <div
+                    <label
                       key={size.id}
                       className={cn(
-                        "flex items-center gap-1 px-2 py-1 rounded text-xs border transition-colors cursor-pointer",
+                        "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-200 cursor-pointer group",
                         isSelected
-                          ? "bg-primary/10 border-primary/50 hover:bg-primary/20"
-                          : "bg-background border-border/50 hover:bg-muted/50"
+                          ? "bg-primary/10 border-primary/40 hover:bg-primary/15 hover:border-primary/60 shadow-sm"
+                          : "bg-white border-border/60 hover:bg-muted/50 hover:border-border/80"
                       )}
-                      onClick={() => onSizeToggle?.(product.id, size.id)}
                     >
-                      <input
-                        type="checkbox"
+                      {/* Custom Checkbox */}
+                      <CustomCheckbox
                         checked={isSelected}
-                        onChange={() => {}}
-                        className="w-3 h-3 cursor-pointer"
-                        onClick={(e) => e.stopPropagation()}
+                        onCheckedChange={() => onSizeToggle?.(product.id, size.id)}
+                        size="sm"
+                        variant="default"
+                        ariaLabel={`Select ${size.name}`}
                       />
-                      <span className="font-medium">{size.name}</span>
+
+                      {/* Size Name */}
+                      <span className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">
+                        {size.name}
+                      </span>
 
                       {/* Size Promotion Status */}
                       {hasPromotion && (
-                        <span className="text-xs text-green-600 font-semibold">
+                        <Badge
+                          variant="secondary"
+                          className="ml-auto bg-green-100/80 text-green-700 border-green-300/50 text-xs"
+                        >
+                          <Check className="w-2.5 h-2.5 mr-1" />
                           {size.promotionType === "PERCENTAGE"
                             ? `${size.promotionValue}%`
                             : `$${size.promotionValue}`}
-                        </span>
+                        </Badge>
                       )}
-                    </div>
+                    </label>
                   );
                 })}
               </div>
