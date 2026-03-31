@@ -8,6 +8,7 @@ import com.emenu.features.main.dto.request.ProductCreateDto;
 import com.emenu.features.main.dto.request.ProductImageCreateDto;
 import com.emenu.features.main.dto.request.ProductSizeCreateDto;
 import com.emenu.features.main.dto.request.BulkPromotionCreateDto;
+import com.emenu.features.main.dto.request.ResetSelectedPromotionsDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.response.BulkPromotionResultDto;
@@ -531,6 +532,86 @@ public class ProductServiceImpl implements ProductService {
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
             log.error("Reset all promotions failed after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> resetSelectedPromotions(ResetSelectedPromotionsDto request) {
+        log.info("Starting reset promotions for {} selected products", request.getProductIds().size());
+        long startTime = System.currentTimeMillis();
+
+        try {
+            if (request.getProductIds() == null || request.getProductIds().isEmpty()) {
+                throw new ValidationException("No products selected");
+            }
+
+            User currentUser = securityUtils.getCurrentUser();
+            validateUserBusinessAssociation(currentUser);
+            UUID businessId = currentUser.getBusinessId();
+
+            // Validate all products belong to current user's business
+            List<Product> products = productRepository.findAllById(request.getProductIds());
+            log.debug("Fetched {} products for reset", products.size());
+
+            int productsValidated = 0;
+            for (Product product : products) {
+                if (!product.getBusinessId().equals(businessId)) {
+                    throw new ValidationException("Product does not belong to your business: " + product.getId());
+                }
+                productsValidated++;
+            }
+            log.debug("Validated {} products for business: {}", productsValidated, businessId);
+
+            int sizesReset = 0;
+            int productsReset = 0;
+
+            // Check if we have size mapping
+            Map<UUID, List<UUID>> sizeMapping = request.getProductSizeMapping();
+            boolean hasSizeMapping = sizeMapping != null && !sizeMapping.isEmpty();
+
+            if (hasSizeMapping) {
+                // Reset only specific sizes for selected products
+                log.debug("Resetting promotions for specific sizes in selected products");
+                for (Map.Entry<UUID, List<UUID>> entry : sizeMapping.entrySet()) {
+                    UUID productId = entry.getKey();
+                    List<UUID> sizeIds = entry.getValue();
+                    if (!sizeIds.isEmpty()) {
+                        int resetCount = productSizeRepository.resetPromotionsForSpecificSizes(
+                            productId, sizeIds);
+                        sizesReset += resetCount;
+                        log.debug("Reset promotions for {} sizes in product {}", resetCount, productId);
+                    }
+                }
+            } else {
+                // Reset all promotions for selected products
+                log.debug("Resetting all promotions for selected products");
+                sizesReset = productSizeRepository.resetPromotionsForProducts(request.getProductIds());
+                log.debug("Reset promotions for {} product sizes", sizesReset);
+            }
+
+            // Reset product-level promotions
+            productsReset = productRepository.resetPromotionsForProducts(request.getProductIds());
+            log.debug("Reset promotions for {} products", productsReset);
+
+            long duration = System.currentTimeMillis() - startTime;
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", String.format("Successfully reset promotions for %d products and %d sizes in %dms",
+                productsReset, sizesReset, duration));
+            response.put("resetCount", productsReset + sizesReset);
+            response.put("productsReset", productsReset);
+            response.put("sizesReset", sizesReset);
+            response.put("durationMs", duration);
+
+            log.info("Reset selected promotions completed in {}ms - Products: {}, Sizes: {}, Total: {}",
+                duration, productsReset, sizesReset, productsReset + sizesReset);
+
+            return response;
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Reset selected promotions failed after {}ms - Error: {}", duration, e.getMessage(), e);
             throw e;
         }
     }

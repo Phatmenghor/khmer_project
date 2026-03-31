@@ -3,6 +3,7 @@ package com.emenu.features.main.service;
 import com.emenu.features.main.dto.filter.ProductFilterDto;
 import com.emenu.features.main.dto.request.ProductCreateDto;
 import com.emenu.features.main.dto.request.BulkPromotionCreateDto;
+import com.emenu.features.main.dto.request.ResetSelectedPromotionsDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.response.BulkPromotionResultDto;
@@ -25,6 +26,7 @@ public interface ProductService {
     ProductDetailDto getProductByIdPublic(UUID id);
     ProductDetailDto resetProductPromotion(UUID id);
     Map<String, Object> resetAllPromotions();
+    Map<String, Object> resetSelectedPromotions(ResetSelectedPromotionsDto request);
     BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request);
     int[] syncExpiredPromotions();
     int[] syncStartedPromotions();

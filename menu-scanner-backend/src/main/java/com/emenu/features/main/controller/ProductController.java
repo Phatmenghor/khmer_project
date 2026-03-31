@@ -4,6 +4,7 @@ import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.ProductFilterDto;
 import com.emenu.features.main.dto.request.ProductCreateDto;
 import com.emenu.features.main.dto.request.BulkPromotionCreateDto;
+import com.emenu.features.main.dto.request.ResetSelectedPromotionsDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.response.BulkPromotionResultDto;
@@ -206,6 +207,32 @@ public class ProductController {
         java.util.Map<String, Object> result = productService.resetAllPromotions();
 
         return ResponseEntity.ok(ApiResponse.success("All promotions reset successfully", result));
+    }
+
+    @PutMapping("/reset-selected-promotions")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> resetSelectedPromotions(
+            @Valid @RequestBody ResetSelectedPromotionsDto request) {
+        long startTime = System.currentTimeMillis();
+        boolean hasSizeMapping = request.getProductSizeMapping() != null &&
+                !request.getProductSizeMapping().isEmpty();
+
+        log.info("PUT /api/v1/products/reset-selected-promotions - Reset promotions for {} products, Has size mapping: {}",
+                request.getProductIds().size(), hasSizeMapping);
+
+        try {
+            java.util.Map<String, Object> result = productService.resetSelectedPromotions(request);
+            long duration = System.currentTimeMillis() - startTime;
+
+            log.info("PUT /api/v1/products/reset-selected-promotions succeeded in {}ms - Products: {}, Sizes: {}",
+                    duration, result.get("productsReset"), result.get("sizesReset"));
+
+            return ResponseEntity.ok(ApiResponse.success("Selected promotions reset successfully", result));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("PUT /api/v1/products/reset-selected-promotions failed after {}ms - Error: {}",
+                    duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @PostMapping("/bulk-create-promotions")
