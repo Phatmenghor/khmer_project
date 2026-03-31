@@ -115,12 +115,23 @@ export function StockManagementModal({
       return;
     }
 
+    // Format expiryDate if provided - add time component if only date is provided
+    let formattedExpiryDate: string | undefined;
+    if (data.expiryDate) {
+      // If it's a date string without time, add midnight time
+      if (data.expiryDate.length === 10) {
+        formattedExpiryDate = `${data.expiryDate}T00:00:00`;
+      } else {
+        formattedExpiryDate = data.expiryDate;
+      }
+    }
+
     dispatch(
       createProductStockService({
         productId: product.id || "",
         quantityOnHand: quantity,
         priceIn: price,
-        expiryDate: data.expiryDate || undefined,
+        expiryDate: formattedExpiryDate || undefined,
         location: data.location || undefined,
       })
     );
