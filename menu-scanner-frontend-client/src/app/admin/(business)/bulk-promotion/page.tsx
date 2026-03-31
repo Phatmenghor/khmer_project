@@ -60,6 +60,8 @@ import { useBulkPromotionSizesStorageSync } from "@/hooks/useBulkPromotionSizesS
 import {
   toggleSizeForProduct,
   clearAllSizeSelections,
+  selectAllSizesForProduct,
+  clearSizesForProduct,
 } from "@/redux/features/business/store/slice/promotion-size-selection-slice";
 import { selectPromotionSizeSelections } from "@/redux/features/business/store/selectors/promotion-size-selection-selector";
 
@@ -147,12 +149,26 @@ export default function BulkPromotionCreationPage() {
     selectedCategories,
   ]);
 
-  // Toggle product selection
+  // Toggle product selection (and auto-select/deselect all sizes)
   const handleSelectProduct = useCallback(
     (productId: string) => {
-      dispatch(toggleSelectedProduct(productId));
+      const isCurrentlySelected = selectedProductIds.has(productId);
+
+      // Get the product to access its sizes
+      const product = productContent.find((p) => p.id === productId);
+
+      if (!isCurrentlySelected && product && product.hasSizes && product.sizes) {
+        // Selecting: auto-select all sizes for this product
+        dispatch(toggleSelectedProduct(productId));
+        const sizeIds = product.sizes.map((s) => s.id);
+        dispatch(selectAllSizesForProduct({ productId, sizeIds }));
+      } else if (isCurrentlySelected) {
+        // Deselecting: remove this product and all its sizes
+        dispatch(toggleSelectedProduct(productId));
+        dispatch(clearSizesForProduct(productId));
+      }
     },
-    [dispatch, selectedProductIdsFromRedux],
+    [dispatch, selectedProductIds, productContent],
   );
 
   // Toggle size selection for a product
@@ -163,7 +179,7 @@ export default function BulkPromotionCreationPage() {
     [dispatch],
   );
 
-  // Select/deselect all products on current page
+  // Select/deselect all products on current page (and auto-select/deselect sizes)
   const handleSelectAll = useCallback(
     (checked: boolean) => {
       if (checked && productContent.length > 0) {
@@ -173,15 +189,30 @@ export default function BulkPromotionCreationPage() {
           ...currentPageIds,
         ]);
         dispatch(setSelectedProducts(Array.from(combined)));
+
+        // Auto-select all sizes for newly selected products
+        productContent.forEach((product) => {
+          if (!selectedProductIds.has(product.id) && product.hasSizes && product.sizes) {
+            const sizeIds = product.sizes.map((s) => s.id);
+            dispatch(selectAllSizesForProduct({ productId: product.id, sizeIds }));
+          }
+        });
       } else {
         const pageIdsSet = new Set(productContent.map((p) => p.id));
         const filtered = selectedProductIdsFromRedux.filter(
           (id) => !pageIdsSet.has(id),
         );
         dispatch(setSelectedProducts(filtered));
+
+        // Clear all sizes for deselected products
+        productContent.forEach((product) => {
+          if (pageIdsSet.has(product.id)) {
+            dispatch(clearSizesForProduct(product.id));
+          }
+        });
       }
     },
-    [selectedProductIdsFromRedux, productContent, dispatch],
+    [selectedProductIdsFromRedux, selectedProductIds, productContent, dispatch],
   );
 
   // Check if all products on current page are selected
