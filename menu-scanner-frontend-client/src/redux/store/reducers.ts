@@ -26,6 +26,7 @@ import productReducer from "../features/business/store/slice/product-slice";
 import orderAdminReducer from "../features/business/store/slice/order-admin-slice";
 import posPageReducer from "../features/business/store/slice/pos-page-slice";
 import bulkPromotionReducer from "../features/business/store/slice/bulk-promotion-slice";
+import promotionSizeSelectionReducer from "../features/business/store/slice/promotion-size-selection-slice";
 import homeReducer from "../features/main/store/slice/home-slice";
 import publicProductReducer from "../features/main/store/slice/public-product-slice";
 import publicBrandsReducer from "../features/main/store/slice/public-brands-slice";
@@ -64,6 +65,7 @@ export const reducers = {
   ordersAdmin: orderAdminReducer,
   posPage: posPageReducer,
   bulkPromotion: bulkPromotionReducer,
+  promotionSizeSelection: promotionSizeSelectionReducer,
 
   // HR
   workScheduleType: workScheduleTypeReducer,

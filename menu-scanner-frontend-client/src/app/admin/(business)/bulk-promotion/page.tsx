@@ -56,6 +56,11 @@ import {
 } from "@/redux/features/business/store/slice/bulk-promotion-slice";
 import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
 import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
+import {
+  toggleSizeForProduct,
+  clearAllSizeSelections,
+} from "@/redux/features/business/store/slice/promotion-size-selection-slice";
+import { selectPromotionSizeSelections } from "@/redux/features/business/store/selectors/promotion-size-selection-selector";
 
 export default function BulkPromotionCreationPage() {
   const router = useRouter();
@@ -63,11 +68,25 @@ export default function BulkPromotionCreationPage() {
   const { productContent, filters, pagination, isLoading } = useProductState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const selectedProductIdsFromRedux = useAppSelector(selectSelectedProductIds);
+  const selectedSizesFromRedux = useAppSelector(selectPromotionSizeSelections);
 
   // Convert array to Map for efficient lookup
   const selectedProductIds = useMemo(() => {
     return new Map(selectedProductIdsFromRedux.map((id) => [id, true]));
   }, [selectedProductIdsFromRedux]);
+
+  // Convert Redux size selections to Map format
+  const selectedSizes = useMemo(() => {
+    const sizeMap = new Map<string, Set<string>>();
+    Object.entries(selectedSizesFromRedux).forEach(([productId, sizeSet]) => {
+      if (sizeSet instanceof Set) {
+        sizeMap.set(productId, sizeSet);
+      } else if (Array.isArray(sizeSet)) {
+        sizeMap.set(productId, new Set(sizeSet));
+      }
+    });
+    return sizeMap;
+  }, [selectedSizesFromRedux]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pageSize, setPageSize] = useState<number>(globalPageSize);
@@ -128,6 +147,14 @@ export default function BulkPromotionCreationPage() {
       dispatch(toggleSelectedProduct(productId));
     },
     [dispatch, selectedProductIdsFromRedux],
+  );
+
+  // Toggle size selection for a product
+  const handleSizeToggle = useCallback(
+    (productId: string, sizeId: string) => {
+      dispatch(toggleSizeForProduct({ productId, sizeId }));
+    },
+    [dispatch],
   );
 
   // Select/deselect all products on current page
@@ -232,6 +259,8 @@ export default function BulkPromotionCreationPage() {
         isLoading,
         pageNo: filters.pageNo,
         pageSize,
+        selectedSizes,
+        onSizeToggle: handleSizeToggle,
       }),
     [
       selectedProductIds,
@@ -242,6 +271,8 @@ export default function BulkPromotionCreationPage() {
       isLoading,
       filters.pageNo,
       pageSize,
+      selectedSizes,
+      handleSizeToggle,
     ],
   );
 
@@ -287,6 +318,15 @@ export default function BulkPromotionCreationPage() {
 
     setIsSubmitting(true);
     try {
+      // Build product size mapping
+      const productSizeMapping: Record<string, string[]> = {};
+      selectedIds.forEach((productId) => {
+        const sizeSet = selectedSizes.get(productId);
+        if (sizeSet && sizeSet.size > 0) {
+          productSizeMapping[productId] = Array.from(sizeSet);
+        }
+      });
+
       const result = await dispatch(
         createBulkPromotionsService({
           productIds: selectedIds,
@@ -294,6 +334,7 @@ export default function BulkPromotionCreationPage() {
           promotionValue: data.promotionValue,
           promotionFromDate: data.promotionFromDate,
           promotionToDate: data.promotionToDate,
+          productSizeMapping: Object.keys(productSizeMapping).length > 0 ? productSizeMapping : undefined,
         }),
       ).unwrap();
 
@@ -302,6 +343,7 @@ export default function BulkPromotionCreationPage() {
       );
       // Clear selections after successful creation
       dispatch(clearSelectedProducts());
+      dispatch(clearAllSizeSelections());
       clearSelections();
       form.reset();
     } catch (error) {
@@ -338,6 +380,8 @@ export default function BulkPromotionCreationPage() {
       await dispatch(resetAllPromotionsService()).unwrap();
       showToast.success("All promotions have been reset successfully!");
       setShowResetModal(false);
+      // Clear size selections as well
+      dispatch(clearAllSizeSelections());
       // Refresh products list
       dispatch(
         fetchAllProductAdminService({

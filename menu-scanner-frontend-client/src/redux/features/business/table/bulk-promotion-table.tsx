@@ -6,6 +6,8 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
+import { Badge } from "@/components/ui/badge";
+import { ChevronDown } from "lucide-react";
 
 interface BulkPromotionTableOptions {
   selectedProductIds: Map<string, boolean>;
@@ -16,6 +18,8 @@ interface BulkPromotionTableOptions {
   isLoading: boolean;
   pageNo: number;
   pageSize: number;
+  selectedSizes?: Map<string, Set<string>>; // productId -> sizeIds
+  onSizeToggle?: (productId: string, sizeId: string) => void;
 }
 
 /**
@@ -67,6 +71,8 @@ export const bulkPromotionTableColumns = ({
   isLoading,
   pageNo,
   pageSize,
+  selectedSizes = new Map(),
+  onSizeToggle,
 }: BulkPromotionTableOptions): TableColumn<ProductDetailResponseModel>[] => {
   return [
     {
@@ -95,6 +101,13 @@ export const bulkPromotionTableColumns = ({
           {indexDisplay(pageNo || 1, pageSize || 10, index + 1)}
         </span>
       ),
+    },
+    {
+      key: "image",
+      label: "Image",
+      width: "60px",
+      className: "px-2",
+      render: (product) => <ProductImagePreview product={product} />,
     },
     {
       key: "name",
@@ -135,6 +148,110 @@ export const bulkPromotionTableColumns = ({
           ${(product.displayPrice ?? 0).toFixed(2)}
         </span>
       ),
+    },
+    {
+      key: "sizes",
+      label: "Sizes",
+      className: "px-4",
+      render: (product) => {
+        if (!product.hasSizes || !product.sizes || product.sizes.length === 0) {
+          return <span className="text-xs text-muted-foreground">No sizes</span>;
+        }
+
+        const selectedCount = selectedSizes.get(product.id)?.size || 0;
+        const [expanded, setExpanded] = useState(false);
+
+        return (
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="flex items-center gap-2 text-xs font-medium hover:text-primary transition-colors"
+            >
+              <ChevronDown
+                className={cn(
+                  "w-3 h-3 transition-transform",
+                  expanded && "rotate-180"
+                )}
+              />
+              <span>
+                {selectedCount}/{product.sizes.length} selected
+              </span>
+            </button>
+            {expanded && (
+              <div className="flex flex-wrap gap-2 p-2 bg-muted/30 rounded-md">
+                {product.sizes.map((size) => (
+                  <label
+                    key={size.id}
+                    className="flex items-center gap-1 text-xs cursor-pointer hover:bg-muted p-1 rounded transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedSizes.get(product.id)?.has(size.id) || false}
+                      onChange={() =>
+                        onSizeToggle?.(product.id, size.id)
+                      }
+                      className="w-3 h-3 cursor-pointer"
+                    />
+                    <span>{size.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: "promotionStatus",
+      label: "Promotion Status",
+      className: "px-4",
+      render: (product) => {
+        if (!product.hasActivePromotion) {
+          return (
+            <Badge variant="outline" className="bg-muted/50">
+              No Promotion
+            </Badge>
+          );
+        }
+
+        return (
+          <div className="flex flex-col gap-1">
+            <Badge variant="default" className="bg-green-500/20 text-green-700 border-green-500/50">
+              Active
+            </Badge>
+            <span className="text-xs text-muted-foreground">
+              {product.displayPromotionType === "PERCENTAGE"
+                ? `${product.displayPromotionValue}%`
+                : `$${product.displayPromotionValue}`}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      key: "promotionDates",
+      label: "Promotion Period",
+      className: "px-4",
+      render: (product) => {
+        if (!product.hasActivePromotion) {
+          return <span className="text-xs text-muted-foreground">---</span>;
+        }
+
+        const fromDate = product.displayPromotionFromDate
+          ? new Date(product.displayPromotionFromDate).toLocaleDateString()
+          : "N/A";
+        const toDate = product.displayPromotionToDate
+          ? new Date(product.displayPromotionToDate).toLocaleDateString()
+          : "N/A";
+
+        return (
+          <div className="text-xs text-muted-foreground">
+            <div>{fromDate}</div>
+            <div>to</div>
+            <div>{toDate}</div>
+          </div>
+        );
+      },
     },
   ];
 };
