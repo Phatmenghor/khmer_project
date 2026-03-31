@@ -91,6 +91,17 @@ export default function ProductPromotionPage() {
     product: null as ProductDetailResponseModel | null,
   });
 
+  // ===== RESET ALL PROMOTIONS =====
+  const [resetAllState, setResetAllState] = useState({
+    isOpen: false,
+  });
+
+  // ===== RESET TABLE PROMOTIONS (SELECTED) =====
+  const [resetTableState, setResetTableState] = useState({
+    isOpen: false,
+    selectedProductIds: [] as string[],
+  });
+
   // Global page size from global settings (synced across all admin pages)
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
@@ -158,13 +169,6 @@ export default function ProductPromotionPage() {
     });
   };
 
-  const tableHandlers = useMemo(
-
-  // ===== RESET ALL PROMOTIONS =====
-  const [resetAllState, setResetAllState] = useState({
-    isOpen: false,
-  });
-
   const handleResetAllPromotions = () => {
     setResetAllState({ isOpen: true });
   };
@@ -184,12 +188,6 @@ export default function ProductPromotionPage() {
         showToast.error(error?.message || "Failed to reset all promotions");
       });
   };
-
-  // ===== RESET TABLE PROMOTIONS (SELECTED) =====
-  const [resetTableState, setResetTableState] = useState({
-    isOpen: false,
-    selectedProductIds: [] as string[],
-  });
 
   const handleResetTablePromotions = () => {
     const selectedIds = productContent?.filter((p) => p.isSelected).map((p) => p.id) || [];
@@ -218,6 +216,8 @@ export default function ProductPromotionPage() {
         showToast.error(error?.message || "Failed to reset promotions");
       });
   };
+
+  const tableHandlers = useMemo(
     () => ({
       handleEditProduct,
       handleProductViewDetail,
@@ -364,6 +364,15 @@ export default function ProductPromotionPage() {
           />
 
           <CustomSelect
+            options={PRODUCT_STATUS_FILTER}
+            value={filters.status}
+            placeholder="All Status"
+            onValueChange={(value) =>
+              handleProductStatusChange(value as ProductStatus)
+            }
+            label="Product Status"
+          />
+        </CardHeaderSection>
 
         {/* Action Buttons for Reset */}
         <div className="flex gap-2">
@@ -381,15 +390,6 @@ export default function ProductPromotionPage() {
             Reset All
           </button>
         </div>
-            options={PRODUCT_STATUS_FILTER}
-            value={filters.status}
-            placeholder="All Status"
-            onValueChange={(value) =>
-              handleProductStatusChange(value as ProductStatus)
-            }
-            label="Product Status"
-          />
-        </CardHeaderSection>
 
         {/* Data Table with Your Custom Pagination */}
         <DataTableWithPagination
@@ -450,7 +450,6 @@ export default function ProductPromotionPage() {
         buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
         isDangerous={false}
       />
-    </div>
 
       {/* Reset All Promotions Modal */}
       <ConfirmationModal
@@ -481,5 +480,6 @@ export default function ProductPromotionPage() {
         buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
         isDangerous={false}
       />
+    </div>
   );
 }
