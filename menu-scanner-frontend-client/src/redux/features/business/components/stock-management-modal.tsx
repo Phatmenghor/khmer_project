@@ -234,9 +234,7 @@ export function StockManagementModal({
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground">$</span>
                         <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
+                          type="text"
                           placeholder="0.00"
                           className="h-10 flex-1"
                           inputMode="decimal"
