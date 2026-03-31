@@ -51,14 +51,7 @@ public class CommuneServiceImpl implements CommuneService {
         
         // Map to response WITHIN transaction
         CommuneResponse response = communeMapper.toResponse(communeWithRelations);
-        
-                 communeWithRelations.getCommuneCode(),
-                 communeWithRelations.getDistrict() != null ? 
-                 communeWithRelations.getDistrict().getDistrictCode() : "null",
-                 communeWithRelations.getDistrict() != null && 
-                 communeWithRelations.getDistrict().getProvince() != null ? 
-                 communeWithRelations.getDistrict().getProvince().getProvinceCode() : "null");
-        
+
         return response;
     }
 

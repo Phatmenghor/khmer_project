@@ -54,7 +54,6 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category savedCategory = categoryRepository.save(category);
 
-                savedCategory.getName(), currentUser.getBusinessId());
         return categoryMapper.toResponse(savedCategory);
     }
 

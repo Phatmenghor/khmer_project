@@ -47,7 +47,6 @@ public class BannerServiceImpl implements BannerService {
 
         Banner savedBanner = bannerRepository.save(banner);
 
-                savedBanner.getId(), currentUser.getBusinessId());
         return bannerMapper.toResponse(savedBanner);
     }
 

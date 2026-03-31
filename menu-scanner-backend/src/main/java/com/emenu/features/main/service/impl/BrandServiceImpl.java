@@ -54,7 +54,6 @@ public class BrandServiceImpl implements BrandService {
 
         Brand savedBrand = brandRepository.save(brand);
 
-                savedBrand.getName(), currentUser.getBusinessId());
         return brandMapper.toResponse(savedBrand);
     }
 

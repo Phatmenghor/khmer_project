@@ -51,11 +51,7 @@ public class DistrictServiceImpl implements DistrictService {
         
         // Map to response WITHIN transaction
         DistrictResponse response = districtMapper.toResponse(districtWithProvince);
-        
-                 districtWithProvince.getDistrictCode(),
-                 districtWithProvince.getProvince() != null ? 
-                 districtWithProvince.getProvince().getProvinceCode() : "null");
-        
+
         return response;
     }
 

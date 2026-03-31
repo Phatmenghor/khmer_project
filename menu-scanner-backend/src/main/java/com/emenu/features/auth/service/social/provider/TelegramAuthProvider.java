@@ -31,13 +31,9 @@ public class TelegramAuthProvider {
             String lastName = data.has("last_name") ? data.get("last_name").asText() : null;
             String photoUrl = data.has("photo_url") ? data.get("photo_url").asText() : null;
 
-                    id, username, firstName, lastName, photoUrl != null);
-
             String hash = data.has("hash") ? data.get("hash").asText() : null;
             if (hash != null && !botToken.isEmpty()) {
                 verifyTelegramAuth(data, hash);
-            } else {
-                        hash != null, !botToken.isEmpty());
             }
 
             return SocialUserInfo.builder()

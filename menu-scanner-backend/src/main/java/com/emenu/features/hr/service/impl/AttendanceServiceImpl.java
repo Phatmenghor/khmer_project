@@ -90,7 +90,6 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
 
         attendance = attendanceRepository.save(attendance);
-                userId, request.getCheckInType(), attendance.getStatus());
 
         return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
     }
@@ -172,9 +171,6 @@ public class AttendanceServiceImpl implements AttendanceService {
         } else {
             attendance.setStatus(AttendanceStatusEnum.PRESENT);
         }
-
-                attendance.getStatus(), totalWorkMinutes, expectedWorkMinutes,
-                StringFormatUtils.formatPercentage(workPercentage));
     }
 
     @Override

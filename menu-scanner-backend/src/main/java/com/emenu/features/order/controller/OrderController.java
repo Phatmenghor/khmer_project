@@ -37,7 +37,6 @@ public class OrderController {
         OrderResponse order = orderService.createOrderFromCart(request);
 
         long duration = System.currentTimeMillis() - startTime;
-                order.getOrderNumber(), duration, order.getPricing().getAfter().getFinalTotal());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Order created successfully", order));
@@ -50,13 +49,10 @@ public class OrderController {
     @PostMapping("/checkout-from-pos")
     public ResponseEntity<ApiResponse<POSCheckoutResponse>> createPOSCheckoutOrder(@Valid @RequestBody POSCheckoutRequest request) {
         long startTime = System.currentTimeMillis();
-                request.getBusinessId(), request.getCart().getItems().size());
-                request.getCustomerId(), request.getPayment().getPaymentMethod(), request.getCart().getItems().size());
 
         POSCheckoutResponse order = orderService.createPOSCheckoutOrder(request);
 
         long duration = System.currentTimeMillis() - startTime;
-                order.getOrderNumber(), duration, order.getTotalAmount(), order.getOrderStatus());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("POS order created successfully", order));
@@ -68,14 +64,10 @@ public class OrderController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<OrderResponse>>> getAllOrders(@Valid @RequestBody OrderFilterRequest filter) {
         long startTime = System.currentTimeMillis();
-                filter.getPageNo(), filter.getPageSize());
-                filter.getBusinessId(), filter.getOrderStatus(), filter.getPaymentMethod(), filter.getPaymentStatus());
 
         PaginationResponse<OrderResponse> orders = orderService.getAllOrders(filter);
 
         long duration = System.currentTimeMillis() - startTime;
-                orders.getContent().size(), orders.getTotalElements(), duration,
-                orders.getContent().isEmpty() ? 0 : orders.getContent().size() * 500); // Rough estimate
 
         return ResponseEntity.ok(ApiResponse.success("Orders retrieved successfully", orders));
     }
@@ -87,15 +79,12 @@ public class OrderController {
     public ResponseEntity<ApiResponse<PaginationResponse<OrderResponse>>> getMyBusinessOrders(@Valid @RequestBody OrderFilterRequest filter) {
         long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
-                currentUser.getBusinessId(), filter.getPageNo(), filter.getPageSize());
 
         filter.setBusinessId(currentUser.getBusinessId());
-                filter.getOrderStatus(), filter.getPaymentMethod(), filter.getPaymentStatus());
 
         PaginationResponse<OrderResponse> orders = orderService.getAllOrders(filter);
 
         long duration = System.currentTimeMillis() - startTime;
-                orders.getContent().size(), orders.getTotalElements(), duration);
 
         return ResponseEntity.ok(ApiResponse.success("Business orders retrieved successfully", orders));
     }
@@ -108,12 +97,10 @@ public class OrderController {
     public ResponseEntity<ApiResponse<PaginationResponse<OrderResponse>>> getMyOrders(@Valid @RequestBody OrderFilterRequest filter) {
         long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
-                currentUser.getId(), filter.getPageNo(), filter.getPageSize());
 
         PaginationResponse<OrderResponse> orders = orderService.getCustomerOrderHistory(filter);
 
         long duration = System.currentTimeMillis() - startTime;
-                orders.getContent().size(), orders.getTotalElements(), duration);
 
         return ResponseEntity.ok(ApiResponse.success("Order history retrieved successfully", orders));
     }
@@ -128,7 +115,6 @@ public class OrderController {
         OrderResponse order = orderService.getOrderById(id);
 
         long duration = System.currentTimeMillis() - startTime;
-                order.getOrderNumber(), duration, order.getOrderStatus(), order.getPricing().getAfter() != null ? order.getPricing().getAfter().getFinalTotal() : order.getPricing().getBefore().getFinalTotal());
 
         return ResponseEntity.ok(ApiResponse.success("Order retrieved successfully", order));
     }
@@ -141,12 +127,10 @@ public class OrderController {
             @PathVariable UUID id,
             @Valid @RequestBody OrderUpdateRequest request) {
         long startTime = System.currentTimeMillis();
-                request.getOrderStatus(), request.getPaymentStatus(), request.getDeliveryAddress() != null, request.getBusinessNote() != null);
 
         OrderResponse order = orderService.updateOrder(id, request);
 
         long duration = System.currentTimeMillis() - startTime;
-                order.getOrderNumber(), duration, order.getOrderStatus(), order.getPricing().getAfter() != null ? order.getPricing().getAfter().getFinalTotal() : order.getPricing().getBefore().getFinalTotal());
 
         return ResponseEntity.ok(ApiResponse.success("Order updated successfully", order));
     }

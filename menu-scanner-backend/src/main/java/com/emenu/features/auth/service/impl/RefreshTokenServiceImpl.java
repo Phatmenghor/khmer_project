@@ -27,8 +27,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public RefreshToken createRefreshToken(User user, String ipAddress, String deviceInfo) {
-                user.getUserIdentifier(), user.getUserType(), user.getBusinessId());
-
         // Generate JWT refresh token with userType and businessId
         String tokenString = jwtGenerator.generateRefreshToken(
                 user.getUserIdentifier(),
@@ -79,7 +77,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         // Additional validation
         if (!refreshToken.isValid()) {
-                    refreshToken.isExpired(), refreshToken.getIsRevoked(), refreshToken.getIsDeleted());
             return Optional.empty();
         }
 

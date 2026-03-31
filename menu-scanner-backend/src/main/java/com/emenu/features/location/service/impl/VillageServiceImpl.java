@@ -51,9 +51,7 @@ public class VillageServiceImpl implements VillageService {
         
         // Map to response WITHIN transaction
         VillageResponse response = villageMapper.toResponse(villageWithRelations);
-        
-                 villageWithRelations.getVillageCode());
-        
+
         return response;
     }
 

@@ -30,7 +30,6 @@ public class CartController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CartSummaryResponse>>> getCart(
             @Valid @RequestBody CartPaginationRequest request) {
-                request.getBusinessId(), request.getPageNo(), request.getPageSize());
         CartSummaryResponse cart = cartService.getCartPaginated(request.getBusinessId(), request.getPageNo(), request.getPageSize());
 
         // Wrap response with pagination info

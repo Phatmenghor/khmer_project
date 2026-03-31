@@ -19,8 +19,6 @@ public class ProductPromotionScheduler {
     public void clearExpiredPromotions() {
 
         int[] result = productService.syncExpiredPromotions();
-
-                result[0], result[1], result[0] + result[1]);
     }
 
     /**
@@ -31,7 +29,5 @@ public class ProductPromotionScheduler {
     public void activateStartedPromotions() {
 
         int[] result = productService.syncStartedPromotions();
-
-                result[0], result[1], result[0] + result[1]);
     }
 }

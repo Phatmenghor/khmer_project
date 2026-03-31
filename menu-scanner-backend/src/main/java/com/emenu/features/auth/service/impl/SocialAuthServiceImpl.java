@@ -87,7 +87,6 @@ public class SocialAuthServiceImpl implements SocialAuthService {
 
         Long tgId = user.getTelegram() != null ? user.getTelegram().getTelegramId() : null;
         String tgUsername = user.getTelegram() != null ? user.getTelegram().getTelegramUsername() : null;
-                tgId, tgUsername, user.getTelegram() != null && user.getTelegram().getTelegramPhotoUrl() != null);
 
         SocialSyncResponse.SocialSyncResponseBuilder builder = SocialSyncResponse.builder()
                 .success(true)
