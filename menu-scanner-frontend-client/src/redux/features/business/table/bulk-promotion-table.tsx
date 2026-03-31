@@ -116,14 +116,43 @@ export const bulkPromotionTableColumns = ({
       render: (product) => <ProductImagePreview product={product} />,
     },
     {
-      key: "categoryName",
-      label: "Category",
+      key: "name",
+      label: "Name",
       minWidth: "10px",
-      maxWidth: "120px",
+      maxWidth: "400px",
+      truncate: true,
       className: "px-4",
       render: (product) => (
         <span className="text-xs text-muted-foreground">
-          {product.categoryName || "---"}
+          {product?.name || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "sku",
+      label: "SKU",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      className: "px-4",
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.sku || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "barcode",
+      label: "Barcode",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      className: "px-4",
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.barcode || "---"}
         </span>
       ),
     },
