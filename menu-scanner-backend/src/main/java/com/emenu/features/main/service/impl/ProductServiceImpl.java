@@ -40,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -439,7 +440,9 @@ public class ProductServiceImpl implements ProductService {
         validateUserBusinessAssociation(currentUser);
 
         // Get all products for the current user's business
-        List<Product> products = productRepository.findByBusinessIdAndIsDeletedFalse(currentUser.getBusiness().getId());
+        List<Product> products = productRepository.findAllWithFilters(
+            currentUser.getBusiness().getId(),
+            null, null, null, null, null, null, null, null, Sort.unsorted());
 
         int resetProductCount = 0;
         int resetSizeCount = 0;
