@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface PromotionSizeSelectionState {
-  // productId -> Set of selected sizeIds
-  selectedSizes: Record<string, Set<string>>;
+  // productId -> array of selected sizeIds (arrays are serializable)
+  selectedSizes: Record<string, string[]>;
 }
 
 const initialState: PromotionSizeSelectionState = {
@@ -20,12 +20,13 @@ export const promotionSizeSelectionSlice = createSlice({
     ) => {
       const { productId, sizeId } = action.payload;
       if (!state.selectedSizes[productId]) {
-        state.selectedSizes[productId] = new Set();
+        state.selectedSizes[productId] = [];
       }
-      if (state.selectedSizes[productId].has(sizeId)) {
-        state.selectedSizes[productId].delete(sizeId);
+      const index = state.selectedSizes[productId].indexOf(sizeId);
+      if (index > -1) {
+        state.selectedSizes[productId].splice(index, 1);
       } else {
-        state.selectedSizes[productId].add(sizeId);
+        state.selectedSizes[productId].push(sizeId);
       }
     },
 
@@ -35,7 +36,7 @@ export const promotionSizeSelectionSlice = createSlice({
       action: PayloadAction<{ productId: string; sizeIds: string[] }>
     ) => {
       const { productId, sizeIds } = action.payload;
-      state.selectedSizes[productId] = new Set(sizeIds);
+      state.selectedSizes[productId] = [...sizeIds];
     },
 
     // Clear all sizes for a product

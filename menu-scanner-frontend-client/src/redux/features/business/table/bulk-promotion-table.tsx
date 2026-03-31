@@ -151,7 +151,7 @@ export const bulkPromotionTableColumns = ({
     },
     {
       key: "sizes",
-      label: "Sizes",
+      label: "Available Sizes",
       className: "px-4",
       render: (product) => {
         if (!product.hasSizes || !product.sizes || product.sizes.length === 0) {
@@ -163,6 +163,7 @@ export const bulkPromotionTableColumns = ({
 
         return (
           <div className="flex flex-col gap-2">
+            {/* Size Summary Header */}
             <button
               onClick={() => setExpanded(!expanded)}
               className="flex items-center gap-2 text-xs font-medium hover:text-primary transition-colors"
@@ -177,24 +178,45 @@ export const bulkPromotionTableColumns = ({
                 {selectedCount}/{product.sizes.length} selected
               </span>
             </button>
+
+            {/* Expanded Horizontal Size List */}
             {expanded && (
-              <div className="flex flex-wrap gap-2 p-2 bg-muted/30 rounded-md">
-                {product.sizes.map((size) => (
-                  <label
-                    key={size.id}
-                    className="flex items-center gap-1 text-xs cursor-pointer hover:bg-muted p-1 rounded transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedSizes.get(product.id)?.has(size.id) || false}
-                      onChange={() =>
-                        onSizeToggle?.(product.id, size.id)
-                      }
-                      className="w-3 h-3 cursor-pointer"
-                    />
-                    <span>{size.name}</span>
-                  </label>
-                ))}
+              <div className="flex flex-wrap gap-1.5 p-2 bg-muted/30 rounded-md max-w-sm">
+                {product.sizes.map((size) => {
+                  const isSelected = selectedSizes.get(product.id)?.has(size.id) || false;
+                  const hasPromotion = size.promotionType && size.promotionValue;
+
+                  return (
+                    <div
+                      key={size.id}
+                      className={cn(
+                        "flex items-center gap-1 px-2 py-1 rounded text-xs border transition-colors cursor-pointer",
+                        isSelected
+                          ? "bg-primary/10 border-primary/50 hover:bg-primary/20"
+                          : "bg-background border-border/50 hover:bg-muted/50"
+                      )}
+                      onClick={() => onSizeToggle?.(product.id, size.id)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => {}}
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <span className="font-medium">{size.name}</span>
+
+                      {/* Size Promotion Status */}
+                      {hasPromotion && (
+                        <span className="text-xs text-green-600 font-semibold">
+                          {size.promotionType === "PERCENTAGE"
+                            ? `${size.promotionValue}%`
+                            : `$${size.promotionValue}`}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

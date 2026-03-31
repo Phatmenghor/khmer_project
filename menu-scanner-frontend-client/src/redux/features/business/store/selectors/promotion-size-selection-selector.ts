@@ -8,19 +8,19 @@ export const selectSizesForProduct = (productId: string) => (
   state: RootState
 ) => {
   const sizes = state.promotionSizeSelection.selectedSizes[productId];
-  return sizes ? Array.from(sizes) : [];
+  return sizes ? [...sizes] : [];
 };
 
 export const selectSelectedSizeCount = (productId: string) => (
   state: RootState
 ) => {
   const sizes = state.promotionSizeSelection.selectedSizes[productId];
-  return sizes ? sizes.size : 0;
+  return sizes ? sizes.length : 0;
 };
 
 export const selectIsSizeSelected = (productId: string, sizeId: string) => (
   state: RootState
 ) => {
   const sizes = state.promotionSizeSelection.selectedSizes[productId];
-  return sizes ? sizes.has(sizeId) : false;
+  return sizes ? sizes.includes(sizeId) : false;
 };

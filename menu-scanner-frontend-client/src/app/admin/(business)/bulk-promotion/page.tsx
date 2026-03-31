@@ -75,14 +75,12 @@ export default function BulkPromotionCreationPage() {
     return new Map(selectedProductIdsFromRedux.map((id) => [id, true]));
   }, [selectedProductIdsFromRedux]);
 
-  // Convert Redux size selections to Map format
+  // Convert Redux size selections (arrays) to Map<string, Set<string>> for efficient lookup in table
   const selectedSizes = useMemo(() => {
     const sizeMap = new Map<string, Set<string>>();
-    Object.entries(selectedSizesFromRedux).forEach(([productId, sizeSet]) => {
-      if (sizeSet instanceof Set) {
-        sizeMap.set(productId, sizeSet);
-      } else if (Array.isArray(sizeSet)) {
-        sizeMap.set(productId, new Set(sizeSet));
+    Object.entries(selectedSizesFromRedux).forEach(([productId, sizeArray]) => {
+      if (Array.isArray(sizeArray) && sizeArray.length > 0) {
+        sizeMap.set(productId, new Set(sizeArray));
       }
     });
     return sizeMap;
