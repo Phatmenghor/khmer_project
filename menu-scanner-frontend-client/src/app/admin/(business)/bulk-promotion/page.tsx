@@ -6,7 +6,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, CheckSquare, Square, Trash2, Search, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  CheckSquare,
+  Square,
+  Trash2,
+  Search,
+  X,
+} from "lucide-react";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
@@ -49,7 +57,10 @@ import {
 } from "@/constants/form-options";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { bulkPromotionTableColumns } from "@/redux/features/business/table/bulk-promotion-table";
-import { PRODUCT_STATUS_FILTER, PRODUCT_PROMOTION_FILTER } from "@/constants/status/filter-status";
+import {
+  PRODUCT_STATUS_FILTER,
+  PRODUCT_PROMOTION_FILTER,
+} from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
@@ -61,7 +72,10 @@ import {
   toggleSelectedProduct,
   clearSelectedProducts,
 } from "@/redux/features/business/store/slice/bulk-promotion-slice";
-import { createBulkPromotionsOptimistic, resetSelectedPromotionsOptimistic } from "@/redux/features/business/store/slice/product-slice";
+import {
+  createBulkPromotionsOptimistic,
+  resetSelectedPromotionsOptimistic,
+} from "@/redux/features/business/store/slice/product-slice";
 import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
 import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
 import { useBulkPromotionSizesStorageSync } from "@/hooks/useBulkPromotionSizesStorageSync";
@@ -709,9 +723,7 @@ export default function BulkPromotionPage() {
       setShowClearSelectedModal(false);
     } catch (error) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to clear promotions";
+        error instanceof Error ? error.message : "Failed to clear promotions";
       showToast.error(String(errorMessage));
     } finally {
       setIsClearingSelected(false);
@@ -775,134 +787,132 @@ export default function BulkPromotionPage() {
         {/* Left Column - Product Selection */}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
           {/* Filters + Select All Control - Modern Responsive Design */}
-          {productContent.length > 0 && (
-            <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
-              {/* Top Row - Select All Control + Search (Responsive) */}
-              <div className="px-4 py-3 border-b border-border/40">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                  {/* Left Side - Checkbox + Status Text */}
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <CustomCheckbox
-                      checked={allSelected}
-                      onCheckedChange={handleSelectAll}
-                      disabled={isLoading}
-                      size="lg"
-                      variant="default"
-                      ariaLabel="Select all products on this page"
-                      className="flex-shrink-0"
-                    />
+          <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
+            {/* Top Row - Select All Control + Search (Responsive) */}
+            <div className="px-4 py-3 border-b border-border/40">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                {/* Left Side - Checkbox + Status Text */}
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <CustomCheckbox
+                    checked={allSelected}
+                    onCheckedChange={handleSelectAll}
+                    disabled={isLoading}
+                    size="lg"
+                    variant="default"
+                    ariaLabel="Select all products on this page"
+                    className="flex-shrink-0"
+                  />
 
-                    {/* Status Text */}
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <span className="text-sm font-semibold text-foreground">
-                        {allSelected
-                          ? "All products selected"
-                          : someSelected
-                            ? `${
-                                Array.from(selectedProductIds.keys()).filter(
-                                  (id) => productContent.some((p) => p.id === id),
-                                ).length
-                              } products selected`
-                            : "Select all products"}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {productContent.length} products on this page
-                      </span>
-                    </div>
+                  {/* Status Text */}
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className="text-sm font-semibold text-foreground">
+                      {allSelected
+                        ? "All products selected"
+                        : someSelected
+                          ? `${
+                              Array.from(selectedProductIds.keys()).filter(
+                                (id) => productContent.some((p) => p.id === id),
+                              ).length
+                            } products selected`
+                          : "Select all products"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {productContent.length} products on this page
+                    </span>
                   </div>
+                </div>
 
-                  {/* Right Side - Search + Clear Button */}
-                  <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-                    {/* Search Input - Constrained width */}
-                    <div className="relative flex-1 sm:flex-none sm:w-auto sm:min-w-[300px] sm:max-w-[370px]">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                      <input
-                        type="text"
-                        placeholder="Search product..."
-                        value={searchQuery}
-                        onChange={(e) => handleSearchChange(e.target.value)}
-                        className="w-full pl-9 pr-9 py-2 rounded-md border border-border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      />
-                      {searchQuery && (
-                        <button
-                          type="button"
-                          onClick={handleClearSearch}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
-                          title="Clear search"
-                        >
-                          <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Clear Selection Button */}
-                    {selectedIds.length > 0 && (
+                {/* Right Side - Search + Clear Button */}
+                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                  {/* Search Input - Constrained width */}
+                  <div className="relative flex-1 sm:flex-none sm:w-auto sm:min-w-[300px] sm:max-w-[370px]">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="Search product..."
+                      value={searchQuery}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      className="w-full pl-9 pr-9 py-2 rounded-md border border-border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                    />
+                    {searchQuery && (
                       <button
                         type="button"
-                        onClick={handleClearAllSelections}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150 flex-shrink-0"
-                        title="Clear all selections (stored in browser)"
+                        onClick={handleClearSearch}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
+                        title="Clear search"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Clear</span>
+                        <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
                       </button>
                     )}
                   </div>
-                </div>
-              </div>
 
-              {/* Filters Row - Responsive Grid */}
-              <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                {/* Category Filter */}
-                <div className="min-w-0">
-                  <ComboboxSelectCategories
-                    dataSelect={selectedCategories}
-                    onChangeSelected={handleCategoriesChange}
-                    placeholder="All Categories"
-                    showAllOption={true}
-                  />
-                </div>
-
-                {/* Brand Filter */}
-                <div className="min-w-0">
-                  <ComboboxSelectBrand
-                    dataSelect={selectedBrand}
-                    onChangeSelected={handleBrandChange}
-                    placeholder="All Brand"
-                    showAllOption={true}
-                  />
-                </div>
-
-                {/* Product Status Filter */}
-                <div className="min-w-0">
-                  <CustomSelect
-                    options={PRODUCT_STATUS_FILTER}
-                    value={filters.status}
-                    placeholder="All Status"
-                    onValueChange={(value) =>
-                      handleProductStatusChange(value as ProductStatus)
-                    }
-                    className="w-full"
-                    label="Product Status"
-                    size="md"
-                  />
-                </div>
-
-                {/* Promotion Filter */}
-                <div className="min-w-0">
-                  <CustomSelect
-                    options={PRODUCT_PROMOTION_FILTER}
-                    value={hasPromotionFilter}
-                    placeholder="All Products"
-                    onValueChange={handlePromotionFilterChange}
-                    className="w-full"
-                    label="Promotion Status"
-                    size="md"
-                  />
+                  {/* Clear Selection Button */}
+                  {selectedIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleClearAllSelections}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150 flex-shrink-0"
+                      title="Clear all selections (stored in browser)"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Clear</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
-          )}
+
+            {/* Filters Row - Responsive Grid */}
+            <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {/* Category Filter */}
+              <div className="min-w-0">
+                <ComboboxSelectCategories
+                  dataSelect={selectedCategories}
+                  onChangeSelected={handleCategoriesChange}
+                  placeholder="All Categories"
+                  showAllOption={true}
+                />
+              </div>
+
+              {/* Brand Filter */}
+              <div className="min-w-0">
+                <ComboboxSelectBrand
+                  dataSelect={selectedBrand}
+                  onChangeSelected={handleBrandChange}
+                  placeholder="All Brand"
+                  showAllOption={true}
+                />
+              </div>
+
+              {/* Product Status Filter */}
+              <div className="min-w-0">
+                <CustomSelect
+                  options={PRODUCT_STATUS_FILTER}
+                  value={filters.status}
+                  placeholder="All Status"
+                  onValueChange={(value) =>
+                    handleProductStatusChange(value as ProductStatus)
+                  }
+                  className="w-full"
+                  label="Product Status"
+                  size="md"
+                />
+              </div>
+
+              {/* Promotion Filter */}
+              <div className="min-w-0">
+                <CustomSelect
+                  options={PRODUCT_PROMOTION_FILTER}
+                  value={hasPromotionFilter}
+                  placeholder="All Products"
+                  onValueChange={handlePromotionFilterChange}
+                  className="w-full"
+                  label="Promotion Status"
+                  size="md"
+                />
+              </div>
+            </div>
+          </div>
 
           {/* Products Table with DataTableWithPagination */}
           <div className="flex-1 overflow-y-auto overflow-x-auto min-h-0">
@@ -1119,14 +1129,21 @@ export default function BulkPromotionPage() {
         onClose={() => setShowClearSelectedModal(false)}
         onConfirm={handleConfirmClearSelected}
         title="Clear Promotions for Selected Items"
-        description={`You are about to clear promotions for ${selectedIds.length} product${selectedIds.length !== 1 ? 's' : ''} ${
+        description={`You are about to clear promotions for ${selectedIds.length} product${selectedIds.length !== 1 ? "s" : ""} ${
           Array.from(selectedSizes.values()).some((s) => s.size > 0)
             ? `with ${Array.from(selectedSizes.values()).reduce((sum, s) => sum + s.size, 0)} size${
-                Array.from(selectedSizes.values()).reduce((sum, s) => sum + s.size, 0) !== 1 ? 's' : ''
+                Array.from(selectedSizes.values()).reduce(
+                  (sum, s) => sum + s.size,
+                  0,
+                ) !== 1
+                  ? "s"
+                  : ""
               }`
-            : ''
+            : ""
         }. This will remove all promotion data from the selected products${
-          Array.from(selectedSizes.values()).some((s) => s.size > 0) ? ' and sizes' : ''
+          Array.from(selectedSizes.values()).some((s) => s.size > 0)
+            ? " and sizes"
+            : ""
         }.`}
         actionLabel="Clear Promotion"
         actionVariant="warning"
