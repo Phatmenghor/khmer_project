@@ -195,8 +195,6 @@ public class OrderServiceImpl implements OrderService {
         long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
 
-                currentUser.getId());
-
         // If user is a business user and no businessId filter is provided, restrict to their business
         if (currentUser.isBusinessUser() && filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.getBusinessId());
@@ -230,8 +228,6 @@ public class OrderServiceImpl implements OrderService {
         long mappingDuration = System.currentTimeMillis() - mappingStartTime;
 
         long totalDuration = System.currentTimeMillis() - startTime;
-                totalDuration, page.getNumberOfElements(), page.getTotalElements(),
-                page.getNumber() + 1, page.getTotalPages());
 
         return response;
     }
@@ -590,7 +586,6 @@ public class OrderServiceImpl implements OrderService {
             history.setNote("Order created from checkout");
 
             orderStatusHistoryRepository.save(history);
-                order.getOrderNumber(), order.getOrderStatus(), changedByName);
         } catch (Exception e) {
             // Don't throw exception - order creation should not fail if history creation fails
         }
@@ -777,8 +772,6 @@ public class OrderServiceImpl implements OrderService {
             // Create initial status history
             createInitialOrderStatusHistory(updatedOrder, currentUser != null ? currentUser.getId() : UUID.randomUUID());
 
-                updatedOrder.getOrderNumber(), updatedOrder.getId(), updatedOrder.getTotalAmount());
-
             // Build response
             return POSCheckoutResponse.builder()
                     .id(updatedOrder.getId())
@@ -821,7 +814,6 @@ public class OrderServiceImpl implements OrderService {
                     "Order confirmed: " + order.getOrderNumber()
                 );
             } catch (Exception e) {
-                    item.getProductId(), order.getOrderNumber(), e.getMessage());
             }
         }
 
