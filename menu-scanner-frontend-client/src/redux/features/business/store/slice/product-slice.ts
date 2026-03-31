@@ -323,6 +323,77 @@ const productSlice = createSlice({
         });
       }
     },
+
+    resetSelectedPromotionsOptimistic: (
+      state,
+      action: PayloadAction<{
+        productIds: string[];
+        productSizeMapping?: Record<string, string[]>;
+      }>,
+    ) => {
+      // Reset promotions for selected products/sizes optimistically
+      if (state.data) {
+        const { productIds, productSizeMapping } = action.payload;
+        const selectedIds = new Set(productIds);
+        const hasSizeMapping =
+          productSizeMapping && Object.keys(productSizeMapping).length > 0;
+
+        state.data.content = state.data.content.map((product) => {
+          if (selectedIds.has(product.id)) {
+            const productSizeIds = productSizeMapping?.[product.id];
+            const shouldResetAll = !hasSizeMapping || !productSizeIds;
+
+            // Reset sizes if they exist
+            let updatedSizes = product.sizes;
+            if (product.sizes && product.sizes.length > 0) {
+              updatedSizes = product.sizes.map((size: any) => {
+                const shouldResetSize =
+                  shouldResetAll ||
+                  (productSizeIds && productSizeIds.includes(size.id));
+
+                if (shouldResetSize) {
+                  return {
+                    ...size,
+                    promotionType: null,
+                    promotionValue: null,
+                    promotionFromDate: null,
+                    promotionToDate: null,
+                    finalPrice: size.price,
+                    hasPromotion: false,
+                  };
+                }
+                return size;
+              });
+            }
+
+            // Reset product-level promotion only if all sizes are being reset
+            if (shouldResetAll) {
+              return {
+                ...product,
+                promotionType: null,
+                promotionValue: null,
+                promotionFromDate: null,
+                promotionToDate: null,
+                displayPrice: parseFloat(product.price),
+                displayOriginPrice: parseFloat(product.price),
+                displayPromotionType: null,
+                displayPromotionValue: null,
+                displayPromotionFromDate: null,
+                displayPromotionToDate: null,
+                hasPromotion: false,
+                sizes: updatedSizes,
+              };
+            }
+
+            return {
+              ...product,
+              sizes: updatedSizes,
+            };
+          }
+          return product;
+        });
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -499,6 +570,7 @@ export const {
   resetAllPromotionsOptimistic,
   resetTablePromotionsOptimistic,
   createBulkPromotionsOptimistic,
+  resetSelectedPromotionsOptimistic,
   toggleProductSelection,
   selectAllProducts,
   deselectAllProducts,

@@ -28,6 +28,7 @@ import {
   createBulkPromotionsService,
   resetAllPromotionsService,
   resetProductPromotionService,
+  resetSelectedPromotionsService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
@@ -59,7 +60,7 @@ import {
   toggleSelectedProduct,
   clearSelectedProducts,
 } from "@/redux/features/business/store/slice/bulk-promotion-slice";
-import { createBulkPromotionsOptimistic } from "@/redux/features/business/store/slice/product-slice";
+import { createBulkPromotionsOptimistic, resetSelectedPromotionsOptimistic } from "@/redux/features/business/store/slice/product-slice";
 import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
 import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
 import { useBulkPromotionSizesStorageSync } from "@/hooks/useBulkPromotionSizesStorageSync";
@@ -573,6 +574,64 @@ export default function BulkPromotionPage() {
     }
   };
 
+  // Handle clear selected promotions
+  const handleClearSelectedPromotions = async () => {
+    if (selectedIds.length === 0) {
+      showToast.error("Please select at least one product");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Build product size mapping
+      const productSizeMapping: Record<string, string[]> = {};
+      selectedIds.forEach((productId) => {
+        const sizeSet = selectedSizes.get(productId);
+        if (sizeSet && sizeSet.size > 0) {
+          productSizeMapping[productId] = Array.from(sizeSet);
+        }
+      });
+
+      // ✅ OPTIMISTIC UPDATE: Clear promotions immediately
+      dispatch(
+        resetSelectedPromotionsOptimistic({
+          productIds: selectedIds,
+          productSizeMapping:
+            Object.keys(productSizeMapping).length > 0
+              ? productSizeMapping
+              : undefined,
+        }),
+      );
+
+      showToast.success("Clearing promotions... (updating in background)");
+
+      // ✅ BACKGROUND API CALL
+      await dispatch(
+        resetSelectedPromotionsService({
+          productIds: selectedIds,
+          productSizeMapping:
+            Object.keys(productSizeMapping).length > 0
+              ? productSizeMapping
+              : undefined,
+        }),
+      ).unwrap();
+
+      showToast.success("Promotions cleared successfully!");
+      // Clear selections after successful reset
+      dispatch(clearSelectedProducts());
+      dispatch(clearAllSizeSelections());
+      clearSelections();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to clear promotions";
+      showToast.error(String(errorMessage));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-1 flex-col h-full bg-background scroll-smooth">
       {/* Header */}
@@ -596,16 +655,30 @@ export default function BulkPromotionPage() {
             </p>
           </div>
         </div>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => setShowResetModal(true)}
-          className="gap-2"
-          title="Reset all promotions"
-        >
-          <Trash2 className="h-4 w-4" />
-          <span className="hidden sm:inline">Reset All</span>
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClearSelectedPromotions}
+            disabled={selectedIds.length === 0 || isSubmitting}
+            className="gap-2"
+            title="Clear promotion for selected products"
+          >
+            <Trash2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Clear Promotion</span>
+          </Button>
+
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setShowResetModal(true)}
+            className="gap-2"
+            title="Reset all promotions"
+          >
+            <Trash2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Reset All</span>
+          </Button>
+        </div>
       </div>
 
       <form
