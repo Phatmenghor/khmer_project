@@ -177,7 +177,7 @@ export const bulkPromotionTableColumns = ({
         }
 
         return (
-          <div className="flex flex-row gap-1.5 items-center">
+          <div className="flex flex-nowrap gap-1.5 items-center overflow-x-auto pb-1">
             {product.sizes.map((size) => {
               const isSelected =
                 selectedSizes.get(product.id)?.has(size.id) || false;
