@@ -59,12 +59,7 @@ export function StockManagementModal({
     useSelector((state: any) => state.stockManagement);
 
   const form = useForm<StockFormData>({
-    defaultValues: {
-      quantityOnHand: undefined,
-      priceIn: "",
-      expiryDate: "",
-      location: "",
-    },
+    mode: "onChange",
   });
 
   // Handle success/error messages
@@ -88,9 +83,10 @@ export function StockManagementModal({
     }
   }, [error, dispatch]);
 
-  // Load history when modal opens
+  // Load history and reset form when modal opens
   useEffect(() => {
     if (isOpen && product) {
+      form.reset();
       dispatch(
         getProductStockHistoryService({
           pageNo: 1,
@@ -99,7 +95,7 @@ export function StockManagementModal({
         } as any)
       );
     }
-  }, [isOpen, product, dispatch]);
+  }, [isOpen, product, dispatch, form]);
 
   const handleCreateStock = async (data: StockFormData) => {
     if (!product) return;
