@@ -234,28 +234,10 @@ export const bulkPromotionTableColumns = ({
       className: "px-4",
       render: (product) => {
         if (!product.hasPromotion) {
-          return (
-            <Badge variant="outline" className="bg-muted/50">
-              No Promotion
-            </Badge>
-          );
+          return <span className="text-sm text-foreground">No Promotion</span>;
         }
 
-        return (
-          <div className="flex flex-col gap-1">
-            <Badge
-              variant="default"
-              className="bg-green-500/20 text-green-700 border-green-500/50"
-            >
-              Active
-            </Badge>
-            <span className="text-xs text-muted-foreground">
-              {product.displayPromotionType === "PERCENTAGE"
-                ? `${product.displayPromotionValue}%`
-                : `$${product.displayPromotionValue}`}
-            </span>
-          </div>
-        );
+        return <span className="text-sm font-medium text-green-600">Active</span>;
       },
     },
     {
