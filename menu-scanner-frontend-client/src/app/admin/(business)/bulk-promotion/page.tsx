@@ -773,11 +773,11 @@ export default function BulkPromotionPage() {
           {/* Filters + Select All Control - Modern Responsive Design */}
           {productContent.length > 0 && (
             <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
-              {/* Top Row - Select All Control + Search */}
+              {/* Top Row - Select All Control + Search (Responsive) */}
               <div className="px-4 py-3 border-b border-border/40">
-                <div className="flex flex-col gap-3">
-                  {/* Select All Control */}
-                  <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  {/* Left Side - Checkbox + Status Text */}
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <CustomCheckbox
                       checked={allSelected}
                       onCheckedChange={handleSelectAll}
@@ -789,7 +789,7 @@ export default function BulkPromotionPage() {
                     />
 
                     {/* Status Text */}
-                    <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <div className="flex flex-col gap-0.5 min-w-0">
                       <span className="text-sm font-semibold text-foreground">
                         {allSelected
                           ? "All products selected"
@@ -805,39 +805,42 @@ export default function BulkPromotionPage() {
                         {productContent.length} products on this page
                       </span>
                     </div>
+                  </div>
 
-                    {/* Clear Button */}
+                  {/* Right Side - Search + Clear Button */}
+                  <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                    {/* Search Input - Constrained width */}
+                    <div className="relative flex-1 sm:flex-none sm:w-auto sm:min-w-[300px] sm:max-w-[370px]">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Search product..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="w-full pl-9 pr-9 py-2 rounded-md border border-border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={handleClearSearch}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
+                          title="Clear search"
+                        >
+                          <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Clear Selection Button */}
                     {selectedIds.length > 0 && (
                       <button
                         type="button"
                         onClick={handleClearAllSelections}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150 flex-shrink-0"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150 flex-shrink-0"
                         title="Clear all selections (stored in browser)"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        <span>Clear</span>
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Search Input */}
-                  <div className="relative w-full">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                    <input
-                      type="text"
-                      placeholder="Search products by name, SKU, or barcode..."
-                      value={searchQuery}
-                      onChange={(e) => handleSearchChange(e.target.value)}
-                      className="w-full pl-9 pr-9 py-2 rounded-md border border-border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={handleClearSearch}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
-                        title="Clear search"
-                      >
-                        <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                        <span className="hidden sm:inline">Clear</span>
                       </button>
                     )}
                   </div>
