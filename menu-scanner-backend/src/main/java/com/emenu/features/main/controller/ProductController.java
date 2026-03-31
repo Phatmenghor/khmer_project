@@ -208,16 +208,6 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success("All promotions reset successfully", result));
     }
 
-    @PutMapping("/reset-promotions-bulk")
-    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> resetPromotionsBulk(
-            @Valid @RequestBody List<UUID> productIds) {
-        log.info("Reset promotions for {} selected products", productIds.size());
-
-        java.util.Map<String, Object> result = productService.resetPromotionsBulk(productIds);
-
-        return ResponseEntity.ok(ApiResponse.success("Selected promotions reset successfully", result));
-    }
-
     @PostMapping("/bulk-create-promotions")
     public ResponseEntity<ApiResponse<BulkPromotionResultDto>> createBulkPromotions(
             @Valid @RequestBody BulkPromotionCreateDto request) {

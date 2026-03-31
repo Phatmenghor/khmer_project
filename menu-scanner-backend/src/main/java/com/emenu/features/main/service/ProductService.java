@@ -25,7 +25,6 @@ public interface ProductService {
     ProductDetailDto getProductByIdPublic(UUID id);
     ProductDetailDto resetProductPromotion(UUID id);
     Map<String, Object> resetAllPromotions();
-    Map<String, Object> resetPromotionsBulk(List<UUID> productIds);
     BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request);
     int[] syncExpiredPromotions();
     int[] syncStartedPromotions();
