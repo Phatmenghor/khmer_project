@@ -612,17 +612,16 @@ export default function BulkPromotionCreationPage() {
                 </p>
               </div>
 
-              {/* Selected Count Card - Premium Design */}
-              <div className="relative overflow-hidden rounded-xl p-5 sm:p-6 md:p-5 lg:p-6 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 border border-primary/30 shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-300">
-                <div className="absolute inset-0 bg-grid-small-white/5 opacity-30" />
-                <div className="relative space-y-3">
+              {/* Selected Count Card */}
+              <div className="rounded-xl p-6 bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/30">
+                <div className="space-y-5">
                   <p className="text-xs font-semibold uppercase tracking-wider text-primary/80">
                     Selection Status
                   </p>
 
                   {/* Products Count */}
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-3xl sm:text-4xl font-bold text-primary">
+                  <div className="flex items-center gap-3">
+                    <p className="text-6xl font-bold text-primary">
                       {selectedIds.length}
                     </p>
                     <span className="text-sm text-muted-foreground font-medium">
@@ -631,8 +630,8 @@ export default function BulkPromotionCreationPage() {
                   </div>
 
                   {/* Sizes Count */}
-                  <div className="flex items-baseline gap-2 pt-1">
-                    <p className="text-3xl sm:text-4xl font-bold text-green-600">
+                  <div className="flex items-center gap-3 pt-2">
+                    <p className="text-6xl font-bold text-green-600">
                       {Object.values(selectedSizesFromRedux).reduce(
                         (sum, sizeArray) => sum + sizeArray.length,
                         0
