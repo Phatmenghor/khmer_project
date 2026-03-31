@@ -23,6 +23,7 @@ import {
 } from "@/redux/features/business/store/slice/stock-slice";
 import { stockTableColumns } from "@/redux/features/business/table/stock-table";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
+import { StockManagementModal } from "@/redux/features/business/components/stock-management-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
@@ -72,6 +73,11 @@ export default function ProductStockPage() {
   });
 
   const [deleteState, setDeleteState] = useState({
+    isOpen: false,
+    product: null as ProductDetailResponseModel | null,
+  });
+
+  const [stockManagementState, setStockManagementState] = useState({
     isOpen: false,
     product: null as ProductDetailResponseModel | null,
   });
@@ -142,8 +148,11 @@ export default function ProductStockPage() {
   ]);
 
   // Event handlers
-  const handleCreateStock = () => {
-    showToast.info("Create stock feature coming soon");
+  const handleCreateStock = (product: ProductDetailResponseModel) => {
+    setStockManagementState({
+      isOpen: true,
+      product,
+    });
   };
 
   const handleProductViewDetail = (product: ProductDetailResponseModel) => {
@@ -163,10 +172,10 @@ export default function ProductStockPage() {
   const tableHandlers = useMemo(
     () => ({
       handleViewProduct: handleProductViewDetail,
-      handleCreateStock,
+      handleCreateStock: handleCreateStock,
       handleDeleteStock,
     }),
-    [],
+    [handleCreateStock],
   );
 
   const columns = useMemo(
@@ -222,6 +231,13 @@ export default function ProductStockPage() {
 
   const closeDeleteModal = () => {
     setDeleteState({
+      isOpen: false,
+      product: null,
+    });
+  };
+
+  const closeStockManagementModal = () => {
+    setStockManagementState({
       isOpen: false,
       product: null,
     });
@@ -338,6 +354,13 @@ export default function ProductStockPage() {
         }?`}
         itemName={deleteState.product?.name || ""}
         isSubmitting={operations.isDeleting}
+      />
+
+      {/* Stock Management Modal */}
+      <StockManagementModal
+        isOpen={stockManagementState.isOpen}
+        onClose={closeStockManagementModal}
+        product={stockManagementState.product}
       />
     </div>
   );
