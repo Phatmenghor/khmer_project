@@ -744,7 +744,7 @@ SELECT
          WHEN (t.movement_num % 5) = 2 THEN 'INVENTORY_ADJUSTMENT'
          WHEN (t.movement_num % 5) = 3 THEN 'CUSTOMER_RETURN'
          ELSE 'QUALITY_ISSUE' END as reference_type,
-    'REF-' || SUBSTRING(ss.stock_id::text, 1, 8) || '-' || t.movement_num::text as reference_id,
+    gen_random_uuid() as reference_id,
     CASE WHEN (t.movement_num % 5) = 0 THEN 'Stock received from supplier. Batch date: ' || (NOW() - INTERVAL '1 day')::date::text
          WHEN (t.movement_num % 5) = 1 THEN 'Inventory deducted for customer order'
          WHEN (t.movement_num % 5) = 2 THEN 'Manual inventory correction'
