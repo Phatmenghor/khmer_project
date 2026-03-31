@@ -244,13 +244,11 @@ export const stockTableColumns = ({
       label: "Stock Status",
       minWidth: "10px",
       maxWidth: "120px",
+      truncate: true,
       render: (product) => (
-        <Badge
-          variant={product?.stockStatus === "ENABLED" ? "default" : "secondary"}
-          className="text-xs"
-        >
-          {product?.stockStatus || "UNKNOWN"}
-        </Badge>
+        <span className="text-xs text-muted-foreground">
+          {product?.stockStatus || "---"}
+        </span>
       ),
     },
 
@@ -259,13 +257,11 @@ export const stockTableColumns = ({
       label: "Product Status",
       minWidth: "10px",
       maxWidth: "120px",
+      truncate: true,
       render: (product) => (
-        <Badge
-          variant={product?.status === "ACTIVE" ? "default" : "secondary"}
-          className="text-xs"
-        >
-          {product?.status || "UNKNOWN"}
-        </Badge>
+        <span className="text-xs text-muted-foreground">
+          {product?.status || "---"}
+        </span>
       ),
     },
 
