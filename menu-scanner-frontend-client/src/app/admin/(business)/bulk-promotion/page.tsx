@@ -505,11 +505,16 @@ export default function BulkPromotionPage() {
       showToast.success(
         result.message || "Bulk promotion created successfully!",
       );
-      // Clear selections after successful creation
+      // Clear selections after successful creation (keep discount settings for reuse)
       dispatch(clearSelectedProducts());
       dispatch(clearAllSizeSelections());
       clearSelections();
-      form.reset();
+
+      // Reset form but keep discount type and amount for reuse
+      form.reset({
+        ...form.getValues(),
+        productIds: [],
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error
