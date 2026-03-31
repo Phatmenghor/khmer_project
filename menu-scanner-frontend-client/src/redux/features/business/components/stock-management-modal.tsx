@@ -178,22 +178,22 @@ export function StockManagementModal({
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="px-6 py-3 border-b bg-muted/10 flex-shrink-0">
-          <TabsList className="grid w-full grid-cols-2 max-w-sm">
-            <TabsTrigger value="create" className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Create Stock
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
-              <History className="w-4 h-4" />
-              History
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
         {/* Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
+          {/* Tabs Navigation */}
+          <div className="px-6 py-3 border-b bg-muted/10 flex-shrink-0">
+            <TabsList className="grid grid-cols-2 max-w-sm">
+              <TabsTrigger value="create" className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Create Stock
+              </TabsTrigger>
+              <TabsTrigger value="history" className="flex items-center gap-2">
+                <History className="w-4 h-4" />
+                History
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
           {/* Create Stock Tab */}
           <TabsContent value="create" className="flex-1 overflow-y-auto m-0">
             <div className="p-6 space-y-6">
