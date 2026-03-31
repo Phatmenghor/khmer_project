@@ -613,46 +613,42 @@ export default function BulkPromotionCreationPage() {
               </div>
 
               {/* Selected Count Card */}
-              <div className="rounded-2xl p-7 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/40 shadow-sm">
-                <div className="space-y-7">
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-primary/70 px-0.5">
-                      Selection Status
-                    </p>
-                    <div className="h-1 w-12 bg-primary/30 rounded-full" />
-                  </div>
+              <div className="rounded-lg p-5 bg-gradient-to-r from-primary/15 to-green-500/15 border border-primary/25 shadow-sm">
+                <div className="space-y-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary/70">
+                    Selection Status
+                  </p>
 
-                  {/* Products Count */}
-                  <div className="space-y-2">
+                  {/* Stats Row */}
+                  <div className="flex items-center gap-6 sm:gap-8">
+                    {/* Products Count */}
                     <div className="flex items-baseline gap-2">
-                      <p className="text-7xl font-black text-primary leading-none">
+                      <p className="text-5xl sm:text-6xl font-black text-primary">
                         {selectedIds.length}
                       </p>
+                      <p className="text-xs sm:text-sm font-semibold text-foreground/60">
+                        {selectedIds.length === 1 ? "Product" : "Products"}
+                      </p>
                     </div>
-                    <p className="text-sm font-semibold text-foreground/70">
-                      {selectedIds.length === 1 ? "Product" : "Products"} Selected
-                    </p>
-                  </div>
 
-                  {/* Divider */}
-                  <div className="h-px bg-primary/15" />
+                    {/* Divider */}
+                    <div className="h-12 w-px bg-primary/20" />
 
-                  {/* Sizes Count */}
-                  <div className="space-y-2">
+                    {/* Sizes Count */}
                     <div className="flex items-baseline gap-2">
-                      <p className="text-7xl font-black text-green-600 leading-none">
+                      <p className="text-3xl sm:text-4xl font-black text-green-600">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
                           0
                         )}
                       </p>
+                      <p className="text-xs sm:text-sm font-semibold text-foreground/60">
+                        {Object.values(selectedSizesFromRedux).reduce(
+                          (sum, sizeArray) => sum + sizeArray.length,
+                          0
+                        ) === 1 ? "Size" : "Sizes"}
+                      </p>
                     </div>
-                    <p className="text-sm font-semibold text-foreground/70">
-                      {Object.values(selectedSizesFromRedux).reduce(
-                        (sum, sizeArray) => sum + sizeArray.length,
-                        0
-                      ) === 1 ? "Size" : "Sizes"} Selected
-                    </p>
                   </div>
                 </div>
               </div>
