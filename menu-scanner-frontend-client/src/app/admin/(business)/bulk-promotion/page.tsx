@@ -204,18 +204,39 @@ export default function BulkPromotionPage() {
   // Toggle size selection for a product
   const handleSizeToggle = useCallback(
     (productId: string, sizeId: string) => {
+      // Get current selected sizes for this product
+      const currentSizesForProduct = selectedSizes.get(productId);
+      const sizeIsCurrentlySelected =
+        currentSizesForProduct && currentSizesForProduct.has(sizeId);
+
       // Check if product is already selected
       const isProductSelected = selectedProductIds.has(productId);
 
-      // If product is not selected, auto-select it when selecting a size
-      if (!isProductSelected) {
-        dispatch(toggleSelectedProduct(productId));
+      if (!sizeIsCurrentlySelected) {
+        // User is SELECTING a size
+        // If product is not selected, auto-select it
+        if (!isProductSelected) {
+          dispatch(toggleSelectedProduct(productId));
+        }
+      } else {
+        // User is DESELECTING a size
+        // Check if this is the last size for this product
+        const remainingSizes = currentSizesForProduct
+          ? new Set(
+              Array.from(currentSizesForProduct).filter((s) => s !== sizeId),
+            )
+          : new Set();
+
+        // If no more sizes selected for this product, auto-deselect the product
+        if (remainingSizes.size === 0 && isProductSelected) {
+          dispatch(toggleSelectedProduct(productId));
+        }
       }
 
       // Toggle the size
       dispatch(toggleSizeForProduct({ productId, sizeId }));
     },
-    [dispatch, selectedProductIds],
+    [dispatch, selectedProductIds, selectedSizes],
   );
 
   // Select/deselect all products on current page (and auto-select/deselect sizes)
