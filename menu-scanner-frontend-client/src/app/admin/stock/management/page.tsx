@@ -113,7 +113,6 @@ export default function ProductStockPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         stockStatuses,
-        hasSize: false,
       }),
     );
   }, [
