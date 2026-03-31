@@ -101,6 +101,18 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     """)
     List<Object[]> sumOnHandQuantityByProductIds(@Param("productIds") List<UUID> productIds);
 
+    /**
+     * Get total quantity on hand for a specific product size ID (for size-level stock enrichment).
+     */
+    @Query("""
+        SELECT COALESCE(SUM(ps.quantityOnHand), 0)
+        FROM ProductStock ps
+        WHERE ps.productSizeId = :productSizeId
+            AND ps.isExpired = false
+            AND ps.status = 'ACTIVE'
+    """)
+    Integer sumOnHandQuantityByProductSizeId(@Param("productSizeId") UUID productSizeId);
+
     // ========== Stock Status Queries ==========
     @Query("""
         SELECT ps FROM ProductStock ps

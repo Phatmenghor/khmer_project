@@ -340,6 +340,77 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    public PaginationResponse<ProductDetailDto> getAllProductsAdminStock(ProductFilterDto filter) {
+        log.debug("Starting getAllProductsAdminStock - Filter: BusinessId={}, HasSize={}, HasPromotion={}",
+                filter.getBusinessId(), filter.getHasSize(), filter.getHasPromotion());
+
+        long startTime = System.currentTimeMillis();
+
+        // Auto-set business ID for business users if not provided
+        Optional<User> currentUser = securityUtils.getCurrentUserOptional();
+        if (currentUser.isPresent() && currentUser.get().isBusinessUser() && filter.getBusinessId() == null) {
+            filter.setBusinessId(currentUser.get().getBusinessId());
+        }
+
+        Pageable pageable = PaginationUtils.createPageable(
+                filter.getPageNo(),
+                filter.getPageSize(),
+                filter.getSortBy(),
+                filter.getSortDirection()
+        );
+
+        // Fetch products with filters
+        Page<Product> productPage = productRepository.findAllWithFilters(
+                filter.getBusinessId(),
+                filter.getCategoryId(),
+                filter.getBrandId(),
+                (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
+                Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
+                Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
+                filter.getMinPrice(),
+                filter.getMaxPrice(),
+                filter.getSearch(),
+                pageable
+        );
+
+        if (productPage.getContent().isEmpty()) {
+            log.debug("No products found for stock query");
+            return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
+        }
+
+        // Batch initialize sizes to avoid lazy-loading
+        productPage.getContent().forEach(p -> Hibernate.initialize(p.getSizes()));
+
+        // Clear images (not needed for stock listing)
+        productPage.getContent().forEach(p -> p.setImages(new ArrayList<>()));
+
+        // Recalculate display fields from current sizes
+        productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
+
+        // Apply hasSize filter in memory if provided
+        List<Product> filteredProducts = productPage.getContent();
+        if (filter.getHasSize() != null) {
+            filteredProducts = productPage.getContent().stream()
+                    .filter(p -> filter.getHasSize().equals(p.getHasSizes()))
+                    .toList();
+            log.debug("Applied hasSize filter - Filtered {} products to {}", productPage.getContent().size(), filteredProducts.size());
+        }
+
+        List<ProductDetailDto> dtoList = productMapper.toDetailDtos(filteredProducts);
+
+        // Enrich with stock information
+        enrichTotalStockForDetails(dtoList, filteredProducts);
+        enrichProductSizesStock(dtoList);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("getAllProductsAdminStock completed in {}ms - Retrieved {} products with stock info",
+                duration, dtoList.size());
+
+        return paginationMapper.toPaginationResponse(productPage, dtoList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public ProductDetailDto getProductById(UUID id) {
         log.debug("Starting getProductById - ID: {}", id);
         long startTime = System.currentTimeMillis();
@@ -987,6 +1058,33 @@ public class ProductServiceImpl implements ProductService {
     private void validateBusinessAccess(Product product, User user) {
         if (user.isBusinessUser() && !product.getBusinessId().equals(user.getBusinessId())) {
             throw new ValidationException("Access denied to product from different business");
+        }
+    }
+
+    /**
+     * Enrich product sizes with stock information from ProductStock repository
+     * Sets totalStock for each ProductSizeDto and totalSizesStock for the parent product
+     */
+    private void enrichProductSizesStock(List<ProductDetailDto> dtoList) {
+        for (ProductDetailDto dto : dtoList) {
+            if (dto.getHasSizes() && dto.getSizes() != null && !dto.getSizes().isEmpty()) {
+                int totalSizesStock = 0;
+
+                // Get stock for each size from repository
+                for (var sizeDto : dto.getSizes()) {
+                    Integer sizeStock = productStockRepository.sumOnHandQuantityByProductSizeId(sizeDto.getId());
+                    int stock = sizeStock != null ? sizeStock : 0;
+                    sizeDto.setTotalStock(stock);
+                    totalSizesStock += stock;
+                }
+
+                // Set the sum of all sizes
+                dto.setTotalSizesStock(totalSizesStock);
+            } else if (!Boolean.TRUE.equals(dto.getHasSizes())) {
+                // For products without sizes, totalStock is already set by enrichTotalStockForDetails
+                // Set totalSizesStock to null (not applicable)
+                dto.setTotalSizesStock(null);
+            }
         }
     }
 
