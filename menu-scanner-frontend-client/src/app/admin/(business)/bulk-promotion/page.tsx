@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useDebounce } from "@/utils/debounce/debounce";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, CheckSquare, Square, Trash2, Search, X } from "lucide-react";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
@@ -108,6 +109,9 @@ export default function BulkPromotionPage() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
+  // Debounce search query for performance (400ms delay)
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+
   // Detail modal state
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -158,7 +162,7 @@ export default function BulkPromotionPage() {
   useEffect(() => {
     dispatch(
       fetchAllProductAdminService({
-        search: searchQuery,
+        search: debouncedSearchQuery,
         pageNo: 1,
         pageSize: globalPageSize,
         status:
@@ -179,7 +183,7 @@ export default function BulkPromotionPage() {
     filters.status,
     selectedBrand,
     selectedCategories,
-    searchQuery,
+    debouncedSearchQuery,
     hasPromotionFilter,
   ]);
 
@@ -486,7 +490,7 @@ export default function BulkPromotionPage() {
     dispatch(setPageNo(page));
     dispatch(
       fetchAllProductAdminService({
-        search: searchQuery,
+        search: debouncedSearchQuery,
         pageNo: page,
         pageSize: pageSize,
         status:
@@ -509,7 +513,7 @@ export default function BulkPromotionPage() {
     dispatch(setPageNo(1));
     dispatch(
       fetchAllProductAdminService({
-        search: searchQuery,
+        search: debouncedSearchQuery,
         pageNo: 1,
         pageSize: newPageSize,
         status:
@@ -627,7 +631,7 @@ export default function BulkPromotionPage() {
       // Refresh products list
       dispatch(
         fetchAllProductAdminService({
-          search: searchQuery,
+          search: debouncedSearchQuery,
           pageNo: filters.pageNo,
           pageSize: pageSize,
           status:
