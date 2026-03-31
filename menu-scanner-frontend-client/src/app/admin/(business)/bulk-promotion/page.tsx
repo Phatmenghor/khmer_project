@@ -204,9 +204,18 @@ export default function BulkPromotionPage() {
   // Toggle size selection for a product
   const handleSizeToggle = useCallback(
     (productId: string, sizeId: string) => {
+      // Check if product is already selected
+      const isProductSelected = selectedProductIds.has(productId);
+
+      // If product is not selected, auto-select it when selecting a size
+      if (!isProductSelected) {
+        dispatch(toggleSelectedProduct(productId));
+      }
+
+      // Toggle the size
       dispatch(toggleSizeForProduct({ productId, sizeId }));
     },
-    [dispatch],
+    [dispatch, selectedProductIds],
   );
 
   // Select/deselect all products on current page (and auto-select/deselect sizes)
