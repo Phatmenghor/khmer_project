@@ -345,4 +345,50 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         "        AND (ps.promotion_to_date   IS NULL OR ps.promotion_to_date::date   >= CURRENT_DATE) " +
         "  )")
     int clearExpiredPromotionsForProductsWithSizes();
+
+    /**
+     * Reset ALL promotions for products in a specific business - FAST native SQL query
+     * Clears promotions for products WITHOUT sizes
+     */
+    @Modifying
+    @Query(nativeQuery = true, value =
+        "UPDATE products SET " +
+        "    promotion_type = NULL, " +
+        "    promotion_value = NULL, " +
+        "    promotion_from_date = NULL, " +
+        "    promotion_to_date = NULL, " +
+        "    has_active_promotion = false, " +
+        "    display_promotion_type = NULL, " +
+        "    display_promotion_value = NULL, " +
+        "    display_promotion_from_date = NULL, " +
+        "    display_promotion_to_date = NULL, " +
+        "    display_price = price, " +
+        "    display_origin_price = price " +
+        "WHERE business_id = :businessId " +
+        "  AND is_deleted = false " +
+        "  AND has_sizes = false")
+    int resetAllPromotionsForProductsWithoutSizes(@Param("businessId") UUID businessId);
+
+    /**
+     * Reset ALL promotions for products in a specific business - FAST native SQL query
+     * Clears promotions and recalculates display fields for products WITH sizes
+     */
+    @Modifying
+    @Query(nativeQuery = true, value =
+        "UPDATE products p SET " +
+        "    promotion_type = NULL, " +
+        "    promotion_value = NULL, " +
+        "    promotion_from_date = NULL, " +
+        "    promotion_to_date = NULL, " +
+        "    has_active_promotion = false, " +
+        "    display_promotion_type = NULL, " +
+        "    display_promotion_value = NULL, " +
+        "    display_promotion_from_date = NULL, " +
+        "    display_promotion_to_date = NULL, " +
+        "    display_price = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false), " +
+        "    display_origin_price = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false) " +
+        "WHERE p.business_id = :businessId " +
+        "  AND p.is_deleted = false " +
+        "  AND p.has_sizes = true")
+    int resetAllPromotionsForProductsWithSizes(@Param("businessId") UUID businessId);
 }

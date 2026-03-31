@@ -2,6 +2,7 @@ package com.emenu.features.main.repository;
 
 import com.emenu.features.main.models.ProductSize;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -48,4 +49,22 @@ public interface ProductSizeRepository extends JpaRepository<ProductSize, UUID> 
         return sizes.stream()
                 .collect(Collectors.groupingBy(ProductSize::getProductId));
     }
+
+    /**
+     * Reset ALL promotions for all product sizes in a specific business - FAST native SQL query
+     * Clears all promotion fields for product sizes belonging to products in the business
+     */
+    @Modifying
+    @Query(nativeQuery = true, value =
+        "UPDATE product_sizes ps SET " +
+        "    promotion_type = NULL, " +
+        "    promotion_value = NULL, " +
+        "    promotion_from_date = NULL, " +
+        "    promotion_to_date = NULL " +
+        "WHERE ps.is_deleted = false " +
+        "  AND ps.product_id IN ( " +
+        "      SELECT p.id FROM products p " +
+        "      WHERE p.business_id = :businessId AND p.is_deleted = false" +
+        "  )")
+    int resetAllPromotionsForProductSizes(@Param("businessId") UUID businessId);
 }
