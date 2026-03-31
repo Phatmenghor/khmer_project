@@ -83,21 +83,16 @@ export const bulkPromotionTableColumns = ({
 }: BulkPromotionTableOptions): TableColumn<ProductDetailResponseModel>[] => {
   return [
     {
-      key: "checkbox",
-      label: "",
+      key: "index",
+      label: "#",
       width: "50px",
       minWidth: "10px",
       maxWidth: "120px",
-      className: "pl-4",
-      render: (product) => (
-        <CustomCheckbox
-          checked={selectedProductIds.has(product.id)}
-          onCheckedChange={() => onSelectProduct(product.id)}
-          disabled={isLoading}
-          size="lg"
-          variant="default"
-          ariaLabel={`Select ${product.name}`}
-        />
+      className: "pr-2",
+      render: (_, index) => (
+        <span className="font-medium text-xs pointer-events-none">
+          {indexDisplay(pageNo || 1, pageSize || 10, index + 1)}
+        </span>
       ),
     },
     {
@@ -108,6 +103,15 @@ export const bulkPromotionTableColumns = ({
       className: "px-2",
       render: (product) => (
         <div className="flex items-center gap-2">
+          <CustomCheckbox
+            checked={selectedProductIds.has(product.id)}
+            onCheckedChange={() => onSelectProduct(product.id)}
+            disabled={isLoading}
+            size="lg"
+            variant="default"
+            ariaLabel={`Select ${product.name}`}
+          />
+
           <ActionButton
             icon={<Eye className="w-4 h-4" />}
             tooltip="View Details"
@@ -123,19 +127,7 @@ export const bulkPromotionTableColumns = ({
         </div>
       ),
     },
-    {
-      key: "index",
-      label: "#",
-      width: "50px",
-      minWidth: "10px",
-      maxWidth: "120px",
-      className: "pr-2",
-      render: (_, index) => (
-        <span className="font-medium text-xs pointer-events-none">
-          {indexDisplay(pageNo || 1, pageSize || 10, index + 1)}
-        </span>
-      ),
-    },
+
     {
       key: "image",
       label: "Image",
@@ -186,6 +178,23 @@ export const bulkPromotionTableColumns = ({
         </span>
       ),
     },
+
+    {
+      key: "promotionStatus",
+      label: "Promotion",
+      minWidth: "10px",
+      maxWidth: "120px",
+      className: "px-4",
+      render: (product) => {
+        if (!product.hasPromotion) {
+          return <span className="text-sm text-foreground">No Promotion</span>;
+        }
+
+        return (
+          <span className="text-sm font-medium text-green-600">Active</span>
+        );
+      },
+    },
     {
       key: "sizes",
       label: "Sizes",
@@ -194,9 +203,7 @@ export const bulkPromotionTableColumns = ({
       className: "px-4",
       render: (product) => {
         if (!product.hasSizes || !product.sizes || product.sizes.length === 0) {
-          return (
-            <span className="text-xs text-muted-foreground">No sizes</span>
-          );
+          return <span className="text-xs text-muted-foreground">- - -</span>;
         }
 
         return (
@@ -303,22 +310,6 @@ export const bulkPromotionTableColumns = ({
               ? `${product.displayPromotionValue}%`
               : `$${Number(product.displayPromotionValue || 0).toFixed(2)}`}
           </Badge>
-        );
-      },
-    },
-    {
-      key: "promotionStatus",
-      label: "Promotion Status",
-      minWidth: "10px",
-      maxWidth: "120px",
-      className: "px-4",
-      render: (product) => {
-        if (!product.hasPromotion) {
-          return <span className="text-sm text-foreground">No Promotion</span>;
-        }
-
-        return (
-          <span className="text-sm font-medium text-green-600">Active</span>
         );
       },
     },
