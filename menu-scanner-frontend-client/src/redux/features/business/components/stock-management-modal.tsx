@@ -60,8 +60,8 @@ export function StockManagementModal({
 
   const form = useForm<StockFormData>({
     defaultValues: {
-      quantityOnHand: 0,
-      priceIn: "0.01",
+      quantityOnHand: undefined,
+      priceIn: "",
       expiryDate: "",
       location: "",
     },
