@@ -35,10 +35,8 @@ public class OptimisticLockRetryAspect {
             } catch (OptimisticLockException | StaleStateException |
                      ObjectOptimisticLockingFailureException ex) {
                 if (attempt >= maxRetries) {
-                            methodName, maxRetries);
                     throw ex;
                 }
-                        methodName, attempt + 1, maxRetries);
             }
         }
 

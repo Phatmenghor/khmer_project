@@ -52,8 +52,6 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
         DeliveryOption savedDeliveryOption = deliveryOptionRepository.save(deliveryOption);
 
-                savedDeliveryOption.getName(), currentUser.getBusinessId());
-
         return deliveryOptionMapper.toResponse(savedDeliveryOption);
     }
 

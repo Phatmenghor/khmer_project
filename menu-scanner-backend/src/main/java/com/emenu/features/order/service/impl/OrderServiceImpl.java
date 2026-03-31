@@ -143,10 +143,6 @@ public class OrderServiceImpl implements OrderService {
             clearCartAfterOrder(currentUser.getId(), request.getBusinessId());
 
             OrderResponse response = getOrderById(savedOrder.getId());
-                response.getOrderNumber(),
-                response.getPricing() != null && response.getPricing().getAfter() != null ?
-                    response.getPricing().getAfter().getFinalTotal() : "N/A",
-                response.getItems().size());
             return response;
         } catch (Exception e) {
             throw e;
@@ -175,8 +171,6 @@ public class OrderServiceImpl implements OrderService {
         PaginationResponse<OrderResponse> response = orderMapper.toPaginationResponse(page, paginationMapper);
 
         long duration = System.currentTimeMillis() - startTime;
-                page.getNumberOfElements(), duration, page.getTotalElements(),
-                page.getNumber() + 1, page.getTotalPages());
 
         return response;
     }
@@ -208,12 +202,9 @@ public class OrderServiceImpl implements OrderService {
             filter.setBusinessId(currentUser.getBusinessId());
         }
 
-                filter.getBusinessId(), filter.getOrderStatus(), filter.getPaymentMethod(), filter.getPaymentStatus());
-
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
-                filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
 
         // Apply filters: businessId, orderStatus, paymentMethod, paymentStatus
         long queryStartTime = System.currentTimeMillis();
@@ -611,8 +602,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public POSCheckoutResponse createPOSCheckoutOrder(POSCheckoutRequest request) {
-            request.getBusinessId(), request.getCart().getItems().size());
-
         User currentUser = securityUtils.getCurrentUser();
         String createdBy = currentUser != null ? currentUser.getFullName() : "System";
 
