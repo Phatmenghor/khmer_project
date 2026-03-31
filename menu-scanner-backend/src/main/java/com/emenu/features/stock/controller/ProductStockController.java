@@ -66,7 +66,9 @@ public class ProductStockController {
     @PostMapping
     public ResponseEntity<ApiResponse<ProductStockDto>> createProductStock(
             @Valid @RequestBody ProductStockCreateRequest request) {
-        log.info("Create product stock - business: {}, product: {}", request.getBusinessId(), request.getProductId());
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        request.setBusinessId(businessId);
+        log.info("Create product stock - business: {}, product: {}", businessId, request.getProductId());
         ProductStockDto response = productStockService.createProductStock(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Product stock created", response));

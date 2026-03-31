@@ -1,7 +1,6 @@
 import { BaseGetAllRequest } from "@/utils/common/get-all-request";
 
 export interface ProductStockCreateRequest {
-  businessId: string;
   productId: string;
   productSizeId?: string;
   quantityOnHand: number;

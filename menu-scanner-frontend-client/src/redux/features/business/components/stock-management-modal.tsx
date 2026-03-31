@@ -113,7 +113,6 @@ export function StockManagementModal({
 
     dispatch(
       createProductStockService({
-        businessId: product.businessId || "",
         productId: product.id || "",
         quantityOnHand: data.quantityOnHand,
         priceIn: price,
