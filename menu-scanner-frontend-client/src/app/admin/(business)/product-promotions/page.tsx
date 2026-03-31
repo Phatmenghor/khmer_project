@@ -18,6 +18,7 @@ import {
   fetchAllProductAdminService,
   resetProductPromotionService,
   resetAllPromotionsService,
+  resetBulkPromotionsService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import {
   selectProductStatus,
@@ -209,10 +210,7 @@ export default function ProductPromotionPage() {
   const handleConfirmResetTablePromotions = async () => {
     dispatch(resetTablePromotionsOptimistic(resetTableState.selectedProductIds));
     closeResetTableModal();
-    const promises = resetTableState.selectedProductIds.map((productId) =>
-      dispatch(resetProductPromotionService(productId))
-    );
-    Promise.all(promises)
+    dispatch(resetBulkPromotionsService(resetTableState.selectedProductIds as any))
       .then(() => {
         showToast.success(`Reset promotions for ${resetTableState.selectedProductIds.length} products`);
       })

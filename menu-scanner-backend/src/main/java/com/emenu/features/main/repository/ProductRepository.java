@@ -391,4 +391,25 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         "  AND p.is_deleted = false " +
         "  AND p.has_sizes = true")
     int resetAllPromotionsForProductsWithSizes(@Param("businessId") UUID businessId);
+
+    /**
+     * Bulk reset promotions for specific products (by IDs)
+     */
+    @Modifying
+    @Query(nativeQuery = true, value =
+        "UPDATE products SET " +
+        "    promotion_type = NULL, " +
+        "    promotion_value = NULL, " +
+        "    promotion_from_date = NULL, " +
+        "    promotion_to_date = NULL, " +
+        "    has_active_promotion = false, " +
+        "    display_promotion_type = NULL, " +
+        "    display_promotion_value = NULL, " +
+        "    display_promotion_from_date = NULL, " +
+        "    display_promotion_to_date = NULL, " +
+        "    display_price = price, " +
+        "    display_origin_price = price " +
+        "WHERE id IN :productIds " +
+        "  AND is_deleted = false")
+    int resetPromotionsBulk(@Param("productIds") List<UUID> productIds);
 }

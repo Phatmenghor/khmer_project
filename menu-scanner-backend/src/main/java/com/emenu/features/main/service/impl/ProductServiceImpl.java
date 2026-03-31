@@ -499,6 +499,79 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    public Map<String, Object> resetPromotionsBulk(List<UUID> productIds) {
+        log.info("Starting reset promotions for {} selected products", productIds.size());
+        long startTime = System.currentTimeMillis();
+
+        try {
+            if (productIds == null || productIds.isEmpty()) {
+                throw new ValidationException("No products selected");
+            }
+
+            User currentUser = securityUtils.getCurrentUser();
+            validateUserBusinessAssociation(currentUser);
+            UUID businessId = currentUser.getBusinessId();
+
+            // Validate all products belong to current user's business
+            List<Product> products = productRepository.findAllById(productIds);
+            log.info("Fetched {} products for reset", products.size());
+
+            int productsValidated = 0;
+            for (Product product : products) {
+                if (!product.getBusinessId().equals(businessId)) {
+                    throw new ValidationException("Product does not belong to your business: " + product.getId());
+                }
+                productsValidated++;
+            }
+
+            log.info("Validated {} products for business: {}", productsValidated, businessId);
+
+            // Reset product sizes for selected products
+            int sizesReset = 0;
+            if (!productIds.isEmpty()) {
+                sizesReset = productSizeRepository.resetPromotionsBulkForProductSizes(productIds);
+                log.info("Reset promotions for {} product sizes", sizesReset);
+            }
+
+            // Reset products without sizes
+            int productsWithoutSizes = 0;
+            int productsWithSizes = 0;
+
+            for (Product product : products) {
+                if (!product.getHasSizes()) {
+                    productsWithoutSizes++;
+                } else {
+                    productsWithSizes++;
+                }
+            }
+
+            // Update promotions via direct SQL for selected products
+            int updatedCount = productRepository.resetPromotionsBulk(productIds);
+            log.info("Reset promotions for {} products via SQL", updatedCount);
+
+            long duration = System.currentTimeMillis() - startTime;
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", String.format("Successfully reset promotions for %d products in %dms",
+                productIds.size(), duration));
+            response.put("resetCount", productIds.size() + sizesReset);
+            response.put("productsReset", productIds.size());
+            response.put("sizesReset", sizesReset);
+            response.put("durationMs", duration);
+
+            log.info("Reset bulk promotions completed in {}ms - Products: {}, Sizes: {}, Total: {}",
+                duration, productIds.size(), sizesReset, productIds.size() + sizesReset);
+
+            return response;
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Reset bulk promotions failed after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    @Transactional
     public BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request) {
         log.info("Starting bulk promotion creation for {} products, Type: {}, Value: {}",
             request.getProductIds().size(), request.getPromotionType(), request.getPromotionValue());
