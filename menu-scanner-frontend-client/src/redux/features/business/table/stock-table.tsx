@@ -66,7 +66,13 @@ function ProductImagePreview({
 /**
  * StockStatusBadge - Display stock status with color coding
  */
-function StockStatusBadge({ stock, hasSizes }: { stock: number | null; hasSizes: boolean }) {
+function StockStatusBadge({
+  stock,
+  hasSizes,
+}: {
+  stock: number | null;
+  hasSizes: boolean;
+}) {
   if (stock === null || stock === undefined) {
     return (
       <Badge variant="secondary" className="gap-1">
@@ -99,31 +105,6 @@ function StockStatusBadge({ stock, hasSizes }: { stock: number | null; hasSizes:
       <Package className="w-3 h-3" />
       Available ({stock})
     </Badge>
-  );
-}
-
-/**
- * SizesWithStockDisplay - Display product sizes with their individual stock
- */
-function SizesWithStockDisplay({ sizes }: { sizes: any[] | undefined }) {
-  if (!sizes || sizes.length === 0) {
-    return <span className="text-xs text-muted-foreground">No sizes</span>;
-  }
-
-  return (
-    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
-      {sizes.map((size) => (
-        <div
-          key={size.id}
-          className="px-2 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
-          style={{
-            border: "0.5px solid #FCD34D",
-          }}
-        >
-          {size.name} - Stock: {size.totalStock || 0}
-        </div>
-      ))}
-    </div>
   );
 }
 
@@ -200,16 +181,11 @@ export const stockTableColumns = ({
       minWidth: "10px",
       maxWidth: "150px",
       render: (product) => (
-        <StockStatusBadge stock={product?.totalStock} hasSizes={product?.hasSizes || false} />
+        <StockStatusBadge
+          stock={product?.totalStock}
+          hasSizes={product?.hasSizes || false}
+        />
       ),
-    },
-
-    {
-      key: "sizes",
-      label: "Size Stock",
-      minWidth: "25px",
-      maxWidth: "1000px",
-      render: (product) => <SizesWithStockDisplay sizes={product?.sizes} />,
     },
 
     {
