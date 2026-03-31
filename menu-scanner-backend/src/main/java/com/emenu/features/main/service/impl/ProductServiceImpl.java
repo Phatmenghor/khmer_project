@@ -578,16 +578,12 @@ public class ProductServiceImpl implements ProductService {
                     UUID productId = entry.getKey();
                     List<UUID> sizeIds = entry.getValue();
                     if (!sizeIds.isEmpty()) {
-                        // For each size, manually reset by fetching and updating
+                        // For each size, reset by fetching and updating
                         // Since we don't have a batch query for specific sizes
                         List<ProductSize> sizes = productSizeRepository.findAllById(sizeIds);
                         for (ProductSize size : sizes) {
                             if (size.getProductId().equals(productId)) {
-                                size.setPromotionType(null);
-                                size.setPromotionValue(null);
-                                size.setPromotionFromDate(null);
-                                size.setPromotionToDate(null);
-                                size.setHasPromotion(false);
+                                size.removePromotion();
                                 sizesReset++;
                             }
                         }
