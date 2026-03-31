@@ -1063,7 +1063,9 @@ public class ProductServiceImpl implements ProductService {
 
     /**
      * Enrich product sizes with stock information from ProductStock repository
-     * Sets totalStock for each ProductSizeDto and totalSizesStock for the parent product
+     * Sets totalStock for each ProductSizeDto
+     * For products WITH sizes: updates parent totalStock as sum of all sizes
+     * For products WITHOUT sizes: totalStock is already set by enrichTotalStockForDetails
      */
     private void enrichProductSizesStock(List<ProductDetailDto> dtoList) {
         for (ProductDetailDto dto : dtoList) {
@@ -1078,13 +1080,10 @@ public class ProductServiceImpl implements ProductService {
                     totalSizesStock += stock;
                 }
 
-                // Set the sum of all sizes
-                dto.setTotalSizesStock(totalSizesStock);
-            } else if (!Boolean.TRUE.equals(dto.getHasSizes())) {
-                // For products without sizes, totalStock is already set by enrichTotalStockForDetails
-                // Set totalSizesStock to null (not applicable)
-                dto.setTotalSizesStock(null);
+                // Set parent product totalStock as sum of all sizes
+                dto.setTotalStock(totalSizesStock);
             }
+            // For products without sizes, totalStock is already set by enrichTotalStockForDetails
         }
     }
 
