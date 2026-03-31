@@ -255,6 +255,24 @@ export default function BulkPromotionCreationPage() {
   // Get selected product IDs as array
   const selectedIds = Array.from(selectedProductIds.keys());
 
+  // Handle view product details
+  const handleViewDetails = useCallback(
+    (product: ProductDetailResponseModel) => {
+      // Navigate to product details or show modal
+      console.log("View details for:", product.id);
+    },
+    [],
+  );
+
+  // Handle edit product
+  const handleEditProduct = useCallback(
+    (product: ProductDetailResponseModel) => {
+      // Navigate to product edit or show modal
+      console.log("Edit product:", product.id);
+    },
+    [],
+  );
+
   // Sync selected products to form
   useEffect(() => {
     form.setValue("productIds", selectedIds);
@@ -301,6 +319,8 @@ export default function BulkPromotionCreationPage() {
         pageSize,
         selectedSizes,
         onSizeToggle: handleSizeToggle,
+        onViewDetails: handleViewDetails,
+        onEditProduct: handleEditProduct,
       }),
     [
       selectedProductIds,
@@ -313,6 +333,8 @@ export default function BulkPromotionCreationPage() {
       pageSize,
       selectedSizes,
       handleSizeToggle,
+      handleViewDetails,
+      handleEditProduct,
     ],
   );
 

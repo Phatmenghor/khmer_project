@@ -7,7 +7,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, MoreVertical, Eye, Edit } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface BulkPromotionTableOptions {
   selectedProductIds: Map<string, boolean>;
@@ -20,6 +27,8 @@ interface BulkPromotionTableOptions {
   pageSize: number;
   selectedSizes?: Map<string, Set<string>>; // productId -> sizeIds
   onSizeToggle?: (productId: string, sizeId: string) => void;
+  onViewDetails?: (product: ProductDetailResponseModel) => void;
+  onEditProduct?: (product: ProductDetailResponseModel) => void;
 }
 
 /**
@@ -73,6 +82,8 @@ export const bulkPromotionTableColumns = ({
   pageSize,
   selectedSizes = new Map(),
   onSizeToggle,
+  onViewDetails,
+  onEditProduct,
 }: BulkPromotionTableOptions): TableColumn<ProductDetailResponseModel>[] => {
   return [
     {
@@ -233,6 +244,43 @@ export const bulkPromotionTableColumns = ({
           <span className="text-sm font-medium text-green-600">Active</span>
         );
       },
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      minWidth: "10px",
+      maxWidth: "120px",
+      className: "px-4",
+      render: (product) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+            >
+              <MoreVertical className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => onViewDetails?.(product)}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Eye className="h-4 w-4" />
+              <span>View Details</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onEditProduct?.(product)}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Edit className="h-4 w-4" />
+              <span>Edit Product</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
   ];
 };
