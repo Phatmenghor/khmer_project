@@ -138,7 +138,7 @@ export function StockManagementModal({
       label: "Quantity",
       render: (stock) => (
         <Badge variant="secondary" className="text-sm">
-          {stock.quantityOnHand}
+          {stock.quantityOnHand} Items
         </Badge>
       ),
     },
