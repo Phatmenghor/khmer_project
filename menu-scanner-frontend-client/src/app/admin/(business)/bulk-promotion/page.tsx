@@ -487,8 +487,6 @@ export default function BulkPromotionPage() {
         }),
       );
 
-      showToast.success("Applying promotions... (updating in background)");
-
       // ✅ BACKGROUND API CALL: Make API request in background
       const result = await dispatch(
         createBulkPromotionsService({
