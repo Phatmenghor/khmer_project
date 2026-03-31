@@ -79,6 +79,8 @@ export const bulkPromotionTableColumns = ({
       key: "checkbox",
       label: "",
       width: "50px",
+      minWidth: "10px",
+      maxWidth: "120px",
       className: "pl-4",
       render: (product) => (
         <CustomCheckbox
@@ -95,6 +97,8 @@ export const bulkPromotionTableColumns = ({
       key: "index",
       label: "#",
       width: "50px",
+      minWidth: "10px",
+      maxWidth: "120px",
       className: "pr-2",
       render: (_, index) => (
         <span className="font-medium text-xs pointer-events-none">
@@ -106,12 +110,16 @@ export const bulkPromotionTableColumns = ({
       key: "image",
       label: "Image",
       width: "60px",
+      minWidth: "10px",
+      maxWidth: "120px",
       className: "px-2",
       render: (product) => <ProductImagePreview product={product} />,
     },
     {
       key: "name",
       label: "Product Name",
+      minWidth: "10px",
+      maxWidth: "120px",
       className: "px-4",
       render: (product) => (
         <span className="text-xs font-medium truncate max-w-xs">
@@ -122,6 +130,8 @@ export const bulkPromotionTableColumns = ({
     {
       key: "brandName",
       label: "Brand",
+      minWidth: "10px",
+      maxWidth: "120px",
       className: "px-4",
       render: (product) => (
         <span className="text-xs text-muted-foreground">
@@ -132,6 +142,8 @@ export const bulkPromotionTableColumns = ({
     {
       key: "categoryName",
       label: "Category",
+      minWidth: "10px",
+      maxWidth: "120px",
       className: "px-4",
       render: (product) => (
         <span className="text-xs text-muted-foreground">
@@ -142,6 +154,8 @@ export const bulkPromotionTableColumns = ({
     {
       key: "displayPrice",
       label: "Price",
+      minWidth: "10px",
+      maxWidth: "120px",
       className: "px-4 text-right",
       render: (product) => (
         <span className="text-xs font-semibold">
@@ -152,6 +166,8 @@ export const bulkPromotionTableColumns = ({
     {
       key: "sizes",
       label: "Sizes",
+      minWidth: "10px",
+      maxWidth: "500px",
       className: "px-4",
       render: (product) => {
         if (!product.hasSizes || !product.sizes || product.sizes.length === 0) {
@@ -210,6 +226,8 @@ export const bulkPromotionTableColumns = ({
     {
       key: "promotionStatus",
       label: "Promotion Status",
+      minWidth: "10px",
+      maxWidth: "120px",
       className: "px-4",
       render: (product) => {
         if (!product.hasActivePromotion) {
@@ -237,6 +255,8 @@ export const bulkPromotionTableColumns = ({
     {
       key: "promotionDates",
       label: "Promotion Period",
+      minWidth: "10px",
+      maxWidth: "120px",
       className: "px-4",
       render: (product) => {
         if (!product.hasActivePromotion) {

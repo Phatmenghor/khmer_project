@@ -183,7 +183,7 @@ export function DataTableWithPagination<T = any>({
     <div className="space-y-4">
       {/* Data Table */}
       <div className={`rounded-md border overflow-x-auto ${className}`}>
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" style={{ tableLayout: "fixed" }}>
           <thead className="bg-muted/50">
             <tr>
               {columns.map((column) => (
