@@ -177,7 +177,6 @@ export const bulkPromotionTableColumns = ({
                       variant="secondary"
                       className="bg-green-100/70 text-green-700 border-green-300/40 text-xs h-fit px-1"
                     >
-                      <Check className="w-2 h-2" />
                       {size.promotionType === "PERCENTAGE"
                         ? `${size.promotionValue}%`
                         : `$${size.promotionValue}`}
@@ -201,7 +200,9 @@ export const bulkPromotionTableColumns = ({
           return <span className="text-sm text-foreground">No Promotion</span>;
         }
 
-        return <span className="text-sm font-medium text-green-600">Active</span>;
+        return (
+          <span className="text-sm font-medium text-green-600">Active</span>
+        );
       },
     },
   ];
