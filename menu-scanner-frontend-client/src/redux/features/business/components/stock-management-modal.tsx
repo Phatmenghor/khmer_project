@@ -83,10 +83,9 @@ export function StockManagementModal({
     }
   }, [error, dispatch]);
 
-  // Load history and reset form when modal opens
+  // Load history when modal opens
   useEffect(() => {
     if (isOpen && product) {
-      form.reset();
       dispatch(
         getProductStockHistoryService({
           pageNo: 1,
@@ -95,7 +94,14 @@ export function StockManagementModal({
         } as any)
       );
     }
-  }, [isOpen, product, dispatch, form]);
+  }, [isOpen, product, dispatch]);
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      form.reset();
+    }
+  }, [isOpen]);
 
   const handleCreateStock = async (data: StockFormData) => {
     if (!product) return;
