@@ -341,8 +341,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProductDetailDto> getAllProductsAdminStock(ProductFilterDto filter) {
-        log.debug("Starting getAllProductsAdminStock - Filter: BusinessId={}, HasSize={}, HasPromotion={}",
-                filter.getBusinessId(), filter.getHasSize(), filter.getHasPromotion());
+        log.debug("Starting getAllProductsAdminStock - Filter: BusinessId={}, HasSize={}, StockStatus={}, HasPromotion={}, Search={}",
+                filter.getBusinessId(), filter.getHasSize(), filter.getStockStatus(), filter.getHasPromotion(), filter.getSearch());
 
         long startTime = System.currentTimeMillis();
 
@@ -394,6 +394,15 @@ public class ProductServiceImpl implements ProductService {
                     .filter(p -> filter.getHasSize().equals(p.getHasSizes()))
                     .toList();
             log.debug("Applied hasSize filter - Filtered {} products to {}", productPage.getContent().size(), filteredProducts.size());
+        }
+
+        // Apply stockStatus filter in memory if provided
+        if (filter.getStockStatus() != null) {
+            int beforeFilter = filteredProducts.size();
+            filteredProducts = filteredProducts.stream()
+                    .filter(p -> p.getStockStatus() != null && p.getStockStatus().name().equals(filter.getStockStatus()))
+                    .toList();
+            log.debug("Applied stockStatus filter - Filtered {} products to {}", beforeFilter, filteredProducts.size());
         }
 
         List<ProductDetailDto> dtoList = productMapper.toDetailDtos(filteredProducts);

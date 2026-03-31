@@ -106,17 +106,19 @@ public class ProductController {
             @Valid @RequestBody ProductFilterDto filter) {
 
         long startTime = System.currentTimeMillis();
-        log.info("GET /api/v1/products/admin/stock/all - Page: {}, Size: {}, Filters: HasSize={}, HasPromotion={}",
-                filter.getPageNo(), filter.getPageSize(), filter.getHasSize(), filter.getHasPromotion());
+        log.info("GET /api/v1/products/admin/stock/all - Page: {}, Size: {}, Filters: Search='{}', Status={}, HasSize={}, StockStatus={}, HasPromotion={}, BrandId={}, CategoryId={}",
+                filter.getPageNo(), filter.getPageSize(), filter.getSearch(), filter.getStatuses(),
+                filter.getHasSize(), filter.getStockStatus(), filter.getHasPromotion(), filter.getBrandId(), filter.getCategoryId());
 
         try {
             PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdminStock(filter);
             long duration = System.currentTimeMillis() - startTime;
-            log.info("GET /api/v1/products/admin/stock/all succeeded in {}ms - Retrieved {} products with stock info, Total: {}",
-                    duration, products.getContent().size(), products.getTotalElements());
+            log.info("GET /api/v1/products/admin/stock/all succeeded in {}ms - Retrieved {} products (Page {} of {}), Total Elements: {}",
+                    duration, products.getContent().size(), products.getPageNo(), products.getTotalPages(), products.getTotalElements());
 
             return ResponseEntity.ok(ApiResponse.success(
-                    String.format("Found %d products with stock information", products.getTotalElements()),
+                    String.format("Found %d products with stock information (Page %d of %d)",
+                        products.getTotalElements(), products.getPageNo(), products.getTotalPages()),
                     products
             ));
         } catch (Exception e) {
