@@ -31,7 +31,10 @@ import {
 } from "@/redux/features/business/store/thunks/product-thunks";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
-import { setPageNo, resetProductPromotionOptimistic } from "@/redux/features/business/store/slice/product-slice";
+import {
+  setPageNo,
+  resetProductPromotionOptimistic,
+} from "@/redux/features/business/store/slice/product-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import {
   bulkPromotionSchema,
@@ -67,7 +70,7 @@ import {
 } from "@/redux/features/business/store/slice/promotion-size-selection-slice";
 import { selectPromotionSizeSelections } from "@/redux/features/business/store/selectors/promotion-size-selection-selector";
 
-export default function BulkPromotionCreationPage() {
+export default function BulkPromotionPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { productContent, filters, pagination, isLoading } = useProductState();
@@ -136,11 +139,12 @@ export default function BulkPromotionCreationPage() {
   });
 
   // ─── localStorage Sync for Size Selections ───
-  const { clearSelections: clearSizeSelections } = useBulkPromotionSizesStorageSync({
-    storageKey: "bulk-promotion:selected-sizes",
-    debounceMs: 1000,
-    enabled: true,
-  });
+  const { clearSelections: clearSizeSelections } =
+    useBulkPromotionSizesStorageSync({
+      storageKey: "bulk-promotion:selected-sizes",
+      debounceMs: 1000,
+      enabled: true,
+    });
 
   // Fetch products on mount and when filters change
   useEffect(() => {
@@ -174,7 +178,12 @@ export default function BulkPromotionCreationPage() {
       // Always toggle the product regardless of sizes
       dispatch(toggleSelectedProduct(productId));
 
-      if (!isCurrentlySelected && product && product.hasSizes && product.sizes) {
+      if (
+        !isCurrentlySelected &&
+        product &&
+        product.hasSizes &&
+        product.sizes
+      ) {
         // Selecting product WITH sizes: auto-select all sizes
         const sizeIds = product.sizes.map((s) => s.id);
         dispatch(selectAllSizesForProduct({ productId, sizeIds }));
@@ -207,9 +216,15 @@ export default function BulkPromotionCreationPage() {
 
         // Auto-select all sizes for newly selected products (only if they have sizes)
         productContent.forEach((product) => {
-          if (!selectedProductIds.has(product.id) && product.hasSizes && product.sizes) {
+          if (
+            !selectedProductIds.has(product.id) &&
+            product.hasSizes &&
+            product.sizes
+          ) {
             const sizeIds = product.sizes.map((s) => s.id);
-            dispatch(selectAllSizesForProduct({ productId: product.id, sizeIds }));
+            dispatch(
+              selectAllSizesForProduct({ productId: product.id, sizeIds }),
+            );
           }
         });
       } else {
@@ -360,7 +375,8 @@ export default function BulkPromotionCreationPage() {
   const hasValidDates =
     form.watch("promotionFromDate") &&
     form.watch("promotionToDate") &&
-    new Date(form.watch("promotionFromDate")) < new Date(form.watch("promotionToDate"));
+    new Date(form.watch("promotionFromDate")) <
+      new Date(form.watch("promotionToDate"));
   const hasSelectedProducts = selectedIds.length > 0;
 
   const isFormValid =
@@ -462,7 +478,10 @@ export default function BulkPromotionCreationPage() {
           promotionValue: data.promotionValue,
           promotionFromDate: data.promotionFromDate,
           promotionToDate: data.promotionToDate,
-          productSizeMapping: Object.keys(productSizeMapping).length > 0 ? productSizeMapping : undefined,
+          productSizeMapping:
+            Object.keys(productSizeMapping).length > 0
+              ? productSizeMapping
+              : undefined,
         }),
       ).unwrap();
 
@@ -524,9 +543,7 @@ export default function BulkPromotionCreationPage() {
       );
     } catch (error) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to reset promotions";
+        error instanceof Error ? error.message : "Failed to reset promotions";
       showToast.error(errorMessage);
     } finally {
       setIsResetting(false);
@@ -727,14 +744,16 @@ export default function BulkPromotionCreationPage() {
                       <p className="text-3xl sm:text-4xl font-black text-green-600">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
-                          0
+                          0,
                         )}
                       </p>
                       <p className="text-xs sm:text-sm font-semibold text-foreground/60">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
-                          0
-                        ) === 1 ? "Size" : "Sizes"}
+                          0,
+                        ) === 1
+                          ? "Size"
+                          : "Sizes"}
                       </p>
                     </div>
                   </div>
