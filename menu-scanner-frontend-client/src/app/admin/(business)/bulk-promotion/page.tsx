@@ -613,33 +613,46 @@ export default function BulkPromotionCreationPage() {
               </div>
 
               {/* Selected Count Card */}
-              <div className="rounded-xl p-6 bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/30">
-                <div className="space-y-5">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-primary/80">
-                    Selection Status
-                  </p>
-
-                  {/* Products Count */}
-                  <div className="flex items-center gap-3">
-                    <p className="text-6xl font-bold text-primary">
-                      {selectedIds.length}
+              <div className="rounded-2xl p-7 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/40 shadow-sm">
+                <div className="space-y-7">
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold uppercase tracking-widest text-primary/70 px-0.5">
+                      Selection Status
                     </p>
-                    <span className="text-sm text-muted-foreground font-medium">
-                      products selected
-                    </span>
+                    <div className="h-1 w-12 bg-primary/30 rounded-full" />
                   </div>
 
+                  {/* Products Count */}
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-7xl font-black text-primary leading-none">
+                        {selectedIds.length}
+                      </p>
+                    </div>
+                    <p className="text-sm font-semibold text-foreground/70">
+                      {selectedIds.length === 1 ? "Product" : "Products"} Selected
+                    </p>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-px bg-primary/15" />
+
                   {/* Sizes Count */}
-                  <div className="flex items-center gap-3 pt-2">
-                    <p className="text-6xl font-bold text-green-600">
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-7xl font-black text-green-600 leading-none">
+                        {Object.values(selectedSizesFromRedux).reduce(
+                          (sum, sizeArray) => sum + sizeArray.length,
+                          0
+                        )}
+                      </p>
+                    </div>
+                    <p className="text-sm font-semibold text-foreground/70">
                       {Object.values(selectedSizesFromRedux).reduce(
                         (sum, sizeArray) => sum + sizeArray.length,
                         0
-                      )}
+                      ) === 1 ? "Size" : "Sizes"} Selected
                     </p>
-                    <span className="text-sm text-muted-foreground font-medium">
-                      sizes selected
-                    </span>
                   </div>
                 </div>
               </div>
