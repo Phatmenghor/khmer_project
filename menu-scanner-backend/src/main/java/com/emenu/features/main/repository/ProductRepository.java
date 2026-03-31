@@ -393,6 +393,31 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     int resetAllPromotionsForProductsWithSizes(@Param("businessId") UUID businessId);
 
     /**
+     * Reset promotion for a single product.
+     * Handles both with/without sizes for display_price calculation.
+     * clearAutomatically evicts stale entities from the L1 cache so subsequent reads are fresh.
+     */
+    @Modifying(clearAutomatically = true)
+    @Query(nativeQuery = true, value =
+        "UPDATE products p SET " +
+        "    promotion_type = NULL, " +
+        "    promotion_value = NULL, " +
+        "    promotion_from_date = NULL, " +
+        "    promotion_to_date = NULL, " +
+        "    has_active_promotion = false, " +
+        "    display_promotion_type = NULL, " +
+        "    display_promotion_value = NULL, " +
+        "    display_promotion_from_date = NULL, " +
+        "    display_promotion_to_date = NULL, " +
+        "    display_price = CASE WHEN p.has_sizes = false THEN p.price " +
+        "                         ELSE (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false) END, " +
+        "    display_origin_price = CASE WHEN p.has_sizes = false THEN p.price " +
+        "                                ELSE (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false) END " +
+        "WHERE p.id = :productId " +
+        "  AND p.is_deleted = false")
+    int resetProductPromotionById(@Param("productId") UUID productId);
+
+    /**
      * Bulk reset promotions for specific products (by IDs).
      * Products without sizes use their own price; products with sizes use MIN(size.price).
      */

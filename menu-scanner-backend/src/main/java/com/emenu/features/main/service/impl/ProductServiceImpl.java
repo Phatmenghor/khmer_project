@@ -394,55 +394,23 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Starting product promotion reset: ID={}", id);
 
         try {
+            // Load product only to validate existence and business ownership
             Product product = productRepository.findByIdAndIsDeletedFalse(id)
                     .orElseThrow(() -> new NotFoundException("Product not found: " + id));
-            log.debug("Product found for reset: Name='{}', Has promotion: {}", product.getName(), product.getPromotionType() != null);
 
             User currentUser = securityUtils.getCurrentUser();
             validateBusinessOwnership(product, currentUser);
 
-            // Clear all promotion fields on product
-            product.setPromotionType(null);
-            product.setPromotionValue(null);
-            product.setPromotionFromDate(null);
-            product.setPromotionToDate(null);
+            // Reset sizes via native SQL (clearAutomatically evicts L1 cache)
+            int sizesReset = productSizeRepository.resetPromotionsByProductId(id);
+            log.debug("Promotion reset for {} sizes in product: {}", sizesReset, id);
 
-            // Reset display fields
-            product.setHasActivePromotion(false);
-            product.setDisplayPromotionType(null);
-            product.setDisplayPromotionValue(null);
-            product.setDisplayPromotionFromDate(null);
-            product.setDisplayPromotionToDate(null);
-            log.debug("Promotion fields cleared for product: {}", id);
+            // Reset product via native SQL (handles display_price for with/without sizes,
+            // clearAutomatically evicts L1 cache so getProductById reads fresh DB data)
+            productRepository.resetProductPromotionById(id);
 
-            // Clear promotions on all product sizes
-            if (product.getHasSizes()) {
-                List<ProductSize> sizes = productSizeRepository.findByProductId(id);
-                int sizesCleared = 0;
-                for (ProductSize size : sizes) {
-                    if (!size.getIsDeleted()) {
-                        size.setPromotionType(null);
-                        size.setPromotionValue(null);
-                        size.setPromotionFromDate(null);
-                        size.setPromotionToDate(null);
-                        sizesCleared++;
-                    }
-                }
-                productSizeRepository.saveAll(sizes);
-                log.debug("Promotion reset for {} sizes in product: {}", sizesCleared, id);
-
-                // Will be recalculated from sizes
-                product.setDisplayPrice(null);
-                product.setDisplayOriginPrice(null);
-            } else {
-                product.setDisplayPrice(product.getPrice());
-                product.setDisplayOriginPrice(product.getPrice());
-                log.debug("Display price reset for product without sizes: {}", id);
-            }
-
-            Product savedProduct = productRepository.save(product);
-            log.info("Product promotion reset successfully: ID={}, Name='{}'", savedProduct.getId(), savedProduct.getName());
-            return getProductById(savedProduct.getId());
+            log.info("Product promotion reset successfully: ID={}, Name='{}'", id, product.getName());
+            return getProductById(id);
         } catch (Exception e) {
             log.error("Product promotion reset failed - ID: {}, Error: {}", id, e.getMessage(), e);
             throw e;
