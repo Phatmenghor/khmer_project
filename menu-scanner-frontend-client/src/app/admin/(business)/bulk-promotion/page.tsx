@@ -59,6 +59,7 @@ import {
   toggleSelectedProduct,
   clearSelectedProducts,
 } from "@/redux/features/business/store/slice/bulk-promotion-slice";
+import { createBulkPromotionsOptimistic } from "@/redux/features/business/store/slice/product-slice";
 import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
 import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
 import { useBulkPromotionSizesStorageSync } from "@/hooks/useBulkPromotionSizesStorageSync";
@@ -471,6 +472,24 @@ export default function BulkPromotionPage() {
         }
       });
 
+      // ✅ OPTIMISTIC UPDATE: Update local state immediately
+      dispatch(
+        createBulkPromotionsOptimistic({
+          productIds: selectedIds,
+          promotionType: data.promotionType,
+          promotionValue: data.promotionValue,
+          promotionFromDate: data.promotionFromDate,
+          promotionToDate: data.promotionToDate,
+          productSizeMapping:
+            Object.keys(productSizeMapping).length > 0
+              ? productSizeMapping
+              : undefined,
+        }),
+      );
+
+      showToast.success("Applying promotions... (updating in background)");
+
+      // ✅ BACKGROUND API CALL: Make API request in background
       const result = await dispatch(
         createBulkPromotionsService({
           productIds: selectedIds,
@@ -502,6 +521,7 @@ export default function BulkPromotionPage() {
             : "Failed to create bulk promotion";
 
       showToast.error(String(errorMessage));
+      // Note: Optimistic update remains in state. User can refresh if needed.
     } finally {
       setIsSubmitting(false);
     }

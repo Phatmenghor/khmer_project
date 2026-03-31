@@ -230,6 +230,99 @@ const productSlice = createSlice({
         });
       }
     },
+
+    createBulkPromotionsOptimistic: (
+      state,
+      action: PayloadAction<{
+        productIds: string[];
+        promotionType: string;
+        promotionValue: number;
+        promotionFromDate: string;
+        promotionToDate: string;
+        productSizeMapping?: Record<string, string[]>;
+      }>,
+    ) => {
+      // Update products and sizes optimistically after bulk promotion creation
+      if (state.data) {
+        const {
+          productIds,
+          promotionType,
+          promotionValue,
+          promotionFromDate,
+          promotionToDate,
+          productSizeMapping,
+        } = action.payload;
+
+        const selectedIds = new Set(productIds);
+
+        state.data.content = state.data.content.map((product) => {
+          if (selectedIds.has(product.id)) {
+            // Check if this product has specific size mappings
+            const productSizeIds = productSizeMapping?.[product.id];
+            const hasSizeMappings =
+              productSizeIds && productSizeIds.length > 0;
+
+            // Update sizes if they exist
+            let updatedSizes = product.sizes;
+            if (product.sizes && product.sizes.length > 0) {
+              updatedSizes = product.sizes.map((size: any) => {
+                // If size mapping exists, only update specified sizes; otherwise update all
+                const shouldUpdateSize =
+                  !hasSizeMappings ||
+                  (productSizeIds && productSizeIds.includes(size.id));
+
+                if (shouldUpdateSize) {
+                  const discountAmount =
+                    promotionType === "PERCENTAGE"
+                      ? (parseFloat(product.price) * promotionValue) / 100
+                      : promotionValue;
+                  const newPrice =
+                    parseFloat(product.price) - discountAmount;
+
+                  return {
+                    ...size,
+                    promotionType,
+                    promotionValue,
+                    promotionFromDate,
+                    promotionToDate,
+                    finalPrice: Math.max(newPrice, 0),
+                    hasPromotion: true,
+                  };
+                }
+                return size;
+              });
+            }
+
+            // Calculate display price for product level
+            const discountAmount =
+              promotionType === "PERCENTAGE"
+                ? (parseFloat(product.price) * promotionValue) / 100
+                : promotionValue;
+            const displayPrice = Math.max(
+              parseFloat(product.price) - discountAmount,
+              0,
+            );
+
+            return {
+              ...product,
+              promotionType,
+              promotionValue,
+              promotionFromDate,
+              promotionToDate,
+              displayPrice,
+              displayOriginPrice: parseFloat(product.price),
+              displayPromotionType: promotionType,
+              displayPromotionValue: promotionValue,
+              displayPromotionFromDate: promotionFromDate,
+              displayPromotionToDate: promotionToDate,
+              hasPromotion: true,
+              sizes: updatedSizes,
+            };
+          }
+          return product;
+        });
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -405,6 +498,7 @@ export const {
   resetProductPromotionOptimistic,
   resetAllPromotionsOptimistic,
   resetTablePromotionsOptimistic,
+  createBulkPromotionsOptimistic,
   toggleProductSelection,
   selectAllProducts,
   deselectAllProducts,
