@@ -29,6 +29,7 @@ import {
   resetAllPromotionsService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
+import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { setPageNo } from "@/redux/features/business/store/slice/product-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import {
@@ -98,6 +99,18 @@ export default function BulkPromotionCreationPage() {
     useState<CategoriesResponseModel | null>(null);
   const [showResetModal, setShowResetModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+
+  // Detail modal state
+  const [detailModalState, setDetailModalState] = useState({
+    isOpen: false,
+    productId: "",
+  });
+
+  // Reset promotion modal state
+  const [resetPromotionState, setResetPromotionState] = useState({
+    isOpen: false,
+    product: null as ProductDetailResponseModel | null,
+  });
 
   const form = useForm<BulkPromotionFormData>({
     resolver: zodResolver(bulkPromotionSchema),
@@ -258,8 +271,10 @@ export default function BulkPromotionCreationPage() {
   // Handle view product details
   const handleViewDetails = useCallback(
     (product: ProductDetailResponseModel) => {
-      // Navigate to product details or show modal
-      console.log("View details for:", product.id);
+      setDetailModalState({
+        isOpen: true,
+        productId: product.id || "",
+      });
     },
     [],
   );
@@ -272,6 +287,66 @@ export default function BulkPromotionCreationPage() {
     },
     [],
   );
+
+  // Handle reset promotion
+  const handleResetPromotion = useCallback(
+    (product: ProductDetailResponseModel) => {
+      setResetPromotionState({
+        isOpen: true,
+        product: product,
+      });
+    },
+    [],
+  );
+
+  // Close detail modal
+  const closeDetailModal = () => {
+    setDetailModalState({
+      isOpen: false,
+      productId: "",
+    });
+  };
+
+  // Close reset promotion modal
+  const closeResetPromotionModal = () => {
+    setResetPromotionState({
+      isOpen: false,
+      product: null,
+    });
+  };
+
+  // Confirm reset promotion
+  const handleConfirmResetPromotion = async () => {
+    if (!resetPromotionState.product?.id) return;
+
+    try {
+      await dispatch(
+        resetAllPromotionsService()
+      ).unwrap();
+      showToast.success("Promotion reset successfully!");
+      closeResetPromotionModal();
+      // Refresh products list
+      dispatch(
+        fetchAllProductAdminService({
+          search: "",
+          pageNo: filters.pageNo,
+          pageSize: pageSize,
+          status:
+            filters.status === ProductStatus.ALL ? undefined : filters.status,
+          brandId: selectedBrand?.id,
+          categoryId: selectedCategories?.id,
+        })
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" && error !== null && "message" in error
+            ? (error as Record<string, unknown>).message
+            : "Failed to reset promotion";
+      showToast.error(String(errorMessage));
+    }
+  };
 
   // Sync selected products to form
   useEffect(() => {
@@ -321,6 +396,7 @@ export default function BulkPromotionCreationPage() {
         onSizeToggle: handleSizeToggle,
         onViewDetails: handleViewDetails,
         onEditProduct: handleEditProduct,
+        onResetPromotion: handleResetPromotion,
       }),
     [
       selectedProductIds,
@@ -335,6 +411,7 @@ export default function BulkPromotionCreationPage() {
       handleSizeToggle,
       handleViewDetails,
       handleEditProduct,
+      handleResetPromotion,
     ],
   );
 
@@ -770,6 +847,28 @@ export default function BulkPromotionCreationPage() {
           </div>
         </div>
       </form>
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        productId={detailModalState.productId}
+        isOpen={detailModalState.isOpen}
+        onClose={closeDetailModal}
+      />
+
+      {/* Reset Promotion Modal */}
+      <ConfirmationModal
+        isOpen={resetPromotionState.isOpen}
+        onClose={closeResetPromotionModal}
+        onConfirm={handleConfirmResetPromotion}
+        title="Reset Promotion"
+        description="Clear all promotional discounts and restore product to regular pricing"
+        itemName={resetPromotionState.product?.name || ""}
+        actionLabel="Reset Promotion"
+        actionVariant="secondary"
+        headerBgColor="bg-yellow-50"
+        buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
+        isDangerous={false}
+      />
 
       {/* Reset All Promotions Modal */}
       <ConfirmationModal

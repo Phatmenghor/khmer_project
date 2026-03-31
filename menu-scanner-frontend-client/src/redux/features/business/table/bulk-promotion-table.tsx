@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { Badge } from "@/components/ui/badge";
-import { Check, Eye, Edit } from "lucide-react";
+import { Check, Eye, Edit, RotateCcw } from "lucide-react";
 import { ActionButton } from "@/components/shared/button/action-button";
 
 interface BulkPromotionTableOptions {
@@ -23,6 +23,7 @@ interface BulkPromotionTableOptions {
   onSizeToggle?: (productId: string, sizeId: string) => void;
   onViewDetails?: (product: ProductDetailResponseModel) => void;
   onEditProduct?: (product: ProductDetailResponseModel) => void;
+  onResetPromotion?: (product: ProductDetailResponseModel) => void;
 }
 
 /**
@@ -78,6 +79,7 @@ export const bulkPromotionTableColumns = ({
   onSizeToggle,
   onViewDetails,
   onEditProduct,
+  onResetPromotion,
 }: BulkPromotionTableOptions): TableColumn<ProductDetailResponseModel>[] => {
   return [
     {
@@ -243,7 +245,7 @@ export const bulkPromotionTableColumns = ({
       key: "actions",
       label: "Actions",
       minWidth: "10px",
-      maxWidth: "200px",
+      maxWidth: "250px",
       className: "px-4",
       render: (product) => (
         <div className="flex items-center gap-2">
@@ -257,6 +259,14 @@ export const bulkPromotionTableColumns = ({
             tooltip="Edit Product"
             onClick={() => onEditProduct?.(product)}
           />
+          {product?.hasPromotion && (
+            <ActionButton
+              icon={<RotateCcw className="w-4 h-4" />}
+              tooltip="Reset Promotion"
+              onClick={() => onResetPromotion?.(product)}
+              variant="outline"
+            />
+          )}
         </div>
       ),
     },
