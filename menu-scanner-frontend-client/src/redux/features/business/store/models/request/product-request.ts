@@ -6,6 +6,8 @@ export interface AllProductRequest extends BaseGetAllRequest {
   brandId?: string;
   status?: string;
   hasPromotion?: boolean;
+  hasSize?: boolean;
+  stockStatus?: string;
   minPrice?: number;
   maxPrice?: number;
 }
