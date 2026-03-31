@@ -53,7 +53,7 @@ public class ProductStockDataLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         try {
-            int totalLoaded = loadProductStockData();
+            loadProductStockData();
         } catch (Exception e) {
         }
     }

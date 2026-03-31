@@ -107,9 +107,6 @@ public class StockServiceImpl implements StockService {
 
             remaining -= deduct;
         }
-
-        if (remaining > 0) {
-        }
     }
 
     @Override

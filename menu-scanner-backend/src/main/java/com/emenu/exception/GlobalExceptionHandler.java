@@ -525,14 +525,6 @@ public class GlobalExceptionHandler {
         return false;
     }
 
-    private String getSuggestionForConstraint(String errorCode) {
-        return switch (errorCode) {
-            case ErrorCodes.EMAIL_ALREADY_EXISTS -> "Please use a different email address or sign in if you already have an account";
-            case ErrorCodes.PHONE_ALREADY_EXISTS -> "Please use a different phone number or update your existing account";
-            default -> "Please check your input and try again";
-        };
-    }
-
     private Map<String, Object> createErrorDetails(String errorCode, HttpServletRequest request) {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("errorCode", errorCode);
@@ -541,14 +533,6 @@ public class GlobalExceptionHandler {
         errorDetails.put("method", request.getMethod());
         errorDetails.put("traceId", UUID.randomUUID().toString());
         return errorDetails;
-    }
-
-    private String getClientIP(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null) {
-            return request.getRemoteAddr();
-        }
-        return xfHeader.split(",")[0];
     }
 
 }
