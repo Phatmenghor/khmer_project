@@ -93,15 +93,6 @@ export default function ProductStockPage() {
   });
 
   useEffect(() => {
-    // Determine hasSize filter value
-    let hasSize: boolean | undefined;
-    if (hasSizeFilter === "WITH_SIZES") {
-      hasSize = true;
-    } else if (hasSizeFilter === "WITHOUT_SIZES") {
-      hasSize = false;
-    }
-    // if ALL, hasSize remains undefined (no filter)
-
     // Build stockStatuses array (following API pattern)
     let stockStatuses: string[] | undefined;
     if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
@@ -123,7 +114,6 @@ export default function ProductStockPage() {
         statuses,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
-        hasSize,
         stockStatuses,
       } as any),
     );
@@ -135,7 +125,6 @@ export default function ProductStockPage() {
     globalPageSize,
     selectedBrand,
     selectedCategories,
-    hasSizeFilter,
     stockStatusFilter,
   ]);
 
