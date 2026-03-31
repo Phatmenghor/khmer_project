@@ -653,7 +653,7 @@ WHERE t.img_num <= (2 + (p.rn % 9));
 -- ============================================================================
 -- Stock for Products WITHOUT SIZES (1 entry per product)
 -- ============================================================================
-INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, location, status, is_expired, expiry_date, inventory_value)
+INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, location, status, is_expired, expiry_date)
 SELECT
     gen_random_uuid(), 0, NOW() - (random() * 30)::int * INTERVAL '1 day', NOW() - (random() * 30)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', p.id, NULL,
@@ -668,14 +668,13 @@ SELECT
          ELSE 'Cold Storage' END,
     'ACTIVE',
     CASE WHEN (random() * 100) < 5 THEN true ELSE false END,
-    NOW() + (15 + (random() * 60)::int)::int * INTERVAL '1 day',
-    ((50 + (random() * 200)::int)::numeric * p.price)::numeric
+    NOW() + (15 + (random() * 60)::int)::int * INTERVAL '1 day'
 FROM (SELECT id, price, ROW_NUMBER() OVER (ORDER BY id) as rn FROM products WHERE has_sizes = false) p;
 
 -- ============================================================================
 -- Stock for Products WITH SIZES (1-3 batches per size variant)
 -- ============================================================================
-INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, location, status, is_expired, expiry_date, inventory_value)
+INSERT INTO product_stock (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, location, status, is_expired, expiry_date)
 SELECT
     gen_random_uuid(), 0,
     NOW() - (random() * 30 + batch_num)::int * INTERVAL '1 day',
@@ -697,8 +696,7 @@ SELECT
          ELSE 'Cold Storage' END,
     CASE WHEN (random() * 100) < 10 THEN 'INACTIVE' ELSE 'ACTIVE' END,
     CASE WHEN (random() * 100) < 3 THEN true ELSE false END,
-    NOW() + (10 + (random() * 90)::int)::int * INTERVAL '1 day',
-    ((30 + (random() * 100)::int)::numeric * ps.price)::numeric
+    NOW() + (10 + (random() * 90)::int)::int * INTERVAL '1 day'
 FROM (
     SELECT
         ps.id, ps.product_id, ps.price,
