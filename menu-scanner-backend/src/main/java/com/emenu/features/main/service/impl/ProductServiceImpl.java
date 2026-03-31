@@ -400,7 +400,7 @@ public class ProductServiceImpl implements ProductService {
         if (filter.getStockStatus() != null) {
             int beforeFilter = filteredProducts.size();
             filteredProducts = filteredProducts.stream()
-                    .filter(p -> p.getStockStatus() != null && p.getStockStatus().name().equals(filter.getStockStatus()))
+                    .filter(p -> p.getStockStatus() != null && p.getStockStatus().equals(filter.getStockStatus()))
                     .toList();
             log.debug("Applied stockStatus filter - Filtered {} products to {}", beforeFilter, filteredProducts.size());
         }

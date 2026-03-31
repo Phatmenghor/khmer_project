@@ -1,6 +1,7 @@
 package com.emenu.features.main.dto.filter;
 
 import com.emenu.enums.product.ProductStatus;
+import com.emenu.enums.product.StockStatus;
 import com.emenu.shared.dto.BaseFilterRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -33,10 +34,9 @@ public class ProductFilterDto extends BaseFilterRequest {
 
     @Schema(
         description = "Filter by stock status (ENABLED to show products with stock tracking enabled, DISABLED for stock tracking disabled)",
-        example = "ENABLED",
-        allowableValues = {"ENABLED", "DISABLED"}
+        example = "ENABLED"
     )
-    private String stockStatus;
+    private StockStatus stockStatus;
 
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
