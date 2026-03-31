@@ -48,8 +48,6 @@ public class CartServiceImpl implements CartService {
         User currentUser = securityUtils.getCurrentUser();
         UUID userId = currentUser.getId();
 
-                userId, request.getProductId(), request.getQuantity());
-
         // Validate product and derive businessId
         UUID businessId = validateProductAndGetBusinessId(request.getProductId(), request.getProductSizeId());
 
@@ -104,7 +102,6 @@ public class CartServiceImpl implements CartService {
     @Transactional(readOnly = true)
     public CartSummaryResponse getCartPaginated(UUID businessId, int pageNo, int pageSize) {
         UUID userId = securityUtils.getCurrentUserId();
-                userId, businessId, pageNo, pageSize);
 
         Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
         if (cartOpt.isPresent()) {
@@ -266,7 +263,6 @@ public class CartServiceImpl implements CartService {
 
         if (!unavailableItems.isEmpty()) {
             cartItemRepository.deleteAll(unavailableItems);
-                    unavailableItems.size(), cart.getId());
         }
 
         cart.getItems().removeIf(item -> !isCartItemAvailable(item));

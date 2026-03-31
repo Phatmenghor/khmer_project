@@ -80,8 +80,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
-            request.getBusinessId(), securityUtils.getCurrentUser().getId());
-
         User currentUser = securityUtils.getCurrentUser();
 
         try {
@@ -162,8 +160,6 @@ public class OrderServiceImpl implements OrderService {
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(null);  // Clear any business filter for customer orders
 
-                currentUser.getId(), filter.getPageNo(), filter.getPageSize());
-
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
@@ -229,7 +225,6 @@ public class OrderServiceImpl implements OrderService {
                 pageable
         );
         long queryDuration = System.currentTimeMillis() - queryStartTime;
-                page.getNumberOfElements(), queryDuration, page.getTotalElements(), page.getTotalPages());
 
         // Eagerly load statusHistory for all orders to prevent lazy loading during mapping
         int historyCount = 0;
@@ -467,8 +462,6 @@ public class OrderServiceImpl implements OrderService {
             // Use after snapshot for final pricing if available (new audit trail structure)
             BigDecimal finalPrice = item.getAfter() != null ? item.getAfter().getFinalPrice() : item.getFinalPrice();
 
-                itemCount, item.getProductName(), item.getProductId(), item.getQuantity(), finalPrice, item.getHadChangeFromPOS());
-
             OrderItemCreateHelper helper = OrderItemCreateHelper.builder()
                     .orderId(orderId)
                     .productId(item.getProductId())
@@ -557,8 +550,6 @@ public class OrderServiceImpl implements OrderService {
             }
             // Note: Pricing snapshots are reconstructed from order fields (subtotal, discount, delivery, tax, total) when needed
         }
-
-            orderId, order.getItems().size(), totalAmount, subtotal, discountAmount, deliveryFee, taxAmount);
 
         orderRepository.save(order);
     }

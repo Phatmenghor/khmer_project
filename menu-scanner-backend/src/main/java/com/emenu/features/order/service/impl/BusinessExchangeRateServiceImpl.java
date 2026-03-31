@@ -48,15 +48,12 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
         // Deactivate all existing active rates for this business (new rate will be the only ACTIVE one)
         int deactivatedCount = exchangeRateRepository.deactivateAllRatesForBusiness(businessId);
         if (deactivatedCount > 0) {
-                    deactivatedCount, businessId);
         }
 
         BusinessExchangeRate exchangeRate = exchangeRateMapper.toEntity(request);
         exchangeRate.setStatus(BusinessExchangeRate.ExchangeRateStatus.ACTIVE); // New rate is always active
 
         BusinessExchangeRate savedExchangeRate = exchangeRateRepository.save(exchangeRate);
-
-                business.getName(), savedExchangeRate.getUsdToKhrRate());
 
         return exchangeRateMapper.toResponse(savedExchangeRate);
     }
@@ -101,7 +98,6 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
             // Deactivate all OTHER active rates (except this one)
             int deactivatedCount = exchangeRateRepository.deactivateAllRatesForBusinessExcept(businessId, id);
             if (deactivatedCount > 0) {
-                        deactivatedCount, businessId, id);
             }
         } else if (request.getStatus() != null &&
                    request.getStatus() == BusinessExchangeRate.ExchangeRateStatus.INACTIVE &&
@@ -113,15 +109,12 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
                     BusinessExchangeRate rateToActivate = nextActiveRate.get();
                     rateToActivate.activate();
                     exchangeRateRepository.save(rateToActivate);
-                            rateToActivate.getId(), id);
                 }
             }
         }
 
         exchangeRateMapper.updateEntity(request, exchangeRate);
         BusinessExchangeRate updatedExchangeRate = exchangeRateRepository.save(exchangeRate);
-
-                id, updatedExchangeRate.getUsdToKhrRate(), updatedExchangeRate.getStatus());
 
         return exchangeRateMapper.toResponse(updatedExchangeRate);
     }

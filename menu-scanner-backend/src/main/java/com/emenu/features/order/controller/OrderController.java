@@ -145,7 +145,6 @@ public class OrderController {
         OrderResponse orderResponse = orderService.deleteOrder(id);
 
         long duration = System.currentTimeMillis() - startTime;
-                orderResponse.getOrderNumber(), duration, orderResponse.getOrderStatus());
 
         return ResponseEntity.ok(ApiResponse.success("Order deleted successfully", orderResponse));
     }
