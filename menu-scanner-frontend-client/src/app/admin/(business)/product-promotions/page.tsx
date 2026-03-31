@@ -372,25 +372,6 @@ export default function ProductPromotionPage() {
           />
         </CardHeaderSection>
 
-        {/* Action Buttons for Reset */}
-        <div className="flex gap-2">
-          <button
-            onClick={handleResetTablePromotions}
-            disabled={operations.isResettingBulk}
-            className="bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-          >
-            {operations.isResettingBulk ? "Resetting..." : "Reset Selected"}
-          </button>
-
-          <button
-            onClick={handleResetAllPromotions}
-            disabled={operations.isResettingAll}
-            className="bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-          >
-            {operations.isResettingAll ? "Resetting..." : "Reset All"}
-          </button>
-        </div>
-
         {/* Data Table with Your Custom Pagination */}
         <DataTableWithPagination
           data={productContent}
