@@ -1,5 +1,4 @@
 import { indexDisplay } from "@/utils/common/common";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Eye, Trash, Plus, Package } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
@@ -222,18 +221,6 @@ export const stockTableColumns = ({
       render: (product) => (
         <span className="text-xs text-muted-foreground">
           {product?.status || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "createdAt",
-      label: "Created At",
-      minWidth: "10px",
-      maxWidth: "400px",
-      render: (product) => (
-        <span className="text-sm text-muted-foreground">
-          {dateTimeFormat(product?.createdAt)}
         </span>
       ),
     },
