@@ -101,6 +101,8 @@ public class ProductServiceImpl implements ProductService {
                 Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
+                filter.getHasSize(),
+                (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getSearch(),
                 pageable
         );
@@ -314,6 +316,8 @@ public class ProductServiceImpl implements ProductService {
                 Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
+                filter.getHasSize(),
+                (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getSearch(),
                 pageable
         );
