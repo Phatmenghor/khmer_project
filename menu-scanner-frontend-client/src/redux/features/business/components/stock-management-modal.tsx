@@ -222,10 +222,18 @@ export function StockManagementModal({
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground">$</span>
                         <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
                           placeholder="0.00"
                           className="h-10 flex-1"
+                          inputMode="decimal"
                           {...form.register("priceIn", {
                             required: "Price is required",
+                            pattern: {
+                              value: /^\d+(\.\d{1,2})?$/,
+                              message: "Price must be a valid number (e.g., 0.25 or 10.50)",
+                            },
                             validate: (value) => {
                               const num = parseFloat(value);
                               if (isNaN(num)) return "Price must be a valid number";
@@ -233,6 +241,16 @@ export function StockManagementModal({
                               return true;
                             },
                           })}
+                          onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                            const input = e.currentTarget;
+                            // Allow only numbers and decimal point
+                            input.value = input.value.replace(/[^\d.]/g, "");
+                            // Ensure only one decimal point
+                            const parts = input.value.split(".");
+                            if (parts.length > 2) {
+                              input.value = parts[0] + "." + parts[1];
+                            }
+                          }}
                         />
                       </div>
                       {form.formState.errors.priceIn && (
@@ -241,7 +259,7 @@ export function StockManagementModal({
                         </p>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        Cost per unit for inventory tracking
+                        Cost per unit for inventory tracking (e.g., 0.221)
                       </p>
                     </div>
 
