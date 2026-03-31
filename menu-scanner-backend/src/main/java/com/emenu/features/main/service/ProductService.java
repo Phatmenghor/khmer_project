@@ -11,6 +11,7 @@ import com.emenu.shared.dto.PaginationResponse;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
 
 public interface ProductService {
     ProductDetailDto createProduct(ProductCreateDto request);
@@ -23,6 +24,7 @@ public interface ProductService {
     ProductDetailDto deleteProduct(UUID id);
     ProductDetailDto getProductByIdPublic(UUID id);
     ProductDetailDto resetProductPromotion(UUID id);
+    Map<String, Object> resetAllPromotions();
     BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request);
     int[] syncExpiredPromotions();
     int[] syncStartedPromotions();

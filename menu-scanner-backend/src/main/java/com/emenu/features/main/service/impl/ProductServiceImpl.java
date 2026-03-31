@@ -434,7 +434,78 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request) {
+    public Map<String, Object> resetAllPromotions() {
+        User currentUser = securityUtils.getCurrentUser();
+        validateUserBusinessAssociation(currentUser);
+
+        // Get all products for the current user's business
+        List<Product> products = productRepository.findByBusinessIdAndIsDeletedFalse(currentUser.getBusiness().getId());
+
+        int resetProductCount = 0;
+        int resetSizeCount = 0;
+
+        for (Product product : products) {
+            // Clear all promotion fields on product
+            if (product.getPromotionType() != null || product.getPromotionValue() != null ||
+                product.getPromotionFromDate() != null || product.getPromotionToDate() != null) {
+
+                product.setPromotionType(null);
+                product.setPromotionValue(null);
+                product.setPromotionFromDate(null);
+                product.setPromotionToDate(null);
+
+                // Reset display fields
+                product.setHasActivePromotion(false);
+                product.setDisplayPromotionType(null);
+                product.setDisplayPromotionValue(null);
+                product.setDisplayPromotionFromDate(null);
+                product.setDisplayPromotionToDate(null);
+
+                resetProductCount++;
+            }
+
+            // Clear promotions on all product sizes
+            if (product.getHasSizes()) {
+                List<ProductSize> sizes = productSizeRepository.findByProductId(product.getId());
+                for (ProductSize size : sizes) {
+                    if (!size.getIsDeleted() && (size.getPromotionType() != null || size.getPromotionValue() != null ||
+                        size.getPromotionFromDate() != null || size.getPromotionToDate() != null)) {
+
+                        size.setPromotionType(null);
+                        size.setPromotionValue(null);
+                        size.setPromotionFromDate(null);
+                        size.setPromotionToDate(null);
+                        resetSizeCount++;
+                    }
+                }
+                if (!sizes.isEmpty()) {
+                    productSizeRepository.saveAll(sizes);
+                }
+
+                // Will be recalculated from sizes
+                product.setDisplayPrice(null);
+                product.setDisplayOriginPrice(null);
+            } else {
+                product.setDisplayPrice(product.getPrice());
+                product.setDisplayOriginPrice(product.getPrice());
+            }
+        }
+
+        // Save all products
+        if (!products.isEmpty()) {
+            productRepository.saveAll(products);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", String.format("Successfully reset promotions for %d products and %d sizes", resetProductCount, resetSizeCount));
+        response.put("resetCount", resetProductCount + resetSizeCount);
+        response.put("productsReset", resetProductCount);
+        response.put("sizesReset", resetSizeCount);
+
+        return response;
+    }
+
+    @Override
         User currentUser = securityUtils.getCurrentUser();
         validateUserBusinessAssociation(currentUser);
 
