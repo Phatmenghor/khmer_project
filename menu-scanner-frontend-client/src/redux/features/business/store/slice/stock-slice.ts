@@ -19,6 +19,7 @@ const initialState: ProductManagementState = {
   filters: {
     search: "",
     pageNo: 1,
+    status: ProductStatus.ALL, // Initialize with ALL status
   },
   operations: {
     isCreating: false,
@@ -61,7 +62,11 @@ const stockSlice = createSlice({
     },
 
     resetFilters: (state) => {
-      state.filters = initialState.filters;
+      state.filters = {
+        search: "",
+        pageNo: 1,
+        status: ProductStatus.ALL,
+      };
     },
 
     resetState: () => {
