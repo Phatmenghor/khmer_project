@@ -116,30 +116,6 @@ export const bulkPromotionTableColumns = ({
       render: (product) => <ProductImagePreview product={product} />,
     },
     {
-      key: "name",
-      label: "Product Name",
-      minWidth: "10px",
-      maxWidth: "120px",
-      className: "px-4",
-      render: (product) => (
-        <span className="text-xs font-medium truncate max-w-xs">
-          {product.name}
-        </span>
-      ),
-    },
-    {
-      key: "brandName",
-      label: "Brand",
-      minWidth: "10px",
-      maxWidth: "120px",
-      className: "px-4",
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product.brandName || "---"}
-        </span>
-      ),
-    },
-    {
       key: "categoryName",
       label: "Category",
       minWidth: "10px",
@@ -148,18 +124,6 @@ export const bulkPromotionTableColumns = ({
       render: (product) => (
         <span className="text-xs text-muted-foreground">
           {product.categoryName || "---"}
-        </span>
-      ),
-    },
-    {
-      key: "displayPrice",
-      label: "Price",
-      minWidth: "10px",
-      maxWidth: "120px",
-      className: "px-4 text-right",
-      render: (product) => (
-        <span className="text-xs font-semibold">
-          ${(product.displayPrice ?? 0).toFixed(2)}
         </span>
       ),
     },
@@ -238,33 +202,6 @@ export const bulkPromotionTableColumns = ({
         }
 
         return <span className="text-sm font-medium text-green-600">Active</span>;
-      },
-    },
-    {
-      key: "promotionDates",
-      label: "Promotion Period",
-      minWidth: "10px",
-      maxWidth: "120px",
-      className: "px-4",
-      render: (product) => {
-        if (!product.hasPromotion) {
-          return <span className="text-xs text-muted-foreground">---</span>;
-        }
-
-        const fromDate = product.displayPromotionFromDate
-          ? new Date(product.displayPromotionFromDate).toLocaleDateString()
-          : "N/A";
-        const toDate = product.displayPromotionToDate
-          ? new Date(product.displayPromotionToDate).toLocaleDateString()
-          : "N/A";
-
-        return (
-          <div className="text-xs text-muted-foreground">
-            <div>{fromDate}</div>
-            <div>to</div>
-            <div>{toDate}</div>
-          </div>
-        );
       },
     },
   ];
