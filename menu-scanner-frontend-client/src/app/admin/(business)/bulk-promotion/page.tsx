@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, CheckSquare, Square, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, CheckSquare, Square, Trash2, Search, X } from "lucide-react";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
@@ -48,7 +48,7 @@ import {
 } from "@/constants/form-options";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { bulkPromotionTableColumns } from "@/redux/features/business/table/bulk-promotion-table";
-import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
+import { PRODUCT_STATUS_FILTER, PRODUCT_PROMOTION_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
@@ -103,6 +103,8 @@ export default function BulkPromotionPage() {
   );
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [hasPromotionFilter, setHasPromotionFilter] = useState<string>("ALL");
   const [showResetModal, setShowResetModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
@@ -156,13 +158,19 @@ export default function BulkPromotionPage() {
   useEffect(() => {
     dispatch(
       fetchAllProductAdminService({
-        search: "",
+        search: searchQuery,
         pageNo: 1,
         pageSize: globalPageSize,
         status:
           filters.status === ProductStatus.ALL ? undefined : filters.status,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
+        hasPromotion:
+          hasPromotionFilter === "HAS_PROMOTION"
+            ? true
+            : hasPromotionFilter === "NO_PROMOTION"
+              ? false
+              : undefined,
       }),
     );
   }, [
@@ -171,6 +179,8 @@ export default function BulkPromotionPage() {
     filters.status,
     selectedBrand,
     selectedCategories,
+    searchQuery,
+    hasPromotionFilter,
   ]);
 
   // Toggle product selection (and auto-select/deselect all sizes)
@@ -305,6 +315,21 @@ export default function BulkPromotionPage() {
 
   const handleProductStatusChange = (status: ProductStatus) => {
     dispatch(selectProductStatus(status));
+    dispatch(setPageNo(1));
+  };
+
+  const handlePromotionFilterChange = (value: string) => {
+    setHasPromotionFilter(value);
+    dispatch(setPageNo(1));
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    dispatch(setPageNo(1));
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
     dispatch(setPageNo(1));
   };
 
@@ -461,13 +486,19 @@ export default function BulkPromotionPage() {
     dispatch(setPageNo(page));
     dispatch(
       fetchAllProductAdminService({
-        search: "",
+        search: searchQuery,
         pageNo: page,
         pageSize: pageSize,
         status:
           filters.status === ProductStatus.ALL ? undefined : filters.status,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
+        hasPromotion:
+          hasPromotionFilter === "HAS_PROMOTION"
+            ? true
+            : hasPromotionFilter === "NO_PROMOTION"
+              ? false
+              : undefined,
       }),
     );
   };
@@ -478,13 +509,19 @@ export default function BulkPromotionPage() {
     dispatch(setPageNo(1));
     dispatch(
       fetchAllProductAdminService({
-        search: "",
+        search: searchQuery,
         pageNo: 1,
         pageSize: newPageSize,
         status:
           filters.status === ProductStatus.ALL ? undefined : filters.status,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
+        hasPromotion:
+          hasPromotionFilter === "HAS_PROMOTION"
+            ? true
+            : hasPromotionFilter === "NO_PROMOTION"
+              ? false
+              : undefined,
       }),
     );
   };
@@ -590,13 +627,19 @@ export default function BulkPromotionPage() {
       // Refresh products list
       dispatch(
         fetchAllProductAdminService({
-          search: "",
+          search: searchQuery,
           pageNo: filters.pageNo,
           pageSize: pageSize,
           status:
             filters.status === ProductStatus.ALL ? undefined : filters.status,
           brandId: selectedBrand?.id,
           categoryId: selectedCategories?.id,
+          hasPromotion:
+            hasPromotionFilter === "HAS_PROMOTION"
+              ? true
+              : hasPromotionFilter === "NO_PROMOTION"
+                ? false
+                : undefined,
         }),
       );
     } catch (error) {
@@ -727,47 +770,48 @@ export default function BulkPromotionPage() {
       >
         {/* Left Column - Product Selection */}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
-          {/* Filters + Select All Control - Combined Row */}
+          {/* Filters + Select All Control - Modern Responsive Design */}
           {productContent.length > 0 && (
             <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center px-4 py-3 gap-4">
-                {/* Left Side - Select All Control */}
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <CustomCheckbox
-                    checked={allSelected}
-                    onCheckedChange={handleSelectAll}
-                    disabled={isLoading}
-                    size="lg"
-                    variant="default"
-                    ariaLabel="Select all products on this page"
-                    className="flex-shrink-0"
-                  />
+              {/* Top Row - Select All Control + Search */}
+              <div className="px-4 py-3 border-b border-border/40">
+                <div className="flex flex-col gap-3">
+                  {/* Select All Control */}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <CustomCheckbox
+                      checked={allSelected}
+                      onCheckedChange={handleSelectAll}
+                      disabled={isLoading}
+                      size="lg"
+                      variant="default"
+                      ariaLabel="Select all products on this page"
+                      className="flex-shrink-0"
+                    />
 
-                  {/* Status Text */}
-                  <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-sm font-semibold text-foreground">
-                      {allSelected
-                        ? "All products selected"
-                        : someSelected
-                          ? `${
-                              Array.from(selectedProductIds.keys()).filter(
-                                (id) => productContent.some((p) => p.id === id),
-                              ).length
-                            } products selected`
-                          : "Select all products"}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {productContent.length} products on this page
-                    </span>
-                  </div>
+                    {/* Status Text */}
+                    <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                      <span className="text-sm font-semibold text-foreground">
+                        {allSelected
+                          ? "All products selected"
+                          : someSelected
+                            ? `${
+                                Array.from(selectedProductIds.keys()).filter(
+                                  (id) => productContent.some((p) => p.id === id),
+                                ).length
+                              } products selected`
+                            : "Select all products"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {productContent.length} products on this page
+                      </span>
+                    </div>
 
-                  {/* Clear Button */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Clear Button */}
                     {selectedIds.length > 0 && (
                       <button
                         type="button"
                         onClick={handleClearAllSelections}
-                        className="inline-flex ml-3 items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150 flex-shrink-0"
                         title="Clear all selections (stored in browser)"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -775,44 +819,79 @@ export default function BulkPromotionPage() {
                       </button>
                     )}
                   </div>
+
+                  {/* Search Input */}
+                  <div className="relative w-full">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="Search products by name, SKU, or barcode..."
+                      value={searchQuery}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      className="w-full pl-9 pr-9 py-2 rounded-md border border-border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={handleClearSearch}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
+                        title="Clear search"
+                      >
+                        <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters Row - Responsive Grid */}
+              <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                {/* Category Filter */}
+                <div className="min-w-0">
+                  <ComboboxSelectCategories
+                    dataSelect={selectedCategories}
+                    onChangeSelected={handleCategoriesChange}
+                    placeholder="All Categories"
+                    showAllOption={true}
+                  />
                 </div>
 
-                {/* Spacer - pushes filters to the right */}
-                <div className="hidden sm:block flex-1"></div>
+                {/* Brand Filter */}
+                <div className="min-w-0">
+                  <ComboboxSelectBrand
+                    dataSelect={selectedBrand}
+                    onChangeSelected={handleBrandChange}
+                    placeholder="All Brand"
+                    showAllOption={true}
+                  />
+                </div>
 
-                {/* Right Side - Filters (aligned to the end) */}
-                <div className="flex flex-wrap items-end gap-2 flex-shrink-0">
-                  <div className="max-w-[150px]">
-                    <ComboboxSelectCategories
-                      dataSelect={selectedCategories}
-                      onChangeSelected={handleCategoriesChange}
-                      placeholder="All Categories"
-                      showAllOption={true}
-                    />
-                  </div>
+                {/* Product Status Filter */}
+                <div className="min-w-0">
+                  <CustomSelect
+                    options={PRODUCT_STATUS_FILTER}
+                    value={filters.status}
+                    placeholder="All Status"
+                    onValueChange={(value) =>
+                      handleProductStatusChange(value as ProductStatus)
+                    }
+                    className="w-full"
+                    label="Product Status"
+                    size="md"
+                  />
+                </div>
 
-                  <div className="max-w-[150px]">
-                    <ComboboxSelectBrand
-                      dataSelect={selectedBrand}
-                      onChangeSelected={handleBrandChange}
-                      placeholder="All Brand"
-                      showAllOption={true}
-                    />
-                  </div>
-
-                  <div className="">
-                    <CustomSelect
-                      options={PRODUCT_STATUS_FILTER}
-                      value={filters.status}
-                      placeholder="All Status"
-                      onValueChange={(value) =>
-                        handleProductStatusChange(value as ProductStatus)
-                      }
-                      className="w-[150px]"
-                      label="Product Status"
-                      size="md"
-                    />
-                  </div>
+                {/* Promotion Filter */}
+                <div className="min-w-0">
+                  <CustomSelect
+                    options={PRODUCT_PROMOTION_FILTER}
+                    value={hasPromotionFilter}
+                    placeholder="All Products"
+                    onValueChange={handlePromotionFilterChange}
+                    className="w-full"
+                    label="Promotion Status"
+                    size="md"
+                  />
                 </div>
               </div>
             </div>
