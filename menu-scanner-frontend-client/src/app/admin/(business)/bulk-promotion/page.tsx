@@ -317,7 +317,7 @@ export default function BulkPromotionCreationPage() {
   };
 
   // Confirm reset promotion (single product only)
-  const handleConfirmResetPromotion = () => {
+  const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
 
     // Optimistic update - update state immediately
