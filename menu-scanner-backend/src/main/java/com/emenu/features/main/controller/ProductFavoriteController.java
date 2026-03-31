@@ -36,7 +36,7 @@ public class ProductFavoriteController {
             long duration = System.currentTimeMillis() - startTime;
 
             log.info("POST /api/v1/product-favorites/{}/toggle succeeded in {}ms - Action: {}, Status: {}",
-                productId, duration, result.getAction(), result.isFavorited());
+                productId, duration, result.getAction(), result.getIsFavorited());
             return ResponseEntity.ok(ApiResponse.success(result.getMessage(), result));
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
