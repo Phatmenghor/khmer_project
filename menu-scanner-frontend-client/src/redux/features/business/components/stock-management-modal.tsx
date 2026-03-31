@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
+import { useAppDispatch } from "@/redux/store";
 import {
   Dialog,
   DialogContent,
@@ -47,7 +48,7 @@ export function StockManagementModal({
   onClose,
   product,
 }: StockManagementModalProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { history, isLoading, isCreating, isDeleting, error, successMessage } =
     useSelector((state: any) => state.stockManagement);
   const [historyPageNo, setHistoryPageNo] = useState(1);
@@ -86,7 +87,7 @@ export function StockManagementModal({
           pageNo: historyPageNo,
           pageSize: historyPageSize,
           productId: product.id,
-        } as any)
+        })
       );
     }
   }, [isOpen, product, dispatch, historyPageNo, historyPageSize]);
@@ -121,13 +122,13 @@ export function StockManagementModal({
         priceIn: price,
         expiryDate: data.expiryDate || undefined,
         location: data.location || undefined,
-      } as any)
+      })
     );
   };
 
   const handleDeleteStock = (stockId: string) => {
     if (confirm("Are you sure you want to delete this stock record?")) {
-      dispatch(deleteProductStockService(stockId) as any);
+      dispatch(deleteProductStockService(stockId));
     }
   };
 
