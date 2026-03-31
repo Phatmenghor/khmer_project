@@ -1,4 +1,4 @@
-package com.emenu.features.shared.aspect;
+package com.emenu.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
