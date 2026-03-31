@@ -272,11 +272,10 @@ export default function ProductStockPage() {
           title="Product Stock Information"
           searchValue={filters.search}
           searchPlaceholder="Search product..."
-          buttonTooltip="Create a new stock"
+          buttonTooltip="Select a product and click Create Stock in the table"
           buttonIcon={<Plus className="w-3 h-3" />}
           buttonText="New"
           onSearchChange={handleSearchChange}
-          openModal={handleCreateStock}
         >
           <ComboboxSelectBrand
             dataSelect={selectedBrand}
