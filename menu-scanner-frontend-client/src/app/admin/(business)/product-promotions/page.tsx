@@ -180,13 +180,12 @@ export default function ProductPromotionPage() {
   const handleConfirmResetAllPromotions = async () => {
     dispatch(resetAllPromotionsOptimistic());
     closeResetAllModal();
-    dispatch(resetAllPromotionsService())
-      .then(() => {
-        showToast.success("All promotions reset successfully");
-      })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to reset all promotions");
-      });
+    try {
+      await dispatch(resetAllPromotionsService()).unwrap();
+      showToast.success("All promotions reset successfully");
+    } catch (error: any) {
+      showToast.error(error?.message || error || "Failed to reset all promotions");
+    }
   };
 
   const handleResetTablePromotions = () => {
@@ -206,15 +205,15 @@ export default function ProductPromotionPage() {
   };
 
   const handleConfirmResetTablePromotions = async () => {
-    dispatch(resetTablePromotionsOptimistic(resetTableState.selectedProductIds));
+    const ids = resetTableState.selectedProductIds;
+    dispatch(resetTablePromotionsOptimistic(ids));
     closeResetTableModal();
-    dispatch(resetBulkPromotionsService(resetTableState.selectedProductIds as any))
-      .then(() => {
-        showToast.success(`Reset promotions for ${resetTableState.selectedProductIds.length} products`);
-      })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to reset promotions");
-      });
+    try {
+      await dispatch(resetBulkPromotionsService(ids as any)).unwrap();
+      showToast.success(`Reset promotions for ${ids.length} products`);
+    } catch (error: any) {
+      showToast.error(error?.message || error || "Failed to reset promotions");
+    }
   };
 
   const tableHandlers = useMemo(
@@ -311,15 +310,14 @@ export default function ProductPromotionPage() {
     closeResetPromotionModal();
 
     // Call API in background without blocking UI
-    dispatch(resetProductPromotionService(resetPromotionState.product.id))
-      .then(() => {
-        showToast.success(
-          `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
-        );
-      })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to reset promotion");
-      });
+    try {
+      await dispatch(resetProductPromotionService(resetPromotionState.product.id)).unwrap();
+      showToast.success(
+        `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
+      );
+    } catch (error: any) {
+      showToast.error(error?.message || error || "Failed to reset promotion");
+    }
   };
 
   const handleProductStatusChange = (status: ProductStatus) => {
@@ -378,16 +376,18 @@ export default function ProductPromotionPage() {
         <div className="flex gap-2">
           <button
             onClick={handleResetTablePromotions}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+            disabled={operations.isResettingBulk}
+            className="bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded text-sm font-medium transition-colors"
           >
-            Reset Selected
+            {operations.isResettingBulk ? "Resetting..." : "Reset Selected"}
           </button>
 
           <button
             onClick={handleResetAllPromotions}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+            disabled={operations.isResettingAll}
+            className="bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded text-sm font-medium transition-colors"
           >
-            Reset All
+            {operations.isResettingAll ? "Resetting..." : "Reset All"}
           </button>
         </div>
 

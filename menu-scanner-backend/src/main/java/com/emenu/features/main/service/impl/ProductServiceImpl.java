@@ -527,25 +527,11 @@ public class ProductServiceImpl implements ProductService {
             log.info("Validated {} products for business: {}", productsValidated, businessId);
 
             // Reset product sizes for selected products
-            int sizesReset = 0;
-            if (!productIds.isEmpty()) {
-                sizesReset = productSizeRepository.resetPromotionsBulkForProductSizes(productIds);
-                log.info("Reset promotions for {} product sizes", sizesReset);
-            }
-
-            // Reset products without sizes
-            int productsWithoutSizes = 0;
-            int productsWithSizes = 0;
-
-            for (Product product : products) {
-                if (!product.getHasSizes()) {
-                    productsWithoutSizes++;
-                } else {
-                    productsWithSizes++;
-                }
-            }
+            int sizesReset = productSizeRepository.resetPromotionsBulkForProductSizes(productIds);
+            log.info("Reset promotions for {} product sizes", sizesReset);
 
             // Update promotions via direct SQL for selected products
+            // Correctly handles display_price for products with/without sizes
             int updatedCount = productRepository.resetPromotionsBulk(productIds);
             log.info("Reset promotions for {} products via SQL", updatedCount);
 
@@ -553,14 +539,14 @@ public class ProductServiceImpl implements ProductService {
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", String.format("Successfully reset promotions for %d products in %dms",
-                productIds.size(), duration));
-            response.put("resetCount", productIds.size() + sizesReset);
-            response.put("productsReset", productIds.size());
+                updatedCount, duration));
+            response.put("resetCount", updatedCount + sizesReset);
+            response.put("productsReset", updatedCount);
             response.put("sizesReset", sizesReset);
             response.put("durationMs", duration);
 
             log.info("Reset bulk promotions completed in {}ms - Products: {}, Sizes: {}, Total: {}",
-                duration, productIds.size(), sizesReset, productIds.size() + sizesReset);
+                duration, updatedCount, sizesReset, updatedCount + sizesReset);
 
             return response;
         } catch (Exception e) {

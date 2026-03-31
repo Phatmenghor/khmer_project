@@ -393,11 +393,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     int resetAllPromotionsForProductsWithSizes(@Param("businessId") UUID businessId);
 
     /**
-     * Bulk reset promotions for specific products (by IDs)
+     * Bulk reset promotions for specific products (by IDs).
+     * Products without sizes use their own price; products with sizes use MIN(size.price).
      */
     @Modifying
     @Query(nativeQuery = true, value =
-        "UPDATE products SET " +
+        "UPDATE products p SET " +
         "    promotion_type = NULL, " +
         "    promotion_value = NULL, " +
         "    promotion_from_date = NULL, " +
@@ -407,9 +408,11 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         "    display_promotion_value = NULL, " +
         "    display_promotion_from_date = NULL, " +
         "    display_promotion_to_date = NULL, " +
-        "    display_price = price, " +
-        "    display_origin_price = price " +
-        "WHERE id IN :productIds " +
-        "  AND is_deleted = false")
+        "    display_price = CASE WHEN p.has_sizes = false THEN p.price " +
+        "                         ELSE (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false) END, " +
+        "    display_origin_price = CASE WHEN p.has_sizes = false THEN p.price " +
+        "                                ELSE (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false) END " +
+        "WHERE p.id IN :productIds " +
+        "  AND p.is_deleted = false")
     int resetPromotionsBulk(@Param("productIds") List<UUID> productIds);
 }

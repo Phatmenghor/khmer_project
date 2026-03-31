@@ -12,6 +12,9 @@ import {
   fetchAllProductService,
   fetchProductByIdService,
   updateProductService,
+  resetProductPromotionService,
+  resetAllPromotionsService,
+  resetBulkPromotionsService,
 } from "../thunks/product-thunks";
 import { ProductStatus } from "@/constants/status/status";
 import { selectCategories } from "@/redux/features/master-data/store/selectors/categories-selector";
@@ -33,6 +36,9 @@ const initialState: ProductManagementState = {
     isUpdating: false,
     isDeleting: false,
     isFetchingDetail: false,
+    isResettingPromotion: false,
+    isResettingAll: false,
+    isResettingBulk: false,
   },
 };
 
@@ -344,6 +350,45 @@ const productSlice = createSlice({
       .addCase(deleteProductService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.operations.isDeleting = false;
+      });
+
+    builder
+      .addCase(resetProductPromotionService.pending, (state) => {
+        state.operations.isResettingPromotion = true;
+        state.error = null;
+      })
+      .addCase(resetProductPromotionService.fulfilled, (state) => {
+        state.operations.isResettingPromotion = false;
+      })
+      .addCase(resetProductPromotionService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.operations.isResettingPromotion = false;
+      });
+
+    builder
+      .addCase(resetAllPromotionsService.pending, (state) => {
+        state.operations.isResettingAll = true;
+        state.error = null;
+      })
+      .addCase(resetAllPromotionsService.fulfilled, (state) => {
+        state.operations.isResettingAll = false;
+      })
+      .addCase(resetAllPromotionsService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.operations.isResettingAll = false;
+      });
+
+    builder
+      .addCase(resetBulkPromotionsService.pending, (state) => {
+        state.operations.isResettingBulk = true;
+        state.error = null;
+      })
+      .addCase(resetBulkPromotionsService.fulfilled, (state) => {
+        state.operations.isResettingBulk = false;
+      })
+      .addCase(resetBulkPromotionsService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.operations.isResettingBulk = false;
       });
   },
 });
