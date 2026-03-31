@@ -2,12 +2,11 @@ import { indexDisplay } from "@/utils/common/common";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import Image from "next/image";
-import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, Check } from "lucide-react";
+import { Check } from "lucide-react";
 
 interface BulkPromotionTableOptions {
   selectedProductIds: Map<string, boolean>;
@@ -151,83 +150,58 @@ export const bulkPromotionTableColumns = ({
     },
     {
       key: "sizes",
-      label: "Available Sizes",
+      label: "Sizes",
       className: "px-4",
       render: (product) => {
         if (!product.hasSizes || !product.sizes || product.sizes.length === 0) {
           return <span className="text-xs text-muted-foreground">No sizes</span>;
         }
 
-        const selectedCount = selectedSizes.get(product.id)?.size || 0;
-        // Default to expanded when product has sizes
-        const [expanded, setExpanded] = useState(true);
-
         return (
-          <div className="flex flex-col gap-2 w-full">
-            {/* Collapse/Expand Toggle */}
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="flex items-center gap-2 text-xs font-medium hover:text-primary transition-colors w-fit"
-            >
-              <ChevronDown
-                className={cn(
-                  "w-3.5 h-3.5 transition-transform duration-200",
-                  expanded && "rotate-180"
-                )}
-              />
-              <span className="text-muted-foreground">
-                {selectedCount}/{product.sizes.length} selected
-              </span>
-            </button>
+          <div className="flex flex-wrap gap-2 w-full">
+            {product.sizes.map((size) => {
+              const isSelected = selectedSizes.get(product.id)?.has(size.id) || false;
+              const hasPromotion = size.promotionType && size.promotionValue;
 
-            {/* Horizontal Size List - Shown by Default */}
-            {expanded && (
-              <div className="flex flex-wrap gap-2 w-full">
-                {product.sizes.map((size) => {
-                  const isSelected = selectedSizes.get(product.id)?.has(size.id) || false;
-                  const hasPromotion = size.promotionType && size.promotionValue;
+              return (
+                <label
+                  key={size.id}
+                  className={cn(
+                    "flex items-center gap-2 px-2.5 py-1.5 rounded-md border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap",
+                    isSelected
+                      ? "bg-primary/15 border-primary/50 hover:bg-primary/20 hover:border-primary/70 shadow-sm"
+                      : "bg-white border-border/50 hover:bg-gray-50 hover:border-border/70"
+                  )}
+                >
+                  {/* Custom Checkbox */}
+                  <CustomCheckbox
+                    checked={isSelected}
+                    onCheckedChange={() => onSizeToggle?.(product.id, size.id)}
+                    size="sm"
+                    variant="default"
+                    ariaLabel={`Select ${size.name}`}
+                  />
 
-                  return (
-                    <label
-                      key={size.id}
-                      className={cn(
-                        "flex items-center gap-2 px-2.5 py-1.5 rounded-md border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap",
-                        isSelected
-                          ? "bg-primary/15 border-primary/50 hover:bg-primary/20 hover:border-primary/70 shadow-sm"
-                          : "bg-white border-border/50 hover:bg-gray-50 hover:border-border/70"
-                      )}
+                  {/* Size Name */}
+                  <span className="font-medium text-foreground group-hover:text-primary transition-colors">
+                    {size.name}
+                  </span>
+
+                  {/* Size Promotion Status Badge */}
+                  {hasPromotion && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-green-100/70 text-green-700 border-green-300/40 text-xs h-fit"
                     >
-                      {/* Custom Checkbox */}
-                      <CustomCheckbox
-                        checked={isSelected}
-                        onCheckedChange={() => onSizeToggle?.(product.id, size.id)}
-                        size="sm"
-                        variant="default"
-                        ariaLabel={`Select ${size.name}`}
-                      />
-
-                      {/* Size Name */}
-                      <span className="font-medium text-foreground group-hover:text-primary transition-colors">
-                        {size.name}
-                      </span>
-
-                      {/* Size Promotion Status Badge */}
-                      {hasPromotion && (
-                        <Badge
-                          variant="secondary"
-                          className="bg-green-100/70 text-green-700 border-green-300/40 text-xs h-fit"
-                        >
-                          <Check className="w-2.5 h-2.5" />
-                          {size.promotionType === "PERCENTAGE"
-                            ? `${size.promotionValue}%`
-                            : `$${size.promotionValue}`}
-                        </Badge>
-                      )}
-                    </label>
-                  );
-                })}
-              </div>
-            )}
+                      <Check className="w-2.5 h-2.5" />
+                      {size.promotionType === "PERCENTAGE"
+                        ? `${size.promotionValue}%`
+                        : `$${size.promotionValue}`}
+                    </Badge>
+                  )}
+                </label>
+              );
+            })}
           </div>
         );
       },
