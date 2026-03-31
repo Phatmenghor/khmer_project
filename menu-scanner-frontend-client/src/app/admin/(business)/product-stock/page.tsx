@@ -42,6 +42,13 @@ const HAS_SIZE_FILTER = [
   { value: "WITHOUT_SIZES", label: "Without Sizes" },
 ];
 
+// Filter options for stock status
+const STOCK_STATUS_FILTER = [
+  { value: "ALL", label: "All Stock Status" },
+  { value: "ENABLED", label: "Stock Enabled" },
+  { value: "DISABLED", label: "Stock Disabled" },
+];
+
 export default function ProductStockPage() {
   // Clean up state when leaving admin area (performance optimization)
   useAdminCleanup(resetState);
@@ -75,6 +82,7 @@ export default function ProductStockPage() {
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
   const [hasSizeFilter, setHasSizeFilter] = useState("ALL");
+  const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
 
   // Global page size from global settings (synced across all admin pages)
   const globalPageSize = useAppSelector(selectGlobalPageSize);
@@ -96,6 +104,13 @@ export default function ProductStockPage() {
     }
     // if ALL, hasSize remains undefined (no filter)
 
+    // Determine stockStatus filter value
+    let stockStatus: string | undefined;
+    if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
+      stockStatus = stockStatusFilter;
+    }
+    // if ALL, stockStatus remains undefined (no filter)
+
     dispatch(
       fetchAllProductStockAdminService({
         search: debouncedSearch,
@@ -106,6 +121,7 @@ export default function ProductStockPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
+        stockStatus,
       }),
     );
   }, [
@@ -117,6 +133,7 @@ export default function ProductStockPage() {
     selectedBrand,
     selectedCategories,
     hasSizeFilter,
+    stockStatusFilter,
   ]);
 
   // Event handlers
@@ -223,6 +240,10 @@ export default function ProductStockPage() {
     setHasSizeFilter(value);
   };
 
+  const handleStockStatusChange = (value: string) => {
+    setStockStatusFilter(value);
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
@@ -256,6 +277,14 @@ export default function ProductStockPage() {
             placeholder="All Products"
             onValueChange={handleHasSizeChange}
             label="Product Type"
+          />
+
+          <CustomSelect
+            options={STOCK_STATUS_FILTER}
+            value={stockStatusFilter}
+            placeholder="All Stock Status"
+            onValueChange={handleStockStatusChange}
+            label="Stock Status"
           />
 
           <CustomSelect

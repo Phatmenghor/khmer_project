@@ -240,6 +240,21 @@ export const stockTableColumns = ({
     },
 
     {
+      key: "stockStatus",
+      label: "Stock Status",
+      minWidth: "10px",
+      maxWidth: "120px",
+      render: (product) => (
+        <Badge
+          variant={product?.stockStatus === "ENABLED" ? "default" : "secondary"}
+          className="text-xs"
+        >
+          {product?.stockStatus || "UNKNOWN"}
+        </Badge>
+      ),
+    },
+
+    {
       key: "status",
       label: "Product Status",
       minWidth: "10px",

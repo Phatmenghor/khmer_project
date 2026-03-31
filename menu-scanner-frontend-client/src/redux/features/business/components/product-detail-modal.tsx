@@ -327,6 +327,20 @@ export function ProductDetailModal({
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DisplayField
+                    label="Stock Status"
+                    value={
+                      <Badge
+                        variant={
+                          productData.stockStatus === "ENABLED"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {productData.stockStatus || "---"}
+                      </Badge>
+                    }
+                  />
+                  <DisplayField
                     label="Total Stock"
                     value={productData.totalStock ? productData.totalStock.toString() : "0"}
                   />

@@ -1,6 +1,7 @@
 package com.emenu.features.main.dto.response;
 
 import com.emenu.enums.product.ProductStatus;
+import com.emenu.enums.product.StockStatus;
 import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,8 +38,12 @@ public class ProductDetailDto extends BaseAuditResponse {
     private String barcode;
     private String sku;
 
-    // Stock tracking - unified for all product types
+    // Stock status and tracking - unified for all product types
+    private StockStatus stockStatus;
     private Integer totalStock; // Total stock: for products without sizes = product stock, for products with sizes = sum of all size stocks
+    private Integer quantityAvailable; // Available quantity (not reserved)
+    private Integer quantityReserved; // Reserved/allocated quantity
+    private Integer quantityOnHand; // Physical inventory count
 
     private Long viewCount;
     private Long favoriteCount;

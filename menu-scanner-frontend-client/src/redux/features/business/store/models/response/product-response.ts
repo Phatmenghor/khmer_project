@@ -39,6 +39,12 @@ export interface ProductDetailResponseModel {
   brandName: string;
   barcode: string;
   sku: string;
+  // Stock tracking
+  stockStatus: string; // ENABLED or DISABLED
+  totalStock: number;
+  quantityAvailable: number;
+  quantityReserved: number;
+  quantityOnHand: number;
   images: ProductImage[];
   sizes: ProductSize[];
   isSelected?: boolean; // Frontend state for bulk operations (default: false)
@@ -63,4 +69,8 @@ export interface ProductSize {
   hasPromotion: boolean;
   quantity: string;
   createdAt: string;
+  // Stock tracking for size variants
+  totalStock: number;
+  quantityAvailable: number;
+  quantityReserved: number;
 }
