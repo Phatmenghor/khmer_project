@@ -4,6 +4,7 @@ export interface BulkPromotionRequest {
   promotionValue: number;
   promotionFromDate: string;
   promotionToDate: string;
+  productSizeMapping?: Record<string, string[]>; // productId -> sizeIds[]
 }
 
 export interface BulkPromotionResponse {
