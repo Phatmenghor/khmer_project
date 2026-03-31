@@ -7,14 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { Badge } from "@/components/ui/badge";
-import { Check, MoreVertical, Eye, Edit } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { Check, Eye, Edit } from "lucide-react";
+import { ActionButton } from "@/components/shared/button/action-button";
 
 interface BulkPromotionTableOptions {
   selectedProductIds: Map<string, boolean>;
@@ -249,37 +243,21 @@ export const bulkPromotionTableColumns = ({
       key: "actions",
       label: "Actions",
       minWidth: "10px",
-      maxWidth: "120px",
+      maxWidth: "200px",
       className: "px-4",
       render: (product) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-            >
-              <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => onViewDetails?.(product)}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <Eye className="h-4 w-4" />
-              <span>View Details</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onEditProduct?.(product)}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <Edit className="h-4 w-4" />
-              <span>Edit Product</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <ActionButton
+            icon={<Eye className="w-4 h-4" />}
+            tooltip="View Details"
+            onClick={() => onViewDetails?.(product)}
+          />
+          <ActionButton
+            icon={<Edit className="w-4 h-4" />}
+            tooltip="Edit Product"
+            onClick={() => onEditProduct?.(product)}
+          />
+        </div>
       ),
     },
   ];
