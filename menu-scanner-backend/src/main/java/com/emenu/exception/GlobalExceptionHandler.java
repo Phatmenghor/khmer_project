@@ -502,7 +502,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleGenericException(
             Exception ex, HttpServletRequest request) {
         String traceId = UUID.randomUUID().toString();
-            request.getRequestURI(), traceId, ex.getMessage(), ex);
 
         Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.INTERNAL_SERVER_ERROR, request);
         errorDetails.put("traceId", traceId);

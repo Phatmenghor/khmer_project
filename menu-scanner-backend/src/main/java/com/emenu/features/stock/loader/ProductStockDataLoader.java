@@ -92,7 +92,6 @@ public class ProductStockDataLoader implements ApplicationRunner {
                     ProductStock stock = createProductStock(product, size);
                     productStockRepository.save(stock);
                     totalCreated++;
-                        product.getName(), product.getId(), size.getName());
                 }
             }
         }

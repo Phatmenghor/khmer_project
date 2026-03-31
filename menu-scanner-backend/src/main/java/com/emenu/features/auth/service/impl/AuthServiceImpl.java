@@ -62,7 +62,6 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public LoginResponse login(LoginRequest request) {
-                request.getUserIdentifier(), request.getUserType(), request.getBusinessId());
 
         try {
             // Find user with context-aware lookup
@@ -122,7 +121,6 @@ public class AuthServiceImpl implements AuthService {
                 }
             }
 
-                    user.getUserIdentifier(), user.getUserType(), user.getBusinessId());
             return response;
 
         } catch (ValidationException e) {
@@ -366,8 +364,6 @@ public class AuthServiceImpl implements AuthService {
         String userTypeStr = jwtGenerator.getUserTypeFromJWT(refreshTokenString);
         String businessIdStr = jwtGenerator.getBusinessIdFromJWT(refreshTokenString);
 
-                userIdentifier, userTypeStr, businessIdStr);
-
         // Verify refresh token exists in database and is valid
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(refreshTokenString)
                 .orElseThrow(() -> new ValidationException("Invalid or expired refresh token"));
@@ -377,7 +373,6 @@ public class AuthServiceImpl implements AuthService {
 
         // Validate that the found user matches the refresh token's userId
         if (!user.getId().equals(refreshToken.getUserId())) {
-                    refreshToken.getUserId(), user.getId());
             throw new ValidationException("Invalid refresh token");
         }
 
@@ -419,8 +414,6 @@ public class AuthServiceImpl implements AuthService {
 
         // Revoke old refresh token
         refreshTokenService.revokeRefreshToken(refreshTokenString, "TOKEN_REFRESH");
-
-                user.getUserIdentifier(), user.getUserType(), user.getBusinessId());
 
         return new RefreshTokenResponse(newAccessToken, newRefreshToken.getToken());
     }

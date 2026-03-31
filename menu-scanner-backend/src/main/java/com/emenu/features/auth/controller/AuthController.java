@@ -67,7 +67,6 @@ public class AuthController {
 
         SocialSyncResponse response = socialAuthService.syncSocialAccount(request);
 
-                response.getProvider(), response.getTelegramId(), response.getTelegramUsername());
         return ResponseEntity.ok(ApiResponse.success("Social account synced successfully", response));
     }
 
