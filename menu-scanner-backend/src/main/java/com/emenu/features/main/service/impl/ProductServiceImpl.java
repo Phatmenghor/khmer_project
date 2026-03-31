@@ -500,6 +500,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
+    public BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request) {
         User currentUser = securityUtils.getCurrentUser();
         validateUserBusinessAssociation(currentUser);
 
