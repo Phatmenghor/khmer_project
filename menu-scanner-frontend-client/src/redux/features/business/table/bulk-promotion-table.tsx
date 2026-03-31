@@ -159,29 +159,30 @@ export const bulkPromotionTableColumns = ({
         }
 
         const selectedCount = selectedSizes.get(product.id)?.size || 0;
-        const [expanded, setExpanded] = useState(false);
+        // Default to expanded when product has sizes
+        const [expanded, setExpanded] = useState(true);
 
         return (
-          <div className="flex flex-col gap-2">
-            {/* Size Summary Header */}
+          <div className="flex flex-col gap-2 w-full">
+            {/* Collapse/Expand Toggle */}
             <button
               onClick={() => setExpanded(!expanded)}
-              className="flex items-center gap-2 text-xs font-medium hover:text-primary transition-colors"
+              className="flex items-center gap-2 text-xs font-medium hover:text-primary transition-colors w-fit"
             >
               <ChevronDown
                 className={cn(
-                  "w-3 h-3 transition-transform",
+                  "w-3.5 h-3.5 transition-transform duration-200",
                   expanded && "rotate-180"
                 )}
               />
-              <span>
+              <span className="text-muted-foreground">
                 {selectedCount}/{product.sizes.length} selected
               </span>
             </button>
 
-            {/* Expanded Horizontal Size List */}
+            {/* Horizontal Size List - Shown by Default */}
             {expanded && (
-              <div className="flex flex-wrap gap-2 p-3 bg-muted/30 rounded-md max-w-2xl">
+              <div className="flex flex-wrap gap-2 w-full">
                 {product.sizes.map((size) => {
                   const isSelected = selectedSizes.get(product.id)?.has(size.id) || false;
                   const hasPromotion = size.promotionType && size.promotionValue;
@@ -190,10 +191,10 @@ export const bulkPromotionTableColumns = ({
                     <label
                       key={size.id}
                       className={cn(
-                        "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-200 cursor-pointer group",
+                        "flex items-center gap-2 px-2.5 py-1.5 rounded-md border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap",
                         isSelected
-                          ? "bg-primary/10 border-primary/40 hover:bg-primary/15 hover:border-primary/60 shadow-sm"
-                          : "bg-white border-border/60 hover:bg-muted/50 hover:border-border/80"
+                          ? "bg-primary/15 border-primary/50 hover:bg-primary/20 hover:border-primary/70 shadow-sm"
+                          : "bg-white border-border/50 hover:bg-gray-50 hover:border-border/70"
                       )}
                     >
                       {/* Custom Checkbox */}
@@ -206,17 +207,17 @@ export const bulkPromotionTableColumns = ({
                       />
 
                       {/* Size Name */}
-                      <span className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">
+                      <span className="font-medium text-foreground group-hover:text-primary transition-colors">
                         {size.name}
                       </span>
 
-                      {/* Size Promotion Status */}
+                      {/* Size Promotion Status Badge */}
                       {hasPromotion && (
                         <Badge
                           variant="secondary"
-                          className="ml-auto bg-green-100/80 text-green-700 border-green-300/50 text-xs"
+                          className="bg-green-100/70 text-green-700 border-green-300/40 text-xs h-fit"
                         >
-                          <Check className="w-2.5 h-2.5 mr-1" />
+                          <Check className="w-2.5 h-2.5" />
                           {size.promotionType === "PERCENTAGE"
                             ? `${size.promotionValue}%`
                             : `$${size.promotionValue}`}
