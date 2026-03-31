@@ -83,6 +83,11 @@ export default function ProductStockPage() {
   // Global page size from global settings (synced across all admin pages)
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
+  // Stock management state (to detect when stock is created)
+  const stockManagementSuccessMessage = useAppSelector(
+    (state: any) => state.stockManagement?.successMessage
+  );
+
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -125,6 +130,34 @@ export default function ProductStockPage() {
     selectedCategories,
     stockStatusFilter,
   ]);
+
+  // Refetch products when stock is created to update totalStock
+  useEffect(() => {
+    if (stockManagementSuccessMessage) {
+      // Refetch the products list to get updated totalStock
+      let stockStatuses: string[] | undefined;
+      if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
+        stockStatuses = [stockStatusFilter];
+      }
+
+      let statuses: string[] | undefined;
+      if (filters.status !== ProductStatus.ALL && filters.status) {
+        statuses = [filters.status];
+      }
+
+      dispatch(
+        fetchAllProductStockAdminService({
+          search: debouncedSearch,
+          pageNo: filters.pageNo,
+          pageSize: globalPageSize,
+          statuses,
+          brandId: selectedBrand?.id,
+          categoryId: selectedCategories?.id,
+          stockStatuses,
+        }),
+      );
+    }
+  }, [stockManagementSuccessMessage]);
 
   // Event handlers
   const handleCreateStock = (product: ProductDetailResponseModel) => {
