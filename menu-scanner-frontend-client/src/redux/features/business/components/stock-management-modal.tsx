@@ -7,14 +7,21 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Package, History, Plus, Trash2 } from "lucide-react";
+import { Package, Trash2 } from "lucide-react";
 import {
   createProductStockService,
   getProductStockHistoryService,
@@ -49,23 +56,19 @@ export function StockManagementModal({
     location: "",
   });
 
-  const [activeTab, setActiveTab] = useState("create");
-
   // Handle success/error messages
   useEffect(() => {
     if (successMessage) {
       showToast.success(successMessage);
       dispatch(clearSuccess());
-      if (activeTab === "create") {
-        setFormData({
-          quantityOnHand: 0,
-          priceIn: 0.01,
-          expiryDate: "",
-          location: "",
-        });
-      }
+      setFormData({
+        quantityOnHand: 0,
+        priceIn: 0.01,
+        expiryDate: "",
+        location: "",
+      });
     }
-  }, [successMessage, dispatch, activeTab]);
+  }, [successMessage, dispatch]);
 
   useEffect(() => {
     if (error) {
@@ -74,9 +77,9 @@ export function StockManagementModal({
     }
   }, [error, dispatch]);
 
-  // Load history when modal opens or tab changes
+  // Load history when modal opens
   useEffect(() => {
-    if (isOpen && product && activeTab === "history") {
+    if (isOpen && product) {
       dispatch(
         getProductStockHistoryService({
           pageNo: 1,
@@ -85,7 +88,7 @@ export function StockManagementModal({
         } as any)
       );
     }
-  }, [isOpen, product, activeTab, dispatch]);
+  }, [isOpen, product, dispatch]);
 
   const handleCreateStock = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,211 +182,199 @@ export function StockManagementModal({
         </div>
 
         {/* Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-          {/* Tabs Navigation */}
-          <div className="px-6 py-3 border-b bg-muted/10 flex-shrink-0">
-            <TabsList className="grid grid-cols-2 max-w-sm">
-              <TabsTrigger value="create" className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Create Stock
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center gap-2">
-                <History className="w-4 h-4" />
-                History
-              </TabsTrigger>
-            </TabsList>
-          </div>
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* Add Stock Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5" />
+                  Add New Stock
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleCreateStock} className="space-y-6">
+                  {/* Form Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Quantity On Hand */}
+                    <div className="space-y-2">
+                      <Label htmlFor="quantity" className="text-sm font-medium">
+                        Quantity On Hand <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="quantity"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={formData.quantityOnHand}
+                        onChange={(e) => handleInputChange(e, "quantityOnHand")}
+                        placeholder="Enter quantity"
+                        required
+                        className="h-10"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Total quantity available in stock
+                      </p>
+                    </div>
 
-          {/* Create Stock Tab */}
-          <TabsContent value="create" className="flex-1 overflow-y-auto m-0">
-            <div className="p-6 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="w-5 h-5" />
-                    Add New Stock
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleCreateStock} className="space-y-6">
-                    {/* Form Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Quantity On Hand */}
-                      <div className="space-y-2">
-                        <Label htmlFor="quantity" className="text-sm font-medium">
-                          Quantity On Hand <span className="text-red-500">*</span>
-                        </Label>
+                    {/* Price In */}
+                    <div className="space-y-2">
+                      <Label htmlFor="priceIn" className="text-sm font-medium">
+                        Unit Price (Cost) <span className="text-red-500">*</span>
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-muted-foreground">$</span>
                         <Input
-                          id="quantity"
+                          id="priceIn"
                           type="number"
-                          min="0"
-                          step="1"
-                          value={formData.quantityOnHand}
-                          onChange={(e) => handleInputChange(e, "quantityOnHand")}
-                          placeholder="Enter quantity"
+                          min="0.01"
+                          step="0.01"
+                          value={formData.priceIn}
+                          onChange={(e) => handleInputChange(e, "priceIn")}
+                          placeholder="0.00"
                           required
-                          className="h-10"
+                          className="h-10 flex-1"
                         />
-                        <p className="text-xs text-muted-foreground">
-                          Total quantity available in stock
-                        </p>
                       </div>
-
-                      {/* Price In */}
-                      <div className="space-y-2">
-                        <Label htmlFor="priceIn" className="text-sm font-medium">
-                          Unit Price (Cost) <span className="text-red-500">*</span>
-                        </Label>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-muted-foreground">$</span>
-                          <Input
-                            id="priceIn"
-                            type="number"
-                            min="0.01"
-                            step="0.01"
-                            value={formData.priceIn}
-                            onChange={(e) => handleInputChange(e, "priceIn")}
-                            placeholder="0.00"
-                            required
-                            className="h-10 flex-1"
-                          />
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Cost per unit for inventory tracking
-                        </p>
-                      </div>
-
-                      {/* Expiry Date */}
-                      <div className="space-y-2">
-                        <Label htmlFor="expiryDate" className="text-sm font-medium">
-                          Expiry Date
-                        </Label>
-                        <Input
-                          id="expiryDate"
-                          type="date"
-                          value={formData.expiryDate}
-                          onChange={(e) => handleInputChange(e, "expiryDate")}
-                          className="h-10"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Optional - leave empty if product does not expire
-                        </p>
-                      </div>
-
-                      {/* Location */}
-                      <div className="space-y-2">
-                        <Label htmlFor="location" className="text-sm font-medium">
-                          Storage Location
-                        </Label>
-                        <Input
-                          id="location"
-                          type="text"
-                          value={formData.location}
-                          onChange={(e) => handleInputChange(e, "location")}
-                          placeholder="e.g., Warehouse A, Shelf 3"
-                          className="h-10"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Physical location in your warehouse/storage
-                        </p>
-                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Cost per unit for inventory tracking
+                      </p>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        type="submit"
-                        disabled={isCreating}
-                        size="lg"
-                        className="flex-1"
-                      >
-                        {isCreating ? "Creating..." : "Create Stock Entry"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        onClick={onClose}
-                        disabled={isCreating}
-                      >
-                        Close
-                      </Button>
+                    {/* Expiry Date */}
+                    <div className="space-y-2">
+                      <Label htmlFor="expiryDate" className="text-sm font-medium">
+                        Expiry Date
+                      </Label>
+                      <Input
+                        id="expiryDate"
+                        type="date"
+                        value={formData.expiryDate}
+                        onChange={(e) => handleInputChange(e, "expiryDate")}
+                        className="h-10"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Optional - leave empty if product does not expire
+                      </p>
                     </div>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
-          {/* Stock History Tab */}
-          <TabsContent value="history" className="flex-1 overflow-y-auto m-0">
-            <div className="p-6 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <History className="w-5 h-5" />
-                    Stock History
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <p className="text-muted-foreground">Loading stock history...</p>
+                    {/* Location */}
+                    <div className="space-y-2">
+                      <Label htmlFor="location" className="text-sm font-medium">
+                        Storage Location
+                      </Label>
+                      <Input
+                        id="location"
+                        type="text"
+                        value={formData.location}
+                        onChange={(e) => handleInputChange(e, "location")}
+                        placeholder="e.g., Warehouse A, Shelf 3"
+                        className="h-10"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Physical location in your warehouse/storage
+                      </p>
                     </div>
-                  ) : history?.content && history.content.length > 0 ? (
-                    <div className="space-y-3">
-                      {history.content.map((stock) => (
-                        <div
-                          key={stock.id}
-                          className="p-4 border rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-                        >
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1 space-y-3">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <Badge variant="secondary" className="text-sm">
-                                  Qty: {stock.quantityOnHand}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      type="submit"
+                      disabled={isCreating}
+                      size="lg"
+                      className="flex-1"
+                    >
+                      {isCreating ? "Creating..." : "Create Stock Entry"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      onClick={onClose}
+                      disabled={isCreating}
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            {/* Stock History Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Stock History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <p className="text-muted-foreground">Loading stock history...</p>
+                  </div>
+                ) : history?.content && history.content.length > 0 ? (
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead className="text-xs font-semibold">Quantity</TableHead>
+                          <TableHead className="text-xs font-semibold">Unit Price</TableHead>
+                          <TableHead className="text-xs font-semibold">Expiry Date</TableHead>
+                          <TableHead className="text-xs font-semibold">Location</TableHead>
+                          <TableHead className="text-xs font-semibold">Created</TableHead>
+                          <TableHead className="text-xs font-semibold text-right">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {history.content.map((stock) => (
+                          <TableRow key={stock.id} className="hover:bg-muted/50">
+                            <TableCell className="font-medium">
+                              <Badge variant="secondary" className="text-sm">
+                                {stock.quantityOnHand}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              ${stock.priceIn.toFixed(2)}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {stock.expiryDate ? (
+                                <Badge variant="destructive" className="text-xs">
+                                  {dateTimeFormat(stock.expiryDate)}
                                 </Badge>
-                                <Badge variant="outline" className="text-sm">
-                                  ${stock.priceIn.toFixed(2)}
-                                </Badge>
-                                {stock.expiryDate && (
-                                  <Badge variant="destructive" className="text-xs">
-                                    Expires: {dateTimeFormat(stock.expiryDate)}
-                                  </Badge>
-                                )}
-                              </div>
-                              {stock.location && (
-                                <p className="text-sm text-muted-foreground">
-                                  📍 <span className="font-medium">Location:</span> {stock.location}
-                                </p>
+                              ) : (
+                                <span className="text-muted-foreground">---</span>
                               )}
-                              <p className="text-xs text-muted-foreground">
-                                Added: {dateTimeFormat(stock.createdAt)}
-                              </p>
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDeleteStock(stock.id)}
-                              disabled={isDeleting}
-                              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center py-12">
-                      <p className="text-muted-foreground">No stock history found</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {stock.location || "---"}
+                            </TableCell>
+                            <TableCell className="text-xs text-muted-foreground">
+                              {dateTimeFormat(stock.createdAt)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDeleteStock(stock.id)}
+                                disabled={isDeleting}
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center py-12">
+                    <p className="text-muted-foreground">No stock history found</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
