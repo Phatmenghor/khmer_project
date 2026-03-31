@@ -467,9 +467,12 @@ public class ProductServiceImpl implements ProductService {
 
             int resetProductCount = 0;
             int resetSizeCount = 0;
+            int totalProducts = products.size();
             List<ProductSize> allSizesToSave = new ArrayList<>();
 
-            for (Product product : products) {
+            for (int i = 0; i < totalProducts; i++) {
+                Product product = products.get(i);
+
                 // Clear all promotion fields on product
                 product.setPromotionType(null);
                 product.setPromotionValue(null);
@@ -505,6 +508,12 @@ public class ProductServiceImpl implements ProductService {
                 } else {
                     product.setDisplayPrice(product.getPrice());
                     product.setDisplayOriginPrice(product.getPrice());
+                }
+
+                // Log progress every 10% or every 1000 products
+                if ((i + 1) % Math.max(1000, totalProducts / 10) == 0 || (i + 1) == totalProducts) {
+                    int progressPercent = (int) ((i + 1) * 100.0 / totalProducts);
+                    log.info("Reset promotions progress: {}/{} products ({}%)", i + 1, totalProducts, progressPercent);
                 }
             }
 
