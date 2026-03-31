@@ -369,6 +369,8 @@ public class ProductServiceImpl implements ProductService {
                 Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
+                filter.getHasSize(),
+                (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getSearch(),
                 pageable
         );
@@ -387,28 +389,11 @@ public class ProductServiceImpl implements ProductService {
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
-        // Apply hasSize filter in memory if provided
-        List<Product> filteredProducts = productPage.getContent();
-        if (filter.getHasSize() != null) {
-            filteredProducts = productPage.getContent().stream()
-                    .filter(p -> filter.getHasSize().equals(p.getHasSizes()))
-                    .toList();
-            log.debug("Applied hasSize filter - Filtered {} products to {}", productPage.getContent().size(), filteredProducts.size());
-        }
-
-        // Apply stockStatuses filter in memory if provided
-        if (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) {
-            int beforeFilter = filteredProducts.size();
-            filteredProducts = filteredProducts.stream()
-                    .filter(p -> p.getStockStatus() != null && filter.getStockStatuses().contains(p.getStockStatus()))
-                    .toList();
-            log.debug("Applied stockStatuses filter - Filtered {} products to {}", beforeFilter, filteredProducts.size());
-        }
-
-        List<ProductDetailDto> dtoList = productMapper.toDetailDtos(filteredProducts);
+        // All filters (including hasSize and stockStatuses) are now applied at database level
+        List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
 
         // Enrich with stock information
-        enrichTotalStockForDetails(dtoList, filteredProducts);
+        enrichTotalStockForDetails(dtoList, productPage.getContent());
         enrichProductSizesStock(dtoList);
 
         long duration = System.currentTimeMillis() - startTime;

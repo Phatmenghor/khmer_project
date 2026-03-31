@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Sort;
 
 import com.emenu.enums.product.ProductStatus;
+import com.emenu.enums.product.StockStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -140,6 +141,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:needsNoPromotion IS NULL OR p.hasActivePromotion = false) " +
            "AND (:minPrice IS NULL OR p.displayPrice >= :minPrice) " +
            "AND (:maxPrice IS NULL OR p.displayPrice <= :maxPrice) " +
+           "AND (:hasSizes IS NULL OR p.hasSizes = :hasSizes) " +
+           "AND (:stockStatuses IS NULL OR p.stockStatus IN :stockStatuses) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -154,6 +157,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         @Param("needsNoPromotion") Boolean needsNoPromotion,
         @Param("minPrice") BigDecimal minPrice,
         @Param("maxPrice") BigDecimal maxPrice,
+        @Param("hasSizes") Boolean hasSizes,
+        @Param("stockStatuses") List<StockStatus> stockStatuses,
         @Param("search") String search,
         Pageable pageable
     );
