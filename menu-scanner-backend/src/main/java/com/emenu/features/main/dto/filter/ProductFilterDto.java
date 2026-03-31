@@ -2,6 +2,7 @@ package com.emenu.features.main.dto.filter;
 
 import com.emenu.enums.product.ProductStatus;
 import com.emenu.shared.dto.BaseFilterRequest;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,10 +16,28 @@ public class ProductFilterDto extends BaseFilterRequest {
     private UUID businessId;
     private UUID categoryId;
     private UUID brandId;
+
+    @Schema(
+        description = "Filter by product status (ACTIVE, INACTIVE, ARCHIVED, etc.)",
+        example = "[\"ACTIVE\"]"
+    )
     private List<ProductStatus> statuses;
+
     private Boolean hasPromotion;
-    private Boolean hasSize; // Filter by products with/without sizes
-    private String stockStatus; // Filter by stock status (ENABLED/DISABLED) - accepts string from frontend
+
+    @Schema(
+        description = "Filter by products with or without sizes",
+        example = "true"
+    )
+    private Boolean hasSize;
+
+    @Schema(
+        description = "Filter by stock status (ENABLED to show products with stock tracking enabled, DISABLED for stock tracking disabled)",
+        example = "ENABLED",
+        allowableValues = {"ENABLED", "DISABLED"}
+    )
+    private String stockStatus;
+
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
 }
