@@ -112,8 +112,8 @@ export default function ProductPage() {
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
-        status:
-          filters.status == ProductStatus.ALL ? undefined : filters.status,
+        statuses:
+          filters.status == ProductStatus.ALL ? undefined : [filters.status],
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
