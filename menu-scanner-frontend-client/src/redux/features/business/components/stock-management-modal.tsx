@@ -17,6 +17,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
+import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { CancelButton } from "@/components/shared/form-field/cancel-button";
+import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { Package, Trash2, Edit, Eye } from "lucide-react";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
@@ -564,31 +567,33 @@ export function StockManagementModal({
                     </div>
                   )}
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-3 pt-4">
-                    <Button
-                      type="submit"
-                      disabled={isCreating}
-                      size="lg"
-                      className="flex-1"
-                    >
-                      {editingStock
-                        ? isCreating ? "Updating..." : "Update Stock"
-                        : isCreating ? "Creating..." : "Create Stock"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="lg"
+                  {/* Form Footer with Action Buttons */}
+                  <FormFooter
+                    isSubmitting={isCreating}
+                    isDirty={form.formState.isDirty}
+                    isCreate={!editingStock}
+                    createMessage="Creating stock..."
+                    updateMessage="Updating stock..."
+                  >
+                    <CancelButton
                       onClick={() => {
                         setEditingStock(null);
                         form.reset();
                       }}
                       disabled={isCreating}
-                    >
-                      {editingStock ? "Cancel" : "Close"}
-                    </Button>
-                  </div>
+                      text={editingStock ? "Cancel" : "Close"}
+                    />
+                    <SubmitButton
+                      type="submit"
+                      isSubmitting={isCreating}
+                      isDirty={form.formState.isDirty}
+                      isCreate={!editingStock}
+                      createText="Create Stock"
+                      updateText="Update Stock"
+                      submittingCreateText="Creating..."
+                      submittingUpdateText="Updating..."
+                    />
+                  </FormFooter>
                 </form>
               </CardContent>
             </Card>
