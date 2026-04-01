@@ -43,7 +43,7 @@ const STOCK_STATUS_FILTER = [
   { value: "DISABLED", label: "Stock Disabled" },
 ];
 
-export default function ProductStockPage() {
+export default function SizeStockPage() {
   // Clean up state when leaving admin area (performance optimization)
   useAdminCleanup(resetState);
 
@@ -91,7 +91,7 @@ export default function ProductStockPage() {
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.STOCK.MANAGEMENT,
+    baseRoute: ROUTES.MANAGE_STOCK.SIZE_STOCK,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
@@ -118,6 +118,7 @@ export default function ProductStockPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         stockStatuses,
+        hasSize: true, // Filter to only products with sizes
       }),
     );
   }, [
@@ -154,6 +155,7 @@ export default function ProductStockPage() {
           brandId: selectedBrand?.id,
           categoryId: selectedCategories?.id,
           stockStatuses,
+          hasSize: true, // Filter to only products with sizes
         }),
       );
     }
@@ -294,7 +296,7 @@ export default function ProductStockPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          title="Product Stock Information"
+          title="Size Stock Information"
           searchValue={filters.search}
           searchPlaceholder="Search product..."
           buttonTooltip="Select a product and click Create Stock in the table"
@@ -340,7 +342,7 @@ export default function ProductStockPage() {
           data={stockContent}
           columns={columns}
           loading={isLoading}
-          emptyMessage="No product found"
+          emptyMessage="No product with sizes found"
           getRowKey={(product) => product.id}
           currentPage={filters.pageNo}
           totalElements={pagination.totalElements}

@@ -38,8 +38,9 @@ export const ROUTES = {
     POS: "/admin/pos",
   },
 
-  STOCK: {
-    MANAGEMENT: "/admin/stock/management",
+  MANAGE_STOCK: {
+    PRODUCTS_STOCK: "/admin/manage-stock/products-stock",
+    SIZE_STOCK: "/admin/manage-stock/size-stock",
   },
 
   HR: {
@@ -150,8 +151,12 @@ export const SIDEBAR_MENU: MenuItem[] = [
     icon: ShoppingCart,
     items: [
       {
-        title: "Product Stock",
-        href: ROUTES.STOCK.MANAGEMENT,
+        title: "Products Stock",
+        href: ROUTES.MANAGE_STOCK.PRODUCTS_STOCK,
+      },
+      {
+        title: "Size Stock",
+        href: ROUTES.MANAGE_STOCK.SIZE_STOCK,
       },
     ],
   },
