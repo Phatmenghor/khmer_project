@@ -70,6 +70,7 @@ public class ProductStockServiceImpl implements ProductStockService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
         String status = request.getStatus() != null ? request.getStatus().name() : null;
+        String stockStatus = request.getStockStatus() != null ? request.getStockStatus().name() : null;
         String search = (request.getSearch() != null && !request.getSearch().isBlank())
                 ? request.getSearch() : null;
 
@@ -78,6 +79,7 @@ public class ProductStockServiceImpl implements ProductStockService {
                 request.getProductId(),
                 request.getProductSizeId(),
                 status,
+                stockStatus,
                 request.getLowStockThreshold(),
                 request.getExpiredBefore(),
                 search,
