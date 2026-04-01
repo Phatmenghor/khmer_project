@@ -298,12 +298,17 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         ORDER BY created_at DESC, product_name ASC
     """,
     nativeQuery = true)
-    List<Object[]> findProductStockItems(
+    /**
+     * Find product stock items with filtering and sorting.
+     * Supports sorting by: productName, totalStock, status, stockStatus, sku, barcode, createdAt, updatedAt
+     */
+    Page<Object[]> findProductStockItems(
         @Param("businessId") UUID businessId,
         @Param("search") String search,
         @Param("status") String status,
         @Param("stockStatus") String stockStatus,
         @Param("lowStockThreshold") Integer lowStockThreshold,
-        @Param("hasSizes") Boolean hasSizes
+        @Param("hasSizes") Boolean hasSizes,
+        Pageable pageable
     );
 }
