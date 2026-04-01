@@ -631,9 +631,8 @@ export function StockManagementModal({
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </form>
+                    )}
+                  </form>
               </CardContent>
             </Card>
 
