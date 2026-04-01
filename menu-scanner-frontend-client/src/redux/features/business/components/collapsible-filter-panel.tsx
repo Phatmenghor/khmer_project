@@ -173,21 +173,18 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
           ) : undefined
         }
       >
-        {/* Essential Filters - Grid layout to keep label + input together */}
-        <div
-          className="grid gap-3 w-full auto-cols-fr"
+        {/* Essential Filters - Responsive: 2 cols on mobile, auto on desktop */}
+        <div className="grid gap-3 w-full"
           style={{
-            gridAutoFlow: "column",
-            gridAutoColumns: "minmax(140px, 1fr)",
-          }}
-        >
+            gridTemplateColumns: 'repeat(2, 1fr)',
+          }}>
           {essentialFilters.map((filter) => renderFilter(filter))}
         </div>
       </CardHeaderSection>
 
       {/* Advanced Filters Section */}
       {advancedFilters.length > 0 && (
-        <div className="bg-gray-900/50 rounded-lg border border-gray-200/15 p-3">
+        <div className="bg-gray-900/50 rounded-lg border border-gray-700/15 p-3">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="flex items-center justify-between w-full hover:text-pink-400 transition-colors"
@@ -207,16 +204,14 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             />
           </button>
 
-          {/* Advanced Filters Content - Grid layout to keep label + input together */}
+          {/* Advanced Filters Content - Responsive grid layout */}
           {showAdvanced && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
+            <div className="mt-3 pt-3 border-t border-gray-700/15">
               <div
                 className="grid gap-3 w-full"
                 style={{
-                  gridAutoFlow: "column",
-                  gridAutoColumns: "minmax(140px, 1fr)",
-                }}
-              >
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                }}>
                 {advancedFilters.map((filter) => renderFilter(filter))}
               </div>
             </div>

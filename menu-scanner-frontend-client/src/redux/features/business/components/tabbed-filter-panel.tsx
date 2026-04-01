@@ -220,11 +220,10 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
           })}
         </div>
 
-        {/* Tab Content - Grid layout to keep label + input together */}
+        {/* Tab Content - Responsive grid layout */}
         <div className="p-4 grid gap-3 w-full"
           style={{
-            gridAutoFlow: 'column',
-            gridAutoColumns: 'minmax(140px, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
           }}>
           {activeGroupFilters.map((filter) => renderFilter(filter))}
         </div>

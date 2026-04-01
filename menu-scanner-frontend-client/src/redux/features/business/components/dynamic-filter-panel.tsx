@@ -168,12 +168,11 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
         ) : undefined
       }
     >
-      {/* Grid layout to keep label + input together */}
+      {/* Responsive grid layout to keep label + input together */}
       <div
         className="grid gap-3 w-full"
         style={{
-          gridAutoFlow: 'column',
-          gridAutoColumns: 'minmax(140px, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
         }}
       >
         {config.filters.map((filter) => renderFilter(filter))}
