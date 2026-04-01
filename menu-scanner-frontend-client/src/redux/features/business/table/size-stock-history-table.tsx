@@ -36,7 +36,7 @@ function getExpiryDateVariant(expiryDate: string): {
   }
 
   const daysUntilExpiry = Math.floor(
-    (expiryDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    (expiryDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   if (daysUntilExpiry > 0 && daysUntilExpiry <= 10) {
@@ -73,9 +73,16 @@ function formatExpiryDate(timestamp: string | null | undefined): string {
 export function createSizeStockHistoryColumns(
   handleEditStock: (stock: ProductStockDto) => void,
   handleDeleteStock: (stock: ProductStockDto) => void,
-  isDeleting: boolean
+  isDeleting: boolean,
 ): TableColumn<ProductStockDto>[] {
   return [
+    {
+      key: "productSizeName",
+      label: "Size Name",
+      render: (stock: ProductStockDto) => (
+        <span className="text-sm">${stock.productSizeName}</span>
+      ),
+    },
     {
       key: "quantityOnHand",
       label: "Quantity",
@@ -97,7 +104,9 @@ export function createSizeStockHistoryColumns(
     {
       key: "priceIn",
       label: "Unit Price",
-      render: (stock: ProductStockDto) => <span className="text-sm">${stock.priceIn.toFixed(2)}</span>,
+      render: (stock: ProductStockDto) => (
+        <span className="text-sm">${stock.priceIn.toFixed(2)}</span>
+      ),
     },
     {
       key: "inventoryValue",
@@ -116,7 +125,10 @@ export function createSizeStockHistoryColumns(
           (() => {
             const { variant, color } = getExpiryDateVariant(stock.expiryDate);
             return (
-              <Badge variant={variant} className={`text-xs ${color} font-medium`}>
+              <Badge
+                variant={variant}
+                className={`text-xs ${color} font-medium`}
+              >
                 {formatExpiryDate(stock.expiryDate)}
               </Badge>
             );
@@ -129,13 +141,19 @@ export function createSizeStockHistoryColumns(
       key: "location",
       label: "Location",
       render: (stock: ProductStockDto) => (
-        <span className="text-sm text-muted-foreground">{stock.location || "---"}</span>
+        <span className="text-sm text-muted-foreground">
+          {stock.location || "---"}
+        </span>
       ),
     },
     {
       key: "createdAt",
       label: "Created Date",
-      render: (stock: ProductStockDto) => <span className="text-xs text-muted-foreground">{dateTimeFormat(stock.createdAt)}</span>,
+      render: (stock: ProductStockDto) => (
+        <span className="text-xs text-muted-foreground">
+          {dateTimeFormat(stock.createdAt)}
+        </span>
+      ),
     },
     {
       key: "actions",
