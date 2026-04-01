@@ -140,12 +140,16 @@ export function StockManagementModal({
     }
   }, [isOpen, product, dispatch, historyPageNo, historyPageSize]);
 
-  // Reset form when modal opens
+  // Reset form when modal opens or closes
   useEffect(() => {
     if (isOpen) {
       form.reset();
+    } else {
+      // Reset edit state when modal closes
+      setEditingStock(null);
+      form.reset();
     }
-  }, [isOpen]);
+  }, [isOpen, form]);
 
   const handleCreateStock = async (data: StockFormData) => {
     // If editing, use update handler
