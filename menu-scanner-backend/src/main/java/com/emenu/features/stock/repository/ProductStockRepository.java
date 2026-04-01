@@ -302,6 +302,47 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             )
         ) AS result
     """,
+    countQuery = """
+        SELECT COUNT(*) FROM (
+            (
+                -- Products without sizes
+                SELECT p.id
+                FROM products p
+                LEFT JOIN product_stock ps ON p.id = ps.product_id
+                    AND ps.is_expired = false
+                    AND ps.status = 'ACTIVE'
+                WHERE p.business_id = :businessId
+                    AND p.is_deleted = false
+                    AND p.has_sizes = false
+                    AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = false)
+                    AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                    AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                    AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                GROUP BY p.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, p.status, p.stock_status, p.created_at, p.updated_at
+                HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+            )
+            UNION ALL
+            (
+                -- Products with sizes
+                SELECT p.id
+                FROM products p
+                INNER JOIN product_sizes psz ON p.id = psz.product_id AND psz.is_deleted = false
+                LEFT JOIN product_stock ps ON p.id = ps.product_id
+                    AND psz.id = ps.product_size_id
+                    AND ps.is_expired = false
+                    AND ps.status = 'ACTIVE'
+                WHERE p.business_id = :businessId
+                    AND p.is_deleted = false
+                    AND p.has_sizes = true
+                    AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = true)
+                    AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                    AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                    AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                GROUP BY p.id, psz.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, psz.name, p.status, p.stock_status, psz.created_at, psz.updated_at
+                HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+            )
+        ) AS count_result
+    """,
     nativeQuery = true)
     /**
      * Find product stock items with filtering and sorting.
