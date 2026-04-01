@@ -130,7 +130,7 @@ export default function ProductPromotionPage() {
         pageSize: globalPageSize,
         hasPromotion: true,
         statuses:
-          filters.status == ProductStatus.ALL ? undefined : [filters.status],
+          filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
