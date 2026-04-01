@@ -5,6 +5,7 @@ import com.emenu.features.main.repository.ProductRepository;
 import com.emenu.features.main.repository.ProductSizeRepository;
 import com.emenu.features.stock.dto.request.ProductStockCreateRequest;
 import com.emenu.features.stock.dto.request.ProductStockFilterRequest;
+import com.emenu.features.stock.dto.request.ProductStockItemsFilterRequest;
 import com.emenu.features.stock.dto.request.ProductStockUpdateRequest;
 import com.emenu.features.stock.dto.response.ProductStockDto;
 import com.emenu.features.stock.dto.response.ProductStockItemDto;
@@ -145,6 +146,51 @@ public class ProductStockServiceImpl implements ProductStockService {
 
     @Override
     @Transactional(readOnly = true)
+    public PaginationResponse<ProductStockItemDto> getProductStockItems(ProductStockItemsFilterRequest request) {
+        log.info("Get product stock items (type-safe) - business: {}", request.getBusinessId());
+
+        if (request.getBusinessId() == null) {
+            throw new ValidationException("Business ID is required");
+        }
+
+        String status = request.getStatus() != null ? request.getStatus().name() : null;
+        String stockStatus = request.getStockStatus() != null ? request.getStockStatus().name() : null;
+        String search = (request.getSearch() != null && !request.getSearch().isBlank())
+                ? request.getSearch() : null;
+
+        // Convert camelCase field names to snake_case for database queries
+        String sortByField = convertSortFieldName(request.getSortBy());
+
+        // Use utility to create pageable with native query sorting
+        Pageable pageable = PaginationUtils.createPageableForNativeQuery(
+                request.getPageNo(),
+                request.getPageSize(),
+                sortByField,
+                request.getSortDirection()
+        );
+
+        // Fetch items with pagination and sorting from repository
+        Page<Object[]> pageResult = productStockRepository.findProductStockItems(
+                request.getBusinessId(),
+                search,
+                status,
+                stockStatus,
+                request.getLowStockThreshold(),
+                request.getHasSizes(),
+                pageable
+        );
+
+        // Use PaginationMapper with transformation function for clean mapping
+        return paginationMapper.toPaginationResponse(
+                pageResult,
+                rows -> rows.stream()
+                        .map(this::mapRowToProductStockItemDto)
+                        .toList()
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public ProductStockDto getProductStockById(UUID productStockId) {
         ProductStock productStock = productStockRepository.findById(productStockId)
                 .orElseThrow(() -> new ValidationException("Product stock not found"));
@@ -252,5 +298,29 @@ public class ProductStockServiceImpl implements ProductStockService {
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .build();
+    }
+
+    /**
+     * Convert camelCase field names to snake_case for database queries.
+     * Maps user-friendly field names to actual database column names.
+     */
+    private String convertSortFieldName(String camelCase) {
+        if (camelCase == null || camelCase.isBlank()) {
+            return "total_stock";  // Default sort field
+        }
+
+        return switch (camelCase) {
+            case "totalStock" -> "total_stock";
+            case "productName" -> "product_name";
+            case "categoryName" -> "category_name";
+            case "brandName" -> "brand_name";
+            case "stockStatus" -> "stock_status";
+            case "sizeName" -> "size_name";
+            case "createdAt" -> "created_at";
+            case "updatedAt" -> "updated_at";
+            // Fields that don't need conversion
+            case "sku", "barcode", "status" -> camelCase;
+            default -> "total_stock";  // Fallback to default
+        };
     }
 }
