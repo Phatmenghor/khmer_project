@@ -18,14 +18,11 @@ import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,19 +64,13 @@ public class ProductStockServiceImpl implements ProductStockService {
             throw new ValidationException("Business ID is required");
         }
 
-        int pageNo = (request.getPageNo() == null || request.getPageNo() <= 0) ? 0 : request.getPageNo() - 1;
-        int pageSize = (request.getPageSize() == null) ? 15 : request.getPageSize();
-        PaginationUtils.validatePagination(pageNo, pageSize);
-
-        // Build Pageable with dynamic sorting
-        // Convert camelCase sortBy to snake_case for native SQL queries
-        String sortBy = (request.getSortBy() != null && !request.getSortBy().isBlank())
-                ? camelCaseToSnakeCase(request.getSortBy()) : "date_in";
-        String sortDirection = (request.getSortDirection() != null && !request.getSortDirection().isBlank())
-                ? request.getSortDirection().toUpperCase() : "DESC";
-
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(direction, sortBy));
+        // Use utility to create pageable with native query sorting
+        Pageable pageable = PaginationUtils.createPageableForNativeQuery(
+                request.getPageNo(),
+                request.getPageSize(),
+                request.getSortBy() != null && !request.getSortBy().isBlank() ? request.getSortBy() : "dateIn",
+                request.getSortDirection()
+        );
 
         String status = request.getStatus() != null ? request.getStatus().name() : null;
         String stockStatus = request.getStockStatus() != null ? request.getStockStatus().name() : null;
@@ -118,24 +109,18 @@ public class ProductStockServiceImpl implements ProductStockService {
             throw new ValidationException("Business ID is required");
         }
 
-        int pageNo = (request.getPageNo() == null || request.getPageNo() <= 0) ? 0 : request.getPageNo() - 1;
-        int pageSize = (request.getPageSize() == null) ? 15 : request.getPageSize();
-        PaginationUtils.validatePagination(pageNo, pageSize);
-
         String status = request.getStatus() != null ? request.getStatus().name() : null;
         String stockStatus = request.getStockStatus() != null ? request.getStockStatus().name() : null;
         String search = (request.getSearch() != null && !request.getSearch().isBlank())
                 ? request.getSearch() : null;
 
-        // Build Pageable with dynamic sorting
-        // Convert camelCase sortBy to snake_case for native SQL queries
-        String sortBy = (request.getSortBy() != null && !request.getSortBy().isBlank())
-                ? camelCaseToSnakeCase(request.getSortBy()) : "created_at";
-        String sortDirection = (request.getSortDirection() != null && !request.getSortDirection().isBlank())
-                ? request.getSortDirection().toUpperCase() : "DESC";
-
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(direction, sortBy));
+        // Use utility to create pageable with native query sorting
+        Pageable pageable = PaginationUtils.createPageableForNativeQuery(
+                request.getPageNo(),
+                request.getPageSize(),
+                request.getSortBy(),
+                request.getSortDirection()
+        );
 
         // Fetch items with pagination and sorting from repository
         Page<Object[]> pageResult = productStockRepository.findProductStockItems(
@@ -211,10 +196,6 @@ public class ProductStockServiceImpl implements ProductStockService {
     private LocalDateTime toStartOfDay(LocalDateTime dateTime) {
         if (dateTime == null) return null;
         return dateTime.toLocalDate().atStartOfDay();
-    }
-
-    private String camelCaseToSnakeCase(String camelCase) {
-        return camelCase.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
     }
 
     private void enrichWithProductInfo(ProductStockDto dto, ProductStock stock) {
