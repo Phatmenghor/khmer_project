@@ -119,8 +119,9 @@ public class ProductStockServiceImpl implements ProductStockService {
                 ? request.getSearch() : null;
 
         // Build Pageable with sorting
+        // Note: For native SQL queries, use snake_case field names that match the SQL column aliases
         String sortBy = (request.getSortBy() != null && !request.getSortBy().isBlank())
-                ? request.getSortBy() : "createdAt";
+                ? request.getSortBy() : "created_at";
         String sortDirection = (request.getSortDirection() != null && !request.getSortDirection().isBlank())
                 ? request.getSortDirection().toUpperCase() : "DESC";
 

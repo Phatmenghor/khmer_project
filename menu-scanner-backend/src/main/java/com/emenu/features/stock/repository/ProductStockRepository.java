@@ -295,12 +295,12 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             GROUP BY p.id, psz.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, psz.name, p.status, p.stock_status, psz.created_at, psz.updated_at
             HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
         )
-        ORDER BY created_at DESC, product_name ASC
     """,
     nativeQuery = true)
     /**
      * Find product stock items with filtering and sorting.
-     * Supports sorting by: productName, totalStock, status, stockStatus, sku, barcode, createdAt, updatedAt
+     * Pagination and sorting are handled by Spring Data Pageable (no hardcoded ORDER BY).
+     * Supports sorting by: product_name, total_stock, status, stock_status, sku, barcode, created_at, updated_at
      */
     Page<Object[]> findProductStockItems(
         @Param("businessId") UUID businessId,
