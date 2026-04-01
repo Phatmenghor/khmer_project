@@ -267,6 +267,7 @@ public class ProductServiceImpl implements ProductService {
                 Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
+                filter.getHasSize(),
                 filter.getSearch(),
                 pageable
         );
