@@ -99,10 +99,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
 
       case 'input-number':
         return (
-          <div
-            key={filter.id}
-            className="flex flex-col gap-1 flex-1 min-w-[140px] max-w-[200px]"
-          >
+          <div key={filter.id} className="flex flex-col gap-1">
             <label className="text-xs font-medium whitespace-nowrap">
               {filter.label}
             </label>
@@ -127,10 +124,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
 
       case 'input-text':
         return (
-          <div
-            key={filter.id}
-            className="flex flex-col gap-1 flex-1 min-w-[140px] max-w-[200px]"
-          >
+          <div key={filter.id} className="flex flex-col gap-1">
             <label className="text-xs font-medium whitespace-nowrap">
               {filter.label}
             </label>
@@ -174,13 +168,13 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
         ) : undefined
       }
     >
-      {/* Responsive flex wrap layout for all filters */}
+      {/* Grid layout to keep label + input together */}
       <div
-        className="flex flex-wrap gap-3 items-stretch w-full
-        [&>*]:max-w-[200px] [&>*]:flex-1 [&>*]:min-w-[140px]
-        [&>div]:flex [&>div]:flex-col [&>div]:gap-1
-        [&_button[role=combobox]]:w-full
-        [&_.w-full]:!w-full"
+        className="grid gap-3 w-full"
+        style={{
+          gridAutoFlow: 'column',
+          gridAutoColumns: 'minmax(140px, 1fr)',
+        }}
       >
         {config.filters.map((filter) => renderFilter(filter))}
       </div>

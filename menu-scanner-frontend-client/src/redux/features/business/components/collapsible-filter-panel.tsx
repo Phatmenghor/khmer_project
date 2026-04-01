@@ -103,10 +103,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
       case "input-number":
         return (
-          <div
-            key={filter.id}
-            className="flex flex-col gap-1 flex-1 min-w-[140px] max-w-[200px]"
-          >
+          <div key={filter.id} className="flex flex-col gap-1">
             <label className="text-xs font-medium whitespace-nowrap">
               {filter.label}
             </label>
@@ -131,10 +128,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
       case "input-text":
         return (
-          <div
-            key={filter.id}
-            className="flex flex-col gap-1 flex-1 min-w-[140px] max-w-[200px]"
-          >
+          <div key={filter.id} className="flex flex-col gap-1">
             <label className="text-xs font-medium whitespace-nowrap">
               {filter.label}
             </label>
@@ -179,12 +173,12 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
           ) : undefined
         }
       >
-        {/* Essential Filters - Flex wrap responsive */}
-        <div className="flex flex-wrap gap-3 items-stretch w-full
-          [&>*]:max-w-[200px] [&>*]:flex-1 [&>*]:min-w-[140px]
-          [&>div]:flex [&>div]:flex-col [&>div]:gap-1
-          [&_button[role=combobox]]:w-full
-          [&_.w-full]:!w-full">
+        {/* Essential Filters - Grid layout to keep label + input together */}
+        <div className="grid gap-3 w-full auto-cols-fr"
+          style={{
+            gridAutoFlow: 'column',
+            gridAutoColumns: 'minmax(140px, 1fr)',
+          }}>
           {essentialFilters.map((filter) => renderFilter(filter))}
         </div>
       </CardHeaderSection>
@@ -211,14 +205,14 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             />
           </button>
 
-          {/* Advanced Filters Content - Responsive flex wrap */}
+          {/* Advanced Filters Content - Grid layout to keep label + input together */}
           {showAdvanced && (
             <div className="mt-3 pt-3 border-t border-gray-800">
-              <div className="flex flex-wrap items-stretch gap-3
-                [&>*]:max-w-[200px] [&>*]:flex-1 [&>*]:min-w-[140px]
-                [&>div]:flex [&>div]:flex-col [&>div]:gap-1
-                [&_button[role=combobox]]:w-full
-                [&_.w-full]:!w-full">
+              <div className="grid gap-3 w-full"
+                style={{
+                  gridAutoFlow: 'column',
+                  gridAutoColumns: 'minmax(140px, 1fr)',
+                }}>
                 {advancedFilters.map((filter) => renderFilter(filter))}
               </div>
             </div>

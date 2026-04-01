@@ -205,8 +205,8 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
             </button>
           </div>
 
-          {/* Filters */}
-          <div className="space-y-0">
+          {/* Filters - Grid layout for consistent spacing */}
+          <div className="grid gap-4 w-full">
             {config.filters.map((filter) => renderFilter(filter))}
           </div>
 

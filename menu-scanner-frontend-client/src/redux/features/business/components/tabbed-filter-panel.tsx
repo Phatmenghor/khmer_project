@@ -109,10 +109,7 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
 
       case "input-number":
         return (
-          <div
-            key={filter.id}
-            className="flex flex-col gap-1 flex-1 min-w-[140px] max-w-[200px]"
-          >
+          <div key={filter.id} className="flex flex-col gap-1">
             <label className="text-xs font-medium whitespace-nowrap">
               {filter.label}
             </label>
@@ -137,10 +134,7 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
 
       case "input-text":
         return (
-          <div
-            key={filter.id}
-            className="flex flex-col gap-1 flex-1 min-w-[140px] max-w-[200px]"
-          >
+          <div key={filter.id} className="flex flex-col gap-1">
             <label className="text-xs font-medium whitespace-nowrap">
               {filter.label}
             </label>
@@ -226,12 +220,12 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
           })}
         </div>
 
-        {/* Tab Content - Responsive flex wrap */}
-        <div className="p-4 flex flex-wrap items-stretch gap-3
-          [&>*]:max-w-[200px] [&>*]:flex-1 [&>*]:min-w-[140px]
-          [&>div]:flex [&>div]:flex-col [&>div]:gap-1
-          [&_button[role=combobox]]:w-full
-          [&_.w-full]:!w-full">
+        {/* Tab Content - Grid layout to keep label + input together */}
+        <div className="p-4 grid gap-3 w-full"
+          style={{
+            gridAutoFlow: 'column',
+            gridAutoColumns: 'minmax(140px, 1fr)',
+          }}>
           {activeGroupFilters.map((filter) => renderFilter(filter))}
         </div>
       </div>
