@@ -254,6 +254,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             WHERE p.business_id = :businessId
                 AND p.is_deleted = false
                 AND p.has_sizes = false
+                AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = false)
                 AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                 AND (CAST(:status AS text) IS NULL OR p.status = :status)
                 AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
@@ -287,6 +288,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             WHERE p.business_id = :businessId
                 AND p.is_deleted = false
                 AND p.has_sizes = true
+                AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = true)
                 AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                 AND (CAST(:status AS text) IS NULL OR p.status = :status)
                 AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
@@ -301,6 +303,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         @Param("search") String search,
         @Param("status") String status,
         @Param("stockStatus") String stockStatus,
-        @Param("lowStockThreshold") Integer lowStockThreshold
+        @Param("lowStockThreshold") Integer lowStockThreshold,
+        @Param("hasSizes") Boolean hasSizes
     );
 }

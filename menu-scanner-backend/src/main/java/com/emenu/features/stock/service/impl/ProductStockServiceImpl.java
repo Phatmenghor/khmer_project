@@ -123,7 +123,8 @@ public class ProductStockServiceImpl implements ProductStockService {
                 search,
                 status,
                 stockStatus,
-                request.getLowStockThreshold()
+                request.getLowStockThreshold(),
+                request.getHasSizes()
         );
 
         // Convert to DTOs
