@@ -92,22 +92,30 @@ function StockStatusBadge({
 }
 
 /**
- * SizesDisplay - Display product sizes horizontally with name and stock
+ * SizesDisplay - Display product sizes horizontally with stock color-coded borders
  */
 function SizesDisplay({ sizes }: { sizes: ProductSize[] | undefined }) {
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }
 
+  const getBorderColor = (stock: number) => {
+    if (stock === 0) return "#DC2626"; // red
+    if (stock < 10) return "#FCD34D"; // yellow
+    return "#16A34A"; // green
+  };
+
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
       {sizes.map((size) => (
         <div
           key={size.id}
-          className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 rounded text-xs font-medium text-foreground hover:bg-primary/20 transition-colors"
+          className="px-2 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
+          style={{
+            border: `0.5px solid ${getBorderColor(size.totalStock)}`,
+          }}
         >
-          <span>{size.name}</span>
-          <span className="text-muted-foreground">({size.totalStock})</span>
+          {size.name} ({size.totalStock})
         </div>
       ))}
     </div>
