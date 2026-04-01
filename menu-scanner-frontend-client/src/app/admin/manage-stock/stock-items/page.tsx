@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
+import { StockItemsHeader } from "@/redux/features/business/components/stock-items-header";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
-import { Button } from "@/components/ui/button";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { usePagination } from "@/redux/store/use-pagination";
 import { useStockItemsState } from "@/redux/features/business/store/state/stock-items-state";
@@ -243,18 +241,11 @@ export default function StockItemsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        <CardHeaderSection
+        <StockItemsHeader
           title="Stock Items (Products & Sizes)"
           searchValue={filters.search}
           searchPlaceholder="Search product name..."
           onSearchChange={handleSearchChange}
-          hideButton={true}
-          customAddNewButton={
-            <Button disabled variant="default" size="sm" title="Select an item to edit" className="gap-2">
-              <Plus className="w-4 h-4" />
-              Add
-            </Button>
-          }
         >
           <StockItemsFilterPanel
             sortByValue={filters.sortBy}
@@ -279,7 +270,7 @@ export default function StockItemsPage() {
             lowStockThresholdValue={filters.lowStockThreshold?.toString() || ""}
             onLowStockThresholdChange={handleLowStockThresholdChange}
           />
-        </CardHeaderSection>
+        </StockItemsHeader>
 
         {/* Data Table with Pagination */}
         <DataTableWithPagination
