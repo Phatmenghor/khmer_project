@@ -212,6 +212,20 @@ public class ProductStockServiceImpl implements ProductStockService {
         }
     }
 
+    private LocalDateTime convertToLocalDateTime(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        if (obj instanceof LocalDateTime) {
+            return (LocalDateTime) obj;
+        }
+        if (obj instanceof java.sql.Timestamp) {
+            return ((java.sql.Timestamp) obj).toLocalDateTime();
+        }
+        // Fallback for other date/time types
+        return null;
+    }
+
     private ProductStockItemDto mapRowToProductStockItemDto(Object[] row) {
         // Row mapping based on the query result columns:
         // 0: product_id, 1: product_size_id, 2: product_name, 3: category_name, 4: brand_name,
@@ -230,8 +244,10 @@ public class ProductStockServiceImpl implements ProductStockService {
         String status = (String) row[9];
         String stockStatus = (String) row[10];
         String itemType = (String) row[11];
-        LocalDateTime createdAt = (LocalDateTime) row[12];
-        LocalDateTime updatedAt = (LocalDateTime) row[13];
+
+        // Convert java.sql.Timestamp to java.time.LocalDateTime
+        LocalDateTime createdAt = convertToLocalDateTime(row[12]);
+        LocalDateTime updatedAt = convertToLocalDateTime(row[13]);
 
         return ProductStockItemDto.builder()
                 .id(productSizeId != null ? productSizeId : productId)
