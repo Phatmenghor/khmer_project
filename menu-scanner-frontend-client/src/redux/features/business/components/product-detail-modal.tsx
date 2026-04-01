@@ -278,6 +278,14 @@ export function ProductDetailModal({
                               value={formatCurrency(size.finalPrice)}
                             />
                             <DisplayField
+                              label="SKU"
+                              value={size.sku || "---"}
+                            />
+                            <DisplayField
+                              label="Barcode"
+                              value={size.barcode || "---"}
+                            />
+                            <DisplayField
                               label="Total Stock"
                               value={size.totalStock ? size.totalStock.toString() : "0"}
                             />

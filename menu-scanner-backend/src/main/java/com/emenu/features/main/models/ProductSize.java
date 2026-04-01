@@ -51,6 +51,12 @@ public class ProductSize extends BaseUUIDEntity {
     @Column(name = "minimum_stock_level", nullable = false, columnDefinition = "integer default 0")
     private Integer minimumStockLevel = 0;
 
+    @Column(name = "barcode")
+    private String barcode;
+
+    @Column(name = "sku")
+    private String sku;
+
     public ProductSize(UUID productId, String name, BigDecimal price) {
         this.productId = productId;
         this.name = name;

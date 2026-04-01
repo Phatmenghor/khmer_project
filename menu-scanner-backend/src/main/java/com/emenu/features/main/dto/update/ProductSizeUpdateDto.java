@@ -11,11 +11,15 @@ import java.util.UUID;
 
 @Data
 public class ProductSizeUpdateDto {
-    
+
     private UUID id;
 
     @NotBlank(message = "Size name is required")
     private String name;
+
+    private String barcode;
+
+    private String sku;
 
     @NotNull(message = "Price is required")
     @DecimalMin(value = "0.0", message = "Price must be non-negative")

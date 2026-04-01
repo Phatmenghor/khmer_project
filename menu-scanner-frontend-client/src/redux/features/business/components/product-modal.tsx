@@ -785,6 +785,8 @@ export default function ProductModal({
                           onClick={() =>
                             appendSize({
                               name: "",
+                              barcode: "",
+                              sku: "",
                               price: 0,
                               promotionType: "NONE",
                               promotionValue: undefined,
@@ -899,6 +901,28 @@ export default function ProductModal({
                                     min={0}
                                     step="0.01"
                                     allowZero={true}
+                                  />
+                                </div>
+
+                                <div>
+                                  <TextField
+                                    control={control}
+                                    name={`sizes.${index}.sku`}
+                                    label="SKU"
+                                    placeholder="Enter SKU"
+                                    disabled={isProcessing}
+                                    error={errors.sizes?.[index]?.sku as any}
+                                  />
+                                </div>
+
+                                <div>
+                                  <TextField
+                                    control={control}
+                                    name={`sizes.${index}.barcode`}
+                                    label="Barcode"
+                                    placeholder="Enter barcode"
+                                    disabled={isProcessing}
+                                    error={errors.sizes?.[index]?.barcode as any}
                                   />
                                 </div>
 
