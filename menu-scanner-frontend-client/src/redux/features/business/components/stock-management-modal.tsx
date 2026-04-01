@@ -9,6 +9,14 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
-import { Package, Trash2 } from "lucide-react";
+import { Package, Trash2, Edit2 } from "lucide-react";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import {
   createProductStockService,
@@ -90,6 +98,9 @@ export function StockManagementModal({
     useSelector((state: any) => state.stockManagement);
   const [historyPageNo, setHistoryPageNo] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);
+  const [editingStock, setEditingStock] = useState<any>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteStockId, setDeleteStockId] = useState<string | null>(null);
 
   const form = useForm<StockFormData>({
     mode: "onChange",
@@ -175,9 +186,46 @@ export function StockManagementModal({
   };
 
   const handleDeleteStock = (stockId: string) => {
-    if (confirm("Are you sure you want to delete this stock record?")) {
-      dispatch(deleteProductStockService(stockId));
+    setDeleteStockId(stockId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteStockId) {
+      dispatch(deleteProductStockService(deleteStockId));
+      setDeleteConfirmOpen(false);
+      setDeleteStockId(null);
     }
+  };
+
+  const handleEditStock = (stock: any) => {
+    setEditingStock(stock);
+    form.reset({
+      quantityOnHand: stock.quantityOnHand,
+      priceIn: stock.priceIn?.toString(),
+      expiryDate: stock.expiryDate,
+      location: stock.location,
+    });
+  };
+
+  const handleUpdateStock = async (data: StockFormData) => {
+    if (!editingStock) return;
+
+    const quantity = Number(data.quantityOnHand);
+    if (isNaN(quantity) || quantity < 0) {
+      showToast.error("Quantity must be greater than or equal to 0");
+      return;
+    }
+
+    const price = parseFloat(data.priceIn || "");
+    if (isNaN(price) || price <= 0) {
+      showToast.error("Price must be a valid number greater than 0");
+      return;
+    }
+
+    // TODO: Implement updateProductStockService in thunks
+    showToast.info("Update feature coming soon");
+    setEditingStock(null);
   };
 
   const stockHistoryColumns: TableColumn[] = [
@@ -228,15 +276,25 @@ export function StockManagementModal({
       key: "actions",
       label: "Actions",
       render: (stock) => (
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => handleDeleteStock(stock.id)}
-          disabled={isDeleting}
-          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => handleEditStock(stock)}
+            className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+          >
+            <Edit2 className="w-4 h-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => handleDeleteStock(stock.id)}
+            disabled={isDeleting}
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
       ),
     },
   ];
@@ -537,6 +595,96 @@ export function StockManagementModal({
             </Card>
           </div>
         </div>
+
+        {/* Edit Stock Modal */}
+        <Dialog open={!!editingStock} onOpenChange={(open) => !open && setEditingStock(null)}>
+          <DialogTitle className="sr-only">Edit Stock Entry</DialogTitle>
+          <DialogContent className="sm:max-w-md">
+            <div className="py-4">
+              <h2 className="text-lg font-semibold mb-4">Edit Stock Entry</h2>
+              <form onSubmit={form.handleSubmit(handleUpdateStock)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    Quantity On Hand <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    {...form.register("quantityOnHand", {
+                      required: "Quantity is required",
+                    })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    Unit Price <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">$</span>
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      {...form.register("priceIn", {
+                        required: "Price is required",
+                      })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Expiry Date</Label>
+                  <DateTimePickerField
+                    control={form.control}
+                    name="expiryDate"
+                    mode="date"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Location</Label>
+                  <Input
+                    placeholder="e.g., Warehouse A, Shelf 3"
+                    {...form.register("location")}
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <Button type="submit" className="flex-1">
+                    Update Stock
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEditingStock(null)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogTitle>Delete Stock Entry</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this stock record? This action cannot be undone.
+            </AlertDialogDescription>
+            <div className="flex gap-2 justify-end">
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </div>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );
