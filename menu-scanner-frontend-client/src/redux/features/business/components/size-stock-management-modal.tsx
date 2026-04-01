@@ -549,86 +549,112 @@ export function SizeStockManagementModal({
 
                     {/* Preview Section */}
                     {selectedSize && (
-                      <div className="border-t pt-6">
-                        <h3 className="text-sm font-semibold mb-4">Sales Preview</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Selling Price */}
-                          <div className="bg-muted/50 p-4 rounded-lg">
-                            <div className="flex justify-between items-start mb-2">
-                              <div>
-                                <p className="text-xs text-muted-foreground">Size Selling Price</p>
-                                <p className="text-lg font-semibold text-foreground">
-                                  ${selectedSize.price.toFixed(2)}
-                                </p>
+                      <div className="border-t pt-6 space-y-4">
+                        {/* Stock Information */}
+                        <div>
+                          <h3 className="text-sm font-semibold mb-3">Current Stock Information</h3>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-muted/50 rounded-lg text-sm">
+                            <div>
+                              <p className="text-muted-foreground text-xs">Size Name</p>
+                              <p className="font-semibold">{selectedSize.name}</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground text-xs">Total Stock</p>
+                              <p className="font-semibold">{selectedSize.totalStock} Items</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground text-xs">Available</p>
+                              <p className="font-semibold text-green-600">{selectedSize.quantityAvailable || 0} Items</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground text-xs">Inventory Value</p>
+                              <p className="font-semibold text-blue-600">${((selectedSize.totalStock || 0) * selectedSize.price).toFixed(2)}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Sales Preview */}
+                        <div>
+                          <h3 className="text-sm font-semibold mb-3">Sales Preview</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Selling Price */}
+                            <div className="bg-muted/50 p-4 rounded-lg">
+                              <div className="flex justify-between items-start mb-2">
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Size Selling Price</p>
+                                  <p className="text-lg font-semibold text-foreground">
+                                    ${selectedSize.price.toFixed(2)}
+                                  </p>
+                                </div>
+                                {selectedSize.hasPromotion && (
+                                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+                                    On Sale
+                                  </Badge>
+                                )}
                               </div>
+
                               {selectedSize.hasPromotion && (
-                                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
-                                  On Sale
-                                </Badge>
+                                <div className="mt-3 pt-3 border-t border-muted space-y-2 text-xs">
+                                  <div>
+                                    <p className="text-muted-foreground">Promotion Type:</p>
+                                    <p className="font-medium">
+                                      {selectedSize.promotionType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p className="text-muted-foreground">Discount:</p>
+                                    <p className="font-medium">
+                                      {selectedSize.promotionType === "PERCENTAGE"
+                                        ? `${selectedSize.promotionValue}%`
+                                        : `$${selectedSize.promotionValue.toFixed(2)}`}
+                                    </p>
+                                  </div>
+                                  <div className="pt-2 border-t">
+                                    <p className="text-muted-foreground">Final Price:</p>
+                                    <p className="text-base font-semibold text-green-600">
+                                      ${selectedSize.finalPrice.toFixed(2)}
+                                    </p>
+                                  </div>
+                                </div>
                               )}
                             </div>
 
-                            {selectedSize.hasPromotion && (
-                              <div className="mt-3 pt-3 border-t border-muted space-y-2 text-xs">
-                                <div>
-                                  <p className="text-muted-foreground">Promotion Type:</p>
-                                  <p className="font-medium">
-                                    {selectedSize.promotionType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
-                                  </p>
+                            {/* Revenue Calculation */}
+                            <div className="bg-muted/50 p-4 rounded-lg">
+                              <p className="text-xs text-muted-foreground mb-3">Total Revenue (if sold all)</p>
+                              <div className="space-y-3">
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-muted-foreground">Quantity:</span>
+                                  <span className="font-medium">
+                                    {form.watch("quantityOnHand") || 0} units
+                                  </span>
                                 </div>
-                                <div>
-                                  <p className="text-muted-foreground">Discount:</p>
-                                  <p className="font-medium">
-                                    {selectedSize.promotionType === "PERCENTAGE"
-                                      ? `${selectedSize.promotionValue}%`
-                                      : `$${selectedSize.promotionValue.toFixed(2)}`}
-                                  </p>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-muted-foreground">Selling Price (each):</span>
+                                  <span className="font-medium">
+                                    ${(selectedSize.hasPromotion ? selectedSize.finalPrice : selectedSize.price).toFixed(2)}
+                                  </span>
                                 </div>
-                                <div className="pt-2 border-t">
-                                  <p className="text-muted-foreground">Final Price:</p>
-                                  <p className="text-base font-semibold text-green-600">
-                                    ${selectedSize.finalPrice.toFixed(2)}
-                                  </p>
+                                <div className="pt-3 border-t border-muted flex justify-between">
+                                  <span className="font-semibold">Total Revenue:</span>
+                                  <span className="text-lg font-bold text-green-600">
+                                    ${(
+                                      (form.watch("quantityOnHand") || 0) *
+                                      (selectedSize.hasPromotion
+                                        ? selectedSize.finalPrice
+                                        : selectedSize.price)
+                                    ).toFixed(2)}
+                                  </span>
                                 </div>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Revenue Calculation */}
-                          <div className="bg-muted/50 p-4 rounded-lg">
-                            <p className="text-xs text-muted-foreground mb-3">Total Revenue (if sold all)</p>
-                            <div className="space-y-3">
-                              <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Quantity:</span>
-                                <span className="font-medium">
-                                  {form.watch("quantityOnHand") || 0} units
-                                </span>
-                              </div>
-                              <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Selling Price (each):</span>
-                                <span className="font-medium">
-                                  ${(selectedSize.hasPromotion ? selectedSize.finalPrice : selectedSize.price).toFixed(2)}
-                                </span>
-                              </div>
-                              <div className="pt-3 border-t border-muted flex justify-between">
-                                <span className="font-semibold">Total Revenue:</span>
-                                <span className="text-lg font-bold text-green-600">
-                                  ${(
-                                    (form.watch("quantityOnHand") || 0) *
-                                    (selectedSize.hasPromotion
-                                      ? selectedSize.finalPrice
-                                      : selectedSize.price)
-                                  ).toFixed(2)}
-                                </span>
-                              </div>
-                              <div className="pt-2 flex justify-between text-xs text-muted-foreground">
-                                <span>Cost Total:</span>
-                                <span>
-                                  ${(
-                                    (form.watch("quantityOnHand") || 0) *
-                                    (parseFloat(form.watch("priceIn") || "0") || 0)
-                                  ).toFixed(2)}
-                                </span>
+                                <div className="pt-2 flex justify-between text-xs text-muted-foreground">
+                                  <span>Cost Total:</span>
+                                  <span>
+                                    ${(
+                                      (form.watch("quantityOnHand") || 0) *
+                                      (parseFloat(form.watch("priceIn") || "0") || 0)
+                                    ).toFixed(2)}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
