@@ -164,9 +164,9 @@ export function ComboboxSelectBrand({
   };
 
   return (
-    <div className="space-y-2 w-full">
+    <div className="flex flex-col gap-1 w-full">
       {label && (
-        <Label className="text-sm font-medium text-foreground">
+        <Label className="text-xs font-medium text-foreground">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
