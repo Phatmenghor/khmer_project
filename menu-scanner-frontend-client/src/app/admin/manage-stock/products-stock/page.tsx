@@ -22,7 +22,7 @@ import {
 } from "@/redux/features/business/store/slice/stock-slice";
 import { stockTableColumns } from "@/redux/features/business/table/stock-table";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
-import { StockManagementModal } from "@/redux/features/business/components/stock-management-modal";
+import { StockManagementModal } from "@/redux/features/business/components/product-stock-management-modal";
 import { updateStockStatusService } from "@/redux/features/business/store/thunks/stock-thunks";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
