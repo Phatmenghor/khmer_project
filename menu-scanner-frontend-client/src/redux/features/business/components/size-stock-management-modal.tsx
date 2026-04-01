@@ -27,8 +27,8 @@ import { DateTimePickerField } from "@/components/shared/form-field/date-picker-
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { Package, Trash2, Edit } from "lucide-react";
-import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
+import { Package } from "lucide-react";
+import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import {
   createProductStockService,
   getProductStockHistoryService,
@@ -41,7 +41,7 @@ import {
 } from "../store/slice/stock-management-slice";
 import { ProductDetailResponseModel, ProductSize } from "../store/models/response/product-response";
 import { ProductStockDto } from "../store/models/response/stock-response";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { createStockHistoryColumns } from "../table/stock-table";
 
 interface SizeStockFormData {
   quantityOnHand?: number;
@@ -54,149 +54,6 @@ interface SizeStockManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: ProductDetailResponseModel | null;
-}
-
-/**
- * Get expiry date color and variant based on status
- */
-function getExpiryDateVariant(expiryDate: string): {
-  variant: "default" | "secondary" | "destructive" | "outline";
-  color: string;
-} {
-  if (!expiryDate) {
-    return { variant: "secondary", color: "text-muted-foreground" };
-  }
-
-  const expiryDateObj = new Date(expiryDate);
-  const today = new Date();
-
-  expiryDateObj.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-
-  if (expiryDateObj < today) {
-    return { variant: "destructive", color: "text-red-600" };
-  }
-
-  const daysUntilExpiry = Math.floor(
-    (expiryDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
-  if (daysUntilExpiry > 0 && daysUntilExpiry <= 10) {
-    return { variant: "secondary", color: "text-yellow-600" };
-  }
-
-  return { variant: "secondary", color: "text-green-600" };
-}
-
-function formatExpiryDate(timestamp: string | null | undefined): string {
-  if (!timestamp) return "---";
-
-  try {
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    const hour = String(date.getHours() % 12 || 12).padStart(1, "0");
-    const minute = String(date.getMinutes()).padStart(2, "0");
-    const ampm = date.getHours() >= 12 ? "PM" : "AM";
-
-    return `${day}/${month}/${year}, ${hour}:${minute} ${ampm}`;
-  } catch {
-    return "---";
-  }
-}
-
-/**
- * Factory function to create stock history columns with handlers
- */
-function createStockHistoryColumns(
-  handleEditStock: (stock: ProductStockDto) => void,
-  handleDeleteStock: (stock: ProductStockDto) => void,
-  isDeleting: boolean
-): TableColumn<ProductStockDto>[] {
-  return [
-    {
-      key: "quantityOnHand",
-      label: "Quantity",
-      render: (stock: ProductStockDto) => (
-        <Badge variant="secondary" className="text-sm">
-          {stock.quantityOnHand} Items
-        </Badge>
-      ),
-    },
-    {
-      key: "quantityAvailable",
-      label: "Available",
-      render: (stock: ProductStockDto) => (
-        <span className="text-sm font-medium text-green-600">
-          {stock.quantityAvailable || 0} Items
-        </span>
-      ),
-    },
-    {
-      key: "priceIn",
-      label: "Unit Price",
-      render: (stock: ProductStockDto) => <span className="text-sm">${stock.priceIn.toFixed(2)}</span>,
-    },
-    {
-      key: "inventoryValue",
-      label: "Inventory Value",
-      render: (stock: ProductStockDto) => (
-        <span className="text-sm font-semibold text-blue-600">
-          ${stock.inventoryValue || 0}
-        </span>
-      ),
-    },
-    {
-      key: "expiryDate",
-      label: "Expiry Date",
-      render: (stock: ProductStockDto) =>
-        stock.expiryDate ? (
-          (() => {
-            const { variant, color } = getExpiryDateVariant(stock.expiryDate);
-            return (
-              <Badge variant={variant} className={`text-xs ${color} font-medium`}>
-                {formatExpiryDate(stock.expiryDate)}
-              </Badge>
-            );
-          })()
-        ) : (
-          <span className="text-muted-foreground">---</span>
-        ),
-    },
-    {
-      key: "location",
-      label: "Location",
-      render: (stock: ProductStockDto) => (
-        <span className="text-sm text-muted-foreground">{stock.location || "---"}</span>
-      ),
-    },
-    {
-      key: "createdAt",
-      label: "Created Date",
-      render: (stock: ProductStockDto) => <span className="text-xs text-muted-foreground">{dateTimeFormat(stock.createdAt)}</span>,
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (stock: ProductStockDto) => (
-        <div className="flex gap-1">
-          <ActionButton
-            icon={<Edit className="w-4 h-4" />}
-            tooltip="Update Stock"
-            onClick={() => handleEditStock(stock)}
-          />
-          <ActionButton
-            icon={<Trash2 className="w-4 h-4" />}
-            tooltip="Delete Stock"
-            onClick={() => handleDeleteStock(stock)}
-            disabled={isDeleting}
-            variant="destructive"
-          />
-        </div>
-      ),
-    },
-  ];
 }
 
 export function SizeStockManagementModal({
