@@ -75,6 +75,7 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
             onValueChange={filter.onChange}
             label={filter.label}
             disabled={filter.disabled}
+            size="lg"
           />
         );
 
@@ -88,6 +89,7 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
             showAllOption={(filter as any).showAllOption !== false}
             label={filter.label}
             disabled={filter.disabled}
+            size="lg"
           />
         );
 
@@ -101,6 +103,7 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
             showAllOption={(filter as any).showAllOption !== false}
             label={filter.label}
             disabled={filter.disabled}
+            size="lg"
           />
         );
 

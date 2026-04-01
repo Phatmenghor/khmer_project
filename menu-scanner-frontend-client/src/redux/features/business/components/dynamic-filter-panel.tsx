@@ -61,6 +61,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
             onValueChange={filter.onChange}
             label={filter.label}
             disabled={filter.disabled}
+            size="lg"
           />
         );
 
@@ -76,6 +77,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
             }
             label={filter.label}
             disabled={filter.disabled}
+            size="lg"
           />
         );
 
@@ -91,6 +93,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
             }
             label={filter.label}
             disabled={filter.disabled}
+            size="lg"
           />
         );
 

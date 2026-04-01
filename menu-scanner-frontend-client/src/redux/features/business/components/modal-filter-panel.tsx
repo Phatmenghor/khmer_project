@@ -52,6 +52,7 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
               onValueChange={filter.onChange}
               label={filter.label}
               disabled={filter.disabled}
+              size="lg"
             />
           </div>
         );
@@ -66,6 +67,7 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
               showAllOption={(filter as any).showAllOption !== false}
               label={filter.label}
               disabled={filter.disabled}
+              size="lg"
             />
           </div>
         );
@@ -80,6 +82,7 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
               showAllOption={(filter as any).showAllOption !== false}
               label={filter.label}
               disabled={filter.disabled}
+              size="lg"
             />
           </div>
         );

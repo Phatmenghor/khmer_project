@@ -69,6 +69,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             onValueChange={filter.onChange}
             label={filter.label}
             disabled={filter.disabled}
+            size="lg"
           />
         );
 
@@ -82,6 +83,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             showAllOption={(filter as any).showAllOption !== false}
             label={filter.label}
             disabled={filter.disabled}
+            size="lg"
           />
         );
 
@@ -95,6 +97,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             showAllOption={(filter as any).showAllOption !== false}
             label={filter.label}
             disabled={filter.disabled}
+            size="lg"
           />
         );
 
