@@ -171,14 +171,14 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
               )}
             </button>
 
-            {/* Add Button */}
+            {/* Add Button - Hidden on mobile, visible on medium screens and up */}
             {config.buttonText && (
               <Button
                 disabled={config.buttonDisabled}
                 size="sm"
                 variant="default"
                 onClick={config.onButtonClick}
-                className="gap-2 flex-shrink-0"
+                className="gap-2 flex-shrink-0 hidden md:flex"
               >
                 <Plus className="w-4 h-4" />
                 {config.buttonText}

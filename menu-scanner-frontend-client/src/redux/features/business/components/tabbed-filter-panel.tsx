@@ -182,7 +182,7 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
               size="sm"
               variant="default"
               onClick={config.onButtonClick}
-              className="gap-2"
+              className="gap-2 hidden md:flex"
             >
               <Plus className="w-4 h-4" />
               {config.buttonText}
