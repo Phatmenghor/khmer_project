@@ -78,7 +78,7 @@ function getExpiryDateVariant(expiryDate: string): {
 }
 
 /**
- * Format expiry date as simple date (M/D/YYYY)
+ * Format expiry date with time (M/D/YYYY, h:mm AM/PM)
  */
 function formatExpiryDate(timestamp: string | null | undefined): string {
   if (!timestamp) return "---";
@@ -89,6 +89,9 @@ function formatExpiryDate(timestamp: string | null | undefined): string {
       month: "numeric",
       day: "numeric",
       year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
   } catch {
     return "---";
