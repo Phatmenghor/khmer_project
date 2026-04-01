@@ -9,14 +9,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -100,8 +93,10 @@ export function StockManagementModal({
   const [historyPageNo, setHistoryPageNo] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);
   const [editingStock, setEditingStock] = useState<any>(null);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [deleteStockId, setDeleteStockId] = useState<string | null>(null);
+  const [deleteState, setDeleteState] = useState({
+    isOpen: false,
+    stock: null as any,
+  });
   const formSectionRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<StockFormData>({
@@ -192,16 +187,24 @@ export function StockManagementModal({
     );
   };
 
-  const handleDeleteStock = (stockId: string) => {
-    setDeleteStockId(stockId);
-    setDeleteConfirmOpen(true);
+  const handleDeleteStock = (stock: any) => {
+    setDeleteState({
+      isOpen: true,
+      stock,
+    });
   };
 
-  const confirmDelete = () => {
-    if (deleteStockId) {
-      dispatch(deleteProductStockService(deleteStockId));
-      setDeleteConfirmOpen(false);
-      setDeleteStockId(null);
+  const closeDeleteModal = () => {
+    setDeleteState({
+      isOpen: false,
+      stock: null,
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (deleteState.stock?.id) {
+      await dispatch(deleteProductStockService(deleteState.stock.id));
+      closeDeleteModal();
     }
   };
 
@@ -307,7 +310,7 @@ export function StockManagementModal({
           <ActionButton
             icon={<Trash2 className="w-4 h-4" />}
             tooltip="Delete Stock"
-            onClick={() => handleDeleteStock(stock.id)}
+            onClick={() => handleDeleteStock(stock)}
             disabled={isDeleting}
             variant="destructive"
           />
@@ -618,24 +621,17 @@ export function StockManagementModal({
           </div>
         </div>
 
-        {/* Delete Confirmation Dialog */}
-        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-          <AlertDialogContent>
-            <AlertDialogTitle>Delete Stock Entry</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this stock record? This action cannot be undone.
-            </AlertDialogDescription>
-            <div className="flex gap-2 justify-end">
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmDelete}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Delete
-              </AlertDialogAction>
-            </div>
-          </AlertDialogContent>
-        </AlertDialog>
+        {/* Delete Confirmation Modal */}
+        <DeleteConfirmationModal
+          isOpen={deleteState.isOpen}
+          onClose={closeDeleteModal}
+          onDelete={confirmDelete}
+          title="Delete Stock Entry"
+          description="Are you sure you want to delete this stock record? This action cannot be undone."
+          itemName={`${deleteState.stock?.quantityOnHand} items @ $${deleteState.stock?.priceIn}`}
+          isSubmitting={isDeleting}
+          variant="critical"
+        />
       </DialogContent>
     </Dialog>
   );
