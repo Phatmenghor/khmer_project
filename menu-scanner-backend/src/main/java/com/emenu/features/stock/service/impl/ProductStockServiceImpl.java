@@ -64,7 +64,6 @@ public class ProductStockServiceImpl implements ProductStockService {
             throw new ValidationException("Business ID is required");
         }
 
-        // Use utility to create pageable with native query sorting
         Pageable pageable = PaginationUtils.createPageableForNativeQuery(
                 request.getPageNo(),
                 request.getPageSize(),
@@ -89,15 +88,17 @@ public class ProductStockServiceImpl implements ProductStockService {
                 pageable
         );
 
-        PaginationResponse<ProductStockDto> response = productStockMapper.toPaginationResponse(productStockPage, paginationMapper);
-
-        List<ProductStock> stocks = productStockPage.getContent();
-        List<ProductStockDto> dtos = response.getContent();
-        for (int i = 0; i < dtos.size(); i++) {
-            enrichWithProductInfo(dtos.get(i), stocks.get(i));
-        }
-
-        return response;
+        // Use PaginationMapper with transformation function for clean mapping + enrichment
+        return paginationMapper.toPaginationResponse(
+                productStockPage,
+                stocks -> stocks.stream()
+                        .map(stock -> {
+                            ProductStockDto dto = productStockMapper.toDto(stock);
+                            enrichWithProductInfo(dto, stock);
+                            return dto;
+                        })
+                        .toList()
+        );
     }
 
     @Override
@@ -133,24 +134,13 @@ public class ProductStockServiceImpl implements ProductStockService {
                 pageable
         );
 
-        // Convert to DTOs
-        List<ProductStockItemDto> pageContent = pageResult.getContent().stream()
-                .map(this::mapRowToProductStockItemDto)
-                .toList();
-
-        // Build pagination response
-        PaginationResponse<ProductStockItemDto> response = new PaginationResponse<>();
-        response.setContent(pageContent);
-        response.setPageNo(pageResult.getNumber() + 1);
-        response.setPageSize(pageResult.getSize());
-        response.setTotalPages(pageResult.getTotalPages());
-        response.setTotalElements(pageResult.getTotalElements());
-        response.setHasNext(pageResult.hasNext());
-        response.setHasPrevious(pageResult.hasPrevious());
-        response.setFirst(pageResult.isFirst());
-        response.setLast(pageResult.isLast());
-
-        return response;
+        // Use PaginationMapper with transformation function for clean mapping
+        return paginationMapper.toPaginationResponse(
+                pageResult,
+                rows -> rows.stream()
+                        .map(this::mapRowToProductStockItemDto)
+                        .toList()
+        );
     }
 
     @Override
