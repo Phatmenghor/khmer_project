@@ -20,7 +20,7 @@ import {
   updateStockStatusOptimistic,
   revertStockStatusOptimistic,
 } from "@/redux/features/business/store/slice/stock-slice";
-import { stockTableColumns } from "@/redux/features/business/table/stock-table";
+import { stockTableColumns } from "@/redux/features/business/table/product-stock-table";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { StockManagementModal } from "@/redux/features/business/components/product-stock-management-modal";
 import { updateStockStatusService } from "@/redux/features/business/store/thunks/stock-thunks";
