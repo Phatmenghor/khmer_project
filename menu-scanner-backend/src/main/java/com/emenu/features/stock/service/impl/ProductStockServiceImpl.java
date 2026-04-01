@@ -133,6 +133,36 @@ public class ProductStockServiceImpl implements ProductStockService {
             dtos.add(dto);
         }
 
+        // Apply sorting
+        String sortBy = (request.getSortBy() != null && !request.getSortBy().isBlank())
+                ? request.getSortBy() : "createdAt";
+        String sortDirection = (request.getSortDirection() != null && !request.getSortDirection().isBlank())
+                ? request.getSortDirection().toUpperCase() : "DESC";
+
+        dtos.sort((item1, item2) -> {
+            int compareResult = switch (sortBy.toLowerCase()) {
+                case "productname" -> item1.getProductName().compareTo(item2.getProductName());
+                case "totalstock" -> item1.getTotalStock().compareTo(item2.getTotalStock());
+                case "status" -> item1.getStatus().compareTo(item2.getStatus());
+                case "stockstatus" -> item1.getStockStatus().compareTo(item2.getStockStatus());
+                case "sku" -> {
+                    String sku1 = item1.getSku() != null ? item1.getSku() : "";
+                    String sku2 = item2.getSku() != null ? item2.getSku() : "";
+                    yield sku1.compareTo(sku2);
+                }
+                case "barcode" -> {
+                    String barcode1 = item1.getBarcode() != null ? item1.getBarcode() : "";
+                    String barcode2 = item2.getBarcode() != null ? item2.getBarcode() : "";
+                    yield barcode1.compareTo(barcode2);
+                }
+                case "createdat" -> item1.getCreatedAt().compareTo(item2.getCreatedAt());
+                case "updatedat" -> item1.getUpdatedAt().compareTo(item2.getUpdatedAt());
+                default -> item1.getCreatedAt().compareTo(item2.getCreatedAt()); // Default to createdAt
+            };
+
+            return sortDirection.equals("ASC") ? compareResult : -compareResult;
+        });
+
         // Apply pagination manually
         int totalElements = dtos.size();
         int fromIndex = pageNo * pageSize;
