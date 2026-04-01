@@ -4,6 +4,8 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 
@@ -46,8 +48,10 @@ interface StockItemsFilterPanelProps {
 
 /**
  * Stock Items Filter Panel - Works with CardHeaderSection
- * Renders filter components (without card wrapper or search)
- * Search is handled by CardHeaderSection
+ * Filters wrap with Add button staying on the right
+ * Responsive: [Search] [Filters...] [Add Button]
+ *             When overflow: [Search] [Filters...] [Add Button]
+ *                            [More Filters...]
  */
 export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
   // Sort
@@ -134,8 +138,8 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
 
   return (
     <>
-      {/* Filters Row - All filters with same height */}
-      <div className="flex flex-wrap gap-3 items-stretch">
+      {/* Filters Row - with responsive wrapping and Add button on right */}
+      <div className="flex flex-wrap gap-3 items-stretch flex-1">
         {/* Sort Field */}
         <CustomSelect
           options={sortByOptions}
@@ -192,24 +196,34 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           onValueChange={onHasSizesChange}
         />
 
-        {/* Low Stock Threshold - Search-style input */}
-        <div className="flex-1 min-w-[140px]">
-          <Input
-            type="number"
-            inputMode="numeric"
-            placeholder="Low Stock Threshold"
-            value={lowStockThresholdValue}
-            onChange={(e) => {
-              const value = e.target.value;
-              // Only allow positive integers
-              if (value === "" || /^\d+$/.test(value)) {
-                onLowStockThresholdChange(value);
-              }
-            }}
-            className="h-10 text-xs"
-            min="0"
-          />
-        </div>
+        {/* Low Stock Threshold */}
+        <Input
+          type="number"
+          inputMode="numeric"
+          placeholder="Low Stock Threshold"
+          value={lowStockThresholdValue}
+          onChange={(e) => {
+            const value = e.target.value;
+            // Only allow positive integers
+            if (value === "" || /^\d+$/.test(value)) {
+              onLowStockThresholdChange(value);
+            }
+          }}
+          className="h-10 text-xs flex-1 min-w-[140px]"
+          min="0"
+        />
+
+        {/* Add Button - stays on right with flex-shrink-0 */}
+        <Button
+          disabled
+          variant="default"
+          size="sm"
+          title="Select an item to edit"
+          className="flex-shrink-0 gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Add
+        </Button>
       </div>
 
       {/* Active Filters Badges - Only show if there are active filters */}
