@@ -571,7 +571,7 @@ export function StockManagementModal({
                                   <p className="font-medium">
                                     {product.promotionType === "PERCENTAGE"
                                       ? `${product.promotionValue}%`
-                                      : `$${product.promotionValue.toFixed(2)}`}
+                                      : `$${(product.promotionValue || 0).toFixed(2)}`}
                                   </p>
                                 </div>
                                 <div>

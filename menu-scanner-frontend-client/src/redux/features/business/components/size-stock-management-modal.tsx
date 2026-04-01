@@ -599,7 +599,7 @@ export function SizeStockManagementModal({
                                     <p className="font-medium">
                                       {selectedSize.promotionType === "PERCENTAGE"
                                         ? `${selectedSize.promotionValue}%`
-                                        : `$${selectedSize.promotionValue.toFixed(2)}`}
+                                        : `$${(selectedSize.promotionValue || 0).toFixed(2)}`}
                                     </p>
                                   </div>
                                   <div className="pt-2 border-t">
