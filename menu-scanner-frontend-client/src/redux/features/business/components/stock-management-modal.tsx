@@ -30,6 +30,43 @@ import {
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 
+/**
+ * Get expiry date color and variant based on status
+ * Green: Not expired, more than 10 days away
+ * Yellow: Expiring within 10 days
+ * Red: Already expired
+ */
+function getExpiryDateVariant(expiryDate: string): {
+  variant: "default" | "secondary" | "destructive" | "outline";
+  color: string;
+} {
+  if (!expiryDate) {
+    return { variant: "secondary", color: "text-muted-foreground" };
+  }
+
+  const expiry = new Date(expiryDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Check if expired
+  if (expiry < today) {
+    return { variant: "destructive", color: "text-red-600" };
+  }
+
+  // Calculate days until expiry
+  const daysUntilExpiry = Math.ceil(
+    (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  // Yellow if expiring within 10 days
+  if (daysUntilExpiry <= 10) {
+    return { variant: "secondary", color: "text-yellow-600" };
+  }
+
+  // Green if more than 10 days away
+  return { variant: "secondary", color: "text-green-600" };
+}
+
 interface StockFormData {
   quantityOnHand?: number;
   priceIn?: string;
@@ -163,9 +200,14 @@ export function StockManagementModal({
       label: "Expiry Date",
       render: (stock) =>
         stock.expiryDate ? (
-          <Badge variant="destructive" className="text-xs">
-            {dateTimeFormat(stock.expiryDate)}
-          </Badge>
+          (() => {
+            const { variant, color } = getExpiryDateVariant(stock.expiryDate);
+            return (
+              <Badge variant={variant} className={`text-xs ${color} font-medium`}>
+                {dateTimeFormat(stock.expiryDate)}
+              </Badge>
+            );
+          })()
         ) : (
           <span className="text-muted-foreground">---</span>
         ),
