@@ -160,7 +160,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
             size="sm"
             variant="default"
             onClick={config.onButtonClick}
-            className="gap-2 hidden md:flex"
+            className="gap-2"
           >
             <Plus className="w-4 h-4" />
             {config.buttonText}
