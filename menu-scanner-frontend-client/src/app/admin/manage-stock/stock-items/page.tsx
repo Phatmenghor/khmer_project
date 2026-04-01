@@ -101,8 +101,8 @@ export default function StockItemsPage() {
 
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<CategoriesResponseModel | null>(null);
-  const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
-  const [hasSizesFilter, setHasSizesFilter] = useState("ALL");
+  const [stockStatusFilterUI, setStockStatusFilterUI] = useState("ALL");
+  const [hasSizesFilterUI, setHasSizesFilterUI] = useState("ALL");
 
   // Global page size from global settings
   const globalPageSize = useAppSelector(selectGlobalPageSize);
@@ -215,12 +215,12 @@ export default function StockItemsPage() {
   };
 
   const handleStockStatusChange = (value: string) => {
-    setStockStatusFilter(value);
+    setStockStatusFilterUI(value);
     dispatch(setStockStatusFilter(value === "ALL" ? undefined : (value as "ENABLED" | "DISABLED")));
   };
 
   const handleHasSizesChange = (value: string) => {
-    setHasSizesFilter(value);
+    setHasSizesFilterUI(value);
     if (value === "ALL") {
       dispatch(setHasSizesFilter(undefined));
     } else if (value === "WITH_SIZES") {
@@ -290,7 +290,7 @@ export default function StockItemsPage() {
 
           <CustomSelect
             options={STOCK_STATUS_FILTER}
-            value={stockStatusFilter}
+            value={stockStatusFilterUI}
             placeholder="All Stock Status"
             onValueChange={handleStockStatusChange}
             label="Stock Status"
@@ -306,7 +306,7 @@ export default function StockItemsPage() {
 
           <CustomSelect
             options={HAS_SIZES_FILTER}
-            value={hasSizesFilter}
+            value={hasSizesFilterUI}
             placeholder="All Products"
             onValueChange={handleHasSizesChange}
             label="Product Type"
