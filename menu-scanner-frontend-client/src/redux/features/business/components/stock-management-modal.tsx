@@ -50,27 +50,49 @@ function getExpiryDateVariant(expiryDate: string): {
     return { variant: "secondary", color: "text-muted-foreground" };
   }
 
-  const expiry = new Date(expiryDate);
+  // Parse expiry date safely
+  const expiryDateObj = new Date(expiryDate);
   const today = new Date();
+
+  // Set both to midnight for accurate day comparison
+  expiryDateObj.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
 
   // Check if expired
-  if (expiry < today) {
+  if (expiryDateObj < today) {
     return { variant: "destructive", color: "text-red-600" };
   }
 
   // Calculate days until expiry
-  const daysUntilExpiry = Math.ceil(
-    (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  const daysUntilExpiry = Math.floor(
+    (expiryDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  // Yellow if expiring within 10 days
-  if (daysUntilExpiry <= 10) {
+  // Yellow if expiring within 10 days (0-10 days inclusive)
+  if (daysUntilExpiry > 0 && daysUntilExpiry <= 10) {
     return { variant: "secondary", color: "text-yellow-600" };
   }
 
   // Green if more than 10 days away
   return { variant: "secondary", color: "text-green-600" };
+}
+
+/**
+ * Format expiry date as simple date (M/D/YYYY)
+ */
+function formatExpiryDate(timestamp: string | null | undefined): string {
+  if (!timestamp) return "---";
+
+  try {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString("en-US", {
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return "---";
+  }
 }
 
 interface StockFormData {
@@ -303,7 +325,7 @@ export function StockManagementModal({
             const { variant, color } = getExpiryDateVariant(stock.expiryDate);
             return (
               <Badge variant={variant} className={`text-xs ${color} font-medium`}>
-                {dateTimeFormat(stock.expiryDate)}
+                {formatExpiryDate(stock.expiryDate)}
               </Badge>
             );
           })()
