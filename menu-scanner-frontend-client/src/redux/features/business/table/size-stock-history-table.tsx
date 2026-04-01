@@ -80,7 +80,7 @@ export function createSizeStockHistoryColumns(
       key: "productSizeName",
       label: "Size Name",
       render: (stock: ProductStockDto) => (
-        <span className="text-sm">${stock.productSizeName}</span>
+        <span className="text-sm">{stock.sizeName}</span>
       ),
     },
     {
