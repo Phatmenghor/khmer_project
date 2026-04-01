@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { useAppDispatch } from "@/redux/store";
@@ -24,7 +24,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
-import { Package, Trash2, Edit2 } from "lucide-react";
+import { ActionButton } from "@/components/shared/button/action-button";
+import { Package, Trash2, Edit, Eye } from "lucide-react";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import {
   createProductStockService,
@@ -101,6 +102,7 @@ export function StockManagementModal({
   const [editingStock, setEditingStock] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteStockId, setDeleteStockId] = useState<string | null>(null);
+  const formSectionRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<StockFormData>({
     mode: "onChange",
@@ -148,6 +150,11 @@ export function StockManagementModal({
   }, [isOpen]);
 
   const handleCreateStock = async (data: StockFormData) => {
+    // If editing, use update handler
+    if (editingStock) {
+      return handleUpdateStock(data);
+    }
+
     if (!product) return;
 
     const quantity = Number(data.quantityOnHand);
@@ -206,6 +213,10 @@ export function StockManagementModal({
       expiryDate: stock.expiryDate,
       location: stock.location,
     });
+    // Scroll to top of form
+    setTimeout(() => {
+      formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   };
 
   const handleUpdateStock = async (data: StockFormData) => {
@@ -223,9 +234,10 @@ export function StockManagementModal({
       return;
     }
 
-    // TODO: Implement updateProductStockService in thunks
+    // TODO: Call updateProductStockService with editingStock.id and data
     showToast.info("Update feature coming soon");
     setEditingStock(null);
+    form.reset();
   };
 
   const stockHistoryColumns: TableColumn[] = [
@@ -276,24 +288,29 @@ export function StockManagementModal({
       key: "actions",
       label: "Actions",
       render: (stock) => (
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="ghost"
+        <div className="flex gap-1">
+          <ActionButton
+            icon={<Eye className="w-4 h-4" />}
+            tooltip="View Details"
+            onClick={() => {
+              // View details - can show in a side panel or toast
+              showToast.info(
+                `Stock: ${stock.quantityOnHand} items | Price: $${stock.priceIn} | Location: ${stock.location}`
+              );
+            }}
+          />
+          <ActionButton
+            icon={<Edit className="w-4 h-4" />}
+            tooltip="Edit Stock"
             onClick={() => handleEditStock(stock)}
-            className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-          >
-            <Edit2 className="w-4 h-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
+          />
+          <ActionButton
+            icon={<Trash2 className="w-4 h-4" />}
+            tooltip="Delete Stock"
             onClick={() => handleDeleteStock(stock.id)}
             disabled={isDeleting}
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+            variant="destructive"
+          />
         </div>
       ),
     },
@@ -345,12 +362,12 @@ export function StockManagementModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Add Stock Form */}
-            <Card>
+            {/* Add/Update Stock Form */}
+            <Card ref={formSectionRef}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Package className="w-5 h-5" />
-                  Add New Stock
+                  {editingStock ? "Update Stock" : "Add New Stock"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -552,16 +569,21 @@ export function StockManagementModal({
                       size="lg"
                       className="flex-1"
                     >
-                      {isCreating ? "Creating..." : "Create Stock Entry"}
+                      {editingStock
+                        ? isCreating ? "Updating..." : "Update Stock"
+                        : isCreating ? "Creating..." : "Create Stock"}
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       size="lg"
-                      onClick={onClose}
+                      onClick={() => {
+                        setEditingStock(null);
+                        form.reset();
+                      }}
                       disabled={isCreating}
                     >
-                      Close
+                      {editingStock ? "Cancel" : "Close"}
                     </Button>
                   </div>
                 </form>
@@ -595,77 +617,6 @@ export function StockManagementModal({
             </Card>
           </div>
         </div>
-
-        {/* Edit Stock Modal */}
-        <Dialog open={!!editingStock} onOpenChange={(open) => !open && setEditingStock(null)}>
-          <DialogTitle className="sr-only">Edit Stock Entry</DialogTitle>
-          <DialogContent className="sm:max-w-md">
-            <div className="py-4">
-              <h2 className="text-lg font-semibold mb-4">Edit Stock Entry</h2>
-              <form onSubmit={form.handleSubmit(handleUpdateStock)} className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    Quantity On Hand <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="1"
-                    {...form.register("quantityOnHand", {
-                      required: "Quantity is required",
-                    })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    Unit Price <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">$</span>
-                    <Input
-                      type="text"
-                      inputMode="decimal"
-                      {...form.register("priceIn", {
-                        required: "Price is required",
-                      })}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Expiry Date</Label>
-                  <DateTimePickerField
-                    control={form.control}
-                    name="expiryDate"
-                    mode="date"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Location</Label>
-                  <Input
-                    placeholder="e.g., Warehouse A, Shelf 3"
-                    {...form.register("location")}
-                  />
-                </div>
-
-                <div className="flex gap-2 pt-4">
-                  <Button type="submit" className="flex-1">
-                    Update Stock
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setEditingStock(null)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </DialogContent>
-        </Dialog>
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
