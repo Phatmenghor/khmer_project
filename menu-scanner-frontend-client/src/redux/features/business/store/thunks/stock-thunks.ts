@@ -28,8 +28,8 @@ export const updateStockStatusService = createApiThunk<
   any,
   { productId: string; newStatus: "ENABLED" | "DISABLED" }
 >("productStock/updateStatus", async (params) => {
-  const response = await axiosClientWithAuth.patch(
-    `/api/v1/products/${params.productId}/stock/status`,
+  const response = await axiosClientWithAuth.put(
+    `/api/v1/products/${params.productId}`,
     { stockStatus: params.newStatus }
   );
   return response.data.data;

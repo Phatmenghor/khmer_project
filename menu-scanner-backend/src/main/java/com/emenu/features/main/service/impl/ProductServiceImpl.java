@@ -875,6 +875,12 @@ public class ProductServiceImpl implements ProductService {
             productMapper.updateEntity(request, product);
             log.debug("Product entity updated with request data");
 
+            // Update stock status if provided
+            if (request.getStockStatus() != null) {
+                product.setStockStatus(request.getStockStatus());
+                log.debug("Product stock status updated: {}", request.getStockStatus());
+            }
+
             if (!product.getHasSizes()) {
                 product.initializeDisplayFields();
                 log.debug("Display fields initialized for product without sizes");
