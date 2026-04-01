@@ -1,10 +1,10 @@
-import React from "react";
-import { Search, Plus } from "lucide-react";
+import React, { useCallback, useMemo } from "react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 
@@ -44,15 +44,12 @@ interface StockItemsFilterPanelProps {
   // Low stock threshold
   lowStockThresholdValue: string;
   onLowStockThresholdChange: (value: string) => void;
-
-  // Action button
-  onAddClick?: () => void;
 }
 
 /**
- * Modern responsive filter panel for Stock Items
- * Search on left, filters on right with dynamic wrapping
- * Responsive layout that adapts to all screen sizes
+ * Stock Items Filter Panel - Classic card style
+ * Filters on top row, search on bottom left, filter badges below when active
+ * All filters maintain same height
  */
 export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
   // Search
@@ -85,165 +82,196 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
   // Low stock threshold
   lowStockThresholdValue,
   onLowStockThresholdChange,
-
-  // Action button
-  onAddClick,
 }) => {
+  // Calculate active filters for badge display
+  const activeFilters = useMemo(() => {
+    const filters = [];
+
+    if (sortByValue && sortByValue !== "totalStock") {
+      const sortLabel = sortByOptions.find((o) => o.value === sortByValue)?.label;
+      filters.push({ key: "sort", label: "Sort", value: sortLabel || sortByValue });
+    }
+
+    if (sortDirectionValue && sortDirectionValue !== "DESC") {
+      filters.push({ key: "direction", label: "Direction", value: sortDirectionValue });
+    }
+
+    if (selectedBrand) {
+      filters.push({ key: "brand", label: "Brand", value: selectedBrand.name });
+    }
+
+    if (selectedCategories) {
+      filters.push({ key: "category", label: "Category", value: selectedCategories.name });
+    }
+
+    if (stockStatusValue && stockStatusValue !== "ALL") {
+      filters.push({ key: "stock", label: "Stock", value: stockStatusValue });
+    }
+
+    if (productStatusValue && productStatusValue !== "ALL") {
+      filters.push({ key: "status", label: "Status", value: productStatusValue });
+    }
+
+    if (hasSizesValue && hasSizesValue !== "ALL") {
+      const typeLabel = hasSizesValue === "WITH_SIZES" ? "With Sizes" : "Without Sizes";
+      filters.push({ key: "type", label: "Type", value: typeLabel });
+    }
+
+    if (lowStockThresholdValue) {
+      filters.push({
+        key: "lowstock",
+        label: "Low Stock",
+        value: `< ${lowStockThresholdValue}`,
+      });
+    }
+
+    return filters;
+  }, [
+    sortByValue,
+    sortDirectionValue,
+    selectedBrand,
+    selectedCategories,
+    stockStatusValue,
+    productStatusValue,
+    hasSizesValue,
+    lowStockThresholdValue,
+    sortByOptions,
+  ]);
+
   return (
-    <div className="space-y-4">
-      {/* Search and Filters Container */}
-      <div className="flex flex-col lg:flex-row lg:items-end gap-4">
-        {/* Search Input - Left Side */}
-        <div className="flex-shrink-0 lg:flex-1 lg:max-w-xs">
+    <div className="bg-white border border-border rounded-lg p-5 space-y-4">
+      {/* Header */}
+      <div className="mb-1">
+        <h2 className="text-sm font-semibold text-foreground">Stock Items (Products & Sizes)</h2>
+      </div>
+
+      {/* Filters Row 1 - All filters with same height (h-10) */}
+      <div className="flex flex-wrap gap-3 items-stretch">
+        {/* Sort Field */}
+        <div className="flex-1 min-w-[160px]">
+          <CustomSelect
+            options={sortByOptions}
+            value={sortByValue}
+            placeholder="Sort by"
+            onValueChange={onSortByChange}
+            size="sm"
+          />
+        </div>
+
+        {/* Sort Direction */}
+        <div className="flex-1 min-w-[140px]">
+          <CustomSelect
+            options={sortDirectionOptions}
+            value={sortDirectionValue}
+            placeholder="Order"
+            onValueChange={onSortDirectionChange}
+            size="sm"
+          />
+        </div>
+
+        {/* Brand Filter */}
+        <div className="flex-1 min-w-[140px]">
+          <ComboboxSelectBrand
+            dataSelect={selectedBrand}
+            onChangeSelected={onBrandChange}
+            placeholder="All Brand"
+            showAllOption={true}
+            size="sm"
+          />
+        </div>
+
+        {/* Category Filter */}
+        <div className="flex-1 min-w-[140px]">
+          <ComboboxSelectCategories
+            dataSelect={selectedCategories}
+            onChangeSelected={onCategoriesChange}
+            placeholder="All Categories"
+            showAllOption={true}
+            size="sm"
+          />
+        </div>
+
+        {/* Stock Status */}
+        <div className="flex-1 min-w-[130px]">
+          <CustomSelect
+            options={stockStatusOptions}
+            value={stockStatusValue}
+            placeholder="Stock"
+            onValueChange={onStockStatusChange}
+            size="sm"
+          />
+        </div>
+
+        {/* Product Status */}
+        <div className="flex-1 min-w-[130px]">
+          <CustomSelect
+            options={productStatusOptions}
+            value={productStatusValue}
+            placeholder="Status"
+            onValueChange={onProductStatusChange}
+            size="sm"
+          />
+        </div>
+
+        {/* Product Type */}
+        <div className="flex-1 min-w-[130px]">
+          <CustomSelect
+            options={hasSizesOptions}
+            value={hasSizesValue}
+            placeholder="Type"
+            onValueChange={onHasSizesChange}
+            size="sm"
+          />
+        </div>
+
+        {/* Low Stock Threshold - Search-style input */}
+        <div className="flex-1 min-w-[140px]">
+          <div className="relative h-10">
+            <Input
+              type="number"
+              inputMode="numeric"
+              placeholder="Low Stock"
+              value={lowStockThresholdValue}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Only allow positive integers
+                if (value === "" || /^\d+$/.test(value)) {
+                  onLowStockThresholdChange(value);
+                }
+              }}
+              className="h-10 text-xs pr-8"
+              min="0"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Row 2 - Search on left */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 max-w-xs">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search product name..."
               value={searchValue}
               onChange={onSearchChange}
-              className="pl-9 h-10"
+              className="pl-9 h-10 text-xs"
             />
           </div>
-        </div>
-
-        {/* Filters Container - Right Side with Dynamic Flow */}
-        <div className="flex flex-wrap gap-3 lg:flex-1 justify-end items-end">
-          {/* Sort Field */}
-          <div className="w-full sm:w-auto">
-            <CustomSelect
-              options={sortByOptions}
-              value={sortByValue}
-              placeholder="Sort by"
-              onValueChange={onSortByChange}
-              label="Sort"
-              size="sm"
-            />
-          </div>
-
-          {/* Sort Direction */}
-          <div className="w-full sm:w-auto">
-            <CustomSelect
-              options={sortDirectionOptions}
-              value={sortDirectionValue}
-              placeholder="Direction"
-              onValueChange={onSortDirectionChange}
-              label="Order"
-              size="sm"
-            />
-          </div>
-
-          {/* Brand Filter */}
-          <div className="w-full sm:w-auto sm:min-w-[180px]">
-            <ComboboxSelectBrand
-              dataSelect={selectedBrand}
-              onChangeSelected={onBrandChange}
-              placeholder="All Brand"
-              showAllOption={true}
-              size="sm"
-            />
-          </div>
-
-          {/* Category Filter */}
-          <div className="w-full sm:w-auto sm:min-w-[180px]">
-            <ComboboxSelectCategories
-              dataSelect={selectedCategories}
-              onChangeSelected={onCategoriesChange}
-              placeholder="All Categories"
-              showAllOption={true}
-              size="sm"
-            />
-          </div>
-
-          {/* Stock Status */}
-          <div className="w-full sm:w-auto">
-            <CustomSelect
-              options={stockStatusOptions}
-              value={stockStatusValue}
-              placeholder="Stock Status"
-              onValueChange={onStockStatusChange}
-              label="Stock"
-              size="sm"
-            />
-          </div>
-
-          {/* Product Status */}
-          <div className="w-full sm:w-auto">
-            <CustomSelect
-              options={productStatusOptions}
-              value={productStatusValue}
-              placeholder="Product Status"
-              onValueChange={onProductStatusChange}
-              label="Status"
-              size="sm"
-            />
-          </div>
-
-          {/* Product Type */}
-          <div className="w-full sm:w-auto">
-            <CustomSelect
-              options={hasSizesOptions}
-              value={hasSizesValue}
-              placeholder="All Products"
-              onValueChange={onHasSizesChange}
-              label="Type"
-              size="sm"
-            />
-          </div>
-
-          {/* Low Stock Threshold */}
-          <div className="w-full sm:w-auto sm:max-w-[140px]">
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">
-              Low Stock
-            </label>
-            <Input
-              type="number"
-              placeholder="Threshold"
-              value={lowStockThresholdValue}
-              onChange={(e) => onLowStockThresholdChange(e.target.value)}
-              className="h-10 text-xs"
-              min="0"
-            />
-          </div>
-
-          {/* Add Button */}
-          {onAddClick && (
-            <Button
-              onClick={onAddClick}
-              variant="default"
-              size="sm"
-              className="w-full sm:w-auto gap-2 h-10"
-              disabled={true}
-              title="Select an item and click Edit Stock to manage inventory"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Add</span>
-            </Button>
-          )}
         </div>
       </div>
 
-      {/* Filter Info Badge */}
-      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground px-1">
-        {[
-          { label: "Sort", value: sortByValue, default: "totalStock" },
-          { label: "Direction", value: sortDirectionValue, default: "DESC" },
-          { label: "Brand", value: selectedBrand?.name, default: null },
-          { label: "Category", value: selectedCategories?.name, default: null },
-          { label: "Stock", value: stockStatusValue, default: "ALL" },
-          { label: "Status", value: productStatusValue, default: "ALL" },
-          { label: "Type", value: hasSizesValue, default: "ALL" },
-          { label: "Low Stock", value: lowStockThresholdValue, default: "" },
-        ]
-          .filter(
-            (item) =>
-              item.value && item.value !== item.default && item.value !== ""
-          )
-          .map((item, idx) => (
-            <span key={idx} className="bg-blue-50 text-blue-700 px-2 py-1 rounded">
-              {item.label}: <span className="font-medium">{item.value}</span>
-            </span>
+      {/* Active Filters Badges - Only show if there are active filters */}
+      {activeFilters.length > 0 && (
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
+          {activeFilters.map((filter) => (
+            <Badge key={filter.key} variant="secondary" className="text-xs">
+              {filter.label}: <span className="font-medium ml-1">{filter.value}</span>
+            </Badge>
           ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
+

@@ -240,12 +240,6 @@ export default function StockItemsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-foreground">Stock Items (Products & Sizes)</h1>
-          <p className="text-sm text-muted-foreground">Manage product and size stock across your business</p>
-        </div>
-
         {/* Modern Responsive Filter Panel */}
         <StockItemsFilterPanel
           searchValue={filters.search}
