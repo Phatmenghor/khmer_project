@@ -143,11 +143,21 @@ export function StockManagementModal({
   // Reset form when modal opens or closes
   useEffect(() => {
     if (isOpen) {
-      form.reset();
+      form.reset({
+        quantityOnHand: undefined,
+        priceIn: "",
+        expiryDate: "",
+        location: "",
+      });
     } else {
       // Reset edit state when modal closes
       setEditingStock(null);
-      form.reset();
+      form.reset({
+        quantityOnHand: undefined,
+        priceIn: "",
+        expiryDate: "",
+        location: "",
+      });
     }
   }, [isOpen, form]);
 
