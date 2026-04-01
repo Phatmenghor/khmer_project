@@ -234,76 +234,78 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
      * Each item contains aggregated stock data (summed from all batches of that product/size).
      */
     @Query(value = """
-        (
-            -- Products without sizes
-            SELECT
-                p.id as product_id,
-                NULL::uuid as product_size_id,
-                p.name as product_name,
-                p.category_name,
-                p.brand_name,
-                p.sku,
-                p.barcode,
-                NULL::varchar as size_name,
-                COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
-                p.status,
-                p.stock_status,
-                'PRODUCT'::varchar as item_type,
-                COALESCE(MAX(ps.created_at), p.created_at) as created_at,
-                COALESCE(MAX(ps.updated_at), p.updated_at) as updated_at
-            FROM products p
-            LEFT JOIN product_stock ps ON p.id = ps.product_id
-                AND ps.is_expired = false
-                AND ps.status = 'ACTIVE'
-            WHERE p.business_id = :businessId
-                AND p.is_deleted = false
-                AND p.has_sizes = false
-                AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = false)
-                AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
-                AND (CAST(:status AS text) IS NULL OR p.status = :status)
-                AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-            GROUP BY p.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, p.status, p.stock_status, p.created_at, p.updated_at
-            HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
-        )
-        UNION ALL
-        (
-            -- Products with sizes
-            SELECT
-                p.id as product_id,
-                psz.id as product_size_id,
-                p.name as product_name,
-                p.category_name,
-                p.brand_name,
-                p.sku,
-                p.barcode,
-                psz.name as size_name,
-                COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
-                p.status,
-                p.stock_status,
-                'SIZE'::varchar as item_type,
-                COALESCE(MAX(ps.created_at), psz.created_at) as created_at,
-                COALESCE(MAX(ps.updated_at), psz.updated_at) as updated_at
-            FROM products p
-            INNER JOIN product_sizes psz ON p.id = psz.product_id AND psz.is_deleted = false
-            LEFT JOIN product_stock ps ON p.id = ps.product_id
-                AND psz.id = ps.product_size_id
-                AND ps.is_expired = false
-                AND ps.status = 'ACTIVE'
-            WHERE p.business_id = :businessId
-                AND p.is_deleted = false
-                AND p.has_sizes = true
-                AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = true)
-                AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
-                AND (CAST(:status AS text) IS NULL OR p.status = :status)
-                AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-            GROUP BY p.id, psz.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, psz.name, p.status, p.stock_status, psz.created_at, psz.updated_at
-            HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
-        )
+        SELECT * FROM (
+            (
+                -- Products without sizes
+                SELECT
+                    p.id as product_id,
+                    NULL::uuid as product_size_id,
+                    p.name as product_name,
+                    p.category_name,
+                    p.brand_name,
+                    p.sku,
+                    p.barcode,
+                    NULL::varchar as size_name,
+                    COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
+                    p.status,
+                    p.stock_status,
+                    'PRODUCT'::varchar as item_type,
+                    COALESCE(MAX(ps.created_at), p.created_at) as created_at,
+                    COALESCE(MAX(ps.updated_at), p.updated_at) as updated_at
+                FROM products p
+                LEFT JOIN product_stock ps ON p.id = ps.product_id
+                    AND ps.is_expired = false
+                    AND ps.status = 'ACTIVE'
+                WHERE p.business_id = :businessId
+                    AND p.is_deleted = false
+                    AND p.has_sizes = false
+                    AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = false)
+                    AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                    AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                    AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                GROUP BY p.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, p.status, p.stock_status, p.created_at, p.updated_at
+                HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+            )
+            UNION ALL
+            (
+                -- Products with sizes
+                SELECT
+                    p.id as product_id,
+                    psz.id as product_size_id,
+                    p.name as product_name,
+                    p.category_name,
+                    p.brand_name,
+                    p.sku,
+                    p.barcode,
+                    psz.name as size_name,
+                    COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
+                    p.status,
+                    p.stock_status,
+                    'SIZE'::varchar as item_type,
+                    COALESCE(MAX(ps.created_at), psz.created_at) as created_at,
+                    COALESCE(MAX(ps.updated_at), psz.updated_at) as updated_at
+                FROM products p
+                INNER JOIN product_sizes psz ON p.id = psz.product_id AND psz.is_deleted = false
+                LEFT JOIN product_stock ps ON p.id = ps.product_id
+                    AND psz.id = ps.product_size_id
+                    AND ps.is_expired = false
+                    AND ps.status = 'ACTIVE'
+                WHERE p.business_id = :businessId
+                    AND p.is_deleted = false
+                    AND p.has_sizes = true
+                    AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = true)
+                    AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                    AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                    AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                GROUP BY p.id, psz.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, psz.name, p.status, p.stock_status, psz.created_at, psz.updated_at
+                HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+            )
+        ) AS result
     """,
     nativeQuery = true)
     /**
      * Find product stock items with filtering and sorting.
-     * Pagination and sorting are handled by Spring Data Pageable (no hardcoded ORDER BY).
+     * Wrapped in subquery to allow Spring Data Pageable to properly apply ORDER BY and pagination.
      * Supports sorting by: product_name, total_stock, status, stock_status, sku, barcode, created_at, updated_at
      */
     Page<Object[]> findProductStockItems(
