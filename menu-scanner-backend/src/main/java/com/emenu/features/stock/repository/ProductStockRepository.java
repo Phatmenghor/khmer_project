@@ -169,7 +169,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             AND (CAST(:lowStockThreshold AS integer) IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
             AND (CAST(:expiredBefore AS timestamp) IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore))
             AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
-        ORDER BY ps.date_in DESC NULLS LAST, ps.created_at DESC
     """,
     countQuery = """
         SELECT COUNT(*) FROM product_stock ps
@@ -184,6 +183,11 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
     """,
     nativeQuery = true)
+    /**
+     * Find product stocks with filtering and sorting.
+     * Pagination and sorting are handled by Spring Data Pageable (no hardcoded ORDER BY).
+     * Supports sorting by: date_in, created_at, updated_at, quantity_on_hand, etc.
+     */
     Page<ProductStock> findWithFilters(
         @Param("businessId") UUID businessId,
         @Param("productId") UUID productId,

@@ -70,7 +70,16 @@ public class ProductStockServiceImpl implements ProductStockService {
         int pageNo = (request.getPageNo() == null || request.getPageNo() <= 0) ? 0 : request.getPageNo() - 1;
         int pageSize = (request.getPageSize() == null) ? 15 : request.getPageSize();
         PaginationUtils.validatePagination(pageNo, pageSize);
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        // Build Pageable with dynamic sorting
+        // Convert camelCase sortBy to snake_case for native SQL queries
+        String sortBy = (request.getSortBy() != null && !request.getSortBy().isBlank())
+                ? camelCaseToSnakeCase(request.getSortBy()) : "date_in";
+        String sortDirection = (request.getSortDirection() != null && !request.getSortDirection().isBlank())
+                ? request.getSortDirection().toUpperCase() : "DESC";
+
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(direction, sortBy));
 
         String status = request.getStatus() != null ? request.getStatus().name() : null;
         String stockStatus = request.getStockStatus() != null ? request.getStockStatus().name() : null;
@@ -118,10 +127,10 @@ public class ProductStockServiceImpl implements ProductStockService {
         String search = (request.getSearch() != null && !request.getSearch().isBlank())
                 ? request.getSearch() : null;
 
-        // Build Pageable with sorting
-        // Note: For native SQL queries, use snake_case field names that match the SQL column aliases
+        // Build Pageable with dynamic sorting
+        // Convert camelCase sortBy to snake_case for native SQL queries
         String sortBy = (request.getSortBy() != null && !request.getSortBy().isBlank())
-                ? request.getSortBy() : "created_at";
+                ? camelCaseToSnakeCase(request.getSortBy()) : "created_at";
         String sortDirection = (request.getSortDirection() != null && !request.getSortDirection().isBlank())
                 ? request.getSortDirection().toUpperCase() : "DESC";
 
@@ -202,6 +211,10 @@ public class ProductStockServiceImpl implements ProductStockService {
     private LocalDateTime toStartOfDay(LocalDateTime dateTime) {
         if (dateTime == null) return null;
         return dateTime.toLocalDate().atStartOfDay();
+    }
+
+    private String camelCaseToSnakeCase(String camelCase) {
+        return camelCase.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
     }
 
     private void enrichWithProductInfo(ProductStockDto dto, ProductStock stock) {
