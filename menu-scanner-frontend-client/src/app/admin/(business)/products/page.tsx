@@ -31,7 +31,7 @@ import { productTableColumns } from "@/redux/features/business/table/product-tab
 import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { PRODUCT_STATUS_FILTER, PRODUCT_PROMOTION_FILTER } from "@/constants/status/filter-status";
+import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
@@ -68,7 +68,7 @@ export default function ProductPage() {
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
     null,
   );
-  const [promotionFilter, setPromotionFilter] = useState("ALL");
+  const [sizeFilter, setSizeFilter] = useState("ALL");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
 
@@ -98,14 +98,14 @@ export default function ProductPage() {
   });
 
   useEffect(() => {
-    // Determine hasPromotion filter value
-    let hasPromotion: boolean | undefined;
-    if (promotionFilter === "HAS_PROMOTION") {
-      hasPromotion = true;
-    } else if (promotionFilter === "NO_PROMOTION") {
-      hasPromotion = false;
+    // Determine hasSize filter value
+    let hasSize: boolean | undefined;
+    if (sizeFilter === "true") {
+      hasSize = true;
+    } else if (sizeFilter === "false") {
+      hasSize = false;
     }
-    // if ALL, hasPromotion remains undefined (no filter)
+    // if ALL, hasSize remains undefined (no filter)
 
     dispatch(
       fetchAllProductAdminService({
@@ -116,7 +116,7 @@ export default function ProductPage() {
           filters.status == ProductStatus.ALL ? undefined : filters.status,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
-        hasPromotion,
+        hasSize,
       }),
     );
   }, [
@@ -127,7 +127,7 @@ export default function ProductPage() {
     globalPageSize,
     selectedBrand,
     selectedCategories,
-    promotionFilter,
+    sizeFilter,
   ]);
 
   // Event handlers
@@ -301,8 +301,8 @@ export default function ProductPage() {
     dispatch(selectProductStatus(status));
   };
 
-  const handlePromotionFilterChange = (value: string) => {
-    setPromotionFilter(value);
+  const handleSizeFilterChange = (value: string) => {
+    setSizeFilter(value);
   };
 
   const handleBrandChange = (brand: BrandResponseModel | null) => {
@@ -353,11 +353,11 @@ export default function ProductPage() {
           />
 
           <CustomSelect
-            options={PRODUCT_PROMOTION_FILTER}
-            value={promotionFilter}
+            options={PRODUCT_SIZE_FILTER}
+            value={sizeFilter}
             placeholder="All Products"
-            onValueChange={handlePromotionFilterChange}
-            label="Promotion Status"
+            onValueChange={handleSizeFilterChange}
+            label="Product Size"
           />
         </CardHeaderSection>
 
