@@ -15,7 +15,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
@@ -408,58 +414,6 @@ export function SizeStockManagementModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Size Selection Tabs */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Select Size Variant</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs value={selectedSize?.id || ""} onValueChange={(id) => {
-                  const size = product.sizes?.find((s) => s.id === id);
-                  if (size) setSelectedSize(size);
-                }}>
-                  <TabsList className="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full h-auto p-2">
-                    {product.sizes?.map((size) => (
-                      <TabsTrigger
-                        key={size.id}
-                        value={size.id}
-                        className="flex flex-col items-center gap-1 py-2"
-                      >
-                        <span className="font-medium">{size.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          ${size.finalPrice}
-                        </span>
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-
-                  {product.sizes?.map((size) => (
-                    <TabsContent key={size.id} value={size.id} className="mt-4 space-y-2">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-muted/50 rounded-lg text-sm">
-                        <div>
-                          <p className="text-muted-foreground text-xs">Price</p>
-                          <p className="font-semibold">${size.price}</p>
-                        </div>
-                        {size.hasPromotion && (
-                          <div>
-                            <p className="text-muted-foreground text-xs">Final Price</p>
-                            <p className="font-semibold text-green-600">${size.finalPrice}</p>
-                          </div>
-                        )}
-                        <div>
-                          <p className="text-muted-foreground text-xs">Total Stock</p>
-                          <p className="font-semibold">{size.totalStock} Items</p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground text-xs">Available</p>
-                          <p className="font-semibold">{size.quantityAvailable || 0} Items</p>
-                        </div>
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </CardContent>
-            </Card>
 
             {/* Add/Update Stock Form */}
             {selectedSize && (
@@ -472,6 +426,36 @@ export function SizeStockManagementModal({
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-6">
+                    {/* Size Selector */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">
+                        Select Size <span className="text-red-500">*</span>
+                      </Label>
+                      <Select
+                        value={selectedSize?.id}
+                        onValueChange={(id) => {
+                          const size = product.sizes?.find((s) => s.id === id);
+                          if (size) setSelectedSize(size);
+                        }}
+                      >
+                        <SelectTrigger className="h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {product.sizes?.map((size) => (
+                            <SelectItem key={size.id} value={size.id}>
+                              <div className="flex items-center gap-2">
+                                <span>{size.name}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  ${size.finalPrice}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Quantity On Hand */}
                       <div className="space-y-2">
