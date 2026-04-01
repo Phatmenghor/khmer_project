@@ -43,11 +43,11 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const essentialFilters = config.filters.filter((f) =>
-    essentialFilterIds.includes(f.id)
+    essentialFilterIds.includes(f.id),
   );
 
   const advancedFilters = config.filters.filter(
-    (f) => !essentialFilterIds.includes(f.id)
+    (f) => !essentialFilterIds.includes(f.id),
   );
 
   const activeFiltersCount = config.filters.filter((f) => {
@@ -174,18 +174,20 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
         }
       >
         {/* Essential Filters - Grid layout to keep label + input together */}
-        <div className="grid gap-3 w-full auto-cols-fr"
+        <div
+          className="grid gap-3 w-full auto-cols-fr"
           style={{
-            gridAutoFlow: 'column',
-            gridAutoColumns: 'minmax(140px, 1fr)',
-          }}>
+            gridAutoFlow: "column",
+            gridAutoColumns: "minmax(140px, 1fr)",
+          }}
+        >
           {essentialFilters.map((filter) => renderFilter(filter))}
         </div>
       </CardHeaderSection>
 
       {/* Advanced Filters Section */}
       {advancedFilters.length > 0 && (
-        <div className="bg-gray-900/50 rounded-lg border border-gray-700/15 p-3">
+        <div className="bg-gray-900/50 rounded-lg border border-gray-200/15 p-3">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="flex items-center justify-between w-full hover:text-pink-400 transition-colors"
@@ -207,12 +209,14 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
           {/* Advanced Filters Content - Grid layout to keep label + input together */}
           {showAdvanced && (
-            <div className="mt-3 pt-3 border-t border-gray-700/15">
-              <div className="grid gap-3 w-full"
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div
+                className="grid gap-3 w-full"
                 style={{
-                  gridAutoFlow: 'column',
-                  gridAutoColumns: 'minmax(140px, 1fr)',
-                }}>
+                  gridAutoFlow: "column",
+                  gridAutoColumns: "minmax(140px, 1fr)",
+                }}
+              >
                 {advancedFilters.map((filter) => renderFilter(filter))}
               </div>
             </div>
