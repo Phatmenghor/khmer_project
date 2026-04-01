@@ -289,20 +289,8 @@ export function ProductDetailModal({
                               label="Total Stock"
                               value={size.totalStock ? size.totalStock.toString() : "0"}
                             />
-                            <DisplayField
-                              label="Quantity Available"
-                              value={size.quantityAvailable ? size.quantityAvailable.toString() : "0"}
-                            />
-                            <DisplayField
-                              label="Quantity Reserved"
-                              value={size.quantityReserved ? size.quantityReserved.toString() : "0"}
-                            />
                             {size.hasPromotion && (
                               <>
-                                <DisplayField
-                                  label="Promotion Type"
-                                  value={size.promotionType || "---"}
-                                />
                                 <DisplayField
                                   label="Promotion Value"
                                   value={
@@ -312,7 +300,13 @@ export function ProductDetailModal({
                                   }
                                 />
                                 <DisplayField
-                                  label="Valid Until"
+                                  label="Promotion From"
+                                  value={dateTimeFormat(
+                                    size.promotionFromDate ?? "",
+                                  )}
+                                />
+                                <DisplayField
+                                  label="Promotion To"
                                   value={dateTimeFormat(
                                     size.promotionToDate ?? "",
                                   )}
