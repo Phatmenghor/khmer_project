@@ -315,9 +315,27 @@ export function StockManagementModal({
       ),
     },
     {
+      key: "quantityAvailable",
+      label: "Available",
+      render: (stock) => (
+        <span className="text-sm font-medium text-green-600">
+          {stock.quantityAvailable || 0} Items
+        </span>
+      ),
+    },
+    {
       key: "priceIn",
       label: "Unit Price",
       render: (stock) => <span className="text-sm">${stock.priceIn.toFixed(2)}</span>,
+    },
+    {
+      key: "inventoryValue",
+      label: "Inventory Value",
+      render: (stock) => (
+        <span className="text-sm font-semibold text-blue-600">
+          ${stock.inventoryValue || 0}
+        </span>
+      ),
     },
     {
       key: "expiryDate",
@@ -520,32 +538,7 @@ export function StockManagementModal({
 
                   {/* Preview Section */}
                   {product && (
-                    <div className="border-t pt-6 space-y-4">
-                      {/* Stock Information */}
-                      <div>
-                        <h3 className="text-sm font-semibold mb-3">Current Stock Information</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-muted/50 rounded-lg text-sm">
-                          <div>
-                            <p className="text-muted-foreground text-xs">Total Stock</p>
-                            <p className="font-semibold">{product.totalStock} Items</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground text-xs">Available</p>
-                            <p className="font-semibold text-green-600">{product.quantityAvailable || 0} Items</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground text-xs">Reserved</p>
-                            <p className="font-semibold text-orange-600">{product.quantityReserved || 0} Items</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground text-xs">Inventory Value</p>
-                            <p className="font-semibold text-blue-600">${(product.totalStock * (product.price as unknown as number)).toFixed(2)}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Sales Preview */}
-                      <div>
+                    <div className="border-t pt-6">
                         <h3 className="text-sm font-semibold mb-3">Sales Preview</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Selling Price */}
