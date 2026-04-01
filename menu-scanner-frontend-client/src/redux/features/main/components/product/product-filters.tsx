@@ -73,7 +73,7 @@ export function ProductFilters({
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const [hasSize, setHasSize] = useState<string>("");
+  const [hasPromotion, setHasPromotion] = useState<boolean>(false);
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
 
@@ -90,9 +90,8 @@ export function ProductFilters({
     setSelectedCategory(searchParams.get("categoryId") || "");
     setSelectedBrand(searchParams.get("brandId") || "");
     setSelectedStatuses(
-      searchParams.get("statuses")?.split(",").filter(Boolean) || []
+      searchParams.get("status")?.split(",").filter(Boolean) || []
     );
-    setHasSize(searchParams.get("hasSize") || "");
     setMinPrice(searchParams.get("minPrice") || "");
     setMaxPrice(searchParams.get("maxPrice") || "");
   }, [searchParams]);
@@ -117,13 +116,13 @@ export function ProductFilters({
 
   const toggleStatus = useCallback(
     (status: string) => {
-      const current = searchParams.get("statuses")?.split(",").filter(Boolean) || [];
+      const current = searchParams.get("status")?.split(",").filter(Boolean) || [];
       const next = current.includes(status)
         ? current.filter((s) => s !== status)
         : [...current, status];
       const params = new URLSearchParams(searchParams.toString());
-      if (next.length > 0) params.set("statuses", next.join(","));
-      else params.delete("statuses");
+      if (next.length > 0) params.set("status", next.join(","));
+      else params.delete("status");
       pushParams(params);
     },
     [searchParams, pushParams]
@@ -164,7 +163,7 @@ export function ProductFilters({
     (selectedCategory ? 1 : 0) +
     (selectedBrand ? 1 : 0) +
     selectedStatuses.length +
-    (hasSize ? 1 : 0) +
+    (!lockedPromotion && hasPromotion ? 1 : 0) +
     (hasPriceFilter ? 1 : 0);
 
   const FilterContent = () => (
@@ -206,14 +205,14 @@ export function ProductFilters({
               <X className="h-3 w-3 ml-0.5" />
             </Badge>
           ))}
-          {hasSize && (
+          {!lockedPromotion && hasPromotion && (
             <Badge
               variant="secondary"
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={() => updateFilter("hasSize", "")}
+              onClick={() => updateFilter("hasPromotion", "")}
             >
-              <Package className="h-3 w-3" />
-              {hasSize === "true" ? "Has Sizes" : "No Sizes"}
+              <Flame className="h-3 w-3" />
+              Promotion
               <X className="h-3 w-3 ml-0.5" />
             </Badge>
           )}
@@ -237,49 +236,42 @@ export function ProductFilters({
 
       {activeFiltersCount > 0 && <Separator />}
 
-      {/* Size - Multi-select */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500/10">
-            <Package className="h-3.5 w-3.5 text-indigo-600" />
+      {/* Promotion - top, hidden when locked */}
+      {!lockedPromotion && (
+        <>
+          <div
+            className={cn(
+              "flex items-center justify-between rounded-lg px-3 py-3 border transition-colors cursor-pointer",
+              hasPromotion
+                ? "border-orange-400/60 bg-orange-500/5"
+                : "border-border/60 hover:border-border"
+            )}
+            onClick={() => updateFilter("hasPromotion", hasPromotion ? "" : "true")}
+          >
+            <div className="flex items-center gap-2.5">
+              <div className={cn(
+                "flex items-center justify-center w-7 h-7 rounded-lg transition-colors",
+                hasPromotion ? "bg-orange-500/20" : "bg-orange-500/10"
+              )}>
+                <Flame className={cn("h-3.5 w-3.5", hasPromotion ? "text-orange-500" : "text-orange-400")} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold leading-none">On Sale Only</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Show promotional items</p>
+              </div>
+            </div>
+            <Switch
+              checked={hasPromotion}
+              onCheckedChange={(checked) =>
+                updateFilter("hasPromotion", checked ? "true" : "")
+              }
+              onClick={(e) => e.stopPropagation()}
+              className="data-[state=checked]:bg-orange-500"
+            />
           </div>
-          <label className="text-sm font-semibold">Product Size</label>
-        </div>
-        <div className="space-y-2.5">
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <Checkbox
-              id="size-all"
-              checked={!hasSize}
-              onCheckedChange={() => updateFilter("hasSize", "")}
-            />
-            <span className="text-sm group-hover:text-primary transition-colors select-none">
-              All Products
-            </span>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <Checkbox
-              id="size-has"
-              checked={hasSize === "true"}
-              onCheckedChange={() => updateFilter("hasSize", hasSize === "true" ? "" : "true")}
-            />
-            <span className="text-sm group-hover:text-primary transition-colors select-none">
-              Has Sizes
-            </span>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <Checkbox
-              id="size-no"
-              checked={hasSize === "false"}
-              onCheckedChange={() => updateFilter("hasSize", hasSize === "false" ? "" : "false")}
-            />
-            <span className="text-sm group-hover:text-primary transition-colors select-none">
-              No Sizes
-            </span>
-          </label>
-        </div>
-      </div>
-
-      <Separator />
+          <Separator />
+        </>
+      )}
 
       {/* Category - Combobox */}
       <div className="space-y-3">

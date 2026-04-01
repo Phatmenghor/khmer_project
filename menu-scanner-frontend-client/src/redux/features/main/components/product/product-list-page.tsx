@@ -61,9 +61,8 @@ export function ProductListPage({
   const search = lockedPromotion ? null : searchParams.get("q");
   const categoryId = searchParams.get("categoryId");
   const brandId = searchParams.get("brandId");
-  const statusParam = searchParams.get("statuses");
+  const statusParam = searchParams.get("status");
   const statuses = statusParam?.split(",").filter(Boolean) ?? [];
-  const hasSize = searchParams.get("hasSize");
   const sortBy = searchParams.get("sortBy");
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
