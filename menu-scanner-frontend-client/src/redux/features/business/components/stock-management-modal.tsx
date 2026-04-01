@@ -611,10 +611,35 @@ export function StockManagementModal({
           updateMessage="Updating stock..."
           noChangesMessage={editingStock ? "All changes saved" : "Fill in the form to create stock"}
         >
+          {editingStock && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setEditingStock(null);
+                form.reset({
+                  quantityOnHand: undefined,
+                  priceIn: "",
+                  expiryDate: "",
+                  location: "",
+                });
+              }}
+              disabled={isCreating}
+              className="text-blue-600 hover:bg-blue-50"
+            >
+              Add New Stock
+            </Button>
+          )}
           <CancelButton
             onClick={() => {
               setEditingStock(null);
-              form.reset();
+              form.reset({
+                quantityOnHand: undefined,
+                priceIn: "",
+                expiryDate: "",
+                location: "",
+              });
             }}
             disabled={isCreating}
             text={editingStock ? "Cancel" : "Close"}
