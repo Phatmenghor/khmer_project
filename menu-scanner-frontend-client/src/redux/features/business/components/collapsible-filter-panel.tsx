@@ -185,7 +185,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
       {/* Advanced Filters Section */}
       {advancedFilters.length > 0 && (
-        <div className="bg-gray-900/50 rounded-lg border border-gray-800 p-3">
+        <div className="bg-gray-900/50 rounded-lg border border-gray-700/30 p-3">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="flex items-center justify-between w-full hover:text-pink-400 transition-colors"
@@ -207,7 +207,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
           {/* Advanced Filters Content - Grid layout to keep label + input together */}
           {showAdvanced && (
-            <div className="mt-3 pt-3 border-t border-gray-800">
+            <div className="mt-3 pt-3 border-t border-gray-700/30">
               <div className="grid gap-3 w-full"
                 style={{
                   gridAutoFlow: 'column',
