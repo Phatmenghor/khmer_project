@@ -6,9 +6,16 @@ export interface ProductStockDto {
   productSizeId?: string;
   productSizeName?: string;
   quantityOnHand: number;
+  quantityReserved?: number;
+  quantityAvailable?: number;
   priceIn: number;
+  dateIn?: string;
   expiryDate?: string;
   location?: string;
+  status?: string;
+  isExpired?: boolean;
+  isOutOfStock?: boolean;
+  inventoryValue?: number;
   createdAt: string;
   updatedAt: string;
 }

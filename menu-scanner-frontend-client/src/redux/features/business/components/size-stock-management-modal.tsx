@@ -40,6 +40,7 @@ import {
   clearSuccess,
 } from "../store/slice/stock-management-slice";
 import { ProductDetailResponseModel, ProductSize } from "../store/models/response/product-response";
+import { ProductStockDto } from "../store/models/response/stock-response";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 
 interface SizeStockFormData {
@@ -105,6 +106,99 @@ function formatExpiryDate(timestamp: string | null | undefined): string {
   }
 }
 
+/**
+ * Factory function to create stock history columns with handlers
+ */
+function createStockHistoryColumns(
+  handleEditStock: (stock: ProductStockDto) => void,
+  handleDeleteStock: (stock: ProductStockDto) => void,
+  isDeleting: boolean
+): TableColumn<ProductStockDto>[] {
+  return [
+    {
+      key: "quantityOnHand",
+      label: "Quantity",
+      render: (stock: ProductStockDto) => (
+        <Badge variant="secondary" className="text-sm">
+          {stock.quantityOnHand} Items
+        </Badge>
+      ),
+    },
+    {
+      key: "quantityAvailable",
+      label: "Available",
+      render: (stock: ProductStockDto) => (
+        <span className="text-sm font-medium text-green-600">
+          {stock.quantityAvailable || 0} Items
+        </span>
+      ),
+    },
+    {
+      key: "priceIn",
+      label: "Unit Price",
+      render: (stock: ProductStockDto) => <span className="text-sm">${stock.priceIn.toFixed(2)}</span>,
+    },
+    {
+      key: "inventoryValue",
+      label: "Inventory Value",
+      render: (stock: ProductStockDto) => (
+        <span className="text-sm font-semibold text-blue-600">
+          ${stock.inventoryValue || 0}
+        </span>
+      ),
+    },
+    {
+      key: "expiryDate",
+      label: "Expiry Date",
+      render: (stock: ProductStockDto) =>
+        stock.expiryDate ? (
+          (() => {
+            const { variant, color } = getExpiryDateVariant(stock.expiryDate);
+            return (
+              <Badge variant={variant} className={`text-xs ${color} font-medium`}>
+                {formatExpiryDate(stock.expiryDate)}
+              </Badge>
+            );
+          })()
+        ) : (
+          <span className="text-muted-foreground">---</span>
+        ),
+    },
+    {
+      key: "location",
+      label: "Location",
+      render: (stock: ProductStockDto) => (
+        <span className="text-sm text-muted-foreground">{stock.location || "---"}</span>
+      ),
+    },
+    {
+      key: "createdAt",
+      label: "Created Date",
+      render: (stock: ProductStockDto) => <span className="text-xs text-muted-foreground">{dateTimeFormat(stock.createdAt)}</span>,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (stock: ProductStockDto) => (
+        <div className="flex gap-1">
+          <ActionButton
+            icon={<Edit className="w-4 h-4" />}
+            tooltip="Update Stock"
+            onClick={() => handleEditStock(stock)}
+          />
+          <ActionButton
+            icon={<Trash2 className="w-4 h-4" />}
+            tooltip="Delete Stock"
+            onClick={() => handleDeleteStock(stock)}
+            disabled={isDeleting}
+            variant="destructive"
+          />
+        </div>
+      ),
+    },
+  ];
+}
+
 export function SizeStockManagementModal({
   isOpen,
   onClose,
@@ -116,10 +210,10 @@ export function SizeStockManagementModal({
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [historyPageNo, setHistoryPageNo] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);
-  const [editingStock, setEditingStock] = useState<any>(null);
+  const [editingStock, setEditingStock] = useState<ProductStockDto | null>(null);
   const [deleteState, setDeleteState] = useState({
     isOpen: false,
-    stock: null as any,
+    stock: null as ProductStockDto | null,
   });
   const formSectionRef = useRef<HTMLDivElement>(null);
 
@@ -230,7 +324,7 @@ export function SizeStockManagementModal({
     );
   };
 
-  const handleDeleteStock = (stock: any) => {
+  const handleDeleteStock = (stock: ProductStockDto) => {
     setDeleteState({
       isOpen: true,
       stock,
@@ -251,7 +345,7 @@ export function SizeStockManagementModal({
     }
   };
 
-  const handleEditStock = (stock: any) => {
+  const handleEditStock = (stock: ProductStockDto) => {
     setEditingStock(stock);
     form.reset({
       quantityOnHand: stock.quantityOnHand,
@@ -301,89 +395,11 @@ export function SizeStockManagementModal({
     );
   };
 
-  const stockHistoryColumns: TableColumn[] = [
-    {
-      key: "quantityOnHand",
-      label: "Quantity",
-      render: (stock) => (
-        <Badge variant="secondary" className="text-sm">
-          {stock.quantityOnHand} Items
-        </Badge>
-      ),
-    },
-    {
-      key: "quantityAvailable",
-      label: "Available",
-      render: (stock) => (
-        <span className="text-sm font-medium text-green-600">
-          {stock.quantityAvailable || 0} Items
-        </span>
-      ),
-    },
-    {
-      key: "priceIn",
-      label: "Unit Price",
-      render: (stock) => <span className="text-sm">${stock.priceIn.toFixed(2)}</span>,
-    },
-    {
-      key: "inventoryValue",
-      label: "Inventory Value",
-      render: (stock) => (
-        <span className="text-sm font-semibold text-blue-600">
-          ${stock.inventoryValue || 0}
-        </span>
-      ),
-    },
-    {
-      key: "expiryDate",
-      label: "Expiry Date",
-      render: (stock) =>
-        stock.expiryDate ? (
-          (() => {
-            const { variant, color } = getExpiryDateVariant(stock.expiryDate);
-            return (
-              <Badge variant={variant} className={`text-xs ${color} font-medium`}>
-                {formatExpiryDate(stock.expiryDate)}
-              </Badge>
-            );
-          })()
-        ) : (
-          <span className="text-muted-foreground">---</span>
-        ),
-    },
-    {
-      key: "location",
-      label: "Location",
-      render: (stock) => (
-        <span className="text-sm text-muted-foreground">{stock.location || "---"}</span>
-      ),
-    },
-    {
-      key: "createdAt",
-      label: "Created Date",
-      render: (stock) => <span className="text-xs text-muted-foreground">{dateTimeFormat(stock.createdAt)}</span>,
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (stock) => (
-        <div className="flex gap-1">
-          <ActionButton
-            icon={<Edit className="w-4 h-4" />}
-            tooltip="Update Stock"
-            onClick={() => handleEditStock(stock)}
-          />
-          <ActionButton
-            icon={<Trash2 className="w-4 h-4" />}
-            tooltip="Delete Stock"
-            onClick={() => handleDeleteStock(stock)}
-            disabled={isDeleting}
-            variant="destructive"
-          />
-        </div>
-      ),
-    },
-  ];
+  const stockHistoryColumns = createStockHistoryColumns(
+    handleEditStock,
+    handleDeleteStock,
+    isDeleting
+  );
 
   if (!product || !product.sizes || product.sizes.length === 0) return null;
 
