@@ -60,6 +60,8 @@ interface ProductImage {
 export interface ProductSize {
   id: string;
   name: string;
+  barcode: string;
+  sku: string;
   price: number;
   promotionType: string;
   promotionValue: number;
