@@ -58,6 +58,13 @@ export default function ProductPage() {
     dispatch,
   } = useProductState();
 
+  // Reset filters when entering this page (separate from other admin pages)
+  useEffect(() => {
+    dispatch(setPageNo(1));
+    dispatch(setSearchFilter(""));
+    dispatch(selectProductStatus(ProductStatus.ALL));
+  }, []);
+
   // Local UI state for modals only
   const [modalState, setModalState] = useState({
     isOpen: false,
