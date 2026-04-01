@@ -220,4 +220,87 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     );
 
     Long countByBusinessIdAndIsExpiredTrue(UUID businessId);
+
+    // ========== Product Stock Items (Flat List) Query ==========
+    /**
+     * Get flattened product stock items for listing (products and sizes as separate items).
+     * Returns a flat list where:
+     * - Products without sizes: 1 item per product (type=PRODUCT, sizeName=null)
+     * - Products with sizes: 1 item per size (type=SIZE, sizeName=size name)
+     * Each item contains aggregated stock data (summed from all batches of that product/size).
+     */
+    @Query(value = """
+        (
+            -- Products without sizes
+            SELECT
+                p.id as product_id,
+                NULL::uuid as product_size_id,
+                p.name as product_name,
+                p.category_name,
+                p.brand_name,
+                p.sku,
+                p.barcode,
+                NULL::varchar as size_name,
+                COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
+                p.status,
+                p.stock_status,
+                'PRODUCT'::varchar as item_type,
+                COALESCE(MAX(ps.created_at), p.created_at) as created_at,
+                COALESCE(MAX(ps.updated_at), p.updated_at) as updated_at
+            FROM products p
+            LEFT JOIN product_stock ps ON p.id = ps.product_id
+                AND ps.is_expired = false
+                AND ps.status = 'ACTIVE'
+            WHERE p.business_id = :businessId
+                AND p.is_deleted = false
+                AND p.has_sizes = false
+                AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+            GROUP BY p.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, p.status, p.stock_status, p.created_at, p.updated_at
+            HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+        )
+        UNION ALL
+        (
+            -- Products with sizes
+            SELECT
+                p.id as product_id,
+                psz.id as product_size_id,
+                p.name as product_name,
+                p.category_name,
+                p.brand_name,
+                p.sku,
+                p.barcode,
+                psz.name as size_name,
+                COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
+                p.status,
+                p.stock_status,
+                'SIZE'::varchar as item_type,
+                COALESCE(MAX(ps.created_at), psz.created_at) as created_at,
+                COALESCE(MAX(ps.updated_at), psz.updated_at) as updated_at
+            FROM products p
+            INNER JOIN product_sizes psz ON p.id = psz.product_id AND psz.is_deleted = false
+            LEFT JOIN product_stock ps ON p.id = ps.product_id
+                AND psz.id = ps.product_size_id
+                AND ps.is_expired = false
+                AND ps.status = 'ACTIVE'
+            WHERE p.business_id = :businessId
+                AND p.is_deleted = false
+                AND p.has_sizes = true
+                AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+            GROUP BY p.id, psz.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, psz.name, p.status, p.stock_status, psz.created_at, psz.updated_at
+            HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+        )
+        ORDER BY created_at DESC, product_name ASC
+    """,
+    nativeQuery = true)
+    List<Object[]> findProductStockItems(
+        @Param("businessId") UUID businessId,
+        @Param("search") String search,
+        @Param("status") String status,
+        @Param("stockStatus") String stockStatus,
+        @Param("lowStockThreshold") Integer lowStockThreshold
+    );
 }
