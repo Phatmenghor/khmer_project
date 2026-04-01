@@ -1,5 +1,5 @@
 import { indexDisplay } from "@/utils/common/common";
-import { Edit, Eye, Trash, Plus } from "lucide-react";
+import { Edit, Eye, Plus } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { Switch } from "@/components/ui/switch";
@@ -17,7 +17,6 @@ import {
 interface StockTableHandlers {
   handleViewProduct: (product: ProductDetailResponseModel) => void;
   handleCreateStock?: (product: ProductDetailResponseModel) => void;
-  handleDeleteStock?: (product: ProductDetailResponseModel) => void;
   handleToggleStockStatus?: (product: ProductDetailResponseModel) => void;
 }
 
@@ -95,7 +94,7 @@ export const stockTableColumns = ({
   data,
   handlers,
 }: StockTableOptions): TableColumn<ProductDetailResponseModel>[] => {
-  const { handleViewProduct, handleCreateStock, handleDeleteStock, handleToggleStockStatus } = handlers;
+  const { handleViewProduct, handleCreateStock, handleToggleStockStatus } = handlers;
 
   return [
     {
@@ -247,12 +246,6 @@ export const stockTableColumns = ({
             tooltip="Create Stock"
             onClick={() => handleCreateStock?.(product)}
             variant="secondary"
-          />
-          <ActionButton
-            icon={<Trash className="w-4 h-4" />}
-            tooltip="Delete"
-            onClick={() => handleDeleteStock?.(product)}
-            variant="destructive"
           />
         </div>
       ),

@@ -5,7 +5,6 @@ import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
-import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
@@ -62,11 +61,6 @@ export default function ProductStockPage() {
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     productId: "",
-  });
-
-  const [deleteState, setDeleteState] = useState({
-    isOpen: false,
-    product: null as ProductDetailResponseModel | null,
   });
 
   const [stockManagementState, setStockManagementState] = useState({
@@ -178,13 +172,6 @@ export default function ProductStockPage() {
     });
   };
 
-  const handleDeleteStock = (product: ProductDetailResponseModel) => {
-    setDeleteState({
-      isOpen: true,
-      product: product,
-    });
-  };
-
   const handleToggleStockStatus = useCallback(
     (product: ProductDetailResponseModel) => {
       if (!product.id) return;
@@ -225,7 +212,6 @@ export default function ProductStockPage() {
     () => ({
       handleViewProduct: handleProductViewDetail,
       handleCreateStock: handleCreateStock,
-      handleDeleteStock,
       handleToggleStockStatus,
     }),
     [handleCreateStock, handleToggleStockStatus],
@@ -254,38 +240,10 @@ export default function ProductStockPage() {
     dispatch(setPageNo(1));
   };
 
-  const handleDelete = async () => {
-    if (!deleteState.product?.id) return;
-
-    try {
-      // TODO: Implement stock deletion API call
-      showToast.success(
-        `Stock for "${deleteState.product.name ?? ""}" deleted successfully`,
-      );
-      closeDeleteModal();
-
-      // Navigate to previous page if this was the last item
-      if (stockContent.length === 1 && pagination.currentPage > 1) {
-        const newPage = pagination.currentPage - 1;
-        dispatch(setPageNo(newPage));
-        updateUrlWithPage(newPage);
-      }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete stock");
-    }
-  };
-
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
       productId: "",
-    });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteState({
-      isOpen: false,
-      product: null,
     });
   };
 
@@ -381,19 +339,6 @@ export default function ProductStockPage() {
         productId={detailModalState.productId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
-      />
-
-      {/* Modals Delete Stock */}
-      <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
-        onDelete={handleDelete}
-        title="Delete Stock"
-        description={`Are you sure you want to delete stock for this product ${
-          deleteState.product?.name || ""
-        }?`}
-        itemName={deleteState.product?.name || ""}
-        isSubmitting={operations.isDeleting}
       />
 
       {/* Stock Management Modal */}
