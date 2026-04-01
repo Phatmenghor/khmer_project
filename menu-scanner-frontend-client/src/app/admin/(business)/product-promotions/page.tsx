@@ -33,7 +33,7 @@ import { useRouter } from "next/navigation";
 import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
+import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
@@ -73,6 +73,7 @@ export default function ProductPromotionPage() {
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
     null,
   );
+  const [sizeFilter, setSizeFilter] = useState("ALL");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
 
@@ -113,16 +114,26 @@ export default function ProductPromotionPage() {
   });
 
   useEffect(() => {
+    // Determine hasSize filter value
+    let hasSize: boolean | undefined;
+    if (sizeFilter === "true") {
+      hasSize = true;
+    } else if (sizeFilter === "false") {
+      hasSize = false;
+    }
+    // if ALL, hasSize remains undefined (no filter)
+
     dispatch(
       fetchAllProductAdminService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
         hasPromotion: true,
-        status:
-          filters.status == ProductStatus.ALL ? undefined : filters.status,
+        statuses:
+          filters.status == ProductStatus.ALL ? undefined : [filters.status],
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
+        hasSize,
       }),
     );
   }, [
@@ -133,6 +144,7 @@ export default function ProductPromotionPage() {
     globalPageSize,
     selectedBrand,
     selectedCategories,
+    sizeFilter,
   ]);
 
   // Event handlers
@@ -334,6 +346,10 @@ export default function ProductPromotionPage() {
     setSelectedCategories(categories);
   };
 
+  const handleSizeFilterChange = (value: string) => {
+    setSizeFilter(value);
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
@@ -369,6 +385,14 @@ export default function ProductPromotionPage() {
               handleProductStatusChange(value as ProductStatus)
             }
             label="Product Status"
+          />
+
+          <CustomSelect
+            options={PRODUCT_SIZE_FILTER}
+            value={sizeFilter}
+            placeholder="All Products"
+            onValueChange={handleSizeFilterChange}
+            label="Product Size"
           />
         </CardHeaderSection>
 
