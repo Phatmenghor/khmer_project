@@ -21,7 +21,7 @@ import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { Package, Trash2, Edit } from "lucide-react";
+import { Package, Trash2, Edit, RotateCcw } from "lucide-react";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import {
   createProductStockService,
@@ -603,57 +603,81 @@ export function StockManagementModal({
         </div>
 
         {/* Form Footer with Action Buttons */}
-        <FormFooter
-          isSubmitting={isCreating}
-          isDirty={form.formState.isDirty}
-          isCreate={!editingStock}
-          createMessage="Creating stock..."
-          updateMessage="Updating stock..."
-          noChangesMessage={editingStock ? "All changes saved" : "Fill in the form to create stock"}
-        >
-          {editingStock && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setEditingStock(null);
-                form.reset({
-                  quantityOnHand: undefined,
-                  priceIn: "",
-                  expiryDate: "",
-                  location: "",
-                });
-              }}
-              disabled={isCreating}
-              className="text-blue-600 hover:bg-blue-50"
-            >
-              Add New Stock
-            </Button>
-          )}
-          <CancelButton
-            onClick={() => {
-              setEditingStock(null);
-              form.reset({
-                quantityOnHand: undefined,
-                priceIn: "",
-                expiryDate: "",
-                location: "",
-              });
-            }}
-            disabled={isCreating}
-            text={editingStock ? "Cancel" : "Close"}
-          />
-          <SubmitButton
-            isSubmitting={isCreating}
-            isDirty={form.formState.isDirty}
-            isCreate={!editingStock}
-            createText="Create Stock"
-            updateText="Update Stock"
-            submittingCreateText="Creating..."
-            submittingUpdateText="Updating..."
-          />
-        </FormFooter>
+        <div className="px-6 py-4 border-t bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0">
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Switch to Add Button */}
+            {editingStock && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setEditingStock(null);
+                  form.reset({
+                    quantityOnHand: undefined,
+                    priceIn: "",
+                    expiryDate: "",
+                    location: "",
+                  });
+                }}
+                disabled={isCreating}
+                className="gap-2 border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-all"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Switch to Add
+              </Button>
+            )}
+            <div className="flex-1" />
+
+            {/* Right: Status Message and Action Buttons */}
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground flex items-center gap-2">
+                {isCreating && (
+                  <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                )}
+                {form.formState.isDirty && !isCreating && (
+                  <div className="h-2 w-2 rounded-full bg-orange-500" />
+                )}
+                <span>
+                  {isCreating
+                    ? editingStock
+                      ? "Updating stock..."
+                      : "Creating stock..."
+                    : form.formState.isDirty
+                    ? "You have unsaved changes"
+                    : editingStock
+                    ? "All changes saved"
+                    : "Fill in the form to create stock"}
+                </span>
+              </div>
+
+              <div className="flex gap-2">
+                <CancelButton
+                  onClick={() => {
+                    setEditingStock(null);
+                    form.reset({
+                      quantityOnHand: undefined,
+                      priceIn: "",
+                      expiryDate: "",
+                      location: "",
+                    });
+                  }}
+                  disabled={isCreating}
+                  text={editingStock ? "Cancel" : "Close"}
+                />
+                <SubmitButton
+                  isSubmitting={isCreating}
+                  isDirty={form.formState.isDirty}
+                  isCreate={!editingStock}
+                  createText="Create Stock"
+                  updateText="Update Stock"
+                  submittingCreateText="Creating..."
+                  submittingUpdateText="Updating..."
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Delete Confirmation Modal */}
         <DeleteConfirmationModal
