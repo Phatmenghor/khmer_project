@@ -17,6 +17,8 @@ import {
   setPageNo,
   setSearchFilter,
   resetState,
+  updateStockStatusOptimistic,
+  revertStockStatusOptimistic,
 } from "@/redux/features/business/store/slice/stock-slice";
 import { stockTableColumns } from "@/redux/features/business/table/stock-table";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
@@ -182,6 +184,15 @@ export default function ProductStockPage() {
       }
 
       const newStatus = product.stockStatus === "ENABLED" ? "DISABLED" : "ENABLED";
+      const previousStatus = product.stockStatus as "ENABLED" | "DISABLED";
+
+      // Optimistic update - update UI immediately for fast feedback
+      dispatch(
+        updateStockStatusOptimistic({
+          productId: product.id,
+          newStatus: newStatus as "ENABLED" | "DISABLED",
+        })
+      );
 
       // Debounce API call by 300ms to prevent rapid clicks
       stockStatusDebounceRefs.current[product.id] = setTimeout(() => {
@@ -198,9 +209,16 @@ export default function ProductStockPage() {
             );
           })
           .catch((error: any) => {
+            // Revert optimistic update if API fails
+            dispatch(
+              revertStockStatusOptimistic({
+                productId: product.id,
+                previousStatus: previousStatus,
+              })
+            );
             showToast.error(
               error?.message ||
-                "Failed to update stock status. Check if the endpoint is correct."
+                "Failed to update stock status. Changes reverted."
             );
           });
       }, 300);

@@ -73,6 +73,26 @@ const stockSlice = createSlice({
     resetState: () => {
       return initialState;
     },
+
+    // Optimistic update for stock status toggle
+    updateStockStatusOptimistic: (state, action: PayloadAction<{ productId: string; newStatus: "ENABLED" | "DISABLED" }>) => {
+      if (state.data?.content) {
+        const product = state.data.content.find((p: any) => p.id === action.payload.productId);
+        if (product) {
+          product.stockStatus = action.payload.newStatus;
+        }
+      }
+    },
+
+    // Revert optimistic update if API fails
+    revertStockStatusOptimistic: (state, action: PayloadAction<{ productId: string; previousStatus: "ENABLED" | "DISABLED" }>) => {
+      if (state.data?.content) {
+        const product = state.data.content.find((p: any) => p.id === action.payload.productId);
+        if (product) {
+          product.stockStatus = action.payload.previousStatus;
+        }
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -120,6 +140,8 @@ export const {
   clearSelectedProduct,
   resetFilters,
   resetState,
+  updateStockStatusOptimistic,
+  revertStockStatusOptimistic,
 } = stockSlice.actions;
 
 export default stockSlice.reducer;
