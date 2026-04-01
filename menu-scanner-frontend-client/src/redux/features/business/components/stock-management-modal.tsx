@@ -556,34 +556,6 @@ export function StockManagementModal({
                       </div>
                     </div>
                   )}
-
-                  {/* Form Footer with Action Buttons */}
-                  <FormFooter
-                    isSubmitting={isCreating}
-                    isDirty={form.formState.isDirty}
-                    isCreate={!editingStock}
-                    createMessage="Creating stock..."
-                    updateMessage="Updating stock..."
-                    noChangesMessage={editingStock ? "All changes saved" : "Fill in the form to create stock"}
-                  >
-                    <CancelButton
-                      onClick={() => {
-                        setEditingStock(null);
-                        form.reset();
-                      }}
-                      disabled={isCreating}
-                      text={editingStock ? "Cancel" : "Close"}
-                    />
-                    <SubmitButton
-                      isSubmitting={isCreating}
-                      isDirty={form.formState.isDirty}
-                      isCreate={!editingStock}
-                      createText="Create Stock"
-                      updateText="Update Stock"
-                      submittingCreateText="Creating..."
-                      submittingUpdateText="Updating..."
-                    />
-                  </FormFooter>
                 </form>
               </CardContent>
             </Card>
@@ -615,6 +587,34 @@ export function StockManagementModal({
             </Card>
           </div>
         </div>
+
+        {/* Form Footer with Action Buttons */}
+        <FormFooter
+          isSubmitting={isCreating}
+          isDirty={form.formState.isDirty}
+          isCreate={!editingStock}
+          createMessage="Creating stock..."
+          updateMessage="Updating stock..."
+          noChangesMessage={editingStock ? "All changes saved" : "Fill in the form to create stock"}
+        >
+          <CancelButton
+            onClick={() => {
+              setEditingStock(null);
+              form.reset();
+            }}
+            disabled={isCreating}
+            text={editingStock ? "Cancel" : "Close"}
+          />
+          <SubmitButton
+            isSubmitting={isCreating}
+            isDirty={form.formState.isDirty}
+            isCreate={!editingStock}
+            createText="Create Stock"
+            updateText="Update Stock"
+            submittingCreateText="Creating..."
+            submittingUpdateText="Updating..."
+          />
+        </FormFooter>
 
         {/* Delete Confirmation Modal */}
         <DeleteConfirmationModal
