@@ -78,21 +78,21 @@ function getExpiryDateVariant(expiryDate: string): {
 }
 
 /**
- * Format expiry date with time (M/D/YYYY, h:mm AM/PM)
+ * Format expiry date with time (DD/MM/YYYY, h:mm AM/PM)
  */
 function formatExpiryDate(timestamp: string | null | undefined): string {
   if (!timestamp) return "---";
 
   try {
     const date = new Date(timestamp);
-    return date.toLocaleDateString("en-US", {
-      month: "numeric",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hour = String(date.getHours() % 12 || 12).padStart(1, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
+    const ampm = date.getHours() >= 12 ? "PM" : "AM";
+
+    return `${day}/${month}/${year}, ${hour}:${minute} ${ampm}`;
   } catch {
     return "---";
   }
