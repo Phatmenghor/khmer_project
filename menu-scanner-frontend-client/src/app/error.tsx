@@ -122,7 +122,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
                 onClick={reset}
                 className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/95 hover:to-primary/70 text-white shadow-xl hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 h-11 lg:h-12 rounded-2xl font-bold text-base lg:text-lg group"
               >
-                <ToggleRight className="h-5 lg:h-6 w-5 lg:w-6 transition-transform group-hover:scale-125" />
+                <ToggleRight className="h-5 lg:h-6 w-5 lg:w-6 text-green-400 transition-transform group-hover:scale-125" />
                 <RefreshCw className="h-5 lg:h-6 w-5 lg:w-6 transition-transform group-hover:rotate-180 duration-500" />
                 Try Again
               </Button>
@@ -130,7 +130,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
                 onClick={() => (window.location.href = "/dashboard")}
                 className="flex-1 flex items-center justify-center gap-3 h-11 lg:h-12 rounded-2xl font-bold text-base lg:text-lg border-2 border-primary/40 hover:border-primary/70 bg-primary/8 hover:bg-primary/15 text-primary hover:text-primary transition-all group"
               >
-                <ToggleRight className="h-5 lg:h-6 w-5 lg:w-6 text-primary transition-transform group-hover:scale-125" />
+                <ToggleRight className="h-5 lg:h-6 w-5 lg:w-6 text-green-600 transition-transform group-hover:scale-125" />
                 <Home className="h-5 lg:h-6 w-5 lg:w-6" />
                 Go to Dashboard
                 <ChevronRight className="h-5 lg:h-6 w-5 lg:w-6 transition-transform group-hover:translate-x-1" />
@@ -139,7 +139,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
                 onClick={() => window.location.href = "mailto:support@menuscanner.com?subject=Application Error"}
                 className="flex-1 flex items-center justify-center gap-3 h-11 lg:h-12 rounded-2xl font-bold text-base lg:text-lg border-2 border-red-500/40 hover:border-red-500/70 bg-red-500/8 hover:bg-red-500/15 text-red-600 hover:text-red-700 transition-all group"
               >
-                <ToggleLeft className="h-5 lg:h-6 w-5 lg:w-6 text-red-600 transition-transform group-hover:scale-125" />
+                <ToggleLeft className="h-5 lg:h-6 w-5 lg:w-6 text-gray-400 transition-transform group-hover:scale-125" />
                 <Mail className="h-5 lg:h-6 w-5 lg:w-6" />
                 Contact Support
               </Button>
@@ -151,7 +151,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
               <div className="bg-gradient-to-br from-primary/15 to-primary/5 border-2 border-primary/30 hover:border-primary/60 rounded-2xl lg:rounded-3xl p-6 lg:p-8 space-y-4 transition-all hover:shadow-lg group">
                 <div className="flex gap-4 items-start">
                   <div className="flex-shrink-0 flex gap-2">
-                    <ToggleRight className="w-6 lg:w-7 h-6 lg:h-7 text-primary group-hover:scale-125 transition-transform" />
+                    <ToggleRight className="w-6 lg:w-7 h-6 lg:h-7 text-green-600 group-hover:scale-125 transition-transform" />
                     <Zap className="w-6 lg:w-7 h-6 lg:h-7 text-primary mt-1 group-hover:scale-110 transition-transform" />
                   </div>
                   <div className="space-y-2 flex-1">
@@ -167,7 +167,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
               <div className="bg-gradient-to-br from-red-500/15 to-red-500/5 border-2 border-red-500/30 hover:border-red-500/60 rounded-2xl lg:rounded-3xl p-6 lg:p-8 space-y-4 transition-all hover:shadow-lg group">
                 <div className="flex gap-4 items-start">
                   <div className="flex-shrink-0 flex gap-2">
-                    <ToggleLeft className="w-6 lg:w-7 h-6 lg:h-7 text-red-600 group-hover:scale-125 transition-transform" />
+                    <ToggleLeft className="w-6 lg:w-7 h-6 lg:h-7 text-gray-400 group-hover:scale-125 transition-transform" />
                     <Mail className="w-6 lg:w-7 h-6 lg:h-7 text-red-600 mt-1 group-hover:scale-110 transition-transform" />
                   </div>
                   <div className="space-y-2 flex-1">
