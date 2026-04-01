@@ -237,6 +237,8 @@ public class ProductStockServiceImpl implements ProductStockService {
 
         return ProductStockItemDto.builder()
                 .id(productSizeId != null ? productSizeId : productId)
+                .productId(productId)
+                .productSizeId(productSizeId)
                 .productName(productName)
                 .categoryName(categoryName)
                 .brandName(brandName)

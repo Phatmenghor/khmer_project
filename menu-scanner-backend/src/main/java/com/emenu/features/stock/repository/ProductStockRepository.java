@@ -160,7 +160,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
 
     @Query(value = """
         SELECT ps.* FROM product_stock ps
-        LEFT JOIN product p ON ps.product_id = p.id
+        LEFT JOIN products p ON ps.product_id = p.id
         WHERE ps.business_id = :businessId
             AND (CAST(:productId AS uuid) IS NULL OR ps.product_id = :productId)
             AND (CAST(:productSizeId AS uuid) IS NULL OR ps.product_size_id = :productSizeId)
@@ -172,7 +172,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     """,
     countQuery = """
         SELECT COUNT(*) FROM product_stock ps
-        LEFT JOIN product p ON ps.product_id = p.id
+        LEFT JOIN products p ON ps.product_id = p.id
         WHERE ps.business_id = :businessId
             AND (CAST(:productId AS uuid) IS NULL OR ps.product_id = :productId)
             AND (CAST(:productSizeId AS uuid) IS NULL OR ps.product_size_id = :productSizeId)

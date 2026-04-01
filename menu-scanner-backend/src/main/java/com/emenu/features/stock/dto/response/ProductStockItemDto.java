@@ -17,6 +17,8 @@ import java.util.UUID;
 public class ProductStockItemDto {
 
     private UUID id;
+    private UUID productId;
+    private UUID productSizeId;
     private String productName;
     private String categoryName;
     private String brandName;
