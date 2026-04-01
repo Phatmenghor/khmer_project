@@ -96,7 +96,10 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
 
       case 'input-number':
         return (
-          <div key={filter.id} className="flex flex-col gap-1">
+          <div
+            key={filter.id}
+            className="flex flex-col gap-1 flex-1 min-w-[140px] max-w-[200px]"
+          >
             <label className="text-xs font-medium whitespace-nowrap">
               {filter.label}
             </label>
@@ -113,7 +116,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
               }}
               min={(filter as any).min || "0"}
               max={(filter as any).max}
-              className="h-10 text-xs min-w-[140px]"
+              className="h-10 text-xs w-full"
               disabled={filter.disabled}
             />
           </div>
@@ -121,7 +124,10 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
 
       case 'input-text':
         return (
-          <div key={filter.id} className="flex flex-col gap-1">
+          <div
+            key={filter.id}
+            className="flex flex-col gap-1 flex-1 min-w-[140px] max-w-[200px]"
+          >
             <label className="text-xs font-medium whitespace-nowrap">
               {filter.label}
             </label>
@@ -130,7 +136,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
               placeholder={filter.placeholder || "Enter text..."}
               value={filter.value?.toString() || ""}
               onChange={(e) => filter.onChange(e.target.value)}
-              className="h-10 text-xs min-w-[140px]"
+              className="h-10 text-xs w-full"
               disabled={filter.disabled}
             />
           </div>
@@ -165,7 +171,16 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
         ) : undefined
       }
     >
-      {config.filters.map((filter) => renderFilter(filter))}
+      {/* Responsive flex wrap layout for all filters */}
+      <div
+        className="flex flex-wrap gap-3 items-stretch w-full
+        [&>*]:max-w-[200px] [&>*]:flex-1 [&>*]:min-w-[140px]
+        [&>div]:flex [&>div]:flex-col [&>div]:gap-1
+        [&_button[role=combobox]]:w-full
+        [&_.w-full]:!w-full"
+      >
+        {config.filters.map((filter) => renderFilter(filter))}
+      </div>
     </CardHeaderSection>
   );
 };
