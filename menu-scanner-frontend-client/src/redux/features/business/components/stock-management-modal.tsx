@@ -21,7 +21,7 @@ import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { Package, Trash2, Edit, Eye } from "lucide-react";
+import { Package, Trash2, Edit } from "lucide-react";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import {
   createProductStockService,
@@ -295,16 +295,6 @@ export function StockManagementModal({
       label: "Actions",
       render: (stock) => (
         <div className="flex gap-1">
-          <ActionButton
-            icon={<Eye className="w-4 h-4" />}
-            tooltip="View Details"
-            onClick={() => {
-              // View details - can show in a side panel or toast
-              showToast.info(
-                `Stock: ${stock.quantityOnHand} items | Price: $${stock.priceIn} | Location: ${stock.location}`
-              );
-            }}
-          />
           <ActionButton
             icon={<Edit className="w-4 h-4" />}
             tooltip="Edit Stock"
