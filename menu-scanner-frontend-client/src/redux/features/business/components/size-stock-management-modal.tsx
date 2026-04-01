@@ -652,7 +652,6 @@ export function SizeStockManagementModal({
                             </div>
                           </div>
                         </div>
-                      </div>
                     )}
                   </form>
                 </CardContent>
