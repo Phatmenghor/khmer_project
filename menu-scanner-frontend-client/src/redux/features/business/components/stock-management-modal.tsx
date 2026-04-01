@@ -27,6 +27,7 @@ import {
   createProductStockService,
   getProductStockHistoryService,
   deleteProductStockService,
+  updateProductStockService,
 } from "../store/thunks/stock-management-thunks";
 import {
   clearError,
@@ -91,7 +92,7 @@ export function StockManagementModal({
   product,
 }: StockManagementModalProps) {
   const dispatch = useAppDispatch();
-  const { history, isLoading, isCreating, isDeleting, error, successMessage } =
+  const { history, isLoading, isCreating, isUpdating, isDeleting, error, successMessage } =
     useSelector((state: any) => state.stockManagement);
   const [historyPageNo, setHistoryPageNo] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);
@@ -111,6 +112,7 @@ export function StockManagementModal({
     if (successMessage) {
       showToast.success(successMessage);
       dispatch(clearSuccess());
+      setEditingStock(null);
       form.reset({
         quantityOnHand: undefined,
         priceIn: "",
@@ -254,10 +256,27 @@ export function StockManagementModal({
       return;
     }
 
-    // TODO: Call updateProductStockService with editingStock.id and data
-    showToast.info("Update feature coming soon");
-    setEditingStock(null);
-    form.reset();
+    // Format expiryDate if provided
+    let formattedExpiryDate: string | undefined;
+    if (data.expiryDate) {
+      if (data.expiryDate.length === 10) {
+        formattedExpiryDate = `${data.expiryDate}T00:00:00`;
+      } else {
+        formattedExpiryDate = data.expiryDate;
+      }
+    }
+
+    dispatch(
+      updateProductStockService({
+        stockId: editingStock.id,
+        request: {
+          quantityOnHand: quantity,
+          priceIn: price,
+          expiryDate: formattedExpiryDate || undefined,
+          location: data.location || undefined,
+        },
+      })
+    );
   };
 
   const stockHistoryColumns: TableColumn[] = [
@@ -310,8 +329,8 @@ export function StockManagementModal({
       render: (stock) => (
         <div className="flex gap-1">
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
-            tooltip="Edit Stock"
+            icon={<RotateCcw className="w-4 h-4" />}
+            tooltip="Update Stock"
             onClick={() => handleEditStock(stock)}
           />
           <ActionButton
@@ -619,8 +638,12 @@ export function StockManagementModal({
                     expiryDate: "",
                     location: "",
                   });
+                  // Scroll to top of form
+                  setTimeout(() => {
+                    formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 0);
                 }}
-                disabled={isCreating}
+                disabled={isCreating || isUpdating}
                 className="gap-2 border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-all"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -632,14 +655,14 @@ export function StockManagementModal({
             {/* Right: Status Message and Action Buttons */}
             <div className="flex items-center gap-4">
               <div className="text-sm text-muted-foreground flex items-center gap-2">
-                {isCreating && (
+                {(isCreating || isUpdating) && (
                   <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
                 )}
-                {form.formState.isDirty && !isCreating && (
+                {form.formState.isDirty && !isCreating && !isUpdating && (
                   <div className="h-2 w-2 rounded-full bg-orange-500" />
                 )}
                 <span>
-                  {isCreating
+                  {isCreating || isUpdating
                     ? editingStock
                       ? "Updating stock..."
                       : "Creating stock..."
@@ -662,11 +685,11 @@ export function StockManagementModal({
                       location: "",
                     });
                   }}
-                  disabled={isCreating}
+                  disabled={isCreating || isUpdating}
                   text={editingStock ? "Cancel" : "Close"}
                 />
                 <SubmitButton
-                  isSubmitting={isCreating}
+                  isSubmitting={isCreating || isUpdating}
                   isDirty={form.formState.isDirty}
                   isCreate={!editingStock}
                   createText="Create Stock"
