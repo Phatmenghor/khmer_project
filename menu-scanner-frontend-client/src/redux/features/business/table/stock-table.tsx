@@ -1,5 +1,5 @@
 import { indexDisplay } from "@/utils/common/common";
-import { Edit, Eye, Plus } from "lucide-react";
+import { Edit, Eye, Plus, ChevronDown } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { Switch } from "@/components/ui/switch";
@@ -12,6 +12,7 @@ import { getStockStatusLabel, getProductStatusLabel } from "@/constants/status/s
 import {
   AllProductResponseModel,
   ProductDetailResponseModel,
+  ProductSize,
 } from "../store/models/response/product-response";
 
 interface StockTableHandlers {
@@ -88,6 +89,67 @@ function StockStatusBadge({
   }
 
   return <span className="text-xs font-medium text-green-600">{stock} Items</span>;
+}
+
+/**
+ * SizesDisplay - Display product sizes with expandable details
+ */
+function SizesDisplay({ sizes }: { sizes: ProductSize[] | undefined }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!sizes || sizes.length === 0) {
+    return <span className="text-xs text-muted-foreground">No sizes</span>;
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+      >
+        <span>{sizes.length} Size{sizes.length > 1 ? "s" : ""}</span>
+        <ChevronDown
+          className={cn(
+            "w-3 h-3 transition-transform duration-200",
+            isExpanded && "rotate-180"
+          )}
+        />
+      </button>
+
+      {isExpanded && (
+        <div className="space-y-2 pl-2 border-l-2 border-primary/30">
+          {sizes.map((size) => (
+            <div
+              key={size.id}
+              className="text-xs space-y-1 p-2 bg-muted/50 rounded"
+            >
+              <div className="font-medium text-foreground">{size.name}</div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted-foreground">
+                  Price: ${size.price}
+                </span>
+                {size.hasPromotion && (
+                  <span className="text-green-600 font-medium">
+                    Final: ${size.finalPrice}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted-foreground">
+                  Stock: {size.totalStock}
+                </span>
+                {size.quantityAvailable !== undefined && (
+                  <span className="text-blue-600">
+                    Available: {size.quantityAvailable}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export const stockTableColumns = ({
@@ -333,6 +395,16 @@ export const sizeStockTableColumns = ({
         <span className="text-xs text-muted-foreground">
           {product?.sku || "---"}
         </span>
+      ),
+    },
+
+    {
+      key: "sizes",
+      label: "Sizes",
+      minWidth: "200px",
+      maxWidth: "350px",
+      render: (product) => (
+        <SizesDisplay sizes={product?.sizes} />
       ),
     },
 
