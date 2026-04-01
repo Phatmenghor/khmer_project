@@ -19,5 +19,6 @@ export interface ProductStockUpdateRequest {
 export interface ProductStockFilterRequest extends BaseGetAllRequest {
   businessId?: string;
   productId?: string;
+  productSizeId?: string;
   search?: string;
 }
