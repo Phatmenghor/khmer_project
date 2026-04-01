@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { usePagination } from "@/redux/store/use-pagination";
@@ -240,32 +241,37 @@ export default function StockItemsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        {/* Modern Responsive Filter Panel */}
-        <StockItemsFilterPanel
+        <CardHeaderSection
+          title="Stock Items (Products & Sizes)"
           searchValue={filters.search}
+          searchPlaceholder="Search product name..."
           onSearchChange={handleSearchChange}
-          sortByValue={filters.sortBy}
-          sortByOptions={SORT_BY_OPTIONS}
-          onSortByChange={handleSortByChange}
-          sortDirectionValue={filters.sortDirection}
-          sortDirectionOptions={SORT_DIRECTION_OPTIONS}
-          onSortDirectionChange={handleSortDirectionChange}
-          selectedBrand={selectedBrand}
-          onBrandChange={handleBrandChange}
-          selectedCategories={selectedCategories}
-          onCategoriesChange={handleCategoriesChange}
-          stockStatusValue={stockStatusFilterUI}
-          stockStatusOptions={STOCK_STATUS_FILTER}
-          onStockStatusChange={handleStockStatusChange}
-          productStatusValue={filters.status || "ALL"}
-          productStatusOptions={PRODUCT_STATUS_FILTER}
-          onProductStatusChange={handleProductStatusChange}
-          hasSizesValue={hasSizesFilterUI}
-          hasSizesOptions={HAS_SIZES_FILTER}
-          onHasSizesChange={handleHasSizesChange}
-          lowStockThresholdValue={filters.lowStockThreshold?.toString() || ""}
-          onLowStockThresholdChange={handleLowStockThresholdChange}
-        />
+          hideButton={true}
+        >
+          <StockItemsFilterPanel
+            sortByValue={filters.sortBy}
+            sortByOptions={SORT_BY_OPTIONS}
+            onSortByChange={handleSortByChange}
+            sortDirectionValue={filters.sortDirection}
+            sortDirectionOptions={SORT_DIRECTION_OPTIONS}
+            onSortDirectionChange={handleSortDirectionChange}
+            selectedBrand={selectedBrand}
+            onBrandChange={handleBrandChange}
+            selectedCategories={selectedCategories}
+            onCategoriesChange={handleCategoriesChange}
+            stockStatusValue={stockStatusFilterUI}
+            stockStatusOptions={STOCK_STATUS_FILTER}
+            onStockStatusChange={handleStockStatusChange}
+            productStatusValue={filters.status || "ALL"}
+            productStatusOptions={PRODUCT_STATUS_FILTER}
+            onProductStatusChange={handleProductStatusChange}
+            hasSizesValue={hasSizesFilterUI}
+            hasSizesOptions={HAS_SIZES_FILTER}
+            onHasSizesChange={handleHasSizesChange}
+            lowStockThresholdValue={filters.lowStockThreshold?.toString() || ""}
+            onLowStockThresholdChange={handleLowStockThresholdChange}
+          />
+        </CardHeaderSection>
 
         {/* Data Table with Pagination */}
         <DataTableWithPagination

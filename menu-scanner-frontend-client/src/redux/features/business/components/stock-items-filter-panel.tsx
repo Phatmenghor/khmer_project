@@ -1,5 +1,4 @@
-import React, { useCallback, useMemo } from "react";
-import { Search, X } from "lucide-react";
+import React, { useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
@@ -9,10 +8,6 @@ import { BrandResponseModel } from "@/redux/features/master-data/store/models/re
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 
 interface StockItemsFilterPanelProps {
-  // Search
-  searchValue: string;
-  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-
   // Sort
   sortByValue: string;
   sortByOptions: Array<{ value: string; label: string }>;
@@ -44,18 +39,17 @@ interface StockItemsFilterPanelProps {
   // Low stock threshold
   lowStockThresholdValue: string;
   onLowStockThresholdChange: (value: string) => void;
+
+  // Sort options for badge filtering
+  sortByOptions: Array<{ value: string; label: string }>;
 }
 
 /**
- * Stock Items Filter Panel - Classic card style
- * Filters on top row, search on bottom left, filter badges below when active
- * All filters maintain same height
+ * Stock Items Filter Panel - Works with CardHeaderSection
+ * Renders filter components (without card wrapper or search)
+ * Search is handled by CardHeaderSection
  */
 export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
-  // Search
-  searchValue,
-  onSearchChange,
-
   // Sort
   sortByValue,
   sortByOptions,
@@ -139,131 +133,88 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
   ]);
 
   return (
-    <div className="bg-white border border-border rounded-lg p-5 space-y-4">
-      {/* Header */}
-      <div className="mb-1">
-        <h2 className="text-sm font-semibold text-foreground">Stock Items (Products & Sizes)</h2>
-      </div>
-
-      {/* Filters Row 1 - All filters with same height (h-10) */}
+    <>
+      {/* Filters Row - All filters with same height */}
       <div className="flex flex-wrap gap-3 items-stretch">
         {/* Sort Field */}
-        <div className="flex-1 min-w-[160px]">
-          <CustomSelect
-            options={sortByOptions}
-            value={sortByValue}
-            placeholder="Sort by"
-            onValueChange={onSortByChange}
-            size="sm"
-          />
-        </div>
+        <CustomSelect
+          options={sortByOptions}
+          value={sortByValue}
+          placeholder="Sort by"
+          onValueChange={onSortByChange}
+        />
 
         {/* Sort Direction */}
-        <div className="flex-1 min-w-[140px]">
-          <CustomSelect
-            options={sortDirectionOptions}
-            value={sortDirectionValue}
-            placeholder="Order"
-            onValueChange={onSortDirectionChange}
-            size="sm"
-          />
-        </div>
+        <CustomSelect
+          options={sortDirectionOptions}
+          value={sortDirectionValue}
+          placeholder="Order"
+          onValueChange={onSortDirectionChange}
+        />
 
         {/* Brand Filter */}
-        <div className="flex-1 min-w-[140px]">
-          <ComboboxSelectBrand
-            dataSelect={selectedBrand}
-            onChangeSelected={onBrandChange}
-            placeholder="All Brand"
-            showAllOption={true}
-            size="sm"
-          />
-        </div>
+        <ComboboxSelectBrand
+          dataSelect={selectedBrand}
+          onChangeSelected={onBrandChange}
+          placeholder="All Brand"
+          showAllOption={true}
+        />
 
         {/* Category Filter */}
-        <div className="flex-1 min-w-[140px]">
-          <ComboboxSelectCategories
-            dataSelect={selectedCategories}
-            onChangeSelected={onCategoriesChange}
-            placeholder="All Categories"
-            showAllOption={true}
-            size="sm"
-          />
-        </div>
+        <ComboboxSelectCategories
+          dataSelect={selectedCategories}
+          onChangeSelected={onCategoriesChange}
+          placeholder="All Categories"
+          showAllOption={true}
+        />
 
         {/* Stock Status */}
-        <div className="flex-1 min-w-[130px]">
-          <CustomSelect
-            options={stockStatusOptions}
-            value={stockStatusValue}
-            placeholder="Stock"
-            onValueChange={onStockStatusChange}
-            size="sm"
-          />
-        </div>
+        <CustomSelect
+          options={stockStatusOptions}
+          value={stockStatusValue}
+          placeholder="Stock"
+          onValueChange={onStockStatusChange}
+        />
 
         {/* Product Status */}
-        <div className="flex-1 min-w-[130px]">
-          <CustomSelect
-            options={productStatusOptions}
-            value={productStatusValue}
-            placeholder="Status"
-            onValueChange={onProductStatusChange}
-            size="sm"
-          />
-        </div>
+        <CustomSelect
+          options={productStatusOptions}
+          value={productStatusValue}
+          placeholder="Status"
+          onValueChange={onProductStatusChange}
+        />
 
         {/* Product Type */}
-        <div className="flex-1 min-w-[130px]">
-          <CustomSelect
-            options={hasSizesOptions}
-            value={hasSizesValue}
-            placeholder="Type"
-            onValueChange={onHasSizesChange}
-            size="sm"
-          />
-        </div>
+        <CustomSelect
+          options={hasSizesOptions}
+          value={hasSizesValue}
+          placeholder="Type"
+          onValueChange={onHasSizesChange}
+        />
 
         {/* Low Stock Threshold - Search-style input */}
         <div className="flex-1 min-w-[140px]">
-          <div className="relative h-10">
-            <Input
-              type="number"
-              inputMode="numeric"
-              placeholder="Low Stock"
-              value={lowStockThresholdValue}
-              onChange={(e) => {
-                const value = e.target.value;
-                // Only allow positive integers
-                if (value === "" || /^\d+$/.test(value)) {
-                  onLowStockThresholdChange(value);
-                }
-              }}
-              className="h-10 text-xs pr-8"
-              min="0"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Row 2 - Search on left */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 max-w-xs">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search product name..."
-              value={searchValue}
-              onChange={onSearchChange}
-              className="pl-9 h-10 text-xs"
-            />
-          </div>
+          <Input
+            type="number"
+            inputMode="numeric"
+            placeholder="Low Stock Threshold"
+            value={lowStockThresholdValue}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Only allow positive integers
+              if (value === "" || /^\d+$/.test(value)) {
+                onLowStockThresholdChange(value);
+              }
+            }}
+            className="h-10 text-xs"
+            min="0"
+          />
         </div>
       </div>
 
       {/* Active Filters Badges - Only show if there are active filters */}
       {activeFilters.length > 0 && (
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
+        <div className="flex flex-wrap gap-2">
           {activeFilters.map((filter) => (
             <Badge key={filter.key} variant="secondary" className="text-xs">
               {filter.label}: <span className="font-medium ml-1">{filter.value}</span>
@@ -271,7 +222,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 };
 
