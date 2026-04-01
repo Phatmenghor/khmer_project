@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { StockItemsHeader } from "@/redux/features/business/components/stock-items-header";
+import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { usePagination } from "@/redux/store/use-pagination";
@@ -23,7 +23,9 @@ import {
   resetState,
 } from "@/redux/features/business/store/slice/stock-items-slice";
 import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
-import { StockItemsFilterPanel } from "@/redux/features/business/components/stock-items-filter-panel";
+import { CustomSelect } from "@/components/shared/common/custom-select";
+import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
+import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { StockManagementModal } from "@/redux/features/business/components/product-stock-management-modal";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
@@ -33,6 +35,9 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/redux/store";
+import { Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 // Filter options for stock status
 const STOCK_STATUS_FILTER = [
@@ -241,36 +246,93 @@ export default function StockItemsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        <StockItemsHeader
+        <CardHeaderSection
           title="Stock Items (Products & Sizes)"
           searchValue={filters.search}
           searchPlaceholder="Search product name..."
           onSearchChange={handleSearchChange}
+          buttonText="Add"
+          buttonIcon={<Plus className="w-3 h-3" />}
+          buttonTooltip="Select an item to edit"
+          customAddNewButton={
+            <Button disabled size="sm" variant="default" className="gap-2">
+              <Plus className="w-4 h-4" />
+              Add
+            </Button>
+          }
         >
-          <StockItemsFilterPanel
-            sortByValue={filters.sortBy}
-            sortByOptions={SORT_BY_OPTIONS}
-            onSortByChange={handleSortByChange}
-            sortDirectionValue={filters.sortDirection}
-            sortDirectionOptions={SORT_DIRECTION_OPTIONS}
-            onSortDirectionChange={handleSortDirectionChange}
-            selectedBrand={selectedBrand}
-            onBrandChange={handleBrandChange}
-            selectedCategories={selectedCategories}
-            onCategoriesChange={handleCategoriesChange}
-            stockStatusValue={stockStatusFilterUI}
-            stockStatusOptions={STOCK_STATUS_FILTER}
-            onStockStatusChange={handleStockStatusChange}
-            productStatusValue={filters.status || "ALL"}
-            productStatusOptions={PRODUCT_STATUS_FILTER}
-            onProductStatusChange={handleProductStatusChange}
-            hasSizesValue={hasSizesFilterUI}
-            hasSizesOptions={HAS_SIZES_FILTER}
-            onHasSizesChange={handleHasSizesChange}
-            lowStockThresholdValue={filters.lowStockThreshold?.toString() || ""}
-            onLowStockThresholdChange={handleLowStockThresholdChange}
+          {/* Sort By */}
+          <CustomSelect
+            options={SORT_BY_OPTIONS}
+            value={filters.sortBy}
+            placeholder="Sort by"
+            onValueChange={handleSortByChange}
           />
-        </StockItemsHeader>
+
+          {/* Sort Direction */}
+          <CustomSelect
+            options={SORT_DIRECTION_OPTIONS}
+            value={filters.sortDirection}
+            placeholder="Order"
+            onValueChange={handleSortDirectionChange}
+          />
+
+          {/* Brand Filter */}
+          <ComboboxSelectBrand
+            dataSelect={selectedBrand}
+            onChangeSelected={handleBrandChange}
+            placeholder="All Brand"
+            showAllOption={true}
+          />
+
+          {/* Category Filter */}
+          <ComboboxSelectCategories
+            dataSelect={selectedCategories}
+            onChangeSelected={handleCategoriesChange}
+            placeholder="All Categories"
+            showAllOption={true}
+          />
+
+          {/* Stock Status */}
+          <CustomSelect
+            options={STOCK_STATUS_FILTER}
+            value={stockStatusFilterUI}
+            placeholder="Stock"
+            onValueChange={handleStockStatusChange}
+          />
+
+          {/* Product Status */}
+          <CustomSelect
+            options={PRODUCT_STATUS_FILTER}
+            value={filters.status || "ALL"}
+            placeholder="Status"
+            onValueChange={handleProductStatusChange}
+          />
+
+          {/* Product Type */}
+          <CustomSelect
+            options={HAS_SIZES_FILTER}
+            value={hasSizesFilterUI}
+            placeholder="Type"
+            onValueChange={handleHasSizesChange}
+          />
+
+          {/* Low Stock Threshold */}
+          <Input
+            type="number"
+            inputMode="numeric"
+            placeholder="Low Stock Threshold"
+            value={filters.lowStockThreshold?.toString() || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === "" || /^\d+$/.test(value)) {
+                handleLowStockThresholdChange(value);
+              }
+            }}
+            className="h-10 text-xs min-w-[140px]"
+            min="0"
+          />
+        </CardHeaderSection>
 
         {/* Data Table with Pagination */}
         <DataTableWithPagination
