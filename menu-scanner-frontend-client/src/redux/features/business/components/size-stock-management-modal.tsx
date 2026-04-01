@@ -41,7 +41,7 @@ import {
 } from "../store/slice/stock-management-slice";
 import { ProductDetailResponseModel, ProductSize } from "../store/models/response/product-response";
 import { ProductStockDto } from "../store/models/response/stock-response";
-import { createStockHistoryColumns } from "../table/product-stock-history-table";
+import { createSizeStockHistoryColumns } from "../table/size-stock-history-table";
 
 interface SizeStockFormData {
   quantityOnHand?: number;
@@ -252,7 +252,7 @@ export function SizeStockManagementModal({
     );
   };
 
-  const stockHistoryColumns = createStockHistoryColumns(
+  const stockHistoryColumns = createSizeStockHistoryColumns(
     handleEditStock,
     handleDeleteStock,
     isDeleting
