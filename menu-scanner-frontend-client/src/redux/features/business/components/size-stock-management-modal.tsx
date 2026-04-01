@@ -158,17 +158,16 @@ export function SizeStockManagementModal({
 
   // Load history when modal opens or pagination changes
   useEffect(() => {
-    if (isOpen && selectedSize && product) {
+    if (isOpen && product) {
       dispatch(
         getProductStockHistoryService({
           pageNo: historyPageNo,
           pageSize: historyPageSize,
           productId: product.id,
-          productSizeId: selectedSize.id,
         })
       );
     }
-  }, [isOpen, product, selectedSize, dispatch, historyPageNo, historyPageSize]);
+  }, [isOpen, product, dispatch, historyPageNo, historyPageSize]);
 
   // Reset form when modal opens or closes
   useEffect(() => {
