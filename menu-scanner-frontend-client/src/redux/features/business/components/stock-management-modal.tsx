@@ -574,6 +574,7 @@ export function StockManagementModal({
                     isCreate={!editingStock}
                     createMessage="Creating stock..."
                     updateMessage="Updating stock..."
+                    noChangesMessage={editingStock ? "All changes saved" : "Fill in the form to create stock"}
                   >
                     <CancelButton
                       onClick={() => {
@@ -584,7 +585,6 @@ export function StockManagementModal({
                       text={editingStock ? "Cancel" : "Close"}
                     />
                     <SubmitButton
-                      type="submit"
                       isSubmitting={isCreating}
                       isDirty={form.formState.isDirty}
                       isCreate={!editingStock}
