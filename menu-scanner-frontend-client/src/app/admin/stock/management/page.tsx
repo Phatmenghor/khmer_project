@@ -182,6 +182,19 @@ export default function ProductStockPage() {
     });
   };
 
+  const handleToggleStockStatus = (product: ProductDetailResponseModel) => {
+    if (!product.id) return;
+
+    const newStatus = product.stockStatus === "ENABLED" ? "DISABLED" : "ENABLED";
+
+    dispatch(
+      updateStockStatusService({
+        productId: product.id,
+        newStatus: newStatus as "ENABLED" | "DISABLED",
+      })
+    );
+  };
+
   const tableHandlers = useMemo(
     () => ({
       handleViewProduct: handleProductViewDetail,
@@ -273,19 +286,6 @@ export default function ProductStockPage() {
 
   const handleStockStatusChange = (value: string) => {
     setStockStatusFilter(value);
-  };
-
-  const handleToggleStockStatus = (product: ProductDetailResponseModel) => {
-    if (!product.id) return;
-
-    const newStatus = product.stockStatus === "ENABLED" ? "DISABLED" : "ENABLED";
-
-    dispatch(
-      updateStockStatusService({
-        productId: product.id,
-        newStatus: newStatus as "ENABLED" | "DISABLED",
-      })
-    );
   };
 
   return (
