@@ -1,7 +1,9 @@
 import { indexDisplay } from "@/utils/common/common";
-import { Edit, Eye, Trash, Plus, ToggleRight, ToggleLeft } from "lucide-react";
+import { Edit, Eye, Trash, Plus } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
+import { Switch } from "@/components/ui/switch";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -200,23 +202,19 @@ export const stockTableColumns = ({
       label: "Stock Status",
       minWidth: "10px",
       maxWidth: "150px",
-      render: (product) => {
-        const isEnabled = product?.stockStatus === "ENABLED";
-        const Icon = isEnabled ? ToggleRight : ToggleLeft;
-        return (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">
-              {product?.stockStatus ? getStockStatusLabel(product.stockStatus) : "---"}
-            </span>
-            <ActionButton
-              icon={<Icon className={`w-4 h-4 ${isEnabled ? "text-green-600" : "text-gray-400"}`} />}
-              tooltip={isEnabled ? "Disable Stock" : "Enable Stock"}
-              onClick={() => handleToggleStockStatus?.(product)}
-              variant={isEnabled ? "secondary" : "outline"}
+      render: (product) => (
+        <div className="flex items-center gap-2">
+          {handleToggleStockStatus && (
+            <Switch
+              checked={product?.stockStatus === "ENABLED"}
+              onCheckedChange={() => handleToggleStockStatus(product)}
             />
-          </div>
-        );
-      },
+          )}
+          <span className="text-xs text-muted-foreground">
+            {product?.stockStatus ? formatEnumValue(product.stockStatus) : "---"}
+          </span>
+        </div>
+      ),
     },
 
     {
