@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { usePagination } from "@/redux/store/use-pagination";
@@ -23,9 +22,6 @@ import {
   resetState,
 } from "@/redux/features/business/store/slice/stock-items-slice";
 import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
-import { CustomSelect } from "@/components/shared/common/custom-select";
-import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
-import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { StockManagementModal } from "@/redux/features/business/components/product-stock-management-modal";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
@@ -35,9 +31,8 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/redux/store";
-import { Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
 
 // Filter options for stock status
 const STOCK_STATUS_FILTER = [
@@ -243,106 +238,112 @@ export default function StockItemsPage() {
     dispatch(setLowStockThreshold(threshold));
   };
 
+  // Filter Configuration for CollapsibleFilterPanel
+  const filterConfig: FilterPanelConfig = useMemo(
+    () => ({
+      title: "Stock Items (Products & Sizes)",
+      searchValue: filters.search,
+      searchPlaceholder: "Search product name...",
+      onSearchChange: handleSearchChange,
+
+      filters: [
+        // Essential Filters (shown by default)
+        {
+          id: "sortBy",
+          type: "select" as const,
+          label: "Sort By",
+          options: SORT_BY_OPTIONS,
+          value: filters.sortBy,
+          onChange: handleSortByChange,
+        },
+        {
+          id: "sortDirection",
+          type: "select" as const,
+          label: "Order",
+          options: SORT_DIRECTION_OPTIONS,
+          value: filters.sortDirection,
+          onChange: handleSortDirectionChange,
+        },
+
+        // Optional Filters (in collapsible section)
+        {
+          id: "brand",
+          type: "combobox-brand" as const,
+          label: "Brand",
+          placeholder: "All Brand",
+          value: selectedBrand,
+          onChange: handleBrandChange,
+          showAllOption: true,
+        },
+        {
+          id: "category",
+          type: "combobox-categories" as const,
+          label: "Category",
+          placeholder: "All Categories",
+          value: selectedCategories,
+          onChange: handleCategoriesChange,
+          showAllOption: true,
+        },
+        {
+          id: "stockStatus",
+          type: "select" as const,
+          label: "Stock Status",
+          options: STOCK_STATUS_FILTER,
+          value: stockStatusFilterUI,
+          onChange: handleStockStatusChange,
+        },
+        {
+          id: "productStatus",
+          type: "select" as const,
+          label: "Product Status",
+          options: PRODUCT_STATUS_FILTER,
+          value: filters.status || "ALL",
+          onChange: handleProductStatusChange,
+        },
+        {
+          id: "productType",
+          type: "select" as const,
+          label: "Product Type",
+          options: HAS_SIZES_FILTER,
+          value: hasSizesFilterUI,
+          onChange: handleHasSizesChange,
+        },
+        {
+          id: "lowStockThreshold",
+          type: "input-number" as const,
+          label: "Low Stock Threshold",
+          placeholder: "0",
+          value: filters.lowStockThreshold,
+          onChange: handleLowStockThresholdChange,
+          min: 0,
+        },
+      ],
+
+      buttonText: "Add",
+      buttonDisabled: true,
+      buttonTooltip: "Select an item to edit",
+    }),
+    [
+      filters.search,
+      filters.sortBy,
+      filters.sortDirection,
+      filters.status,
+      filters.lowStockThreshold,
+      selectedBrand,
+      selectedCategories,
+      stockStatusFilterUI,
+      hasSizesFilterUI,
+    ]
+  );
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        <CardHeaderSection
-          title="Stock Items (Products & Sizes)"
-          searchValue={filters.search}
-          searchPlaceholder="Search product name..."
-          onSearchChange={handleSearchChange}
-          buttonText="Add"
-          buttonIcon={<Plus className="w-3 h-3" />}
-          buttonTooltip="Select an item to edit"
-          customAddNewButton={
-            <Button disabled size="sm" variant="default" className="gap-2">
-              <Plus className="w-4 h-4" />
-              Add
-            </Button>
-          }
-        >
-          {/* Sort By */}
-          <CustomSelect
-            options={SORT_BY_OPTIONS}
-            value={filters.sortBy}
-            placeholder="Sort by"
-            onValueChange={handleSortByChange}
-            label="Sort By"
-          />
-
-          {/* Sort Direction */}
-          <CustomSelect
-            options={SORT_DIRECTION_OPTIONS}
-            value={filters.sortDirection}
-            placeholder="Order"
-            onValueChange={handleSortDirectionChange}
-            label="Order"
-          />
-
-          {/* Brand Filter */}
-          <ComboboxSelectBrand
-            dataSelect={selectedBrand}
-            onChangeSelected={handleBrandChange}
-            placeholder="All Brand"
-            showAllOption={true}
-            label="Brand"
-          />
-
-          {/* Category Filter */}
-          <ComboboxSelectCategories
-            dataSelect={selectedCategories}
-            onChangeSelected={handleCategoriesChange}
-            placeholder="All Categories"
-            showAllOption={true}
-            label="Category"
-          />
-
-          {/* Stock Status */}
-          <CustomSelect
-            options={STOCK_STATUS_FILTER}
-            value={stockStatusFilterUI}
-            placeholder="Stock"
-            onValueChange={handleStockStatusChange}
-            label="Stock Status"
-          />
-
-          {/* Product Status */}
-          <CustomSelect
-            options={PRODUCT_STATUS_FILTER}
-            value={filters.status || "ALL"}
-            placeholder="Status"
-            onValueChange={handleProductStatusChange}
-            label="Product Status"
-          />
-
-          {/* Product Type */}
-          <CustomSelect
-            options={HAS_SIZES_FILTER}
-            value={hasSizesFilterUI}
-            placeholder="Type"
-            onValueChange={handleHasSizesChange}
-            label="Product Type"
-          />
-
-          {/* Low Stock Threshold */}
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium whitespace-nowrap">Low Stock Threshold</label>
-            <Input
-              type="number"
-              inputMode="numeric"
-              placeholder="0"
-              value={filters.lowStockThreshold?.toString() || ""}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === "" || /^\d+$/.test(value)) {
-                  handleLowStockThresholdChange(value);
-                }
-              }}
-              className="h-10 text-xs min-w-[140px]"
-              min="0"
-            />
-          </div>
-        </CardHeaderSection>
+        {/* Collapsible Filter Panel - Clean UI with essential + optional filters */}
+        <CollapsibleFilterPanel
+          config={filterConfig}
+          essentialFilterIds={["sortBy", "sortDirection"]}
+        />
 
         {/* Data Table with Pagination */}
         <DataTableWithPagination
