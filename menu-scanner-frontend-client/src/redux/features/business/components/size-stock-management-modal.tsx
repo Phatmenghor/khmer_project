@@ -571,10 +571,7 @@ export function SizeStockManagementModal({
                         <h3 className="text-sm font-semibold mb-4">Sales Preview</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Selling Price */}
-                          <h3 className="text-sm font-semibold mb-3">Sales Preview</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Selling Price */}
-                            <div className="bg-muted/50 p-4 rounded-lg">
+                          <div className="bg-muted/50 p-4 rounded-lg">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
                                   <p className="text-xs text-muted-foreground">Size Selling Price</p>
