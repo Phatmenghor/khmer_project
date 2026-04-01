@@ -607,11 +607,16 @@ CROSS JOIN LATERAL (SELECT * FROM brand_list WHERE brand_num = ((t.i-1) % 20 + 1
 -- ============================================================================
 -- Random price offset (1-20) and minimum stock level (1-20) per size variation
 
-INSERT INTO product_sizes (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, name, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, minimum_stock_level)
+INSERT INTO product_sizes (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, product_id, name, barcode, sku, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, minimum_stock_level)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     p.id,
     CASE WHEN (t.size % 3) = 0 THEN 'Small' WHEN (t.size % 3) = 1 THEN 'Medium' ELSE 'Large' END,
+    -- Generate barcode: PRODUCT_SKU + SIZE_CODE (e.g., SKU123-S, SKU123-M, SKU123-L)
+    'BC' || SUBSTRING(p.id::text, 1, 8) || CASE WHEN (t.size % 3) = 0 THEN '-S' WHEN (t.size % 3) = 1 THEN '-M' ELSE '-L' END,
+    -- Generate SKU: SIZE_CODE + PRODUCT_ID (first 6 chars) + SIZE_NUMBER
+    CASE WHEN (t.size % 3) = 0 THEN 'SM' WHEN (t.size % 3) = 1 THEN 'MD' ELSE 'LG' END ||
+    SUBSTRING(p.id::text, 1, 6) || '-' || t.size::text,
     (p.price + (1 + (random() * 19)::int))::numeric,
     CASE WHEN (t.size % 2) = 0 THEN 'FIXED_AMOUNT' ELSE 'PERCENTAGE' END,
     CASE WHEN (t.size % 2) = 0 THEN (1 + (random() * 19)::int) ELSE 5 END,
