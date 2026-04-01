@@ -6,6 +6,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
+import { Button } from "@/components/ui/button";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { usePagination } from "@/redux/store/use-pagination";
 import { useStockItemsState } from "@/redux/features/business/store/state/stock-items-state";
@@ -248,6 +249,12 @@ export default function StockItemsPage() {
           searchPlaceholder="Search product name..."
           onSearchChange={handleSearchChange}
           hideButton={true}
+          customAddNewButton={
+            <Button disabled variant="default" size="sm" title="Select an item to edit" className="gap-2">
+              <Plus className="w-4 h-4" />
+              Add
+            </Button>
+          }
         >
           <StockItemsFilterPanel
             sortByValue={filters.sortBy}

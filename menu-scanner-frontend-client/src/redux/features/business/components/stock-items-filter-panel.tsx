@@ -48,10 +48,10 @@ interface StockItemsFilterPanelProps {
 
 /**
  * Stock Items Filter Panel - Works with CardHeaderSection
- * Filters wrap with Add button staying on the right
- * Responsive: [Search] [Filters...] [Add Button]
- *             When overflow: [Search] [Filters...] [Add Button]
- *                            [More Filters...]
+ * Add button stays on first row right, filters wrap below
+ * Layout:
+ * [Search] [Filters...] [Add Button]
+ *          [More Filters...]
  */
 export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
   // Sort
@@ -138,8 +138,8 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
 
   return (
     <>
-      {/* Filters Row - with responsive wrapping and Add button on right */}
-      <div className="flex flex-wrap gap-3 items-stretch flex-1">
+      {/* Filters Row - wraps independently, Add button NOT included */}
+      <div className="flex flex-wrap gap-3 items-stretch">
         {/* Sort Field */}
         <CustomSelect
           options={sortByOptions}
@@ -209,21 +209,9 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
               onLowStockThresholdChange(value);
             }
           }}
-          className="h-10 text-xs flex-1 min-w-[140px]"
+          className="h-10 text-xs min-w-[140px]"
           min="0"
         />
-
-        {/* Add Button - stays on right with flex-shrink-0 */}
-        <Button
-          disabled
-          variant="default"
-          size="sm"
-          title="Select an item to edit"
-          className="flex-shrink-0 gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Add
-        </Button>
       </div>
 
       {/* Active Filters Badges - Only show if there are active filters */}
@@ -236,6 +224,8 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           ))}
         </div>
       )}
+
+      {/* Add Button - rendered separately by CardHeaderSection as customAddNewButton */}
     </>
   );
 };
