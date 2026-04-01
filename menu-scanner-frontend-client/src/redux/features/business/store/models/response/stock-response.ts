@@ -27,3 +27,33 @@ export interface ProductStockListResponse {
   totalPages: number;
   content: ProductStockDto[];
 }
+
+/**
+ * DTO for product stock items listing
+ * Represents a product or product-size with aggregated stock information
+ */
+export interface ProductStockItemDto {
+  id: string;
+  productId: string;
+  productSizeId?: string;
+  productName: string;
+  categoryName: string;
+  brandName: string;
+  sku: string;
+  barcode: string;
+  sizeName?: string;  // null for PRODUCT type
+  totalStock: number;
+  status: "ACTIVE" | "INACTIVE";
+  stockStatus: "ENABLED" | "DISABLED";
+  type: "PRODUCT" | "SIZE";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductStockItemsListResponse {
+  pageNo: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  content: ProductStockItemDto[];
+}

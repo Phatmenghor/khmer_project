@@ -4,10 +4,12 @@ import {
   ProductStockCreateRequest,
   ProductStockFilterRequest,
   ProductStockUpdateRequest,
+  ProductStockItemsFilterRequest,
 } from "../models/request/stock-request";
 import {
   ProductStockDto,
   ProductStockListResponse,
+  ProductStockItemsListResponse,
 } from "../models/response/stock-response";
 
 export const createProductStockService = createAsyncThunk(
@@ -73,6 +75,27 @@ export const deleteProductStockService = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete stock"
+      );
+    }
+  }
+);
+
+/**
+ * Get product stock items (products with sizes as flat list) with type-safe filtering
+ * Easy field names and smart defaults (sortBy=totalStock, direction=DESC)
+ * Supports filters: status, stockStatus, lowStockThreshold, hasSizes
+ */
+export const getProductStockItemsService = createAsyncThunk(
+  "stock-management/getProductStockItems",
+  async (request: ProductStockItemsFilterRequest, { rejectWithValue }) => {
+    try {
+      const response = await axiosClientWithAuth.post<{
+        data: ProductStockItemsListResponse;
+      }>("/api/v1/product-stock/items/my-business", request);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch stock items"
       );
     }
   }
