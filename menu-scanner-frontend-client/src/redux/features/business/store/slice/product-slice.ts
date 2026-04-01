@@ -30,6 +30,7 @@ const initialState: ProductManagementState = {
   filters: {
     search: "",
     pageNo: 1,
+    status: ProductStatus.ALL,
   },
   operations: {
     isCreating: false,
