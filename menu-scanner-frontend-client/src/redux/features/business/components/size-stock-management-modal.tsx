@@ -27,7 +27,7 @@ import { DateTimePickerField } from "@/components/shared/form-field/date-picker-
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { Package } from "lucide-react";
+import { Package, Edit } from "lucide-react";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import {
   createProductStockService,
