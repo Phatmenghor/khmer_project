@@ -267,6 +267,7 @@ export default function StockItemsPage() {
             value={filters.sortBy}
             placeholder="Sort by"
             onValueChange={handleSortByChange}
+            label="Sort By"
           />
 
           {/* Sort Direction */}
@@ -275,6 +276,7 @@ export default function StockItemsPage() {
             value={filters.sortDirection}
             placeholder="Order"
             onValueChange={handleSortDirectionChange}
+            label="Order"
           />
 
           {/* Brand Filter */}
@@ -299,6 +301,7 @@ export default function StockItemsPage() {
             value={stockStatusFilterUI}
             placeholder="Stock"
             onValueChange={handleStockStatusChange}
+            label="Stock Status"
           />
 
           {/* Product Status */}
@@ -307,6 +310,7 @@ export default function StockItemsPage() {
             value={filters.status || "ALL"}
             placeholder="Status"
             onValueChange={handleProductStatusChange}
+            label="Product Status"
           />
 
           {/* Product Type */}
@@ -315,23 +319,27 @@ export default function StockItemsPage() {
             value={hasSizesFilterUI}
             placeholder="Type"
             onValueChange={handleHasSizesChange}
+            label="Product Type"
           />
 
           {/* Low Stock Threshold */}
-          <Input
-            type="number"
-            inputMode="numeric"
-            placeholder="Low Stock Threshold"
-            value={filters.lowStockThreshold?.toString() || ""}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === "" || /^\d+$/.test(value)) {
-                handleLowStockThresholdChange(value);
-              }
-            }}
-            className="h-10 text-xs min-w-[140px]"
-            min="0"
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium whitespace-nowrap">Low Stock Threshold</label>
+            <Input
+              type="number"
+              inputMode="numeric"
+              placeholder="0"
+              value={filters.lowStockThreshold?.toString() || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "" || /^\d+$/.test(value)) {
+                  handleLowStockThresholdChange(value);
+                }
+              }}
+              className="h-10 text-xs min-w-[140px]"
+              min="0"
+            />
+          </div>
         </CardHeaderSection>
 
         {/* Data Table with Pagination */}
