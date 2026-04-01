@@ -778,7 +778,6 @@ export function SizeStockManagementModal({
               </div>
             </div>
           </div>
-        </div>
 
         {/* Delete Confirmation Modal */}
         <DeleteConfirmationModal
