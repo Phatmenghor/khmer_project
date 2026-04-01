@@ -22,6 +22,7 @@ import {
 import { stockTableColumns } from "@/redux/features/business/table/stock-table";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { StockManagementModal } from "@/redux/features/business/components/stock-management-modal";
+import { updateStockStatusService } from "@/redux/features/business/store/thunks/stock-thunks";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
@@ -186,8 +187,9 @@ export default function ProductStockPage() {
       handleViewProduct: handleProductViewDetail,
       handleCreateStock: handleCreateStock,
       handleDeleteStock,
+      handleToggleStockStatus,
     }),
-    [handleCreateStock],
+    [handleCreateStock, handleToggleStockStatus],
   );
 
   const columns = useMemo(
@@ -271,6 +273,19 @@ export default function ProductStockPage() {
 
   const handleStockStatusChange = (value: string) => {
     setStockStatusFilter(value);
+  };
+
+  const handleToggleStockStatus = (product: ProductDetailResponseModel) => {
+    if (!product.id) return;
+
+    const newStatus = product.stockStatus === "ENABLED" ? "DISABLED" : "ENABLED";
+
+    dispatch(
+      updateStockStatusService({
+        productId: product.id,
+        newStatus: newStatus as "ENABLED" | "DISABLED",
+      })
+    );
   };
 
   return (

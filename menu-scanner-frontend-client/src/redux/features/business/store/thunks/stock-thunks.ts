@@ -20,3 +20,17 @@ export const fetchAllProductStockAdminService = createApiThunk<
   );
   return response.data.data;
 });
+
+/**
+ * Update stock status (enable/disable)
+ */
+export const updateStockStatusService = createApiThunk<
+  any,
+  { productId: string; newStatus: "ENABLED" | "DISABLED" }
+>("productStock/updateStatus", async (params) => {
+  const response = await axiosClientWithAuth.patch(
+    `/api/v1/products/${params.productId}/stock/status`,
+    { stockStatus: params.newStatus }
+  );
+  return response.data.data;
+});

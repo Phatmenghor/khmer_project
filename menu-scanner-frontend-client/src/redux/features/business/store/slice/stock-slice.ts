@@ -5,7 +5,7 @@
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ProductManagementState } from "../models/type/product-type";
-import { fetchAllProductStockAdminService } from "../thunks/stock-thunks";
+import { fetchAllProductStockAdminService, updateStockStatusService } from "../thunks/stock-thunks";
 import { ProductStatus } from "@/constants/status/status";
 
 /**
@@ -24,6 +24,7 @@ const initialState: ProductManagementState = {
   operations: {
     isCreating: false,
     isUpdating: false,
+    isUpdatingStatus: false,
     isDeleting: false,
     isFetchingDetail: false,
     isResettingPromotion: false,
@@ -87,6 +88,26 @@ const stockSlice = createSlice({
       .addCase(fetchAllProductStockAdminService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.isLoading = false;
+      })
+      // Update stock status
+      .addCase(updateStockStatusService.pending, (state) => {
+        state.operations.isUpdatingStatus = true;
+        state.error = null;
+      })
+      .addCase(updateStockStatusService.fulfilled, (state, action) => {
+        state.operations.isUpdatingStatus = false;
+        // Update the product in the data
+        if (state.data?.content) {
+          const updatedProduct = action.payload;
+          const index = state.data.content.findIndex((p: any) => p.id === updatedProduct.id);
+          if (index !== -1) {
+            state.data.content[index] = updatedProduct;
+          }
+        }
+      })
+      .addCase(updateStockStatusService.rejected, (state, action) => {
+        state.operations.isUpdatingStatus = false;
+        state.error = action.payload as string;
       });
   },
 });

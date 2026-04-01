@@ -1,5 +1,5 @@
 import { indexDisplay } from "@/utils/common/common";
-import { Edit, Eye, Trash, Plus } from "lucide-react";
+import { Edit, Eye, Trash, Plus, ToggleRight, ToggleLeft } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import Image from "next/image";
@@ -16,6 +16,7 @@ interface StockTableHandlers {
   handleViewProduct: (product: ProductDetailResponseModel) => void;
   handleCreateStock?: (product: ProductDetailResponseModel) => void;
   handleDeleteStock?: (product: ProductDetailResponseModel) => void;
+  handleToggleStockStatus?: (product: ProductDetailResponseModel) => void;
 }
 
 interface StockTableOptions {
@@ -92,7 +93,7 @@ export const stockTableColumns = ({
   data,
   handlers,
 }: StockTableOptions): TableColumn<ProductDetailResponseModel>[] => {
-  const { handleViewProduct, handleCreateStock, handleDeleteStock } = handlers;
+  const { handleViewProduct, handleCreateStock, handleDeleteStock, handleToggleStockStatus } = handlers;
 
   return [
     {
@@ -198,13 +199,24 @@ export const stockTableColumns = ({
       key: "stockStatus",
       label: "Stock Status",
       minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.stockStatus ? getStockStatusLabel(product.stockStatus) : "---"}
-        </span>
-      ),
+      maxWidth: "150px",
+      render: (product) => {
+        const isEnabled = product?.stockStatus === "ENABLED";
+        const Icon = isEnabled ? ToggleRight : ToggleLeft;
+        return (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              {product?.stockStatus ? getStockStatusLabel(product.stockStatus) : "---"}
+            </span>
+            <ActionButton
+              icon={<Icon className={`w-4 h-4 ${isEnabled ? "text-green-600" : "text-gray-400"}`} />}
+              tooltip={isEnabled ? "Disable Stock" : "Enable Stock"}
+              onClick={() => handleToggleStockStatus?.(product)}
+              variant={isEnabled ? "secondary" : "outline"}
+            />
+          </div>
+        );
+      },
     },
 
     {
