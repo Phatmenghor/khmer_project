@@ -1,13 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
-import { showToast } from "@/components/shared/common/show-toast";
-import { ModalMode, ProductStatus } from "@/constants/status/status";
 import { usePagination } from "@/redux/store/use-pagination";
 import { useStockItemsState } from "@/redux/features/business/store/state/stock-items-state";
 import { ProductStockItemDto } from "@/redux/features/business/store/models/response/stock-response";
@@ -25,14 +22,11 @@ import {
   resetState,
 } from "@/redux/features/business/store/slice/stock-items-slice";
 import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
+import { StockItemsFilterPanel } from "@/redux/features/business/components/stock-items-filter-panel";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { StockManagementModal } from "@/redux/features/business/components/product-stock-management-modal";
-import { CustomSelect } from "@/components/shared/common/custom-select";
-import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
-import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
-import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
@@ -246,81 +240,38 @@ export default function StockItemsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        <CardHeaderSection
-          title="Stock Items (Products & Sizes)"
+        {/* Header */}
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-foreground">Stock Items (Products & Sizes)</h1>
+          <p className="text-sm text-muted-foreground">Manage product and size stock across your business</p>
+        </div>
+
+        {/* Modern Responsive Filter Panel */}
+        <StockItemsFilterPanel
           searchValue={filters.search}
-          searchPlaceholder="Search product name..."
-          buttonTooltip="Select an item and click Edit Stock to manage inventory"
-          buttonIcon={<Plus className="w-3 h-3" />}
-          buttonText="New"
           onSearchChange={handleSearchChange}
-          hideButton={true}
-        >
-          {/* Sorting Options */}
-          <CustomSelect
-            options={SORT_BY_OPTIONS}
-            value={filters.sortBy}
-            placeholder="Sort by"
-            onValueChange={handleSortByChange}
-            label="Sort Field"
-          />
-
-          <CustomSelect
-            options={SORT_DIRECTION_OPTIONS}
-            value={filters.sortDirection}
-            placeholder="Sort direction"
-            onValueChange={handleSortDirectionChange}
-            label="Sort Direction"
-          />
-
-          {/* Filtering Options */}
-          <ComboboxSelectBrand
-            dataSelect={selectedBrand}
-            onChangeSelected={handleBrandChange}
-            placeholder="All Brand"
-            showAllOption={true}
-          />
-
-          <ComboboxSelectCategories
-            dataSelect={selectedCategories}
-            onChangeSelected={handleCategoriesChange}
-            placeholder="All Categories"
-            showAllOption={true}
-          />
-
-          <CustomSelect
-            options={STOCK_STATUS_FILTER}
-            value={stockStatusFilterUI}
-            placeholder="All Stock Status"
-            onValueChange={handleStockStatusChange}
-            label="Stock Status"
-          />
-
-          <CustomSelect
-            options={PRODUCT_STATUS_FILTER}
-            value={filters.status || "ALL"}
-            placeholder="All Status"
-            onValueChange={handleProductStatusChange}
-            label="Product Status"
-          />
-
-          <CustomSelect
-            options={HAS_SIZES_FILTER}
-            value={hasSizesFilterUI}
-            placeholder="All Products"
-            onValueChange={handleHasSizesChange}
-            label="Product Type"
-          />
-
-          {/* Low Stock Threshold Filter */}
-          <input
-            type="number"
-            placeholder="Low stock threshold"
-            value={filters.lowStockThreshold || ""}
-            onChange={(e) => handleLowStockThresholdChange(e.target.value)}
-            className="px-3 py-2 border border-input rounded-md text-xs"
-          />
-        </CardHeaderSection>
+          sortByValue={filters.sortBy}
+          sortByOptions={SORT_BY_OPTIONS}
+          onSortByChange={handleSortByChange}
+          sortDirectionValue={filters.sortDirection}
+          sortDirectionOptions={SORT_DIRECTION_OPTIONS}
+          onSortDirectionChange={handleSortDirectionChange}
+          selectedBrand={selectedBrand}
+          onBrandChange={handleBrandChange}
+          selectedCategories={selectedCategories}
+          onCategoriesChange={handleCategoriesChange}
+          stockStatusValue={stockStatusFilterUI}
+          stockStatusOptions={STOCK_STATUS_FILTER}
+          onStockStatusChange={handleStockStatusChange}
+          productStatusValue={filters.status || "ALL"}
+          productStatusOptions={PRODUCT_STATUS_FILTER}
+          onProductStatusChange={handleProductStatusChange}
+          hasSizesValue={hasSizesFilterUI}
+          hasSizesOptions={HAS_SIZES_FILTER}
+          onHasSizesChange={handleHasSizesChange}
+          lowStockThresholdValue={filters.lowStockThreshold?.toString() || ""}
+          onLowStockThresholdChange={handleLowStockThresholdChange}
+        />
 
         {/* Data Table with Pagination */}
         <DataTableWithPagination
