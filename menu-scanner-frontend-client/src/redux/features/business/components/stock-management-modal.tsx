@@ -35,7 +35,7 @@ import {
 } from "../store/slice/stock-management-slice";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { ProductStockDto } from "../store/models/response/stock-response";
-import { createStockHistoryColumns } from "../table/stock-table";
+import { createStockHistoryColumns } from "../table/stock-history-table";
 
 interface StockFormData {
   quantityOnHand?: number;
