@@ -24,6 +24,7 @@ import attendanceReducer from "../features/hr/store/slice/attendance-slice";
 import favoritesReducer from "../features/main/store/slice/favorite-slice";
 import productReducer from "../features/business/store/slice/product-slice";
 import stockReducer from "../features/business/store/slice/stock-slice";
+import stockItemsReducer from "../features/business/store/slice/stock-items-slice";
 import stockManagementReducer from "../features/business/store/slice/stock-management-slice";
 import orderAdminReducer from "../features/business/store/slice/order-admin-slice";
 import posPageReducer from "../features/business/store/slice/pos-page-slice";
@@ -65,6 +66,7 @@ export const reducers = {
   // Business
   products: productReducer,
   stocks: stockReducer,
+  stockItems: stockItemsReducer,
   stockManagement: stockManagementReducer,
   ordersAdmin: orderAdminReducer,
   posPage: posPageReducer,
