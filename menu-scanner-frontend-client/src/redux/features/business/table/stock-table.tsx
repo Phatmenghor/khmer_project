@@ -252,3 +252,156 @@ export const stockTableColumns = ({
     },
   ];
 };
+
+/**
+ * Size Stock Table Columns - Specialized for products with size variants
+ */
+export const sizeStockTableColumns = ({
+  data,
+  handlers,
+}: StockTableOptions): TableColumn<ProductDetailResponseModel>[] => {
+  const { handleViewProduct, handleCreateStock, handleToggleStockStatus } = handlers;
+
+  return [
+    {
+      key: "index",
+      label: "#",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (_, index) => (
+        <span className="font-medium">
+          {indexDisplay(data?.pageNo || 1, data?.pageSize || 15, index + 1)}
+        </span>
+      ),
+    },
+    {
+      key: "imageUrl",
+      label: "Image",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (product) => {
+        return <ProductImagePreview product={product} />;
+      },
+    },
+
+    {
+      key: "name",
+      label: "Product Name",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground">
+          {product?.name || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "categoryName",
+      label: "Category",
+      minWidth: "10px",
+      maxWidth: "150px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground">
+          {product?.categoryName || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "brandName",
+      label: "Brand",
+      minWidth: "10px",
+      maxWidth: "150px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground">
+          {product?.brandName || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "sku",
+      label: "SKU",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground">
+          {product?.sku || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "totalStock",
+      label: "Total Stock (All Sizes)",
+      minWidth: "10px",
+      maxWidth: "150px",
+      render: (product) => (
+        <StockStatusBadge
+          stock={product?.totalStock}
+          hasSizes={true}
+        />
+      ),
+    },
+
+    {
+      key: "stockStatus",
+      label: "Stock Status",
+      minWidth: "10px",
+      maxWidth: "150px",
+      render: (product) => (
+        <div className="flex items-center gap-2">
+          {handleToggleStockStatus && (
+            <Switch
+              checked={product?.stockStatus === "ENABLED"}
+              onCheckedChange={() => handleToggleStockStatus(product)}
+            />
+          )}
+          <span className="text-xs text-muted-foreground">
+            {product?.stockStatus ? formatEnumValue(product.stockStatus) : "---"}
+          </span>
+        </div>
+      ),
+    },
+
+    {
+      key: "status",
+      label: "Product Status",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground">
+          {product?.status ? getProductStatusLabel(product.status) : "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "actions",
+      label: "Actions",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (product) => (
+        <div className="flex items-center gap-2">
+          <ActionButton
+            icon={<Eye className="w-4 h-4" />}
+            tooltip="View Details"
+            onClick={() => handleViewProduct(product)}
+          />
+          <ActionButton
+            icon={<Plus className="w-4 h-4" />}
+            tooltip="Create Size Stock"
+            onClick={() => handleCreateStock?.(product)}
+            variant="secondary"
+          />
+        </div>
+      ),
+    },
+  ];
+};

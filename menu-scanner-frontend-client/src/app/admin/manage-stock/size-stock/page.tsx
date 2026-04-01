@@ -20,7 +20,7 @@ import {
   updateStockStatusOptimistic,
   revertStockStatusOptimistic,
 } from "@/redux/features/business/store/slice/stock-slice";
-import { stockTableColumns } from "@/redux/features/business/table/stock-table";
+import { sizeStockTableColumns } from "@/redux/features/business/table/stock-table";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { StockManagementModal } from "@/redux/features/business/components/stock-management-modal";
 import { updateStockStatusService } from "@/redux/features/business/store/thunks/stock-thunks";
@@ -239,7 +239,7 @@ export default function SizeStockPage() {
 
   const columns = useMemo(
     () =>
-      stockTableColumns({
+      sizeStockTableColumns({
         data: stockData,
         handlers: tableHandlers,
       }),
