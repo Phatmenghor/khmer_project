@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -80,6 +80,9 @@ export default function ProductStockPage() {
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
   const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
+
+  // Debounce refs for stock status toggle
+  const stockStatusDebounceRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
   // Global page size from global settings (synced across all admin pages)
   const globalPageSize = useAppSelector(selectGlobalPageSize);
@@ -182,18 +185,41 @@ export default function ProductStockPage() {
     });
   };
 
-  const handleToggleStockStatus = (product: ProductDetailResponseModel) => {
-    if (!product.id) return;
+  const handleToggleStockStatus = useCallback(
+    (product: ProductDetailResponseModel) => {
+      if (!product.id) return;
 
-    const newStatus = product.stockStatus === "ENABLED" ? "DISABLED" : "ENABLED";
+      // Clear any existing debounce timer for this product
+      if (stockStatusDebounceRefs.current[product.id]) {
+        clearTimeout(stockStatusDebounceRefs.current[product.id]);
+      }
 
-    dispatch(
-      updateStockStatusService({
-        productId: product.id,
-        newStatus: newStatus as "ENABLED" | "DISABLED",
-      })
-    );
-  };
+      const newStatus = product.stockStatus === "ENABLED" ? "DISABLED" : "ENABLED";
+
+      // Debounce API call by 300ms to prevent rapid clicks
+      stockStatusDebounceRefs.current[product.id] = setTimeout(() => {
+        dispatch(
+          updateStockStatusService({
+            productId: product.id,
+            newStatus: newStatus as "ENABLED" | "DISABLED",
+          })
+        )
+          .unwrap()
+          .then(() => {
+            showToast.success(
+              `Stock status updated to ${newStatus === "ENABLED" ? "Enabled" : "Disabled"}`
+            );
+          })
+          .catch((error: any) => {
+            showToast.error(
+              error?.message ||
+                "Failed to update stock status. Check if the endpoint is correct."
+            );
+          });
+      }, 300);
+    },
+    [dispatch]
+  );
 
   const tableHandlers = useMemo(
     () => ({
