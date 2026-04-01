@@ -667,7 +667,26 @@ export function StockManagementModal({
         {/* Form Footer with Action Buttons */}
         <div className="px-6 py-4 border-t bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0">
           <div className="flex items-center justify-between gap-4">
-            {/* Left: Switch to Add Button */}
+            {/* Left: Status Message on Create Mode */}
+            {!editingStock && (
+              <div className="text-sm text-muted-foreground flex items-center gap-2">
+                {(isCreating || isUpdating) && (
+                  <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                )}
+                {form.formState.isDirty && !isCreating && !isUpdating && (
+                  <div className="h-2 w-2 rounded-full bg-orange-500" />
+                )}
+                <span>
+                  {isCreating || isUpdating
+                    ? "Creating stock..."
+                    : form.formState.isDirty
+                    ? "You have unsaved changes"
+                    : "Fill in the form to create stock"}
+                </span>
+              </div>
+            )}
+
+            {/* Switch to Add Button */}
             {editingStock && (
               <Button
                 type="button"
@@ -695,29 +714,27 @@ export function StockManagementModal({
             )}
             <div className="flex-1" />
 
-            {/* Right: Status Message and Action Buttons */}
-            <div className="flex items-center gap-4">
+            {/* Status Message on Edit Mode */}
+            {editingStock && (
               <div className="text-sm text-muted-foreground flex items-center gap-2">
-                {(isCreating || isUpdating) && (
+                {isUpdating && (
                   <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
                 )}
-                {form.formState.isDirty && !isCreating && !isUpdating && (
+                {form.formState.isDirty && !isUpdating && (
                   <div className="h-2 w-2 rounded-full bg-orange-500" />
                 )}
                 <span>
-                  {isCreating || isUpdating
-                    ? editingStock
-                      ? "Updating stock..."
-                      : "Creating stock..."
+                  {isUpdating
+                    ? "Updating stock..."
                     : form.formState.isDirty
                     ? "You have unsaved changes"
-                    : editingStock
-                    ? "All changes saved"
-                    : "Fill in the form to create stock"}
+                    : "All changes saved"}
                 </span>
               </div>
+            )}
 
-              <div className="flex gap-2">
+            {/* Action Buttons */}
+            <div className="flex gap-2">
                 <CancelButton
                   onClick={() => {
                     setEditingStock(null);
