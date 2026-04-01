@@ -21,7 +21,7 @@ import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { Package, Trash2, Edit, RotateCcw } from "lucide-react";
+import { Package, Trash2, Edit } from "lucide-react";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import {
   createProductStockService,
@@ -329,7 +329,7 @@ export function StockManagementModal({
       render: (stock) => (
         <div className="flex gap-1">
           <ActionButton
-            icon={<RotateCcw className="w-4 h-4" />}
+            icon={<Edit className="w-4 h-4" />}
             tooltip="Update Stock"
             onClick={() => handleEditStock(stock)}
           />
@@ -646,7 +646,7 @@ export function StockManagementModal({
                 disabled={isCreating || isUpdating}
                 className="gap-2 border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-all"
               >
-                <RotateCcw className="w-4 h-4" />
+                <Edit className="w-4 h-4" />
                 Switch to Add
               </Button>
             )}
