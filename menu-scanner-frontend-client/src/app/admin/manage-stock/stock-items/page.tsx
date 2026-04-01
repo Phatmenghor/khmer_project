@@ -285,6 +285,7 @@ export default function StockItemsPage() {
             onChangeSelected={handleBrandChange}
             placeholder="All Brand"
             showAllOption={true}
+            label="Brand"
           />
 
           {/* Category Filter */}
@@ -293,6 +294,7 @@ export default function StockItemsPage() {
             onChangeSelected={handleCategoriesChange}
             placeholder="All Categories"
             showAllOption={true}
+            label="Category"
           />
 
           {/* Stock Status */}
