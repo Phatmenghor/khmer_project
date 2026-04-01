@@ -114,10 +114,10 @@ export function StockManagementModal({
       dispatch(clearSuccess());
       setEditingStock(null);
       form.reset({
-        quantityOnHand: undefined,
-        priceIn: "",
-        expiryDate: "",
-        location: "",
+        quantityOnHand: null,
+        priceIn: null,
+        expiryDate: null,
+        location: null,
       });
     }
   }, [successMessage, dispatch, form]);
@@ -146,19 +146,19 @@ export function StockManagementModal({
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        quantityOnHand: undefined,
-        priceIn: "",
-        expiryDate: "",
-        location: "",
+        quantityOnHand: null,
+        priceIn: null,
+        expiryDate: null,
+        location: null,
       });
     } else {
       // Reset edit state when modal closes
       setEditingStock(null);
       form.reset({
-        quantityOnHand: undefined,
-        priceIn: "",
-        expiryDate: "",
-        location: "",
+        quantityOnHand: null,
+        priceIn: null,
+        expiryDate: null,
+        location: null,
       });
     }
   }, [isOpen, form]);
