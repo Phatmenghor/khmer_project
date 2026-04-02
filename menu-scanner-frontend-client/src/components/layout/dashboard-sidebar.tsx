@@ -28,7 +28,6 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   const { profile, isProfileLoading, dispatch } = useAuthState();
   const [businessName, setBusinessName] = useState(BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [imageError, setImageError] = useState(false);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,
@@ -223,13 +222,13 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                   <Image
-                    src={imageError || !logoUrl ? "/assets/favicon.ico" : logoUrl}
+                    src={logoUrl || "/assets/image/no-image.png"}
                     alt={businessName}
                     width={24}
                     height={24}
                     className="rounded object-contain"
                     priority
-                    onError={() => setImageError(true)}
+                    onError={() => setLogoUrl(null)}
                   />
                 </div>
                 <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
