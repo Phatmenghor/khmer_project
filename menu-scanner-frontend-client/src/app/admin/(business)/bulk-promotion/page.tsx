@@ -59,7 +59,6 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { bulkPromotionTableColumns } from "@/redux/features/business/table/bulk-promotion-table";
 import {
   PRODUCT_STATUS_FILTER,
-  PRODUCT_PROMOTION_FILTER,
 } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
@@ -895,19 +894,6 @@ export default function BulkPromotionPage() {
                   }
                   className="w-full"
                   label="Product Status"
-                  size="md"
-                />
-              </div>
-
-              {/* Promotion Filter */}
-              <div className="min-w-0">
-                <CustomSelect
-                  options={PRODUCT_PROMOTION_FILTER}
-                  value={hasPromotionFilter}
-                  placeholder="All Products"
-                  onValueChange={handlePromotionFilterChange}
-                  className="w-full"
-                  label="Promotion Status"
                   size="md"
                 />
               </div>
