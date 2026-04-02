@@ -178,8 +178,8 @@ export default function BulkPromotionPage() {
         search: debouncedSearchQuery,
         pageNo: 1,
         pageSize: globalPageSize,
-        status:
-          filters.status === ProductStatus.ALL ? undefined : filters.status,
+        statuses:
+          filters.status === ProductStatus.ALL ? undefined : [filters.status],
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasPromotion:
@@ -506,8 +506,8 @@ export default function BulkPromotionPage() {
         search: debouncedSearchQuery,
         pageNo: page,
         pageSize: pageSize,
-        status:
-          filters.status === ProductStatus.ALL ? undefined : filters.status,
+        statuses:
+          filters.status === ProductStatus.ALL ? undefined : [filters.status],
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasPromotion:
@@ -529,8 +529,8 @@ export default function BulkPromotionPage() {
         search: debouncedSearchQuery,
         pageNo: 1,
         pageSize: newPageSize,
-        status:
-          filters.status === ProductStatus.ALL ? undefined : filters.status,
+        statuses:
+          filters.status === ProductStatus.ALL ? undefined : [filters.status],
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasPromotion:
@@ -647,8 +647,8 @@ export default function BulkPromotionPage() {
           search: debouncedSearchQuery,
           pageNo: filters.pageNo,
           pageSize: pageSize,
-          status:
-            filters.status === ProductStatus.ALL ? undefined : filters.status,
+          statuses:
+            filters.status === ProductStatus.ALL ? undefined : [filters.status],
           brandId: selectedBrand?.id,
           categoryId: selectedCategories?.id,
           hasPromotion:
