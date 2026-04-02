@@ -160,14 +160,14 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
           {/* Row 1: Search (left) + Filters & Add Button (right, grouped) */}
           <div className="flex flex-wrap items-end gap-3">
-            {/* Search - Left side, flex-1 with max-width */}
-            <div className="flex-1 min-w-[250px] max-w-[500px]">
-              <div className="relative w-full group">
+            {/* Search - Left side, flex-1 with max-width, h-10 same as filters */}
+            <div className="flex-1 min-w-[250px] max-w-[500px] h-10">
+              <div className="relative w-full h-full group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 <Input
                   type="search"
                   placeholder={config.searchPlaceholder}
-                  className="pl-10 w-full placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 hover:border-gray-600 transition-all duration-200"
+                  className="pl-10 w-full h-full placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 hover:border-gray-600 transition-all duration-200"
                   value={config.searchValue}
                   onChange={config.onSearchChange}
                 />
@@ -187,14 +187,13 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 </div>
               )}
 
-              {/* Add Button - Far right */}
+              {/* Add Button - Far right, h-10 same as filters */}
               {config.buttonText && (
                 <Button
                   disabled={config.buttonDisabled}
-                  size="sm"
                   variant="default"
                   onClick={config.onButtonClick}
-                  className="gap-2 flex-shrink-0"
+                  className="gap-2 flex-shrink-0 h-10 px-4"
                 >
                   <Plus className="w-4 h-4" />
                   {config.buttonText}
