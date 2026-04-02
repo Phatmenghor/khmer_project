@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -30,10 +29,7 @@ import {
 import { productTableColumns } from "@/redux/features/business/table/product-table";
 import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
-import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
-import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
-import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -41,6 +37,8 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/redux/store";
+import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
 
 export default function ProductPage() {
   // Clean up state when leaving admin area (performance optimization)
@@ -322,51 +320,62 @@ export default function ProductPage() {
     setSelectedCategories(categories);
   };
 
+  // Create filter configuration for CollapsibleFilterPanel
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Product Information",
+    searchValue: filters.search,
+    searchPlaceholder: "Search product...",
+    onSearchChange: handleSearchChange,
+    buttonText: "New",
+    buttonDisabled: false,
+    onButtonClick: handleCreateBrand,
+    filters: [
+      {
+        id: "brand",
+        type: "combobox-brand",
+        label: "Brand",
+        placeholder: "All Brand",
+        value: selectedBrand,
+        onChange: handleBrandChange,
+        showAllOption: true,
+      },
+      {
+        id: "category",
+        type: "combobox-categories",
+        label: "Category",
+        placeholder: "All Categories",
+        value: selectedCategories,
+        onChange: handleCategoriesChange,
+        showAllOption: true,
+      },
+      {
+        id: "size",
+        type: "select",
+        label: "Product Size",
+        placeholder: "All Products",
+        value: sizeFilter,
+        onChange: handleSizeFilterChange,
+        options: PRODUCT_SIZE_FILTER,
+      },
+      {
+        id: "status",
+        type: "select",
+        label: "Product Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => handleProductStatusChange(value as ProductStatus),
+        options: PRODUCT_STATUS_FILTER,
+      },
+    ],
+  }), [filters.search, filters.status, selectedBrand, selectedCategories, sizeFilter]);
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        <CardHeaderSection
-          title="Product Information"
-          searchValue={filters.search}
-          searchPlaceholder="Search product..."
-          buttonTooltip="Create a new product"
-          buttonIcon={<Plus className="w-3 h-3" />}
-          buttonText="New"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreateBrand}
-        >
-          <ComboboxSelectBrand
-            dataSelect={selectedBrand}
-            onChangeSelected={handleBrandChange}
-            placeholder="All Brand"
-            showAllOption={true}
-          />
-
-          <ComboboxSelectCategories
-            dataSelect={selectedCategories}
-            onChangeSelected={handleCategoriesChange}
-            placeholder="All Categires"
-            showAllOption={true}
-          />
-
-          <CustomSelect
-            options={PRODUCT_STATUS_FILTER}
-            value={filters.status}
-            placeholder="All Status"
-            onValueChange={(value) =>
-              handleProductStatusChange(value as ProductStatus)
-            }
-            label="Product Status"
-          />
-
-          <CustomSelect
-            options={PRODUCT_SIZE_FILTER}
-            value={sizeFilter}
-            placeholder="All Products"
-            onValueChange={handleSizeFilterChange}
-            label="Product Size"
-          />
-        </CardHeaderSection>
+        <CollapsibleFilterPanel
+          config={filterConfig}
+          essentialFilterIds={["brand", "category", "size"]}
+        />
 
         {/* Data Table with Your Custom Pagination */}
         <DataTableWithPagination
