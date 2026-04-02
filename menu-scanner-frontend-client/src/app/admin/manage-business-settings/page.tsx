@@ -24,6 +24,7 @@ import {
 } from "@/redux/features/business/store/services/business-settings-service";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { uploadImageService } from "@/services/image-service";
+import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 interface FormData {
   businessName: string;
@@ -60,14 +61,14 @@ export default function BusinessSettingsPage() {
 
       // Initialize form with current data
       form.reset({
-        businessName: data?.businessName || "",
+        businessName: data?.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
         taxPercentage: data?.taxPercentage?.toString() || "",
         logoBusinessUrl: data?.logoBusinessUrl || "",
         enableStock: data?.enableStock || "DISABLED",
         socialMedia: data?.socialMedia || [],
-        primaryColor: data?.primaryColor || "#57823D",
-        secondaryColor: data?.secondaryColor || "#404040",
-        accentColor: data?.accentColor || "#2E74D0",
+        primaryColor: data?.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+        secondaryColor: data?.secondaryColor || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
+        accentColor: data?.accentColor || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
       });
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -358,14 +359,14 @@ export default function BusinessSettingsPage() {
                 <div className="flex gap-3">
                   <Input
                     type="color"
-                    value={form.watch("primaryColor") || "#57823D"}
+                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
                     onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="w-20 h-10 cursor-pointer"
                   />
                   <Input
-                    placeholder="#57823D"
-                    value={form.watch("primaryColor") || "#57823D"}
+                    placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
                     onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="flex-1"
@@ -382,14 +383,14 @@ export default function BusinessSettingsPage() {
                 <div className="flex gap-3">
                   <Input
                     type="color"
-                    value={form.watch("secondaryColor") || "#404040"}
+                    value={form.watch("secondaryColor") || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR}
                     onChange={(e) => form.setValue("secondaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="w-20 h-10 cursor-pointer"
                   />
                   <Input
-                    placeholder="#404040"
-                    value={form.watch("secondaryColor") || "#404040"}
+                    placeholder={BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR}
+                    value={form.watch("secondaryColor") || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR}
                     onChange={(e) => form.setValue("secondaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="flex-1"
@@ -406,14 +407,14 @@ export default function BusinessSettingsPage() {
                 <div className="flex gap-3">
                   <Input
                     type="color"
-                    value={form.watch("accentColor") || "#2E74D0"}
+                    value={form.watch("accentColor") || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR}
                     onChange={(e) => form.setValue("accentColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="w-20 h-10 cursor-pointer"
                   />
                   <Input
-                    placeholder="#2E74D0"
-                    value={form.watch("accentColor") || "#2E74D0"}
+                    placeholder={BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR}
+                    value={form.watch("accentColor") || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR}
                     onChange={(e) => form.setValue("accentColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="flex-1"

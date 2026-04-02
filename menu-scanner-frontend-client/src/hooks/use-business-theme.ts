@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import { fetchCurrentBusinessSettings } from "@/redux/features/business/store/services/business-settings-service";
+import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 // Default brand colors from tailwind config
 const DEFAULT_COLORS = {
-  primary: "#57823D",    // brand.main
-  secondary: "#404040",  // neutral.800
-  accent: "#2E74D0",     // status.info.500
+  primary: BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+  secondary: BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
+  accent: BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
 };
 
 // Convert hex color to HSL format for CSS variables
