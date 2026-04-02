@@ -10,14 +10,17 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = SocialMediaMapper.class)
 public interface BusinessSettingMapper {
 
-    @Mapping(target = "businessName", source = "business.name")
+    @Mapping(target = "businessName", source = "businessName")
     BusinessSettingResponse toResponse(BusinessSetting businessSetting);
 
     /**
-     * Apply default values to BusinessSettingResponse if colors are null
+     * Apply default values to BusinessSettingResponse if fields are null
      */
     @AfterMapping
     default void applyDefaultsAfterResponse(@MappingTarget BusinessSettingResponse response) {
+        if (response.getBusinessName() == null || response.getBusinessName().isEmpty()) {
+            response.setBusinessName(BusinessSettingConstants.DEFAULT_BUSINESS_NAME);
+        }
         if (response.getPrimaryColor() == null) {
             response.setPrimaryColor(BusinessSettingConstants.DEFAULT_PRIMARY_COLOR);
         }
@@ -39,6 +42,9 @@ public interface BusinessSettingMapper {
      */
     @AfterMapping
     default void applyDefaultsAfterCreate(@MappingTarget BusinessSetting businessSetting) {
+        if (businessSetting.getBusinessName() == null || businessSetting.getBusinessName().isEmpty()) {
+            businessSetting.setBusinessName(BusinessSettingConstants.DEFAULT_BUSINESS_NAME);
+        }
         if (businessSetting.getPrimaryColor() == null) {
             businessSetting.setPrimaryColor(BusinessSettingConstants.DEFAULT_PRIMARY_COLOR);
         }
