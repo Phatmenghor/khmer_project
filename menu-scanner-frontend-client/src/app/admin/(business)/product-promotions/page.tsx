@@ -460,7 +460,7 @@ export default function ProductPromotionPage() {
       <div className="space-y-4">
         <CollapsibleFilterPanel
           config={filterConfig}
-          essentialFilterIds={["status"]}
+          essentialFilterIds={["size", "status"]}
         />
 
         {/* Data Table with Your Custom Pagination */}
