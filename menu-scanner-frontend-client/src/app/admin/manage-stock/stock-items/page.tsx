@@ -24,6 +24,8 @@ import {
 import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
 import { StockItemDetailModal } from "@/redux/features/business/components/stock-item-detail-modal";
 import { StockManagementModal } from "@/redux/features/business/components/product-stock-management-modal";
+import { SizeStockManagementModal } from "@/redux/features/business/components/size-stock-management-modal";
+import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -87,6 +89,11 @@ export default function StockItemsPage() {
     item: null as ProductStockItemDto | null,
   });
 
+  const [sizeStockManagementState, setSizeStockManagementState] = useState({
+    isOpen: false,
+    item: null as ProductStockItemDto | null,
+  });
+
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<CategoriesResponseModel | null>(null);
   const [stockStatusFilterUI, setStockStatusFilterUI] = useState("ALL");
@@ -140,10 +147,18 @@ export default function StockItemsPage() {
   };
 
   const handleEditStock = (item: ProductStockItemDto) => {
-    setStockManagementState({
-      isOpen: true,
-      item,
-    });
+    // Route to correct modal based on item type
+    if (item.type === "SIZE") {
+      setSizeStockManagementState({
+        isOpen: true,
+        item,
+      });
+    } else {
+      setStockManagementState({
+        isOpen: true,
+        item,
+      });
+    }
   };
 
   const tableHandlers = useMemo(
@@ -186,6 +201,13 @@ export default function StockItemsPage() {
 
   const closeStockManagementModal = () => {
     setStockManagementState({
+      isOpen: false,
+      item: null,
+    });
+  };
+
+  const closeSizeStockManagementModal = () => {
+    setSizeStockManagementState({
       isOpen: false,
       item: null,
     });
@@ -366,6 +388,38 @@ export default function StockItemsPage() {
         isOpen={stockManagementState.isOpen}
         onClose={closeStockManagementModal}
         stockItem={stockManagementState.item || undefined}
+      />
+
+      <SizeStockManagementModal
+        isOpen={sizeStockManagementState.isOpen}
+        onClose={closeSizeStockManagementModal}
+        product={
+          sizeStockManagementState.item
+            ? {
+                id: sizeStockManagementState.item.productId,
+                name: sizeStockManagementState.item.productName,
+                sku: sizeStockManagementState.item.sku,
+                mainImageUrl: sizeStockManagementState.item.mainImageUrl,
+                sizes: sizeStockManagementState.item.productSizeId
+                  ? [
+                      {
+                        id: sizeStockManagementState.item.productSizeId,
+                        name: sizeStockManagementState.item.sizeName || "",
+                        price: parseFloat(sizeStockManagementState.item.price || "0"),
+                        finalPrice: sizeStockManagementState.item.displayPrice || parseFloat(sizeStockManagementState.item.price || "0"),
+                        hasPromotion: sizeStockManagementState.item.hasPromotion || false,
+                        promotionType: sizeStockManagementState.item.displayPromotionType || "",
+                        promotionValue: sizeStockManagementState.item.displayPromotionValue || 0,
+                        promotionFromDate: sizeStockManagementState.item.displayPromotionFromDate || "",
+                        promotionToDate: sizeStockManagementState.item.displayPromotionToDate || "",
+                        barcode: sizeStockManagementState.item.barcode || "",
+                        sku: sizeStockManagementState.item.sku || "",
+                      },
+                    ]
+                  : [],
+              } as ProductDetailResponseModel
+            : null
+        }
       />
     </div>
   );
