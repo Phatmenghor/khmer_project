@@ -100,3 +100,24 @@ export const getProductStockItemsService = createAsyncThunk(
     }
   }
 );
+
+/**
+ * Get all product stock items without pagination
+ * Useful for reports, exports, and bulk operations
+ * Returns complete dataset for data analysis and bulk updates
+ */
+export const getProductStockItemsAllService = createAsyncThunk(
+  "stock-management/getProductStockItemsAll",
+  async (request: Omit<ProductStockItemsFilterRequest, 'pageNo' | 'pageSize'>, { rejectWithValue }) => {
+    try {
+      const response = await axiosClientWithAuth.post<{
+        data: ProductStockItemsListResponse;
+      }>("/api/v1/product-stock/items/my-business/all", request);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch all stock items"
+      );
+    }
+  }
+);
