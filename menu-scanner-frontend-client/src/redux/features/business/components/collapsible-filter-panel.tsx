@@ -158,7 +158,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             <h1 className="text-base sm:text-lg font-bold">{config.title}</h1>
           </div>
 
-          {/* Row 1: Search + Filters + Add Button (responsive wrap) */}
+          {/* Row 1: Search left + Filters & Add Button right */}
           <div className="flex flex-wrap items-end gap-3">
             {/* Search - Left side, flex-shrink-0 */}
             <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
@@ -174,28 +174,31 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               </div>
             </div>
 
-            {/* Essential Filters - Max width, can wrap */}
-            <div className="grid gap-3 flex-shrink-0"
-              style={{
-                gridTemplateColumns: 'repeat(2, minmax(140px, 1fr))',
-                maxWidth: '400px',
-              }}>
-              {essentialFilters.map((filter) => renderFilter(filter))}
-            </div>
+            {/* Right side: Filters + Add Button (grouped together) */}
+            <div className="flex flex-wrap items-end gap-3 ml-auto">
+              {/* Essential Filters - Max width, can wrap */}
+              <div className="grid gap-3 flex-shrink-0"
+                style={{
+                  gridTemplateColumns: 'repeat(2, minmax(140px, 1fr))',
+                  maxWidth: '350px',
+                }}>
+                {essentialFilters.map((filter) => renderFilter(filter))}
+              </div>
 
-            {/* Add Button - Right side, flex-shrink-0 */}
-            {config.buttonText && (
-              <Button
-                disabled={config.buttonDisabled}
-                size="sm"
-                variant="default"
-                onClick={config.onButtonClick}
-                className="gap-2 flex-shrink-0 ml-auto"
-              >
-                <Plus className="w-4 h-4" />
-                {config.buttonText}
-              </Button>
-            )}
+              {/* Add Button - Right side */}
+              {config.buttonText && (
+                <Button
+                  disabled={config.buttonDisabled}
+                  size="sm"
+                  variant="default"
+                  onClick={config.onButtonClick}
+                  className="gap-2 flex-shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  {config.buttonText}
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
