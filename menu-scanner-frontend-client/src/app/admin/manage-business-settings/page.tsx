@@ -26,6 +26,7 @@ import { ClickableImageUpload } from "@/components/shared/form-field/clickable-i
 import { uploadImageService } from "@/services/image-service";
 
 interface FormData {
+  businessName: string;
   taxPercentage: string;
   logoBusinessUrl: string;
   enableStock: "ENABLED" | "DISABLED";
@@ -59,6 +60,7 @@ export default function BusinessSettingsPage() {
 
       // Initialize form with current data
       form.reset({
+        businessName: data?.businessName || "",
         taxPercentage: data?.taxPercentage?.toString() || "",
         logoBusinessUrl: data?.logoBusinessUrl || "",
         enableStock: data?.enableStock || "DISABLED",
@@ -180,6 +182,7 @@ export default function BusinessSettingsPage() {
       }
 
       const payload = {
+        businessName: data.businessName,
         taxPercentage: data.taxPercentage
           ? parseFloat(data.taxPercentage)
           : null,
@@ -243,6 +246,19 @@ export default function BusinessSettingsPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Business Name */}
+              <div className="space-y-2">
+                <Label htmlFor="businessName">Business Name</Label>
+                <Input
+                  id="businessName"
+                  placeholder="Your business name"
+                  {...form.register("businessName")}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Your business name displayed throughout the site
+                </p>
+              </div>
+
               {/* Tax Percentage */}
               <div className="space-y-2">
                 <Label htmlFor="taxPercentage">Tax Percentage</Label>

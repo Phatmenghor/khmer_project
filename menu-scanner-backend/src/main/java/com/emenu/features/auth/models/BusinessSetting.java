@@ -29,6 +29,9 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "tax_percentage")
     private Double taxPercentage;
 
+    @Column(name = "business_name")
+    private String businessName;
+
     @Column(name = "logo_business_url")
     private String logoBusinessUrl;
 

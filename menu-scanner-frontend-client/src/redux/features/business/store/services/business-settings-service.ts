@@ -29,6 +29,7 @@ export interface BusinessSettingsResponse {
 }
 
 export interface UpdateBusinessSettingsRequest {
+  businessName?: string;
   taxPercentage?: number | null;
   logoBusinessUrl?: string;
   enableStock?: "ENABLED" | "DISABLED";

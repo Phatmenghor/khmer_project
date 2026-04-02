@@ -20,6 +20,8 @@ public class BusinessSettingCreateRequest {
     @NotNull(message = "Business ID is required")
     private UUID businessId;
 
+    private String businessName;
+
     @DecimalMin(value = "0.0")
     @DecimalMax(value = "100.0")
     private Double taxPercentage;

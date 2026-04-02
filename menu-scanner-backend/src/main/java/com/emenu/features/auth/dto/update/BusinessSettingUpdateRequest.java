@@ -15,6 +15,8 @@ import java.util.List;
 @Data
 public class BusinessSettingUpdateRequest {
 
+    private String businessName;
+
     @DecimalMin(value = "0.0")
     @DecimalMax(value = "100.0")
     private Double taxPercentage;
