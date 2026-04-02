@@ -46,7 +46,6 @@ export default function BusinessSettingsPage() {
 
   const [isLoading, setIsLoading] = useState(!reduxBusinessSettings);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   const form = useForm<FormData>({
     mode: "onChange",
@@ -103,26 +102,13 @@ export default function BusinessSettingsPage() {
     }
   };
 
-  // Handle business logo selection and upload (follows profile picture pattern)
-  const handleLogoSelect = async (imageData: string) => {
-    try {
-      setIsUploadingLogo(true);
-
-      // Use the same uploadImage utility as profile page
-      const logoUrl = await uploadImage(imageData);
-
-      // Update form with the uploaded URL
-      form.setValue("logoBusinessUrl", logoUrl, {
-        shouldDirty: true,
-      });
-      showToast.success("✓ Logo uploaded successfully");
-    } catch (error) {
-      console.error("Error uploading logo:", error);
-      const message = error instanceof Error ? error.message : "Failed to upload logo";
-      showToast.error(message);
-    } finally {
-      setIsUploadingLogo(false);
-    }
+  // Handle business logo selection (store base64, upload on Save)
+  const handleLogoSelect = (imageData: string) => {
+    // Just store the base64 in the form, don't upload yet
+    form.setValue("logoBusinessUrl", imageData, {
+      shouldDirty: true,
+    });
+    showToast.success("✓ Logo selected - click Save Changes to upload");
   };
 
   // Helper function to apply theme colors in real-time (hex to HSL conversion)
@@ -195,13 +181,27 @@ export default function BusinessSettingsPage() {
     try {
       setIsSaving(true);
 
-      // Logo is already uploaded via handleLogoSelect
+      // Upload logo if it's base64 (follows profile pattern)
+      let logoBusinessUrl = data.logoBusinessUrl;
+      if (isBase64Image(logoBusinessUrl)) {
+        try {
+          console.log("📤 [UPLOAD CDN] Uploading logo to CDN...");
+          logoBusinessUrl = await uploadImage(logoBusinessUrl);
+          console.log("✅ [UPLOAD CDN] Logo URL from CDN:", logoBusinessUrl);
+        } catch (error) {
+          console.error("Failed to upload logo:", error);
+          showToast.error("Failed to upload logo");
+          return;
+        }
+      }
+
+      // Create payload with the uploaded logo URL
       const payload = {
         businessName: data.businessName,
         taxPercentage: data.taxPercentage
           ? parseFloat(data.taxPercentage)
           : null,
-        logoBusinessUrl: data.logoBusinessUrl,
+        logoBusinessUrl: logoBusinessUrl,
         enableStock: data.enableStock,
         socialMedia: data.socialMedia,
         primaryColor: data.primaryColor,
@@ -216,7 +216,11 @@ export default function BusinessSettingsPage() {
 
         // Apply colors in real-time without refresh
         if (result.primaryColor || result.secondaryColor || result.accentColor) {
-          applyThemeColors(result.primaryColor, result.secondaryColor, result.accentColor);
+          applyThemeColors(
+            result.primaryColor,
+            result.secondaryColor,
+            result.accentColor
+          );
         }
 
         showToast.success("Business settings updated successfully");
@@ -337,7 +341,7 @@ export default function BusinessSettingsPage() {
                   label="Business Logo"
                   value={form.watch("logoBusinessUrl")}
                   onChange={handleLogoSelect}
-                  disabled={isSaving || isUploadingLogo}
+                  disabled={isSaving}
                   aspectRatio="square"
                   height="h-48"
                   placeholder="Click to upload logo"
@@ -345,7 +349,7 @@ export default function BusinessSettingsPage() {
                   maxSize={5}
                 />
                 <p className="text-xs text-muted-foreground mt-2">
-                  Logo will be uploaded immediately when selected
+                  Logo will be uploaded when you click Save Changes
                 </p>
               </div>
               {/* Right column - empty for now, can be used for future additions */}
@@ -580,13 +584,13 @@ export default function BusinessSettingsPage() {
           </Button>
           <Button
             type="submit"
-            disabled={isSaving || isUploadingLogo || !form.formState.isDirty}
+            disabled={isSaving || !form.formState.isDirty}
             className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
           >
-            {isSaving || isUploadingLogo ? (
+            {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isUploadingLogo ? "Uploading..." : "Saving..."}
+                Saving...
               </>
             ) : (
               <>
