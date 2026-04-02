@@ -5,6 +5,7 @@ import {
   LucideIcon,
   LucideBriefcaseBusiness,
   ShoppingCart,
+  Settings,
 } from "lucide-react";
 
 export const ROUTES = {
@@ -146,10 +147,6 @@ export const SIDEBAR_MENU: MenuItem[] = [
         title: "Orders",
         href: ROUTES.ADMIN.ORDERS,
       },
-      {
-        title: "Business Settings",
-        href: ROUTES.ADMIN.BUSINESS_SETTINGS,
-      },
     ],
   },
   {
@@ -167,6 +164,16 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Size Stock",
         href: ROUTES.MANAGE_STOCK.SIZE_STOCK,
+      },
+    ],
+  },
+  {
+    title: "Settings",
+    icon: Settings,
+    items: [
+      {
+        title: "Business Settings",
+        href: ROUTES.ADMIN.BUSINESS_SETTINGS,
       },
     ],
   },
