@@ -282,7 +282,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             )
             UNION ALL
             (
-                -- Products with sizes
+                -- Products with sizes (use ProductSize promotion fields, fallback to Product if null)
                 SELECT
                     p.id as product_id,
                     psz.id as product_size_id,
@@ -295,13 +295,13 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     p.sku,
                     p.barcode,
                     psz.name as size_name,
-                    p.price,
-                    COALESCE(p.display_price, p.price)::decimal as display_price,
-                    p.display_promotion_type::varchar,
-                    p.display_promotion_value::decimal,
-                    p.display_promotion_from_date,
-                    p.display_promotion_to_date,
-                    p.has_active_promotion as has_promotion,
+                    psz.price,
+                    COALESCE(psz.display_price, psz.price)::decimal as display_price,
+                    psz.display_promotion_type::varchar,
+                    psz.display_promotion_value::decimal,
+                    psz.display_promotion_from_date,
+                    psz.display_promotion_to_date,
+                    psz.has_active_promotion as has_promotion,
                     COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
                     COALESCE(SUM(ps.quantity_on_hand - ps.quantity_reserved), 0)::bigint as quantity_available,
                     COALESCE(SUM(ps.quantity_reserved), 0)::bigint as quantity_reserved,
@@ -325,7 +325,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, p.price, p.display_price, p.display_promotion_type, p.display_promotion_value, p.display_promotion_from_date, p.display_promotion_to_date, p.has_active_promotion, p.main_image_url, p.status, p.stock_status, psz.created_at, psz.updated_at
+                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, psz.price, psz.display_price, psz.display_promotion_type, psz.display_promotion_value, psz.display_promotion_from_date, psz.display_promotion_to_date, psz.has_active_promotion, p.main_image_url, p.status, p.stock_status, psz.created_at, psz.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
         ) AS result
