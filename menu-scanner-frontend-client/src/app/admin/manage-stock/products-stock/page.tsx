@@ -96,6 +96,7 @@ export default function ProductsStockPage() {
   const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortDirection, setSortDirection] = useState("DESC");
+  const [lowStockThreshold, setLowStockThreshold] = useState<number | undefined>(undefined);
 
   // Debounce refs for stock status toggle
   const stockStatusDebounceRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
@@ -109,6 +110,7 @@ export default function ProductsStockPage() {
   );
 
   const debouncedSearch = useDebounce(filters.search, 400);
+  const debouncedLowStockThreshold = useDebounce(lowStockThreshold, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.MANAGE_STOCK.PRODUCTS_STOCK,
@@ -138,6 +140,9 @@ export default function ProductsStockPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         stockStatuses,
+        sortBy,
+        sortDirection,
+        lowStockThreshold: debouncedLowStockThreshold,
       }),
     );
   }, [
@@ -149,6 +154,9 @@ export default function ProductsStockPage() {
     selectedBrand,
     selectedCategories,
     stockStatusFilter,
+    sortBy,
+    sortDirection,
+    debouncedLowStockThreshold,
   ]);
 
   // Refetch products when stock is created to update totalStock
@@ -174,6 +182,9 @@ export default function ProductsStockPage() {
           brandId: selectedBrand?.id,
           categoryId: selectedCategories?.id,
           stockStatuses,
+        sortBy,
+        sortDirection,
+        lowStockThreshold: debouncedLowStockThreshold,
         }),
       );
     }
@@ -318,6 +329,10 @@ export default function ProductsStockPage() {
     setSortDirection(value);
   };
 
+  const handleLowStockThresholdChange = (value: number | undefined) => {
+    setLowStockThreshold(value);
+  };
+
   // Create filter configuration for CollapsibleFilterPanel
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Product Stock Information",
@@ -334,6 +349,9 @@ export default function ProductsStockPage() {
         label: "Stock Status",
         placeholder: "All Stock Status",
         value: stockStatusFilter,
+    sortBy,
+    sortDirection,
+    debouncedLowStockThreshold,
         onChange: handleStockStatusChange,
         options: STOCK_STATUS_FILTER,
       },
@@ -365,6 +383,14 @@ export default function ProductsStockPage() {
         options: PRODUCT_STATUS_FILTER,
       },
       {
+        id: "lowStockThreshold",
+        type: "input-number",
+        label: "Low Stock Threshold",
+        placeholder: "Enter threshold",
+        value: lowStockThreshold,
+        onChange: handleLowStockThresholdChange,
+      },
+      {
         id: "sortBy",
         type: "select",
         label: "Sort By",
@@ -383,14 +409,14 @@ export default function ProductsStockPage() {
         options: SORT_DIRECTION_OPTIONS,
       },
     ],
-  }), [filters.search, stockStatusFilter, selectedBrand, selectedCategories, sortBy, sortDirection]);
+  }), [filters.search, filters.status, stockStatusFilter, selectedBrand, selectedCategories, sortBy, sortDirection, lowStockThreshold]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CollapsibleFilterPanel
           config={filterConfig}
-          essentialFilterIds={["stockStatus"]}
+          essentialFilterIds={["productStatus", "stockStatus"]}
         />
 
         {/* Data Table with Your Custom Pagination */}
