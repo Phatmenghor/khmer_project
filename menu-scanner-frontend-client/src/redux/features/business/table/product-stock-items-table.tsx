@@ -4,8 +4,6 @@ import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { getStockStatusLabel, getProductStatusLabel } from "@/constants/status/status";
-import { formatCurrency } from "@/utils/common/currency-format";
-import { Badge } from "@/components/ui/badge";
 import { ProductStockItemDto, ProductStockItemsListResponse } from "../store/models/response/stock-response";
 
 interface StockItemsTableHandlers {
@@ -107,48 +105,6 @@ export const stockItemsTableColumns = ({
     },
 
     {
-      key: "price",
-      label: "Price",
-      minWidth: "100px",
-      maxWidth: "150px",
-      render: (item) => {
-        if (!item?.price) return <span className="text-xs text-muted-foreground">---</span>;
-        const basePrice = parseFloat(item.price);
-        return (
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium">
-              {formatCurrency(basePrice)}
-            </span>
-            {item.hasPromotion && item.displayPrice && (
-              <span className="text-xs font-bold text-green-600">
-                {formatCurrency(item.displayPrice)}
-              </span>
-            )}
-          </div>
-        );
-      },
-    },
-
-    {
-      key: "hasPromotion",
-      label: "Promotion",
-      minWidth: "120px",
-      maxWidth: "180px",
-      render: (item) => {
-        if (!item?.hasPromotion) {
-          return <span className="text-xs text-muted-foreground">No Promotion</span>;
-        }
-        return (
-          <Badge variant="destructive" className="text-xs">
-            {item.displayPromotionType === "PERCENTAGE"
-              ? `${item.displayPromotionValue}% OFF`
-              : `Save ${formatCurrency(item.displayPromotionValue || 0)}`}
-          </Badge>
-        );
-      },
-    },
-
-    {
       key: "sizeName",
       label: "Size",
       minWidth: "80px",
@@ -178,48 +134,6 @@ export const stockItemsTableColumns = ({
           return <span className="text-xs font-medium text-yellow-600">{stock} Items</span>;
         }
         return <span className="text-xs font-medium text-green-600">{stock} Items</span>;
-      },
-    },
-
-    {
-      key: "quantityAvailable",
-      label: "Available",
-      minWidth: "100px",
-      maxWidth: "150px",
-      render: (item) => {
-        const available = item?.quantityAvailable;
-        if (available === null || available === undefined) {
-          return <span className="text-xs text-muted-foreground">---</span>;
-        }
-        return <span className="text-xs font-medium text-green-600">{available} Items</span>;
-      },
-    },
-
-    {
-      key: "quantityReserved",
-      label: "Reserved",
-      minWidth: "100px",
-      maxWidth: "150px",
-      render: (item) => {
-        const reserved = item?.quantityReserved;
-        if (reserved === null || reserved === undefined) {
-          return <span className="text-xs text-muted-foreground">---</span>;
-        }
-        return <span className="text-xs font-medium text-orange-600">{reserved} Items</span>;
-      },
-    },
-
-    {
-      key: "quantityOnHand",
-      label: "On Hand",
-      minWidth: "100px",
-      maxWidth: "150px",
-      render: (item) => {
-        const onHand = item?.quantityOnHand;
-        if (onHand === null || onHand === undefined) {
-          return <span className="text-xs text-muted-foreground">---</span>;
-        }
-        return <span className="text-xs font-medium">{onHand} Items</span>;
       },
     },
 
