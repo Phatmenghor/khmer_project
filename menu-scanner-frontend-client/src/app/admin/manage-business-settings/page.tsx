@@ -22,6 +22,8 @@ import {
   type BusinessSettingsResponse,
   type SocialMedia,
 } from "@/redux/features/business/store/services/business-settings-service";
+import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { uploadImageService } from "@/services/image-service";
 
 interface FormData {
   taxPercentage: string;
@@ -38,6 +40,7 @@ export default function BusinessSettingsPage() {
     useState<BusinessSettingsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   const form = useForm<FormData>({
     mode: "onChange",
@@ -69,6 +72,30 @@ export default function BusinessSettingsPage() {
       showToast.error("Failed to load business settings");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle business logo upload
+  const handleLogoUpload = async (base64: string) => {
+    try {
+      setIsUploadingLogo(true);
+
+      const response = await uploadImageService({
+        base64,
+        type: "BUSINESS_LOGO",
+      });
+
+      if (response?.imageUrl) {
+        form.setValue("logoBusinessUrl", response.imageUrl, { shouldDirty: true });
+        showToast.success("Logo uploaded successfully");
+      } else {
+        showToast.error("Failed to upload logo");
+      }
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      showToast.error("Failed to upload logo");
+    } finally {
+      setIsUploadingLogo(false);
     }
   };
 
@@ -264,33 +291,22 @@ export default function BusinessSettingsPage() {
               </div>
             </div>
 
-            {/* Logo URL */}
-            <div className="space-y-2">
-              <Label htmlFor="logoBusinessUrl">Business Logo</Label>
-              <Input
-                id="logoBusinessUrl"
-                type="url"
-                placeholder="https://example.com/logo.png"
-                {...form.register("logoBusinessUrl")}
+            {/* Business Logo Upload */}
+            <div>
+              <ClickableImageUpload
+                label="Business Logo"
+                value={form.watch("logoBusinessUrl")}
+                onChange={handleLogoUpload}
+                disabled={isSaving || isUploadingLogo}
+                aspectRatio="square"
+                height="h-48"
+                placeholder="Click to upload logo"
+                helperText="Upload a square image (PNG, JPG, etc.)"
+                maxSize={5}
               />
-              <p className="text-xs text-muted-foreground">
-                Business logo image URL
+              <p className="text-xs text-muted-foreground mt-2">
+                Logo will be uploaded to server and saved to business settings
               </p>
-              {form.watch("logoBusinessUrl") && (
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">
-                    Preview:
-                  </span>
-                  <img
-                    src={form.watch("logoBusinessUrl")}
-                    alt="Logo preview"
-                    className="h-10 w-10 rounded border object-cover"
-                    onError={() => {
-                      console.error("Failed to load logo image");
-                    }}
-                  />
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
