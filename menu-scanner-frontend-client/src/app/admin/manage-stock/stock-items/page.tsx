@@ -103,6 +103,7 @@ export default function StockItemsPage() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
+  const debouncedLowStockThreshold = useDebounce(filters.lowStockThreshold, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.MANAGE_STOCK.STOCK_ITEMS,
@@ -119,7 +120,7 @@ export default function StockItemsPage() {
       search: debouncedSearch,
       status: filters.status as "ACTIVE" | "INACTIVE" | undefined,
       stockStatus: filters.stockStatus as "ENABLED" | "DISABLED" | undefined,
-      lowStockThreshold: filters.lowStockThreshold,
+      lowStockThreshold: debouncedLowStockThreshold,
       hasSizes: filters.hasSizes,
     };
 
@@ -132,7 +133,7 @@ export default function StockItemsPage() {
     debouncedSearch,
     filters.status,
     filters.stockStatus,
-    filters.lowStockThreshold,
+    debouncedLowStockThreshold,
     filters.hasSizes,
     globalPageSize,
   ]);
