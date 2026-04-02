@@ -413,7 +413,7 @@ export function StockItemManagementModal({
                                 ${parseFloat(stockItem.price).toFixed(2)}
                               </p>
                             </div>
-                            {stockItem.hasPromotion && (
+                            {stockItem.hasPromotion === true && (
                               <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
                                 On Sale
                               </Badge>
@@ -421,7 +421,7 @@ export function StockItemManagementModal({
                           </div>
 
                           {/* Promotion Info */}
-                          {stockItem.hasPromotion && (
+                          {stockItem.hasPromotion === true && (
                             <div className="mt-3 pt-3 border-t border-muted space-y-2 text-xs">
                               <div>
                                 <p className="text-muted-foreground">Promotion Type:</p>
@@ -471,7 +471,7 @@ export function StockItemManagementModal({
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Selling Price (each):</span>
                               <span className="font-medium">
-                                ${(stockItem.hasPromotion ? stockItem.displayPrice : parseFloat(stockItem.price)).toFixed(2)}
+                                ${(stockItem.hasPromotion === true ? stockItem.displayPrice : parseFloat(stockItem.price)).toFixed(2)}
                               </span>
                             </div>
                             <div className="pt-3 border-t border-muted flex justify-between">
@@ -479,7 +479,7 @@ export function StockItemManagementModal({
                               <span className="text-lg font-bold text-green-600">
                                 ${(
                                   (form.watch("quantityOnHand") || 0) *
-                                  (stockItem.hasPromotion ? stockItem.displayPrice : parseFloat(stockItem.price))
+                                  (stockItem.hasPromotion === true ? stockItem.displayPrice : parseFloat(stockItem.price))
                                 ).toFixed(2)}
                               </span>
                             </div>
