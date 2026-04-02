@@ -1,5 +1,6 @@
 package com.emenu.features.auth.models;
 
+import com.emenu.features.auth.enums.StockStatus;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -119,4 +121,18 @@ public class BusinessSetting extends BaseUUIDEntity {
 
     @Column(name = "refund_policy", columnDefinition = "TEXT")
     private String refundPolicy;
+
+    // Stock Management
+    @Column(name = "enable_stock")
+    @Enumerated(EnumType.STRING)
+    private StockStatus enableStock;
+
+    // Social Media
+    @OneToMany(
+        mappedBy = "businessSetting",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    private List<SocialMedia> socialMedia;
 }
