@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
 import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thunks/business-settings-thunks";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
+import { BusinessSettingsResponse } from "@/redux/features/business/store/services/business-settings-service";
 
 // Default brand colors from tailwind config
 const DEFAULT_COLORS = {
@@ -74,12 +75,13 @@ export function useBusinessTheme() {
 
     // If not in Redux, fetch from API using thunk
     dispatch(fetchBusinessSettingsThunk()).then((action) => {
-      if (action.payload) {
-        const payload = action.payload;
+      // Check if action was fulfilled and has payload
+      if (action.meta.requestStatus === "fulfilled" && action.payload) {
+        const payload = action.payload as BusinessSettingsResponse;
         applyColors(payload.primaryColor, payload.secondaryColor, payload.accentColor);
-        console.log("Business theme loaded and applied successfully");
+        console.log("## [THEME] Business theme loaded and applied successfully");
       } else {
-        console.error("Failed to load business theme, using defaults");
+        console.error("## [THEME] Failed to load business theme, using defaults");
         applyColors(DEFAULT_COLORS.primary, DEFAULT_COLORS.secondary, DEFAULT_COLORS.accent);
       }
     });
