@@ -279,13 +279,13 @@ export default function BusinessSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Social Media Settings */}
+        {/* Social Media Accounts */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold">Social Media Accounts</h3>
               <p className="text-sm text-muted-foreground">
-                {form.watch("socialMedia") && form.watch("socialMedia").length > 0
+                {form.watch("socialMedia")?.length > 0
                   ? `${form.watch("socialMedia").length} account${
                       form.watch("socialMedia").length > 1 ? "s" : ""
                     } added`
@@ -309,7 +309,7 @@ export default function BusinessSettingsPage() {
             </Button>
           </div>
 
-          {form.watch("socialMedia") && form.watch("socialMedia").length === 0 ? (
+          {form.watch("socialMedia")?.length === 0 ? (
             <div className="text-center py-8 border-2 border-dashed rounded-lg">
               <p className="text-sm text-muted-foreground">
                 No social media accounts added
@@ -319,18 +319,15 @@ export default function BusinessSettingsPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {form.watch("socialMedia") && form.watch("socialMedia").map((social, index) => (
+                  {form.watch("socialMedia")?.map((social, index) => (
                     <div
                       key={index}
                       className="border rounded-lg p-4 relative lg:col-span-2"
                     >
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor={`social-name-${index}`} className="text-sm font-medium">
-                            Platform Name
-                          </Label>
+                          <Label className="text-sm font-medium">Platform Name</Label>
                           <Input
-                            id={`social-name-${index}`}
                             placeholder="e.g., Facebook"
                             value={social.name}
                             onChange={(e) => {
@@ -341,11 +338,8 @@ export default function BusinessSettingsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor={`social-image-${index}`} className="text-sm font-medium">
-                            Icon/Logo URL
-                          </Label>
+                          <Label className="text-sm font-medium">Icon/Logo URL</Label>
                           <Input
-                            id={`social-image-${index}`}
                             placeholder="https://example.com/icon.png"
                             type="url"
                             value={social.imageUrl}
@@ -357,11 +351,8 @@ export default function BusinessSettingsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor={`social-url-${index}`} className="text-sm font-medium">
-                            Profile URL
-                          </Label>
+                          <Label className="text-sm font-medium">Profile URL</Label>
                           <Input
-                            id={`social-url-${index}`}
                             placeholder="https://facebook.com/yourprofile"
                             type="url"
                             value={social.linkUrl}
