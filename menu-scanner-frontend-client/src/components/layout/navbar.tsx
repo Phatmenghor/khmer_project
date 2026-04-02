@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
 import {
   Search,
   ShoppingCart,
@@ -24,6 +25,7 @@ import { CustomButton } from "../shared/button/custom-button";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
+import { selectBusinessName, selectBusinessLogo } from "@/redux/features/business/store/selectors/business-settings-selector";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useLogout } from "@/redux/store/use-logout";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -55,6 +57,9 @@ export function Navbar() {
   const { totalItems: cartItemCount } = useCartState();
   const { totalItems: favoriteItemCount } = useFavoriteState();
   const { logout: handleLogout } = useLogout();
+
+  const businessName = useSelector(selectBusinessName);
+  const businessLogoUrl = useSelector(selectBusinessLogo);
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);
@@ -223,18 +228,29 @@ export function Navbar() {
             /* ── Mobile: compact top bar ── */
             <div className="sm:hidden flex items-center justify-between h-14 gap-2">
               <Link href="/" className="flex items-center gap-2 shrink-0">
-                <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm">
-                  <Image
-                    src="/assets/favicon.ico"
-                    alt="Logo"
-                    width={20}
-                    height={20}
-                    className="rounded object-contain"
-                    priority
-                  />
+                <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm overflow-hidden">
+                  {businessLogoUrl ? (
+                    <img
+                      src={businessLogoUrl}
+                      alt={businessName}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/no-image.png";
+                      }}
+                    />
+                  ) : (
+                    <Image
+                      src="/assets/favicon.ico"
+                      alt="Logo"
+                      width={20}
+                      height={20}
+                      className="rounded object-contain"
+                      priority
+                    />
+                  )}
                 </div>
                 <span className="font-bold text-sm text-foreground">
-                  E-Commerce
+                  {businessName}
                 </span>
               </Link>
 
@@ -301,19 +317,30 @@ export function Navbar() {
           <div className="hidden sm:flex h-16 items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               <Link href="/" className="flex items-center gap-2 group">
-                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
-                  <Image
-                    src="/assets/favicon.ico"
-                    alt="Logo"
-                    width={24}
-                    height={24}
-                    className="rounded object-contain"
-                    priority
-                  />
+                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
+                  {businessLogoUrl ? (
+                    <img
+                      src={businessLogoUrl}
+                      alt={businessName}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/no-image.png";
+                      }}
+                    />
+                  ) : (
+                    <Image
+                      src="/assets/favicon.ico"
+                      alt="Logo"
+                      width={24}
+                      height={24}
+                      className="rounded object-contain"
+                      priority
+                    />
+                  )}
                 </div>
                 <div className="hidden md:flex flex-col">
                   <span className="text-foreground font-bold text-sm leading-tight">
-                    E-Commerce
+                    {businessName}
                   </span>
                   <span className="text-muted-foreground text-xs font-medium">
                     Shop Online
