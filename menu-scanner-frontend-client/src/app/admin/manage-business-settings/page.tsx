@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,17 +29,10 @@ import {
   updateBusinessSettingsThunk,
 } from "@/redux/features/business/store/thunks/business-settings-thunks";
 import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
-
-interface FormData {
-  businessName: string;
-  taxPercentage: string;
-  logoBusinessUrl: string;
-  enableStock: "ENABLED" | "DISABLED";
-  socialMedia: SocialMedia[];
-  primaryColor?: string;
-  secondaryColor?: string;
-  accentColor?: string;
-}
+import {
+  businessSettingsSchema,
+  type BusinessSettingsFormData,
+} from "./schema/business-settings.schema";
 
 export default function BusinessSettingsPage() {
   const dispatch = useAppDispatch();
@@ -47,7 +41,8 @@ export default function BusinessSettingsPage() {
   const [isLoading, setIsLoading] = useState(!reduxBusinessSettings);
   const [isSaving, setIsSaving] = useState(false);
 
-  const form = useForm<FormData>({
+  const form = useForm<BusinessSettingsFormData>({
+    resolver: zodResolver(businessSettingsSchema),
     mode: "onChange",
   });
 
@@ -177,7 +172,7 @@ export default function BusinessSettingsPage() {
     }
   };
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: BusinessSettingsFormData) => {
     try {
       setIsSaving(true);
 
