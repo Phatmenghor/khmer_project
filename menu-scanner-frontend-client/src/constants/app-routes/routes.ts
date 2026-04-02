@@ -36,6 +36,7 @@ export const ROUTES = {
     ORDERS: "/admin/orders",
     ORDERS_CREATE: "/admin/orders/create",
     POS: "/admin/pos",
+    BUSINESS_SETTINGS: "/admin/manage-business-settings",
   },
 
   MANAGE_STOCK: {
@@ -144,6 +145,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Orders",
         href: ROUTES.ADMIN.ORDERS,
+      },
+      {
+        title: "Business Settings",
+        href: ROUTES.ADMIN.BUSINESS_SETTINGS,
       },
     ],
   },

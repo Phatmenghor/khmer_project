@@ -30,6 +30,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
     HR: true,
     Business: true,
     Users: true,
+    "Stock Management": true,
   });
   const [collapsed, setCollapsed] = useState(false);
 
