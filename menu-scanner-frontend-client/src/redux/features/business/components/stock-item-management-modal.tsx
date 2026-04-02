@@ -471,7 +471,7 @@ export function StockItemManagementModal({
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Selling Price (each):</span>
                               <span className="font-medium">
-                                ${(stockItem.hasPromotion === true ? stockItem.displayPrice : parseFloat(stockItem.price)).toFixed(2)}
+                                ${(stockItem.hasPromotion === true ? (stockItem.displayPrice || 0) : parseFloat(stockItem.price)).toFixed(2)}
                               </span>
                             </div>
                             <div className="pt-3 border-t border-muted flex justify-between">
@@ -479,7 +479,7 @@ export function StockItemManagementModal({
                               <span className="text-lg font-bold text-green-600">
                                 ${(
                                   (form.watch("quantityOnHand") || 0) *
-                                  (stockItem.hasPromotion === true ? stockItem.displayPrice : parseFloat(stockItem.price))
+                                  (stockItem.hasPromotion === true ? (stockItem.displayPrice || 0) : parseFloat(stockItem.price))
                                 ).toFixed(2)}
                               </span>
                             </div>

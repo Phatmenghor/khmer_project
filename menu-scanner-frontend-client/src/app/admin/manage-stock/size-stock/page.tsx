@@ -141,9 +141,6 @@ export default function SizeStockPage() {
         categoryId: selectedCategories?.id,
         stockStatuses,
         hasSize: true, // Filter to only products with sizes
-        sortBy,
-        sortDirection,
-        lowStockThreshold: debouncedLowStockThreshold,
       }),
     );
   }, [

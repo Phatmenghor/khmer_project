@@ -38,8 +38,6 @@ import { ProductDetailResponseModel } from "../store/models/response/product-res
 import { ProductStockDto, ProductStockItemDto } from "../store/models/response/stock-response";
 import { createStockHistoryColumns } from "../table/product-stock-history-table";
 import { useAppSelector } from "@/redux/store";
-import { selectSelectedProduct } from "../store/selectors/product-selector";
-import { fetchProductByIdService } from "../store/thunks/product-thunks";
 
 interface StockFormData {
   quantityOnHand?: number;
@@ -51,18 +49,17 @@ interface StockFormData {
 interface StockManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
-  stockItem?: ProductStockItemDto;
+  product?: ProductDetailResponseModel | null;
 }
 
 export function StockManagementModal({
   isOpen,
   onClose,
-  stockItem,
+  product,
 }: StockManagementModalProps) {
   const dispatch = useAppDispatch();
   const { history, isLoading, isCreating, isUpdating, isDeleting, error, successMessage } =
     useSelector((state: any) => state.stockManagement);
-  const productData = useAppSelector(selectSelectedProduct);
   const [historyPageNo, setHistoryPageNo] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);
   const [editingStock, setEditingStock] = useState<ProductStockDto | null>(null);
@@ -98,25 +95,18 @@ export function StockManagementModal({
     }
   }, [error, dispatch]);
 
-  // Fetch product details for pricing/promotion info
-  useEffect(() => {
-    if (isOpen && stockItem?.productId) {
-      dispatch(fetchProductByIdService(stockItem.productId));
-    }
-  }, [isOpen, stockItem?.productId, dispatch]);
-
   // Load history when modal opens or pagination changes
   useEffect(() => {
-    if (isOpen && stockItem) {
+    if (isOpen && product?.id) {
       dispatch(
         getProductStockHistoryService({
           pageNo: historyPageNo,
           pageSize: historyPageSize,
-          productId: stockItem.productId,
+          productId: product.id,
         })
       );
     }
-  }, [isOpen, stockItem, dispatch, historyPageNo, historyPageSize]);
+  }, [isOpen, product?.id, dispatch, historyPageNo, historyPageSize]);
 
   // Reset form when modal opens or closes
   useEffect(() => {
@@ -145,7 +135,7 @@ export function StockManagementModal({
       return handleUpdateStock(data);
     }
 
-    if (!stockItem) return;
+    if (!product?.id) return;
 
     const quantity = Number(data.quantityOnHand);
     if (isNaN(quantity) || quantity < 0) {
@@ -173,8 +163,7 @@ export function StockManagementModal({
 
     dispatch(
       createProductStockService({
-        productId: stockItem.productId || "",
-        productSizeId: stockItem.productSizeId || undefined,
+        productId: product.id,
         quantityOnHand: quantity,
         priceIn: price,
         expiryDate: formattedExpiryDate || undefined,
@@ -265,17 +254,17 @@ export function StockManagementModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTitle className="sr-only">
-        Stock Management - {stockItem?.productName}
+        Stock Management - {product?.name}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
-              {stockItem?.mainImageUrl ? (
+              {product?.mainImageUrl ? (
                 <img
-                  src={stockItem.mainImageUrl}
-                  alt={stockItem?.productName}
+                  src={product.mainImageUrl}
+                  alt={product?.name}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -289,14 +278,14 @@ export function StockManagementModal({
                 Stock Management
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {stockItem?.productName}
+                {product?.name}
               </p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant="outline" className="text-xs">
-                  SKU: {stockItem?.sku || "---"}
+                  SKU: {product?.sku || "---"}
                 </Badge>
                 <Badge variant="outline" className="text-xs">
-                  Barcode: {stockItem?.barcode || "---"}
+                  Barcode: {product?.barcode || "---"}
                 </Badge>
               </div>
             </div>
@@ -409,7 +398,7 @@ export function StockManagementModal({
                   </div>
 
                   {/* Preview Section - Sales Preview with pricing info */}
-                  {productData && productData.price && (
+                  {product && product.displayPrice && (
                     <div className="border-t pt-6">
                         <h3 className="text-sm font-semibold mb-3">Sales Preview</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -419,10 +408,10 @@ export function StockManagementModal({
                               <div>
                                 <p className="text-xs text-muted-foreground">Product Selling Price</p>
                                 <p className="text-lg font-semibold text-foreground">
-                                  ${(productData.price as unknown as number).toFixed(2)}
+                                  ${(product.price as unknown as number).toFixed(2)}
                                 </p>
                               </div>
-                              {productData.hasPromotion && (
+                              {product.hasPromotion === true && (
                                 <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
                                   On Sale
                                 </Badge>
@@ -430,29 +419,29 @@ export function StockManagementModal({
                             </div>
 
                             {/* Promotion Info */}
-                            {productData.hasPromotion && (
+                            {product.hasPromotion === true && (
                               <div className="mt-3 pt-3 border-t border-muted space-y-2 text-xs">
                                 <div>
                                   <p className="text-muted-foreground">Promotion Type:</p>
                                   <p className="font-medium">
-                                    {productData.displayPromotionType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
+                                    {product.displayPromotionType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
                                   </p>
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground">Discount:</p>
                                   <p className="font-medium">
-                                    {productData.displayPromotionType === "PERCENTAGE"
-                                      ? `${productData.displayPromotionValue}%`
-                                      : `$${(productData.displayPromotionValue || 0).toFixed(2)}`}
+                                    {product.displayPromotionType === "PERCENTAGE"
+                                      ? `${product.displayPromotionValue}%`
+                                      : `$${(product.displayPromotionValue || 0).toFixed(2)}`}
                                   </p>
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground">Valid Period:</p>
                                   <p className="font-medium text-xs">
-                                    {productData.displayPromotionFromDate && productData.displayPromotionToDate && (
+                                    {product.displayPromotionFromDate && product.displayPromotionToDate && (
                                       <>
-                                        {dateTimeFormat(productData.displayPromotionFromDate)} →{" "}
-                                        {dateTimeFormat(productData.displayPromotionToDate)}
+                                        {dateTimeFormat(product.displayPromotionFromDate)} →{" "}
+                                        {dateTimeFormat(product.displayPromotionToDate)}
                                       </>
                                     )}
                                   </p>
@@ -460,7 +449,7 @@ export function StockManagementModal({
                                 <div className="pt-2 border-t">
                                   <p className="text-muted-foreground">Final Price:</p>
                                   <p className="text-base font-semibold text-green-600">
-                                    ${productData.displayPrice?.toFixed(2) || "0.00"}
+                                    ${product.displayPrice?.toFixed(2) || "0.00"}
                                   </p>
                                 </div>
                               </div>
@@ -480,7 +469,7 @@ export function StockManagementModal({
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Selling Price (each):</span>
                                 <span className="font-medium">
-                                  ${(productData.hasPromotion ? productData.displayPrice : (productData.price as unknown as number)).toFixed(2)}
+                                  ${(product.hasPromotion === true ? product.displayPrice : (product.price as unknown as number)).toFixed(2)}
                                 </span>
                               </div>
                               <div className="pt-3 border-t border-muted flex justify-between">
@@ -488,9 +477,9 @@ export function StockManagementModal({
                                 <span className="text-lg font-bold text-green-600">
                                   ${(
                                     (form.watch("quantityOnHand") || 0) *
-                                    (productData.hasPromotion
-                                      ? productData.displayPrice
-                                      : (productData.price as unknown as number))
+                                    (product.hasPromotion === true
+                                      ? product.displayPrice
+                                      : (product.price as unknown as number))
                                   ).toFixed(2)}
                                 </span>
                               </div>
