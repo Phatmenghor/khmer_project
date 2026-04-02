@@ -77,10 +77,12 @@ export default function BusinessSettingsPage() {
 
   // Handle business logo selection (store locally, upload on save)
   const handleLogoSelect = (base64: string) => {
+    // Show toast immediately when image is selected
+    showToast.success("✓ Logo selected - click Save Changes to upload");
+
     // Store base64 locally - will upload when Save Changes is clicked
     setLogoBase64(base64);
     form.setValue("logoBusinessUrl", base64, { shouldDirty: true });
-    showToast.success("Logo selected - it will be uploaded when you click Save Changes");
   };
 
   // Helper function to apply theme colors in real-time (hex to HSL conversion)
