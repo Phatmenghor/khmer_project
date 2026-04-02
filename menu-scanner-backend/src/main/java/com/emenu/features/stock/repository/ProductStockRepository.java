@@ -250,19 +250,12 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     p.barcode,
                     NULL::varchar as size_name,
                     p.price,
-                    CASE
-                        WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN
-                            CASE
-                                WHEN pp.type = 'PERCENTAGE' THEN (p.price::numeric * (1 - pp.value / 100))::decimal
-                                ELSE (p.price::numeric - pp.value)::decimal
-                            END
-                        ELSE p.price::decimal
-                    END as display_price,
-                    CASE WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN pp.type ELSE NULL END as display_promotion_type,
-                    CASE WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN pp.value ELSE NULL END as display_promotion_value,
-                    CASE WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN pp.from_date ELSE NULL END as display_promotion_from_date,
-                    CASE WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN pp.to_date ELSE NULL END as display_promotion_to_date,
-                    (pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date) as has_promotion,
+                    p.price::decimal as display_price,
+                    NULL::varchar as display_promotion_type,
+                    NULL::decimal as display_promotion_value,
+                    NULL::timestamp as display_promotion_from_date,
+                    NULL::timestamp as display_promotion_to_date,
+                    false as has_promotion,
                     COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
                     COALESCE(SUM(ps.quantity_on_hand - ps.quantity_reserved), 0)::bigint as quantity_available,
                     COALESCE(SUM(ps.quantity_reserved), 0)::bigint as quantity_reserved,
@@ -277,9 +270,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                 LEFT JOIN product_stock ps ON p.id = ps.product_id
                     AND ps.is_expired = false
                     AND ps.status = 'ACTIVE'
-                LEFT JOIN product_promotions pp ON p.id = pp.product_id
-                    AND pp.status = 'ACTIVE'
-                    AND NOW() BETWEEN pp.from_date AND pp.to_date
                 WHERE p.business_id = :businessId
                     AND p.is_deleted = false
                     AND p.has_sizes = false
@@ -287,7 +277,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-                GROUP BY p.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, p.price, p.main_image_url, p.status, p.stock_status, p.created_at, p.updated_at, pp.id, pp.type, pp.value, pp.from_date, pp.to_date
+                GROUP BY p.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, p.price, p.main_image_url, p.status, p.stock_status, p.created_at, p.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
             UNION ALL
@@ -306,19 +296,12 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     p.barcode,
                     psz.name as size_name,
                     p.price,
-                    CASE
-                        WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN
-                            CASE
-                                WHEN pp.type = 'PERCENTAGE' THEN (p.price::numeric * (1 - pp.value / 100))::decimal
-                                ELSE (p.price::numeric - pp.value)::decimal
-                            END
-                        ELSE p.price::decimal
-                    END as display_price,
-                    CASE WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN pp.type ELSE NULL END as display_promotion_type,
-                    CASE WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN pp.value ELSE NULL END as display_promotion_value,
-                    CASE WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN pp.from_date ELSE NULL END as display_promotion_from_date,
-                    CASE WHEN pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date THEN pp.to_date ELSE NULL END as display_promotion_to_date,
-                    (pp.id IS NOT NULL AND NOW() BETWEEN pp.from_date AND pp.to_date) as has_promotion,
+                    p.price::decimal as display_price,
+                    NULL::varchar as display_promotion_type,
+                    NULL::decimal as display_promotion_value,
+                    NULL::timestamp as display_promotion_from_date,
+                    NULL::timestamp as display_promotion_to_date,
+                    false as has_promotion,
                     COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
                     COALESCE(SUM(ps.quantity_on_hand - ps.quantity_reserved), 0)::bigint as quantity_available,
                     COALESCE(SUM(ps.quantity_reserved), 0)::bigint as quantity_reserved,
@@ -335,9 +318,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND psz.id = ps.product_size_id
                     AND ps.is_expired = false
                     AND ps.status = 'ACTIVE'
-                LEFT JOIN product_promotions pp ON p.id = pp.product_id
-                    AND pp.status = 'ACTIVE'
-                    AND NOW() BETWEEN pp.from_date AND pp.to_date
                 WHERE p.business_id = :businessId
                     AND p.is_deleted = false
                     AND p.has_sizes = true
@@ -345,7 +325,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, p.price, p.main_image_url, p.status, p.stock_status, psz.created_at, psz.updated_at, pp.id, pp.type, pp.value, pp.from_date, pp.to_date
+                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, p.price, p.main_image_url, p.status, p.stock_status, psz.created_at, psz.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
         ) AS result
