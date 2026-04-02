@@ -313,7 +313,7 @@ export const productTableColumns = ({
       key: "sizes",
       label: "Sizes",
       minWidth: "25px",
-      maxWidth: "1000px",
+      maxWidth: "400px",
       render: (product) => <SizesDisplay sizes={product?.sizes} />,
     },
 
