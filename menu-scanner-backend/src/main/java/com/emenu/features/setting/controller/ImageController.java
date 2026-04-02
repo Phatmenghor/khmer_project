@@ -34,6 +34,7 @@ public class ImageController {
 
     /**
      * Retrieves image data by ID
+     * Returns the image with proper headers for browser display
      */
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImageData(@PathVariable UUID id) {
@@ -42,6 +43,7 @@ public class ImageController {
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.valueOf(imageResponse.getType()))
+                .header("Content-Disposition", "inline; filename=\"image\"")
                 .body(imageResponse.getData());
     }
 
