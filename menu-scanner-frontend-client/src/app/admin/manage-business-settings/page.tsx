@@ -20,7 +20,6 @@ import {
   type SocialMedia,
 } from "@/redux/features/business/store/services/business-settings-service";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
-import { uploadImageService } from "@/services/image-service";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
@@ -28,6 +27,7 @@ import {
   fetchBusinessSettingsThunk,
   updateBusinessSettingsThunk,
 } from "@/redux/features/business/store/thunks/business-settings-thunks";
+import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 
 interface FormData {
   businessName: string;
@@ -103,32 +103,23 @@ export default function BusinessSettingsPage() {
     }
   };
 
-  // Handle business logo selection and upload (like profile picture does)
-  const handleLogoSelect = async (base64: string) => {
+  // Handle business logo selection and upload (follows profile picture pattern)
+  const handleLogoSelect = async (imageData: string) => {
     try {
       setIsUploadingLogo(true);
 
-      // Get file type from base64
-      const type = base64.split(";")[0].replace("data:", "").split("/")[1] || "png";
+      // Use the same uploadImage utility as profile page
+      const logoUrl = await uploadImage(imageData);
 
-      // Upload to API
-      const uploadResponse = await uploadImageService({
-        base64: base64,
-        type: type,
+      // Update form with the uploaded URL
+      form.setValue("logoBusinessUrl", logoUrl, {
+        shouldDirty: true,
       });
-
-      if (uploadResponse?.imageUrl) {
-        // Update form with the uploaded URL
-        form.setValue("logoBusinessUrl", uploadResponse.imageUrl, {
-          shouldDirty: true,
-        });
-        showToast.success("✓ Logo uploaded successfully");
-      } else {
-        showToast.error("Failed to upload logo");
-      }
+      showToast.success("✓ Logo uploaded successfully");
     } catch (error) {
       console.error("Error uploading logo:", error);
-      showToast.error("Failed to upload logo");
+      const message = error instanceof Error ? error.message : "Failed to upload logo";
+      showToast.error(message);
     } finally {
       setIsUploadingLogo(false);
     }
