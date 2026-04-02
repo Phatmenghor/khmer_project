@@ -431,6 +431,7 @@ export default function SizeStockPage() {
           onPageSizeChange={handlePageSizeChange}
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
+        </div>
       </div>
 
       {/* Modals Product Detail */}
