@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Plus, Trash2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -28,12 +28,20 @@ interface BusinessSettings {
   taxPercentage: number | null;
   logoBusinessUrl: string;
   enableStock: "ENABLED" | "DISABLED";
+  socialMedia: SocialMedia[];
+}
+
+interface SocialMedia {
+  name: string;
+  imageUrl: string;
+  linkUrl: string;
 }
 
 interface FormData {
   taxPercentage: string;
   logoBusinessUrl: string;
   enableStock: "ENABLED" | "DISABLED";
+  socialMedia: SocialMedia[];
 }
 
 export default function BusinessSettingsPage() {
@@ -64,6 +72,7 @@ export default function BusinessSettingsPage() {
         taxPercentage: data.data?.taxPercentage?.toString() || "",
         logoBusinessUrl: data.data?.logoBusinessUrl || "",
         enableStock: data.data?.enableStock || "DISABLED",
+        socialMedia: data.data?.socialMedia || [],
       });
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -81,6 +90,7 @@ export default function BusinessSettingsPage() {
         taxPercentage: data.taxPercentage ? parseFloat(data.taxPercentage) : null,
         logoBusinessUrl: data.logoBusinessUrl,
         enableStock: data.enableStock,
+        socialMedia: data.socialMedia,
       };
 
       const response = await fetch("/api/v1/business-settings", {
@@ -118,7 +128,7 @@ export default function BusinessSettingsPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">Business Settings</h1>
         <p className="text-muted-foreground">
-          Manage your business configuration
+          Manage your business configuration and social media accounts
         </p>
       </div>
 
@@ -237,17 +247,136 @@ export default function BusinessSettingsPage() {
           </CardContent>
         </Card>
 
+        {/* Social Media Accounts */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">Social Media Accounts</h3>
+              <p className="text-sm text-muted-foreground">
+                {form.watch("socialMedia")?.length > 0
+                  ? `${form.watch("socialMedia").length} account${
+                      form.watch("socialMedia").length > 1 ? "s" : ""
+                    } added`
+                  : "No social media accounts added"}
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const currentSocialMedia = form.getValues("socialMedia") || [];
+                form.setValue("socialMedia", [
+                  ...currentSocialMedia,
+                  { name: "", imageUrl: "", linkUrl: "" },
+                ]);
+              }}
+              disabled={isSaving}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Account
+            </Button>
+          </div>
+
+          {form.watch("socialMedia")?.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                No social media accounts added
+              </p>
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {form.watch("socialMedia")?.map((social, index) => (
+                    <div
+                      key={index}
+                      className="border rounded-lg p-4 relative lg:col-span-2"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Platform Name</Label>
+                          <Input
+                            placeholder="e.g., Facebook"
+                            value={social.name}
+                            onChange={(e) => {
+                              const updated = [...(form.getValues("socialMedia") || [])];
+                              updated[index].name = e.target.value;
+                              form.setValue("socialMedia", updated);
+                            }}
+                            disabled={isSaving}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Icon/Logo URL</Label>
+                          <Input
+                            placeholder="https://example.com/icon.png"
+                            type="url"
+                            value={social.imageUrl}
+                            onChange={(e) => {
+                              const updated = [...(form.getValues("socialMedia") || [])];
+                              updated[index].imageUrl = e.target.value;
+                              form.setValue("socialMedia", updated);
+                            }}
+                            disabled={isSaving}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Profile URL</Label>
+                          <Input
+                            placeholder="https://facebook.com/yourprofile"
+                            type="url"
+                            value={social.linkUrl}
+                            onChange={(e) => {
+                              const updated = [...(form.getValues("socialMedia") || [])];
+                              updated[index].linkUrl = e.target.value;
+                              form.setValue("socialMedia", updated);
+                            }}
+                            disabled={isSaving}
+                          />
+                        </div>
+                      </div>
+                      {!isSaving && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => {
+                            const currentSocialMedia = form.getValues("socialMedia") || [];
+                            form.setValue(
+                              "socialMedia",
+                              currentSocialMedia.filter((_, i) => i !== index)
+                            );
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
 {/* Action Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 justify-end pt-4 border-t">
           <Button
             type="button"
             variant="outline"
             onClick={fetchBusinessSettings}
             disabled={isSaving}
+            className="min-w-[120px]"
           >
-            Reset
+            Cancel
           </Button>
-          <Button type="submit" disabled={isSaving || !form.formState.isDirty}>
+          <Button
+            type="submit"
+            disabled={isSaving || !form.formState.isDirty}
+            className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
+          >
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
