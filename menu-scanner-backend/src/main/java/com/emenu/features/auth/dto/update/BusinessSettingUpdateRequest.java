@@ -1,8 +1,12 @@
 package com.emenu.features.auth.dto.update;
 
+import com.emenu.features.auth.dto.response.SocialMediaResponse;
+import com.emenu.features.auth.enums.StockStatus;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class BusinessSettingUpdateRequest {
@@ -43,4 +47,8 @@ public class BusinessSettingUpdateRequest {
     private String termsAndConditions;
     private String privacyPolicy;
     private String refundPolicy;
+
+    // New fields for stock management and social media
+    private StockStatus enableStock;
+    private List<SocialMediaResponse> socialMedia;
 }

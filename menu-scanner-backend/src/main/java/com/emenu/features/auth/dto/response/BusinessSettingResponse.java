@@ -1,9 +1,11 @@
 package com.emenu.features.auth.dto.response;
 
+import com.emenu.features.auth.enums.StockStatus;
 import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -37,4 +39,8 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private String termsAndConditions;
     private String privacyPolicy;
     private String refundPolicy;
+
+    // New fields for stock management and social media
+    private StockStatus enableStock;
+    private List<SocialMediaResponse> socialMedia;
 }
