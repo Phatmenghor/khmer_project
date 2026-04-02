@@ -158,7 +158,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             <h1 className="text-base sm:text-lg font-bold">{config.title}</h1>
           </div>
 
-          {/* Row 1: Search + Filters + Add Button (all on same row with flex-wrap) */}
+          {/* Row 1: Search (left) + Filters & Add Button (right, grouped) */}
           <div className="flex flex-wrap items-end gap-3">
             {/* Search - Left side, flex-1 with max-width */}
             <div className="flex-1 min-w-[250px] max-w-[500px]">
@@ -174,30 +174,33 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               </div>
             </div>
 
-            {/* Essential Filters - Can wrap or stay on Row 1 */}
-            {essentialFilters.length > 0 && (
-              <div className="grid gap-3 flex-shrink-0"
-                style={{
-                  gridTemplateColumns: 'repeat(2, minmax(120px, 1fr))',
-                  maxWidth: '300px',
-                }}>
-                {essentialFilters.map((filter) => renderFilter(filter))}
-              </div>
-            )}
+            {/* Right side: Filters + Add Button (grouped together, pushed right) */}
+            <div className="flex flex-wrap items-end gap-3 ml-auto">
+              {/* Essential Filters - Right side */}
+              {essentialFilters.length > 0 && (
+                <div className="grid gap-3 flex-shrink-0"
+                  style={{
+                    gridTemplateColumns: 'repeat(2, minmax(120px, 1fr))',
+                    maxWidth: '300px',
+                  }}>
+                  {essentialFilters.map((filter) => renderFilter(filter))}
+                </div>
+              )}
 
-            {/* Add Button - Far right end */}
-            {config.buttonText && (
-              <Button
-                disabled={config.buttonDisabled}
-                size="sm"
-                variant="default"
-                onClick={config.onButtonClick}
-                className="gap-2 flex-shrink-0 ml-auto"
-              >
-                <Plus className="w-4 h-4" />
-                {config.buttonText}
-              </Button>
-            )}
+              {/* Add Button - Far right */}
+              {config.buttonText && (
+                <Button
+                  disabled={config.buttonDisabled}
+                  size="sm"
+                  variant="default"
+                  onClick={config.onButtonClick}
+                  className="gap-2 flex-shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  {config.buttonText}
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
