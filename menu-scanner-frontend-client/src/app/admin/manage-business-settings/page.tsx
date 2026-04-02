@@ -232,14 +232,14 @@ export default function BusinessSettingsPage() {
                   <Input
                     type="color"
                     value={form.watch("primaryColor") || "#57823D"}
-                    onChange={(e) => form.setValue("primaryColor", e.target.value)}
+                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="w-20 h-10 cursor-pointer"
                   />
                   <Input
                     placeholder="#57823D"
                     value={form.watch("primaryColor") || "#57823D"}
-                    onChange={(e) => form.setValue("primaryColor", e.target.value)}
+                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="flex-1"
                   />
@@ -256,14 +256,14 @@ export default function BusinessSettingsPage() {
                   <Input
                     type="color"
                     value={form.watch("secondaryColor") || "#404040"}
-                    onChange={(e) => form.setValue("secondaryColor", e.target.value)}
+                    onChange={(e) => form.setValue("secondaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="w-20 h-10 cursor-pointer"
                   />
                   <Input
                     placeholder="#404040"
                     value={form.watch("secondaryColor") || "#404040"}
-                    onChange={(e) => form.setValue("secondaryColor", e.target.value)}
+                    onChange={(e) => form.setValue("secondaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="flex-1"
                   />
@@ -280,14 +280,14 @@ export default function BusinessSettingsPage() {
                   <Input
                     type="color"
                     value={form.watch("accentColor") || "#2E74D0"}
-                    onChange={(e) => form.setValue("accentColor", e.target.value)}
+                    onChange={(e) => form.setValue("accentColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="w-20 h-10 cursor-pointer"
                   />
                   <Input
                     placeholder="#2E74D0"
                     value={form.watch("accentColor") || "#2E74D0"}
-                    onChange={(e) => form.setValue("accentColor", e.target.value)}
+                    onChange={(e) => form.setValue("accentColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="flex-1"
                   />
@@ -359,7 +359,7 @@ export default function BusinessSettingsPage() {
                                 ...(form.getValues("socialMedia") || []),
                               ];
                               updated[index].name = e.target.value;
-                              form.setValue("socialMedia", updated);
+                              form.setValue("socialMedia", updated, { shouldDirty: true });
                             }}
                             disabled={isSaving}
                           />
@@ -377,7 +377,7 @@ export default function BusinessSettingsPage() {
                                 ...(form.getValues("socialMedia") || []),
                               ];
                               updated[index].imageUrl = e.target.value;
-                              form.setValue("socialMedia", updated);
+                              form.setValue("socialMedia", updated, { shouldDirty: true });
                             }}
                             disabled={isSaving}
                           />
@@ -395,7 +395,7 @@ export default function BusinessSettingsPage() {
                                 ...(form.getValues("socialMedia") || []),
                               ];
                               updated[index].linkUrl = e.target.value;
-                              form.setValue("socialMedia", updated);
+                              form.setValue("socialMedia", updated, { shouldDirty: true });
                             }}
                             disabled={isSaving}
                           />
@@ -413,6 +413,7 @@ export default function BusinessSettingsPage() {
                             form.setValue(
                               "socialMedia",
                               currentSocialMedia.filter((_, i) => i !== index),
+                              { shouldDirty: true }
                             );
                           }}
                         >
