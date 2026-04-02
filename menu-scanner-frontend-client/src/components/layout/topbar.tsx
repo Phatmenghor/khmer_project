@@ -1,6 +1,12 @@
 "use client";
 
-import { LogOut, Menu, ChevronRight, UserCircle, Maximize2 } from "lucide-react";
+import {
+  LogOut,
+  Menu,
+  ChevronRight,
+  UserCircle,
+  Maximize2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -83,7 +89,9 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                       ? "font-semibold text-foreground truncate"
                       : "text-muted-foreground truncate hover:text-foreground cursor-pointer transition-colors"
                   }
-                  onClick={() => i < breadcrumbs.length - 1 && router.push(crumb.href)}
+                  onClick={() =>
+                    i < breadcrumbs.length - 1 && router.push(crumb.href)
+                  }
                 >
                   {crumb.label}
                 </span>
@@ -121,7 +129,6 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                     imageUrl={profileImage || profile?.profileImageUrl}
                     name={fullName || profile?.fullName || "Admin"}
                     size="sm"
-                    enableImagePreview={false}
                   />
                 </div>
               }
