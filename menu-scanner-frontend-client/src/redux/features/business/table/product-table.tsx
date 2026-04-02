@@ -280,12 +280,10 @@ export const productTableColumns = ({
         <div className="flex items-center gap-1">
           {product?.hasPromotion ? (
             <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200">
-              <Zap className="w-3 h-3" />
               Active
             </Badge>
           ) : (
             <Badge variant="secondary" className="gap-1">
-              <Check className="w-3 h-3" />
               Regular
             </Badge>
           )}
