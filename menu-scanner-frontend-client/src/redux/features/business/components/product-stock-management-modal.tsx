@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
+import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { useAppDispatch } from "@/redux/store";
 import {
   Dialog,
@@ -440,8 +441,8 @@ export function StockManagementModal({
                                   <p className="font-medium text-xs">
                                     {product.promotionFromDate && product.promotionToDate && (
                                       <>
-                                        {new Date(product.promotionFromDate).toLocaleDateString()} →{" "}
-                                        {new Date(product.promotionToDate).toLocaleDateString()}
+                                        {dateTimeFormat(product.promotionFromDate)} →{" "}
+                                        {dateTimeFormat(product.promotionToDate)}
                                       </>
                                     )}
                                   </p>
