@@ -458,48 +458,10 @@ export default function ProductPromotionPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        <CardHeaderSection
-          title="Product Promotions"
-          searchValue={filters.search}
-          searchPlaceholder="Search product..."
-          buttonTooltip="Create bulk promotion for multiple products"
-          buttonIcon={<Plus className="w-3 h-3" />}
-          buttonText="Create Promotion"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreatePromotion}
-        >
-          <ComboboxSelectBrand
-            dataSelect={selectedBrand}
-            onChangeSelected={handleBrandChange}
-            placeholder="All Brand"
-            showAllOption={true}
-          />
-
-          <ComboboxSelectCategories
-            dataSelect={selectedCategories}
-            onChangeSelected={handleCategoriesChange}
-            placeholder="All Categires"
-            showAllOption={true}
-          />
-
-          <CustomSelect
-            options={PRODUCT_STATUS_FILTER}
-            value={filters.status}
-            placeholder="All Status"
-            onValueChange={(value) =>
-              handleProductStatusChange(value as ProductStatus)
-            }
-            label="Product Status"
-          />
-
-          <CustomSelect
-            options={PRODUCT_SIZE_FILTER}
-            value={sizeFilter}
-            placeholder="All Products"
-            onValueChange={handleSizeFilterChange}
-            label="Product Size"
-          />
-        </CardHeaderSection>
+        <CollapsibleFilterPanel
+          config={filterConfig}
+          essentialFilterIds={["status"]}
+        />
 
         {/* Data Table with Your Custom Pagination */}
         <DataTableWithPagination
