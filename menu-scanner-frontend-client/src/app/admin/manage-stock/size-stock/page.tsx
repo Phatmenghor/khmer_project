@@ -44,22 +44,6 @@ const STOCK_STATUS_FILTER = [
   { value: "DISABLED", label: "Stock Disabled" },
 ];
 
-// Sort field options for size stock page
-const SORT_BY_OPTIONS = [
-  { value: "createdAt", label: "Created Date" },
-  { value: "displayPrice", label: "Display Price" },
-  { value: "barcode", label: "Barcode" },
-  { value: "sku", label: "SKU" },
-  { value: "totalStock", label: "Total Stock" },
-  { value: "favoriteCount", label: "Favorite Count" },
-  { value: "viewCount", label: "View Count" },
-];
-
-const SORT_DIRECTION_OPTIONS = [
-  { value: "DESC", label: "High to Low (DESC)" },
-  { value: "ASC", label: "Low to High (ASC)" },
-];
-
 
 export default function SizeStockPage() {
   // Clean up state when leaving admin area (performance optimization)
@@ -94,9 +78,6 @@ export default function SizeStockPage() {
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
   const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [sortDirection, setSortDirection] = useState("DESC");
-  const [lowStockThreshold, setLowStockThreshold] = useState<number | undefined>(undefined);
 
   // Debounce refs for stock status toggle
   const stockStatusDebounceRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
@@ -110,7 +91,6 @@ export default function SizeStockPage() {
   );
 
   const debouncedSearch = useDebounce(filters.search, 400);
-  const debouncedLowStockThreshold = useDebounce(lowStockThreshold, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.MANAGE_STOCK.SIZE_STOCK,
@@ -152,9 +132,6 @@ export default function SizeStockPage() {
     selectedBrand,
     selectedCategories,
     stockStatusFilter,
-    sortBy,
-    sortDirection,
-    debouncedLowStockThreshold,
   ]);
 
   // Refetch products when stock is created to update totalStock
@@ -317,18 +294,6 @@ export default function SizeStockPage() {
     setStockStatusFilter(value);
   };
 
-  const handleSortByChange = (value: string) => {
-    setSortBy(value);
-  };
-
-  const handleSortDirectionChange = (value: string) => {
-    setSortDirection(value);
-  };
-
-  const handleLowStockThresholdChange = (value: number | undefined) => {
-    setLowStockThreshold(value);
-  };
-
   // Create filter configuration for CollapsibleFilterPanel
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Size Stock Information",
@@ -341,7 +306,7 @@ export default function SizeStockPage() {
     filters: [
       {
         id: "productStatus",
-        type: "select",
+        type: "select" as const,
         label: "Product Status",
         placeholder: "All Status",
         value: filters.status,
@@ -350,7 +315,7 @@ export default function SizeStockPage() {
       },
       {
         id: "stockStatus",
-        type: "select",
+        type: "select" as const,
         label: "Stock Status",
         placeholder: "All Stock Status",
         value: stockStatusFilter,
@@ -359,7 +324,7 @@ export default function SizeStockPage() {
       },
       {
         id: "brand",
-        type: "combobox-brand",
+        type: "combobox-brand" as const,
         label: "Brand",
         placeholder: "All Brand",
         value: selectedBrand,
@@ -368,41 +333,15 @@ export default function SizeStockPage() {
       },
       {
         id: "category",
-        type: "combobox-categories",
+        type: "combobox-categories" as const,
         label: "Category",
         placeholder: "All Categories",
         value: selectedCategories,
         onChange: handleCategoriesChange,
         showAllOption: true,
       },
-      {
-        id: "lowStockThreshold",
-        type: "input-number",
-        label: "Low Stock Threshold",
-        placeholder: "Enter threshold",
-        value: lowStockThreshold,
-        onChange: handleLowStockThresholdChange,
-      },
-      {
-        id: "sortBy",
-        type: "select",
-        label: "Sort By",
-        placeholder: "Created Date",
-        value: sortBy,
-        onChange: handleSortByChange,
-        options: SORT_BY_OPTIONS,
-      },
-      {
-        id: "sortDirection",
-        type: "select",
-        label: "Order",
-        placeholder: "DESC",
-        value: sortDirection,
-        onChange: handleSortDirectionChange,
-        options: SORT_DIRECTION_OPTIONS,
-      },
     ],
-  }), [filters.search, filters.status, stockStatusFilter, selectedBrand, selectedCategories, sortBy, sortDirection, lowStockThreshold]);
+  }), [filters.search, filters.status, stockStatusFilter, selectedBrand, selectedCategories]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
