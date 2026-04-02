@@ -271,29 +271,6 @@ export const productPromotionTableColumns = ({
     },
 
     {
-      key: "displayPromotionType",
-      label: "Promo Type",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => {
-        const typeLabel =
-          product?.displayPromotionType === "FIXED_AMOUNT"
-            ? "Fixed Amount"
-            : product?.displayPromotionType === "PERCENTAGE"
-              ? "Percentage"
-              : "---";
-
-        return (
-          <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200 whitespace-nowrap">
-            <Zap className="w-3 h-3" />
-            {typeLabel}
-          </Badge>
-        );
-      },
-    },
-
-    {
       key: "displayPromotionValue",
       label: "Promo Value",
       minWidth: "10px",
