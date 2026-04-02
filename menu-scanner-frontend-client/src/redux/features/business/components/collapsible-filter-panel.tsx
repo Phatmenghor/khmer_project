@@ -174,18 +174,18 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               </div>
             </div>
 
-            {/* Right side: Filters + Add Button (grouped together) */}
-            <div className="flex flex-wrap items-end gap-3 ml-auto">
-              {/* Essential Filters - Max width, can wrap */}
-              <div className="grid gap-3 flex-shrink-0"
+            {/* Right side: Filters + Add Button (grouped together, no wrap) */}
+            <div className="flex flex-nowrap items-end gap-3 ml-auto min-w-0">
+              {/* Essential Filters - Max width, no wrap */}
+              <div className="grid gap-3 flex-shrink-0 min-w-0"
                 style={{
-                  gridTemplateColumns: 'repeat(2, minmax(140px, 1fr))',
-                  maxWidth: '350px',
+                  gridTemplateColumns: 'repeat(2, minmax(120px, 1fr))',
+                  maxWidth: '300px',
                 }}>
                 {essentialFilters.map((filter) => renderFilter(filter))}
               </div>
 
-              {/* Add Button - Right side */}
+              {/* Add Button - Right side, never wraps */}
               {config.buttonText && (
                 <Button
                   disabled={config.buttonDisabled}
