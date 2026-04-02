@@ -50,22 +50,15 @@ const HAS_SIZES_FILTER = [
 
 // Sort field options for easy selection
 const SORT_BY_OPTIONS = [
-  { value: "totalStock", label: "Total Stock (Default)" },
-  { value: "productName", label: "Product Name" },
-  { value: "categoryName", label: "Category" },
-  { value: "brandName", label: "Brand" },
+  { value: "totalStock", label: "Total Stock" },
   { value: "sku", label: "SKU" },
   { value: "barcode", label: "Barcode" },
-  { value: "sizeName", label: "Size" },
-  { value: "status", label: "Product Status" },
-  { value: "stockStatus", label: "Stock Status" },
   { value: "createdAt", label: "Created Date" },
-  { value: "updatedAt", label: "Updated Date" },
 ];
 
 const SORT_DIRECTION_OPTIONS = [
-  { value: "DESC", label: "High to Low (DESC)" },
   { value: "ASC", label: "Low to High (ASC)" },
+  { value: "DESC", label: "High to Low (DESC)" },
 ];
 
 export default function StockItemsPage() {
