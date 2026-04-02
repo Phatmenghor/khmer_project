@@ -185,14 +185,14 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               </div>
             )}
 
-            {/* Add Button - Right side, always stays visible */}
+            {/* Add Button - Far right end */}
             {config.buttonText && (
               <Button
                 disabled={config.buttonDisabled}
                 size="sm"
                 variant="default"
                 onClick={config.onButtonClick}
-                className="gap-2 flex-shrink-0"
+                className="gap-2 flex-shrink-0 ml-auto"
               >
                 <Plus className="w-4 h-4" />
                 {config.buttonText}
