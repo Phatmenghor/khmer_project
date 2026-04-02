@@ -365,16 +365,7 @@ export default function StockItemsPage() {
       <StockManagementModal
         isOpen={stockManagementState.isOpen}
         onClose={closeStockManagementModal}
-        product={
-          stockManagementState.item
-            ? {
-                id: stockManagementState.item.productId,
-                name: stockManagementState.item.productName,
-                categoryName: stockManagementState.item.categoryName,
-                brandName: stockManagementState.item.brandName,
-              }
-            : null
-        }
+        stockItem={stockManagementState.item || undefined}
       />
     </div>
   );

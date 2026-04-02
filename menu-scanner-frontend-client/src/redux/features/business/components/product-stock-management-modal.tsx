@@ -35,7 +35,7 @@ import {
   clearSuccess,
 } from "../store/slice/stock-management-slice";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
-import { ProductStockDto } from "../store/models/response/stock-response";
+import { ProductStockDto, ProductStockItemDto } from "../store/models/response/stock-response";
 import { createStockHistoryColumns } from "../table/product-stock-history-table";
 
 interface StockFormData {
@@ -48,13 +48,13 @@ interface StockFormData {
 interface StockManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product: Partial<ProductDetailResponseModel> | null;
+  stockItem?: ProductStockItemDto;
 }
 
 export function StockManagementModal({
   isOpen,
   onClose,
-  product,
+  stockItem,
 }: StockManagementModalProps) {
   const dispatch = useAppDispatch();
   const { history, isLoading, isCreating, isUpdating, isDeleting, error, successMessage } =
@@ -96,16 +96,16 @@ export function StockManagementModal({
 
   // Load history when modal opens or pagination changes
   useEffect(() => {
-    if (isOpen && product) {
+    if (isOpen && stockItem) {
       dispatch(
         getProductStockHistoryService({
           pageNo: historyPageNo,
           pageSize: historyPageSize,
-          productId: product.id,
+          productId: stockItem.productId,
         })
       );
     }
-  }, [isOpen, product, dispatch, historyPageNo, historyPageSize]);
+  }, [isOpen, stockItem, dispatch, historyPageNo, historyPageSize]);
 
   // Reset form when modal opens or closes
   useEffect(() => {
@@ -134,7 +134,7 @@ export function StockManagementModal({
       return handleUpdateStock(data);
     }
 
-    if (!product) return;
+    if (!stockItem) return;
 
     const quantity = Number(data.quantityOnHand);
     if (isNaN(quantity) || quantity < 0) {
@@ -162,7 +162,8 @@ export function StockManagementModal({
 
     dispatch(
       createProductStockService({
-        productId: product.id || "",
+        productId: stockItem.productId || "",
+        productSizeId: stockItem.productSizeId || undefined,
         quantityOnHand: quantity,
         priceIn: price,
         expiryDate: formattedExpiryDate || undefined,
@@ -250,22 +251,22 @@ export function StockManagementModal({
     isDeleting
   );
 
-  if (!product) return null;
+  if (!stockItem) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTitle className="sr-only">
-        Stock Management - {product?.name}
+        Stock Management - {stockItem?.productName}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
-              {product?.mainImageUrl ? (
+              {stockItem?.mainImageUrl ? (
                 <img
-                  src={product.mainImageUrl}
-                  alt={product?.name}
+                  src={stockItem.mainImageUrl}
+                  alt={stockItem?.productName}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -279,14 +280,14 @@ export function StockManagementModal({
                 Stock Management
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {product?.name}
+                {stockItem?.productName}
               </p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant="outline" className="text-xs">
-                  SKU: {product?.sku || "---"}
+                  SKU: {stockItem?.sku || "---"}
                 </Badge>
                 <Badge variant="outline" className="text-xs">
-                  Barcode: {product?.barcode || "---"}
+                  Barcode: {stockItem?.barcode || "---"}
                 </Badge>
               </div>
             </div>
@@ -398,8 +399,8 @@ export function StockManagementModal({
                     </div>
                   </div>
 
-                  {/* Preview Section - only show if we have full product details */}
-                  {product && product.price && (
+                  {/* Preview Section - Sales Preview with pricing info */}
+                  {stockItem && stockItem.price && (
                     <div className="border-t pt-6">
                         <h3 className="text-sm font-semibold mb-3">Sales Preview</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -409,10 +410,10 @@ export function StockManagementModal({
                               <div>
                                 <p className="text-xs text-muted-foreground">Product Selling Price</p>
                                 <p className="text-lg font-semibold text-foreground">
-                                  ${(product.price as unknown as number).toFixed(2)}
+                                  ${parseFloat(stockItem.price).toFixed(2)}
                                 </p>
                               </div>
-                              {product.hasPromotion && (
+                              {stockItem.hasPromotion && (
                                 <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
                                   On Sale
                                 </Badge>
@@ -420,29 +421,29 @@ export function StockManagementModal({
                             </div>
 
                             {/* Promotion Info */}
-                            {product.hasPromotion && (
+                            {stockItem.hasPromotion && (
                               <div className="mt-3 pt-3 border-t border-muted space-y-2 text-xs">
                                 <div>
                                   <p className="text-muted-foreground">Promotion Type:</p>
                                   <p className="font-medium">
-                                    {product.promotionType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
+                                    {stockItem.displayPromotionType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
                                   </p>
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground">Discount:</p>
                                   <p className="font-medium">
-                                    {product.promotionType === "PERCENTAGE"
-                                      ? `${product.promotionValue}%`
-                                      : `$${(product.promotionValue || 0).toFixed(2)}`}
+                                    {stockItem.displayPromotionType === "PERCENTAGE"
+                                      ? `${stockItem.displayPromotionValue}%`
+                                      : `$${(stockItem.displayPromotionValue || 0).toFixed(2)}`}
                                   </p>
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground">Valid Period:</p>
                                   <p className="font-medium text-xs">
-                                    {product.promotionFromDate && product.promotionToDate && (
+                                    {stockItem.displayPromotionFromDate && stockItem.displayPromotionToDate && (
                                       <>
-                                        {dateTimeFormat(product.promotionFromDate)} →{" "}
-                                        {dateTimeFormat(product.promotionToDate)}
+                                        {dateTimeFormat(stockItem.displayPromotionFromDate)} →{" "}
+                                        {dateTimeFormat(stockItem.displayPromotionToDate)}
                                       </>
                                     )}
                                   </p>
@@ -450,7 +451,7 @@ export function StockManagementModal({
                                 <div className="pt-2 border-t">
                                   <p className="text-muted-foreground">Final Price:</p>
                                   <p className="text-base font-semibold text-green-600">
-                                    ${product.displayPrice?.toFixed(2) || "0.00"}
+                                    ${stockItem.displayPrice?.toFixed(2) || "0.00"}
                                   </p>
                                 </div>
                               </div>
@@ -470,7 +471,7 @@ export function StockManagementModal({
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Selling Price (each):</span>
                                 <span className="font-medium">
-                                  ${(product.hasPromotion ? product.displayPrice : (product.price as unknown as number)).toFixed(2)}
+                                  ${(stockItem.hasPromotion ? stockItem.displayPrice : parseFloat(stockItem.price)).toFixed(2)}
                                 </span>
                               </div>
                               <div className="pt-3 border-t border-muted flex justify-between">
@@ -478,9 +479,9 @@ export function StockManagementModal({
                                 <span className="text-lg font-bold text-green-600">
                                   ${(
                                     (form.watch("quantityOnHand") || 0) *
-                                    (product.hasPromotion
-                                      ? product.displayPrice
-                                      : (product.price as unknown as number))
+                                    (stockItem.hasPromotion
+                                      ? (stockItem.displayPrice || parseFloat(stockItem.price))
+                                      : parseFloat(stockItem.price))
                                   ).toFixed(2)}
                                 </span>
                               </div>
