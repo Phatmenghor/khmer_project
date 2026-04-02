@@ -48,11 +48,6 @@ export default function BusinessSettingsPage() {
   const [businessSettings, setBusinessSettings] = useState<BusinessSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [newSocialMedia, setNewSocialMedia] = useState<SocialMedia>({
-    name: "",
-    imageUrl: "",
-    linkUrl: "",
-  });
 
   const form = useForm<FormData>({
     mode: "onChange",
@@ -85,26 +80,6 @@ export default function BusinessSettingsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleAddSocialMedia = () => {
-    if (!newSocialMedia.name || !newSocialMedia.imageUrl || !newSocialMedia.linkUrl) {
-      showToast.error("Please fill in all social media fields");
-      return;
-    }
-
-    const currentSocialMedia = form.getValues("socialMedia") || [];
-    form.setValue("socialMedia", [...currentSocialMedia, newSocialMedia]);
-    setNewSocialMedia({ name: "", imageUrl: "", linkUrl: "" });
-    showToast.success("Social media account added");
-  };
-
-  const handleRemoveSocialMedia = (index: number) => {
-    const currentSocialMedia = form.getValues("socialMedia") || [];
-    form.setValue(
-      "socialMedia",
-      currentSocialMedia.filter((_, i) => i !== index)
-    );
   };
 
   const onSubmit = async (data: FormData) => {
@@ -151,14 +126,10 @@ export default function BusinessSettingsPage() {
     <div className="flex flex-1 flex-col gap-6 px-4 py-6">
       {/* Header */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Business Settings</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage your business configuration and social media presence
-            </p>
-          </div>
-        </div>
+        <h1 className="text-3xl font-bold">Business Settings</h1>
+        <p className="text-muted-foreground">
+          Manage your business configuration and social media presence
+        </p>
       </div>
 
       {/* Business Info Card */}
@@ -190,9 +161,6 @@ export default function BusinessSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Basic Settings</CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Configure core business settings
-            </p>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -260,15 +228,15 @@ export default function BusinessSettingsPage() {
                 {...form.register("logoBusinessUrl")}
               />
               <p className="text-xs text-muted-foreground">
-                Upload your business logo image URL (PNG, JPG recommended)
+                Business logo image URL
               </p>
               {form.watch("logoBusinessUrl") && (
-                <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-dashed">
-                  <p className="text-xs text-muted-foreground mb-3">Logo Preview:</p>
+                <div className="mt-3 flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Preview:</span>
                   <img
                     src={form.watch("logoBusinessUrl")}
                     alt="Logo preview"
-                    className="h-20 w-20 rounded border object-cover"
+                    className="h-10 w-10 rounded border object-cover"
                     onError={() => {
                       console.error("Failed to load logo image");
                     }}
@@ -303,6 +271,7 @@ export default function BusinessSettingsPage() {
                   { name: "", imageUrl: "", linkUrl: "" },
                 ]);
               }}
+              disabled={isSaving}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Account
@@ -335,6 +304,7 @@ export default function BusinessSettingsPage() {
                               updated[index].name = e.target.value;
                               form.setValue("socialMedia", updated);
                             }}
+                            disabled={isSaving}
                           />
                         </div>
                         <div className="space-y-2">
@@ -348,6 +318,7 @@ export default function BusinessSettingsPage() {
                               updated[index].imageUrl = e.target.value;
                               form.setValue("socialMedia", updated);
                             }}
+                            disabled={isSaving}
                           />
                         </div>
                         <div className="space-y-2">
@@ -361,18 +332,27 @@ export default function BusinessSettingsPage() {
                               updated[index].linkUrl = e.target.value;
                               form.setValue("socialMedia", updated);
                             }}
+                            disabled={isSaving}
                           />
                         </div>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => handleRemoveSocialMedia(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {!isSaving && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => {
+                            const currentSocialMedia = form.getValues("socialMedia") || [];
+                            form.setValue(
+                              "socialMedia",
+                              currentSocialMedia.filter((_, i) => i !== index)
+                            );
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -382,21 +362,16 @@ export default function BusinessSettingsPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 pt-4 border-t">
+        <div className="flex gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={fetchBusinessSettings}
             disabled={isSaving}
-            className="min-w-[120px]"
           >
-            Cancel
+            Reset
           </Button>
-          <Button
-            type="submit"
-            disabled={isSaving || !form.formState.isDirty}
-            className="min-w-[150px]"
-          >
+          <Button type="submit" disabled={isSaving || !form.formState.isDirty}>
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
