@@ -356,7 +356,6 @@ export default function ProductsStockPage() {
         showAllOption: true,
       },
       {
-      {
         id: "productStatus",
         type: "select",
         label: "Product Status",
@@ -365,6 +364,7 @@ export default function ProductsStockPage() {
         onChange: (value) => handleProductStatusChange(value as ProductStatus),
         options: PRODUCT_STATUS_FILTER,
       },
+      {
         id: "sortBy",
         type: "select",
         label: "Sort By",
