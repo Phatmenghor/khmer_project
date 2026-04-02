@@ -20,7 +20,7 @@ export interface BusinessSettingsResponse {
   businessId: string;
   businessName: string;
   taxPercentage: number | null;
-  logoBusinesssUrl: string;
+  logoBusinessUrl: string;
   enableStock: StockStatus;
   socialMedia: SocialMedia[];
 }

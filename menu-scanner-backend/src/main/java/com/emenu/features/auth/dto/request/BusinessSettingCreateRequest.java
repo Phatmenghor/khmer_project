@@ -24,7 +24,7 @@ public class BusinessSettingCreateRequest {
     @DecimalMax(value = "100.0")
     private Double taxPercentage;
 
-    private String logoBusinesssUrl;
+    private String logoBusinessUrl;
 
     private StockStatus enableStock;
 

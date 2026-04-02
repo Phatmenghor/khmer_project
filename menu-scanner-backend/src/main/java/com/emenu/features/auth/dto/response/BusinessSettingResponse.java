@@ -20,7 +20,7 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private UUID businessId;
     private String businessName;
     private Double taxPercentage;
-    private String logoBusinesssUrl;
+    private String logoBusinessUrl;
     private StockStatus enableStock;
     private List<SocialMediaResponse> socialMedia;
 }

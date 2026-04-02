@@ -30,7 +30,7 @@ public class BusinessSetting extends BaseUUIDEntity {
     private Double taxPercentage;
 
     @Column(name = "logo_business_url")
-    private String logoBusinesssUrl;
+    private String logoBusinessUrl;
 
     @Column(name = "enable_stock")
     @Enumerated(EnumType.STRING)
