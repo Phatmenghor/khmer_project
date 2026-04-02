@@ -342,28 +342,28 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                         WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
                             AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
                             AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
-                        THEN psz.display_promotion_type
+                        THEN psz.promotion_type
                         ELSE NULL
                     END::varchar as display_promotion_type,
                     CASE
                         WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
                             AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
                             AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
-                        THEN psz.display_promotion_value
+                        THEN psz.promotion_value
                         ELSE NULL
                     END::decimal as display_promotion_value,
                     CASE
                         WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
                             AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
                             AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
-                        THEN psz.display_promotion_from_date
+                        THEN psz.promotion_from_date
                         ELSE NULL
                     END as display_promotion_from_date,
                     CASE
                         WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
                             AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
                             AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
-                        THEN psz.display_promotion_to_date
+                        THEN psz.promotion_to_date
                         ELSE NULL
                     END as display_promotion_to_date,
                     (psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
@@ -392,7 +392,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, psz.price, psz.display_price, psz.display_promotion_type, psz.display_promotion_value, psz.display_promotion_from_date, psz.display_promotion_to_date, psz.has_active_promotion, p.main_image_url, p.status, p.stock_status, psz.created_at, psz.updated_at
+                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, psz.price, psz.promotion_type, psz.promotion_value, psz.promotion_from_date, psz.promotion_to_date, p.main_image_url, p.status, p.stock_status, psz.created_at, psz.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
         ) AS result
