@@ -22,7 +22,7 @@ import {
   resetState,
 } from "@/redux/features/business/store/slice/stock-items-slice";
 import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
-import { StockItemDetailModal } from "@/redux/features/business/components/stock-item-detail-modal";
+import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { StockItemManagementModal } from "@/redux/features/business/components/stock-item-management-modal";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
@@ -79,7 +79,7 @@ export default function StockItemsPage() {
   // Local UI state for modals only
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
-    item: null as ProductStockItemDto | null,
+    productId: "",
   });
 
   const [stockManagementState, setStockManagementState] = useState({
@@ -135,7 +135,7 @@ export default function StockItemsPage() {
   const handleViewItem = (item: ProductStockItemDto) => {
     setDetailModalState({
       isOpen: true,
-      item,
+      productId: item.productId,
     });
   };
 
@@ -180,7 +180,7 @@ export default function StockItemsPage() {
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
-      item: null,
+      productId: "",
     });
   };
 
@@ -355,13 +355,14 @@ export default function StockItemsPage() {
         />
       </div>
 
-      {/* Modals */}
-      <StockItemDetailModal
-        item={detailModalState.item || undefined}
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        productId={detailModalState.productId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
+      {/* Stock Management Modal */}
       <StockItemManagementModal
         isOpen={stockManagementState.isOpen}
         onClose={closeStockManagementModal}
