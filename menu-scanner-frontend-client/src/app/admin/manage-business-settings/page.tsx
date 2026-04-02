@@ -17,9 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  fetchCurrentBusinessSettings,
-  updateCurrentBusinessSettings,
-  type BusinessSettingsResponse,
   type SocialMedia,
 } from "@/redux/features/business/store/services/business-settings-service";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
@@ -27,7 +24,10 @@ import { uploadImageService } from "@/services/image-service";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
-import { setBusinessSettings } from "@/redux/features/business/store/slice/business-settings-slice";
+import {
+  fetchBusinessSettingsThunk,
+  updateBusinessSettingsThunk,
+} from "@/redux/features/business/store/thunks/business-settings-thunks";
 
 interface FormData {
   businessName: string;
@@ -77,22 +77,24 @@ export default function BusinessSettingsPage() {
   const fetchBusinessSettings = async () => {
     try {
       setIsLoading(true);
-      const data = await fetchCurrentBusinessSettings();
+      const action = await dispatch(fetchBusinessSettingsThunk());
 
-      // Update Redux store
-      dispatch(setBusinessSettings(data));
-
-      // Initialize form with current data
-      form.reset({
-        businessName: data?.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
-        taxPercentage: data?.taxPercentage?.toString() || "",
-        logoBusinessUrl: data?.logoBusinessUrl || "",
-        enableStock: data?.enableStock || "DISABLED",
-        socialMedia: data?.socialMedia || [],
-        primaryColor: data?.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
-        secondaryColor: data?.secondaryColor || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
-        accentColor: data?.accentColor || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
-      });
+      if (action.payload) {
+        const data = action.payload;
+        // Initialize form with current data
+        form.reset({
+          businessName: data?.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
+          taxPercentage: data?.taxPercentage?.toString() || "",
+          logoBusinessUrl: data?.logoBusinessUrl || "",
+          enableStock: data?.enableStock || "DISABLED",
+          socialMedia: data?.socialMedia || [],
+          primaryColor: data?.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+          secondaryColor: data?.secondaryColor || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
+          accentColor: data?.accentColor || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
+        });
+      } else {
+        showToast.error("Failed to load business settings");
+      }
     } catch (error) {
       console.error("Error fetching settings:", error);
       showToast.error("Failed to load business settings");
@@ -218,25 +220,22 @@ export default function BusinessSettingsPage() {
         accentColor: data.accentColor,
       };
 
-      const result = await updateCurrentBusinessSettings(payload);
-      // Update Redux store
-      dispatch(setBusinessSettings(result));
-      setLogoBase64(null); // Clear local base64 after successful save
+      const action = await dispatch(updateBusinessSettingsThunk(payload));
 
-      // Apply colors in real-time without refresh
-      if (
-        result.primaryColor ||
-        result.secondaryColor ||
-        result.accentColor
-      ) {
-        applyThemeColors(
-          result.primaryColor,
-          result.secondaryColor,
-          result.accentColor
-        );
+      if (action.payload) {
+        const result = action.payload;
+        setLogoBase64(null); // Clear local base64 after successful save
+
+        // Apply colors in real-time without refresh
+        if (result.primaryColor || result.secondaryColor || result.accentColor) {
+          applyThemeColors(result.primaryColor, result.secondaryColor, result.accentColor);
+        }
+
+        showToast.success("Business settings updated successfully");
+      } else {
+        showToast.error("Failed to update business settings");
+        return;
       }
-
-      showToast.success("Business settings updated successfully");
     } catch (error) {
       console.error("Error updating settings:", error);
       showToast.error("Failed to update business settings");

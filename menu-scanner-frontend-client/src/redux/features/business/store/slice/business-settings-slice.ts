@@ -1,34 +1,14 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { BusinessSettingsResponse } from "../services/business-settings-service";
+import { createSlice } from "@reduxjs/toolkit";
 import { BusinessSettingsState, initialBusinessSettingsState } from "../state/business-settings-state";
+import {
+  fetchBusinessSettingsThunk,
+  updateBusinessSettingsThunk,
+} from "../thunks/business-settings-thunks";
 
 const businessSettingsSlice = createSlice({
   name: "businessSettings",
   initialState: initialBusinessSettingsState,
   reducers: {
-    /**
-     * Set business settings data
-     */
-    setBusinessSettings: (state, action: PayloadAction<BusinessSettingsResponse>) => {
-      state.data = action.payload;
-      state.error = null;
-    },
-
-    /**
-     * Set loading state
-     */
-    setBusinessSettingsLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
-
-    /**
-     * Set error state
-     */
-    setBusinessSettingsError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-      state.isLoading = false;
-    },
-
     /**
      * Clear business settings
      */
@@ -38,13 +18,42 @@ const businessSettingsSlice = createSlice({
       state.isLoading = false;
     },
   },
+  extraReducers: (builder) => {
+    // Handle fetchBusinessSettingsThunk
+    builder
+      .addCase(fetchBusinessSettingsThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchBusinessSettingsThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.data = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchBusinessSettingsThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+        state.data = null;
+      });
+
+    // Handle updateBusinessSettingsThunk
+    builder
+      .addCase(updateBusinessSettingsThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateBusinessSettingsThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.data = action.payload;
+        state.error = null;
+      })
+      .addCase(updateBusinessSettingsThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+  },
 });
 
-export const {
-  setBusinessSettings,
-  setBusinessSettingsLoading,
-  setBusinessSettingsError,
-  clearBusinessSettings,
-} = businessSettingsSlice.actions;
+export const { clearBusinessSettings } = businessSettingsSlice.actions;
 
 export default businessSettingsSlice.reducer;

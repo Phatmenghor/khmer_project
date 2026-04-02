@@ -1,12 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { fetchCurrentBusinessSettings } from "@/redux/features/business/store/services/business-settings-service";
-import {
-  setBusinessSettings,
-  setBusinessSettingsLoading,
-  setBusinessSettingsError,
-} from "@/redux/features/business/store/slice/business-settings-slice";
 import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thunks/business-settings-thunks";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 // Default brand colors from tailwind config
@@ -16,7 +11,9 @@ const DEFAULT_COLORS = {
   accent: BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
 };
 
-// Convert hex color to HSL format for CSS variables
+/**
+ * Convert hex color to HSL format for CSS variables
+ */
 function hexToHsl(hex: string): string {
   // Remove # if present
   hex = hex.replace("#", "");
@@ -56,40 +53,36 @@ function hexToHsl(hex: string): string {
   return `${hue} ${saturation}% ${lightness}%`;
 }
 
+/**
+ * Hook to initialize business theme from settings
+ * Fetches business settings on app startup and applies theme colors
+ */
 export function useBusinessTheme() {
   const dispatch = useAppDispatch();
   const businessSettings = useAppSelector(selectBusinessSettings);
 
   useEffect(() => {
-    const applyTheme = async () => {
-      // Check if settings already loaded in Redux
-      if (businessSettings) {
-        applyColors(businessSettings.primaryColor, businessSettings.secondaryColor, businessSettings.accentColor);
-        return;
-      }
+    // Check if settings already loaded in Redux
+    if (businessSettings) {
+      applyColors(
+        businessSettings.primaryColor,
+        businessSettings.secondaryColor,
+        businessSettings.accentColor
+      );
+      return;
+    }
 
-      // If not in Redux, fetch from API
-      try {
-        dispatch(setBusinessSettingsLoading(true));
-        const settings = await fetchCurrentBusinessSettings();
-
-        // Store in Redux
-        dispatch(setBusinessSettings(settings));
-
-        // Apply theme colors
-        applyColors(settings?.primaryColor, settings?.secondaryColor, settings?.accentColor);
-
+    // If not in Redux, fetch from API using thunk
+    dispatch(fetchBusinessSettingsThunk()).then((action) => {
+      if (action.payload) {
+        const payload = action.payload;
+        applyColors(payload.primaryColor, payload.secondaryColor, payload.accentColor);
         console.log("Business theme loaded and applied successfully");
-      } catch (error) {
-        console.error("Failed to load business theme, using defaults:", error);
-        dispatch(setBusinessSettingsError("Failed to load business settings"));
-
-        // Apply default colors on error
+      } else {
+        console.error("Failed to load business theme, using defaults");
         applyColors(DEFAULT_COLORS.primary, DEFAULT_COLORS.secondary, DEFAULT_COLORS.accent);
       }
-    };
-
-    applyTheme();
+    });
   }, [dispatch, businessSettings]);
 }
 
