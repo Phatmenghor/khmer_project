@@ -394,16 +394,34 @@ export function ProductStockItemManagementModal({
                     </div>
                   </div>
 
-                  {/* Form Footer */}
-                  <FormFooter onSubmit={form.handleSubmit(handleCreateStock)} isSubmitting={isCreating || isUpdating}>
-                    <CancelButton onClick={onClose} />
-                    <SubmitButton isSubmitting={isCreating || isUpdating}>
-                      {editingStock ? "Update Stock" : "Create Stock"}
-                    </SubmitButton>
-                  </FormFooter>
                 </form>
               </CardContent>
             </Card>
+
+            {/* Form Footer */}
+            <div className="flex gap-2 justify-end">
+              <CancelButton
+                onClick={onClose}
+                disabled={isCreating || isUpdating}
+                text="Close"
+              />
+              <Button
+                onClick={form.handleSubmit(handleCreateStock)}
+                disabled={isCreating || isUpdating}
+              >
+                {isCreating || isUpdating ? (
+                  <>
+                    <span className="animate-pulse">
+                      {editingStock ? "Updating..." : "Creating..."}
+                    </span>
+                  </>
+                ) : editingStock ? (
+                  "Update Stock"
+                ) : (
+                  "Create Stock"
+                )}
+              </Button>
+            </div>
 
             {/* Stock History Table */}
             <Card>
