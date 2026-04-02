@@ -7,7 +7,8 @@ import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_selec
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, ChevronDown } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Plus, ChevronDown, Search } from "lucide-react";
 import { FilterConfig, FilterPanelConfig } from "./filter-types";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
@@ -150,42 +151,53 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
   return (
     <div className="space-y-3">
-      {/* Header with Search and Add Button - Same Row */}
-      <CardHeaderSection
-        title={config.title}
-        searchValue={config.searchValue}
-        searchPlaceholder={config.searchPlaceholder}
-        onSearchChange={config.onSearchChange}
-        buttonText={config.buttonText}
-        buttonIcon={<Plus className="w-3 h-3" />}
-        buttonTooltip={config.buttonTooltip}
-        customAddNewButton={
-          config.buttonText ? (
-            <Button
-              disabled={config.buttonDisabled}
-              size="sm"
-              variant="default"
-              onClick={config.onButtonClick}
-              className="gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              {config.buttonText}
-            </Button>
-          ) : undefined
-        }
-      />
-
-      {/* Essential Filters - Sort By and Order on their own row */}
-      {essentialFilters.length > 0 && (
-        <div className="bg-gray-900/50 rounded-lg border border-gray-700/15 p-3">
-          <div className="grid gap-3 w-full"
-            style={{
-              gridTemplateColumns: 'repeat(2, 1fr)',
-            }}>
-            {essentialFilters.map((filter) => renderFilter(filter))}
+      <Card>
+        <CardContent className="py-3 sm:py-5 space-y-3">
+          {/* Title Section */}
+          <div className="flex items-center gap-2 mb-0">
+            <h1 className="text-base sm:text-lg font-bold">{config.title}</h1>
           </div>
-        </div>
-      )}
+
+          {/* Row 1: Search + Filters + Add Button (wraps responsive) */}
+          <div className="flex flex-wrap items-end gap-3">
+            {/* Search - Left side, doesn't shrink much */}
+            <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
+              <div className="relative w-full group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                <Input
+                  type="search"
+                  placeholder={config.searchPlaceholder}
+                  className="pl-10 w-full placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 hover:border-gray-600 transition-all duration-200"
+                  value={config.searchValue}
+                  onChange={config.onSearchChange}
+                />
+              </div>
+            </div>
+
+            {/* Essential Filters - Can wrap */}
+            <div className="grid gap-3 flex-1"
+              style={{
+                gridTemplateColumns: 'repeat(2, minmax(140px, 1fr))',
+              }}>
+              {essentialFilters.map((filter) => renderFilter(filter))}
+            </div>
+
+            {/* Add Button - Right side, stays with search */}
+            {config.buttonText && (
+              <Button
+                disabled={config.buttonDisabled}
+                size="sm"
+                variant="default"
+                onClick={config.onButtonClick}
+                className="gap-2 flex-shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                {config.buttonText}
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Advanced Filters Section */}
       {advancedFilters.length > 0 && (
