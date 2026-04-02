@@ -20,8 +20,8 @@ import {
   fetchCurrentBusinessSettings,
   updateCurrentBusinessSettings,
   type BusinessSettingsResponse,
+  type SocialMedia,
 } from "@/redux/features/business/store/services/business-settings-service";
-
 
 interface FormData {
   taxPercentage: string;
