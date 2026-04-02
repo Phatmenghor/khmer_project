@@ -47,7 +47,7 @@ interface StockFormData {
 interface StockManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product: ProductDetailResponseModel | null;
+  product: Partial<ProductDetailResponseModel> | null;
 }
 
 export function StockManagementModal({
@@ -261,10 +261,10 @@ export function StockManagementModal({
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
-              {product.mainImageUrl ? (
+              {product?.mainImageUrl ? (
                 <img
                   src={product.mainImageUrl}
-                  alt={product.name}
+                  alt={product?.name}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -278,14 +278,14 @@ export function StockManagementModal({
                 Stock Management
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {product.name}
+                {product?.name}
               </p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant="outline" className="text-xs">
-                  SKU: {product.sku || "---"}
+                  SKU: {product?.sku || "---"}
                 </Badge>
                 <Badge variant="outline" className="text-xs">
-                  Barcode: {product.barcode || "---"}
+                  Barcode: {product?.barcode || "---"}
                 </Badge>
               </div>
             </div>
@@ -397,8 +397,8 @@ export function StockManagementModal({
                     </div>
                   </div>
 
-                  {/* Preview Section */}
-                  {product && (
+                  {/* Preview Section - only show if we have full product details */}
+                  {product && product.price && (
                     <div className="border-t pt-6">
                         <h3 className="text-sm font-semibold mb-3">Sales Preview</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -438,14 +438,18 @@ export function StockManagementModal({
                                 <div>
                                   <p className="text-muted-foreground">Valid Period:</p>
                                   <p className="font-medium text-xs">
-                                    {new Date(product.promotionFromDate).toLocaleDateString()} →{" "}
-                                    {new Date(product.promotionToDate).toLocaleDateString()}
+                                    {product.promotionFromDate && product.promotionToDate && (
+                                      <>
+                                        {new Date(product.promotionFromDate).toLocaleDateString()} →{" "}
+                                        {new Date(product.promotionToDate).toLocaleDateString()}
+                                      </>
+                                    )}
                                   </p>
                                 </div>
                                 <div className="pt-2 border-t">
                                   <p className="text-muted-foreground">Final Price:</p>
                                   <p className="text-base font-semibold text-green-600">
-                                    ${product.displayPrice.toFixed(2)}
+                                    ${product.displayPrice?.toFixed(2) || "0.00"}
                                   </p>
                                 </div>
                               </div>
