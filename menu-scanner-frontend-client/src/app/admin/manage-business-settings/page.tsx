@@ -95,8 +95,10 @@ export default function BusinessSettingsPage() {
       setIsLoading(true);
       const action = await dispatch(fetchBusinessSettingsThunk());
 
-      if (action.payload) {
-        const formData = convertResponseToFormData(action.payload);
+      // Check if the action was fulfilled and has a payload
+      if (action.meta.requestStatus === "fulfilled" && action.payload) {
+        const data = action.payload as BusinessSettingsResponse;
+        const formData = convertResponseToFormData(data);
         form.reset(formData);
       } else {
         showToast.error("Failed to load business settings");
@@ -218,8 +220,9 @@ export default function BusinessSettingsPage() {
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
 
-      if (action.payload) {
-        const result = action.payload;
+      // Check if the action was fulfilled and has a payload
+      if (action.meta.requestStatus === "fulfilled" && action.payload) {
+        const result = action.payload as BusinessSettingsResponse;
 
         // Apply colors in real-time without refresh
         if (result.primaryColor || result.secondaryColor || result.accentColor) {
