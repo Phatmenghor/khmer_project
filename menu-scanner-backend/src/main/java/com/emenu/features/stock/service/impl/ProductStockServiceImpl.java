@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -259,39 +260,72 @@ public class ProductStockServiceImpl implements ProductStockService {
     }
 
     private ProductStockItemDto mapRowToProductStockItemDto(Object[] row) {
-        // Row mapping based on the query result columns:
-        // 0: product_id, 1: product_size_id, 2: product_name, 3: category_name, 4: brand_name,
-        // 5: sku, 6: barcode, 7: size_name, 8: total_stock, 9: status, 10: stock_status,
-        // 11: item_type, 12: created_at, 13: updated_at
+        // Row mapping based on the extended query result columns (with sales preview fields):
+        // 0: product_id, 1: product_size_id, 2: product_name, 3: description,
+        // 4: category_id, 5: category_name, 6: brand_id, 7: brand_name,
+        // 8: sku, 9: barcode, 10: size_name, 11: price,
+        // 12: display_price, 13: display_promotion_type, 14: display_promotion_value,
+        // 15: display_promotion_from_date, 16: display_promotion_to_date, 17: has_promotion,
+        // 18: total_stock, 19: quantity_available, 20: quantity_reserved, 21: quantity_on_hand,
+        // 22: main_image_url, 23: status, 24: stock_status, 25: item_type,
+        // 26: created_at, 27: updated_at
 
         UUID productId = (UUID) row[0];
         UUID productSizeId = (UUID) row[1];
         String productName = (String) row[2];
-        String categoryName = (String) row[3];
-        String brandName = (String) row[4];
-        String sku = (String) row[5];
-        String barcode = (String) row[6];
-        String sizeName = (String) row[7];
-        Long totalStock = ((Number) row[8]).longValue();
-        String status = (String) row[9];
-        String stockStatus = (String) row[10];
-        String itemType = (String) row[11];
+        String description = (String) row[3];
+        UUID categoryId = (UUID) row[4];
+        String categoryName = (String) row[5];
+        UUID brandId = (UUID) row[6];
+        String brandName = (String) row[7];
+        String sku = (String) row[8];
+        String barcode = (String) row[9];
+        String sizeName = (String) row[10];
+        String price = (String) row[11];
+        BigDecimal displayPrice = row[12] != null ? (BigDecimal) row[12] : null;
+        String displayPromotionType = (String) row[13];
+        BigDecimal displayPromotionValue = row[14] != null ? (BigDecimal) row[14] : null;
+        LocalDateTime displayPromotionFromDate = convertToLocalDateTime(row[15]);
+        LocalDateTime displayPromotionToDate = convertToLocalDateTime(row[16]);
+        Boolean hasPromotion = row[17] != null ? (Boolean) row[17] : false;
+        Long totalStock = ((Number) row[18]).longValue();
+        Long quantityAvailable = ((Number) row[19]).longValue();
+        Long quantityReserved = ((Number) row[20]).longValue();
+        Long quantityOnHand = ((Number) row[21]).longValue();
+        String mainImageUrl = (String) row[22];
+        String status = (String) row[23];
+        String stockStatus = (String) row[24];
+        String itemType = (String) row[25];
 
         // Convert java.sql.Timestamp to java.time.LocalDateTime
-        LocalDateTime createdAt = convertToLocalDateTime(row[12]);
-        LocalDateTime updatedAt = convertToLocalDateTime(row[13]);
+        LocalDateTime createdAt = convertToLocalDateTime(row[26]);
+        LocalDateTime updatedAt = convertToLocalDateTime(row[27]);
 
         return ProductStockItemDto.builder()
                 .id(productSizeId != null ? productSizeId : productId)
                 .productId(productId)
                 .productSizeId(productSizeId)
                 .productName(productName)
+                .description(description)
+                .categoryId(categoryId)
                 .categoryName(categoryName)
+                .brandId(brandId)
                 .brandName(brandName)
                 .sku(sku)
                 .barcode(barcode)
                 .sizeName(sizeName)
+                .price(price)
+                .displayPrice(displayPrice)
+                .displayPromotionType(displayPromotionType)
+                .displayPromotionValue(displayPromotionValue)
+                .displayPromotionFromDate(displayPromotionFromDate)
+                .displayPromotionToDate(displayPromotionToDate)
+                .hasPromotion(hasPromotion)
                 .totalStock(totalStock)
+                .quantityAvailable(quantityAvailable)
+                .quantityReserved(quantityReserved)
+                .quantityOnHand(quantityOnHand)
+                .mainImageUrl(mainImageUrl)
                 .status(status)
                 .stockStatus(stockStatus)
                 .type(itemType)
