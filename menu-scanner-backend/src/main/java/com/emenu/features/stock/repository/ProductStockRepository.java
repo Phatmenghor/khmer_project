@@ -332,7 +332,10 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                         WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
                             AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
                             AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
-                        THEN psz.display_price
+                        THEN CASE
+                            WHEN psz.promotion_type = 'PERCENTAGE' THEN (psz.price::numeric * (1 - psz.promotion_value / 100))::decimal
+                            ELSE (psz.price::numeric - psz.promotion_value)::decimal
+                        END
                         ELSE psz.price
                     END::decimal as display_price,
                     CASE
