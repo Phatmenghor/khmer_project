@@ -2,6 +2,7 @@
 
 import React from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { formatCurrency } from "@/utils/common/currency-format";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   selectIsFetchingDetail,
@@ -181,6 +182,102 @@ export function StockItemDetailModal({
                 </div>
               </CardContent>
             </Card>
+
+            {/* Pricing Information */}
+            {productData && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pricing Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayField
+                      label="Product Selling Price"
+                      value={formatCurrency(parseFloat(productData.price || "0"))}
+                    />
+                    {productData.hasPromotion && (
+                      <>
+                        <DisplayField
+                          label="On Sale"
+                          value={
+                            <Badge variant="destructive" className="w-fit">
+                              {productData.displayPromotionType === "PERCENTAGE"
+                                ? `${productData.displayPromotionValue}% OFF`
+                                : `Save ${formatCurrency(productData.displayPromotionValue || 0)}`}
+                            </Badge>
+                          }
+                        />
+                        <DisplayField
+                          label="Promotion Type"
+                          value={formatEnumValue(productData.displayPromotionType)}
+                        />
+                        <DisplayField
+                          label="Discount"
+                          value={
+                            productData.displayPromotionType === "PERCENTAGE"
+                              ? `${productData.displayPromotionValue}%`
+                              : formatCurrency(productData.displayPromotionValue || 0)
+                          }
+                        />
+                        <DisplayField
+                          label="Valid Period"
+                          value={
+                            <div className="text-xs">
+                              <div>{dateTimeFormat(productData.displayPromotionFromDate ?? "")}</div>
+                              <div className="text-muted-foreground">↓</div>
+                              <div>{dateTimeFormat(productData.displayPromotionToDate ?? "")}</div>
+                            </div>
+                          }
+                        />
+                        <DisplayField
+                          label="Final Price"
+                          value={
+                            <span className="text-lg font-bold text-green-600">
+                              {formatCurrency(productData.displayPrice)}
+                            </span>
+                          }
+                        />
+                      </>
+                    )}
+                    {!productData.hasPromotion && (
+                      <DisplayField
+                        label="Current Price"
+                        value={
+                          <span className="text-lg font-bold">
+                            {formatCurrency(parseFloat(productData.price || "0"))}
+                          </span>
+                        }
+                      />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Product Images */}
+            {productData?.images && productData.images.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Product Images</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                    {productData.images.map((image, index) => (
+                      <div
+                        key={image.id}
+                        className="relative aspect-square rounded-md overflow-hidden border hover:shadow-md transition-shadow bg-muted"
+                      >
+                        <img
+                          src={image.imageUrl}
+                          alt={`Product image ${index + 1}`}
+                          className="object-cover w-full h-full hover:scale-105 transition-transform"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Metadata */}
             <Card>
