@@ -139,8 +139,12 @@ export const productPromotionTableColumns = ({
   data,
   handlers,
 }: ProductPromotionTableOptions): TableColumn<ProductDetailResponseModel>[] => {
-  const { handleEditProduct, handleProductViewDetail, handleDeleteProduct, handleResetPromotion } =
-    handlers;
+  const {
+    handleEditProduct,
+    handleProductViewDetail,
+    handleDeleteProduct,
+    handleResetPromotion,
+  } = handlers;
 
   return [
     {
@@ -262,7 +266,7 @@ export const productPromotionTableColumns = ({
       key: "sizes",
       label: "Sizes",
       minWidth: "25px",
-      maxWidth: "1000px",
+      maxWidth: "400px",
       render: (product) => <SizesDisplay sizes={product?.sizes} />,
     },
 
