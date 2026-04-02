@@ -174,8 +174,8 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               </div>
             </div>
 
-            {/* Right side: Filters + Add Button (grouped together, pushed right) */}
-            <div className="flex flex-wrap items-end gap-3 ml-auto">
+            {/* Right side: Filters + Add Button (grouped together, pushed right, scrollable) */}
+            <div className="flex flex-wrap items-end gap-3 ml-auto overflow-x-auto max-w-[calc(100vw-330px)] pb-2">
               {/* Essential Filters - Right side */}
               {essentialFilters.length > 0 && (
                 <div className="grid gap-3 flex-shrink-0"
