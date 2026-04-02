@@ -31,7 +31,8 @@ interface FormData {
 }
 
 export default function BusinessSettingsPage() {
-  const [businessSettings, setBusinessSettings] = useState<BusinessSettingsResponse | null>(null);
+  const [businessSettings, setBusinessSettings] =
+    useState<BusinessSettingsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -70,7 +71,9 @@ export default function BusinessSettingsPage() {
       setIsSaving(true);
 
       const payload = {
-        taxPercentage: data.taxPercentage ? parseFloat(data.taxPercentage) : null,
+        taxPercentage: data.taxPercentage
+          ? parseFloat(data.taxPercentage)
+          : null,
         logoBusinessUrl: data.logoBusinessUrl,
         enableStock: data.enableStock,
         socialMedia: data.socialMedia,
@@ -105,30 +108,6 @@ export default function BusinessSettingsPage() {
         </p>
       </div>
 
-      {/* Business Info Card */}
-      {businessSettings && (
-        <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>{businessSettings.businessName}</span>
-              <Badge variant="outline" className="text-xs">
-                {businessSettings.businessId}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Last Updated:</span>
-              <span>{new Date(businessSettings.updatedAt).toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Updated By:</span>
-              <span>{businessSettings.updatedBy}</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Settings */}
         <Card>
@@ -151,7 +130,9 @@ export default function BusinessSettingsPage() {
                     className="pr-8"
                     {...form.register("taxPercentage")}
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                    %
+                  </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Tax rate applied to all transactions (0-100%)
@@ -164,7 +145,10 @@ export default function BusinessSettingsPage() {
                 <Select
                   value={form.watch("enableStock")}
                   onValueChange={(value) =>
-                    form.setValue("enableStock", value as "ENABLED" | "DISABLED")
+                    form.setValue(
+                      "enableStock",
+                      value as "ENABLED" | "DISABLED",
+                    )
                   }
                 >
                   <SelectTrigger id="enableStock">
@@ -205,7 +189,9 @@ export default function BusinessSettingsPage() {
               </p>
               {form.watch("logoBusinessUrl") && (
                 <div className="mt-3 flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Preview:</span>
+                  <span className="text-xs text-muted-foreground">
+                    Preview:
+                  </span>
                   <img
                     src={form.watch("logoBusinessUrl")}
                     alt="Logo preview"
@@ -268,12 +254,16 @@ export default function BusinessSettingsPage() {
                     >
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Platform Name</Label>
+                          <Label className="text-sm font-medium">
+                            Platform Name
+                          </Label>
                           <Input
                             placeholder="e.g., Facebook"
                             value={social.name}
                             onChange={(e) => {
-                              const updated = [...(form.getValues("socialMedia") || [])];
+                              const updated = [
+                                ...(form.getValues("socialMedia") || []),
+                              ];
                               updated[index].name = e.target.value;
                               form.setValue("socialMedia", updated);
                             }}
@@ -281,13 +271,17 @@ export default function BusinessSettingsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Icon/Logo URL</Label>
+                          <Label className="text-sm font-medium">
+                            Icon/Logo URL
+                          </Label>
                           <Input
                             placeholder="https://example.com/icon.png"
                             type="url"
                             value={social.imageUrl}
                             onChange={(e) => {
-                              const updated = [...(form.getValues("socialMedia") || [])];
+                              const updated = [
+                                ...(form.getValues("socialMedia") || []),
+                              ];
                               updated[index].imageUrl = e.target.value;
                               form.setValue("socialMedia", updated);
                             }}
@@ -295,13 +289,17 @@ export default function BusinessSettingsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Profile URL</Label>
+                          <Label className="text-sm font-medium">
+                            Profile URL
+                          </Label>
                           <Input
                             placeholder="https://facebook.com/yourprofile"
                             type="url"
                             value={social.linkUrl}
                             onChange={(e) => {
-                              const updated = [...(form.getValues("socialMedia") || [])];
+                              const updated = [
+                                ...(form.getValues("socialMedia") || []),
+                              ];
                               updated[index].linkUrl = e.target.value;
                               form.setValue("socialMedia", updated);
                             }}
@@ -316,10 +314,11 @@ export default function BusinessSettingsPage() {
                           size="sm"
                           className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
                           onClick={() => {
-                            const currentSocialMedia = form.getValues("socialMedia") || [];
+                            const currentSocialMedia =
+                              form.getValues("socialMedia") || [];
                             form.setValue(
                               "socialMedia",
-                              currentSocialMedia.filter((_, i) => i !== index)
+                              currentSocialMedia.filter((_, i) => i !== index),
                             );
                           }}
                         >
@@ -334,7 +333,7 @@ export default function BusinessSettingsPage() {
           )}
         </div>
 
-{/* Action Buttons */}
+        {/* Action Buttons */}
         <div className="flex gap-3 justify-end pt-4 border-t">
           <Button
             type="button"
