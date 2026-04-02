@@ -10,13 +10,10 @@ import org.mapstruct.*;
 public interface BusinessSettingMapper {
 
     @Mapping(target = "businessName", source = "business.name")
-    @Mapping(target = "logoBusinesssUrl", source = "logoUrl")
     BusinessSettingResponse toResponse(BusinessSetting businessSetting);
 
-    @Mapping(target = "logoUrl", source = "logoBusinesssUrl")
     BusinessSetting toEntity(BusinessSettingCreateRequest request);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "logoUrl", source = "logoBusinesssUrl")
     void updateEntity(BusinessSettingUpdateRequest request, @MappingTarget BusinessSetting businessSetting);
 }
