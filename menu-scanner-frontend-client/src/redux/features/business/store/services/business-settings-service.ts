@@ -4,7 +4,33 @@
  */
 
 import { axiosInstance } from "@/utils/axios/axios-instance";
-import { BusinessSettingsResponse } from "../models/response/business-settings-response";
+
+export interface SocialMedia {
+  name: string;
+  imageUrl: string;
+  linkUrl: string;
+}
+
+export interface BusinessSettingsResponse {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
+  businessId: string;
+  businessName: string;
+  taxPercentage: number | null;
+  logoBusinessUrl: string;
+  enableStock: "ENABLED" | "DISABLED";
+  socialMedia: SocialMedia[];
+}
+
+export interface UpdateBusinessSettingsRequest {
+  taxPercentage?: number | null;
+  logoBusinessUrl?: string;
+  enableStock?: "ENABLED" | "DISABLED";
+  socialMedia?: SocialMedia[];
+}
 
 const API_BASE_URL = "/api/v1/business-settings";
 
@@ -12,33 +38,105 @@ const API_BASE_URL = "/api/v1/business-settings";
  * Fetch current business settings
  * GET /api/v1/business-settings/current
  */
-export const getBusinessSettingsService = async (): Promise<BusinessSettingsResponse> => {
+export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse> => {
   try {
-    const response = await axiosInstance.get<BusinessSettingsResponse>(
+    const response = await axiosInstance.get<{ data: BusinessSettingsResponse }>(
       `${API_BASE_URL}/current`
     );
-    return response.data;
+    return response.data.data;
   } catch (error) {
-    console.error("Error fetching business settings:", error);
+    console.error("Error fetching current business settings:", error);
     throw error;
   }
 };
 
 /**
- * Update business settings
- * PUT /api/v1/business-settings
+ * Fetch business settings by business ID
+ * GET /api/v1/business-settings/business/{businessId}
  */
-export const updateBusinessSettingsService = async (
-  settings: Partial<BusinessSettingsResponse>
+export const fetchBusinessSettingsByBusinessId = async (
+  businessId: string
 ): Promise<BusinessSettingsResponse> => {
   try {
-    const response = await axiosInstance.put<BusinessSettingsResponse>(
-      API_BASE_URL,
-      settings
+    const response = await axiosInstance.get<{ data: BusinessSettingsResponse }>(
+      `${API_BASE_URL}/business/${businessId}`
     );
-    return response.data;
+    return response.data.data;
   } catch (error) {
-    console.error("Error updating business settings:", error);
+    console.error(`Error fetching business settings for ${businessId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Update current business settings
+ * PUT /api/v1/business-settings
+ */
+export const updateCurrentBusinessSettings = async (
+  request: UpdateBusinessSettingsRequest
+): Promise<BusinessSettingsResponse> => {
+  try {
+    const response = await axiosInstance.put<{ data: BusinessSettingsResponse }>(
+      API_BASE_URL,
+      request
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error updating current business settings:", error);
+    throw error;
+  }
+};
+
+/**
+ * Update business settings by business ID
+ * PUT /api/v1/business-settings/business/{businessId}
+ */
+export const updateBusinessSettingsByBusinessId = async (
+  businessId: string,
+  request: UpdateBusinessSettingsRequest
+): Promise<BusinessSettingsResponse> => {
+  try {
+    const response = await axiosInstance.put<{ data: BusinessSettingsResponse }>(
+      `${API_BASE_URL}/business/${businessId}`,
+      request
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error(`Error updating business settings for ${businessId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Create business settings
+ * POST /api/v1/business-settings
+ */
+export const createBusinessSettings = async (
+  request: {
+    businessId: string;
+  } & UpdateBusinessSettingsRequest
+): Promise<BusinessSettingsResponse> => {
+  try {
+    const response = await axiosInstance.post<{ data: BusinessSettingsResponse }>(
+      API_BASE_URL,
+      request
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error creating business settings:", error);
+    throw error;
+  }
+};
+
+/**
+ * Delete business settings
+ * DELETE /api/v1/business-settings/business/{businessId}
+ */
+export const deleteBusinessSettings = async (businessId: string): Promise<void> => {
+  try {
+    await axiosInstance.delete(`${API_BASE_URL}/business/${businessId}`);
+  } catch (error) {
+    console.error(`Error deleting business settings for ${businessId}:`, error);
     throw error;
   }
 };
