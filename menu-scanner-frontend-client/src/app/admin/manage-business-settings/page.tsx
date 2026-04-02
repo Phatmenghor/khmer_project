@@ -301,21 +301,25 @@ export default function BusinessSettingsPage() {
             </div>
 
             {/* Business Logo Upload */}
-            <div>
-              <ClickableImageUpload
-                label="Business Logo"
-                value={form.watch("logoBusinessUrl")}
-                onChange={handleLogoSelect}
-                disabled={isSaving}
-                aspectRatio="square"
-                height="h-48"
-                placeholder="Click to upload logo"
-                helperText="Upload a square image (PNG, JPG, etc.)"
-                maxSize={5}
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                Selected logo will be uploaded when you click Save Changes
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <ClickableImageUpload
+                  label="Business Logo"
+                  value={form.watch("logoBusinessUrl")}
+                  onChange={handleLogoSelect}
+                  disabled={isSaving}
+                  aspectRatio="square"
+                  height="h-48"
+                  placeholder="Click to upload logo"
+                  helperText="Upload a square image (PNG, JPG, etc.)"
+                  maxSize={5}
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Selected logo will be uploaded when you click Save Changes
+                </p>
+              </div>
+              {/* Right column - empty for now, can be used for future additions */}
+              <div />
             </div>
           </CardContent>
         </Card>
