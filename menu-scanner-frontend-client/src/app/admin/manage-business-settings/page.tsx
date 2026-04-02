@@ -33,6 +33,26 @@ import {
   businessSettingsSchema,
   type BusinessSettingsFormData,
 } from "./schema/business-settings.schema";
+import { BusinessSettingsResponse } from "@/redux/features/business/store/services/business-settings-service";
+
+/**
+ * Convert API response to form data
+ * Handles type conversions between API response and form data
+ */
+function convertResponseToFormData(
+  response: BusinessSettingsResponse
+): BusinessSettingsFormData {
+  return {
+    businessName: response.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
+    taxPercentage: response.taxPercentage?.toString() || "",
+    logoBusinessUrl: response.logoBusinessUrl || "",
+    enableStock: response.enableStock || "DISABLED",
+    socialMedia: response.socialMedia || [],
+    primaryColor: response.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+    secondaryColor: response.secondaryColor || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
+    accentColor: response.accentColor || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
+  };
+}
 
 export default function BusinessSettingsPage() {
   const dispatch = useAppDispatch();
@@ -60,16 +80,8 @@ export default function BusinessSettingsPage() {
   useEffect(() => {
     // If already in Redux, use that data
     if (reduxBusinessSettings) {
-      form.reset({
-        businessName: reduxBusinessSettings?.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
-        taxPercentage: reduxBusinessSettings?.taxPercentage?.toString() || "",
-        logoBusinessUrl: reduxBusinessSettings?.logoBusinessUrl || "",
-        enableStock: reduxBusinessSettings?.enableStock || "DISABLED",
-        socialMedia: reduxBusinessSettings?.socialMedia || [],
-        primaryColor: reduxBusinessSettings?.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
-        secondaryColor: reduxBusinessSettings?.secondaryColor || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
-        accentColor: reduxBusinessSettings?.accentColor || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
-      });
+      const formData = convertResponseToFormData(reduxBusinessSettings);
+      form.reset(formData);
       setIsLoading(false);
       return;
     }
@@ -84,18 +96,8 @@ export default function BusinessSettingsPage() {
       const action = await dispatch(fetchBusinessSettingsThunk());
 
       if (action.payload) {
-        const data = action.payload;
-        // Initialize form with current data
-        form.reset({
-          businessName: data?.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
-          taxPercentage: data?.taxPercentage?.toString() || "",
-          logoBusinessUrl: data?.logoBusinessUrl || "",
-          enableStock: data?.enableStock || "DISABLED",
-          socialMedia: data?.socialMedia || [],
-          primaryColor: data?.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
-          secondaryColor: data?.secondaryColor || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
-          accentColor: data?.accentColor || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
-        });
+        const formData = convertResponseToFormData(action.payload);
+        form.reset(formData);
       } else {
         showToast.error("Failed to load business settings");
       }
