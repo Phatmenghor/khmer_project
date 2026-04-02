@@ -20,7 +20,7 @@ Fetch paginated list of product stock items with filtering, sorting, and search 
 }
 ```
 
-### Response Structure
+### Response Structure - Complete Sales Preview Fields
 ```typescript
 {
   pageNo: number;
@@ -29,26 +29,65 @@ Fetch paginated list of product stock items with filtering, sorting, and search 
   totalPages: number;
   content: [
     {
-      id: string;                    // Stock item unique ID
-      productId: string;             // Product unique ID
-      productSizeId?: string;        // Size unique ID (null for products without sizes)
-      productName: string;           // Product name
-      categoryName: string;          // Product category
-      brandName: string;             // Product brand
-      sku: string;                   // Stock Keeping Unit (MUST BE RETURNED)
-      barcode: string;               // Barcode (MUST BE RETURNED)
-      sizeName?: string;             // Size name (null for non-sized products)
-      totalStock: number;            // Total quantity available
-      status: string;                // Product status: "ACTIVE" | "INACTIVE"
-      stockStatus: string;           // Stock tracking status: "ENABLED" | "DISABLED"
-      type: string;                  // Item type: "PRODUCT" | "SIZE"
-      createdAt: string;             // ISO datetime format
-      updatedAt: string;             // ISO datetime format
-      // Additional fields needed for enhanced preview:
-      mainImageUrl?: string;         // Product main image URL (for modal preview)
-      description?: string;          // Product description
-      categoryId?: string;           // Category ID (for linking)
-      brandId?: string;              // Brand ID (for linking)
+      // === BASIC IDENTIFICATION ===
+      id: string;                              // Stock item unique ID
+      productId: string;                       // Product unique ID
+      productSizeId?: string;                  // Size unique ID (null for products without sizes)
+      
+      // === PRODUCT INFORMATION ===
+      productName: string;                     // Product name
+      description?: string;                    // Product description for preview
+      categoryId?: string;                     // Category ID
+      categoryName: string;                    // Product category
+      brandId?: string;                        // Brand ID
+      brandName: string;                       // Product brand
+      status: string;                          // Product status: "ACTIVE" | "INACTIVE"
+      
+      // === IDENTIFICATION CODES ===
+      sku: string;                             // Stock Keeping Unit (CRITICAL - NEVER NULL)
+      barcode: string;                         // Barcode (CRITICAL - NEVER NULL)
+      
+      // === SIZE INFORMATION ===
+      sizeName?: string;                       // Size name (null for non-sized products)
+      
+      // === PRICING & PROMOTIONS ===
+      price: string;                           // Base selling price
+      displayPrice?: number;                   // Final display price (after discount)
+      displayPromotionType?: string;           // Promotion type: "PERCENTAGE" | "FIXED_AMOUNT"
+      displayPromotionValue?: number;          // Discount percentage or amount
+      displayPromotionFromDate?: string;       // Promotion start date (ISO datetime)
+      displayPromotionToDate?: string;         // Promotion end date (ISO datetime)
+      hasPromotion?: boolean;                  // Whether item is on sale
+      
+      // === INVENTORY INFORMATION ===
+      totalStock: number;                      // Total quantity in stock
+      quantityAvailable?: number;              // Available for sale (totalStock - reserved)
+      quantityReserved?: number;               // Quantity already reserved/ordered
+      quantityOnHand?: number;                 // Physical inventory
+      
+      // === STOCK STATUS ===
+      stockStatus: string;                     // Stock tracking: "ENABLED" | "DISABLED"
+      
+      // === ITEM TYPE ===
+      type: string;                            // Item type: "PRODUCT" | "SIZE"
+      
+      // === IMAGES ===
+      mainImageUrl?: string;                   // Product main image URL (for modal header)
+      images?: [                               // Optional: product image gallery
+        {
+          id: string;
+          imageUrl: string;
+          displayOrder?: number;
+        }
+      ];
+      
+      // === ENGAGEMENT METRICS ===
+      viewCount?: number;                      // How many times viewed
+      favoriteCount?: number;                  // How many times favorited
+      
+      // === METADATA ===
+      createdAt: string;                       // ISO datetime format
+      updatedAt: string;                       // ISO datetime format
     }
   ]
 }

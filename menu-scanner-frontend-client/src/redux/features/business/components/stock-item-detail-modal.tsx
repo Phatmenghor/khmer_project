@@ -117,6 +117,20 @@ export function StockItemDetailModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
+            {/* Product Description */}
+            {item.description && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Product Description</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {item.description}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Product Identification */}
             <Card>
               <CardHeader>
@@ -274,6 +288,94 @@ export function StockItemDetailModal({
                         />
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Availability & Inventory */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Availability & Inventory</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField
+                    label="Total Stock"
+                    value={
+                      <span className={
+                        item.totalStock === 0
+                          ? "font-bold text-red-600"
+                          : item.totalStock < 10
+                            ? "font-bold text-yellow-600"
+                            : "font-bold text-green-600"
+                      }>
+                        {item.totalStock} Items
+                      </span>
+                    }
+                  />
+                  {item.quantityAvailable !== undefined && (
+                    <DisplayField
+                      label="Available for Sale"
+                      value={
+                        <span className="font-semibold text-green-600">
+                          {item.quantityAvailable} Items
+                        </span>
+                      }
+                    />
+                  )}
+                  {item.quantityReserved !== undefined && (
+                    <DisplayField
+                      label="Reserved"
+                      value={
+                        <span className="font-semibold text-orange-600">
+                          {item.quantityReserved} Items
+                        </span>
+                      }
+                    />
+                  )}
+                  {item.quantityOnHand !== undefined && (
+                    <DisplayField
+                      label="On Hand"
+                      value={
+                        <span className="font-semibold">
+                          {item.quantityOnHand} Items
+                        </span>
+                      }
+                    />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Engagement & Analytics */}
+            {(item.viewCount !== undefined || item.favoriteCount !== undefined) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Engagement & Analytics</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {item.viewCount !== undefined && (
+                      <DisplayField
+                        label="Total Views"
+                        value={
+                          <span className="text-lg font-semibold text-blue-600">
+                            {item.viewCount.toLocaleString()}
+                          </span>
+                        }
+                      />
+                    )}
+                    {item.favoriteCount !== undefined && (
+                      <DisplayField
+                        label="Favorites"
+                        value={
+                          <span className="text-lg font-semibold text-pink-600">
+                            ♥ {item.favoriteCount.toLocaleString()}
+                          </span>
+                        }
+                      />
+                    )}
                   </div>
                 </CardContent>
               </Card>
