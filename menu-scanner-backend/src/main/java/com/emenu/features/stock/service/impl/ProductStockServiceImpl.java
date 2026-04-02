@@ -281,7 +281,8 @@ public class ProductStockServiceImpl implements ProductStockService {
         String sku = (String) row[8];
         String barcode = (String) row[9];
         String sizeName = (String) row[10];
-        String price = (String) row[11];
+        BigDecimal priceDecimal = row[11] != null ? (BigDecimal) row[11] : null;
+        String price = priceDecimal != null ? priceDecimal.toPlainString() : null;
         BigDecimal displayPrice = row[12] != null ? (BigDecimal) row[12] : null;
         String displayPromotionType = (String) row[13];
         BigDecimal displayPromotionValue = row[14] != null ? (BigDecimal) row[14] : null;
