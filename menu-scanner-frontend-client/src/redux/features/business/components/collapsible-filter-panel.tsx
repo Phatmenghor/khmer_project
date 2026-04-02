@@ -158,10 +158,10 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             <h1 className="text-base sm:text-lg font-bold">{config.title}</h1>
           </div>
 
-          {/* Row 1: Search (left) + Add Button (right, always Row 1) */}
+          {/* Row 1: Search + Filters + Add Button (all on same row with flex-wrap) */}
           <div className="flex flex-wrap items-end gap-3">
-            {/* Search - Left side */}
-            <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
+            {/* Search - Left side, flex-1 with max-width */}
+            <div className="flex-1 min-w-[250px] max-w-[500px]">
               <div className="relative w-full group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 <Input
@@ -174,30 +174,31 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               </div>
             </div>
 
-            {/* Add Button - Right side, always stays on Row 1 */}
+            {/* Essential Filters - Can wrap or stay on Row 1 */}
+            {essentialFilters.length > 0 && (
+              <div className="grid gap-3 flex-shrink-0"
+                style={{
+                  gridTemplateColumns: 'repeat(2, minmax(120px, 1fr))',
+                  maxWidth: '300px',
+                }}>
+                {essentialFilters.map((filter) => renderFilter(filter))}
+              </div>
+            )}
+
+            {/* Add Button - Right side, always stays visible */}
             {config.buttonText && (
               <Button
                 disabled={config.buttonDisabled}
                 size="sm"
                 variant="default"
                 onClick={config.onButtonClick}
-                className="gap-2 flex-shrink-0 ml-auto"
+                className="gap-2 flex-shrink-0"
               >
                 <Plus className="w-4 h-4" />
                 {config.buttonText}
               </Button>
             )}
           </div>
-
-          {/* Row 2: Essential Filters (wraps on smaller screens) */}
-          {essentialFilters.length > 0 && (
-            <div className="grid gap-3 w-full"
-              style={{
-                gridTemplateColumns: 'repeat(2, minmax(140px, 1fr))',
-              }}>
-              {essentialFilters.map((filter) => renderFilter(filter))}
-            </div>
-          )}
         </CardContent>
       </Card>
 
