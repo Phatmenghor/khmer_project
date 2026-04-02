@@ -38,8 +38,8 @@ import { ProductDetailResponseModel } from "../store/models/response/product-res
 import { ProductStockDto, ProductStockItemDto } from "../store/models/response/stock-response";
 import { createStockHistoryColumns } from "../table/product-stock-history-table";
 import { useAppSelector } from "@/redux/store";
-import { selectSelectedProduct } from "./selectors/product-selector";
-import { fetchProductByIdService } from "./thunks/product-thunks";
+import { selectSelectedProduct } from "../store/selectors/product-selector";
+import { fetchProductByIdService } from "../store/thunks/product-thunks";
 
 interface StockFormData {
   quantityOnHand?: number;
