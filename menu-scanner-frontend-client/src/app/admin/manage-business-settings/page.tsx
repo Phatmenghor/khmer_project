@@ -224,6 +224,15 @@ export default function BusinessSettingsPage() {
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const result = action.payload as BusinessSettingsResponse;
 
+        // ## Log the saved data
+        console.log("## [FORM] Business settings saved to Redux:", {
+          businessName: result.businessName,
+          logoBusinessUrl: result.logoBusinessUrl,
+          primaryColor: result.primaryColor,
+          secondaryColor: result.secondaryColor,
+          accentColor: result.accentColor,
+        });
+
         // Apply colors in real-time without refresh
         if (result.primaryColor || result.secondaryColor || result.accentColor) {
           applyThemeColors(
@@ -236,6 +245,7 @@ export default function BusinessSettingsPage() {
         showToast.success("Business settings updated successfully");
       } else {
         showToast.error("Failed to update business settings");
+        console.error("## [FORM] Failed to save settings. Action:", action);
         return;
       }
     } catch (error) {

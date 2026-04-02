@@ -38,13 +38,13 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
   // Debug logging to verify Redux state
   useEffect(() => {
-    if (businessSettings) {
-      console.log("✅ [SIDEBAR] Business settings loaded:", {
-        businessName,
-        logoUrl,
-        primaryColor: businessSettings.primaryColor,
-      });
-    }
+    console.log("## [SIDEBAR] Redux businessSettings state:", {
+      hasData: !!businessSettings,
+      businessName: businessSettings?.businessName || "MISSING",
+      logoUrl: businessSettings?.logoBusinessUrl || "MISSING",
+      logoFromSelector: logoUrl || "NULL",
+      allData: businessSettings,
+    });
   }, [businessSettings, businessName, logoUrl]);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
