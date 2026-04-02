@@ -16,26 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  fetchCurrentBusinessSettings,
+  updateCurrentBusinessSettings,
+  type BusinessSettingsResponse,
+} from "@/redux/features/business/store/services/business-settings-service";
 
-interface BusinessSettings {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-  updatedBy: string;
-  businessId: string;
-  businessName: string;
-  taxPercentage: number | null;
-  logoBusinessUrl: string;
-  enableStock: "ENABLED" | "DISABLED";
-  socialMedia: SocialMedia[];
-}
-
-interface SocialMedia {
-  name: string;
-  imageUrl: string;
-  linkUrl: string;
-}
 
 interface FormData {
   taxPercentage: string;
@@ -45,7 +31,7 @@ interface FormData {
 }
 
 export default function BusinessSettingsPage() {
-  const [businessSettings, setBusinessSettings] = useState<BusinessSettings | null>(null);
+  const [businessSettings, setBusinessSettings] = useState<BusinessSettingsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -61,18 +47,15 @@ export default function BusinessSettingsPage() {
   const fetchBusinessSettings = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/v1/business-settings/current");
-      if (!response.ok) throw new Error("Failed to fetch business settings");
-
-      const data = await response.json();
-      setBusinessSettings(data.data || data);
+      const data = await fetchCurrentBusinessSettings();
+      setBusinessSettings(data);
 
       // Initialize form with current data
       form.reset({
-        taxPercentage: data.data?.taxPercentage?.toString() || "",
-        logoBusinessUrl: data.data?.logoBusinessUrl || "",
-        enableStock: data.data?.enableStock || "DISABLED",
-        socialMedia: data.data?.socialMedia || [],
+        taxPercentage: data?.taxPercentage?.toString() || "",
+        logoBusinessUrl: data?.logoBusinessUrl || "",
+        enableStock: data?.enableStock || "DISABLED",
+        socialMedia: data?.socialMedia || [],
       });
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -93,18 +76,8 @@ export default function BusinessSettingsPage() {
         socialMedia: data.socialMedia,
       };
 
-      const response = await fetch("/api/v1/business-settings", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Failed to update settings");
-
-      const result = await response.json();
-      setBusinessSettings(result.data || result);
+      const result = await updateCurrentBusinessSettings(payload);
+      setBusinessSettings(result);
       showToast.success("Business settings updated successfully");
     } catch (error) {
       console.error("Error updating settings:", error);
