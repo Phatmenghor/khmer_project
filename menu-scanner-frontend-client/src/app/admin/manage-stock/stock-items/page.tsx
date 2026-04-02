@@ -22,7 +22,7 @@ import {
   resetState,
 } from "@/redux/features/business/store/slice/stock-items-slice";
 import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
-import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
+import { StockItemDetailModal } from "@/redux/features/business/components/stock-item-detail-modal";
 import { StockManagementModal } from "@/redux/features/business/components/product-stock-management-modal";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
@@ -79,7 +79,7 @@ export default function StockItemsPage() {
   // Local UI state for modals only
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
-    productId: "",
+    item: null as ProductStockItemDto | null,
   });
 
   const [stockManagementState, setStockManagementState] = useState({
@@ -135,7 +135,7 @@ export default function StockItemsPage() {
   const handleViewItem = (item: ProductStockItemDto) => {
     setDetailModalState({
       isOpen: true,
-      productId: item.productId,
+      item,
     });
   };
 
@@ -180,7 +180,7 @@ export default function StockItemsPage() {
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
-      productId: "",
+      item: null,
     });
   };
 
@@ -356,8 +356,8 @@ export default function StockItemsPage() {
       </div>
 
       {/* Modals */}
-      <ProductDetailModal
-        productId={detailModalState.productId}
+      <StockItemDetailModal
+        item={detailModalState.item || undefined}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
