@@ -158,9 +158,9 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             <h1 className="text-base sm:text-lg font-bold">{config.title}</h1>
           </div>
 
-          {/* Row 1: Search + Filters + Add Button (wraps responsive) */}
+          {/* Row 1: Search + Filters + Add Button (responsive wrap) */}
           <div className="flex flex-wrap items-end gap-3">
-            {/* Search - Left side, doesn't shrink much */}
+            {/* Search - Left side, flex-shrink-0 */}
             <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
               <div className="relative w-full group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -174,22 +174,23 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               </div>
             </div>
 
-            {/* Essential Filters - Can wrap */}
-            <div className="grid gap-3 flex-1"
+            {/* Essential Filters - Max width, can wrap */}
+            <div className="grid gap-3 flex-shrink-0"
               style={{
                 gridTemplateColumns: 'repeat(2, minmax(140px, 1fr))',
+                maxWidth: '400px',
               }}>
               {essentialFilters.map((filter) => renderFilter(filter))}
             </div>
 
-            {/* Add Button - Right side, stays with search */}
+            {/* Add Button - Right side, flex-shrink-0 */}
             {config.buttonText && (
               <Button
                 disabled={config.buttonDisabled}
                 size="sm"
                 variant="default"
                 onClick={config.onButtonClick}
-                className="gap-2 flex-shrink-0"
+                className="gap-2 flex-shrink-0 ml-auto"
               >
                 <Plus className="w-4 h-4" />
                 {config.buttonText}
