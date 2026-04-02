@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
+import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
@@ -43,6 +44,23 @@ const STOCK_STATUS_FILTER = [
   { value: "DISABLED", label: "Stock Disabled" },
 ];
 
+// Sort field options for stock page
+const SORT_BY_OPTIONS = [
+  { value: "createdAt", label: "Created Date" },
+  { value: "displayPrice", label: "Display Price" },
+  { value: "barcode", label: "Barcode" },
+  { value: "sku", label: "SKU" },
+  { value: "totalStock", label: "Total Stock" },
+  { value: "favoriteCount", label: "Favorite Count" },
+  { value: "viewCount", label: "View Count" },
+];
+
+const SORT_DIRECTION_OPTIONS = [
+  { value: "DESC", label: "High to Low (DESC)" },
+  { value: "ASC", label: "Low to High (ASC)" },
+];
+
+
 export default function ProductsStockPage() {
   // Clean up state when leaving admin area (performance optimization)
   useAdminCleanup(resetState);
@@ -76,6 +94,8 @@ export default function ProductsStockPage() {
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
   const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDirection, setSortDirection] = useState("DESC");
 
   // Debounce refs for stock status toggle
   const stockStatusDebounceRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
@@ -290,52 +310,91 @@ export default function ProductsStockPage() {
     setStockStatusFilter(value);
   };
 
+  const handleSortByChange = (value: string) => {
+    setSortBy(value);
+  };
+
+  const handleSortDirectionChange = (value: string) => {
+    setSortDirection(value);
+  };
+
+  // Create filter configuration for CollapsibleFilterPanel
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Product Stock Information",
+    searchValue: filters.search,
+    searchPlaceholder: "Search product...",
+    onSearchChange: handleSearchChange,
+    buttonText: "New",
+    buttonDisabled: false,
+    onButtonClick: () => {}, // No button action for stock page
+    filters: [
+      {
+        id: "stockStatus",
+        type: "select",
+        label: "Stock Status",
+        placeholder: "All Stock Status",
+        value: stockStatusFilter,
+        onChange: handleStockStatusChange,
+        options: STOCK_STATUS_FILTER,
+      },
+      {
+        id: "brand",
+        type: "combobox-brand",
+        label: "Brand",
+        placeholder: "All Brand",
+        value: selectedBrand,
+        onChange: handleBrandChange,
+        showAllOption: true,
+      },
+      {
+        id: "category",
+        type: "combobox-categories",
+        label: "Category",
+        placeholder: "All Categories",
+        value: selectedCategories,
+        onChange: handleCategoriesChange,
+        showAllOption: true,
+      },
+      {
+      {
+        id: "productStatus",
+        type: "select",
+        label: "Product Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => handleProductStatusChange(value as ProductStatus),
+        options: PRODUCT_STATUS_FILTER,
+      },
+        id: "sortBy",
+        type: "select",
+        label: "Sort By",
+        placeholder: "Created Date",
+        value: sortBy,
+        onChange: handleSortByChange,
+        options: SORT_BY_OPTIONS,
+      },
+      {
+        id: "sortDirection",
+        type: "select",
+        label: "Order",
+        placeholder: "DESC",
+        value: sortDirection,
+        onChange: handleSortDirectionChange,
+        options: SORT_DIRECTION_OPTIONS,
+      },
+    ],
+  }), [filters.search, stockStatusFilter, selectedBrand, selectedCategories, sortBy, sortDirection]);
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        <CardHeaderSection
-          title="Product Stock Information"
-          searchValue={filters.search}
-          searchPlaceholder="Search product..."
-          buttonTooltip="Select a product and click Create Stock in the table"
-          buttonIcon={<Plus className="w-3 h-3" />}
-          buttonText="New"
-          onSearchChange={handleSearchChange}
-        >
-          <ComboboxSelectBrand
-            dataSelect={selectedBrand}
-            onChangeSelected={handleBrandChange}
-            placeholder="All Brand"
-            showAllOption={true}
-          />
-
-          <ComboboxSelectCategories
-            dataSelect={selectedCategories}
-            onChangeSelected={handleCategoriesChange}
-            placeholder="All Categories"
-            showAllOption={true}
-          />
-
-          <CustomSelect
-            options={STOCK_STATUS_FILTER}
-            value={stockStatusFilter}
-            placeholder="All Stock Status"
-            onValueChange={handleStockStatusChange}
-            label="Stock Status"
-          />
-
-          <CustomSelect
-            options={PRODUCT_STATUS_FILTER}
-            value={filters.status}
-            placeholder="All Status"
-            onValueChange={(value) =>
-              handleProductStatusChange(value as ProductStatus)
-            }
-            label="Product Status"
-          />
-        </CardHeaderSection>
+        <CollapsibleFilterPanel
+          config={filterConfig}
+          essentialFilterIds={["stockStatus"]}
+        />
 
         {/* Data Table with Your Custom Pagination */}
+        <div className="overflow-x-auto max-w-full rounded-lg border">
         <DataTableWithPagination
           data={stockContent}
           columns={columns}
@@ -350,6 +409,7 @@ export default function ProductsStockPage() {
           onPageSizeChange={handlePageSizeChange}
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
+        </div>
       </div>
 
       {/* Modals Product Detail */}
