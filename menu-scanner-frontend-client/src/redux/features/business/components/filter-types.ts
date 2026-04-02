@@ -6,7 +6,7 @@
 export type FilterType = 'select' | 'combobox-brand' | 'combobox-categories' | 'input-number' | 'input-text';
 
 export interface FilterOption {
-  value: string | number;
+  value: string;
   label: string;
 }
 
