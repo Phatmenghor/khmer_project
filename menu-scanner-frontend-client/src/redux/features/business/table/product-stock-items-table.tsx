@@ -1,5 +1,5 @@
 import { indexDisplay } from "@/utils/common/common";
-import { Eye, Edit } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
@@ -191,7 +191,7 @@ export const stockItemsTableColumns = ({
             onClick={() => handleViewItem(item)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Plus className="w-4 h-4" />}
             tooltip="Edit Stock"
             onClick={() => handleEditStock?.(item)}
             variant="secondary"
