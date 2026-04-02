@@ -464,7 +464,8 @@ export default function ProductPromotionPage() {
         />
 
         {/* Data Table with Your Custom Pagination */}
-        <DataTableWithPagination
+        <div className="overflow-x-auto max-w-full rounded-lg border">
+          <DataTableWithPagination
           data={productContent}
           columns={columns}
           loading={isLoading}
@@ -478,6 +479,7 @@ export default function ProductPromotionPage() {
           onPageSizeChange={handlePageSizeChange}
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
+        </div>
       </div>
 
       {/* Modals Add/Edit */}
