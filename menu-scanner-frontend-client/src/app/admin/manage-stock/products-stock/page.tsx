@@ -339,9 +339,9 @@ export default function ProductsStockPage() {
     searchValue: filters.search,
     searchPlaceholder: "Search product...",
     onSearchChange: handleSearchChange,
-    buttonText: "New",
+    buttonText: undefined,
     buttonDisabled: false,
-    onButtonClick: () => {}, // No button action for stock page
+    onButtonClick: () => {}
     filters: [
       {
         id: "stockStatus",

@@ -313,9 +313,8 @@ export default function StockItemsPage() {
         },
       ],
 
-      buttonText: "Add",
+      buttonText: undefined,
       buttonDisabled: true,
-      buttonTooltip: "Select an item to edit",
     }),
     [
       filters.search,

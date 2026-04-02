@@ -338,9 +338,9 @@ export default function SizeStockPage() {
     searchValue: filters.search,
     searchPlaceholder: "Search product...",
     onSearchChange: handleSearchChange,
-    buttonText: "New",
+    buttonText: undefined,
     buttonDisabled: false,
-    onButtonClick: () => {}, // No button action for stock page
+    onButtonClick: () => {}
     filters: [
       {
         id: "productStatus",
