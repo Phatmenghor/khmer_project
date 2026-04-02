@@ -23,8 +23,7 @@ import {
 } from "@/redux/features/business/store/slice/stock-items-slice";
 import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
 import { StockItemDetailModal } from "@/redux/features/business/components/stock-item-detail-modal";
-import { ProductStockItemManagementModal } from "@/redux/features/business/components/product-stock-item-management-modal";
-import { SizeStockItemModal } from "@/redux/features/business/components/size-stock-item-modal";
+import { StockItemManagementModal } from "@/redux/features/business/components/stock-item-management-modal";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -88,11 +87,6 @@ export default function StockItemsPage() {
     item: null as ProductStockItemDto | null,
   });
 
-  const [sizeStockManagementState, setSizeStockManagementState] = useState({
-    isOpen: false,
-    item: null as ProductStockItemDto | null,
-  });
-
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<CategoriesResponseModel | null>(null);
   const [stockStatusFilterUI, setStockStatusFilterUI] = useState("ALL");
@@ -146,18 +140,10 @@ export default function StockItemsPage() {
   };
 
   const handleEditStock = (item: ProductStockItemDto) => {
-    // Route to correct modal based on item type
-    if (item.type === "SIZE") {
-      setSizeStockManagementState({
-        isOpen: true,
-        item,
-      });
-    } else {
-      setStockManagementState({
-        isOpen: true,
-        item,
-      });
-    }
+    setStockManagementState({
+      isOpen: true,
+      item,
+    });
   };
 
   const tableHandlers = useMemo(
@@ -200,13 +186,6 @@ export default function StockItemsPage() {
 
   const closeStockManagementModal = () => {
     setStockManagementState({
-      isOpen: false,
-      item: null,
-    });
-  };
-
-  const closeSizeStockManagementModal = () => {
-    setSizeStockManagementState({
       isOpen: false,
       item: null,
     });
@@ -383,16 +362,10 @@ export default function StockItemsPage() {
         onClose={closeDetailModal}
       />
 
-      <ProductStockItemManagementModal
+      <StockItemManagementModal
         isOpen={stockManagementState.isOpen}
         onClose={closeStockManagementModal}
         stockItem={stockManagementState.item || undefined}
-      />
-
-      <SizeStockItemModal
-        isOpen={sizeStockManagementState.isOpen}
-        onClose={closeSizeStockManagementModal}
-        stockItem={sizeStockManagementState.item || undefined}
       />
     </div>
   );
