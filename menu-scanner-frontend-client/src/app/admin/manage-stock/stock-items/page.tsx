@@ -151,7 +151,7 @@ export default function StockItemsPage() {
       handleViewItem,
       handleEditStock,
     }),
-    [],
+    [handleViewItem, handleEditStock],
   );
 
   const columns = useMemo(

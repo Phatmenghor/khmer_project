@@ -257,16 +257,8 @@ export function StockManagementModal({
         Stock Management - {stockItem?.productName}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {!stockItem ? (
-          <div className="flex items-center justify-center h-[400px]">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">Loading stock item...</p>
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Header */}
-            <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
               {stockItem?.mainImageUrl ? (
@@ -635,18 +627,16 @@ export function StockManagementModal({
           </div>
 
         {/* Delete Confirmation Modal */}
-            <DeleteConfirmationModal
-              isOpen={deleteState.isOpen}
-              onClose={closeDeleteModal}
-              onDelete={confirmDelete}
-              title="Delete Stock Entry"
-              description="Are you sure you want to delete this stock record? This action cannot be undone."
-              itemName={`${deleteState.stock?.quantityOnHand} items @ $${deleteState.stock?.priceIn}`}
-              isSubmitting={isDeleting}
-              variant="critical"
-            />
-          </>
-        )}
+        <DeleteConfirmationModal
+          isOpen={deleteState.isOpen}
+          onClose={closeDeleteModal}
+          onDelete={confirmDelete}
+          title="Delete Stock Entry"
+          description="Are you sure you want to delete this stock record? This action cannot be undone."
+          itemName={`${deleteState.stock?.quantityOnHand} items @ $${deleteState.stock?.priceIn}`}
+          isSubmitting={isDeleting}
+          variant="critical"
+        />
       </DialogContent>
     </Dialog>
   );
