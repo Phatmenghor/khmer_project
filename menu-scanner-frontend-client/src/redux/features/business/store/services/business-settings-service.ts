@@ -3,7 +3,7 @@
  * Handles API calls for business settings endpoints
  */
 
-import { axiosInstance } from "@/utils/axios/axios-instance";
+import { axiosClientWithAuth } from "@/utils/axios";
 
 export interface SocialMedia {
   name: string;
@@ -40,7 +40,7 @@ const API_BASE_URL = "/api/v1/business-settings";
  */
 export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse> => {
   try {
-    const response = await axiosInstance.get<{ data: BusinessSettingsResponse }>(
+    const response = await axiosClientWithAuth.get<{ data: BusinessSettingsResponse }>(
       `${API_BASE_URL}/current`
     );
     return response.data.data;
@@ -58,7 +58,7 @@ export const fetchBusinessSettingsByBusinessId = async (
   businessId: string
 ): Promise<BusinessSettingsResponse> => {
   try {
-    const response = await axiosInstance.get<{ data: BusinessSettingsResponse }>(
+    const response = await axiosClientWithAuth.get<{ data: BusinessSettingsResponse }>(
       `${API_BASE_URL}/business/${businessId}`
     );
     return response.data.data;
@@ -76,7 +76,7 @@ export const updateCurrentBusinessSettings = async (
   request: UpdateBusinessSettingsRequest
 ): Promise<BusinessSettingsResponse> => {
   try {
-    const response = await axiosInstance.put<{ data: BusinessSettingsResponse }>(
+    const response = await axiosClientWithAuth.put<{ data: BusinessSettingsResponse }>(
       API_BASE_URL,
       request
     );
@@ -96,7 +96,7 @@ export const updateBusinessSettingsByBusinessId = async (
   request: UpdateBusinessSettingsRequest
 ): Promise<BusinessSettingsResponse> => {
   try {
-    const response = await axiosInstance.put<{ data: BusinessSettingsResponse }>(
+    const response = await axiosClientWithAuth.put<{ data: BusinessSettingsResponse }>(
       `${API_BASE_URL}/business/${businessId}`,
       request
     );
@@ -117,7 +117,7 @@ export const createBusinessSettings = async (
   } & UpdateBusinessSettingsRequest
 ): Promise<BusinessSettingsResponse> => {
   try {
-    const response = await axiosInstance.post<{ data: BusinessSettingsResponse }>(
+    const response = await axiosClientWithAuth.post<{ data: BusinessSettingsResponse }>(
       API_BASE_URL,
       request
     );
@@ -134,7 +134,7 @@ export const createBusinessSettings = async (
  */
 export const deleteBusinessSettings = async (businessId: string): Promise<void> => {
   try {
-    await axiosInstance.delete(`${API_BASE_URL}/business/${businessId}`);
+    await axiosClientWithAuth.delete(`${API_BASE_URL}/business/${businessId}`);
   } catch (error) {
     console.error(`Error deleting business settings for ${businessId}:`, error);
     throw error;
