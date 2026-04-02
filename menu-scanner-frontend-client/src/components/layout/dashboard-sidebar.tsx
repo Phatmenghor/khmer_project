@@ -13,7 +13,11 @@ import { UserAvatarCard } from "../shared/avator/user-avatar-card";
 import { useIsMobile } from "@/redux/store/use-mobile";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { getProfileService } from "@/redux/features/auth/store/thunks/auth-thunks";
-import { fetchCurrentBusinessSettings } from "@/redux/features/business/store/services/business-settings-service";
+import { useAppSelector } from "@/redux/store";
+import {
+  selectBusinessName,
+  selectBusinessLogo,
+} from "@/redux/features/business/store/selectors/business-settings-selector";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 interface SidebarProps {
@@ -26,8 +30,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   const isMobile = useIsMobile();
 
   const { profile, isProfileLoading, dispatch } = useAuthState();
-  const [businessName, setBusinessName] = useState(BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  // Get business settings from Redux (loaded by useBusinessTheme)
+  const businessName = useAppSelector(selectBusinessName);
+  const logoUrl = useAppSelector(selectBusinessLogo);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,
@@ -43,25 +49,8 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
     if (!profile && !isProfileLoading) {
       dispatch(getProfileService());
     }
-
-    // Fetch business settings for name and logo
-    const fetchBusinessData = async () => {
-      try {
-        const settings = await fetchCurrentBusinessSettings();
-        if (settings?.businessName) {
-          setBusinessName(settings.businessName);
-        }
-        if (settings?.logoBusinessUrl) {
-          setLogoUrl(settings.logoBusinessUrl);
-        }
-      } catch (error) {
-        console.error("Failed to fetch business settings:", error);
-        // Use defaults if fetch fails
-        setBusinessName(BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME);
-      }
-    };
-
-    fetchBusinessData();
+    // Business settings are loaded by useBusinessTheme hook in client-provider
+    // No need to fetch here - just use Redux selectors
   }, [profile, isProfileLoading, dispatch]);
 
   const toggleSection = (section: string) => {

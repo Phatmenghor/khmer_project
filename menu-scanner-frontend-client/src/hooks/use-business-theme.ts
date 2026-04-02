@@ -1,5 +1,12 @@
 import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { fetchCurrentBusinessSettings } from "@/redux/features/business/store/services/business-settings-service";
+import {
+  setBusinessSettings,
+  setBusinessSettingsLoading,
+  setBusinessSettingsError,
+} from "@/redux/features/business/store/slice/business-settings-slice";
+import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 // Default brand colors from tailwind config
@@ -50,50 +57,51 @@ function hexToHsl(hex: string): string {
 }
 
 export function useBusinessTheme() {
+  const dispatch = useAppDispatch();
+  const businessSettings = useAppSelector(selectBusinessSettings);
+
   useEffect(() => {
     const applyTheme = async () => {
+      // Check if settings already loaded in Redux
+      if (businessSettings) {
+        applyColors(businessSettings.primaryColor, businessSettings.secondaryColor, businessSettings.accentColor);
+        return;
+      }
+
+      // If not in Redux, fetch from API
       try {
+        dispatch(setBusinessSettingsLoading(true));
         const settings = await fetchCurrentBusinessSettings();
 
-        // Apply primary color
-        const primaryColor = settings?.primaryColor || DEFAULT_COLORS.primary;
-        const primaryHsl = hexToHsl(primaryColor);
-        document.documentElement.style.setProperty("--primary", primaryHsl);
+        // Store in Redux
+        dispatch(setBusinessSettings(settings));
 
-        // Apply secondary color
-        const secondaryColor = settings?.secondaryColor || DEFAULT_COLORS.secondary;
-        const secondaryHsl = hexToHsl(secondaryColor);
-        document.documentElement.style.setProperty("--secondary", secondaryHsl);
+        // Apply theme colors
+        applyColors(settings?.primaryColor, settings?.secondaryColor, settings?.accentColor);
 
-        // Apply accent color
-        const accentColor = settings?.accentColor || DEFAULT_COLORS.accent;
-        const accentHsl = hexToHsl(accentColor);
-        document.documentElement.style.setProperty("--accent", accentHsl);
-
-        console.log("Business theme applied successfully", {
-          primary: primaryHsl,
-          secondary: secondaryHsl,
-          accent: accentHsl,
-        });
+        console.log("Business theme loaded and applied successfully");
       } catch (error) {
         console.error("Failed to load business theme, using defaults:", error);
+        dispatch(setBusinessSettingsError("Failed to load business settings"));
 
         // Apply default colors on error
-        document.documentElement.style.setProperty(
-          "--primary",
-          hexToHsl(DEFAULT_COLORS.primary)
-        );
-        document.documentElement.style.setProperty(
-          "--secondary",
-          hexToHsl(DEFAULT_COLORS.secondary)
-        );
-        document.documentElement.style.setProperty(
-          "--accent",
-          hexToHsl(DEFAULT_COLORS.accent)
-        );
+        applyColors(DEFAULT_COLORS.primary, DEFAULT_COLORS.secondary, DEFAULT_COLORS.accent);
       }
     };
 
     applyTheme();
-  }, []);
+  }, [dispatch, businessSettings]);
+}
+
+/**
+ * Helper function to apply colors to CSS variables
+ */
+function applyColors(primaryColor?: string, secondaryColor?: string, accentColor?: string) {
+  const primary = primaryColor || DEFAULT_COLORS.primary;
+  const secondary = secondaryColor || DEFAULT_COLORS.secondary;
+  const accent = accentColor || DEFAULT_COLORS.accent;
+
+  document.documentElement.style.setProperty("--primary", hexToHsl(primary));
+  document.documentElement.style.setProperty("--secondary", hexToHsl(secondary));
+  document.documentElement.style.setProperty("--accent", hexToHsl(accent));
 }

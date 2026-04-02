@@ -30,6 +30,7 @@ import orderAdminReducer from "../features/business/store/slice/order-admin-slic
 import posPageReducer from "../features/business/store/slice/pos-page-slice";
 import bulkPromotionReducer from "../features/business/store/slice/bulk-promotion-slice";
 import promotionSizeSelectionReducer from "../features/business/store/slice/promotion-size-selection-slice";
+import businessSettingsReducer from "../features/business/store/slice/business-settings-slice";
 import homeReducer from "../features/main/store/slice/home-slice";
 import publicProductReducer from "../features/main/store/slice/public-product-slice";
 import publicBrandsReducer from "../features/main/store/slice/public-brands-slice";
@@ -64,6 +65,7 @@ export const reducers = {
   paymentOptions: paymentOptionsReducer,
 
   // Business
+  businessSettings: businessSettingsReducer,
   products: productReducer,
   stocks: stockReducer,
   stockItems: stockItemsReducer,

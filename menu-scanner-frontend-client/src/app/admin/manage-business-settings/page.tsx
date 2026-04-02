@@ -25,6 +25,9 @@ import {
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { uploadImageService } from "@/services/image-service";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { setBusinessSettings } from "@/redux/features/business/store/slice/business-settings-slice";
 
 interface FormData {
   businessName: string;
@@ -38,9 +41,10 @@ interface FormData {
 }
 
 export default function BusinessSettingsPage() {
-  const [businessSettings, setBusinessSettings] =
-    useState<BusinessSettingsResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const reduxBusinessSettings = useAppSelector(selectBusinessSettings);
+
+  const [isLoading, setIsLoading] = useState(!reduxBusinessSettings);
   const [isSaving, setIsSaving] = useState(false);
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
 
@@ -50,14 +54,33 @@ export default function BusinessSettingsPage() {
 
   // Fetch business settings
   useEffect(() => {
+    // If already in Redux, use that data
+    if (reduxBusinessSettings) {
+      form.reset({
+        businessName: reduxBusinessSettings?.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
+        taxPercentage: reduxBusinessSettings?.taxPercentage?.toString() || "",
+        logoBusinessUrl: reduxBusinessSettings?.logoBusinessUrl || "",
+        enableStock: reduxBusinessSettings?.enableStock || "DISABLED",
+        socialMedia: reduxBusinessSettings?.socialMedia || [],
+        primaryColor: reduxBusinessSettings?.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+        secondaryColor: reduxBusinessSettings?.secondaryColor || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
+        accentColor: reduxBusinessSettings?.accentColor || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // Otherwise fetch from API
     fetchBusinessSettings();
-  }, []);
+  }, [reduxBusinessSettings]);
 
   const fetchBusinessSettings = async () => {
     try {
       setIsLoading(true);
       const data = await fetchCurrentBusinessSettings();
-      setBusinessSettings(data);
+
+      // Update Redux store
+      dispatch(setBusinessSettings(data));
 
       // Initialize form with current data
       form.reset({
@@ -196,7 +219,8 @@ export default function BusinessSettingsPage() {
       };
 
       const result = await updateCurrentBusinessSettings(payload);
-      setBusinessSettings(result);
+      // Update Redux store
+      dispatch(setBusinessSettings(result));
       setLogoBase64(null); // Clear local base64 after successful save
 
       // Apply colors in real-time without refresh
