@@ -29,4 +29,10 @@ public class BusinessSettingCreateRequest {
     private StockStatus enableStock;
 
     private List<SocialMediaResponse> socialMedia;
+
+    private String primaryColor;
+
+    private String secondaryColor;
+
+    private String accentColor;
 }

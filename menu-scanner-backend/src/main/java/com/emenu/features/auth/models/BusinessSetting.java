@@ -36,6 +36,15 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Enumerated(EnumType.STRING)
     private StockStatus enableStock;
 
+    @Column(name = "primary_color")
+    private String primaryColor;
+
+    @Column(name = "secondary_color")
+    private String secondaryColor;
+
+    @Column(name = "accent_color")
+    private String accentColor;
+
     @OneToMany(
         mappedBy = "businessSetting",
         cascade = CascadeType.ALL,
