@@ -44,6 +44,8 @@ public class ImageController {
                 .ok()
                 .contentType(MediaType.valueOf(imageResponse.getType()))
                 .header("Content-Disposition", "inline; filename=\"image\"")
+                .header("Cache-Control", "public, max-age=86400")
+                .header("Access-Control-Allow-Origin", "*")
                 .body(imageResponse.getData());
     }
 

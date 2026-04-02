@@ -210,14 +210,23 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             >
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                  <Image
-                    src={logoUrl || "/assets/image/no-image.png"}
-                    alt={businessName}
-                    width={24}
-                    height={24}
-                    className="rounded object-contain"
-                    priority
-                  />
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt={businessName}
+                      className="w-full h-full object-cover rounded"
+                      onError={(e) => {
+                        console.error("Failed to load logo:", logoUrl);
+                        (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src="/assets/image/no-image.png"
+                      alt="No image"
+                      className="w-full h-full object-cover rounded"
+                    />
+                  )}
                 </div>
                 <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
