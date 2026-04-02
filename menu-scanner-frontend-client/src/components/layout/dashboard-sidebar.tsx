@@ -13,6 +13,8 @@ import { UserAvatarCard } from "../shared/avator/user-avatar-card";
 import { useIsMobile } from "@/redux/store/use-mobile";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { getProfileService } from "@/redux/features/auth/store/thunks/auth-thunks";
+import { fetchCurrentBusinessSettings } from "@/redux/features/business/store/services/business-settings-service";
+import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -24,6 +26,9 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   const isMobile = useIsMobile();
 
   const { profile, isProfileLoading, dispatch } = useAuthState();
+  const [businessName, setBusinessName] = useState(BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,
@@ -39,6 +44,25 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
     if (!profile && !isProfileLoading) {
       dispatch(getProfileService());
     }
+
+    // Fetch business settings for name and logo
+    const fetchBusinessData = async () => {
+      try {
+        const settings = await fetchCurrentBusinessSettings();
+        if (settings?.businessName) {
+          setBusinessName(settings.businessName);
+        }
+        if (settings?.logoBusinessUrl) {
+          setLogoUrl(settings.logoBusinessUrl);
+        }
+      } catch (error) {
+        console.error("Failed to fetch business settings:", error);
+        // Use defaults if fetch fails
+        setBusinessName(BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME);
+      }
+    };
+
+    fetchBusinessData();
   }, [profile, isProfileLoading, dispatch]);
 
   const toggleSection = (section: string) => {
@@ -199,19 +223,20 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                   <Image
-                    src="/assets/favicon.ico"
-                    alt="Menu Scanner Logo"
+                    src={imageError || !logoUrl ? "/assets/favicon.ico" : logoUrl}
+                    alt={businessName}
                     width={24}
                     height={24}
                     className="rounded object-contain"
                     priority
+                    onError={() => setImageError(true)}
                   />
                 </div>
                 <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
                 <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
-                  Menu Scanner
+                  {businessName}
                 </span>
                 <span className="text-muted-foreground text-xs font-medium tracking-wide">
                   Dashboard
