@@ -217,7 +217,6 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                     height={24}
                     className="rounded object-contain"
                     priority
-                    onError={() => setLogoUrl(null)}
                   />
                 </div>
                 <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
