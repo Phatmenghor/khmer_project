@@ -23,7 +23,7 @@ import {
 } from "@/redux/features/business/store/slice/stock-items-slice";
 import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
 import { StockItemDetailModal } from "@/redux/features/business/components/stock-item-detail-modal";
-import { StockManagementModal } from "@/redux/features/business/components/product-stock-management-modal";
+import { ProductStockItemManagementModal } from "@/redux/features/business/components/product-stock-item-management-modal";
 import { SizeStockManagementModal } from "@/redux/features/business/components/size-stock-management-modal";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
@@ -384,7 +384,7 @@ export default function StockItemsPage() {
         onClose={closeDetailModal}
       />
 
-      <StockManagementModal
+      <ProductStockItemManagementModal
         isOpen={stockManagementState.isOpen}
         onClose={closeStockManagementModal}
         stockItem={stockManagementState.item || undefined}
