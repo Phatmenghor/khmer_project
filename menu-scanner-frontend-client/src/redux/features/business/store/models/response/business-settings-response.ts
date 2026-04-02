@@ -5,6 +5,12 @@
 
 export type StockStatus = "ENABLED" | "DISABLED";
 
+export interface SocialMedia {
+  name: string;
+  imageUrl: string;
+  linkUrl: string;
+}
+
 export interface BusinessSettingsResponse {
   id: string;
   createdAt: string;
@@ -16,4 +22,5 @@ export interface BusinessSettingsResponse {
   taxPercentage: number | null;
   logoBusinesssUrl: string;
   enableStock: StockStatus;
+  socialMedia: SocialMedia[];
 }
