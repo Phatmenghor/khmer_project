@@ -44,6 +44,16 @@ export default function BusinessSettingsPage() {
   const form = useForm<BusinessSettingsFormData>({
     resolver: zodResolver(businessSettingsSchema),
     mode: "onChange",
+    defaultValues: {
+      businessName: BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
+      taxPercentage: "",
+      logoBusinessUrl: "",
+      enableStock: "DISABLED",
+      socialMedia: [],
+      primaryColor: BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+      secondaryColor: BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
+      accentColor: BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
+    },
   });
 
   // Fetch business settings
