@@ -40,6 +40,22 @@ import { useAppSelector } from "@/redux/store";
 import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
 import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
 
+// Sort field options for products page
+const SORT_BY_OPTIONS = [
+  { value: "createdAt", label: "Created Date" },
+  { value: "displayPrice", label: "Display Price" },
+  { value: "barcode", label: "Barcode" },
+  { value: "sku", label: "SKU" },
+  { value: "totalStock", label: "Total Stock" },
+  { value: "favoriteCount", label: "Favorite Count" },
+  { value: "viewCount", label: "View Count" },
+];
+
+const SORT_DIRECTION_OPTIONS = [
+  { value: "DESC", label: "High to Low (DESC)" },
+  { value: "ASC", label: "Low to High (ASC)" },
+];
+
 export default function ProductPage() {
   // Clean up state when leaving admin area (performance optimization)
   useAdminCleanup(resetState);
@@ -74,6 +90,8 @@ export default function ProductPage() {
     null,
   );
   const [sizeFilter, setSizeFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDirection, setSortDirection] = useState("DESC");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
 
@@ -122,6 +140,8 @@ export default function ProductPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
+        sortBy,
+        sortDirection,
       }),
     );
   }, [
@@ -133,6 +153,8 @@ export default function ProductPage() {
     selectedBrand,
     selectedCategories,
     sizeFilter,
+    sortBy,
+    sortDirection,
   ]);
 
   // Event handlers
@@ -320,6 +342,14 @@ export default function ProductPage() {
     setSelectedCategories(categories);
   };
 
+  const handleSortByChange = (value: string) => {
+    setSortBy(value);
+  };
+
+  const handleSortDirectionChange = (value: string) => {
+    setSortDirection(value);
+  };
+
   // Create filter configuration for CollapsibleFilterPanel
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Product Information",
@@ -364,10 +394,27 @@ export default function ProductPage() {
         placeholder: "All Status",
         value: filters.status,
         onChange: (value) => handleProductStatusChange(value as ProductStatus),
-        options: PRODUCT_STATUS_FILTER,
+        options: PRODUCT_STATUS_FILTER,      },
+      {
+        id: "sortBy",
+        type: "select",
+        label: "Sort By",
+        placeholder: "Created Date",
+        value: sortBy,
+        onChange: handleSortByChange,
+        options: SORT_BY_OPTIONS,
       },
+      {
+        id: "sortDirection",
+        type: "select",
+        label: "Order",
+        placeholder: "DESC",
+        value: sortDirection,
+        onChange: handleSortDirectionChange,
+        options: SORT_DIRECTION_OPTIONS,
+      }
     ],
-  }), [filters.search, filters.status, selectedBrand, selectedCategories, sizeFilter]);
+  }), [filters.search, filters.status, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
