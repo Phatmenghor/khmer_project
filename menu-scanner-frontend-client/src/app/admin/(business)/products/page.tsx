@@ -374,7 +374,7 @@ export default function ProductPage() {
       <div className="space-y-4">
         <CollapsibleFilterPanel
           config={filterConfig}
-          essentialFilterIds={["brand", "category", "size"]}
+          essentialFilterIds={["status"]}
         />
 
         {/* Data Table with Your Custom Pagination */}
