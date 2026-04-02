@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
+import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -45,6 +46,22 @@ import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-se
 import { useAppSelector } from "@/redux/store";
 import { productPromotionTableColumns } from "@/redux/features/business/table/product-promotion-table";
 
+// Sort field options for promotions page
+const SORT_BY_OPTIONS = [
+  { value: "createdAt", label: "Created Date" },
+  { value: "displayPrice", label: "Display Price" },
+  { value: "barcode", label: "Barcode" },
+  { value: "sku", label: "SKU" },
+  { value: "totalStock", label: "Total Stock" },
+  { value: "favoriteCount", label: "Favorite Count" },
+  { value: "viewCount", label: "View Count" },
+];
+
+const SORT_DIRECTION_OPTIONS = [
+  { value: "DESC", label: "High to Low (DESC)" },
+  { value: "ASC", label: "Low to High (ASC)" },
+];
+
 export default function ProductPromotionPage() {
   const router = useRouter();
 
@@ -81,6 +98,8 @@ export default function ProductPromotionPage() {
     null,
   );
   const [sizeFilter, setSizeFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDirection, setSortDirection] = useState("DESC");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
 
@@ -141,6 +160,8 @@ export default function ProductPromotionPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
+        sortBy,
+        sortDirection,
       }),
     );
   }, [
@@ -152,6 +173,8 @@ export default function ProductPromotionPage() {
     selectedBrand,
     selectedCategories,
     sizeFilter,
+    sortBy,
+    sortDirection,
   ]);
 
   // Event handlers
@@ -356,6 +379,81 @@ export default function ProductPromotionPage() {
   const handleSizeFilterChange = (value: string) => {
     setSizeFilter(value);
   };
+
+  const handleSortByChange = (value: string) => {
+    setSortBy(value);
+  };
+
+  const handleSortDirectionChange = (value: string) => {
+    setSortDirection(value);
+  };
+
+  // Create filter configuration for CollapsibleFilterPanel
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Product Promotions",
+    searchValue: filters.search,
+    searchPlaceholder: "Search product...",
+    onSearchChange: handleSearchChange,
+    buttonText: "Create Promotion",
+    buttonDisabled: false,
+    onButtonClick: handleCreatePromotion,
+    filters: [
+      {
+        id: "status",
+        type: "select",
+        label: "Product Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => handleProductStatusChange(value as ProductStatus),
+        options: PRODUCT_STATUS_FILTER,
+      },
+      {
+        id: "brand",
+        type: "combobox-brand",
+        label: "Brand",
+        placeholder: "All Brand",
+        value: selectedBrand,
+        onChange: handleBrandChange,
+        showAllOption: true,
+      },
+      {
+        id: "category",
+        type: "combobox-categories",
+        label: "Category",
+        placeholder: "All Categories",
+        value: selectedCategories,
+        onChange: handleCategoriesChange,
+        showAllOption: true,
+      },
+      {
+        id: "size",
+        type: "select",
+        label: "Product Size",
+        placeholder: "All Products",
+        value: sizeFilter,
+        onChange: handleSizeFilterChange,
+        options: PRODUCT_SIZE_FILTER,
+      },
+      {
+        id: "sortBy",
+        type: "select",
+        label: "Sort By",
+        placeholder: "Created Date",
+        value: sortBy,
+        onChange: handleSortByChange,
+        options: SORT_BY_OPTIONS,
+      },
+      {
+        id: "sortDirection",
+        type: "select",
+        label: "Order",
+        placeholder: "DESC",
+        value: sortDirection,
+        onChange: handleSortDirectionChange,
+        options: SORT_DIRECTION_OPTIONS,
+      },
+    ],
+  }), [filters.search, filters.status, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
