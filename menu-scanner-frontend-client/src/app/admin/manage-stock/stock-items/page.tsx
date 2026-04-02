@@ -24,8 +24,7 @@ import {
 import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
 import { StockItemDetailModal } from "@/redux/features/business/components/stock-item-detail-modal";
 import { ProductStockItemManagementModal } from "@/redux/features/business/components/product-stock-item-management-modal";
-import { SizeStockManagementModal } from "@/redux/features/business/components/size-stock-management-modal";
-import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
+import { SizeStockItemModal } from "@/redux/features/business/components/size-stock-item-modal";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -390,36 +389,10 @@ export default function StockItemsPage() {
         stockItem={stockManagementState.item || undefined}
       />
 
-      <SizeStockManagementModal
+      <SizeStockItemModal
         isOpen={sizeStockManagementState.isOpen}
         onClose={closeSizeStockManagementModal}
-        product={
-          sizeStockManagementState.item
-            ? {
-                id: sizeStockManagementState.item.productId,
-                name: sizeStockManagementState.item.productName,
-                sku: sizeStockManagementState.item.sku,
-                mainImageUrl: sizeStockManagementState.item.mainImageUrl,
-                sizes: sizeStockManagementState.item.productSizeId
-                  ? [
-                      {
-                        id: sizeStockManagementState.item.productSizeId,
-                        name: sizeStockManagementState.item.sizeName || "",
-                        price: parseFloat(sizeStockManagementState.item.price || "0"),
-                        finalPrice: sizeStockManagementState.item.displayPrice || parseFloat(sizeStockManagementState.item.price || "0"),
-                        hasPromotion: sizeStockManagementState.item.hasPromotion || false,
-                        promotionType: sizeStockManagementState.item.displayPromotionType || "",
-                        promotionValue: sizeStockManagementState.item.displayPromotionValue || 0,
-                        promotionFromDate: sizeStockManagementState.item.displayPromotionFromDate || "",
-                        promotionToDate: sizeStockManagementState.item.displayPromotionToDate || "",
-                        barcode: sizeStockManagementState.item.barcode || "",
-                        sku: sizeStockManagementState.item.sku || "",
-                      },
-                    ]
-                  : [],
-              } as ProductDetailResponseModel
-            : null
-        }
+        stockItem={sizeStockManagementState.item || undefined}
       />
     </div>
   );
