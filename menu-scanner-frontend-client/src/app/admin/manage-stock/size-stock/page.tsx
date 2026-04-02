@@ -340,7 +340,7 @@ export default function SizeStockPage() {
     onSearchChange: handleSearchChange,
     buttonText: undefined,
     buttonDisabled: false,
-    onButtonClick: () => {}
+    onButtonClick: () => {},
     filters: [
       {
         id: "productStatus",
