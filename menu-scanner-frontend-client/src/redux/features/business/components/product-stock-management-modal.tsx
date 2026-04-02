@@ -37,6 +37,9 @@ import {
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { ProductStockDto, ProductStockItemDto } from "../store/models/response/stock-response";
 import { createStockHistoryColumns } from "../table/product-stock-history-table";
+import { useAppSelector } from "@/redux/store";
+import { selectSelectedProduct } from "./selectors/product-selector";
+import { fetchProductByIdService } from "./thunks/product-thunks";
 
 interface StockFormData {
   quantityOnHand?: number;
@@ -59,6 +62,7 @@ export function StockManagementModal({
   const dispatch = useAppDispatch();
   const { history, isLoading, isCreating, isUpdating, isDeleting, error, successMessage } =
     useSelector((state: any) => state.stockManagement);
+  const productData = useAppSelector(selectSelectedProduct);
   const [historyPageNo, setHistoryPageNo] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);
   const [editingStock, setEditingStock] = useState<ProductStockDto | null>(null);
@@ -93,6 +97,13 @@ export function StockManagementModal({
       dispatch(clearError());
     }
   }, [error, dispatch]);
+
+  // Fetch product details for pricing/promotion info
+  useEffect(() => {
+    if (isOpen && stockItem?.productId) {
+      dispatch(fetchProductByIdService(stockItem.productId));
+    }
+  }, [isOpen, stockItem?.productId, dispatch]);
 
   // Load history when modal opens or pagination changes
   useEffect(() => {
@@ -398,7 +409,7 @@ export function StockManagementModal({
                   </div>
 
                   {/* Preview Section - Sales Preview with pricing info */}
-                  {stockItem && stockItem.price && (
+                  {productData && productData.price && (
                     <div className="border-t pt-6">
                         <h3 className="text-sm font-semibold mb-3">Sales Preview</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -408,10 +419,10 @@ export function StockManagementModal({
                               <div>
                                 <p className="text-xs text-muted-foreground">Product Selling Price</p>
                                 <p className="text-lg font-semibold text-foreground">
-                                  ${parseFloat(stockItem.price).toFixed(2)}
+                                  ${(productData.price as unknown as number).toFixed(2)}
                                 </p>
                               </div>
-                              {stockItem.hasPromotion && (
+                              {productData.hasPromotion && (
                                 <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
                                   On Sale
                                 </Badge>
@@ -419,29 +430,29 @@ export function StockManagementModal({
                             </div>
 
                             {/* Promotion Info */}
-                            {stockItem.hasPromotion && (
+                            {productData.hasPromotion && (
                               <div className="mt-3 pt-3 border-t border-muted space-y-2 text-xs">
                                 <div>
                                   <p className="text-muted-foreground">Promotion Type:</p>
                                   <p className="font-medium">
-                                    {stockItem.displayPromotionType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
+                                    {productData.displayPromotionType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
                                   </p>
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground">Discount:</p>
                                   <p className="font-medium">
-                                    {stockItem.displayPromotionType === "PERCENTAGE"
-                                      ? `${stockItem.displayPromotionValue}%`
-                                      : `$${(stockItem.displayPromotionValue || 0).toFixed(2)}`}
+                                    {productData.displayPromotionType === "PERCENTAGE"
+                                      ? `${productData.displayPromotionValue}%`
+                                      : `$${(productData.displayPromotionValue || 0).toFixed(2)}`}
                                   </p>
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground">Valid Period:</p>
                                   <p className="font-medium text-xs">
-                                    {stockItem.displayPromotionFromDate && stockItem.displayPromotionToDate && (
+                                    {productData.displayPromotionFromDate && productData.displayPromotionToDate && (
                                       <>
-                                        {dateTimeFormat(stockItem.displayPromotionFromDate)} →{" "}
-                                        {dateTimeFormat(stockItem.displayPromotionToDate)}
+                                        {dateTimeFormat(productData.displayPromotionFromDate)} →{" "}
+                                        {dateTimeFormat(productData.displayPromotionToDate)}
                                       </>
                                     )}
                                   </p>
@@ -449,7 +460,7 @@ export function StockManagementModal({
                                 <div className="pt-2 border-t">
                                   <p className="text-muted-foreground">Final Price:</p>
                                   <p className="text-base font-semibold text-green-600">
-                                    ${stockItem.displayPrice?.toFixed(2) || "0.00"}
+                                    ${productData.displayPrice?.toFixed(2) || "0.00"}
                                   </p>
                                 </div>
                               </div>
@@ -469,7 +480,7 @@ export function StockManagementModal({
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Selling Price (each):</span>
                                 <span className="font-medium">
-                                  ${(stockItem.hasPromotion ? stockItem.displayPrice : parseFloat(stockItem.price)).toFixed(2)}
+                                  ${(productData.hasPromotion ? productData.displayPrice : (productData.price as unknown as number)).toFixed(2)}
                                 </span>
                               </div>
                               <div className="pt-3 border-t border-muted flex justify-between">
@@ -477,9 +488,9 @@ export function StockManagementModal({
                                 <span className="text-lg font-bold text-green-600">
                                   ${(
                                     (form.watch("quantityOnHand") || 0) *
-                                    (stockItem.hasPromotion
-                                      ? (stockItem.displayPrice || parseFloat(stockItem.price))
-                                      : parseFloat(stockItem.price))
+                                    (productData.hasPromotion
+                                      ? productData.displayPrice
+                                      : (productData.price as unknown as number))
                                   ).toFixed(2)}
                                 </span>
                               </div>
