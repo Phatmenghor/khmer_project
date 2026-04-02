@@ -28,6 +28,9 @@ interface FormData {
   logoBusinessUrl: string;
   enableStock: "ENABLED" | "DISABLED";
   socialMedia: SocialMedia[];
+  primaryColor?: string;
+  secondaryColor?: string;
+  accentColor?: string;
 }
 
 export default function BusinessSettingsPage() {
@@ -57,6 +60,9 @@ export default function BusinessSettingsPage() {
         logoBusinessUrl: data?.logoBusinessUrl || "",
         enableStock: data?.enableStock || "DISABLED",
         socialMedia: data?.socialMedia || [],
+        primaryColor: data?.primaryColor || "#57823D",
+        secondaryColor: data?.secondaryColor || "#404040",
+        accentColor: data?.accentColor || "#2E74D0",
       });
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -77,6 +83,9 @@ export default function BusinessSettingsPage() {
         logoBusinessUrl: data.logoBusinessUrl,
         enableStock: data.enableStock,
         socialMedia: data.socialMedia,
+        primaryColor: data.primaryColor,
+        secondaryColor: data.secondaryColor,
+        accentColor: data.accentColor,
       };
 
       const result = await updateCurrentBusinessSettings(payload);
@@ -202,6 +211,91 @@ export default function BusinessSettingsPage() {
                   />
                 </div>
               )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Brand Colors */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Brand Colors</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Customize your brand colors (applies site-wide)
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Primary Color */}
+              <div className="space-y-2">
+                <Label>Primary Color</Label>
+                <div className="flex gap-3">
+                  <Input
+                    type="color"
+                    value={form.watch("primaryColor") || "#57823D"}
+                    onChange={(e) => form.setValue("primaryColor", e.target.value)}
+                    disabled={isSaving}
+                    className="w-20 h-10 cursor-pointer"
+                  />
+                  <Input
+                    placeholder="#57823D"
+                    value={form.watch("primaryColor") || "#57823D"}
+                    onChange={(e) => form.setValue("primaryColor", e.target.value)}
+                    disabled={isSaving}
+                    className="flex-1"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Main brand color
+                </p>
+              </div>
+
+              {/* Secondary Color */}
+              <div className="space-y-2">
+                <Label>Secondary Color</Label>
+                <div className="flex gap-3">
+                  <Input
+                    type="color"
+                    value={form.watch("secondaryColor") || "#404040"}
+                    onChange={(e) => form.setValue("secondaryColor", e.target.value)}
+                    disabled={isSaving}
+                    className="w-20 h-10 cursor-pointer"
+                  />
+                  <Input
+                    placeholder="#404040"
+                    value={form.watch("secondaryColor") || "#404040"}
+                    onChange={(e) => form.setValue("secondaryColor", e.target.value)}
+                    disabled={isSaving}
+                    className="flex-1"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Secondary brand color
+                </p>
+              </div>
+
+              {/* Accent Color */}
+              <div className="space-y-2">
+                <Label>Accent Color</Label>
+                <div className="flex gap-3">
+                  <Input
+                    type="color"
+                    value={form.watch("accentColor") || "#2E74D0"}
+                    onChange={(e) => form.setValue("accentColor", e.target.value)}
+                    disabled={isSaving}
+                    className="w-20 h-10 cursor-pointer"
+                  />
+                  <Input
+                    placeholder="#2E74D0"
+                    value={form.watch("accentColor") || "#2E74D0"}
+                    onChange={(e) => form.setValue("accentColor", e.target.value)}
+                    disabled={isSaving}
+                    className="flex-1"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Accent color for highlights
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
