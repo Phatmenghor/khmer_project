@@ -250,12 +250,44 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     p.barcode,
                     NULL::varchar as size_name,
                     p.price,
-                    COALESCE(p.display_price, p.price)::decimal as display_price,
-                    p.display_promotion_type::varchar,
-                    p.display_promotion_value::decimal,
-                    p.display_promotion_from_date,
-                    p.display_promotion_to_date,
-                    p.has_active_promotion as has_promotion,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_price
+                        ELSE p.price
+                    END::decimal as display_price,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_promotion_type
+                        ELSE NULL
+                    END::varchar as display_promotion_type,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_promotion_value
+                        ELSE NULL
+                    END::decimal as display_promotion_value,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_promotion_from_date
+                        ELSE NULL
+                    END as display_promotion_from_date,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_promotion_to_date
+                        ELSE NULL
+                    END as display_promotion_to_date,
+                    (p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                        AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                        AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)) as has_promotion,
                     COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
                     COALESCE(SUM(ps.quantity_on_hand - ps.quantity_reserved), 0)::bigint as quantity_available,
                     COALESCE(SUM(ps.quantity_reserved), 0)::bigint as quantity_reserved,
@@ -282,7 +314,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             )
             UNION ALL
             (
-                -- Products with sizes (use ProductSize promotion fields, fallback to Product if null)
+                -- Products with sizes (use ProductSize promotion fields)
                 SELECT
                     p.id as product_id,
                     psz.id as product_size_id,
@@ -296,12 +328,44 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     p.barcode,
                     psz.name as size_name,
                     psz.price,
-                    COALESCE(psz.display_price, psz.price)::decimal as display_price,
-                    psz.display_promotion_type::varchar,
-                    psz.display_promotion_value::decimal,
-                    psz.display_promotion_from_date,
-                    psz.display_promotion_to_date,
-                    psz.has_active_promotion as has_promotion,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN psz.display_price
+                        ELSE psz.price
+                    END::decimal as display_price,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN psz.display_promotion_type
+                        ELSE NULL
+                    END::varchar as display_promotion_type,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN psz.display_promotion_value
+                        ELSE NULL
+                    END::decimal as display_promotion_value,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN psz.display_promotion_from_date
+                        ELSE NULL
+                    END as display_promotion_from_date,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN psz.display_promotion_to_date
+                        ELSE NULL
+                    END as display_promotion_to_date,
+                    (psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                        AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                        AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)) as has_promotion,
                     COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
                     COALESCE(SUM(ps.quantity_on_hand - ps.quantity_reserved), 0)::bigint as quantity_available,
                     COALESCE(SUM(ps.quantity_reserved), 0)::bigint as quantity_reserved,
