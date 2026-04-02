@@ -46,7 +46,7 @@ export default function BusinessSettingsPage() {
 
   const [isLoading, setIsLoading] = useState(!reduxBusinessSettings);
   const [isSaving, setIsSaving] = useState(false);
-  const [logoBase64, setLogoBase64] = useState<string | null>(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   const form = useForm<FormData>({
     mode: "onChange",
@@ -103,14 +103,35 @@ export default function BusinessSettingsPage() {
     }
   };
 
-  // Handle business logo selection (store locally, upload on save)
-  const handleLogoSelect = (base64: string) => {
-    // Show toast immediately when image is selected
-    showToast.success("✓ Logo selected - click Save Changes to upload");
+  // Handle business logo selection and upload (like profile picture does)
+  const handleLogoSelect = async (base64: string) => {
+    try {
+      setIsUploadingLogo(true);
 
-    // Store base64 locally - will upload when Save Changes is clicked
-    setLogoBase64(base64);
-    form.setValue("logoBusinessUrl", base64, { shouldDirty: true });
+      // Get file type from base64
+      const type = base64.split(";")[0].replace("data:", "").split("/")[1] || "png";
+
+      // Upload to API
+      const uploadResponse = await uploadImageService({
+        base64: base64,
+        type: type,
+      });
+
+      if (uploadResponse?.imageUrl) {
+        // Update form with the uploaded URL
+        form.setValue("logoBusinessUrl", uploadResponse.imageUrl, {
+          shouldDirty: true,
+        });
+        showToast.success("✓ Logo uploaded successfully");
+      } else {
+        showToast.error("Failed to upload logo");
+      }
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      showToast.error("Failed to upload logo");
+    } finally {
+      setIsUploadingLogo(false);
+    }
   };
 
   // Helper function to apply theme colors in real-time (hex to HSL conversion)
@@ -183,36 +204,13 @@ export default function BusinessSettingsPage() {
     try {
       setIsSaving(true);
 
-      let logoUrl = data.logoBusinessUrl;
-
-      // Upload logo to API only if new image was selected
-      if (logoBase64 && logoBase64.startsWith("data:image")) {
-        try {
-          const uploadResponse = await uploadImageService({
-            base64: logoBase64,
-            type: "BUSINESS_LOGO",
-          });
-
-          if (uploadResponse?.imageUrl) {
-            logoUrl = uploadResponse.imageUrl;
-            showToast.success("Logo uploaded successfully");
-          } else {
-            showToast.error("Failed to upload logo");
-            return;
-          }
-        } catch (error) {
-          console.error("Error uploading logo:", error);
-          showToast.error("Failed to upload logo");
-          return;
-        }
-      }
-
+      // Logo is already uploaded via handleLogoSelect
       const payload = {
         businessName: data.businessName,
         taxPercentage: data.taxPercentage
           ? parseFloat(data.taxPercentage)
           : null,
-        logoBusinessUrl: logoUrl,
+        logoBusinessUrl: data.logoBusinessUrl,
         enableStock: data.enableStock,
         socialMedia: data.socialMedia,
         primaryColor: data.primaryColor,
@@ -224,7 +222,6 @@ export default function BusinessSettingsPage() {
 
       if (action.payload) {
         const result = action.payload;
-        setLogoBase64(null); // Clear local base64 after successful save
 
         // Apply colors in real-time without refresh
         if (result.primaryColor || result.secondaryColor || result.accentColor) {
@@ -349,7 +346,7 @@ export default function BusinessSettingsPage() {
                   label="Business Logo"
                   value={form.watch("logoBusinessUrl")}
                   onChange={handleLogoSelect}
-                  disabled={isSaving}
+                  disabled={isSaving || isUploadingLogo}
                   aspectRatio="square"
                   height="h-48"
                   placeholder="Click to upload logo"
@@ -357,7 +354,7 @@ export default function BusinessSettingsPage() {
                   maxSize={5}
                 />
                 <p className="text-xs text-muted-foreground mt-2">
-                  Selected logo will be uploaded when you click Save Changes
+                  Logo will be uploaded immediately when selected
                 </p>
               </div>
               {/* Right column - empty for now, can be used for future additions */}
@@ -592,13 +589,13 @@ export default function BusinessSettingsPage() {
           </Button>
           <Button
             type="submit"
-            disabled={isSaving || !form.formState.isDirty}
+            disabled={isSaving || isUploadingLogo || !form.formState.isDirty}
             className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
           >
-            {isSaving ? (
+            {isSaving || isUploadingLogo ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {isUploadingLogo ? "Uploading..." : "Saving..."}
               </>
             ) : (
               <>
