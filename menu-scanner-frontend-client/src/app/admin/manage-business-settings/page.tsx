@@ -40,7 +40,7 @@ export default function BusinessSettingsPage() {
     useState<BusinessSettingsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [logoBase64, setLogoBase64] = useState<string | null>(null);
 
   const form = useForm<FormData>({
     mode: "onChange",
@@ -75,28 +75,12 @@ export default function BusinessSettingsPage() {
     }
   };
 
-  // Handle business logo upload
-  const handleLogoUpload = async (base64: string) => {
-    try {
-      setIsUploadingLogo(true);
-
-      const response = await uploadImageService({
-        base64,
-        type: "BUSINESS_LOGO",
-      });
-
-      if (response?.imageUrl) {
-        form.setValue("logoBusinessUrl", response.imageUrl, { shouldDirty: true });
-        showToast.success("Logo uploaded successfully");
-      } else {
-        showToast.error("Failed to upload logo");
-      }
-    } catch (error) {
-      console.error("Error uploading logo:", error);
-      showToast.error("Failed to upload logo");
-    } finally {
-      setIsUploadingLogo(false);
-    }
+  // Handle business logo selection (store locally, upload on save)
+  const handleLogoSelect = (base64: string) => {
+    // Store base64 locally - will upload when Save Changes is clicked
+    setLogoBase64(base64);
+    form.setValue("logoBusinessUrl", base64, { shouldDirty: true });
+    showToast.success("Logo selected - it will be uploaded when you click Save Changes");
   };
 
   // Helper function to apply theme colors in real-time (hex to HSL conversion)
@@ -169,11 +153,35 @@ export default function BusinessSettingsPage() {
     try {
       setIsSaving(true);
 
+      let logoUrl = data.logoBusinessUrl;
+
+      // Upload logo to API only if new image was selected
+      if (logoBase64 && logoBase64.startsWith("data:image")) {
+        try {
+          const uploadResponse = await uploadImageService({
+            base64: logoBase64,
+            type: "BUSINESS_LOGO",
+          });
+
+          if (uploadResponse?.imageUrl) {
+            logoUrl = uploadResponse.imageUrl;
+            showToast.success("Logo uploaded successfully");
+          } else {
+            showToast.error("Failed to upload logo");
+            return;
+          }
+        } catch (error) {
+          console.error("Error uploading logo:", error);
+          showToast.error("Failed to upload logo");
+          return;
+        }
+      }
+
       const payload = {
         taxPercentage: data.taxPercentage
           ? parseFloat(data.taxPercentage)
           : null,
-        logoBusinessUrl: data.logoBusinessUrl,
+        logoBusinessUrl: logoUrl,
         enableStock: data.enableStock,
         socialMedia: data.socialMedia,
         primaryColor: data.primaryColor,
@@ -183,6 +191,7 @@ export default function BusinessSettingsPage() {
 
       const result = await updateCurrentBusinessSettings(payload);
       setBusinessSettings(result);
+      setLogoBase64(null); // Clear local base64 after successful save
 
       // Apply colors in real-time without refresh
       if (
@@ -296,8 +305,8 @@ export default function BusinessSettingsPage() {
               <ClickableImageUpload
                 label="Business Logo"
                 value={form.watch("logoBusinessUrl")}
-                onChange={handleLogoUpload}
-                disabled={isSaving || isUploadingLogo}
+                onChange={handleLogoSelect}
+                disabled={isSaving}
                 aspectRatio="square"
                 height="h-48"
                 placeholder="Click to upload logo"
@@ -305,7 +314,7 @@ export default function BusinessSettingsPage() {
                 maxSize={5}
               />
               <p className="text-xs text-muted-foreground mt-2">
-                Logo will be uploaded to server and saved to business settings
+                Selected logo will be uploaded when you click Save Changes
               </p>
             </div>
           </CardContent>
