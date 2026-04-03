@@ -144,34 +144,37 @@ const VirtualizedProductsSectionComponent = ({
   const skeletonCount = isPaginationLoading ? 6 : 0;
   const totalItems = products.length + skeletonCount;
 
-  // Render item in grid
-  const renderItem = ({ columnIndex, rowIndex, style }: any) => {
-    const { cols } = getGridDimensions(window.innerWidth);
-    const itemIndex = rowIndex * cols + columnIndex;
+  // Render item in grid - properly typed for react-window
+  const renderItem = useCallback(
+    ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
+      const { cols } = getGridDimensions(window.innerWidth);
+      const itemIndex = rowIndex * cols + columnIndex;
 
-    if (itemIndex >= totalItems) {
-      return null;
-    }
+      if (itemIndex >= totalItems) {
+        return null;
+      }
 
-    const isLoadingItem = itemIndex >= products.length;
-    const adjustedStyle = {
-      ...style,
-      left: (style.left as number) + GAP / 2,
-      top: (style.top as number) + GAP / 2,
-      width: (style.width as number) - GAP,
-      height: (style.height as number) - GAP,
-    };
+      const isLoadingItem = itemIndex >= products.length;
+      const adjustedStyle = {
+        ...style,
+        left: (style.left as number) + GAP / 2,
+        top: (style.top as number) + GAP / 2,
+        width: (style.width as number) - GAP,
+        height: (style.height as number) - GAP,
+      };
 
-    return (
-      <div key={`item-${itemIndex}`} style={adjustedStyle}>
-        {isLoadingItem ? (
-          <ProductCardSkeleton />
-        ) : (
-          <ProductCard product={products[itemIndex]} />
-        )}
-      </div>
-    );
-  };
+      return (
+        <div key={`item-${itemIndex}`} style={adjustedStyle}>
+          {isLoadingItem ? (
+            <ProductCardSkeleton />
+          ) : (
+            <ProductCard product={products[itemIndex]} />
+          )}
+        </div>
+      );
+    },
+    [products, totalItems]
+  );
 
   return (
     <SectionWrapper>
