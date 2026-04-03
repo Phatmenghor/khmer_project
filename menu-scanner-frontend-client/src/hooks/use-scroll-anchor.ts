@@ -13,44 +13,66 @@ import { useRef, useCallback, useEffect } from "react";
 export function useScrollAnchor(isLoading: boolean) {
   const containerRef = useRef<HTMLDivElement>(null);
   const savedScrollYRef = useRef<number | null>(null);
-  const savedHeightRef = useRef<number | null>(null);
+  const savedHeightBeforeSkeletonsRef = useRef<number | null>(null);
+  const heightWithSkeletonsRef = useRef<number | null>(null);
 
   /**
-   * MANUAL save: Call this BEFORE API call starts (before loading state becomes true)
-   * This ensures we capture height BEFORE skeletons are added
+   * MANUAL save: Call this BEFORE API call starts
+   * Captures scroll position only - height will be measured at skeleton render
    */
   const savePositionNow = useCallback(() => {
     if (containerRef.current) {
       savedScrollYRef.current = window.scrollY;
-      savedHeightRef.current = containerRef.current.scrollHeight;
+      // Will measure height when skeletons appear
+      savedHeightBeforeSkeletonsRef.current = null;
     }
   }, []);
 
   /**
-   * AUTO restore: When loading finishes, adjust scroll to keep same products visible
-   * Skeletons are replaced with real products, so height increased by new products count
+   * Measure height AFTER skeletons appear but BEFORE restoration
+   * This happens after the render with skeletons but before API completes
+   */
+  useEffect(() => {
+    // When loading STARTS and we saved position, measure height with skeletons
+    if (isLoading && savedScrollYRef.current !== null && containerRef.current && !savedHeightBeforeSkeletonsRef.current) {
+      // Use requestAnimationFrame to ensure DOM has updated with skeletons
+      requestAnimationFrame(() => {
+        if (containerRef.current) {
+          // This height includes skeletons
+          heightWithSkeletonsRef.current = containerRef.current.scrollHeight;
+        }
+      });
+    }
+  }, [isLoading]);
+
+  /**
+   * AUTO restore: When loading finishes, adjust scroll based on final height
+   * Account for difference between skeleton placeholder height and real product height
    */
   useEffect(() => {
     // Only restore when loading STOPS (finished fetching)
     if (!isLoading && savedScrollYRef.current !== null && containerRef.current) {
       requestAnimationFrame(() => {
         const savedScrollY = savedScrollYRef.current;
-        const savedHeight = savedHeightRef.current;
+        const heightWithSkeletons = heightWithSkeletonsRef.current;
 
-        if (savedScrollY !== null && savedHeight !== null) {
-          const newHeight = containerRef.current?.scrollHeight || 0;
-          const heightAdded = newHeight - savedHeight;
+        if (savedScrollY !== null && heightWithSkeletons !== null) {
+          const finalHeight = containerRef.current?.scrollHeight || 0;
+          // Only adjust if heights are significantly different
+          // (skeletons have different height than final products)
+          const heightDifference = finalHeight - heightWithSkeletons;
 
-          // Scroll down to keep same products visible
-          // New products appear below (user can scroll to see them)
-          window.scrollTo({
-            top: savedScrollY + heightAdded,
-            behavior: "instant",
-          });
+          if (heightDifference !== 0) {
+            window.scrollTo({
+              top: savedScrollY + heightDifference,
+              behavior: "instant",
+            });
+          }
 
           // Clear for next load cycle
           savedScrollYRef.current = null;
-          savedHeightRef.current = null;
+          savedHeightBeforeSkeletonsRef.current = null;
+          heightWithSkeletonsRef.current = null;
         }
       });
     }
