@@ -15,6 +15,7 @@ import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
+import { Loader2 } from "lucide-react";
 
 interface PaginatedProductsGridProps {
   products: ProductDetailResponseModel[];
@@ -171,6 +172,14 @@ const PaginatedProductsGridComponent = ({
           />
         )}
       </div>
+
+      {/* Loading indicator at bottom when fetching more products */}
+      {isPaginationLoading && (
+        <div className="flex flex-col items-center justify-center mt-8 py-6 animate-fade-in-up">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
+          <p className="text-sm text-muted-foreground">Loading more products...</p>
+        </div>
+      )}
     </div>
   );
 };
