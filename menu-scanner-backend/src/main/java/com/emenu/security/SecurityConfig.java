@@ -47,6 +47,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/public/**").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
 
+                        // Business settings by ID is public (theme colors, logo, business name)
+                        .requestMatchers("GET", "/api/v1/business-settings/business/**").permitAll()
+
                         .requestMatchers("/api/v1/users/admin-token").permitAll()
                         .requestMatchers("/api/v1/users/business-token").permitAll()
                         .requestMatchers("/api/v1/users/customer-token").permitAll()
