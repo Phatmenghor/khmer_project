@@ -1,3 +1,16 @@
+/**
+ * Navbar Component
+ * Features:
+ * - Responsive design (mobile, tablet, desktop)
+ * - Mobile search overlay with expandable input
+ * - Dynamic business logo and name from Redux
+ * - Shopping cart and favorites with badge counters
+ * - User authentication dropdown menu
+ * - Real-time search with debouncing
+ * - URL parameter synchronization
+ * - Smooth animations and transitions
+ */
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -35,6 +48,7 @@ import { PageContainer } from "../shared/common/page-container";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
 
+/** Main navigation links */
 const navigationLinks = [
   { name: "Home", href: "/" },
   { name: "Products", href: "/products" },
@@ -64,6 +78,10 @@ export function Navbar() {
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);
 
+  /**
+   * Animate heart icon when favorite count changes
+   * Shows slide-down animation for 300ms
+   */
   useEffect(() => {
     if (
       prevFavoriteCount.current !== favoriteItemCount &&
@@ -76,22 +94,37 @@ export function Navbar() {
     prevFavoriteCount.current = favoriteItemCount;
   }, [favoriteItemCount]);
 
-  // Focus input when mobile search opens
+  /**
+   * Auto-focus mobile search input when search overlay opens
+   * Improves mobile UX for quick search
+   */
   useEffect(() => {
     if (mobileSearchOpen) {
       setTimeout(() => mobileSearchRef.current?.focus(), 50);
     }
   }, [mobileSearchOpen]);
 
+  // Debounce search query to reduce URL updates (500ms delay)
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
+  /**
+   * Restore search query from URL on mount
+   * Allows users to refresh with search query intact
+   */
   useEffect(() => {
     const urlSearchQuery = new URLSearchParams(window.location.search).get("q");
     if (urlSearchQuery) setSearchQuery(urlSearchQuery);
   }, []);
 
+  /**
+   * Sync search query to URL as user types (with debounce)
+   * - Empty query: removes from URL
+   * - Search on home page: redirect to /products
+   * - Search on other page: search within current page
+   */
   useEffect(() => {
     if (!debouncedSearchQuery.trim()) {
+      // Clear search from URL
       const currentParams = new URLSearchParams(window.location.search);
       if (currentParams.has("q")) {
         currentParams.delete("q");
@@ -102,12 +135,19 @@ export function Navbar() {
       }
       return;
     }
+
+    // Add/update search in URL
     const params = new URLSearchParams(window.location.search);
     const searchRoute = pathname === "/" ? "/products" : pathname;
     params.set("q", debouncedSearchQuery.trim());
     router.push(`${searchRoute}?${params.toString()}`);
   }, [debouncedSearchQuery, pathname, router]);
 
+  /**
+   * Handle search form submission
+   * - Triggered by Enter key
+   * - Closes mobile search overlay after search
+   */
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
