@@ -576,6 +576,13 @@
     --input-focus: 97 36% 37%;
     --ring: 97 36% 37%;
 
+    /* COMBOBOX CUSTOM COLORS */
+    --combobox-bg: 0 0% 100%;
+    --combobox-fg: 222 47% 11%;
+    --combobox-hover: 220 8% 95%;
+    --combobox-selected: 220 8% 90%;
+    --combobox-selected-fg: 97 36% 37%;
+
     --success: 146 79% 41%;
     --success-foreground: 0 0% 98%;
     --success-50: 146 79% 96%;

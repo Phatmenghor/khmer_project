@@ -168,7 +168,7 @@ export function ComboboxSelectDistrict({
         </PopoverTrigger>
 
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
+          className="w-[var(--radix-popover-trigger-width)] p-0 shadow-lg border-border"
           align="start"
           side="bottom"
           sideOffset={4}
