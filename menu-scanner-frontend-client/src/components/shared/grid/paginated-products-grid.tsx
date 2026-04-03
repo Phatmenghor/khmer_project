@@ -24,6 +24,7 @@ interface PaginatedProductsGridProps {
   onLoadMore: () => void;
   isInitialLoading?: boolean;
   className?: string;
+  sectionKey?: string; // Unique section identifier (e.g., "home", "products", "promo")
 }
 
 const PaginatedProductsGridComponent = ({
@@ -33,6 +34,7 @@ const PaginatedProductsGridComponent = ({
   onLoadMore,
   isInitialLoading = false,
   className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4",
+  sectionKey = "product", // Default section key
 }: PaginatedProductsGridProps) => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -139,8 +141,9 @@ const PaginatedProductsGridComponent = ({
         {/* Real products with smooth fade-in animation for new items */}
         {products.map((product, index) => {
           const isNew = newProductIds.has(product.id.toString());
-          // Use unique key combining product ID and array index to prevent duplicate key errors
-          const uniqueKey = `product-${product.id}-${index}`;
+          // Use unique key: {section}-{product-id}-{index}
+          // Example: "home-product-123-0", "promo-product-456-1"
+          const uniqueKey = `${sectionKey}-${product.id}-${index}`;
           return (
             <div
               key={uniqueKey}

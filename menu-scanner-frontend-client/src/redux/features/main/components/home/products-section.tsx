@@ -73,6 +73,7 @@ const ProductsSectionComponent = ({
         hasMore={hasMore}
         onLoadMore={onLoadMore}
         isInitialLoading={isInitialLoading}
+        sectionKey="featured"
       />
 
       {/* End of products state */}
