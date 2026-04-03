@@ -2,10 +2,13 @@ import { useRef, useCallback, useEffect } from "react";
 
 /**
  * Hook to maintain scroll position during load more operations
- * CRITICAL: Saves position BEFORE skeletons appear, restores AFTER they're replaced
+ * MOBILE APP STYLE: Keeps scroll anchored to the SAME skeleton card position
  *
- * Prevents scroll jumps when new content is loaded (YouTube-like behavior)
- * Keeps viewport showing SAME products while new items append below
+ * When new products load:
+ * 1. Skeletons appear while loading
+ * 2. User sees placeholder at screen position (e.g., middle of screen)
+ * 3. When loading completes, skeleton is replaced with real product
+ * 4. Scroll stays at that SAME card position showing the real product
  *
  * @param isLoading - Whether content is currently being loaded
  * @returns Object with containerRef and savePositionNow function
@@ -13,67 +16,61 @@ import { useRef, useCallback, useEffect } from "react";
 export function useScrollAnchor(isLoading: boolean) {
   const containerRef = useRef<HTMLDivElement>(null);
   const savedScrollYRef = useRef<number | null>(null);
-  const savedHeightBeforeSkeletonsRef = useRef<number | null>(null);
-  const heightWithSkeletonsRef = useRef<number | null>(null);
+  const firstSkeletonRef = useRef<HTMLElement | null>(null);
+  const skeletonOffsetRef = useRef<number | null>(null);
 
   /**
    * MANUAL save: Call this BEFORE API call starts
-   * Captures scroll position only - height will be measured at skeleton render
+   * Saves the exact scroll position that user is at
    */
   const savePositionNow = useCallback(() => {
     if (containerRef.current) {
+      // Save exact scroll position before anything changes
       savedScrollYRef.current = window.scrollY;
-      // Will measure height when skeletons appear
-      savedHeightBeforeSkeletonsRef.current = null;
     }
   }, []);
 
   /**
-   * Measure height AFTER skeletons appear but BEFORE restoration
-   * This happens after the render with skeletons but before API completes
+   * When loading STARTS, find and save the first skeleton element
+   * This is the element that will be visible on screen as user scrolls
    */
   useEffect(() => {
-    // When loading STARTS and we saved position, measure height with skeletons
-    if (isLoading && savedScrollYRef.current !== null && containerRef.current && !savedHeightBeforeSkeletonsRef.current) {
-      // Use requestAnimationFrame to ensure DOM has updated with skeletons
+    if (isLoading && savedScrollYRef.current !== null && containerRef.current) {
+      // Wait for next frame to ensure skeletons are rendered
       requestAnimationFrame(() => {
-        if (containerRef.current) {
-          // This height includes skeletons
-          heightWithSkeletonsRef.current = containerRef.current.scrollHeight;
+        // Find first skeleton element within container
+        const skeletonElement = containerRef.current?.querySelector(
+          '[class*="skeleton"]'
+        ) as HTMLElement;
+
+        if (skeletonElement) {
+          firstSkeletonRef.current = skeletonElement;
+          // Calculate offset: how far from top of page is the first skeleton?
+          // This is what we'll use to keep the same element visible after loading
+          skeletonOffsetRef.current = skeletonElement.getBoundingClientRect().top + window.scrollY;
         }
       });
     }
   }, [isLoading]);
 
   /**
-   * AUTO restore: When loading finishes, adjust scroll based on final height
-   * Account for difference between skeleton placeholder height and real product height
+   * When loading COMPLETES, restore scroll to keep same element visible
+   * The skeleton is now replaced with real product, but at same position
    */
   useEffect(() => {
-    // Only restore when loading STOPS (finished fetching)
-    if (!isLoading && savedScrollYRef.current !== null && containerRef.current) {
+    if (!isLoading && savedScrollYRef.current !== null && skeletonOffsetRef.current !== null) {
       requestAnimationFrame(() => {
-        const savedScrollY = savedScrollYRef.current;
-        const heightWithSkeletons = heightWithSkeletonsRef.current;
+        // Restore scroll to the same visual position
+        // Skeletons are now products, but user sees same card position
+        window.scrollTo({
+          top: skeletonOffsetRef.current,
+          behavior: "instant",
+        });
 
-        if (savedScrollY !== null && heightWithSkeletons !== null) {
-          const finalHeight = containerRef.current?.scrollHeight || 0;
-          // Only adjust if heights are significantly different
-          // (skeletons have different height than final products)
-          const heightDifference = finalHeight - heightWithSkeletons;
-
-          if (heightDifference !== 0) {
-            window.scrollTo({
-              top: savedScrollY + heightDifference,
-              behavior: "instant",
-            });
-          }
-
-          // Clear for next load cycle
-          savedScrollYRef.current = null;
-          savedHeightBeforeSkeletonsRef.current = null;
-          heightWithSkeletonsRef.current = null;
-        }
+        // Clear for next load cycle
+        savedScrollYRef.current = null;
+        firstSkeletonRef.current = null;
+        skeletonOffsetRef.current = null;
       });
     }
   }, [isLoading]);
