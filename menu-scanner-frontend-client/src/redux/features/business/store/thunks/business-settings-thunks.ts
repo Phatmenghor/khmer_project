@@ -1,19 +1,21 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
-  fetchCurrentBusinessSettings,
+  fetchBusinessSettingsByBusinessId,
   updateCurrentBusinessSettings,
   type BusinessSettingsResponse,
   type UpdateBusinessSettingsRequest,
 } from "../services/business-settings-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 /**
- * Async thunk to fetch current business settings
+ * Async thunk to fetch business settings
+ * Fetches theme colors, logo, and business name from public endpoint
  */
 export const fetchBusinessSettingsThunk = createAsyncThunk(
-  "businessSettings/fetchCurrent",
+  "businessSettings/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const settings = await fetchCurrentBusinessSettings();
+      const settings = await fetchBusinessSettingsByBusinessId(AppDefault.BUSINESS_ID);
       return settings;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to fetch business settings";

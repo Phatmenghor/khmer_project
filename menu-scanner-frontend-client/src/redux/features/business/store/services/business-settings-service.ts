@@ -4,7 +4,6 @@
  */
 
 import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
-import { AppDefault } from "@/constants/app-resource/default/default";
 
 export interface SocialMedia {
   name: string;
@@ -43,26 +42,17 @@ export interface UpdateBusinessSettingsRequest {
 const API_BASE_URL = "/api/v1/business-settings";
 
 /**
- * Fetch current business settings (Public - No Auth Required)
- * Uses AppDefault businessId to fetch business theme and settings
- * GET /api/v1/public/business-settings/{businessId}
- */
-export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse> => {
-  try {
-    const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
-      `/api/v1/public/business-settings/${AppDefault.BUSINESS_ID}`
-    );
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching current business settings:", error);
-    throw error;
-  }
-};
-
-/**
  * Fetch business settings by business ID (Public - No Auth Required)
- * Fetches business theme and public settings info
+ * Fetches business theme colors, logo, and business name
  * GET /api/v1/public/business-settings/{businessId}
+ *
+ * Used for:
+ * - Loading business theme on app startup
+ * - Displaying business branding (logo, colors, name)
+ * - Guest users and public pages
+ *
+ * @param businessId - The business ID to fetch settings for
+ * @returns Business settings response with theme colors and branding info
  */
 export const fetchBusinessSettingsByBusinessId = async (
   businessId: string
