@@ -40,6 +40,18 @@ const PaginatedProductsGridComponent = ({
   const [paginationSkeletonCount, setPaginationSkeletonCount] = useState(6);
   const [newProductIds, setNewProductIds] = useState<Set<string>>(new Set());
 
+  // Deduplicate products by ID to prevent duplicate key errors
+  const uniqueProducts = useMemo(() => {
+    const seen = new Set<string>();
+    return products.filter((product) => {
+      if (seen.has(product.id)) {
+        return false;
+      }
+      seen.add(product.id);
+      return true;
+    });
+  }, [products]);
+
   // Scroll anchor using product keys
   const { containerRef, savePositionNow } = useScrollAnchor(isPaginationLoading);
 
@@ -137,11 +149,14 @@ const PaginatedProductsGridComponent = ({
     <div ref={containerRef}>
       <div className={className}>
         {/* Real products with smooth fade-in animation for new items */}
-        {products.map((product) => {
+        {/* Uses uniqueProducts to prevent duplicate key errors */}
+        {uniqueProducts.map((product, index) => {
           const isNew = newProductIds.has(product.id.toString());
+          // Use unique key combining product ID and array index to prevent duplicate key errors
+          const uniqueKey = `product-${product.id}-${index}`;
           return (
             <div
-              key={`product-${product.id}`}
+              key={uniqueKey}
               data-product-key={`product-${product.id}`}
               className={`transition-all duration-500 ease-out ${
                 isNew ? "animate-fade-in-up" : ""
