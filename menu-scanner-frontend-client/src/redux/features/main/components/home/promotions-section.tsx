@@ -128,10 +128,8 @@ const PromotionsSectionComponent = ({
         ))}
       </div>
 
-      {/* Show "View All" button if there are more promotions available */}
-      {products.length > limit && (
-        <ViewAllButton href="/promotions" text="View All Deals" />
-      )}
+      {/* Always show "View More Promotions" button */}
+      <ViewAllButton href="/promotions" text="View More Promotions" />
     </SectionWrapper>
   );
 };
