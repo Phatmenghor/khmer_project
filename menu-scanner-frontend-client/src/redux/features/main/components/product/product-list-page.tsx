@@ -8,6 +8,7 @@ import {
   setLoadedFilters,
 } from "@/redux/features/main/store/slice/public-product-slice";
 import { usePublicProductState } from "@/redux/features/main/store/state/public-product-state";
+import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { CheckCircle2, Flame } from "lucide-react";
 import { ProductFilters } from "@/redux/features/main/components/product/product-filters";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -193,68 +194,72 @@ export function ProductListPage({
                 />
               </div>
 
-              {/* Products Grid - follows home page pagination with scroll anchor */}
-          {products.length > 0 && (
-            <>
-              <PaginatedProductsGrid
-                products={products}
-                loading={loading.list}
-                hasMore={pagination.hasMore}
-                onLoadMore={debouncedLoadMore}
-                isInitialLoading={isInitialLoad}
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
-                sectionKey={lockedPromotion ? "promotions" : "products"}
-              />
+              {/* Products Grid - with initial skeleton loading (like home page) */}
+              {isInitialLoad ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <ProductCardSkeleton key={`skeleton-initial-${i}`} />
+                  ))}
+                </div>
+              ) : products.length > 0 ? (
+                <>
+                  <PaginatedProductsGrid
+                    products={products}
+                    loading={loading.list}
+                    hasMore={pagination.hasMore}
+                    onLoadMore={debouncedLoadMore}
+                    isInitialLoading={false}
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
+                    sectionKey={lockedPromotion ? "promotions" : "products"}
+                  />
 
-              {/* End of products state */}
-              {!pagination.hasMore && products.length > 0 && !loading.list && (
-                <div className="flex flex-col items-center justify-center mt-10 py-8">
-                  <div
-                    className={`flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
-                      lockedPromotion ? "bg-orange-500/10" : "bg-primary/10"
-                    }`}
-                  >
-                    <CheckCircle2
-                      className={`h-8 w-8 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
-                    />
+                  {/* End of products state */}
+                  {!pagination.hasMore && products.length > 0 && !loading.list && (
+                    <div className="flex flex-col items-center justify-center mt-10 py-8">
+                      <div
+                        className={`flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
+                          lockedPromotion ? "bg-orange-500/10" : "bg-primary/10"
+                        }`}
+                      >
+                        <CheckCircle2
+                          className={`h-8 w-8 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
+                        />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">
+                        {lockedPromotion
+                          ? "All deals loaded!"
+                          : "You've seen it all!"}
+                      </h3>
+                      <p className="text-sm text-muted-foreground text-center max-w-md">
+                        {lockedPromotion
+                          ? "You've seen all current promotions. Check back later for new deals!"
+                          : "You've reached the end of products. Check back later for new arrivals!"}
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                /* No Results */
+                <div className="text-center py-16">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4 mx-auto">
+                    {lockedPromotion ? (
+                      <Flame className="h-8 w-8 text-muted-foreground" />
+                    ) : (
+                      <span className="text-3xl">📦</span>
+                    )}
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    {lockedPromotion
-                      ? "All deals loaded!"
-                      : "You've seen it all!"}
+                  <h3 className="text-xl font-semibold mb-2">
+                    {lockedPromotion ? "No deals found" : "No products found"}
                   </h3>
-                  <p className="text-sm text-muted-foreground text-center max-w-md">
-                    {lockedPromotion
-                      ? "You've seen all current promotions. Check back later for new deals!"
-                      : "You've reached the end of products. Check back later for new arrivals!"}
+                  <p className="text-muted-foreground">
+                    {noSearch
+                      ? `No results for "${noSearch}". Try different keywords.`
+                      : lockedPromotion
+                        ? "Try adjusting your filters or check back later for new promotions."
+                        : "Try adjusting your filters or check back later"}
                   </p>
                 </div>
               )}
-            </>
-          )}
-
-          {/* No Results */}
-          {!isInitialLoad && products.length === 0 && (
-            <div className="text-center py-16">
-              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4 mx-auto">
-                {lockedPromotion ? (
-                  <Flame className="h-8 w-8 text-muted-foreground" />
-                ) : (
-                  <span className="text-3xl">📦</span>
-                )}
-              </div>
-              <h3 className="text-xl font-semibold mb-2">
-                {lockedPromotion ? "No deals found" : "No products found"}
-              </h3>
-              <p className="text-muted-foreground">
-                {noSearch
-                  ? `No results for "${noSearch}". Try different keywords.`
-                  : lockedPromotion
-                    ? "Try adjusting your filters or check back later for new promotions."
-                    : "Try adjusting your filters or check back later"}
-              </p>
-            </div>
-          )}
             </div>
           </div>
         </PageContainer>
