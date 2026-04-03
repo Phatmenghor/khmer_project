@@ -10,7 +10,7 @@
  * - Performance optimized for smooth scrolling
  */
 
-import React, { useRef, useEffect, useState, useMemo } from "react";
+import React, { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
