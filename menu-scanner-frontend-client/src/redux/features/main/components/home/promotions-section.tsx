@@ -21,17 +21,18 @@ export const PromotionsSection = ({
   error,
   title = "Hot Deals & Promotions",
 }: PromotionsSectionProps) => {
-  const [limit, setLimit] = useState(30);
+  const [limit, setLimit] = useState(24);
 
   useEffect(() => {
     const updateLimit = () => {
       const width = window.innerWidth;
 
-      if (width < 640) setLimit(10);
-      else if (width < 768) setLimit(15);
-      else if (width < 1024) setLimit(20);
-      else if (width < 1280) setLimit(25);
-      else setLimit(30);
+      // Show only 4 rows for better UI/UX on home page
+      if (width < 640) setLimit(8); // 2 columns × 4 rows
+      else if (width < 768) setLimit(12); // 3 columns × 4 rows
+      else if (width < 1024) setLimit(16); // 4 columns × 4 rows
+      else if (width < 1280) setLimit(20); // 5 columns × 4 rows
+      else setLimit(24); // 6 columns × 4 rows
     };
 
     updateLimit();
