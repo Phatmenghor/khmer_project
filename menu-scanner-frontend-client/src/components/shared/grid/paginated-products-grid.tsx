@@ -157,28 +157,22 @@ const PaginatedProductsGridComponent = ({
           );
         })}
 
-        {/* Skeleton loaders ALWAYS show while hasMore is true - visual indicator of more products coming */}
+        {/* Skeleton loaders ALWAYS show while hasMore: true */}
         {hasMore &&
           Array.from({ length: paginationSkeletonCount }).map((_, i) => (
             <div
               key={`skeleton-default-${i}`}
-              className={`animate-fade-in-up ${
-                isPaginationLoading ? "opacity-100" : "opacity-50"
-              } transition-opacity duration-300`}
+              className="animate-fade-in-up"
             >
               <ProductCardSkeleton />
             </div>
           ))}
 
-        {/* Loading spinner ALWAYS show with skeleton - hide only when hasMore: false */}
+        {/* Loading spinner ALWAYS show while hasMore: true */}
         {hasMore && (
-          <div className={`col-span-full flex flex-col items-center justify-center py-8 animate-fade-in-up ${
-            isPaginationLoading ? "opacity-100" : "opacity-50"
-          } transition-opacity duration-300`}>
+          <div className="col-span-full flex flex-col items-center justify-center py-8 animate-fade-in-up">
             <Loader2 className={`h-6 w-6 ${isPaginationLoading ? "animate-spin" : ""} text-primary mb-2`} />
-            <p className={`text-xs sm:text-sm ${
-              isPaginationLoading ? "text-muted-foreground" : "text-muted-foreground/50"
-            }`}>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {isPaginationLoading ? "Loading more products..." : "More products available"}
             </p>
           </div>
