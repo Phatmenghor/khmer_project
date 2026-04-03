@@ -157,18 +157,20 @@ const PaginatedProductsGridComponent = ({
           );
         })}
 
-        {/* Skeleton loaders during pagination */}
-        {isPaginationLoading &&
+        {/* Skeleton loaders ALWAYS show while hasMore is true - visual indicator of more products coming */}
+        {hasMore &&
           Array.from({ length: paginationSkeletonCount }).map((_, i) => (
             <div
-              key={`skeleton-pagination-${i}`}
-              className="animate-fade-in-up"
+              key={`skeleton-default-${i}`}
+              className={`animate-fade-in-up ${
+                isPaginationLoading ? "opacity-100" : "opacity-50"
+              } transition-opacity duration-300`}
             >
               <ProductCardSkeleton />
             </div>
           ))}
 
-        {/* Loading spinner in grid space - show until last page */}
+        {/* Loading spinner in grid space - show only during actual pagination */}
         {isPaginationLoading && (
           <div className="col-span-full flex flex-col items-center justify-center py-8 animate-fade-in-up">
             <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
@@ -189,6 +191,7 @@ const PaginatedProductsGridComponent = ({
       </div>
     </div>
   );
+};
 };
 
 export const PaginatedProductsGrid = React.memo(
