@@ -193,24 +193,10 @@ const homeSlice = createSlice({
       })
       .addCase(fetchHomeFeaturedProducts.fulfilled, (state, action) => {
         const newProducts = action.payload.content || [];
-        const pageSize = action.payload.pageSize || 20;
 
-        // Memory optimization: Keep only last 3 pages of data (like YouTube)
-        const MAX_PAGES_IN_MEMORY = 3;
-        const maxItems = MAX_PAGES_IN_MEMORY * pageSize;
-
-        // Append new products with deduplication
-        const existingIds = new Set(state.featuredProducts.map(p => p.id));
-        const uniqueNewProducts = newProducts.filter(p => !existingIds.has(p.id));
-        const updatedProducts = [...state.featuredProducts, ...uniqueNewProducts];
-
-        // If we exceed the limit, remove oldest items
-        if (updatedProducts.length > maxItems) {
-          const itemsToRemove = updatedProducts.length - maxItems;
-          state.featuredProducts = updatedProducts.slice(itemsToRemove);
-        } else {
-          state.featuredProducts = updatedProducts;
-        }
+        // Keep all loaded data (like Facebook) - backend handles pagination
+        // No memory optimization, no deduplication - trust backend pagination
+        state.featuredProducts = [...state.featuredProducts, ...newProducts];
 
         state.featuredPagination.currentPage = action.payload.pageNo || 1;
         state.featuredPagination.totalPages = action.payload.totalPages || 1;
