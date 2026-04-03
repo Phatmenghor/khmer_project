@@ -92,6 +92,7 @@ const VirtualizedProductsSectionComponent = ({
   );
 
   // Track window width
+  // Track window width
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1280
   );
@@ -118,6 +119,25 @@ const VirtualizedProductsSectionComponent = ({
       sentinelInViewRef(sentinelRef.current);
     }
   }, [sentinelInViewRef]);
+
+  // Calculate grid dimensions (must be before hooks that depend on it)
+  const colCount = getColumnCount(windowWidth);
+  const skeletonCount = isPaginationLoading ? colCount : 0;
+  const totalItems = products.length + skeletonCount;
+  const rowCount = Math.ceil(totalItems / colCount);
+  const itemWidth = Math.floor(windowWidth / colCount);
+
+  // Virtual scrolling setup - MUST be before conditional returns
+  const estimateSizeCallback = useCallback(() => ITEM_HEIGHT, []);
+  const virtualizer = useVirtualizer({
+    count: rowCount,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: estimateSizeCallback,
+    overscan: 5,
+  });
+
+  const virtualItems = virtualizer.getVirtualItems();
+  const totalSize = virtualizer.getTotalSize();
 
   // Error state
   if (error) {
@@ -147,24 +167,6 @@ const VirtualizedProductsSectionComponent = ({
   if (products.length === 0 && !loading) {
     return null;
   }
-
-  // Calculate grid dimensions
-  const colCount = getColumnCount(windowWidth);
-  const skeletonCount = isPaginationLoading ? colCount : 0;
-  const totalItems = products.length + skeletonCount;
-  const rowCount = Math.ceil(totalItems / colCount);
-  const itemWidth = Math.floor(windowWidth / colCount);
-
-  // Virtual scrolling setup
-  const virtualizer = useVirtualizer({
-    count: rowCount,
-    getScrollElement: () => scrollContainerRef.current,
-    estimateSize: useCallback(() => ITEM_HEIGHT, []),
-    overscan: 5, // Render 5 extra rows for smooth scrolling
-  });
-
-  const virtualItems = virtualizer.getVirtualItems();
-  const totalSize = virtualizer.getTotalSize();
 
   return (
     <SectionWrapper>
