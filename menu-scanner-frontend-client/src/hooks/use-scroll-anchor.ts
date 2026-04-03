@@ -2,70 +2,63 @@ import { useRef, useCallback, useEffect } from "react";
 
 /**
  * Hook to maintain scroll position during load more operations
- * Prevents scroll jumps when new content is loaded (YouTube-like behavior)
+ * CRITICAL: Saves position BEFORE skeletons appear, restores AFTER they're replaced
  *
- * Key: Locks viewport to the SAME product cards user was viewing
- * When new items append below, viewport stays on old products
+ * Prevents scroll jumps when new content is loaded (YouTube-like behavior)
+ * Keeps viewport showing SAME products while new items append below
  *
  * @param isLoading - Whether content is currently being loaded
- * @returns Object with containerRef to wrap products
- *
- * @example
- * ```tsx
- * const { containerRef } = useScrollAnchor(isLoadingMore);
- *
- * <div ref={containerRef}>
- *   {items.map(item => <div key={item.id}>{item.name}</div>)}
- * </div>
- * ```
+ * @returns Object with containerRef and savePositionNow function
  */
 export function useScrollAnchor(isLoading: boolean) {
   const containerRef = useRef<HTMLDivElement>(null);
   const savedScrollYRef = useRef<number | null>(null);
-  const savedContainerTopRef = useRef<number | null>(null);
-  const savedContainerHeightRef = useRef<number | null>(null);
+  const savedHeightRef = useRef<number | null>(null);
 
-  // BEFORE loading: Record current viewport position
-  useEffect(() => {
-    if (isLoading && savedScrollYRef.current === null && containerRef.current) {
-      // Record exact scroll position at moment loading starts
+  /**
+   * MANUAL save: Call this BEFORE API call starts (before loading state becomes true)
+   * This ensures we capture height BEFORE skeletons are added
+   */
+  const savePositionNow = useCallback(() => {
+    if (containerRef.current) {
       savedScrollYRef.current = window.scrollY;
-      savedContainerTopRef.current = containerRef.current.getBoundingClientRect().top + window.scrollY;
-      savedContainerHeightRef.current = containerRef.current.scrollHeight;
+      savedHeightRef.current = containerRef.current.scrollHeight;
     }
-  }, [isLoading]);
+  }, []);
 
-  // AFTER loading: Restore viewport to exact same position
-  // This keeps the same products visible while new ones appear below
+  /**
+   * AUTO restore: When loading finishes, adjust scroll to keep same products visible
+   * Skeletons are replaced with real products, so height increased by new products count
+   */
   useEffect(() => {
+    // Only restore when loading STOPS (finished fetching)
     if (!isLoading && savedScrollYRef.current !== null && containerRef.current) {
       requestAnimationFrame(() => {
         const savedScrollY = savedScrollYRef.current;
-        const savedContainerTop = savedContainerTopRef.current;
-        const savedHeight = savedContainerHeightRef.current;
+        const savedHeight = savedHeightRef.current;
 
-        if (savedScrollY !== null && savedContainerTop !== null && savedHeight !== null) {
+        if (savedScrollY !== null && savedHeight !== null) {
           const newHeight = containerRef.current?.scrollHeight || 0;
           const heightAdded = newHeight - savedHeight;
 
-          // Adjust scroll position: original position + height of newly added items
-          // This keeps the viewport showing the SAME products, with new ones below
+          // Scroll down to keep same products visible
+          // New products appear below (user can scroll to see them)
           window.scrollTo({
             top: savedScrollY + heightAdded,
-            behavior: "instant", // Instant - user shouldn't notice position change
+            behavior: "instant",
           });
-        }
 
-        // Clear for next load cycle
-        savedScrollYRef.current = null;
-        savedContainerTopRef.current = null;
-        savedContainerHeightRef.current = null;
+          // Clear for next load cycle
+          savedScrollYRef.current = null;
+          savedHeightRef.current = null;
+        }
       });
     }
   }, [isLoading]);
 
   return {
     containerRef,
+    savePositionNow, // Call this when fetch starts!
   };
 }
 

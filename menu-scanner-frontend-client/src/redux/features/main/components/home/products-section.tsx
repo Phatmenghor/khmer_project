@@ -56,15 +56,23 @@ const ProductsSectionComponent = ({
   const [skeletonCount, setSkeletonCount] = useState(8);
   const [paginationSkeletonCount, setPaginationSkeletonCount] = useState(6);
 
+  // Maintain scroll position during pagination (YouTube-like UX)
+  const { containerRef, savePositionNow } = useScrollAnchor(isPaginationLoading);
+
+  // Wrapper to save position BEFORE fetch starts
+  const handleLoadMoreWithScroll = useCallback(() => {
+    // CRITICAL: Save position BEFORE API call starts (before skeletons appear)
+    savePositionNow();
+    // Then trigger the actual fetch
+    onLoadMore();
+  }, [onLoadMore, savePositionNow]);
+
   // Smart pagination with debounce and duplicate prevention
   const { handleLoadMore } = usePaginationLoadMore(
-    onLoadMore,
+    handleLoadMoreWithScroll,
     hasMore && !loading,
-    [hasMore, loading, onLoadMore]
+    [hasMore, loading, handleLoadMoreWithScroll]
   );
-
-  // Maintain scroll position during pagination (YouTube-like UX)
-  const { containerRef } = useScrollAnchor(isPaginationLoading);
 
   /**
    * Calculate skeleton loader count based on screen size

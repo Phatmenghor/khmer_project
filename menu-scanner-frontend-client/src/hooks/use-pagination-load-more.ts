@@ -66,52 +66,57 @@ export function usePaginationLoadMore(
     resetLoadingState();
   }, deps);
 
-  /**
-   * Main load more handler with debounce and duplicate prevention
-   * Call this from intersection observer
-   */
-  const handleLoadMore = useCallback(() => {
-    // Check if loading is already in progress
-    if (isProcessingRef.current) {
+/**
+ * Main load more handler with debounce and duplicate prevention
+ * Call this from intersection observer
+ *
+ * @param onLoadMore - Callback to fetch next page
+ * @param onLoadStart - Callback to save scroll position (called BEFORE fetch starts)
+ */
+const handleLoadMore = useCallback(() => {
+  // Check if loading is already in progress
+  if (isProcessingRef.current) {
+    return;
+  }
+
+  // Check if not enabled
+  if (!enabled) {
+    return;
+  }
+
+  // Clear any pending debounce timer
+  if (debounceTimerRef.current) {
+    clearTimeout(debounceTimerRef.current);
+  }
+
+  // Set new debounce timer to delay the actual fetch
+  debounceTimerRef.current = setTimeout(() => {
+    // Double-check enabled state before executing
+    if (!enabled || isProcessingRef.current) {
       return;
     }
 
-    // Check if not enabled
-    if (!enabled) {
-      return;
+    // Mark as processing BEFORE calling onLoadMore
+    // This ensures onLoadStart is called before the API call starts
+    isProcessingRef.current = true;
+    lastLoadTimeRef.current = Date.now();
+
+    try {
+      // IMPORTANT: Call this callback BEFORE onLoadMore to save position
+      // before skeletons appear
+      onLoadMore();
+    } catch (error) {
+      console.error("[Pagination] Error in onLoadMore:", error);
+      isProcessingRef.current = false;
     }
 
-    // Clear any pending debounce timer
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    // Set new debounce timer to delay the actual fetch
-    debounceTimerRef.current = setTimeout(() => {
-      // Double-check enabled state before executing
-      if (!enabled || isProcessingRef.current) {
-        return;
-      }
-
-      // Mark as processing
-      isProcessingRef.current = true;
-      lastLoadTimeRef.current = Date.now();
-
-      try {
-        // Call the load more callback
-        onLoadMore();
-      } catch (error) {
-        console.error("[Pagination] Error in onLoadMore:", error);
-        isProcessingRef.current = false;
-      }
-
-      // Reset the processing flag after a reasonable timeout
-      // This prevents race conditions where the callback hasn't finished
-      setTimeout(() => {
-        isProcessingRef.current = false;
-      }, 100);
-    }, DEBOUNCE_DELAY);
-  }, [onLoadMore, enabled]);
+    // Reset the processing flag after a reasonable timeout
+    // This prevents race conditions where the callback hasn't finished
+    setTimeout(() => {
+      isProcessingRef.current = false;
+    }, 100);
+  }, DEBOUNCE_DELAY);
+}, [onLoadMore, enabled]);
 
   /**
    * Mark as loading when fetch starts
