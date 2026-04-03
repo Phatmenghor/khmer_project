@@ -170,12 +170,16 @@ const PaginatedProductsGridComponent = ({
             </div>
           ))}
 
-        {/* Loading spinner in grid space - show only during actual pagination */}
-        {isPaginationLoading && (
-          <div className="col-span-full flex flex-col items-center justify-center py-8 animate-fade-in-up">
-            <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Loading more products...
+        {/* Loading spinner ALWAYS show with skeleton - hide only when hasMore: false */}
+        {hasMore && (
+          <div className={`col-span-full flex flex-col items-center justify-center py-8 animate-fade-in-up ${
+            isPaginationLoading ? "opacity-100" : "opacity-50"
+          } transition-opacity duration-300`}>
+            <Loader2 className={`h-6 w-6 ${isPaginationLoading ? "animate-spin" : ""} text-primary mb-2`} />
+            <p className={`text-xs sm:text-sm ${
+              isPaginationLoading ? "text-muted-foreground" : "text-muted-foreground/50"
+            }`}>
+              {isPaginationLoading ? "Loading more products..." : "More products available"}
             </p>
           </div>
         )}
