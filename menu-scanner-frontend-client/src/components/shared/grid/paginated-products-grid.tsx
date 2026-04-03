@@ -9,7 +9,7 @@
  * - Works on any page (Home, Products, Categories, etc.)
  */
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
@@ -39,18 +39,6 @@ const PaginatedProductsGridComponent = ({
   const isPaginationLoading = loading && products.length > 0;
   const [paginationSkeletonCount, setPaginationSkeletonCount] = useState(6);
   const [newProductIds, setNewProductIds] = useState<Set<string>>(new Set());
-
-  // Deduplicate products by ID to prevent duplicate key errors
-  const uniqueProducts = useMemo(() => {
-    const seen = new Set<string>();
-    return products.filter((product) => {
-      if (seen.has(product.id)) {
-        return false;
-      }
-      seen.add(product.id);
-      return true;
-    });
-  }, [products]);
 
   // Scroll anchor using product keys
   const { containerRef, savePositionNow } = useScrollAnchor(isPaginationLoading);
@@ -149,8 +137,7 @@ const PaginatedProductsGridComponent = ({
     <div ref={containerRef}>
       <div className={className}>
         {/* Real products with smooth fade-in animation for new items */}
-        {/* Uses uniqueProducts to prevent duplicate key errors */}
-        {uniqueProducts.map((product, index) => {
+        {products.map((product, index) => {
           const isNew = newProductIds.has(product.id.toString());
           // Use unique key combining product ID and array index to prevent duplicate key errors
           const uniqueKey = `product-${product.id}-${index}`;
