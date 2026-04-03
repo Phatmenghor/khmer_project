@@ -192,7 +192,6 @@ const PaginatedProductsGridComponent = ({
     </div>
   );
 };
-};
 
 export const PaginatedProductsGrid = React.memo(
   PaginatedProductsGridComponent
