@@ -159,32 +159,41 @@ export function ProductListPage({
   const noSearch = lockedPromotion ? undefined : search;
 
   return (
-    <PageContainer className="pb-4 sm:pb-8">
-      {/* Optional hero section (e.g. promotions banner) */}
-      {hero && <div className="mb-6">{hero}</div>}
+    <div className="min-h-screen bg-background">
+      {/* Optional hero section */}
+      {hero && (
+        <div className="relative">
+          <PageContainer className="pt-3 sm:pt-6 pb-0">
+            <div className="mb-6">{hero}</div>
+          </PageContainer>
+        </div>
+      )}
 
-      <div className="flex gap-6 lg:gap-8">
-        {/* Desktop Sidebar Filters */}
-        <aside className="hidden lg:block w-72 flex-shrink-0">
-          <ProductFilters
-            totalResults={pagination.totalElements}
-            basePath={basePath}
-            lockedPromotion={lockedPromotion}
-          />
-        </aside>
+      {/* Products Section with home page styling */}
+      <div className="relative py-6 sm:py-10">
+        <PageContainer>
+          <div className="flex gap-6 lg:gap-8">
+            {/* Desktop Sidebar Filters */}
+            <aside className="hidden lg:block w-72 flex-shrink-0">
+              <ProductFilters
+                totalResults={pagination.totalElements}
+                basePath={basePath}
+                lockedPromotion={lockedPromotion}
+              />
+            </aside>
 
-        {/* Main Product List */}
-        <div className="flex-1 min-w-0" ref={containerRef}>
-          {/* Mobile Filters */}
-          <div className="lg:hidden mb-4">
-            <ProductFilters
-              totalResults={pagination.totalElements}
-              basePath={basePath}
-              lockedPromotion={lockedPromotion}
-            />
-          </div>
+            {/* Main Product List */}
+            <div className="flex-1 min-w-0" ref={containerRef}>
+              {/* Mobile Filters */}
+              <div className="lg:hidden mb-6">
+                <ProductFilters
+                  totalResults={pagination.totalElements}
+                  basePath={basePath}
+                  lockedPromotion={lockedPromotion}
+                />
+              </div>
 
-          {/* Products Grid - follows home page pagination with scroll anchor */}
+              {/* Products Grid - follows home page pagination with scroll anchor */}
           {products.length > 0 && (
             <>
               <PaginatedProductsGrid
@@ -246,8 +255,10 @@ export function ProductListPage({
               </p>
             </div>
           )}
-        </div>
+            </div>
+          </div>
+        </PageContainer>
       </div>
-    </PageContainer>
+    </div>
   );
 }
