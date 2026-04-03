@@ -10,14 +10,13 @@ import {
   setLoadedFilters,
 } from "@/redux/features/main/store/slice/public-product-slice";
 import { usePublicProductState } from "@/redux/features/main/store/state/public-product-state";
-import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
-import { CheckCircle2, Flame, Loader2 } from "lucide-react";
+import { CheckCircle2, Flame } from "lucide-react";
 import { ProductFilters } from "@/redux/features/main/components/product/product-filters";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useSkeletonCount, SkeletonPresets } from "@/hooks/use-skeleton-count";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
-import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
+import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
 
 interface ProductListPageProps {
   basePath?: string;
@@ -33,7 +32,6 @@ export function ProductListPage({
   scrollKey = "products",
 }: ProductListPageProps) {
   const searchParams = useSearchParams();
-  const observerRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
 
   const {
@@ -46,17 +44,12 @@ export function ProductListPage({
 
   const [page, setPage] = useState(1);
 
-  const skeletonCount = useSkeletonCount(SkeletonPresets.productGrid);
-
   useScrollRestoration({
     enabled: true,
     restoreOnMount: true,
     customKey: scrollKey,
     restoreDelay: 150,
   });
-
-  const isPaginationLoading = products.length > 0 && loading.list;
-  const { containerRef } = useScrollAnchor(isPaginationLoading);
 
   const search = lockedPromotion ? null : searchParams.get("q");
   const categoryId = searchParams.get("categoryId");
@@ -135,26 +128,6 @@ export function ProductListPage({
     }
   }, [pagination.hasMore, loading.list, page, loadProducts]);
 
-  useEffect(() => {
-    if (!observerRef.current || !pagination.hasMore || loading.list) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          pagination.hasMore &&
-          !loading.list &&
-          !isLoadingRef.current
-        ) {
-          handleLoadMore();
-        }
-      },
-      { threshold: 0.1, rootMargin: "200px" },
-    );
-
-    observer.observe(observerRef.current);
-    return () => observer.disconnect();
-  }, [pagination.hasMore, loading.list, handleLoadMore]);
 
   const isInitialLoad = products.length === 0 && loading.list;
   const noSearch = lockedPromotion ? undefined : search;
@@ -185,45 +158,20 @@ export function ProductListPage({
             />
           </div>
 
-          {/* Initial Loading */}
-          {isInitialLoad && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-              {Array.from({ length: 20 }).map((_, index) => (
-                <ProductCardSkeleton key={index} />
-              ))}
-            </div>
-          )}
+          {/* Products Grid - 6 columns per row */}
+          {products.length > 0 && (
+            <>
+              <PaginatedProductsGrid
+                products={products}
+                loading={loading.list}
+                hasMore={pagination.hasMore}
+                onLoadMore={handleLoadMore}
+                isInitialLoading={isInitialLoad}
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
+              />
 
-          {/* Products Grid */}
-          {!isInitialLoad && products.length > 0 && (
-            <div ref={containerRef}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-
-                {isPaginationLoading &&
-                  Array.from({ length: skeletonCount }).map((_, index) => (
-                    <ProductCardSkeleton key={`loading-${index}`} />
-                  ))}
-              </div>
-
-              {isPaginationLoading && (
-                <div className="flex items-center justify-center py-6 mt-2">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span className="text-sm">
-                      {lockedPromotion ? "Loading more deals..." : "Loading more products..."}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {pagination.hasMore && !loading.list && (
-                <div ref={observerRef} className="h-10" />
-              )}
-
-              {!pagination.hasMore && products.length > 0 && (
+              {/* End of products state */}
+              {!pagination.hasMore && products.length > 0 && !loading.list && (
                 <div className="flex flex-col items-center justify-center mt-10 py-8">
                   <div
                     className={`flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
@@ -244,7 +192,7 @@ export function ProductListPage({
                   </p>
                 </div>
               )}
-            </div>
+            </>
           )}
 
           {/* No Results */}
