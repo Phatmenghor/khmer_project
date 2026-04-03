@@ -28,7 +28,11 @@ interface CategoriesSectionProps {
 const DEFAULT_TITLE = "Shop by Category";
 const DEFAULT_SUBTITLE = "Browse products by category";
 
-export const CategoriesSection = ({
+/**
+ * Memoized component to prevent unnecessary re-renders
+ * Only re-renders when props actually change (categories, loading, error, title)
+ */
+const CategoriesSectionComponent = ({
   categories,
   loading,
   error,
@@ -109,3 +113,9 @@ export const CategoriesSection = ({
     </SectionWrapper>
   );
 };
+
+/**
+ * Export memoized component
+ * Prevents re-renders when parent updates but props remain the same
+ */
+export const CategoriesSection = React.memo(CategoriesSectionComponent);

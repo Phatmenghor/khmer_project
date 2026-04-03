@@ -28,7 +28,11 @@ interface PromotionsSectionProps {
 /** Default section title for promotions */
 const DEFAULT_TITLE = "Hot Deals & Promotions";
 
-export const PromotionsSection = ({
+/**
+ * Memoized component to prevent unnecessary re-renders
+ * Only re-renders when props actually change (products, loading, error, title)
+ */
+const PromotionsSectionComponent = ({
   products,
   loading,
   error,
@@ -131,3 +135,9 @@ export const PromotionsSection = ({
     </SectionWrapper>
   );
 };
+
+/**
+ * Export memoized component
+ * Prevents re-renders when parent updates but props remain the same
+ */
+export const PromotionsSection = React.memo(PromotionsSectionComponent);

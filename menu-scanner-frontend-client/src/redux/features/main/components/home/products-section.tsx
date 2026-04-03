@@ -1,14 +1,16 @@
 /**
  * ProductsSection Component
  * Features:
- * - Infinite scroll pagination with load more functionality
+ * - Infinite scroll pagination with smart debounce and duplicate prevention
  * - Responsive grid layout (2-6 columns)
- * - Skeleton loading placeholders
+ * - Skeleton loading placeholders for initial load
  * - Scroll position maintenance during pagination
+ * - Loading icon only (no skeletons) during pagination
  * - Empty state and error handling
+ * - Performance optimized for smooth scrolling
  */
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
@@ -18,6 +20,7 @@ import {
   SectionWrapper,
 } from "@/components/shared/common/section-header";
 import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
+import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 
 interface ProductsSectionProps {
   products: ProductDetailResponseModel[];
@@ -31,7 +34,11 @@ interface ProductsSectionProps {
   isInitialLoading?: boolean;
 }
 
-export const ProductsSection = ({
+/**
+ * Memoized component to prevent unnecessary re-renders
+ * Only re-renders when props actually change
+ */
+const ProductsSectionComponent = ({
   products,
   loading,
   error,
@@ -42,12 +49,17 @@ export const ProductsSection = ({
   onLoadMore,
   isInitialLoading = false,
 }: ProductsSectionProps) => {
-  const observerRef = useRef<HTMLDivElement>(null);
-  const loadingRef = useRef(false);
-  const hasMoreRef = useRef(hasMore);
-  const onLoadMoreRef = useRef(onLoadMore);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const isPaginationLoading = loading && products.length > 0;
   const [skeletonCount, setSkeletonCount] = useState(8);
+
+  // Smart pagination with debounce and duplicate prevention
+  const { handleLoadMore } = usePaginationLoadMore(
+    onLoadMore,
+    hasMore && !loading,
+    [hasMore, loading, onLoadMore]
+  );
 
   // Maintain scroll position during pagination (YouTube-like UX)
   const { containerRef } = useScrollAnchor(isPaginationLoading);
@@ -55,13 +67,13 @@ export const ProductsSection = ({
   /**
    * Calculate skeleton loader count based on screen size
    * Matches grid layout: 2 cols (mobile) to 6 cols (desktop)
-   * Showing 2 rows of skeletons while loading
+   * Showing 2 rows of skeletons while loading initial data
    */
   useEffect(() => {
     const updateSkeletonCount = () => {
       const width = window.innerWidth;
 
-      // Skeleton count = columns × 2 rows
+      // Skeleton count = columns × 2 rows for initial load
       if (width < 640) {
         setSkeletonCount(4); // 2 cols × 2 rows (mobile)
       } else if (width < 768) {
@@ -80,54 +92,52 @@ export const ProductsSection = ({
     return () => window.removeEventListener("resize", updateSkeletonCount);
   }, []);
 
-  // Keep latest values in refs to avoid recreating observer
-  useEffect(() => {
-    loadingRef.current = loading;
-  }, [loading]);
-
-  useEffect(() => {
-    hasMoreRef.current = hasMore;
-  }, [hasMore]);
-
-  useEffect(() => {
-    onLoadMoreRef.current = onLoadMore;
-  }, [onLoadMore]);
-
   /**
-   * Infinite scroll trigger - loads more products when sentinel reaches viewport
-   * Uses refs to avoid recreating observer on state changes
-   * Prevents multiple simultaneous fetch requests
+   * Smart Intersection Observer for infinite scroll
+   * Features:
+   * - Triggers when sentinel reaches viewport (with 200px early trigger)
+   * - Integrates with usePaginationLoadMore for debounce and duplicate prevention
+   * - Automatically cleans up when hasMore is false
+   * - High threshold (0.1) to catch when element just barely enters viewport
    */
   useEffect(() => {
-    if (!observerRef.current) return;
+    // Only create observer if we have more products to load
+    if (!hasMore || !sentinelRef.current) {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+      return;
+    }
 
+    // Create observer with early trigger to start loading before user reaches end
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        // Trigger load when sentinel element enters viewport
-        // Check refs for latest values without observer re-creation
-        if (entry.isIntersecting && hasMoreRef.current && !loadingRef.current) {
-          onLoadMoreRef.current();
+        // Trigger load when sentinel becomes visible
+        // The handleLoadMore function internally prevents duplicate calls
+        if (entry.isIntersecting) {
+          handleLoadMore();
         }
       },
       {
-        threshold: 0.1,
+        threshold: 0.1, // Trigger at 10% visibility
         rootMargin: "200px", // Start loading 200px before element enters viewport
-      },
+      }
     );
 
-    const currentObserver = observerRef.current;
-    if (currentObserver && hasMore && !loading) {
-      observer.observe(currentObserver);
-    }
+    // Start observing the sentinel element
+    observerRef.current = observer;
+    observer.observe(sentinelRef.current);
 
+    // Cleanup: disconnect observer on unmount or when conditions change
     return () => {
-      if (currentObserver) {
-        observer.unobserve(currentObserver);
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
       }
-      observer.disconnect();
     };
-  }, [hasMore, loading]);
+  }, [hasMore, handleLoadMore]);
 
   // Initial loading state - show skeleton placeholders
   if (isInitialLoading) {
@@ -193,7 +203,7 @@ export const ProductsSection = ({
         {/* Infinite scroll sentinel - triggers load when visible */}
         {hasMore && !loading && (
           <div
-            ref={observerRef}
+            ref={sentinelRef}
             className="h-10"
             aria-label="Load more products trigger"
           />
@@ -218,3 +228,10 @@ export const ProductsSection = ({
     </SectionWrapper>
   );
 };
+
+/**
+ * Export memoized component
+ * Prevents re-renders when parent updates but props remain the same
+ * Critical for infinite scroll performance - prevents observer recreation
+ */
+export const ProductsSection = React.memo(ProductsSectionComponent);

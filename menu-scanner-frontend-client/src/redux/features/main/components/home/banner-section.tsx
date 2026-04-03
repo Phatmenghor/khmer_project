@@ -25,7 +25,11 @@ interface BannerSectionProps {
   error: string | null;
 }
 
-export const BannerSection = ({
+/**
+ * Memoized component to prevent unnecessary re-renders
+ * Only re-renders when props actually change (banners, loading, error)
+ */
+const BannerSectionComponent = ({
   banners,
   loading,
   error,
@@ -190,3 +194,9 @@ export const BannerSection = ({
     </div>
   );
 };
+
+/**
+ * Export memoized component
+ * Prevents re-renders when parent updates but props remain the same
+ */
+export const BannerSection = React.memo(BannerSectionComponent);

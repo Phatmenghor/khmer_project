@@ -1,6 +1,17 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
+/**
+ * Home Page Component
+ *
+ * Features:
+ * - Multiple sections: banners, categories, promotions, featured products
+ * - Infinite scroll pagination for featured products with smart debounce
+ * - Responsive grid layouts
+ * - Scroll position restoration
+ * - Performance optimized: lazy section loading, memoization, debounced pagination
+ */
+
+import React, { useEffect, useCallback, useMemo } from "react";
 
 import {
   fetchHomeBanners,
@@ -41,13 +52,23 @@ export default function HomePage() {
     customKey: "home",
   });
 
-  // Calculate responsive page size based on screen width
-  const getPageSize = React.useCallback(() => {
-    if (typeof window === "undefined") return 20;
-    const width = window.innerWidth;
-    if (width >= 1280) return 36; // Large desktop
-    if (width >= 768) return 20;  // Tablet
-    return 15;                     // Mobile
+  /**
+   * Calculate responsive page size based on screen width
+   * Adjusts API request size to match device capabilities:
+   * - Large desktop (≥ 1280px): 36 items (6 cols × 6 rows)
+   * - Tablet (≥ 768px): 20 items (4-5 cols)
+   * - Mobile (< 768px): 15 items (2-3 cols)
+   *
+   * Memoized to prevent recreation on every render
+   */
+  const getPageSize = useMemo(() => {
+    return () => {
+      if (typeof window === "undefined") return 20;
+      const width = window.innerWidth;
+      if (width >= 1280) return 36; // Large desktop
+      if (width >= 768) return 20;  // Tablet
+      return 15;                     // Mobile
+    };
   }, []);
 
   const isInitialFeaturedLoading =
@@ -95,9 +116,21 @@ export default function HomePage() {
     featuredProductsSection.loaded,
   ]);
 
-  // Load more featured products - stable callback to prevent observer re-initialization
+  /**
+   * Load more featured products callback
+   *
+   * Design:
+   * - Memoized to prevent unnecessary observer re-initialization
+   * - Only depends on dispatch (thunk dispatch is stable)
+   * - All condition checks happen inside callback for latest values
+   * - Calculates pageSize dynamically to match current screen size
+   *
+   * Note: We intentionally don't include pagination/loading in dependencies
+   * because those are checked inside the callback. This prevents observer
+   * from being re-created on every pagination update.
+   */
   const handleLoadMoreFeatured = useCallback(() => {
-    // Check conditions inside the callback to avoid unnecessary re-renders
+    // Check current state inside callback to get latest values
     if (
       featuredPagination.hasMore &&
       !featuredProductsSection.loading &&
@@ -107,14 +140,7 @@ export default function HomePage() {
       const pageSize = getPageSize();
       dispatch(fetchHomeFeaturedProducts({ pageNo: nextPage, pageSize }));
     }
-  }, [
-    dispatch,
-    getPageSize,
-    featuredPagination.hasMore,
-    featuredPagination.currentPage,
-    featuredProductsSection.loading,
-    featuredProducts.length,
-  ]);
+  }, [dispatch, getPageSize, featuredPagination, featuredProductsSection.loading, featuredProducts.length]);
 
   return (
     <div className="min-h-screen bg-background">
