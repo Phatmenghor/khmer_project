@@ -45,12 +45,12 @@ const API_BASE_URL = "/api/v1/business-settings";
 /**
  * Fetch current business settings (Public - No Auth Required)
  * Uses AppDefault businessId to fetch business theme and settings
- * GET /api/v1/business-settings/business/{businessId}
+ * GET /api/v1/public/business-settings/{businessId}
  */
 export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse> => {
   try {
     const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
-      `${API_BASE_URL}/business/${AppDefault.BUSINESS_ID}`
+      `/api/v1/public/business-settings/${AppDefault.BUSINESS_ID}`
     );
     return response.data.data;
   } catch (error) {
@@ -62,14 +62,14 @@ export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsRe
 /**
  * Fetch business settings by business ID (Public - No Auth Required)
  * Fetches business theme and public settings info
- * GET /api/v1/business-settings/business/{businessId}
+ * GET /api/v1/public/business-settings/{businessId}
  */
 export const fetchBusinessSettingsByBusinessId = async (
   businessId: string
 ): Promise<BusinessSettingsResponse> => {
   try {
     const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
-      `${API_BASE_URL}/business/${businessId}`
+      `/api/v1/public/business-settings/${businessId}`
     );
     return response.data.data;
   } catch (error) {

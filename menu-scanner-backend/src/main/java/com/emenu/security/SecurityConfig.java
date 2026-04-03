@@ -44,11 +44,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // ===== PUBLIC ENDPOINTS =====
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/public/**").permitAll()
+                        .requestMatchers("/api/v1/public/**").permitAll() // Includes /api/v1/public/business-settings/**
                         .requestMatchers("/api/images/**").permitAll()
-
-                        // Business settings by ID is public (theme colors, logo, business name)
-                        .requestMatchers("GET", "/api/v1/business-settings/business/**").permitAll()
 
                         .requestMatchers("/api/v1/users/admin-token").permitAll()
                         .requestMatchers("/api/v1/users/business-token").permitAll()
