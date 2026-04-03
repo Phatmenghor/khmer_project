@@ -171,9 +171,9 @@ const PaginatedProductsGridComponent = ({
         {/* Loading spinner ALWAYS show while hasMore: true */}
         {hasMore && (
           <div className="col-span-full flex flex-col items-center justify-center py-8 animate-fade-in-up">
-            <Loader2 className={`h-6 w-6 ${isPaginationLoading ? "animate-spin" : ""} text-primary mb-2`} />
+            <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
             <p className="text-xs sm:text-sm text-muted-foreground">
-              {isPaginationLoading ? "Loading more products..." : "More products available"}
+              Loading more products...
             </p>
           </div>
         )}
