@@ -133,7 +133,7 @@ export function ProductListPage({
   const noSearch = lockedPromotion ? undefined : search;
 
   return (
-    <PageContainer className="py-4 sm:py-8">
+    <PageContainer className="pb-4 sm:pb-8">
       {/* Optional hero section (e.g. promotions banner) */}
       {hero && <div className="mb-6">{hero}</div>}
 
