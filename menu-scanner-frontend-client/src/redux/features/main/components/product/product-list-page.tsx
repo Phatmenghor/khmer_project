@@ -13,6 +13,7 @@ import { usePublicProductState } from "@/redux/features/main/store/state/public-
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { CheckCircle2, Flame } from "lucide-react";
 import { ProductFilters } from "@/redux/features/main/components/product/product-filters";
+import { PageContainer } from "@/components/shared/common/page-container";
 import { useSkeletonCount, SkeletonPresets } from "@/hooks/use-skeleton-count";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
@@ -132,11 +133,11 @@ export function ProductListPage({
   const noSearch = lockedPromotion ? undefined : search;
 
   return (
-    <div className="w-full">
+    <PageContainer className="py-4 sm:py-8">
       {/* Optional hero section (e.g. promotions banner) */}
       {hero && <div className="mb-6">{hero}</div>}
 
-      <div className="flex gap-6 lg:gap-8 px-4 sm:px-6 lg:px-8">
+      <div className="flex gap-6 lg:gap-8">
         {/* Desktop Sidebar Filters */}
         <aside className="hidden lg:block w-72 flex-shrink-0">
           <ProductFilters
@@ -219,6 +220,6 @@ export function ProductListPage({
           )}
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
