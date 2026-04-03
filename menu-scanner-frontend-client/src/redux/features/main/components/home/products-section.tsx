@@ -52,9 +52,9 @@ const ProductsSectionComponent = ({
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const prevProductCountRef = useRef(0);
   const isPaginationLoading = loading && products.length > 0;
   const [skeletonCount, setSkeletonCount] = useState(8);
+  const [paginationSkeletonCount, setPaginationSkeletonCount] = useState(6);
 
   // Smart pagination with debounce and duplicate prevention
   const { handleLoadMore } = usePaginationLoadMore(
@@ -69,23 +69,27 @@ const ProductsSectionComponent = ({
   /**
    * Calculate skeleton loader count based on screen size
    * Matches grid layout: 2 cols (mobile) to 6 cols (desktop)
-   * Showing 2 rows of skeletons while loading initial data
    */
   useEffect(() => {
     const updateSkeletonCount = () => {
       const width = window.innerWidth;
 
-      // Skeleton count = columns × 2 rows for initial load
+      // Initial load: 2 rows of skeletons
       if (width < 640) {
         setSkeletonCount(4); // 2 cols × 2 rows (mobile)
+        setPaginationSkeletonCount(2); // 1 row for pagination
       } else if (width < 768) {
         setSkeletonCount(6); // 3 cols × 2 rows (tablet)
+        setPaginationSkeletonCount(3); // 1 row for pagination
       } else if (width < 1024) {
         setSkeletonCount(8); // 4 cols × 2 rows (tablet)
+        setPaginationSkeletonCount(4); // 1 row for pagination
       } else if (width < 1280) {
         setSkeletonCount(10); // 5 cols × 2 rows (desktop)
+        setPaginationSkeletonCount(5); // 1 row for pagination
       } else {
         setSkeletonCount(12); // 6 cols × 2 rows (large desktop)
+        setPaginationSkeletonCount(6); // 1 row for pagination
       }
     };
 
@@ -95,46 +99,19 @@ const ProductsSectionComponent = ({
   }, []);
 
   /**
-   * Smart scroll to show newly loaded products
-   * Scrolls to the first newly loaded product for easy review
-   * Keeps previous products visible while new ones load
+   * YouTube-style scroll behavior
+   * Minimal scroll movement - just enough to show skeleton loaders
+   * When products load, they replace skeletons seamlessly
    */
   useEffect(() => {
-    // When products increase AND loading just finished
-    if (!loading && products.length > prevProductCountRef.current && prevProductCountRef.current > 0) {
-      // Small delay to ensure DOM is updated
-      setTimeout(() => {
-        if (gridRef.current) {
-          // Calculate the number of columns based on screen width
-          const width = window.innerWidth;
-          let cols = 2; // mobile default
-          if (width >= 1280) cols = 6;
-          else if (width >= 1024) cols = 5;
-          else if (width < 640) cols = 2;
-          else if (width < 768) cols = 3;
-          else if (width < 1024) cols = 4;
-
-          // Find the first newly loaded product element
-          const productElements = gridRef.current.querySelectorAll('[data-product-item]');
-          const firstNewProductIndex = prevProductCountRef.current;
-
-          if (productElements[firstNewProductIndex]) {
-            const firstNewProduct = productElements[firstNewProductIndex] as HTMLElement;
-            // Scroll to first new product with padding
-            const scrollTarget = firstNewProduct.offsetTop + gridRef.current.offsetTop - 80;
-
-            window.scrollTo({
-              top: scrollTarget,
-              behavior: "smooth",
-            });
-          }
-        }
-      }, 100);
+    if (isPaginationLoading && sentinelRef.current) {
+      // Scroll sentinel into view so user sees loading progress
+      sentinelRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest", // Minimal scroll - don't jump
+      });
     }
-
-    // Update previous count after products are updated
-    prevProductCountRef.current = products.length;
-  }, [products.length, loading]);
+  }, [isPaginationLoading]);
 
   /**
    * Smart Intersection Observer for infinite scroll
@@ -223,43 +200,36 @@ const ProductsSectionComponent = ({
 
       <div ref={containerRef}>
         {/* Responsive Product Grid: 2 cols (mobile) to 6 cols (desktop) */}
+        {/* YouTube-style: Products + skeleton loaders in same grid */}
         <div
           ref={gridRef}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
         >
-          {/* Product cards - mark each with data attribute for scroll tracking */}
+          {/* Existing products */}
           {products.map((product) => (
-            <div key={`featured-product-${product.id}`} data-product-item>
-              <ProductCard product={product} />
-            </div>
+            <ProductCard
+              key={`featured-product-${product.id}`}
+              product={product}
+            />
           ))}
+
+          {/* Skeleton loaders while fetching more products (YouTube style) */}
+          {/* Appears inline with products - no separate loading message */}
+          {isPaginationLoading &&
+            Array.from({ length: paginationSkeletonCount }).map((_, index) => (
+              <ProductCardSkeleton key={`skeleton-pagination-${index}`} />
+            ))}
+
+          {/* Sentinel for infinite scroll detection */}
+          {/* Invisible element to trigger load when visible */}
+          {hasMore && !loading && (
+            <div
+              ref={sentinelRef}
+              className="h-10"
+              aria-label="Load more products trigger"
+            />
+          )}
         </div>
-
-        {/* Loading state indicator - shows while fetching more products */}
-        {isPaginationLoading && (
-          <div className="col-span-full flex items-center justify-center py-8 mt-2">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-              <span className="text-xs sm:text-sm">
-                Loading more products...
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Spacer to prevent sentinel from immediately re-triggering */}
-        {/* Smaller spacer - just enough to push sentinel below viewport */}
-        {hasMore && !loading && <div className="col-span-full h-24 sm:h-32" />}
-
-        {/* Infinite scroll sentinel - triggers when user scrolls to it */}
-        {/* Invisible trigger element for infinite scroll detection */}
-        {hasMore && !loading && (
-          <div
-            ref={sentinelRef}
-            className="col-span-full h-10"
-            aria-label="Load more products trigger"
-          />
-        )}
 
         {/* End of products state */}
         {!hasMore && products.length > 0 && (
