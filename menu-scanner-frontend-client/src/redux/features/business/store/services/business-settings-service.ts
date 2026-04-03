@@ -3,7 +3,8 @@
  * Handles API calls for business settings endpoints
  */
 
-import { axiosClientWithAuth } from "@/utils/axios";
+import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 export interface SocialMedia {
   name: string;
@@ -42,13 +43,14 @@ export interface UpdateBusinessSettingsRequest {
 const API_BASE_URL = "/api/v1/business-settings";
 
 /**
- * Fetch current business settings
- * GET /api/v1/business-settings/current
+ * Fetch current business settings (Public - No Auth Required)
+ * Uses AppDefault businessId to fetch business theme and settings
+ * GET /api/v1/business-settings/business/{businessId}
  */
 export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse> => {
   try {
-    const response = await axiosClientWithAuth.get<{ data: BusinessSettingsResponse }>(
-      `${API_BASE_URL}/current`
+    const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
+      `${API_BASE_URL}/business/${AppDefault.BUSINESS_ID}`
     );
     return response.data.data;
   } catch (error) {
@@ -58,14 +60,15 @@ export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsRe
 };
 
 /**
- * Fetch business settings by business ID
+ * Fetch business settings by business ID (Public - No Auth Required)
+ * Fetches business theme and public settings info
  * GET /api/v1/business-settings/business/{businessId}
  */
 export const fetchBusinessSettingsByBusinessId = async (
   businessId: string
 ): Promise<BusinessSettingsResponse> => {
   try {
-    const response = await axiosClientWithAuth.get<{ data: BusinessSettingsResponse }>(
+    const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
       `${API_BASE_URL}/business/${businessId}`
     );
     return response.data.data;
