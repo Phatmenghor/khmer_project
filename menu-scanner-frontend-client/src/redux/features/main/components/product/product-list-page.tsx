@@ -2,9 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  fetchPublicProducts,
-} from "@/redux/features/main/store/thunks/public-product-thunks";
+import { fetchPublicProducts } from "@/redux/features/main/store/thunks/public-product-thunks";
 import {
   clearProducts,
   setLoadedFilters,
@@ -34,13 +32,8 @@ export function ProductListPage({
   const searchParams = useSearchParams();
   const isLoadingRef = useRef(false);
 
-  const {
-    dispatch,
-    products,
-    pagination,
-    loading,
-    loadedFilters,
-  } = usePublicProductState();
+  const { dispatch, products, pagination, loading, loadedFilters } =
+    usePublicProductState();
 
   const [page, setPage] = useState(1);
 
@@ -62,7 +55,9 @@ export function ProductListPage({
 
   const currentFilters = JSON.stringify({
     search,
-    hasPromotion: lockedPromotion ? true : searchParams.get("hasPromotion") === "true",
+    hasPromotion: lockedPromotion
+      ? true
+      : searchParams.get("hasPromotion") === "true",
     categoryId,
     brandId,
     statuses,
@@ -94,7 +89,18 @@ export function ProductListPage({
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, search, lockedPromotion, searchParams, categoryId, brandId, statusParam, sortBy, minPrice, maxPrice],
+    [
+      dispatch,
+      search,
+      lockedPromotion,
+      searchParams,
+      categoryId,
+      brandId,
+      statusParam,
+      sortBy,
+      minPrice,
+      maxPrice,
+    ],
   );
 
   useEffect(() => {
@@ -128,12 +134,11 @@ export function ProductListPage({
     }
   }, [pagination.hasMore, loading.list, page, loadProducts]);
 
-
   const isInitialLoad = products.length === 0 && loading.list;
   const noSearch = lockedPromotion ? undefined : search;
 
   return (
-    <PageContainer className="pb-4 sm:pb-8">
+    <PageContainer className="py-8 max-w-8xl">
       {/* Optional hero section (e.g. promotions banner) */}
       {hero && <div className="mb-6">{hero}</div>}
 
@@ -184,7 +189,9 @@ export function ProductListPage({
                     />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">
-                    {lockedPromotion ? "All deals loaded!" : "You've seen it all!"}
+                    {lockedPromotion
+                      ? "All deals loaded!"
+                      : "You've seen it all!"}
                   </h3>
                   <p className="text-sm text-muted-foreground text-center max-w-md">
                     {lockedPromotion
@@ -213,8 +220,8 @@ export function ProductListPage({
                 {noSearch
                   ? `No results for "${noSearch}". Try different keywords.`
                   : lockedPromotion
-                  ? "Try adjusting your filters or check back later for new promotions."
-                  : "Try adjusting your filters or check back later"}
+                    ? "Try adjusting your filters or check back later for new promotions."
+                    : "Try adjusting your filters or check back later"}
               </p>
             </div>
           )}
