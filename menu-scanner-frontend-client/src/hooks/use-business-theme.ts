@@ -57,12 +57,21 @@ function hexToHsl(hex: string): string {
 /**
  * Hook to initialize business theme from settings
  * Fetches business settings on app startup and applies theme colors
+ * Skips fetching on login/auth pages since user is not authenticated
  */
 export function useBusinessTheme() {
   const dispatch = useAppDispatch();
   const businessSettings = useAppSelector(selectBusinessSettings);
 
   useEffect(() => {
+    // Skip theme initialization on login pages (unauthenticated routes)
+    if (typeof window !== "undefined" && window.location.pathname.includes("/login")) {
+      console.log("## [THEME] Skipping business theme fetch on login page");
+      // Apply default colors on login page
+      applyColors(DEFAULT_COLORS.primary, DEFAULT_COLORS.secondary, DEFAULT_COLORS.accent);
+      return;
+    }
+
     // Check if settings already loaded in Redux
     if (businessSettings) {
       applyColors(

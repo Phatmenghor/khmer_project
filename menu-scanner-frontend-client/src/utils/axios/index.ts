@@ -507,15 +507,19 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
             clearAllTokens();
           }
           if (typeof window !== "undefined") {
-            toast.error("Session expired. Please login again.");
-            // Auto-refresh page after short delay to show toast
-            setTimeout(() => {
-              window.location.href = admin ? "/admin/login" : "/login";
-              // Ensure page refresh instead of just redirect
+            // Skip toast and redirect if already on login page
+            const isOnLoginPage = window.location.pathname.includes("/login");
+            if (!isOnLoginPage) {
+              toast.error("Session expired. Please login again.");
+              // Auto-refresh page after short delay to show toast
               setTimeout(() => {
-                window.location.reload();
-              }, 500);
-            }, 1000);
+                window.location.href = admin ? "/admin/login" : "/login";
+                // Ensure page refresh instead of just redirect
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
+              }, 1000);
+            }
           }
           return Promise.reject(error);
         }
@@ -547,15 +551,19 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           isRefreshing = false;
           if (admin) clearAdminTokens(); else clearAllTokens();
           if (typeof window !== "undefined") {
-            toast.error("Session expired. Please login again.");
-            // Auto-refresh page after short delay to show toast
-            setTimeout(() => {
-              window.location.href = admin ? "/admin/login" : "/login";
-              // Ensure page refresh instead of just redirect
+            // Skip toast and redirect if already on login page
+            const isOnLoginPage = window.location.pathname.includes("/login");
+            if (!isOnLoginPage) {
+              toast.error("Session expired. Please login again.");
+              // Auto-refresh page after short delay to show toast
               setTimeout(() => {
-                window.location.reload();
-              }, 500);
-            }, 1000);
+                window.location.href = admin ? "/admin/login" : "/login";
+                // Ensure page refresh instead of just redirect
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
+              }, 1000);
+            }
           }
           return Promise.reject(error);
         }
@@ -588,15 +596,19 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           processQueue(refreshError, null);
           if (admin) clearAdminTokens(); else clearAllTokens();
           if (typeof window !== "undefined") {
-            toast.error("Session expired. Please login again.");
-            // Auto-refresh page after short delay to show toast
-            setTimeout(() => {
-              window.location.href = admin ? "/admin/login" : "/login";
-              // Ensure page refresh instead of just redirect
+            // Skip toast and redirect if already on login page
+            const isOnLoginPage = window.location.pathname.includes("/login");
+            if (!isOnLoginPage) {
+              toast.error("Session expired. Please login again.");
+              // Auto-refresh page after short delay to show toast
               setTimeout(() => {
-                window.location.reload();
-              }, 500);
-            }, 1000);
+                window.location.href = admin ? "/admin/login" : "/login";
+                // Ensure page refresh instead of just redirect
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
+              }, 1000);
+            }
           }
           return Promise.reject(refreshError);
         } finally {
