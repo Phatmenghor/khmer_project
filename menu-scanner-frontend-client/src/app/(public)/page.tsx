@@ -41,6 +41,15 @@ export default function HomePage() {
     customKey: "home",
   });
 
+  // Calculate responsive page size based on screen width
+  const getPageSize = React.useCallback(() => {
+    if (typeof window === "undefined") return 20;
+    const width = window.innerWidth;
+    if (width >= 1280) return 36; // Large desktop
+    if (width >= 768) return 20;  // Tablet
+    return 15;                     // Mobile
+  }, []);
+
   const isInitialFeaturedLoading =
     featuredProductsSection.loading &&
     featuredProducts.length === 0 &&
@@ -50,6 +59,7 @@ export default function HomePage() {
   useEffect(() => {
     const loadData = async () => {
       const promises = [];
+      const pageSize = getPageSize();
 
       if (!bannersSection.loaded && !bannersSection.loading) {
         promises.push(dispatch(fetchHomeBanners({})));
@@ -65,7 +75,7 @@ export default function HomePage() {
 
       if (!featuredProductsSection.loaded && !featuredProductsSection.loading) {
         promises.push(
-          dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize: 15 })),
+          dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize })),
         );
       }
 
@@ -78,6 +88,7 @@ export default function HomePage() {
     loadData();
   }, [
     dispatch,
+    getPageSize,
     bannersSection.loaded,
     categoriesSection.loaded,
     promotionProductsSection.loaded,
@@ -93,10 +104,12 @@ export default function HomePage() {
       featuredProducts.length > 0
     ) {
       const nextPage = featuredPagination.currentPage + 1;
-      dispatch(fetchHomeFeaturedProducts({ pageNo: nextPage, pageSize: 20 }));
+      const pageSize = getPageSize();
+      dispatch(fetchHomeFeaturedProducts({ pageNo: nextPage, pageSize }));
     }
   }, [
     dispatch,
+    getPageSize,
     featuredPagination.hasMore,
     featuredPagination.currentPage,
     featuredProductsSection.loading,

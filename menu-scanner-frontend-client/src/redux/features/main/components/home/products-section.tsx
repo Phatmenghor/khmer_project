@@ -176,14 +176,6 @@ export const ProductsSection = ({
               product={product}
             />
           ))}
-
-          {/* Skeleton loaders while fetching next page */}
-          {isPaginationLoading &&
-            Array.from({ length: skeletonCount }).map((_, index) => (
-              <ProductCardSkeleton
-                key={`skeleton-loading-${index}`}
-              />
-            ))}
         </div>
 
         {/* Loading state indicator */}
