@@ -215,10 +215,12 @@ const ProductsSectionComponent = ({
         >
           {/* Existing products */}
           {products.map((product) => (
-            <ProductCard
+            <div
               key={`featured-product-${product.id}`}
-              product={product}
-            />
+              data-product-key={`featured-product-${product.id}`}
+            >
+              <ProductCard product={product} />
+            </div>
           ))}
 
           {/* Skeleton loaders while fetching more products (YouTube style) */}
