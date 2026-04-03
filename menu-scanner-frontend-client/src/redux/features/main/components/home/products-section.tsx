@@ -1,3 +1,13 @@
+/**
+ * ProductsSection Component
+ * Features:
+ * - Infinite scroll pagination with load more functionality
+ * - Responsive grid layout (2-6 columns)
+ * - Skeleton loading placeholders
+ * - Scroll position maintenance during pagination
+ * - Empty state and error handling
+ */
+
 import React, { useRef, useEffect, useState } from "react";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
@@ -37,25 +47,31 @@ export const ProductsSection = ({
   const hasMoreRef = useRef(hasMore);
   const onLoadMoreRef = useRef(onLoadMore);
   const isPaginationLoading = loading && products.length > 0;
-  const [skeletonCount, setSkeletonCount] = useState(30);
+  const [skeletonCount, setSkeletonCount] = useState(8);
 
-  // Maintain scroll position during load more (YouTube-like)
+  // Maintain scroll position during pagination (YouTube-like UX)
   const { containerRef } = useScrollAnchor(isPaginationLoading);
 
+  /**
+   * Calculate skeleton loader count based on screen size
+   * Matches grid layout: 2 cols (mobile) to 6 cols (desktop)
+   * Showing 2 rows of skeletons while loading
+   */
   useEffect(() => {
     const updateSkeletonCount = () => {
       const width = window.innerWidth;
 
+      // Skeleton count = columns × 2 rows
       if (width < 640) {
-        setSkeletonCount(4); // 2 cols × 2 rows
+        setSkeletonCount(4); // 2 cols × 2 rows (mobile)
       } else if (width < 768) {
-        setSkeletonCount(6); // 3 cols × 2 rows
+        setSkeletonCount(6); // 3 cols × 2 rows (tablet)
       } else if (width < 1024) {
-        setSkeletonCount(8); // 4 cols × 2 rows
+        setSkeletonCount(8); // 4 cols × 2 rows (tablet)
       } else if (width < 1280) {
-        setSkeletonCount(10); // 5 cols × 2 rows
+        setSkeletonCount(10); // 5 cols × 2 rows (desktop)
       } else {
-        setSkeletonCount(12); // 6 cols × 2 rows
+        setSkeletonCount(12); // 6 cols × 2 rows (large desktop)
       }
     };
 
@@ -64,7 +80,7 @@ export const ProductsSection = ({
     return () => window.removeEventListener("resize", updateSkeletonCount);
   }, []);
 
-  // Keep refs updated
+  // Keep latest values in refs to avoid recreating observer
   useEffect(() => {
     loadingRef.current = loading;
   }, [loading]);
@@ -77,24 +93,27 @@ export const ProductsSection = ({
     onLoadMoreRef.current = onLoadMore;
   }, [onLoadMore]);
 
-  // Intersection observer - only recreate when necessary
+  /**
+   * Infinite scroll trigger - loads more products when sentinel reaches viewport
+   * Uses refs to avoid recreating observer on state changes
+   * Prevents multiple simultaneous fetch requests
+   */
   useEffect(() => {
     if (!observerRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const first = entries[0];
-        // Use refs to get latest values without recreating observer
-        // Prevent multiple simultaneous fetches with loadingRef check
-        if (
-          first.isIntersecting &&
-          hasMoreRef.current &&
-          !loadingRef.current
-        ) {
+        const [entry] = entries;
+        // Trigger load when sentinel element enters viewport
+        // Check refs for latest values without observer re-creation
+        if (entry.isIntersecting && hasMoreRef.current && !loadingRef.current) {
           onLoadMoreRef.current();
         }
       },
-      { threshold: 0.1, rootMargin: "200px" },
+      {
+        threshold: 0.1,
+        rootMargin: "200px", // Start loading 200px before element enters viewport
+      },
     );
 
     const currentObserver = observerRef.current;
@@ -110,6 +129,7 @@ export const ProductsSection = ({
     };
   }, [hasMore, loading]);
 
+  // Initial loading state - show skeleton placeholders
   if (isInitialLoading) {
     return (
       <SectionWrapper>
@@ -120,19 +140,20 @@ export const ProductsSection = ({
         />
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
           {Array.from({ length: skeletonCount }).map((_, index) => (
-            <ProductCardSkeleton key={index} />
+            <ProductCardSkeleton key={`skeleton-initial-${index}`} />
           ))}
         </div>
       </SectionWrapper>
     );
   }
 
-  // Don't show section if there's an error
+  // Error state - don't show section
   if (error) {
+    console.error("ProductsSection error:", error);
     return null;
   }
 
-  // Show empty state only if not loading and no products
+  // Empty state - no products and not loading
   if (products.length === 0 && !loading) {
     return null;
   }
@@ -146,40 +167,56 @@ export const ProductsSection = ({
       />
 
       <div ref={containerRef}>
-        {/* Product Grid */}
+        {/* Responsive Product Grid: 2 cols (mobile) to 6 cols (desktop) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+          {/* Product cards */}
           {products.map((product) => (
-            <ProductCard key={`featured-${product.id}`} product={product} />
+            <ProductCard
+              key={`featured-product-${product.id}`}
+              product={product}
+            />
           ))}
 
-          {/* Show skeleton cards while loading more - smooth inline loading (like YouTube) */}
+          {/* Skeleton loaders while fetching next page */}
           {isPaginationLoading &&
             Array.from({ length: skeletonCount }).map((_, index) => (
-              <ProductCardSkeleton key={`loading-${index}`} />
+              <ProductCardSkeleton
+                key={`skeleton-loading-${index}`}
+              />
             ))}
         </div>
 
-        {/* Loading indicator with icon */}
+        {/* Loading state indicator */}
         {isPaginationLoading && (
-          <div className="flex items-center justify-center py-6 mt-2">
+          <div className="flex items-center justify-center py-6 mt-4">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              <span className="text-sm">Loading more products...</span>
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              <span className="text-xs sm:text-sm">
+                Loading more products...
+              </span>
             </div>
           </div>
         )}
 
-        {/* Infinite scroll trigger - hidden */}
-        {hasMore && !loading && <div ref={observerRef} className="h-10" />}
+        {/* Infinite scroll sentinel - triggers load when visible */}
+        {hasMore && !loading && (
+          <div
+            ref={observerRef}
+            className="h-10"
+            aria-label="Load more products trigger"
+          />
+        )}
 
-        {/* End of products message */}
+        {/* End of products state */}
         {!hasMore && products.length > 0 && (
-          <div className="flex flex-col items-center justify-center mt-10 py-8">
-            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-              <CheckCircle2 className="h-8 w-8 text-primary" />
+          <div className="flex flex-col items-center justify-center mt-10 py-8 px-4">
+            <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
+              <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">You've seen it all!</h3>
-            <p className="text-sm text-muted-foreground text-center max-w-md">
+            <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">
+              You've seen it all!
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md">
               You've reached the end of our featured products. Check back later
               for new arrivals!
             </p>
