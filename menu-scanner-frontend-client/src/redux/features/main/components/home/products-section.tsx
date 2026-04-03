@@ -51,6 +51,8 @@ const ProductsSectionComponent = ({
 }: ProductsSectionProps) => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const prevProductCountRef = useRef(0);
   const isPaginationLoading = loading && products.length > 0;
   const [skeletonCount, setSkeletonCount] = useState(8);
 
@@ -93,12 +95,40 @@ const ProductsSectionComponent = ({
   }, []);
 
   /**
+   * Auto-scroll to newly loaded products
+   * When fetch completes, scroll to show new products for easy review
+   * Prevents immediate re-trigger of observer
+   */
+  useEffect(() => {
+    // When products increase AND loading just finished
+    if (!loading && products.length > prevProductCountRef.current && prevProductCountRef.current > 0) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        if (gridRef.current) {
+          // Get the scroll position to show new products in middle of viewport
+          const gridRect = gridRef.current.getBoundingClientRect();
+          const scrollTarget = gridRect.top + window.scrollY - 100; // 100px from top for padding
+
+          window.scrollTo({
+            top: scrollTarget,
+            behavior: "smooth",
+          });
+        }
+      }, 100);
+    }
+
+    // Update previous count after products are updated
+    prevProductCountRef.current = products.length;
+  }, [products.length, loading]);
+
+  /**
    * Smart Intersection Observer for infinite scroll
    * Features:
-   * - Triggers when sentinel reaches viewport (with 200px early trigger)
+   * - Triggers when sentinel reaches viewport
    * - Integrates with usePaginationLoadMore for debounce and duplicate prevention
    * - Automatically cleans up when hasMore is false
-   * - High threshold (0.1) to catch when element just barely enters viewport
+   * - NO early rootMargin to prevent immediate re-trigger after loading
+   * - Only triggers when user actually scrolls to sentinel
    */
   useEffect(() => {
     // Only create observer if we have more products to load
@@ -110,11 +140,11 @@ const ProductsSectionComponent = ({
       return;
     }
 
-    // Create observer with early trigger to start loading before user reaches end
+    // Create observer that triggers only when sentinel is actually visible
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        // Trigger load when sentinel becomes visible
+        // Trigger load when sentinel becomes visible in viewport
         // The handleLoadMore function internally prevents duplicate calls
         if (entry.isIntersecting) {
           handleLoadMore();
@@ -122,7 +152,7 @@ const ProductsSectionComponent = ({
       },
       {
         threshold: 0.1, // Trigger at 10% visibility
-        rootMargin: "200px", // Start loading 200px before element enters viewport
+        rootMargin: "0px", // No early trigger - wait until actually in viewport
       }
     );
 
@@ -178,7 +208,10 @@ const ProductsSectionComponent = ({
 
       <div ref={containerRef}>
         {/* Responsive Product Grid: 2 cols (mobile) to 6 cols (desktop) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+        <div
+          ref={gridRef}
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
+        >
           {/* Product cards */}
           {products.map((product) => (
             <ProductCard
@@ -200,7 +233,12 @@ const ProductsSectionComponent = ({
           </div>
         )}
 
+        {/* Spacer between products and sentinel to prevent immediate re-trigger */}
+        {/* Only show spacer when not loading to push sentinel below viewport */}
+        {hasMore && !loading && <div className="h-32 sm:h-40 md:h-48" />}
+
         {/* Infinite scroll sentinel - triggers load when visible */}
+        {/* User must scroll down to this element to load more */}
         {hasMore && !loading && (
           <div
             ref={sentinelRef}
