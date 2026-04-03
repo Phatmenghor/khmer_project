@@ -60,7 +60,7 @@ export default function HomePage() {
       }
 
       if (!promotionProductsSection.loaded && !promotionProductsSection.loading) {
-        promises.push(dispatch(fetchHomePromotionProducts({ pageSize: 20 })));
+        promises.push(dispatch(fetchHomePromotionProducts({ pageSize: 24 })));
       }
 
       if (!featuredProductsSection.loaded && !featuredProductsSection.loading) {
