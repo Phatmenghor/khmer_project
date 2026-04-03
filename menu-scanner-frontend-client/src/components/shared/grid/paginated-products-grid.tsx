@@ -13,7 +13,6 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
-import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 import { Loader2 } from "lucide-react";
 
@@ -34,26 +33,21 @@ const PaginatedProductsGridComponent = ({
   onLoadMore,
   isInitialLoading = false,
   className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4",
-  sectionKey = "product", // Default section key
+  sectionKey = "product", // Default section identifier
 }: PaginatedProductsGridProps) => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isPaginationLoading = loading && products.length > 0;
   const [paginationSkeletonCount, setPaginationSkeletonCount] = useState(6);
   const [newProductIds, setNewProductIds] = useState<Set<string>>(new Set());
 
-  // Scroll anchor using product keys
-  const { containerRef, savePositionNow } = useScrollAnchor(isPaginationLoading);
-
-  // Save position and track new products before fetch
+  // Save position and track new products before fetch - NO SCROLL ANCHOR for smooth pagination
   const handleLoadMoreWithScroll = useCallback(() => {
-    // Save current last visible product key
-    savePositionNow();
-    // Clear new product animation after previous load
+    // Just trigger fetch - no scroll restoration for smooth append
     setNewProductIds(new Set());
-    // Trigger fetch
     onLoadMore();
-  }, [onLoadMore, savePositionNow]);
+  }, [onLoadMore]);
 
   // Smart pagination with debounce
   const { handleLoadMore } = usePaginationLoadMore(
