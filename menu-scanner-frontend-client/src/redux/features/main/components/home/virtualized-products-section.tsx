@@ -48,7 +48,8 @@ interface VirtualizedProductsSectionProps {
 /**
  * Calculate grid dimensions based on screen width
  */
-function getGridDimensions(width: number) {
+function getGridDimensions(width: number = 1280) {
+  if (!width || width <= 0) width = 1280;
   if (width >= 1280) return { cols: 6, itemWidth: Math.floor(width / 6) };
   if (width >= 1024) return { cols: 5, itemWidth: Math.floor(width / 5) };
   if (width >= 768) return { cols: 4, itemWidth: Math.floor(width / 4) };
@@ -147,7 +148,8 @@ const VirtualizedProductsSectionComponent = ({
   // Render item in grid - properly typed for react-window
   const renderItem = useCallback(
     ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
-      const { cols } = getGridDimensions(window.innerWidth);
+      const width = typeof window !== "undefined" ? window.innerWidth : 1280;
+      const { cols } = getGridDimensions(width);
       const itemIndex = rowIndex * cols + columnIndex;
 
       if (itemIndex >= totalItems) {
