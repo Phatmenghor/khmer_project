@@ -10,9 +10,10 @@ public class BusinessSettingConstants {
     public static final String DEFAULT_BUSINESS_NAME = "Emenu Scanner";
 
     // Default brand colors (hex format)
-    public static final String DEFAULT_PRIMARY_COLOR = "#57823D";
-    public static final String DEFAULT_SECONDARY_COLOR = "#404040";
-    public static final String DEFAULT_ACCENT_COLOR = "#2E74D0";
+    // Primary: Green #57823D, Secondary: Golden Yellow #F4C430, Accent: Light Grey #F2F3F7
+    public static final String DEFAULT_PRIMARY_COLOR = "#57823D";    // Green - brand color
+    public static final String DEFAULT_SECONDARY_COLOR = "#F4C430";  // Golden Yellow - highlights & CTAs
+    public static final String DEFAULT_ACCENT_COLOR = "#F2F3F7";     // Light Grey - subtle backgrounds
 
     // Default tax percentage
     public static final Double DEFAULT_TAX_PERCENTAGE = 0.0;

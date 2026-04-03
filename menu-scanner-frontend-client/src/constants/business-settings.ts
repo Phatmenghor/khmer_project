@@ -8,9 +8,10 @@ export const BUSINESS_SETTINGS_DEFAULTS = {
   BUSINESS_NAME: "Emenu Scanner",
 
   // Default brand colors (hex format)
-  PRIMARY_COLOR: "#57823D",
-  SECONDARY_COLOR: "#404040",
-  ACCENT_COLOR: "#2E74D0",
+  // Primary: Green #57823D, Secondary: Golden Yellow #F4C430, Accent: Light Grey #F2F3F7
+  PRIMARY_COLOR: "#57823D",    // Green - brand color
+  SECONDARY_COLOR: "#F4C430",  // Golden Yellow - highlights & CTAs
+  ACCENT_COLOR: "#F2F3F7",     // Light Grey - subtle backgrounds
 
   // Default tax percentage
   TAX_PERCENTAGE: 0,

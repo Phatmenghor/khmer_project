@@ -553,17 +553,20 @@
     --primary-hover: 97 36% 32%;
     --primary-active: 97 36% 27%;
 
-    --secondary: 220 13% 95%;
-    --secondary-foreground: 240 5.9% 10%;
-    --secondary-hover: 220 13% 91%;
+    /* SECONDARY - Golden Yellow #F4C430 */
+    --secondary: 45 93% 56%;
+    --secondary-foreground: 0 0% 10%;
+    --secondary-hover: 45 93% 50%;
 
+    /* MUTED - Light grey */
     --muted: 220 13% 95%;
     --muted-foreground: 220 8.5% 46%;
     --muted-hover: 220 13% 91%;
 
-    --accent: 97 36% 95%;
-    --accent-foreground: 97 36% 25%;
-    --accent-hover: 97 36% 91%;
+    /* ACCENT - Light grey #F2F3F7 */
+    --accent: 220 8% 95%;
+    --accent-foreground: 97 36% 37%;
+    --accent-hover: 220 8% 90%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
