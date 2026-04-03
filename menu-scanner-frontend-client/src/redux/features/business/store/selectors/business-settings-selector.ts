@@ -11,7 +11,8 @@ export const selectBusinessLogo = (state: RootState) =>
   state.businessSettings.data?.logoBusinessUrl || null;
 
 export const selectBusinessColors = (state: RootState) => ({
-  primary: state.businessSettings.data?.primaryColor || "#57823D",
-  secondary: state.businessSettings.data?.secondaryColor || "#404040",
-  accent: state.businessSettings.data?.accentColor || "#2E74D0",
+  // Use business colors or fallback to defaults
+  primary: state.businessSettings.data?.primaryColor || "#57823D",      // Green
+  secondary: state.businessSettings.data?.secondaryColor || "#F4C430",   // Golden Yellow
+  accent: state.businessSettings.data?.accentColor || "#F2F3F7",        // Light Grey
 });

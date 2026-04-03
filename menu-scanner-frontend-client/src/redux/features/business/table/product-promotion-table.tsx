@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBusinessColors } from "@/hooks/use-business-colors";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -75,8 +76,11 @@ function ProductImagePreview({
 
 /**
  * SizesDisplay - Display product sizes in simple bordered boxes
+ * Uses secondary color (yellow) from business theme for borders
  */
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
+  const { secondary } = useBusinessColors();
+
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }
@@ -88,7 +92,7 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
           key={size.id}
           className="px-2 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
           style={{
-            border: "0.5px solid #FCD34D",
+            border: `0.5px solid ${secondary}`,
           }}
         >
           {size.name} ${size.finalPrice}
