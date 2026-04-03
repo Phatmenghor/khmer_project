@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchPublicProducts } from "@/redux/features/main/store/thunks/public-product-thunks";
 import {
@@ -8,13 +8,13 @@ import {
   setLoadedFilters,
 } from "@/redux/features/main/store/slice/public-product-slice";
 import { usePublicProductState } from "@/redux/features/main/store/state/public-product-state";
-import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { CheckCircle2, Flame } from "lucide-react";
 import { ProductFilters } from "@/redux/features/main/components/product/product-filters";
 import { PageContainer } from "@/components/shared/common/page-container";
-import { useSkeletonCount, SkeletonPresets } from "@/hooks/use-skeleton-count";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
+import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
+import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 
 interface ProductListPageProps {
   basePath?: string;
@@ -30,12 +30,9 @@ export function ProductListPage({
   scrollKey = "products",
 }: ProductListPageProps) {
   const searchParams = useSearchParams();
-  const isLoadingRef = useRef(false);
 
   const { dispatch, products, pagination, loading, loadedFilters } =
     usePublicProductState();
-
-  const [page, setPage] = useState(1);
 
   useScrollRestoration({
     enabled: true,
@@ -67,6 +64,19 @@ export function ProductListPage({
     _page: basePath,
   });
 
+  // Scroll anchor for product key-based scroll restoration (like home page)
+  const isPaginationLoading = loading.list && products.length > 0;
+  const { containerRef, savePositionNow } = useScrollAnchor(isPaginationLoading);
+
+  // Dynamic page size based on screen width (like home page)
+  const getPageSize = useCallback(() => {
+    if (typeof window === "undefined") return 20;
+    const width = window.innerWidth;
+    if (width >= 1280) return 36;
+    if (width >= 768) return 20;
+    return 15;
+  }, []);
+
   const loadProducts = useCallback(
     async (pageNo: number) => {
       const hasPromotion = lockedPromotion
@@ -76,7 +86,7 @@ export function ProductListPage({
       await dispatch(
         fetchPublicProducts({
           pageNo,
-          pageSize: 20,
+          pageSize: getPageSize(),
           ...(search && { search }),
           ...(hasPromotion && { hasPromotion: true }),
           ...(categoryId && { categoryId }),
@@ -100,9 +110,11 @@ export function ProductListPage({
       sortBy,
       minPrice,
       maxPrice,
+      getPageSize,
     ],
   );
 
+  // Initial filter load
   useEffect(() => {
     const hasProductsInStore = products.length > 0;
     const filtersMatch = loadedFilters === currentFilters;
@@ -117,28 +129,37 @@ export function ProductListPage({
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      setPage(1);
       dispatch(setLoadedFilters(currentFilters));
       loadProducts(1);
     }
   }, [currentFilters, loadedFilters, products.length, loadProducts, dispatch]);
 
+  // Save scroll position BEFORE fetch, then trigger load with debounce
+  const handleLoadMoreWithScroll = useCallback(() => {
+    savePositionNow();
+    handleLoadMore();
+  }, [savePositionNow]);
+
+  // Smart pagination with debounce (300ms) - same as home page
+  const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
+    handleLoadMoreWithScroll,
+    pagination.hasMore && !loading.list,
+    [pagination.hasMore, loading.list, handleLoadMoreWithScroll]
+  );
+
+  // Handle load more - append mode (oldData + newData)
   const handleLoadMore = useCallback(() => {
-    if (pagination.hasMore && !loading.list && !isLoadingRef.current) {
-      isLoadingRef.current = true;
-      const nextPage = page + 1;
-      setPage(nextPage);
-      loadProducts(nextPage).finally(() => {
-        isLoadingRef.current = false;
-      });
+    if (pagination.hasMore && !loading.list && products.length > 0) {
+      const nextPage = pagination.currentPage + 1;
+      loadProducts(nextPage);
     }
-  }, [pagination.hasMore, loading.list, page, loadProducts]);
+  }, [pagination.hasMore, pagination.currentPage, loading.list, products.length, loadProducts]);
 
   const isInitialLoad = products.length === 0 && loading.list;
   const noSearch = lockedPromotion ? undefined : search;
 
   return (
-    <PageContainer className="py-8 max-w-8xl">
+    <PageContainer className="pb-4 sm:pb-8">
       {/* Optional hero section (e.g. promotions banner) */}
       {hero && <div className="mb-6">{hero}</div>}
 
@@ -153,7 +174,7 @@ export function ProductListPage({
         </aside>
 
         {/* Main Product List */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0" ref={containerRef}>
           {/* Mobile Filters */}
           <div className="lg:hidden mb-4">
             <ProductFilters
@@ -163,17 +184,17 @@ export function ProductListPage({
             />
           </div>
 
-          {/* Products Grid - 6 columns per row */}
+          {/* Products Grid - follows home page pagination with scroll anchor */}
           {products.length > 0 && (
             <>
               <PaginatedProductsGrid
                 products={products}
                 loading={loading.list}
                 hasMore={pagination.hasMore}
-                onLoadMore={handleLoadMore}
+                onLoadMore={debouncedLoadMore}
                 isInitialLoading={isInitialLoad}
                 className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
-                sectionKey="products"
+                sectionKey={lockedPromotion ? "promotions" : "products"}
               />
 
               {/* End of products state */}
