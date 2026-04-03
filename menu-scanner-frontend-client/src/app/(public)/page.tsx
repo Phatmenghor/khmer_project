@@ -27,7 +27,7 @@ import { useHomeState } from "@/redux/features/main/store/state/home-state";
 import { BannerSection } from "@/redux/features/main/components/home/banner-section";
 import { CategoriesSection } from "@/redux/features/main/components/home/categories-section";
 import { PromotionsSection } from "@/redux/features/main/components/home/promotions-section";
-import { VirtualizedProductsSection } from "@/redux/features/main/components/home/virtualized-products-section";
+import { ProductsSection } from "@/redux/features/main/components/home/products-section";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 
@@ -179,10 +179,10 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      {/* Featured Products Section - Virtualized for Performance */}
+      {/* Featured Products Section */}
       <div className="relative py-6 sm:py-10">
         <PageContainer>
-          <VirtualizedProductsSection
+          <ProductsSection
             products={featuredProducts}
             loading={featuredProductsSection.loading}
             error={featuredProductsSection.error}
