@@ -20,7 +20,7 @@
  */
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { FixedSizeGrid as Grid } from "react-window";
+import { FixedSizeGrid } from "react-window";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
@@ -191,7 +191,7 @@ const VirtualizedProductsSectionComponent = ({
           const gridHeight = Math.min(rows * itemHeight, window.innerHeight * 2);
 
           return (
-            <Grid
+            <FixedSizeGrid
               columnCount={cols}
               columnSize={windowWidth / cols}
               height={gridHeight}
@@ -200,7 +200,7 @@ const VirtualizedProductsSectionComponent = ({
               width={windowWidth}
             >
               {renderItem}
-            </Grid>
+            </FixedSizeGrid>
           );
         })()}
 
