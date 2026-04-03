@@ -508,7 +508,14 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           }
           if (typeof window !== "undefined") {
             toast.error("Session expired. Please login again.");
-            window.location.href = admin ? "/admin/login" : "/login";
+            // Auto-refresh page after short delay to show toast
+            setTimeout(() => {
+              window.location.href = admin ? "/admin/login" : "/login";
+              // Ensure page refresh instead of just redirect
+              setTimeout(() => {
+                window.location.reload();
+              }, 500);
+            }, 1000);
           }
           return Promise.reject(error);
         }
@@ -541,7 +548,14 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           if (admin) clearAdminTokens(); else clearAllTokens();
           if (typeof window !== "undefined") {
             toast.error("Session expired. Please login again.");
-            window.location.href = admin ? "/admin/login" : "/login";
+            // Auto-refresh page after short delay to show toast
+            setTimeout(() => {
+              window.location.href = admin ? "/admin/login" : "/login";
+              // Ensure page refresh instead of just redirect
+              setTimeout(() => {
+                window.location.reload();
+              }, 500);
+            }, 1000);
           }
           return Promise.reject(error);
         }
@@ -575,7 +589,14 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           if (admin) clearAdminTokens(); else clearAllTokens();
           if (typeof window !== "undefined") {
             toast.error("Session expired. Please login again.");
-            window.location.href = admin ? "/admin/login" : "/login";
+            // Auto-refresh page after short delay to show toast
+            setTimeout(() => {
+              window.location.href = admin ? "/admin/login" : "/login";
+              // Ensure page refresh instead of just redirect
+              setTimeout(() => {
+                window.location.reload();
+              }, 500);
+            }, 1000);
           }
           return Promise.reject(refreshError);
         } finally {
