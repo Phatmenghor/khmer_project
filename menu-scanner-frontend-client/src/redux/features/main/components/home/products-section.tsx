@@ -95,9 +95,9 @@ const ProductsSectionComponent = ({
   }, []);
 
   /**
-   * Auto-scroll to newly loaded products
-   * When fetch completes, scroll to show new products for easy review
-   * Prevents immediate re-trigger of observer
+   * Smart scroll to show newly loaded products
+   * Scrolls to the first newly loaded product for easy review
+   * Keeps previous products visible while new ones load
    */
   useEffect(() => {
     // When products increase AND loading just finished
@@ -105,14 +105,29 @@ const ProductsSectionComponent = ({
       // Small delay to ensure DOM is updated
       setTimeout(() => {
         if (gridRef.current) {
-          // Get the scroll position to show new products in middle of viewport
-          const gridRect = gridRef.current.getBoundingClientRect();
-          const scrollTarget = gridRect.top + window.scrollY - 100; // 100px from top for padding
+          // Calculate the number of columns based on screen width
+          const width = window.innerWidth;
+          let cols = 2; // mobile default
+          if (width >= 1280) cols = 6;
+          else if (width >= 1024) cols = 5;
+          else if (width < 640) cols = 2;
+          else if (width < 768) cols = 3;
+          else if (width < 1024) cols = 4;
 
-          window.scrollTo({
-            top: scrollTarget,
-            behavior: "smooth",
-          });
+          // Find the first newly loaded product element
+          const productElements = gridRef.current.querySelectorAll('[data-product-item]');
+          const firstNewProductIndex = prevProductCountRef.current;
+
+          if (productElements[firstNewProductIndex]) {
+            const firstNewProduct = productElements[firstNewProductIndex] as HTMLElement;
+            // Scroll to first new product with padding
+            const scrollTarget = firstNewProduct.offsetTop + gridRef.current.offsetTop - 80;
+
+            window.scrollTo({
+              top: scrollTarget,
+              behavior: "smooth",
+            });
+          }
         }
       }, 100);
     }
@@ -212,18 +227,17 @@ const ProductsSectionComponent = ({
           ref={gridRef}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
         >
-          {/* Product cards */}
+          {/* Product cards - mark each with data attribute for scroll tracking */}
           {products.map((product) => (
-            <ProductCard
-              key={`featured-product-${product.id}`}
-              product={product}
-            />
+            <div key={`featured-product-${product.id}`} data-product-item>
+              <ProductCard product={product} />
+            </div>
           ))}
         </div>
 
-        {/* Loading state indicator */}
+        {/* Loading state indicator - shows while fetching more products */}
         {isPaginationLoading && (
-          <div className="flex items-center justify-center py-6 mt-4">
+          <div className="col-span-full flex items-center justify-center py-8 mt-2">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
               <span className="text-xs sm:text-sm">
@@ -233,16 +247,16 @@ const ProductsSectionComponent = ({
           </div>
         )}
 
-        {/* Spacer between products and sentinel to prevent immediate re-trigger */}
-        {/* Only show spacer when not loading to push sentinel below viewport */}
-        {hasMore && !loading && <div className="h-32 sm:h-40 md:h-48" />}
+        {/* Spacer to prevent sentinel from immediately re-triggering */}
+        {/* Smaller spacer - just enough to push sentinel below viewport */}
+        {hasMore && !loading && <div className="col-span-full h-24 sm:h-32" />}
 
-        {/* Infinite scroll sentinel - triggers load when visible */}
-        {/* User must scroll down to this element to load more */}
+        {/* Infinite scroll sentinel - triggers when user scrolls to it */}
+        {/* Invisible trigger element for infinite scroll detection */}
         {hasMore && !loading && (
           <div
             ref={sentinelRef}
-            className="h-10"
+            className="col-span-full h-10"
             aria-label="Load more products trigger"
           />
         )}
