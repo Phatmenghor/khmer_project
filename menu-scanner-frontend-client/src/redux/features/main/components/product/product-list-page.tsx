@@ -115,6 +115,27 @@ export function ProductListPage({
     ],
   );
 
+  // Handle load more - append mode (oldData + newData)
+  const handleLoadMore = useCallback(() => {
+    if (pagination.hasMore && !loading.list && products.length > 0) {
+      const nextPage = pagination.currentPage + 1;
+      loadProducts(nextPage);
+    }
+  }, [pagination.hasMore, pagination.currentPage, loading.list, products.length, loadProducts]);
+
+  // Save scroll position BEFORE fetch, then trigger load with debounce
+  const handleLoadMoreWithScroll = useCallback(() => {
+    savePositionNow();
+    handleLoadMore();
+  }, [savePositionNow, handleLoadMore]);
+
+  // Smart pagination with debounce (300ms) - same as home page
+  const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
+    handleLoadMoreWithScroll,
+    pagination.hasMore && !loading.list,
+    [pagination.hasMore, loading.list, handleLoadMoreWithScroll]
+  );
+
   // Initial filter load
   useEffect(() => {
     const hasProductsInStore = products.length > 0;
@@ -134,27 +155,6 @@ export function ProductListPage({
       loadProducts(1);
     }
   }, [currentFilters, loadedFilters, products.length, loadProducts, dispatch]);
-
-  // Save scroll position BEFORE fetch, then trigger load with debounce
-  const handleLoadMoreWithScroll = useCallback(() => {
-    savePositionNow();
-    handleLoadMore();
-  }, [savePositionNow]);
-
-  // Smart pagination with debounce (300ms) - same as home page
-  const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
-    handleLoadMoreWithScroll,
-    pagination.hasMore && !loading.list,
-    [pagination.hasMore, loading.list, handleLoadMoreWithScroll]
-  );
-
-  // Handle load more - append mode (oldData + newData)
-  const handleLoadMore = useCallback(() => {
-    if (pagination.hasMore && !loading.list && products.length > 0) {
-      const nextPage = pagination.currentPage + 1;
-      loadProducts(nextPage);
-    }
-  }, [pagination.hasMore, pagination.currentPage, loading.list, products.length, loadProducts]);
 
   const isInitialLoad = products.length === 0 && loading.list;
   const noSearch = lockedPromotion ? undefined : search;
