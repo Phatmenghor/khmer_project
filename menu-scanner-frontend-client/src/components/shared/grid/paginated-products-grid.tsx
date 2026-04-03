@@ -163,6 +163,16 @@ const PaginatedProductsGridComponent = ({
             </div>
           ))}
 
+        {/* Loading spinner in grid space - show until last page */}
+        {isPaginationLoading && (
+          <div className="col-span-full flex flex-col items-center justify-center py-8 animate-fade-in-up">
+            <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Loading more products...
+            </p>
+          </div>
+        )}
+
         {/* Sentinel element for scroll detection */}
         {hasMore && !loading && (
           <div
@@ -172,14 +182,6 @@ const PaginatedProductsGridComponent = ({
           />
         )}
       </div>
-
-      {/* Loading indicator at bottom when fetching more products */}
-      {isPaginationLoading && (
-        <div className="flex flex-col items-center justify-center mt-8 py-6 animate-fade-in-up">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
-          <p className="text-sm text-muted-foreground">Loading more products...</p>
-        </div>
-      )}
     </div>
   );
 };
