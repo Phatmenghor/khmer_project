@@ -22,7 +22,7 @@ import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { fetchAllCategoriesService } from "@/redux/features/master-data/store/thunks/categories-thunks";
+import { fetchPublicCategories } from "@/redux/features/main/store/thunks/public-categories-thunks";
 
 interface ComboboxSelectCategoriesPublicProps {
   selectedCategory: string;
@@ -93,7 +93,7 @@ export function ComboboxSelectCategoriesPublic({
 
     try {
       const result = await dispatch(
-        fetchAllCategoriesService({
+        fetchPublicCategories({
           search,
           pageNo: newPage,
           pageSize: 15,

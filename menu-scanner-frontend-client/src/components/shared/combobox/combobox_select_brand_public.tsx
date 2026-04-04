@@ -22,7 +22,7 @@ import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
-import { fetchAllBrandService } from "@/redux/features/master-data/store/thunks/brand-thunks";
+import { fetchPublicBrands } from "@/redux/features/main/store/thunks/public-brands-thunks";
 
 interface ComboboxSelectBrandPublicProps {
   selectedBrand: string;
@@ -93,7 +93,7 @@ export function ComboboxSelectBrandPublic({
 
     try {
       const result = await dispatch(
-        fetchAllBrandService({
+        fetchPublicBrands({
           search,
           pageNo: newPage,
           pageSize: 15,
