@@ -38,16 +38,58 @@ const PaginatedProductsGridComponent = ({
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastVisibleProductKeyRef = useRef<string | null>(null);
   const isPaginationLoading = loading && products.length > 0;
   const [paginationSkeletonCount, setPaginationSkeletonCount] = useState(6);
   const [newProductIds, setNewProductIds] = useState<Set<string>>(new Set());
 
-  // Save position and track new products before fetch - NO SCROLL ANCHOR for smooth pagination
+  // Save last visible product key before fetch
+  const saveLastVisibleProduct = useCallback(() => {
+    if (!containerRef.current) return;
+
+    const productCards = containerRef.current.querySelectorAll('[data-product-key]');
+    let lastVisibleKey: string | null = null;
+
+    productCards.forEach((card) => {
+      const rect = (card as HTMLElement).getBoundingClientRect();
+      if (rect.bottom > 0 && rect.top < window.innerHeight) {
+        lastVisibleKey = card.getAttribute('data-product-key');
+      }
+    });
+
+    if (lastVisibleKey) {
+      lastVisibleProductKeyRef.current = lastVisibleKey;
+    }
+  }, []);
+
+  // Scroll to product at 80% viewport height
+  const scrollToProductAt80Percent = useCallback(() => {
+    if (!lastVisibleProductKeyRef.current || !containerRef.current) return;
+
+    const targetElement = containerRef.current.querySelector(
+      `[data-product-key="${lastVisibleProductKeyRef.current}"]`
+    ) as HTMLElement;
+
+    if (targetElement) {
+      const viewportHeight = window.innerHeight;
+      const targetPosition = viewportHeight * 0.8;
+      const elementTop = targetElement.getBoundingClientRect().top + window.scrollY;
+      const scrollPosition = elementTop - targetPosition;
+
+      window.scrollTo({
+        top: scrollPosition,
+        behavior: "smooth"
+      });
+    }
+  }, []);
+
+  // Save position and track new products before fetch
   const handleLoadMoreWithScroll = useCallback(() => {
-    // Just trigger fetch - no scroll restoration for smooth append
+    // Save last visible product before fetch
+    saveLastVisibleProduct();
     setNewProductIds(new Set());
     onLoadMore();
-  }, [onLoadMore]);
+  }, [onLoadMore, saveLastVisibleProduct]);
 
   // Smart pagination with debounce
   const { handleLoadMore } = usePaginationLoadMore(
@@ -73,7 +115,7 @@ const PaginatedProductsGridComponent = ({
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
 
-  // Track new products for animation and scroll to them
+  // Track new products and scroll to saved product at 80% height
   useEffect(() => {
     if (!isPaginationLoading && products.length > 0) {
       const newIds = new Set(
@@ -81,23 +123,14 @@ const PaginatedProductsGridComponent = ({
       );
       setNewProductIds(newIds);
 
-      // Smooth scroll to show new products that just loaded
-      if (newIds.size > 0 && containerRef.current) {
+      // Scroll to keep saved product at 80% viewport height
+      if (lastVisibleProductKeyRef.current) {
         setTimeout(() => {
-          const firstNewProduct = containerRef.current?.querySelector(
-            `[data-product-key="product-${Array.from(newIds)[0]}"]`
-          ) as HTMLElement;
-
-          if (firstNewProduct) {
-            firstNewProduct.scrollIntoView({
-              behavior: "smooth",
-              block: "nearest"
-            });
-          }
+          scrollToProductAt80Percent();
         }, 100);
       }
     }
-  }, [isPaginationLoading, products, paginationSkeletonCount]);
+  }, [isPaginationLoading, products, paginationSkeletonCount, scrollToProductAt80Percent]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
