@@ -193,7 +193,7 @@ export default function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Profile Header */}
         <Card className="mb-4">
           <CardContent className="p-4 sm:p-6">
@@ -400,9 +400,7 @@ export default function UserProfilePage() {
                 <Link2 className="h-4 w-4" />
                 Connected Accounts
               </h3>
-              <TelegramSyncCard
-                socialSync={socialSync}
-              />
+              <TelegramSyncCard socialSync={socialSync} />
             </div>
 
             {/* Change Password */}
