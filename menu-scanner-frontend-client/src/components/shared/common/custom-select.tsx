@@ -96,7 +96,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             role="combobox"
             disabled={disabled}
             className={cn(
-              "w-full justify-between gap-2 transition-colors",
+              "w-full justify-between gap-2 transition-colors bg-primary/10 border-primary text-primary",
               sizeConfig.button,
               className,
               disabled && "opacity-50 cursor-not-allowed"
@@ -108,14 +108,14 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             <span
               className={cn(
                 "truncate",
-                selectedOption ? "text-foreground" : "text-muted-foreground"
+                "text-primary"
               )}
             >
               {selectedOption?.label || placeholder}
             </span>
             <ChevronDown
               className={cn(
-                `${sizeConfig.icon} opacity-50 shrink-0 transition-transform duration-200`,
+                `${sizeConfig.icon} shrink-0 transition-transform duration-200`,
                 open && "rotate-180"
               )}
             />
