@@ -162,11 +162,18 @@ export function ComboboxSelectUser({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-[150px]",
+              "w-full justify-between min-w-[150px] transition-all duration-200 border-input",
               sizeClasses[size],
               !dataSelect && "text-muted-foreground",
-              disabled && "opacity-50 cursor-not-allowed",
-              error && "border-red-500"
+              // Hover state
+              "hover:bg-primary/10 hover:border-primary hover:text-primary",
+              // Focus state
+              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+              // Active/Open state
+              open && "bg-primary/20 border-primary text-primary",
+              // Error state
+              error && "border-red-500",
+              disabled && "opacity-50 cursor-not-allowed"
             )}
             disabled={disabled}
           >
