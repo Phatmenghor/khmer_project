@@ -159,7 +159,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                   className={cn(
                     "w-full flex items-center gap-2 text-left transition-colors",
                     sizeConfig.item,
-                    "hover:bg-primary/20 hover:text-primary",
+                    "hover:bg-primary/10 hover:text-primary",
                     value === option.value
                       ? "bg-primary/20 text-primary font-medium"
                       : "text-foreground",
