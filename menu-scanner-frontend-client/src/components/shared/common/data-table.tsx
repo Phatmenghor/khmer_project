@@ -231,7 +231,7 @@ export function DataTableWithPagination<T = any>({
               tableData.map((item, index) => (
                 <tr
                   key={getRowKey(item, index)}
-                  className={`text-sm transition-all duration-200 hover:bg-muted/30 ${
+                  className={`text-sm transition-all duration-200 hover:bg-primary/10 ${
                     onRowClick ? "cursor-pointer" : ""
                   }`}
                   onClick={() => onRowClick?.(item)}
@@ -304,7 +304,7 @@ export function DataTableWithPagination<T = any>({
                 ${
                   currentPage === 1
                     ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
-                    : "text-foreground border-border hover:bg-muted hover:border-border-strong"
+                    : "text-foreground border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
                 }
               `}
               >
@@ -336,7 +336,7 @@ export function DataTableWithPagination<T = any>({
                       ${
                         currentPage === item
                           ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-foreground border border-border hover:bg-muted hover:border-border-strong"
+                          : "text-foreground border border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
                       }
                     `}
                     >
@@ -358,7 +358,7 @@ export function DataTableWithPagination<T = any>({
                 ${
                   currentPage === totalPages
                     ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
-                    : "text-foreground border-border hover:bg-muted hover:border-border-strong"
+                    : "text-foreground border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
                 }
               `}
               >
