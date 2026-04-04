@@ -51,12 +51,6 @@ export function ProductFilters({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const {
-    categories,
-    loaded: categoriesLoaded,
-    fetchCategories,
-  } = usePublicCategoriesState();
-  const { brands, loaded: brandsLoaded, fetchBrands } = usePublicBrandsState();
 
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
@@ -65,13 +59,6 @@ export function ProductFilters({
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
 
-  useEffect(() => {
-    if (!categoriesLoaded) fetchCategories({ status: "ACTIVE" });
-  }, [categoriesLoaded, fetchCategories]);
-
-  useEffect(() => {
-    if (!brandsLoaded) fetchBrands({ status: "ACTIVE" });
-  }, [brandsLoaded, fetchBrands]);
 
   // Sync from URL
   useEffect(() => {
@@ -142,11 +129,6 @@ export function ProductFilters({
     router.push(basePath);
   }, [router, basePath]);
 
-  const selectedCategoryName = categories.find(
-    (c) => c.id === selectedCategory,
-  )?.name;
-  const selectedBrandName = brands.find((b) => b.id === selectedBrand)?.name;
-
   const urlMinPrice = searchParams.get("minPrice") || "";
   const urlMaxPrice = searchParams.get("maxPrice") || "";
   const hasPriceFilter = !!(urlMinPrice || urlMaxPrice);
@@ -212,14 +194,13 @@ export function ProductFilters({
       )}
 
       {/* Category - Combobox */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-500/10">
             <Package className="h-3.5 w-3.5 text-blue-500" />
           </div>
         </div>
         <ComboboxSelectCategoriesPublic
-          categories={categories}
           selectedCategory={selectedCategory}
           onChangeSelected={(categoryId) =>
             updateFilter("categoryId", categoryId)
@@ -233,14 +214,13 @@ export function ProductFilters({
       <Separator />
 
       {/* Brand - Combobox */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-500/10">
             <Tag className="h-3.5 w-3.5 text-purple-500" />
           </div>
         </div>
         <ComboboxSelectBrandPublic
-          brands={brands}
           selectedBrand={selectedBrand}
           onChangeSelected={(brandId) => updateFilter("brandId", brandId)}
           label="Brand"
