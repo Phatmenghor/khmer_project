@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { fetchPublicProducts } from "@/redux/features/main/store/thunks/public-product-thunks";
 import {
   clearProducts,
@@ -10,12 +11,19 @@ import {
 import { usePublicProductState } from "@/redux/features/main/store/state/public-product-state";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { CheckCircle2, Flame } from "lucide-react";
-import { ProductFilters } from "@/redux/features/main/components/product/product-filters";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
 import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
+
+// Dynamically import ProductFilters to avoid SSR hydration mismatch
+const ProductFilters = dynamic(
+  () => import("@/redux/features/main/components/product/product-filters").then(
+    (mod) => ({ default: mod.ProductFilters })
+  ),
+  { ssr: false, loading: () => <div className="w-72 h-96 bg-muted animate-pulse rounded-lg" /> }
+);
 
 interface ProductListPageProps {
   basePath?: string;
@@ -30,7 +38,12 @@ export function ProductListPage({
   hero,
   scrollKey = "products",
 }: ProductListPageProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const { dispatch, products, pagination, loading, loadedFilters } =
     usePublicProductState();
