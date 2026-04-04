@@ -231,7 +231,7 @@ export function DataTableWithPagination<T = any>({
               tableData.map((item, index) => (
                 <tr
                   key={getRowKey(item, index)}
-                  className={`text-sm transition-all duration-200 hover:bg-primary/10 ${
+                  className={`text-sm transition-all duration-200 hover:bg-primary/5 ${
                     onRowClick ? "cursor-pointer" : ""
                   }`}
                   onClick={() => onRowClick?.(item)}
