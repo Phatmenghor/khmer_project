@@ -5,6 +5,7 @@ import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thun
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { BusinessSettingsResponse } from "@/redux/features/business/store/services/business-settings-service";
 import { getCachedThemeColors, cacheThemeColors, hasThemeChanged } from "@/utils/common/theme-cache";
+import { AppDefault } from "@/constants/app-resource/default/default";
 
 // Default brand colors from tailwind config
 const DEFAULT_COLORS = {
@@ -65,24 +66,21 @@ export function useBusinessTheme() {
   const businessSettings = useAppSelector(selectBusinessSettings);
 
   useEffect(() => {
-    // On login pages, try to use cached business theme if available
+    // On login pages, use default business theme from AppDefault
     if (typeof window !== "undefined" && window.location.pathname.includes("/login")) {
-      console.log("## [THEME] On login page, checking for cached business theme");
+      console.log("## [THEME] On login page, loading default business theme");
 
-      // Try to get businessId from localStorage (last accessed business)
-      const businessId = localStorage.getItem("businessId");
-      if (businessId) {
-        const cachedColors = getCachedThemeColors(businessId);
-        if (cachedColors) {
-          console.log(`## [THEME] Applying cached colors for business ${businessId} on login page`);
-          applyColors(cachedColors.primaryColor, cachedColors.secondaryColor, cachedColors.accentColor);
-          return;
-        }
+      // Use default business ID
+      const defaultBusinessId = AppDefault.BUSINESS_ID;
+      const cachedColors = getCachedThemeColors(defaultBusinessId);
+
+      if (cachedColors) {
+        console.log(`## [THEME] Applying cached colors for default business ${defaultBusinessId} on login page`);
+        applyColors(cachedColors.primaryColor, cachedColors.secondaryColor, cachedColors.accentColor);
+      } else {
+        console.log("## [THEME] No cached theme for default business, using defaults");
+        applyColors(DEFAULT_COLORS.primary, DEFAULT_COLORS.secondary, DEFAULT_COLORS.accent);
       }
-
-      // If no cache found, use default colors
-      console.log("## [THEME] No cached theme found on login page, using defaults");
-      applyColors(DEFAULT_COLORS.primary, DEFAULT_COLORS.secondary, DEFAULT_COLORS.accent);
       return;
     }
 
