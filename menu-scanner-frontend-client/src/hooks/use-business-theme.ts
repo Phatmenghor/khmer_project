@@ -4,6 +4,7 @@ import { selectBusinessSettings } from "@/redux/features/business/store/selector
 import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thunks/business-settings-thunks";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { BusinessSettingsResponse } from "@/redux/features/business/store/services/business-settings-service";
+import { getCachedThemeColors, cacheThemeColors, hasThemeChanged } from "@/utils/common/theme-cache";
 
 // Default brand colors from tailwind config
 const DEFAULT_COLORS = {
@@ -74,11 +75,35 @@ export function useBusinessTheme() {
 
     // Check if settings already loaded in Redux
     if (businessSettings) {
-      applyColors(
-        businessSettings.primaryColor,
-        businessSettings.secondaryColor,
-        businessSettings.accentColor
-      );
+      // Store business ID in localStorage for ThemeInitializer
+      localStorage.setItem("businessId", businessSettings.businessId);
+
+      // Try to load from cache first (instant colors)
+      const cachedColors = getCachedThemeColors(businessSettings.businessId);
+      if (cachedColors) {
+        console.log(
+          `## [THEME] Applying cached colors for business ${businessSettings.businessId}`
+        );
+        applyColors(cachedColors.primaryColor, cachedColors.secondaryColor, cachedColors.accentColor);
+      } else {
+        // Apply from redux if no cache
+        applyColors(
+          businessSettings.primaryColor,
+          businessSettings.secondaryColor,
+          businessSettings.accentColor
+        );
+      }
+
+      // Update cache with current settings
+      const currentColors = {
+        primaryColor: businessSettings.primaryColor || "",
+        secondaryColor: businessSettings.secondaryColor || "",
+        accentColor: businessSettings.accentColor || "",
+      };
+      if (hasThemeChanged(cachedColors, currentColors)) {
+        cacheThemeColors(businessSettings.businessId, currentColors);
+      }
+
       return;
     }
 
@@ -87,6 +112,20 @@ export function useBusinessTheme() {
       // Check if action was fulfilled and has payload
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const payload = action.payload as BusinessSettingsResponse;
+
+        // Store business ID
+        localStorage.setItem("businessId", payload.businessId);
+
+        // Cache the colors
+        const colors = {
+          primaryColor: payload.primaryColor || "",
+          secondaryColor: payload.secondaryColor || "",
+          accentColor: payload.accentColor || "",
+        };
+        cacheThemeColors(payload.businessId, colors);
+        console.log(`## [THEME] Cached colors for business ${payload.businessId}`);
+
+        // Apply colors
         applyColors(payload.primaryColor, payload.secondaryColor, payload.accentColor);
         console.log("## [THEME] Business theme loaded and applied successfully");
       } else {
