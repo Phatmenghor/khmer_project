@@ -99,7 +99,7 @@ const PaginatedProductsGridComponent = ({
           handleLoadMore();
         }
       },
-      { threshold: 0.1, rootMargin: "0px" }
+      { threshold: 0.1, rootMargin: "200px" }
     );
 
     observerRef.current = observer;

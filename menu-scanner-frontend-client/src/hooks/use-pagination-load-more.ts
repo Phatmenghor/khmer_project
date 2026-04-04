@@ -2,7 +2,7 @@
 
 import { useRef, useCallback, useEffect } from "react";
 
-const DEBOUNCE_DELAY = 300; // Prevent rapid successive loads
+const DEBOUNCE_DELAY = 100; // Faster response - prevent rapid successive loads
 
 /**
  * Custom hook for smart pagination with debounce and duplicate prevention
