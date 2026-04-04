@@ -60,8 +60,10 @@ export function NumberField<T extends FieldValues>({
             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
             value={field.value || ""}
             autoComplete="off"
-            className={`transition-colors ${disabled ? "bg-muted/50" : ""} ${
-              error ? "border-red-500 focus:border-red-500" : ""
+            className={`transition-all duration-200 ${disabled ? "bg-muted/50" : ""} ${
+              error
+                ? "border-red-500 focus:border-red-500"
+                : "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/30"
             }`}
           />
         )}
