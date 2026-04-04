@@ -10,8 +10,6 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 // Default brand colors from tailwind config
 const DEFAULT_COLORS = {
   primary: BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
-  secondary: BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
-  accent: BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
 };
 
 /**
@@ -76,10 +74,10 @@ export function useBusinessTheme() {
 
       if (cachedColors) {
         console.log(`## [THEME] Applying cached colors for default business ${defaultBusinessId} on login page`);
-        applyColors(cachedColors.primaryColor, cachedColors.secondaryColor, cachedColors.accentColor);
+        applyColors(cachedColors.primaryColor);
       } else {
         console.log("## [THEME] No cached theme for default business, using defaults");
-        applyColors(DEFAULT_COLORS.primary, DEFAULT_COLORS.secondary, DEFAULT_COLORS.accent);
+        applyColors(DEFAULT_COLORS.primary);
       }
       return;
     }
@@ -95,21 +93,15 @@ export function useBusinessTheme() {
         console.log(
           `## [THEME] Applying cached colors for business ${businessSettings.businessId}`
         );
-        applyColors(cachedColors.primaryColor, cachedColors.secondaryColor, cachedColors.accentColor);
+        applyColors(cachedColors.primaryColor);
       } else {
         // Apply from redux if no cache
-        applyColors(
-          businessSettings.primaryColor,
-          businessSettings.secondaryColor,
-          businessSettings.accentColor
-        );
+        applyColors(businessSettings.primaryColor);
       }
 
       // Update cache with current settings
       const currentColors = {
         primaryColor: businessSettings.primaryColor || "",
-        secondaryColor: businessSettings.secondaryColor || "",
-        accentColor: businessSettings.accentColor || "",
       };
       if (hasThemeChanged(cachedColors, currentColors)) {
         cacheThemeColors(businessSettings.businessId, currentColors);
@@ -130,32 +122,28 @@ export function useBusinessTheme() {
         // Cache the colors
         const colors = {
           primaryColor: payload.primaryColor || "",
-          secondaryColor: payload.secondaryColor || "",
-          accentColor: payload.accentColor || "",
         };
         cacheThemeColors(payload.businessId, colors);
         console.log(`## [THEME] Cached colors for business ${payload.businessId}`);
 
         // Apply colors
-        applyColors(payload.primaryColor, payload.secondaryColor, payload.accentColor);
+        applyColors(payload.primaryColor);
         console.log("## [THEME] Business theme loaded and applied successfully");
       } else {
         console.error("## [THEME] Failed to load business theme, using defaults");
-        applyColors(DEFAULT_COLORS.primary, DEFAULT_COLORS.secondary, DEFAULT_COLORS.accent);
+        applyColors(DEFAULT_COLORS.primary);
       }
     });
   }, [dispatch, businessSettings]);
 }
 
 /**
- * Helper function to apply colors to CSS variables
+ * Helper function to apply primary color to CSS variables
  */
-function applyColors(primaryColor?: string, secondaryColor?: string, accentColor?: string) {
+function applyColors(primaryColor?: string) {
   const primary = primaryColor || DEFAULT_COLORS.primary;
-  const secondary = secondaryColor || DEFAULT_COLORS.secondary;
-  const accent = accentColor || DEFAULT_COLORS.accent;
 
-  document.documentElement.style.setProperty("--primary", hexToHsl(primary));
-  document.documentElement.style.setProperty("--secondary", hexToHsl(secondary));
-  document.documentElement.style.setProperty("--accent", hexToHsl(accent));
+  if (primary) {
+    document.documentElement.style.setProperty("--primary", hexToHsl(primary));
+  }
 }
