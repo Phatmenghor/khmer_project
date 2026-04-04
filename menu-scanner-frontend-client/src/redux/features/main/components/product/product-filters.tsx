@@ -17,25 +17,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
   X,
   SlidersHorizontal,
   Tag,
   Package,
-  Check,
-  ChevronsUpDown,
   Flame,
   ListChecks,
   FilterX,
@@ -44,6 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { usePublicCategoriesState } from "@/redux/features/main/store/state/public-categories-state";
 import { usePublicBrandsState } from "@/redux/features/main/store/state/public-brands-state";
+import { CustomSelect } from "@/components/shared/common/custom-select";
 
 const PRODUCT_STATUSES = [
   { value: "ACTIVE", label: "Active" },
@@ -70,9 +56,6 @@ export function ProductFilters({
     fetchCategories,
   } = usePublicCategoriesState();
   const { brands, loaded: brandsLoaded, fetchBrands } = usePublicBrandsState();
-
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [brandOpen, setBrandOpen] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
@@ -174,10 +157,20 @@ export function ProductFilters({
     (!lockedPromotion && hasPromotion ? 1 : 0) +
     (hasPriceFilter ? 1 : 0);
 
+  // Prepare category options
+  const categoryOptions = [
+    { value: "", label: "All Categories" },
+    ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
+  ];
+
+  // Prepare brand options
+  const brandOptions = [
+    { value: "", label: "All Brands" },
+    ...brands.map((brand) => ({ value: brand.id, label: brand.name })),
+  ];
+
   const FilterContent = () => (
     <div className="space-y-5">
-      {/* Active Filter Chips */}
-
       {/* Promotion - top, hidden when locked */}
       {!lockedPromotion && (
         <>
@@ -228,7 +221,7 @@ export function ProductFilters({
         </>
       )}
 
-      {/* Category - Combobox */}
+      {/* Category - Custom Select */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-500/10">
@@ -236,77 +229,18 @@ export function ProductFilters({
           </div>
           <label className="text-sm font-semibold">Category</label>
         </div>
-        <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={categoryOpen}
-              className="w-full justify-between font-normal bg-primary/10 border-primary text-primary hover:bg-primary/10 hover:border-primary hover:text-primary"
-            >
-              <span className="truncate text-sm font-medium">
-                {selectedCategoryName || "All Categories"}
-              </span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-[--radix-popover-trigger-width] p-0"
-            align="start"
-          >
-            <Command>
-              <CommandInput placeholder="Search category..." />
-              <CommandList>
-                <CommandEmpty>No categories found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandItem
-                    value="__all__"
-                    onSelect={() => {
-                      updateFilter("categoryId", "");
-                      setCategoryOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        !selectedCategory ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                    All Categories
-                  </CommandItem>
-                  {categories.map((cat) => (
-                    <CommandItem
-                      key={cat.id}
-                      value={cat.name}
-                      onSelect={() => {
-                        updateFilter(
-                          "categoryId",
-                          cat.id === selectedCategory ? "" : cat.id,
-                        );
-                        setCategoryOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedCategory === cat.id
-                            ? "opacity-100"
-                            : "opacity-0",
-                        )}
-                      />
-                      {cat.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <CustomSelect
+          options={categoryOptions}
+          value={selectedCategory}
+          onValueChange={(value) => updateFilter("categoryId", value)}
+          placeholder="All Categories"
+          size="md"
+        />
       </div>
 
       <Separator />
 
-      {/* Brand - Combobox */}
+      {/* Brand - Custom Select */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-500/10">
@@ -314,72 +248,13 @@ export function ProductFilters({
           </div>
           <label className="text-sm font-semibold">Brand</label>
         </div>
-        <Popover open={brandOpen} onOpenChange={setBrandOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={brandOpen}
-              className="w-full justify-between font-normal bg-primary/10 border-primary text-primary hover:bg-primary/10 hover:border-primary hover:text-primary"
-            >
-              <span className="truncate text-sm font-medium">
-                {selectedBrandName || "All Brands"}
-              </span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-[--radix-popover-trigger-width] p-0"
-            align="start"
-          >
-            <Command>
-              <CommandInput placeholder="Search brand..." />
-              <CommandList>
-                <CommandEmpty>No brands found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandItem
-                    value="__all__"
-                    onSelect={() => {
-                      updateFilter("brandId", "");
-                      setBrandOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        !selectedBrand ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                    All Brands
-                  </CommandItem>
-                  {brands.map((brand) => (
-                    <CommandItem
-                      key={brand.id}
-                      value={brand.name}
-                      onSelect={() => {
-                        updateFilter(
-                          "brandId",
-                          brand.id === selectedBrand ? "" : brand.id,
-                        );
-                        setBrandOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedBrand === brand.id
-                            ? "opacity-100"
-                            : "opacity-0",
-                        )}
-                      />
-                      {brand.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <CustomSelect
+          options={brandOptions}
+          value={selectedBrand}
+          onValueChange={(value) => updateFilter("brandId", value)}
+          placeholder="All Brands"
+          size="md"
+        />
       </div>
 
       <Separator />
