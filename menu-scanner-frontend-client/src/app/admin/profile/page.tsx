@@ -588,31 +588,35 @@ export default function AdminProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Navigation Tabs */}
-        <div className="flex gap-2 mb-6 p-1 w-full border-b-2 border-primary/20">
+        {/* Navigation Tabs - Modern Design */}
+        <div className="flex gap-3 mb-6 p-3 w-full bg-muted/30 rounded-xl border border-border/50 backdrop-blur-sm">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setActiveSection("profile")}
             className={cn(
-              "flex-1 justify-center transition-all duration-200 rounded-t-lg border-b-2 border-transparent hover:bg-primary/5 hover:text-primary",
-              activeSection === "profile" && "border-b-primary text-primary bg-primary/10 hover:bg-primary/10"
+              "flex-1 justify-center gap-2 transition-all duration-300 rounded-lg font-medium text-sm",
+              "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+              activeSection === "profile" &&
+              "bg-background text-foreground shadow-md border border-border hover:bg-background hover:text-foreground"
             )}
           >
-            <User className="h-4 w-4 mr-2" />
-            Profile
+            <User className="h-4 w-4" />
+            <span>Profile</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setActiveSection("security")}
             className={cn(
-              "flex-1 justify-center transition-all duration-200 rounded-t-lg border-b-2 border-transparent hover:bg-primary/5 hover:text-primary",
-              activeSection === "security" && "border-b-primary text-primary bg-primary/10 hover:bg-primary/10"
+              "flex-1 justify-center gap-2 transition-all duration-300 rounded-lg font-medium text-sm",
+              "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+              activeSection === "security" &&
+              "bg-background text-foreground shadow-md border border-border hover:bg-background hover:text-foreground"
             )}
           >
-            <Lock className="h-4 w-4 mr-2" />
-            Security
+            <Lock className="h-4 w-4" />
+            <span>Security</span>
           </Button>
         </div>
 
