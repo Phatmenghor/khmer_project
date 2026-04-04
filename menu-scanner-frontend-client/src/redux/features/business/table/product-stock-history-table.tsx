@@ -12,17 +12,16 @@ interface StockHistoryTableHandlers {
 }
 
 /**
- * Get expiry date color and variant based on status
- * Green: Not expired, more than 10 days away
- * Yellow: Expiring within 10 days
+ * Get expiry date background color based on status
+ * Primary: Not expired, more than 10 days away
+ * Orange: Expiring within 10 days
  * Red: Already expired
  */
 function getExpiryDateVariant(expiryDate: string): {
-  variant: "default" | "secondary" | "destructive" | "outline";
-  color: string;
+  bgClass: string;
 } {
   if (!expiryDate) {
-    return { variant: "secondary", color: "text-muted-foreground" };
+    return { bgClass: "bg-muted" };
   }
 
   const expiryDateObj = new Date(expiryDate);
@@ -32,7 +31,7 @@ function getExpiryDateVariant(expiryDate: string): {
   today.setHours(0, 0, 0, 0);
 
   if (expiryDateObj < today) {
-    return { variant: "destructive", color: "text-red-600" };
+    return { bgClass: "bg-red-500" };
   }
 
   const daysUntilExpiry = Math.floor(
@@ -40,10 +39,10 @@ function getExpiryDateVariant(expiryDate: string): {
   );
 
   if (daysUntilExpiry > 0 && daysUntilExpiry <= 10) {
-    return { variant: "secondary", color: "text-orange-600" };
+    return { bgClass: "bg-orange-500" };
   }
 
-  return { variant: "secondary", color: "text-primary" };
+  return { bgClass: "bg-primary" };
 }
 
 /**
@@ -114,9 +113,9 @@ export function createStockHistoryColumns(
       render: (stock: ProductStockDto) =>
         stock.expiryDate ? (
           (() => {
-            const { variant, color } = getExpiryDateVariant(stock.expiryDate);
+            const { bgClass } = getExpiryDateVariant(stock.expiryDate);
             return (
-              <Badge variant={variant} className={`text-xs ${color} font-medium`}>
+              <Badge variant="outline" className={`text-xs ${bgClass} text-foreground font-medium border-0`}>
                 {formatExpiryDate(stock.expiryDate)}
               </Badge>
             );
