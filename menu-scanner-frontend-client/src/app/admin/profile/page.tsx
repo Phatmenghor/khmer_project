@@ -589,7 +589,7 @@ export default function AdminProfilePage() {
         </Card>
 
         {/* Navigation Tabs - Premium Clean Design */}
-        <div className="flex gap-0 mb-8 w-full relative group border border-border/50 rounded-xl overflow-hidden">
+        <div className="flex gap-0 mb-8 w-full relative group border border-primary/30 rounded-xl overflow-hidden">
           {/* Background indicator */}
           <div
             className={cn(
@@ -599,7 +599,7 @@ export default function AdminProfilePage() {
           />
 
           {/* Center divider line */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-border/30" />
+          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20" />
 
           {/* Profile Tab */}
           <button
@@ -607,7 +607,7 @@ export default function AdminProfilePage() {
             className={cn(
               "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative z-10",
               "text-sm font-semibold transition-all duration-300",
-              "border-r border-border/30",
+              "border-r border-primary/20",
               activeSection === "profile"
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground/70"
