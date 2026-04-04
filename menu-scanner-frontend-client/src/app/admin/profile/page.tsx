@@ -621,9 +621,9 @@ export default function AdminProfilePage() {
           <form onSubmit={handleSubmit(onSubmit)} className="w-full">
             <div className="w-full space-y-6">
               {/* Personal Information */}
-              <Card className="border-primary/20">
-                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
-                  <CardTitle className="text-primary">Personal Information</CardTitle>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Personal Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -743,9 +743,9 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Employment Information */}
-              <Card className="border-primary/20">
-                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
-                  <CardTitle className="text-primary">Employment Information</CardTitle>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Employment Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -833,7 +833,7 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Addresses */}
-              <Card className="border-primary/20">
+              <Card>
                 <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-primary">Addresses</CardTitle>
@@ -990,7 +990,7 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Emergency Contacts */}
-              <Card className="border-primary/20">
+              <Card>
                 <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-primary">Emergency Contacts</CardTitle>
@@ -1085,7 +1085,7 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Documents */}
-              <Card className="border-primary/20">
+              <Card>
                 <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-primary">Documents</CardTitle>
@@ -1215,7 +1215,7 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Education */}
-              <Card className="border-primary/20">
+              <Card>
                 <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-primary">Education</CardTitle>
@@ -1407,9 +1407,9 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Remarks */}
-              <Card className="border-primary/20">
-                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
-                  <CardTitle className="text-primary">Additional Information</CardTitle>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Additional Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {isEditing ? (
@@ -1443,10 +1443,10 @@ export default function AdminProfilePage() {
             </div>
 
             {/* Active Sessions */}
-            <Card className="border-primary/20">
+            <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="border-l-4 border-l-primary/30 pl-4">
+                  <div>
                     <h3 className="font-semibold text-foreground">
                       Active Sessions
                     </h3>
@@ -1466,10 +1466,10 @@ export default function AdminProfilePage() {
             </Card>
 
             {/* Change Password */}
-            <Card className="border-primary/20">
+            <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="border-l-4 border-l-primary/30 pl-4">
+                  <div>
                     <h3 className="font-semibold text-foreground">
                       Change Password
                     </h3>
