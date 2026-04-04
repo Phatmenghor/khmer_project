@@ -104,14 +104,14 @@ export function ComboboxSelectCategoriesPublic({
       if (!result) return;
 
       if (newPage === 1) {
-        const newData = result.content;
+        const newData = result.data;
         if (!search) {
           setData(removeDuplicates([ALL_OPTION, ...newData]));
         } else {
           setData(removeDuplicates(newData));
         }
       } else {
-        setData((prev) => removeDuplicates([...prev, ...result.content]));
+        setData((prev) => removeDuplicates([...prev, ...result.data]));
       }
 
       setPage(result.pageNo);
