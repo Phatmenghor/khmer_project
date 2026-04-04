@@ -188,7 +188,7 @@ export function ProductListPage({
       {/* Optional hero section */}
       {hero && (
         <div className="relative">
-          <PageContainer className="pt-3 max sm:pt-6 pb-0">
+          <PageContainer className="max-w-8xl pt-3 max sm:pt-6 pb-0">
             <div className="mb-6">{hero}</div>
           </PageContainer>
         </div>
