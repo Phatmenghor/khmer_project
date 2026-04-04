@@ -242,11 +242,7 @@ export function ProductFilters({
               variant="outline"
               role="combobox"
               aria-expanded={categoryOpen}
-              className={cn(
-                "w-full justify-between font-normal",
-                selectedCategory &&
-                  "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary hover:text-primary",
-              )}
+              className="w-full justify-between font-normal bg-primary/10 border-primary text-primary hover:bg-primary/10 hover:border-primary hover:text-primary"
             >
               <span className="truncate text-sm font-medium">
                 {selectedCategoryName || "All Categories"}
@@ -324,11 +320,7 @@ export function ProductFilters({
               variant="outline"
               role="combobox"
               aria-expanded={brandOpen}
-              className={cn(
-                "w-full justify-between font-normal",
-                selectedBrand &&
-                  "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary hover:text-primary",
-              )}
+              className="w-full justify-between font-normal bg-primary/10 border-primary text-primary hover:bg-primary/10 hover:border-primary hover:text-primary"
             >
               <span className="truncate text-sm font-medium">
                 {selectedBrandName || "All Brands"}
