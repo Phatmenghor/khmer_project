@@ -80,7 +80,7 @@ export function createStockHistoryColumns(
       key: "quantityOnHand",
       label: "Quantity",
       render: (stock: ProductStockDto) => (
-        <Badge variant="secondary" className="text-sm bg-primary/10 border-primary text-primary">
+        <Badge variant="secondary" className="text-sm bg-primary/10 border-primary text-primary hover:bg-primary/10 hover:border-primary hover:text-primary">
           {stock.quantityOnHand} Items
         </Badge>
       ),
