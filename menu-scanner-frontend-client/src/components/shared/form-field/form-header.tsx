@@ -41,8 +41,8 @@ export function FormHeader({
         {showAvatar ? (
           <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
         ) : (
-          <div className="p-3 bg-brand-100 rounded-lg shrink-0">
-            <Icon className="h-6 w-6 text-brand-600" />
+          <div className="p-3 bg-primary/10 border border-primary rounded-lg shrink-0">
+            <Icon className="h-6 w-6 text-primary" />
           </div>
         )}
 
