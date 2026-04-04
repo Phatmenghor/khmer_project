@@ -65,10 +65,23 @@ export function useBusinessTheme() {
   const businessSettings = useAppSelector(selectBusinessSettings);
 
   useEffect(() => {
-    // Skip theme initialization on login pages (unauthenticated routes)
+    // On login pages, try to use cached business theme if available
     if (typeof window !== "undefined" && window.location.pathname.includes("/login")) {
-      console.log("## [THEME] Skipping business theme fetch on login page");
-      // Apply default colors on login page
+      console.log("## [THEME] On login page, checking for cached business theme");
+
+      // Try to get businessId from localStorage (last accessed business)
+      const businessId = localStorage.getItem("businessId");
+      if (businessId) {
+        const cachedColors = getCachedThemeColors(businessId);
+        if (cachedColors) {
+          console.log(`## [THEME] Applying cached colors for business ${businessId} on login page`);
+          applyColors(cachedColors.primaryColor, cachedColors.secondaryColor, cachedColors.accentColor);
+          return;
+        }
+      }
+
+      // If no cache found, use default colors
+      console.log("## [THEME] No cached theme found on login page, using defaults");
       applyColors(DEFAULT_COLORS.primary, DEFAULT_COLORS.secondary, DEFAULT_COLORS.accent);
       return;
     }

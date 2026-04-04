@@ -50,9 +50,12 @@ export default async function RootLayout({
             __html: `
               (function() {
                 try {
-                  // Get business ID from localStorage
+                  // Get business ID from localStorage (works on all pages including login)
                   const businessId = localStorage.getItem('businessId');
-                  if (!businessId) return;
+                  if (!businessId) {
+                    console.log('[THEME SYNC] No businessId in localStorage');
+                    return;
+                  }
 
                   // Get cached colors from cookie
                   const cookieName = 'theme_colors_' + businessId;
