@@ -40,10 +40,10 @@ function getExpiryDateVariant(expiryDate: string): {
   );
 
   if (daysUntilExpiry > 0 && daysUntilExpiry <= 10) {
-    return { variant: "secondary", color: "text-yellow-600" };
+    return { variant: "secondary", color: "text-orange-600" };
   }
 
-  return { variant: "secondary", color: "text-green-600" };
+  return { variant: "secondary", color: "text-primary" };
 }
 
 /**
@@ -80,7 +80,7 @@ export function createStockHistoryColumns(
       key: "quantityOnHand",
       label: "Quantity",
       render: (stock: ProductStockDto) => (
-        <Badge variant="secondary" className="text-sm">
+        <Badge variant="secondary" className="text-sm bg-primary/10 border-primary text-primary">
           {stock.quantityOnHand} Items
         </Badge>
       ),
