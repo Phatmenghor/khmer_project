@@ -163,7 +163,7 @@ export function CustomDateTimePicker({
 
   // Handle month change
   const handleMonthChange = (month: string) => {
-    const monthIndex = MONTHS.indexOf(month);
+    const monthIndex = MONTHS.indexOf(month as typeof MONTHS[number]);
     const newDate = new Date(viewDate.getFullYear(), monthIndex, 1);
     setViewDate(newDate);
   };
