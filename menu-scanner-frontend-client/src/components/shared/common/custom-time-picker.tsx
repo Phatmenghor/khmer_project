@@ -98,10 +98,16 @@ export function CustomTimePicker({
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal h-10 px-3 text-sm",
+            "w-full justify-start text-left font-normal h-10 px-3 text-sm transition-all duration-200 border-input",
             !value && "text-muted-foreground",
-            error && "border-red-500 focus:border-red-500",
-            !error && "focus:border-green-500",
+            // Hover state
+            "hover:bg-primary/10 hover:border-primary hover:text-primary",
+            // Focus state
+            "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+            // Active/Open state
+            isOpen && "bg-primary/20 border-primary text-primary",
+            // Error state
+            error && "border-red-500",
             disabled && "opacity-50 cursor-not-allowed",
             className
           )}
@@ -143,7 +149,7 @@ export function CustomTimePicker({
           <div className="flex items-center justify-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <Select value={selectedHour} onValueChange={setSelectedHour}>
-              <SelectTrigger className="h-10 w-20 text-sm">
+              <SelectTrigger className="h-10 w-20 text-sm border-input hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -156,7 +162,7 @@ export function CustomTimePicker({
             </Select>
             <span className="text-lg font-medium">:</span>
             <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-              <SelectTrigger className="h-10 w-20 text-sm">
+              <SelectTrigger className="h-10 w-20 text-sm border-input hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -192,7 +198,7 @@ export function CustomTimePicker({
               onChange(formatTimeForForm(currentHour, currentMinute));
               setIsOpen(false);
             }}
-            className="flex-1 h-8 text-xs hover:bg-accent"
+            className="flex-1 h-8 text-xs hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors"
           >
             Now
           </Button>
@@ -200,7 +206,7 @@ export function CustomTimePicker({
             variant="default"
             size="sm"
             onClick={applyTime}
-            className="flex-1 h-8 text-xs"
+            className="flex-1 h-8 text-xs bg-primary hover:bg-primary/90"
           >
             Apply
           </Button>
