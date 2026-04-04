@@ -103,19 +103,21 @@ export function ComboboxSelectCategoriesPublic({
 
       if (!result) return;
 
+      // Handle both array and object responses
+      const items = Array.isArray(result) ? result : (result.data || []);
+
       if (newPage === 1) {
-        const newData = result.data;
         if (!search) {
-          setData(removeDuplicates([ALL_OPTION, ...newData]));
+          setData(removeDuplicates([ALL_OPTION, ...items]));
         } else {
-          setData(removeDuplicates(newData));
+          setData(removeDuplicates(items));
         }
       } else {
-        setData((prev) => removeDuplicates([...prev, ...result.data]));
+        setData((prev) => removeDuplicates([...prev, ...items]));
       }
 
-      setPage(result.pageNo);
-      setLastPage(result.last);
+      setPage(Array.isArray(result) ? newPage : result.pageNo);
+      setLastPage(Array.isArray(result) ? false : result.last);
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {
