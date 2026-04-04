@@ -34,7 +34,7 @@ export const ActionButton = ({
           size={size}
           disabled={disabled}
           className={cn(
-            variant === "outline" &&
+            (variant === "outline" || variant === "secondary") &&
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
             className
           )}
@@ -71,7 +71,7 @@ export const ConditionalActionButton = ({
       size={size}
       disabled={disabled}
       className={cn(
-        variant === "outline" &&
+        (variant === "outline" || variant === "secondary") &&
           "hover:bg-primary/10 hover:border-primary hover:text-primary",
         className
       )}
