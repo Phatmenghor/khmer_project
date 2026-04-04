@@ -73,13 +73,29 @@ const PaginatedProductsGridComponent = ({
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
 
-  // Track new products for animation
+  // Track new products for animation and scroll to them
   useEffect(() => {
     if (!isPaginationLoading && products.length > 0) {
       const newIds = new Set(
         products.slice(-paginationSkeletonCount * 2).map((p) => p.id.toString())
       );
       setNewProductIds(newIds);
+
+      // Smooth scroll to show new products that just loaded
+      if (newIds.size > 0 && containerRef.current) {
+        setTimeout(() => {
+          const firstNewProduct = containerRef.current?.querySelector(
+            `[data-product-key="product-${Array.from(newIds)[0]}"]`
+          ) as HTMLElement;
+
+          if (firstNewProduct) {
+            firstNewProduct.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest"
+            });
+          }
+        }, 100);
+      }
     }
   }, [isPaginationLoading, products, paginationSkeletonCount]);
 
