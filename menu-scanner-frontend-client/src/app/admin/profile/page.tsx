@@ -1434,7 +1434,7 @@ export default function AdminProfilePage() {
           <div className="w-full space-y-4">
             {/* Connected Accounts */}
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-medium text-primary mb-3 flex items-center gap-2 font-semibold">
                 <Link2 className="h-4 w-4" />
                 Connected Accounts
               </h3>
@@ -1442,10 +1442,10 @@ export default function AdminProfilePage() {
             </div>
 
             {/* Active Sessions */}
-            <Card>
+            <Card className="border-primary/20">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="border-l-4 border-l-primary/30 pl-4">
                     <h3 className="font-semibold text-foreground">
                       Active Sessions
                     </h3>
@@ -1455,7 +1455,7 @@ export default function AdminProfilePage() {
                     </p>
                   </div>
                   <Link href="/admin/sessions">
-                    <Button variant="outline">
+                    <Button className="bg-primary hover:bg-primary/90 text-white">
                       <Monitor className="h-4 w-4 mr-2" />
                       View Sessions
                     </Button>
@@ -1465,10 +1465,10 @@ export default function AdminProfilePage() {
             </Card>
 
             {/* Change Password */}
-            <Card>
+            <Card className="border-primary/20">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="border-l-4 border-l-primary/30 pl-4">
                     <h3 className="font-semibold text-foreground">
                       Change Password
                     </h3>
@@ -1477,7 +1477,7 @@ export default function AdminProfilePage() {
                     </p>
                   </div>
                   <Button
-                    variant="outline"
+                    className="bg-primary hover:bg-primary/90 text-white"
                     onClick={() => setIsChangePasswordModalOpen(true)}
                   >
                     <Lock className="h-4 w-4 mr-2" />
@@ -1488,7 +1488,7 @@ export default function AdminProfilePage() {
             </Card>
 
             {/* Delete Account */}
-            <Card className="border-destructive/50">
+            <Card className="border-destructive/50 bg-destructive/5">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
