@@ -1,7 +1,6 @@
 import { Edit, Trash2 } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { Badge } from "@/components/ui/badge";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { ProductStockDto } from "../store/models/response/stock-response";
 
@@ -86,9 +85,9 @@ export function createSizeStockHistoryColumns(
       key: "quantityOnHand",
       label: "Quantity",
       render: (stock: ProductStockDto) => (
-        <Badge variant="secondary" className="text-sm bg-primary/10 border-primary text-primary hover:bg-primary/10 hover:border-primary hover:text-primary">
+        <span className="text-sm bg-primary/10 border border-primary text-primary px-2 py-1 rounded inline-block font-medium">
           {stock.quantityOnHand} Items
-        </Badge>
+        </span>
       ),
     },
     {
