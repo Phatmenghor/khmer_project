@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 interface ActionButtonProps extends Omit<ButtonProps, "children" | "onClick"> {
   icon: ReactNode;
@@ -32,7 +33,11 @@ export const ActionButton = ({
           variant={variant}
           size={size}
           disabled={disabled}
-          className={className}
+          className={cn(
+            variant === "outline" &&
+              "bg-primary/40 border-primary/40 text-primary hover:bg-primary hover:border-primary hover:text-white",
+            className
+          )}
           onClick={(e) => {
             e.stopPropagation();
             onClick();
@@ -65,7 +70,11 @@ export const ConditionalActionButton = ({
       variant={variant}
       size={size}
       disabled={disabled}
-      className={className}
+      className={cn(
+        variant === "outline" &&
+          "bg-primary/40 border-primary/40 text-primary hover:bg-primary hover:border-primary hover:text-white",
+        className
+      )}
       onClick={(e) => {
         e.stopPropagation();
         onClick();
