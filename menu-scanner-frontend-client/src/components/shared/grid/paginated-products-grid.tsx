@@ -135,9 +135,9 @@ const PaginatedProductsGridComponent = ({
         ) as HTMLElement;
 
         if (targetElement) {
-          // Position at 80% of viewport height
+          // Position at 65% of viewport height (higher on screen for better visibility)
           const viewportHeight = window.innerHeight;
-          const targetPosition = viewportHeight * 0.8;
+          const targetPosition = viewportHeight * 0.65;
           const elementTop = targetElement.getBoundingClientRect().top + window.scrollY;
           const scrollPosition = elementTop - targetPosition;
 
