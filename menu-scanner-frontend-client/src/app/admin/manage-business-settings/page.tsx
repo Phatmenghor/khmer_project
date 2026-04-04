@@ -34,6 +34,12 @@ import {
   type BusinessSettingsFormData,
 } from "./schema/business-settings.schema";
 import { BusinessSettingsResponse } from "@/redux/features/business/store/services/business-settings-service";
+import {
+  getCachedThemeColors,
+  cacheThemeColors,
+  applyThemeColors,
+  hasThemeChanged,
+} from "@/utils/common/theme-cache";
 
 /**
  * Convert API response to form data
@@ -76,22 +82,53 @@ export default function BusinessSettingsPage() {
     },
   });
 
-  // Fetch business settings
+  // Fetch business settings (with cache support)
   useEffect(() => {
-    // If already in Redux, use that data
-    if (reduxBusinessSettings) {
-      const formData = convertResponseToFormData(reduxBusinessSettings);
-      form.reset(formData);
-      setIsLoading(false);
+    if (!reduxBusinessSettings) {
+      fetchBusinessSettings();
       return;
     }
 
-    // Otherwise fetch from API
-    fetchBusinessSettings();
+    // Load from cache first for instant color application
+    const cachedColors = getCachedThemeColors(reduxBusinessSettings.businessId);
+    if (cachedColors) {
+      console.log(
+        `[THEME] Applied cached colors for business ${reduxBusinessSettings.businessId}`
+      );
+      applyThemeColors(
+        cachedColors.primaryColor,
+        cachedColors.secondaryColor,
+        cachedColors.accentColor
+      );
+    }
+
+    // Then reset form with latest data
+    const formData = convertResponseToFormData(reduxBusinessSettings);
+    form.reset(formData);
+    setIsLoading(false);
   }, [reduxBusinessSettings]);
 
   const fetchBusinessSettings = async () => {
     try {
+      // Try to load from cache first (instant, no loading state)
+      if (reduxBusinessSettings) {
+        const cachedColors = getCachedThemeColors(
+          reduxBusinessSettings.businessId
+        );
+        if (cachedColors) {
+          console.log(
+            `[THEME] Loading cached colors for business ${reduxBusinessSettings.businessId}`
+          );
+          applyThemeColors(
+            cachedColors.primaryColor,
+            cachedColors.secondaryColor,
+            cachedColors.accentColor
+          );
+          const formData = convertResponseToFormData(reduxBusinessSettings);
+          form.reset(formData);
+        }
+      }
+
       setIsLoading(true);
       const action = await dispatch(fetchBusinessSettingsThunk());
 
@@ -100,6 +137,28 @@ export default function BusinessSettingsPage() {
         const data = action.payload as BusinessSettingsResponse;
         const formData = convertResponseToFormData(data);
         form.reset(formData);
+
+        // Check if colors changed and update cache if needed
+        const cachedColors = getCachedThemeColors(data.businessId);
+        const currentColors = {
+          primaryColor: data.primaryColor || "",
+          secondaryColor: data.secondaryColor || "",
+          accentColor: data.accentColor || "",
+        };
+
+        if (hasThemeChanged(cachedColors, currentColors)) {
+          console.log(
+            `[THEME] Colors changed, updating cache for business ${data.businessId}`
+          );
+          cacheThemeColors(data.businessId, currentColors);
+        }
+
+        // Apply theme colors (may have changed from cache)
+        applyThemeColors(
+          data.primaryColor,
+          data.secondaryColor,
+          data.accentColor
+        );
       } else {
         showToast.error("Failed to load business settings");
       }
@@ -120,71 +179,6 @@ export default function BusinessSettingsPage() {
     showToast.success("✓ Logo selected - click Save Changes to upload");
   };
 
-  // Helper function to apply theme colors in real-time (hex to HSL conversion)
-  const applyThemeColors = (
-    primaryColor?: string,
-    secondaryColor?: string,
-    accentColor?: string
-  ) => {
-    const hexToHsl = (hex: string): string => {
-      if (!hex) return "";
-
-      hex = hex.replace("#", "");
-      const r = parseInt(hex.substring(0, 2), 16) / 255;
-      const g = parseInt(hex.substring(2, 4), 16) / 255;
-      const b = parseInt(hex.substring(4, 6), 16) / 255;
-
-      const max = Math.max(r, g, b);
-      const min = Math.min(r, g, b);
-      let h = 0,
-        s = 0;
-      const l = (max + min) / 2;
-
-      if (max !== min) {
-        const d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-        switch (max) {
-          case r:
-            h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-            break;
-          case g:
-            h = ((b - r) / d + 2) / 6;
-            break;
-          case b:
-            h = ((r - g) / d + 4) / 6;
-            break;
-        }
-      }
-
-      const hue = Math.round(h * 360);
-      const saturation = Math.round(s * 100);
-      const lightness = Math.round(l * 100);
-
-      return `${hue} ${saturation}% ${lightness}%`;
-    };
-
-    if (primaryColor) {
-      const hsl = hexToHsl(primaryColor);
-      if (hsl) {
-        document.documentElement.style.setProperty("--primary", hsl);
-      }
-    }
-
-    if (secondaryColor) {
-      const hsl = hexToHsl(secondaryColor);
-      if (hsl) {
-        document.documentElement.style.setProperty("--secondary", hsl);
-      }
-    }
-
-    if (accentColor) {
-      const hsl = hexToHsl(accentColor);
-      if (hsl) {
-        document.documentElement.style.setProperty("--accent", hsl);
-      }
-    }
-  };
 
   const onSubmit = async (data: BusinessSettingsFormData) => {
     try {
@@ -224,14 +218,25 @@ export default function BusinessSettingsPage() {
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const result = action.payload as BusinessSettingsResponse;
 
-        // ## Log the saved data
-        console.log("## [FORM] Business settings saved to Redux:", {
+        // Log the saved data
+        console.log("[FORM] Business settings saved to Redux:", {
           businessName: result.businessName,
           logoBusinessUrl: result.logoBusinessUrl,
           primaryColor: result.primaryColor,
           secondaryColor: result.secondaryColor,
           accentColor: result.accentColor,
         });
+
+        // Cache the colors for instant load on next page refresh
+        const colors = {
+          primaryColor: result.primaryColor || "",
+          secondaryColor: result.secondaryColor || "",
+          accentColor: result.accentColor || "",
+        };
+        cacheThemeColors(result.businessId, colors);
+        console.log(
+          `[THEME] Cached colors for business ${result.businessId}`
+        );
 
         // Apply colors in real-time without refresh
         if (result.primaryColor || result.secondaryColor || result.accentColor) {
@@ -245,7 +250,7 @@ export default function BusinessSettingsPage() {
         showToast.success("Business settings updated successfully");
       } else {
         showToast.error("Failed to update business settings");
-        console.error("## [FORM] Failed to save settings. Action:", action);
+        console.error("[FORM] Failed to save settings. Action:", action);
         return;
       }
     } catch (error) {
