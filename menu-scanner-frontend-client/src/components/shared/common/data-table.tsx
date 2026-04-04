@@ -99,16 +99,17 @@ export function DataTableWithPagination<T = any>({
     } else {
       items.push(1);
 
-      let start = Math.max(PAGINATION_START_OFFSET, currentPage - 1);
-      let end = Math.min(totalPages - 1, currentPage + 1);
+      // Center current page with 2 pages on each side (5 total pages)
+      let start = Math.max(PAGINATION_START_OFFSET, currentPage - 2);
+      let end = Math.min(totalPages - 1, currentPage + 2);
 
       if (currentPage <= PAGINATION_SIDE_ITEMS) {
         start = PAGINATION_START_OFFSET;
-        end = PAGINATION_WINDOW_SIZE;
+        end = PAGINATION_WINDOW_SIZE + 1;
       }
 
-      if (currentPage >= totalPages - 2) {
-        start = totalPages - PAGINATION_SIDE_ITEMS;
+      if (currentPage >= totalPages - 3) {
+        start = totalPages - PAGINATION_SIDE_ITEMS - 1;
         end = totalPages - 1;
       }
 
