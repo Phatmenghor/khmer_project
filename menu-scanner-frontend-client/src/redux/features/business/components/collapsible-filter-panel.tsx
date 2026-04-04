@@ -212,9 +212,9 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             className="flex items-center justify-between w-full hover:text-primary hover:bg-primary/10 px-2 py-1 rounded transition-all duration-200"
           >
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Advanced Filters</span>
+              <span className="text-sm font-bold text-primary">Advanced Filters</span>
               {activeFiltersCount > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border border-primary">
                   {activeFiltersCount} active
                 </Badge>
               )}
