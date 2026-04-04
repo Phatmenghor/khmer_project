@@ -167,7 +167,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 <Input
                   type="search"
                   placeholder={config.searchPlaceholder}
-                  className="pl-10 w-full h-full placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 hover:border-gray-600 transition-all duration-200"
+                  className="pl-10 w-full h-full placeholder:text-gray-500 focus:border-primary focus:ring-primary/30 hover:border-primary transition-all duration-200"
                   value={config.searchValue}
                   onChange={config.onSearchChange}
                 />
@@ -206,10 +206,10 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
       {/* Advanced Filters Section */}
       {advancedFilters.length > 0 && (
-        <div className="bg-gray-900/50 rounded-lg border border-gray-700/15 p-3">
+        <div className="bg-primary/5 rounded-lg border border-primary/20 p-3">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center justify-between w-full hover:text-pink-400 transition-colors"
+            className="flex items-center justify-between w-full hover:text-primary hover:bg-primary/10 px-2 py-1 rounded transition-all duration-200"
           >
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Advanced Filters</span>
@@ -228,7 +228,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
           {/* Advanced Filters Content - Responsive grid layout */}
           {showAdvanced && (
-            <div className="mt-3 pt-3 border-t border-gray-700/15">
+            <div className="mt-3 pt-3 border-t border-primary/20">
               <div
                 className="grid gap-3 w-full"
                 style={{
