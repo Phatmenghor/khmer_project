@@ -791,6 +791,7 @@ export default function UserBusinessModal({
                         })
                       }
                       disabled={isSubmitting}
+                      className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Address
@@ -817,9 +818,9 @@ export default function UserBusinessModal({
                                   size="sm"
                                   onClick={() => removeAddress(index)}
                                   disabled={isSubmitting}
-                                  className="h-6 w-6 p-0"
+                                  className="h-6 w-6 p-0 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                                 >
-                                  <Trash2 className="h-3 w-3 text-red-500" />
+                                  <Trash2 className="h-3 w-3 text-primary" />
                                 </Button>
                               </div>
                               <div className="grid grid-cols-2 gap-3">
@@ -939,6 +940,7 @@ export default function UserBusinessModal({
                         })
                       }
                       disabled={isSubmitting}
+                      className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Contact
@@ -998,7 +1000,7 @@ export default function UserBusinessModal({
                                   type="button"
                                   variant="ghost"
                                   size="sm"
-                                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                  className="absolute top-2 right-2 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                                   onClick={() => removeContact(index)}
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -1030,6 +1032,7 @@ export default function UserBusinessModal({
                           })
                         }
                         disabled={isSubmitting}
+                        className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Document
@@ -1052,7 +1055,7 @@ export default function UserBusinessModal({
                                 size="sm"
                                 onClick={() => removeDocument(index)}
                                 disabled={isSubmitting}
-                                className="h-6 w-6 p-0 absolute top-2 right-2 text-red-500"
+                                className="h-6 w-6 p-0 absolute top-2 right-2 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
@@ -1133,6 +1136,7 @@ export default function UserBusinessModal({
                           })
                         }
                         disabled={isSubmitting}
+                        className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Education
@@ -1154,7 +1158,7 @@ export default function UserBusinessModal({
                                 size="sm"
                                 onClick={() => removeEducation(index)}
                                 disabled={isSubmitting}
-                                className="h-6 w-6 p-0 absolute top-2 right-2 text-red-500"
+                                className="h-6 w-6 p-0 absolute top-2 right-2 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
