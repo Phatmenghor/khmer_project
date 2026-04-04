@@ -35,7 +35,7 @@ export const ActionButton = ({
           disabled={disabled}
           className={cn(
             variant === "outline" &&
-              "bg-primary/40 border-primary/40 text-primary hover:bg-primary hover:border-primary hover:text-white",
+              "hover:bg-primary hover:border-primary hover:text-white",
             className
           )}
           onClick={(e) => {
@@ -72,7 +72,7 @@ export const ConditionalActionButton = ({
       disabled={disabled}
       className={cn(
         variant === "outline" &&
-          "bg-primary/40 border-primary/40 text-primary hover:bg-primary hover:border-primary hover:text-white",
+          "hover:bg-primary hover:border-primary hover:text-white",
         className
       )}
       onClick={(e) => {
