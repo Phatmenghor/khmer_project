@@ -62,8 +62,8 @@ const PaginatedProductsGridComponent = ({
     }
   }, []);
 
-  // Scroll to product at 80% viewport height
-  const scrollToProductAt80Percent = useCallback(() => {
+  // Scroll to product at center (50%) of viewport height - better visibility
+  const scrollToProductAtCenter = useCallback(() => {
     if (!lastVisibleProductKeyRef.current || !containerRef.current) return;
 
     const targetElement = containerRef.current.querySelector(
@@ -72,7 +72,7 @@ const PaginatedProductsGridComponent = ({
 
     if (targetElement) {
       const viewportHeight = window.innerHeight;
-      const targetPosition = viewportHeight * 0.8;
+      const targetPosition = viewportHeight * 0.5; // Center of screen
       const elementTop = targetElement.getBoundingClientRect().top + window.scrollY;
       const scrollPosition = elementTop - targetPosition;
 
@@ -120,10 +120,10 @@ const PaginatedProductsGridComponent = ({
     if (!isPaginationLoading && lastVisibleProductKeyRef.current && containerRef.current) {
       // Scroll immediately (not waiting for render)
       requestAnimationFrame(() => {
-        scrollToProductAt80Percent();
+        scrollToProductAtCenter();
       });
     }
-  }, [isPaginationLoading, scrollToProductAt80Percent]);
+  }, [isPaginationLoading, scrollToProductAtCenter]);
 
   // Track new products for animation (separate from scroll)
   useEffect(() => {
