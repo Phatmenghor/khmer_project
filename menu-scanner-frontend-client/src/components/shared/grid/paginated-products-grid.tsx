@@ -95,9 +95,8 @@ const PaginatedProductsGridComponent = ({
     // Save last visible product before fetch
     saveLastVisibleProduct();
     setNewProductIds(new Set());
-    console.log(`[PaginatedGrid] Triggering load more, current products count: ${products.length}, lastVisibleProductKey: ${lastVisibleProductKeyRef.current}`);
     onLoadMore();
-  }, [onLoadMore, saveLastVisibleProduct, products.length]);
+  }, [onLoadMore, saveLastVisibleProduct]);
 
   // Smart pagination with debounce
   const { handleLoadMore } = usePaginationLoadMore(
@@ -125,11 +124,8 @@ const PaginatedProductsGridComponent = ({
 
   // Scroll to saved product at 80% viewport height when pagination data arrives
   useEffect(() => {
-    console.log(`[PaginatedGrid] Scroll effect triggered - isPaginationLoading: ${isPaginationLoading}, products.length: ${products.length}, previousCount: ${previousProductCountRef.current}, hasLastVisibleKey: ${!!lastVisibleProductKeyRef.current}`);
-
     if (!isPaginationLoading && products.length > previousProductCountRef.current && containerRef.current && lastVisibleProductKeyRef.current) {
       // Only scroll if products actually increased (real pagination, not initial load)
-      console.log(`[PaginatedGrid] Scrolling to product key: ${lastVisibleProductKeyRef.current}, new count: ${products.length}`);
       previousProductCountRef.current = products.length;
 
       requestAnimationFrame(() => {
@@ -139,7 +135,6 @@ const PaginatedProductsGridComponent = ({
         ) as HTMLElement;
 
         if (targetElement) {
-          console.log(`[PaginatedGrid] Found target element, scrolling now`);
           // Position at 80% of viewport height
           const viewportHeight = window.innerHeight;
           const targetPosition = viewportHeight * 0.8;
@@ -150,8 +145,6 @@ const PaginatedProductsGridComponent = ({
             top: scrollPosition,
             behavior: "smooth"
           });
-        } else {
-          console.log(`[PaginatedGrid] Target element NOT found for key: ${lastVisibleProductKeyRef.current}`);
         }
       });
     } else if (products.length > 0) {
@@ -166,7 +159,6 @@ const PaginatedProductsGridComponent = ({
       const newIds = new Set(
         products.slice(-paginationSkeletonCount * 2).map((p) => p.id.toString())
       );
-      console.log(`[PaginatedGrid] Tracking ${newIds.size} new products for animation. Total products: ${products.length}`);
       setNewProductIds(newIds);
     }
   }, [isPaginationLoading, products, paginationSkeletonCount]);

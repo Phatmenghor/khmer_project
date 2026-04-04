@@ -137,10 +137,7 @@ export function ProductListPage({
   const handleLoadMore = useCallback(() => {
     if (pagination.hasMore && !loading.list && products.length > 0) {
       const nextPage = pagination.currentPage + 1;
-      console.log(`[ProductListPage] Loading page ${nextPage}, current products: ${products.length}, hasMore: ${pagination.hasMore}`);
       loadProducts(nextPage);
-    } else {
-      console.log(`[ProductListPage] Load more skipped - hasMore: ${pagination.hasMore}, loading: ${loading.list}, productCount: ${products.length}`);
     }
   }, [pagination.hasMore, pagination.currentPage, loading.list, products.length, loadProducts]);
 

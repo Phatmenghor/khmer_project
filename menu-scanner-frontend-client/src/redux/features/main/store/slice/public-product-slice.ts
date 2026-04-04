@@ -87,25 +87,20 @@ const publicProductSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchPublicProducts.pending, (state) => {
-        console.log(`[PublicProductSlice] Fetch pending - current products: ${state.products.length}`);
         state.loading.list = true;
         state.error.list = null;
       })
       .addCase(fetchPublicProducts.fulfilled, (state, action) => {
         const newProducts = action.payload.content || [];
 
-        console.log(`[PublicProductSlice] Fetch fulfilled - new products: ${newProducts.length}, pageNo: ${action.payload.pageNo}, existing products: ${state.products.length}`);
-
         // Append new products, deduplicating by ID to prevent duplicate keys
         // when server-side inserts shift items across page boundaries
         const existingIds = new Set(state.products.map((p) => p.id));
         const uniqueNew = newProducts.filter((p) => !existingIds.has(p.id));
-        console.log(`[PublicProductSlice] Unique new products after dedup: ${uniqueNew.length}`);
 
         // Simply append new products without trimming
         // This allows scroll anchoring to detect product count increase
         state.products = [...state.products, ...uniqueNew];
-        console.log(`[PublicProductSlice] Appended successfully, final count: ${state.products.length}`);
 
         state.loading.list = false;
         state.pagination = {
