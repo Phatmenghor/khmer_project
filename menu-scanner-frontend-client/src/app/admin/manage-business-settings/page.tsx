@@ -112,6 +112,9 @@ export default function BusinessSettingsPage() {
     try {
       // Try to load from cache first (instant, no loading state)
       if (reduxBusinessSettings) {
+        // Store business ID in localStorage for theme initializer
+        localStorage.setItem("businessId", reduxBusinessSettings.businessId);
+
         const cachedColors = getCachedThemeColors(
           reduxBusinessSettings.businessId
         );
@@ -135,6 +138,10 @@ export default function BusinessSettingsPage() {
       // Check if the action was fulfilled and has a payload
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const data = action.payload as BusinessSettingsResponse;
+
+        // Store business ID for theme initializer
+        localStorage.setItem("businessId", data.businessId);
+
         const formData = convertResponseToFormData(data);
         form.reset(formData);
 
@@ -226,6 +233,9 @@ export default function BusinessSettingsPage() {
           secondaryColor: result.secondaryColor,
           accentColor: result.accentColor,
         });
+
+        // Store business ID in localStorage for theme initializer
+        localStorage.setItem("businessId", result.businessId);
 
         // Cache the colors for instant load on next page refresh
         const colors = {
