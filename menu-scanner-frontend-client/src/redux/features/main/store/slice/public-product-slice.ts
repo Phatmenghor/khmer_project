@@ -93,13 +93,8 @@ const publicProductSlice = createSlice({
       })
       .addCase(fetchPublicProducts.fulfilled, (state, action) => {
         const newProducts = action.payload.content || [];
-        const pageSize = action.payload.pageSize;
 
         console.log(`[PublicProductSlice] Fetch fulfilled - new products: ${newProducts.length}, pageNo: ${action.payload.pageNo}, existing products: ${state.products.length}`);
-
-        // Memory optimization: Keep only last 3 pages of data (like YouTube)
-        const MAX_PAGES_IN_MEMORY = 3;
-        const maxItems = MAX_PAGES_IN_MEMORY * pageSize;
 
         // Append new products, deduplicating by ID to prevent duplicate keys
         // when server-side inserts shift items across page boundaries
@@ -107,17 +102,10 @@ const publicProductSlice = createSlice({
         const uniqueNew = newProducts.filter((p) => !existingIds.has(p.id));
         console.log(`[PublicProductSlice] Unique new products after dedup: ${uniqueNew.length}`);
 
-        const updatedProducts = [...state.products, ...uniqueNew];
-
-        // If we exceed the limit, remove oldest items
-        if (updatedProducts.length > maxItems) {
-          const itemsToRemove = updatedProducts.length - maxItems;
-          state.products = updatedProducts.slice(itemsToRemove);
-          console.log(`[PublicProductSlice] Exceeded max items, removed ${itemsToRemove}, final count: ${state.products.length}`);
-        } else {
-          state.products = updatedProducts;
-          console.log(`[PublicProductSlice] Appended successfully, final count: ${state.products.length}`);
-        }
+        // Simply append new products without trimming
+        // This allows scroll anchoring to detect product count increase
+        state.products = [...state.products, ...uniqueNew];
+        console.log(`[PublicProductSlice] Appended successfully, final count: ${state.products.length}`);
 
         state.loading.list = false;
         state.pagination = {
