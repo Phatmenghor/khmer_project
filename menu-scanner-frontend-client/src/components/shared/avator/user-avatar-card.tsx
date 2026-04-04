@@ -195,7 +195,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
   // Expanded view
   const CardContent = (
     <div
-      className={`flex items-center gap-3 p-3 rounded-xl bg-accent/30 hover:bg-accent/50 transition-colors duration-300 ${
+      className={`flex items-center gap-3 p-3 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors duration-300 ${
         profileLink ? "cursor-pointer" : ""
       } group ${className}`}
     >
