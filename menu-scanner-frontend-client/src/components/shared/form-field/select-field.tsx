@@ -54,20 +54,34 @@ export function SelectField<T extends FieldValues = any>({
                   role="combobox"
                   disabled={disabled || loading}
                   className={cn(
-                    "w-full justify-between h-10 px-3 transition-colors",
-                    error && "border-red-500 focus:border-red-500"
+                    "w-full justify-between h-10 px-3 transition-all duration-200 border-input",
+                    // Hover state
+                    "hover:bg-primary/10 hover:border-primary hover:text-primary",
+                    // Focus state
+                    "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+                    // Active/Open state
+                    open && "bg-primary/20 border-primary text-primary",
+                    // Error state
+                    error && "border-red-500 focus:border-red-500",
+                    // Disabled state
+                    disabled || loading ? "opacity-50 cursor-not-allowed" : ""
                   )}
                 >
                   <span
-                    className={
-                      selectedOption ? "text-foreground" : "text-muted-foreground"
-                    }
+                    className={cn(
+                      selectedOption ? "text-foreground" : "text-muted-foreground",
+                      open && "text-primary"
+                    )}
                   >
                     {loading
                       ? loadingPlaceholder
                       : selectedOption?.label || placeholder}
                   </span>
-                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  <ChevronDown className={cn(
+                    "ml-2 h-4 w-4 shrink-0 transition-all duration-200",
+                    !open && "opacity-50",
+                    open && "opacity-100 text-primary rotate-180"
+                  )} />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
@@ -85,8 +99,11 @@ export function SelectField<T extends FieldValues = any>({
                         setOpen(false);
                       }}
                       className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
-                        currentValue === option.value && "bg-accent text-accent-foreground"
+                        "w-full flex items-center gap-2 px-3 py-2 text-sm text-left cursor-pointer transition-colors",
+                        "hover:bg-primary/10 hover:text-primary",
+                        currentValue === option.value
+                          ? "bg-primary/20 text-primary font-medium"
+                          : "text-foreground"
                       )}
                     >
                       <Check
