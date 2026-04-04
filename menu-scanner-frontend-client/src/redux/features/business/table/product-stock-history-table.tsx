@@ -115,9 +115,9 @@ export function createStockHistoryColumns(
           (() => {
             const { bgClass } = getExpiryDateVariant(stock.expiryDate);
             return (
-              <Badge variant="outline" className={`text-xs ${bgClass} text-foreground font-medium border-0`}>
+              <span className={`text-xs ${bgClass} text-foreground font-medium px-2 py-1 rounded inline-block`}>
                 {formatExpiryDate(stock.expiryDate)}
-              </Badge>
+              </span>
             );
           })()
         ) : (
