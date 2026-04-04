@@ -2,7 +2,7 @@
  * PaginatedProductsGrid - Reusable infinite scroll component
  * Features:
  * - Infinite scroll pagination with smart debounce
- * - Product key-based scroll anchoring (stays on same product while loading)
+ * - Natural scroll behavior (no auto-scroll, user scrolls to see new products)
  * - Smooth fade-in animations for new products
  * - Responsive grid (2-6 columns)
  * - Skeleton loaders during pagination
@@ -38,65 +38,16 @@ const PaginatedProductsGridComponent = ({
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastVisibleProductKeyRef = useRef<string | null>(null);
-  const previousProductCountRef = useRef(0);
   const isPaginationLoading = loading && products.length > 0;
   const [paginationSkeletonCount, setPaginationSkeletonCount] = useState(6);
   const [newProductIds, setNewProductIds] = useState<Set<string>>(new Set());
 
-  // Save MIDDLE visible product (50% of viewport) - best for scroll anchoring
-  const saveLastVisibleProduct = useCallback(() => {
-    if (!containerRef.current) return;
 
-    const productCards = containerRef.current.querySelectorAll('[data-product-key]');
-    const visibleProducts: HTMLElement[] = [];
-
-    productCards.forEach((card) => {
-      const rect = (card as HTMLElement).getBoundingClientRect();
-      if (rect.bottom > 0 && rect.top < window.innerHeight) {
-        visibleProducts.push(card as HTMLElement);
-      }
-    });
-
-    // Save the MIDDLE visible product (not the last one at top)
-    if (visibleProducts.length > 0) {
-      const middleIndex = Math.floor(visibleProducts.length / 2);
-      const middleProduct = visibleProducts[middleIndex];
-      const middleKey = middleProduct.getAttribute('data-product-key');
-      if (middleKey) {
-        lastVisibleProductKeyRef.current = middleKey;
-      }
-    }
-  }, []);
-
-  // Scroll to product at center (50%) of viewport height - better visibility
-  const scrollToProductAtCenter = useCallback(() => {
-    if (!lastVisibleProductKeyRef.current || !containerRef.current) return;
-
-    const targetElement = containerRef.current.querySelector(
-      `[data-product-key="${lastVisibleProductKeyRef.current}"]`
-    ) as HTMLElement;
-
-    if (targetElement) {
-      const viewportHeight = window.innerHeight;
-      const targetPosition = viewportHeight * 0.5; // Center of screen
-      const elementTop = targetElement.getBoundingClientRect().top + window.scrollY;
-      const scrollPosition = elementTop - targetPosition;
-
-      window.scrollTo({
-        top: scrollPosition,
-        behavior: "smooth"
-      });
-    }
-  }, []);
-
-  // Save position and track new products before fetch
+  // Handle load more with new product tracking
   const handleLoadMoreWithScroll = useCallback(() => {
-    // Save last visible product before fetch
-    saveLastVisibleProduct();
     setNewProductIds(new Set());
     onLoadMore();
-  }, [onLoadMore, saveLastVisibleProduct]);
+  }, [onLoadMore]);
 
   // Smart pagination with debounce
   const { handleLoadMore } = usePaginationLoadMore(
@@ -122,36 +73,6 @@ const PaginatedProductsGridComponent = ({
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
 
-  // Scroll to saved product at 80% viewport height when pagination data arrives
-  useEffect(() => {
-    if (!isPaginationLoading && products.length > previousProductCountRef.current && containerRef.current && lastVisibleProductKeyRef.current) {
-      // Only scroll if products actually increased (real pagination, not initial load)
-      previousProductCountRef.current = products.length;
-
-      requestAnimationFrame(() => {
-        // Find the saved product by its key
-        const targetElement = containerRef.current?.querySelector(
-          `[data-product-key="${lastVisibleProductKeyRef.current}"]`
-        ) as HTMLElement;
-
-        if (targetElement) {
-          // Position at 65% of viewport height (higher on screen for better visibility)
-          const viewportHeight = window.innerHeight;
-          const targetPosition = viewportHeight * 0.65;
-          const elementTop = targetElement.getBoundingClientRect().top + window.scrollY;
-          const scrollPosition = elementTop - targetPosition;
-
-          window.scrollTo({
-            top: scrollPosition,
-            behavior: "smooth"
-          });
-        }
-      });
-    } else if (products.length > 0) {
-      // Update count even if not scrolling
-      previousProductCountRef.current = products.length;
-    }
-  }, [isPaginationLoading, products, paginationSkeletonCount]);
 
   // Track new products for animation (separate from scroll)
   useEffect(() => {

@@ -14,7 +14,6 @@ import { CheckCircle2, Flame } from "lucide-react";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
-import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 
 // Dynamically import ProductFilters to avoid SSR hydration mismatch
@@ -83,10 +82,6 @@ export function ProductListPage({
     _page: basePath,
   });
 
-  // Scroll anchor for product key-based scroll restoration (like home page)
-  const isPaginationLoading = loading.list && products.length > 0;
-  const { containerRef, savePositionNow } = useScrollAnchor(isPaginationLoading);
-
   // Dynamic page size based on screen width (like home page)
   const getPageSize = useCallback(() => {
     if (typeof window === "undefined") return 20;
@@ -141,11 +136,10 @@ export function ProductListPage({
     }
   }, [pagination.hasMore, pagination.currentPage, loading.list, products.length, loadProducts]);
 
-  // Save scroll position BEFORE fetch, then trigger load with debounce
+  // Trigger load more
   const handleLoadMoreWithScroll = useCallback(() => {
-    savePositionNow();
     handleLoadMore();
-  }, [savePositionNow, handleLoadMore]);
+  }, [handleLoadMore]);
 
   // Smart pagination with debounce (300ms) - same as home page
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
@@ -202,7 +196,7 @@ export function ProductListPage({
             </aside>
 
             {/* Main Product List */}
-            <div className="flex-1 min-w-0" ref={containerRef}>
+            <div className="flex-1 min-w-0">
               {/* Mobile Filters */}
               <div className="lg:hidden mb-6">
                 <ProductFilters
