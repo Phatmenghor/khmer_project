@@ -834,13 +834,12 @@ export default function AdminProfilePage() {
 
               {/* Addresses */}
               <Card>
-                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
+                <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-primary">Addresses</CardTitle>
+                    <CardTitle>Addresses</CardTitle>
                     {isEditing && (
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
                         onClick={() =>
                           appendAddress({
@@ -855,6 +854,7 @@ export default function AdminProfilePage() {
                             country: "",
                           })
                         }
+                        className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Address
@@ -991,13 +991,12 @@ export default function AdminProfilePage() {
 
               {/* Emergency Contacts */}
               <Card>
-                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
+                <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-primary">Emergency Contacts</CardTitle>
+                    <CardTitle>Emergency Contacts</CardTitle>
                     {isEditing && (
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
                         onClick={() =>
                           appendContact({
@@ -1007,6 +1006,7 @@ export default function AdminProfilePage() {
                             relationship: "",
                           })
                         }
+                        className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Contact
@@ -1086,13 +1086,12 @@ export default function AdminProfilePage() {
 
               {/* Documents */}
               <Card>
-                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
+                <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-primary">Documents</CardTitle>
+                    <CardTitle>Documents</CardTitle>
                     {isEditing && (
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
                         onClick={() =>
                           appendDocument({
@@ -1102,6 +1101,7 @@ export default function AdminProfilePage() {
                             fileUrl: "",
                           })
                         }
+                        className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Document
@@ -1216,13 +1216,12 @@ export default function AdminProfilePage() {
 
               {/* Education */}
               <Card>
-                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
+                <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-primary">Education</CardTitle>
+                    <CardTitle>Education</CardTitle>
                     {isEditing && (
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
                         onClick={() =>
                           appendEducation({
@@ -1236,6 +1235,7 @@ export default function AdminProfilePage() {
                             certificateUrl: "",
                           })
                         }
+                        className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Education
