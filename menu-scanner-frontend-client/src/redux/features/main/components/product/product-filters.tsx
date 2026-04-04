@@ -245,7 +245,7 @@ export function ProductFilters({
               className={cn(
                 "w-full justify-between font-normal",
                 selectedCategory &&
-                  "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary",
+                  "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary hover:text-primary",
               )}
             >
               <span className="truncate text-sm font-medium">
@@ -327,7 +327,7 @@ export function ProductFilters({
               className={cn(
                 "w-full justify-between font-normal",
                 selectedBrand &&
-                  "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary",
+                  "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary hover:text-primary",
               )}
             >
               <span className="truncate text-sm font-medium">
