@@ -121,15 +121,27 @@ const PaginatedProductsGridComponent = ({
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
 
-  // Scroll IMMEDIATELY when data arrives (before render) - prevents jump
+  // Scroll to FIRST NEW PRODUCT when data arrives - show new products at top
   useEffect(() => {
-    if (!isPaginationLoading && lastVisibleProductKeyRef.current && containerRef.current) {
-      // Scroll immediately (not waiting for render)
+    if (!isPaginationLoading && products.length > 0 && containerRef.current) {
       requestAnimationFrame(() => {
-        scrollToProductAtCenter();
+        // Get the first few new products
+        const newProductElements = Array.from(
+          containerRef.current?.querySelectorAll('[data-product-key]') || []
+        ).slice(-paginationSkeletonCount * 2);
+
+        if (newProductElements.length > 0) {
+          const firstNewProduct = newProductElements[0] as HTMLElement;
+          // Scroll first new product to TOP of screen
+          const elementTop = firstNewProduct.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({
+            top: elementTop - 100, // 100px from top for padding
+            behavior: "smooth"
+          });
+        }
       });
     }
-  }, [isPaginationLoading, scrollToProductAtCenter]);
+  }, [isPaginationLoading, products, paginationSkeletonCount]);
 
   // Track new products for animation (separate from scroll)
   useEffect(() => {
