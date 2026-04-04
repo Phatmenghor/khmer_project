@@ -588,36 +588,54 @@ export default function AdminProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Navigation Tabs - Modern Design */}
-        <div className="flex gap-3 mb-6 p-3 w-full bg-muted/30 rounded-xl border border-border/50 backdrop-blur-sm">
-          <Button
-            variant="ghost"
-            size="sm"
+        {/* Navigation Tabs - Premium Clean Design */}
+        <div className="flex gap-0 mb-8 w-full relative group">
+          {/* Background indicator */}
+          <div
+            className={cn(
+              "absolute bottom-0 h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0 transition-all duration-500 ease-out",
+              activeSection === "profile" ? "left-0 w-1/2" : "left-1/2 w-1/2"
+            )}
+          />
+
+          {/* Divider line */}
+          <div className="absolute bottom-0 w-full h-px bg-border/30" />
+
+          {/* Profile Tab */}
+          <button
             onClick={() => setActiveSection("profile")}
             className={cn(
-              "flex-1 justify-center gap-2 transition-all duration-300 rounded-lg font-medium text-sm",
-              "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-              activeSection === "profile" &&
-              "bg-background text-foreground shadow-md border border-border hover:bg-background hover:text-foreground"
+              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative",
+              "text-sm font-semibold transition-all duration-300",
+              activeSection === "profile"
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground/70"
             )}
           >
-            <User className="h-4 w-4" />
+            <User className={cn(
+              "h-4 w-4 transition-all duration-300",
+              activeSection === "profile" ? "scale-110" : "scale-100"
+            )} />
             <span>Profile</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
+          </button>
+
+          {/* Security Tab */}
+          <button
             onClick={() => setActiveSection("security")}
             className={cn(
-              "flex-1 justify-center gap-2 transition-all duration-300 rounded-lg font-medium text-sm",
-              "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-              activeSection === "security" &&
-              "bg-background text-foreground shadow-md border border-border hover:bg-background hover:text-foreground"
+              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative",
+              "text-sm font-semibold transition-all duration-300",
+              activeSection === "security"
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground/70"
             )}
           >
-            <Lock className="h-4 w-4" />
+            <Lock className={cn(
+              "h-4 w-4 transition-all duration-300",
+              activeSection === "security" ? "scale-110" : "scale-100"
+            )} />
             <span>Security</span>
-          </Button>
+          </button>
         </div>
 
         {/* Profile Section */}
