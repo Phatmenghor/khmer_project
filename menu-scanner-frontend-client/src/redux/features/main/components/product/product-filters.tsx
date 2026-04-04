@@ -25,25 +25,12 @@ import {
   ListChecks,
   FilterX,
   DollarSign,
-  Check,
-  ChevronsUpDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePublicCategoriesState } from "@/redux/features/main/store/state/public-categories-state";
 import { usePublicBrandsState } from "@/redux/features/main/store/state/public-brands-state";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { ComboboxSelectBrandPublic } from "@/components/shared/combobox/combobox_select_brand_public";
+import { ComboboxSelectCategoriesPublic } from "@/components/shared/combobox/combobox_select_categories_public";
 
 const PRODUCT_STATUSES = [
   { value: "ACTIVE", label: "Active" },
@@ -77,8 +64,6 @@ export function ProductFilters({
   const [hasPromotion, setHasPromotion] = useState<boolean>(false);
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [brandOpen, setBrandOpen] = useState(false);
 
   useEffect(() => {
     if (!categoriesLoaded) fetchCategories({ status: "ACTIVE" });
@@ -226,216 +211,42 @@ export function ProductFilters({
         </>
       )}
 
-      {/* Category - Combobox with admin styling */}
+      {/* Category - Combobox */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-500/10">
             <Package className="h-3.5 w-3.5 text-blue-500" />
           </div>
-          <label className="text-sm font-semibold">Category</label>
         </div>
-        <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={categoryOpen}
-              className={cn(
-                "w-full justify-between gap-2 transition-all duration-200",
-                "border-input",
-                "hover:bg-primary/10 hover:border-primary hover:text-primary",
-                "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
-                categoryOpen && "bg-primary/20 border-primary text-primary",
-              )}
-            >
-              <span
-                className={cn(
-                  "truncate",
-                  selectedCategory
-                    ? "text-foreground"
-                    : "text-muted-foreground",
-                  categoryOpen && "text-primary",
-                )}
-              >
-                {selectedCategoryName || "All Categories"}
-              </span>
-              <ChevronsUpDown
-                className={cn(
-                  "h-4 w-4 shrink-0 transition-all duration-200",
-                  !categoryOpen && "opacity-50",
-                  categoryOpen && "opacity-100 text-primary rotate-180",
-                )}
-              />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-[--radix-popover-trigger-width] p-0"
-            align="start"
-          >
-            <Command>
-              <CommandInput placeholder="Search category..." />
-              <CommandList>
-                <CommandEmpty>No categories found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandItem
-                    value="__all__"
-                    onSelect={() => {
-                      updateFilter("categoryId", "");
-                      setCategoryOpen(false);
-                    }}
-                    className={cn(
-                      "hover:bg-primary/10 hover:text-primary cursor-pointer",
-                      !selectedCategory &&
-                        "bg-primary/20 text-primary font-medium",
-                    )}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        !selectedCategory ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                    All Categories
-                  </CommandItem>
-                  {categories.map((cat) => (
-                    <CommandItem
-                      key={cat.id}
-                      value={cat.name}
-                      onSelect={() => {
-                        updateFilter(
-                          "categoryId",
-                          cat.id === selectedCategory ? "" : cat.id,
-                        );
-                        setCategoryOpen(false);
-                      }}
-                      className={cn(
-                        "hover:bg-primary/10 hover:text-primary cursor-pointer",
-                        selectedCategory === cat.id &&
-                          "bg-primary/20 text-primary font-medium",
-                      )}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedCategory === cat.id
-                            ? "opacity-100"
-                            : "opacity-0",
-                        )}
-                      />
-                      {cat.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <ComboboxSelectCategoriesPublic
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onChangeSelected={(categoryId) =>
+            updateFilter("categoryId", categoryId)
+          }
+          label="Category"
+          size="md"
+          placeholder="All Categories"
+        />
       </div>
 
       <Separator />
 
-      {/* Brand - Combobox with admin styling */}
+      {/* Brand - Combobox */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-500/10">
             <Tag className="h-3.5 w-3.5 text-purple-500" />
           </div>
-          <label className="text-sm font-semibold">Brand</label>
         </div>
-        <Popover open={brandOpen} onOpenChange={setBrandOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={brandOpen}
-              className={cn(
-                "w-full justify-between gap-2 transition-all duration-200",
-                "border-input",
-                "hover:bg-primary/10 hover:border-primary hover:text-primary",
-                "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
-                brandOpen && "bg-primary/20 border-primary text-primary",
-              )}
-            >
-              <span
-                className={cn(
-                  "truncate",
-                  selectedBrand ? "text-foreground" : "text-muted-foreground",
-                  brandOpen && "text-primary",
-                )}
-              >
-                {selectedBrandName || "All Brands"}
-              </span>
-              <ChevronsUpDown
-                className={cn(
-                  "h-4 w-4 shrink-0 transition-all duration-200",
-                  !brandOpen && "opacity-50",
-                  brandOpen && "opacity-100 text-primary rotate-180",
-                )}
-              />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-[--radix-popover-trigger-width] p-0"
-            align="start"
-          >
-            <Command>
-              <CommandInput placeholder="Search brand..." />
-              <CommandList>
-                <CommandEmpty>No brands found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandItem
-                    value="__all__"
-                    onSelect={() => {
-                      updateFilter("brandId", "");
-                      setBrandOpen(false);
-                    }}
-                    className={cn(
-                      "hover:bg-primary/10 hover:text-primary cursor-pointer",
-                      !selectedBrand &&
-                        "bg-primary/20 text-primary font-medium",
-                    )}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        !selectedBrand ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                    All Brands
-                  </CommandItem>
-                  {brands.map((brand) => (
-                    <CommandItem
-                      key={brand.id}
-                      value={brand.name}
-                      onSelect={() => {
-                        updateFilter(
-                          "brandId",
-                          brand.id === selectedBrand ? "" : brand.id,
-                        );
-                        setBrandOpen(false);
-                      }}
-                      className={cn(
-                        "hover:bg-primary/10 hover:text-primary cursor-pointer",
-                        selectedBrand === brand.id &&
-                          "bg-primary/20 text-primary font-medium",
-                      )}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedBrand === brand.id
-                            ? "opacity-100"
-                            : "opacity-0",
-                        )}
-                      />
-                      {brand.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <ComboboxSelectBrandPublic
+          brands={brands}
+          selectedBrand={selectedBrand}
+          onChangeSelected={(brandId) => updateFilter("brandId", brandId)}
+          label="Brand"
+          size="md"
+          placeholder="All Brands"
+        />
       </div>
 
       <Separator />
