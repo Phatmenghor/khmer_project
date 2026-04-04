@@ -235,13 +235,13 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-        <PageContainer className="max-w-8xl">
+      <nav className="sticky top-0 z-50 w-full h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm flex items-center">
+        <PageContainer className="max-w-8xl w-full">
           {/* ── Mobile: expanded search overlay ── */}
           {mobileSearchOpen ? (
             <form
               onSubmit={handleSearchSubmit}
-              className="sm:hidden flex items-center gap-2 h-14"
+              className="sm:hidden flex items-center gap-2 w-full h-16"
             >
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -266,7 +266,7 @@ export function Navbar() {
             </form>
           ) : (
             /* ── Mobile: compact top bar ── */
-            <div className="sm:hidden flex items-center justify-between h-14 gap-2">
+            <div className="sm:hidden flex items-center justify-between w-full h-16 gap-2">
               <Link href="/" className="flex items-center gap-2 shrink-0">
                 <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm overflow-hidden">
                   {businessLogoUrl ? (
@@ -354,7 +354,7 @@ export function Navbar() {
           )}
 
           {/* ── Desktop top bar ── */}
-          <div className="hidden sm:flex h-16 items-center justify-between gap-4">
+          <div className="hidden sm:flex h-full w-full items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               <Link href="/" className="flex items-center gap-2 group">
                 <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
