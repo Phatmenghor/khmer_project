@@ -589,24 +589,25 @@ export default function AdminProfilePage() {
         </Card>
 
         {/* Navigation Tabs - Premium Clean Design */}
-        <div className="flex gap-0 mb-8 w-full relative group">
+        <div className="flex gap-0 mb-8 w-full relative group border border-border/50 rounded-xl overflow-hidden">
           {/* Background indicator */}
           <div
             className={cn(
-              "absolute bottom-0 h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0 transition-all duration-500 ease-out",
+              "absolute inset-y-0 h-full bg-primary/5 transition-all duration-500 ease-out",
               activeSection === "profile" ? "left-0 w-1/2" : "left-1/2 w-1/2"
             )}
           />
 
-          {/* Divider line */}
-          <div className="absolute bottom-0 w-full h-px bg-border/30" />
+          {/* Center divider line */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-border/30" />
 
           {/* Profile Tab */}
           <button
             onClick={() => setActiveSection("profile")}
             className={cn(
-              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative",
+              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative z-10",
               "text-sm font-semibold transition-all duration-300",
+              "border-r border-border/30",
               activeSection === "profile"
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground/70"
@@ -623,7 +624,7 @@ export default function AdminProfilePage() {
           <button
             onClick={() => setActiveSection("security")}
             className={cn(
-              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative",
+              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative z-10",
               "text-sm font-semibold transition-all duration-300",
               activeSection === "security"
                 ? "text-foreground"
