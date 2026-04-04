@@ -336,7 +336,7 @@ export function DataTableWithPagination<T = any>({
                       rounded-lg font-medium px-2 transition-all duration-200
                       ${
                         currentPage === item
-                          ? "bg-primary text-primary-foreground shadow-sm"
+                          ? "bg-primary text-primary-foreground border-2 border-primary shadow-md font-bold"
                           : "text-foreground border border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
                       }
                     `}
