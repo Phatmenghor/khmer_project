@@ -41,12 +41,12 @@ export function TextAreaField<T extends FieldValues>({
             placeholder={placeholder}
             disabled={disabled}
             rows={rows}
-            className={`w-full px-3 py-2 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-200 ${
+            className={`w-full px-3 py-2 rounded-md border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-200 ${
               disabled ? "bg-muted/50 cursor-not-allowed" : ""
             } ${
               error
-                ? "border-red-500 focus:ring-red-500"
-                : "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/30"
+                ? "border-red-500 focus:border-2 focus:border-red-500 focus:bg-red-50/50 focus:ring-2 focus:ring-red-500/30"
+                : "border-input focus:border-2 focus:border-primary focus:bg-primary/10 focus:ring-2 focus:ring-primary/30"
             }`}
           />
         )}

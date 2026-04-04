@@ -109,10 +109,10 @@ export function TextField({
               }
             }}
             pattern={pattern}
-            className={`h-10 transition-all duration-200 ${disabled ? "bg-muted/50" : ""} ${
+            className={`h-10 transition-all duration-200 border ${disabled ? "bg-muted/50" : ""} ${
               error
-                ? "border-red-500 focus:border-red-500"
-                : "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/30"
+                ? "border-red-500 focus:border-red-500 focus:border-2 focus:bg-red-50/50"
+                : "border-input focus:border-2 focus:border-primary focus:bg-primary/10 focus:ring-2 focus:ring-primary/30"
             }`}
           />
         )}
