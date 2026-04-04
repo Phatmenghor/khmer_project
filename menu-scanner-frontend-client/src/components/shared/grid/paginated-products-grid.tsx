@@ -39,6 +39,7 @@ const PaginatedProductsGridComponent = ({
   const sentinelRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastVisibleProductKeyRef = useRef<string | null>(null);
+  const previousProductCountRef = useRef(0);
   const isPaginationLoading = loading && products.length > 0;
   const [paginationSkeletonCount, setPaginationSkeletonCount] = useState(6);
   const [newProductIds, setNewProductIds] = useState<Set<string>>(new Set());
@@ -121,9 +122,12 @@ const PaginatedProductsGridComponent = ({
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
 
-  // Scroll to FIRST NEW PRODUCT when data arrives - show new products at top
+  // Scroll to FIRST NEW PRODUCT when data arrives - only on actual pagination, not initial load
   useEffect(() => {
-    if (!isPaginationLoading && products.length > 0 && containerRef.current) {
+    if (!isPaginationLoading && products.length > previousProductCountRef.current && containerRef.current) {
+      // Only scroll if products actually increased (real pagination, not initial load)
+      previousProductCountRef.current = products.length;
+
       requestAnimationFrame(() => {
         // Get the first few new products
         const newProductElements = Array.from(
@@ -140,6 +144,9 @@ const PaginatedProductsGridComponent = ({
           });
         }
       });
+    } else if (products.length > 0) {
+      // Update count even if not scrolling
+      previousProductCountRef.current = products.length;
     }
   }, [isPaginationLoading, products, paginationSkeletonCount]);
 
