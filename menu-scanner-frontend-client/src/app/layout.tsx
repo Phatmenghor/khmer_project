@@ -44,7 +44,7 @@ export default async function RootLayout({
     >
       <head>
         <link rel="icon" href="/favicon.ico" />
-        {/* Apply theme colors synchronously before React renders to prevent color flash */}
+        {/* Apply theme colors synchronously via style tag to prevent color flash */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -100,16 +100,10 @@ export default async function RootLayout({
                     return hue + ' ' + saturation + '% ' + lightness + '%';
                   }
 
-                  // Apply colors synchronously
-                  if (cachedColors.primaryColor) {
-                    document.documentElement.style.setProperty('--primary', hexToHsl(cachedColors.primaryColor));
-                  }
-                  if (cachedColors.secondaryColor) {
-                    document.documentElement.style.setProperty('--secondary', hexToHsl(cachedColors.secondaryColor));
-                  }
-                  if (cachedColors.accentColor) {
-                    document.documentElement.style.setProperty('--accent', hexToHsl(cachedColors.accentColor));
-                  }
+                  // Create and inject style tag to apply colors
+                  const style = document.createElement('style');
+                  style.textContent = ':root{--primary:' + hexToHsl(cachedColors.primaryColor) + ';--secondary:' + hexToHsl(cachedColors.secondaryColor) + ';--accent:' + hexToHsl(cachedColors.accentColor) + ';}';
+                  document.head.appendChild(style);
 
                   console.log('[THEME SYNC] Colors applied synchronously from cache');
                 } catch (e) {
