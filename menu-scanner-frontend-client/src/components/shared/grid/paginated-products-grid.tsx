@@ -115,22 +115,25 @@ const PaginatedProductsGridComponent = ({
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
 
-  // Track new products and scroll to saved product at 80% height
+  // Scroll IMMEDIATELY when data arrives (before render) - prevents jump
+  useEffect(() => {
+    if (!isPaginationLoading && lastVisibleProductKeyRef.current && containerRef.current) {
+      // Scroll immediately (not waiting for render)
+      requestAnimationFrame(() => {
+        scrollToProductAt80Percent();
+      });
+    }
+  }, [isPaginationLoading, scrollToProductAt80Percent]);
+
+  // Track new products for animation (separate from scroll)
   useEffect(() => {
     if (!isPaginationLoading && products.length > 0) {
       const newIds = new Set(
         products.slice(-paginationSkeletonCount * 2).map((p) => p.id.toString())
       );
       setNewProductIds(newIds);
-
-      // Scroll to keep saved product at 80% viewport height
-      if (lastVisibleProductKeyRef.current) {
-        setTimeout(() => {
-          scrollToProductAt80Percent();
-        }, 100);
-      }
     }
-  }, [isPaginationLoading, products, paginationSkeletonCount, scrollToProductAt80Percent]);
+  }, [isPaginationLoading, products, paginationSkeletonCount]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
