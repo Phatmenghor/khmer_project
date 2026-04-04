@@ -65,11 +65,11 @@ export function ProductFilters({
   const [maxPrice, setMaxPrice] = useState<string>("");
 
   useEffect(() => {
-    if (!categoriesLoaded) fetchCategories({ pageSize: 100, status: "ACTIVE" });
+    if (!categoriesLoaded) fetchCategories({ status: "ACTIVE" });
   }, [categoriesLoaded, fetchCategories]);
 
   useEffect(() => {
-    if (!brandsLoaded) fetchBrands({ pageSize: 100, status: "ACTIVE" });
+    if (!brandsLoaded) fetchBrands({ status: "ACTIVE" });
   }, [brandsLoaded, fetchBrands]);
 
   // Sync from URL
