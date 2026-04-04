@@ -250,13 +250,13 @@ export const productTableColumns = ({
       render: (product) => (
         <div className="flex items-center gap-1">
           {product?.hasPromotion ? (
-            <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200">
+            <span className="gap-1 bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-semibold inline-block">
               Active
-            </Badge>
+            </span>
           ) : (
-            <Badge variant="secondary" className="gap-1">
+            <span className="gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded text-xs font-semibold inline-block">
               Regular
-            </Badge>
+            </span>
           )}
         </div>
       ),

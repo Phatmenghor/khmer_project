@@ -239,14 +239,11 @@ export const bulkPromotionTableColumns = ({
 
                   {/* Size Promotion Status Badge */}
                   {hasPromotion && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-green-100/70 text-green-700 border-green-300/40 text-xs h-fit px-1"
-                    >
+                    <span className="bg-green-100/70 text-green-700 text-xs h-fit px-1 py-0.5 rounded inline-block font-semibold">
                       {size.promotionType === "PERCENTAGE"
                         ? `${size.promotionValue}%`
                         : `$${size.promotionValue}`}
-                    </Badge>
+                    </span>
                   )}
                 </label>
               );
@@ -300,14 +297,11 @@ export const bulkPromotionTableColumns = ({
         }
 
         return (
-          <Badge
-            variant="secondary"
-            className="bg-green-100/70 text-green-700 border-green-300/40 text-xs h-fit px-2"
-          >
+          <span className="bg-green-100/70 text-green-700 text-xs h-fit px-2 py-0.5 rounded inline-block font-semibold">
             {product.displayPromotionType === "PERCENTAGE"
               ? `${product.displayPromotionValue}%`
               : `$${Number(product.displayPromotionValue || 0).toFixed(2)}`}
-          </Badge>
+          </span>
         );
       },
     },
