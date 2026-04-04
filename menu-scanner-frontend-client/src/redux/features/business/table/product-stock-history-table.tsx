@@ -11,16 +11,16 @@ interface StockHistoryTableHandlers {
 }
 
 /**
- * Get expiry date background color based on status
+ * Get expiry date text color based on status
  * Primary: Not expired, more than 10 days away
  * Orange: Expiring within 10 days
  * Red: Already expired
  */
 function getExpiryDateVariant(expiryDate: string): {
-  bgClass: string;
+  textClass: string;
 } {
   if (!expiryDate) {
-    return { bgClass: "bg-muted" };
+    return { textClass: "text-muted-foreground" };
   }
 
   const expiryDateObj = new Date(expiryDate);
@@ -30,7 +30,7 @@ function getExpiryDateVariant(expiryDate: string): {
   today.setHours(0, 0, 0, 0);
 
   if (expiryDateObj < today) {
-    return { bgClass: "bg-red-500" };
+    return { textClass: "text-red-500" };
   }
 
   const daysUntilExpiry = Math.floor(
@@ -38,10 +38,10 @@ function getExpiryDateVariant(expiryDate: string): {
   );
 
   if (daysUntilExpiry > 0 && daysUntilExpiry <= 10) {
-    return { bgClass: "bg-orange-500" };
+    return { textClass: "text-orange-500" };
   }
 
-  return { bgClass: "bg-primary" };
+  return { textClass: "text-primary" };
 }
 
 /**
@@ -112,9 +112,9 @@ export function createStockHistoryColumns(
       render: (stock: ProductStockDto) =>
         stock.expiryDate ? (
           (() => {
-            const { bgClass } = getExpiryDateVariant(stock.expiryDate);
+            const { textClass } = getExpiryDateVariant(stock.expiryDate);
             return (
-              <span className={`text-xs ${bgClass} text-foreground font-medium px-2 py-1 rounded inline-block`}>
+              <span className={`text-xs ${textClass} font-medium`}>
                 {formatExpiryDate(stock.expiryDate)}
               </span>
             );
