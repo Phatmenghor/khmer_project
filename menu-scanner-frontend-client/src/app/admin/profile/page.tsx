@@ -501,7 +501,7 @@ export default function AdminProfilePage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         {/* Profile Header */}
-        <Card className="mb-6">
+        <Card className="mb-6 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5 shadow-md">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               {/* Profile Image - Camera Icon */}
@@ -509,14 +509,14 @@ export default function AdminProfilePage() {
                 className="relative group cursor-pointer"
                 onClick={() => setIsProfilePictureModalOpen(true)}
               >
-                <div className="relative">
+                <div className="relative ring-2 ring-primary/20 rounded-2xl">
                   <CustomAvatar
                     imageUrl={userProfile?.profileImageUrl}
                     name={userProfile?.fullName}
                     size="xxl"
                   />
                   {/* Camera Icon Overlay - Auto show on hover */}
-                  <div className="absolute bottom-1 right-1 bg-primary rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-md hover:bg-primary/90">
+                  <div className="absolute bottom-1 right-1 bg-primary rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
                     <Camera className="h-4 w-4 text-white" />
                   </div>
                 </div>
@@ -525,16 +525,16 @@ export default function AdminProfilePage() {
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-foreground">
+                    <h2 className="text-2xl font-bold text-foreground">
                       {userProfile?.fullName}
                     </h2>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-primary/70 text-sm font-medium">
                       {userProfile?.email}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="secondary" className="text-xs">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold">
                         {userProfile?.userType}
-                      </Badge>
+                      </span>
                     </div>
                   </div>
 
@@ -546,6 +546,7 @@ export default function AdminProfilePage() {
                           size="sm"
                           onClick={handleCancel}
                           disabled={isProfileLoading || isUploadingImage}
+                          className="border-primary/30 hover:bg-primary/5 hover:text-primary hover:border-primary/50"
                         >
                           Cancel
                         </Button>
@@ -557,6 +558,7 @@ export default function AdminProfilePage() {
                             isUploadingImage ||
                             !isDirty
                           }
+                          className="bg-primary hover:bg-primary/90"
                         >
                           {isProfileLoading || isUploadingImage ? (
                             <>
@@ -570,9 +572,9 @@ export default function AdminProfilePage() {
                       </>
                     ) : (
                       <Button
-                        variant="outline"
                         size="sm"
                         onClick={() => setIsEditing(true)}
+                        className="bg-primary hover:bg-primary/90 text-white"
                       >
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
@@ -586,21 +588,27 @@ export default function AdminProfilePage() {
         </Card>
 
         {/* Navigation Tabs */}
-        <div className="flex gap-1 mb-6 bg-card rounded-lg p-1 border w-full">
+        <div className="flex gap-2 mb-6 p-1 w-full border-b-2 border-primary/20">
           <Button
-            variant={activeSection === "profile" ? "secondary" : "ghost"}
+            variant="ghost"
             size="sm"
             onClick={() => setActiveSection("profile")}
-            className="flex-1 justify-center"
+            className={cn(
+              "flex-1 justify-center transition-all duration-200 rounded-t-lg border-b-2 border-transparent hover:bg-primary/5 hover:text-primary",
+              activeSection === "profile" && "border-b-primary text-primary bg-primary/10 hover:bg-primary/10"
+            )}
           >
             <User className="h-4 w-4 mr-2" />
             Profile
           </Button>
           <Button
-            variant={activeSection === "security" ? "secondary" : "ghost"}
+            variant="ghost"
             size="sm"
             onClick={() => setActiveSection("security")}
-            className="flex-1 justify-center"
+            className={cn(
+              "flex-1 justify-center transition-all duration-200 rounded-t-lg border-b-2 border-transparent hover:bg-primary/5 hover:text-primary",
+              activeSection === "security" && "border-b-primary text-primary bg-primary/10 hover:bg-primary/10"
+            )}
           >
             <Lock className="h-4 w-4 mr-2" />
             Security
@@ -612,9 +620,9 @@ export default function AdminProfilePage() {
           <form onSubmit={handleSubmit(onSubmit)} className="w-full">
             <div className="w-full space-y-6">
               {/* Personal Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
+              <Card className="border-primary/20">
+                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
+                  <CardTitle className="text-primary">Personal Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -734,9 +742,9 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Employment Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Employment Information</CardTitle>
+              <Card className="border-primary/20">
+                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
+                  <CardTitle className="text-primary">Employment Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -824,10 +832,10 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Addresses */}
-              <Card>
-                <CardHeader>
+              <Card className="border-primary/20">
+                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
                   <div className="flex items-center justify-between">
-                    <CardTitle>Addresses</CardTitle>
+                    <CardTitle className="text-primary">Addresses</CardTitle>
                     {isEditing && (
                       <Button
                         type="button"
@@ -863,7 +871,7 @@ export default function AdminProfilePage() {
                       {addressFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border rounded-lg p-4 relative"
+                          className="border-l-4 border-l-primary/40 rounded-lg p-4 relative bg-primary/5"
                         >
                           <Button
                             type="button"
@@ -981,10 +989,10 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Emergency Contacts */}
-              <Card>
-                <CardHeader>
+              <Card className="border-primary/20">
+                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
                   <div className="flex items-center justify-between">
-                    <CardTitle>Emergency Contacts</CardTitle>
+                    <CardTitle className="text-primary">Emergency Contacts</CardTitle>
                     {isEditing && (
                       <Button
                         type="button"
@@ -1015,7 +1023,7 @@ export default function AdminProfilePage() {
                       {contactFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border rounded-lg p-4 relative"
+                          className="border-l-4 border-l-primary/40 rounded-lg p-4 relative bg-primary/5"
                         >
                           <Button
                             type="button"
@@ -1076,10 +1084,10 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Documents */}
-              <Card>
-                <CardHeader>
+              <Card className="border-primary/20">
+                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
                   <div className="flex items-center justify-between">
-                    <CardTitle>Documents</CardTitle>
+                    <CardTitle className="text-primary">Documents</CardTitle>
                     {isEditing && (
                       <Button
                         type="button"
@@ -1110,7 +1118,7 @@ export default function AdminProfilePage() {
                       {documentFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border rounded-lg p-4 relative"
+                          className="border-l-4 border-l-primary/40 rounded-lg p-4 relative bg-primary/5"
                         >
                           <Button
                             type="button"
@@ -1172,7 +1180,7 @@ export default function AdminProfilePage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {documentFields.map((field: any, index) => (
-                        <div key={field.id} className="border rounded-lg p-4">
+                        <div key={field.id} className="border-l-4 border-l-primary/40 rounded-lg p-4 bg-primary/5">
                           <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <DisplayField
@@ -1206,10 +1214,10 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Education */}
-              <Card>
-                <CardHeader>
+              <Card className="border-primary/20">
+                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
                   <div className="flex items-center justify-between">
-                    <CardTitle>Education</CardTitle>
+                    <CardTitle className="text-primary">Education</CardTitle>
                     {isEditing && (
                       <Button
                         type="button"
@@ -1244,7 +1252,7 @@ export default function AdminProfilePage() {
                       {educationFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border rounded-lg p-4 relative"
+                          className="border-l-4 border-l-primary/40 rounded-lg p-4 relative bg-primary/5"
                         >
                           <Button
                             type="button"
@@ -1353,7 +1361,7 @@ export default function AdminProfilePage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {educationFields.map((field: any, index) => (
-                        <div key={field.id} className="border rounded-lg p-4">
+                        <div key={field.id} className="border-l-4 border-l-primary/40 rounded-lg p-4 bg-primary/5">
                           <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <DisplayField
@@ -1398,9 +1406,9 @@ export default function AdminProfilePage() {
               </Card>
 
               {/* Remarks */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Additional Information</CardTitle>
+              <Card className="border-primary/20">
+                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-primary/20">
+                  <CardTitle className="text-primary">Additional Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {isEditing ? (
