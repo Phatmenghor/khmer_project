@@ -48,9 +48,14 @@ export function ProductListPage({
   const { dispatch, products, pagination, loading, loadedFilters } =
     usePublicProductState();
 
+  // Always start at top on page load/refresh - don't restore scroll
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
+
   useScrollRestoration({
     enabled: true,
-    restoreOnMount: true,
+    restoreOnMount: false, // Disable on mount to prevent restoring bottom scroll
     customKey: scrollKey,
     restoreDelay: 150,
   });
