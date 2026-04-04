@@ -100,9 +100,9 @@ export function SelectField<T extends FieldValues = any>({
                       }}
                       className={cn(
                         "w-full flex items-center gap-2 px-3 py-2 text-sm text-left cursor-pointer transition-colors",
-                        "hover:bg-primary/10 hover:text-primary",
+                        "hover:bg-primary/10 hover:text-primary/50",
                         currentValue === option.value
-                          ? "bg-primary/20 text-primary font-medium"
+                          ? "bg-primary/20 text-primary/50 font-medium"
                           : "text-foreground"
                       )}
                     >
