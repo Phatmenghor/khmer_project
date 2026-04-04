@@ -18,10 +18,16 @@ import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 
 // Dynamically import ProductFilters to avoid SSR hydration mismatch
 const ProductFilters = dynamic(
-  () => import("@/redux/features/main/components/product/product-filters").then(
-    (mod) => ({ default: mod.ProductFilters })
-  ),
-  { ssr: false, loading: () => <div className="w-72 h-96 bg-muted animate-pulse rounded-lg" /> }
+  () =>
+    import("@/redux/features/main/components/product/product-filters").then(
+      (mod) => ({ default: mod.ProductFilters }),
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-72 h-96 bg-muted animate-pulse rounded-lg" />
+    ),
+  },
 );
 
 interface ProductListPageProps {
@@ -134,7 +140,13 @@ export function ProductListPage({
       const nextPage = pagination.currentPage + 1;
       loadProducts(nextPage);
     }
-  }, [pagination.hasMore, pagination.currentPage, loading.list, products.length, loadProducts]);
+  }, [
+    pagination.hasMore,
+    pagination.currentPage,
+    loading.list,
+    products.length,
+    loadProducts,
+  ]);
 
   // Trigger load more
   const handleLoadMoreWithScroll = useCallback(() => {
@@ -145,7 +157,7 @@ export function ProductListPage({
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
     handleLoadMoreWithScroll,
     pagination.hasMore && !loading.list,
-    [pagination.hasMore, loading.list, handleLoadMoreWithScroll]
+    [pagination.hasMore, loading.list, handleLoadMoreWithScroll],
   );
 
   // Initial filter load
@@ -176,7 +188,7 @@ export function ProductListPage({
       {/* Optional hero section */}
       {hero && (
         <div className="relative">
-          <PageContainer className="pt-3 sm:pt-6 pb-0">
+          <PageContainer className="pt-3 max sm:pt-6 pb-0">
             <div className="mb-6">{hero}</div>
           </PageContainer>
         </div>
@@ -184,7 +196,7 @@ export function ProductListPage({
 
       {/* Products Section with home page styling */}
       <div className="relative py-6 sm:py-10">
-        <PageContainer>
+        <PageContainer className="max-w-8xl">
           <div className="flex gap-6 lg:gap-8">
             {/* Desktop Sidebar Filters */}
             <aside className="hidden lg:block w-72 flex-shrink-0">
@@ -226,29 +238,33 @@ export function ProductListPage({
                   />
 
                   {/* End of products state */}
-                  {!pagination.hasMore && products.length > 0 && !loading.list && (
-                    <div className="flex flex-col items-center justify-center mt-10 py-8">
-                      <div
-                        className={`flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
-                          lockedPromotion ? "bg-orange-500/10" : "bg-primary/10"
-                        }`}
-                      >
-                        <CheckCircle2
-                          className={`h-8 w-8 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
-                        />
+                  {!pagination.hasMore &&
+                    products.length > 0 &&
+                    !loading.list && (
+                      <div className="flex flex-col items-center justify-center mt-10 py-8">
+                        <div
+                          className={`flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
+                            lockedPromotion
+                              ? "bg-orange-500/10"
+                              : "bg-primary/10"
+                          }`}
+                        >
+                          <CheckCircle2
+                            className={`h-8 w-8 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
+                          />
+                        </div>
+                        <h3 className="text-lg font-semibold mb-2">
+                          {lockedPromotion
+                            ? "All deals loaded!"
+                            : "You've seen it all!"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground text-center max-w-md">
+                          {lockedPromotion
+                            ? "You've seen all current promotions. Check back later for new deals!"
+                            : "You've reached the end of products. Check back later for new arrivals!"}
+                        </p>
                       </div>
-                      <h3 className="text-lg font-semibold mb-2">
-                        {lockedPromotion
-                          ? "All deals loaded!"
-                          : "You've seen it all!"}
-                      </h3>
-                      <p className="text-sm text-muted-foreground text-center max-w-md">
-                        {lockedPromotion
-                          ? "You've seen all current promotions. Check back later for new deals!"
-                          : "You've reached the end of products. Check back later for new arrivals!"}
-                      </p>
-                    </div>
-                  )}
+                    )}
                 </>
               ) : (
                 /* No Results */
