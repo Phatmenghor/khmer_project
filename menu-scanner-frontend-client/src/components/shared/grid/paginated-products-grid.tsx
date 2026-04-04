@@ -43,22 +43,28 @@ const PaginatedProductsGridComponent = ({
   const [paginationSkeletonCount, setPaginationSkeletonCount] = useState(6);
   const [newProductIds, setNewProductIds] = useState<Set<string>>(new Set());
 
-  // Save last visible product key before fetch
+  // Save MIDDLE visible product (50% of viewport) - best for scroll anchoring
   const saveLastVisibleProduct = useCallback(() => {
     if (!containerRef.current) return;
 
     const productCards = containerRef.current.querySelectorAll('[data-product-key]');
-    let lastVisibleKey: string | null = null;
+    const visibleProducts: HTMLElement[] = [];
 
     productCards.forEach((card) => {
       const rect = (card as HTMLElement).getBoundingClientRect();
       if (rect.bottom > 0 && rect.top < window.innerHeight) {
-        lastVisibleKey = card.getAttribute('data-product-key');
+        visibleProducts.push(card as HTMLElement);
       }
     });
 
-    if (lastVisibleKey) {
-      lastVisibleProductKeyRef.current = lastVisibleKey;
+    // Save the MIDDLE visible product (not the last one at top)
+    if (visibleProducts.length > 0) {
+      const middleIndex = Math.floor(visibleProducts.length / 2);
+      const middleProduct = visibleProducts[middleIndex];
+      const middleKey = middleProduct.getAttribute('data-product-key');
+      if (middleKey) {
+        lastVisibleProductKeyRef.current = middleKey;
+      }
     }
   }, []);
 
