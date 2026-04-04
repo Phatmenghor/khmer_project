@@ -94,7 +94,7 @@ export const exchangeRateTableColumns = ({
         <span
           className={`text-xs font-medium px-2 py-1 rounded-full ${
             parameter?.status === "ACTIVE"
-              ? "bg-green-100 text-green-800"
+              ? "bg-primary/10 text-primary border border-primary"
               : "bg-gray-100 text-gray-800"
           }`}
         >
