@@ -87,12 +87,15 @@ const publicProductSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchPublicProducts.pending, (state) => {
+        console.log(`[PublicProductSlice] Fetch pending - current products: ${state.products.length}`);
         state.loading.list = true;
         state.error.list = null;
       })
       .addCase(fetchPublicProducts.fulfilled, (state, action) => {
         const newProducts = action.payload.content || [];
         const pageSize = action.payload.pageSize;
+
+        console.log(`[PublicProductSlice] Fetch fulfilled - new products: ${newProducts.length}, pageNo: ${action.payload.pageNo}, existing products: ${state.products.length}`);
 
         // Memory optimization: Keep only last 3 pages of data (like YouTube)
         const MAX_PAGES_IN_MEMORY = 3;
@@ -102,14 +105,18 @@ const publicProductSlice = createSlice({
         // when server-side inserts shift items across page boundaries
         const existingIds = new Set(state.products.map((p) => p.id));
         const uniqueNew = newProducts.filter((p) => !existingIds.has(p.id));
+        console.log(`[PublicProductSlice] Unique new products after dedup: ${uniqueNew.length}`);
+
         const updatedProducts = [...state.products, ...uniqueNew];
 
         // If we exceed the limit, remove oldest items
         if (updatedProducts.length > maxItems) {
           const itemsToRemove = updatedProducts.length - maxItems;
           state.products = updatedProducts.slice(itemsToRemove);
+          console.log(`[PublicProductSlice] Exceeded max items, removed ${itemsToRemove}, final count: ${state.products.length}`);
         } else {
           state.products = updatedProducts;
+          console.log(`[PublicProductSlice] Appended successfully, final count: ${state.products.length}`);
         }
 
         state.loading.list = false;
