@@ -92,6 +92,7 @@ export function ProductFilters({
     setSelectedStatuses(
       searchParams.get("status")?.split(",").filter(Boolean) || []
     );
+    setHasPromotion(!!searchParams.get("hasPromotion"));
     setMinPrice(searchParams.get("minPrice") || "");
     setMaxPrice(searchParams.get("maxPrice") || "");
   }, [searchParams]);
