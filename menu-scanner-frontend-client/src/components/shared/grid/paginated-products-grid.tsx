@@ -151,8 +151,8 @@ const PaginatedProductsGridComponent = ({
           );
         })}
 
-        {/* Skeleton loaders show in IDLE state (ready for more) - NOT during fetching */}
-        {hasMore && !isPaginationLoading &&
+        {/* Skeleton loaders ALWAYS show while hasMore: true - never hide */}
+        {hasMore &&
           Array.from({ length: paginationSkeletonCount }).map((_, i) => (
             <div
               key={`skeleton-default-${i}`}
@@ -162,8 +162,8 @@ const PaginatedProductsGridComponent = ({
             </div>
           ))}
 
-        {/* Loading spinner show in IDLE state (ready for more) - NOT during fetching */}
-        {hasMore && !isPaginationLoading && (
+        {/* Loading spinner ALWAYS show while hasMore: true - never hide */}
+        {hasMore && (
           <div className="col-span-full flex flex-col items-center justify-center py-8 animate-fade-in-up">
             <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
             <p className="text-xs sm:text-sm text-muted-foreground">
