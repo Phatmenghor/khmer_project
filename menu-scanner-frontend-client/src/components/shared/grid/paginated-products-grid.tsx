@@ -122,24 +122,27 @@ const PaginatedProductsGridComponent = ({
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
 
-  // Scroll to FIRST NEW PRODUCT when data arrives - only on actual pagination, not initial load
+  // Scroll to saved product at 80% viewport height when pagination data arrives
   useEffect(() => {
-    if (!isPaginationLoading && products.length > previousProductCountRef.current && containerRef.current) {
+    if (!isPaginationLoading && products.length > previousProductCountRef.current && containerRef.current && lastVisibleProductKeyRef.current) {
       // Only scroll if products actually increased (real pagination, not initial load)
       previousProductCountRef.current = products.length;
 
       requestAnimationFrame(() => {
-        // Get the first few new products
-        const newProductElements = Array.from(
-          containerRef.current?.querySelectorAll('[data-product-key]') || []
-        ).slice(-paginationSkeletonCount * 2);
+        // Find the saved product by its key
+        const targetElement = containerRef.current?.querySelector(
+          `[data-product-key="${lastVisibleProductKeyRef.current}"]`
+        ) as HTMLElement;
 
-        if (newProductElements.length > 0) {
-          const firstNewProduct = newProductElements[0] as HTMLElement;
-          // Scroll first new product to TOP of screen
-          const elementTop = firstNewProduct.getBoundingClientRect().top + window.scrollY;
+        if (targetElement) {
+          // Position at 80% of viewport height
+          const viewportHeight = window.innerHeight;
+          const targetPosition = viewportHeight * 0.8;
+          const elementTop = targetElement.getBoundingClientRect().top + window.scrollY;
+          const scrollPosition = elementTop - targetPosition;
+
           window.scrollTo({
-            top: elementTop - 100, // 100px from top for padding
+            top: scrollPosition,
             behavior: "smooth"
           });
         }
