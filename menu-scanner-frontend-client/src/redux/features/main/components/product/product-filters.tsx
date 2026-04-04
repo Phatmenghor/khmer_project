@@ -64,7 +64,11 @@ export function ProductFilters({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { categories, loaded: categoriesLoaded, fetchCategories } = usePublicCategoriesState();
+  const {
+    categories,
+    loaded: categoriesLoaded,
+    fetchCategories,
+  } = usePublicCategoriesState();
   const { brands, loaded: brandsLoaded, fetchBrands } = usePublicBrandsState();
 
   const [categoryOpen, setCategoryOpen] = useState(false);
@@ -90,7 +94,7 @@ export function ProductFilters({
     setSelectedCategory(searchParams.get("categoryId") || "");
     setSelectedBrand(searchParams.get("brandId") || "");
     setSelectedStatuses(
-      searchParams.get("status")?.split(",").filter(Boolean) || []
+      searchParams.get("status")?.split(",").filter(Boolean) || [],
     );
     setHasPromotion(!!searchParams.get("hasPromotion"));
     setMinPrice(searchParams.get("minPrice") || "");
@@ -102,7 +106,7 @@ export function ProductFilters({
       const qs = params.toString();
       router.push(qs ? `${basePath}?${qs}` : basePath);
     },
-    [router, basePath]
+    [router, basePath],
   );
 
   const updateFilter = useCallback(
@@ -112,12 +116,13 @@ export function ProductFilters({
       else params.delete(key);
       pushParams(params);
     },
-    [searchParams, pushParams]
+    [searchParams, pushParams],
   );
 
   const toggleStatus = useCallback(
     (status: string) => {
-      const current = searchParams.get("status")?.split(",").filter(Boolean) || [];
+      const current =
+        searchParams.get("status")?.split(",").filter(Boolean) || [];
       const next = current.includes(status)
         ? current.filter((s) => s !== status)
         : [...current, status];
@@ -126,7 +131,7 @@ export function ProductFilters({
       else params.delete("status");
       pushParams(params);
     },
-    [searchParams, pushParams]
+    [searchParams, pushParams],
   );
 
   const applyPrice = useCallback(() => {
@@ -153,7 +158,9 @@ export function ProductFilters({
     router.push(basePath);
   }, [router, basePath]);
 
-  const selectedCategoryName = categories.find((c) => c.id === selectedCategory)?.name;
+  const selectedCategoryName = categories.find(
+    (c) => c.id === selectedCategory,
+  )?.name;
   const selectedBrandName = brands.find((b) => b.id === selectedBrand)?.name;
 
   const urlMinPrice = searchParams.get("minPrice") || "";
@@ -170,72 +177,6 @@ export function ProductFilters({
   const FilterContent = () => (
     <div className="space-y-5">
       {/* Active Filter Chips */}
-      {activeFiltersCount > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {selectedCategory && (
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={() => updateFilter("categoryId", "")}
-            >
-              <Package className="h-3 w-3" />
-              {selectedCategoryName}
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          )}
-          {selectedBrand && (
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={() => updateFilter("brandId", "")}
-            >
-              <Tag className="h-3 w-3" />
-              {selectedBrandName}
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          )}
-          {selectedStatuses.map((s) => (
-            <Badge
-              key={s}
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={() => toggleStatus(s)}
-            >
-              <ListChecks className="h-3 w-3" />
-              {PRODUCT_STATUSES.find((p) => p.value === s)?.label ?? s}
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          ))}
-          {!lockedPromotion && hasPromotion && (
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={() => updateFilter("hasPromotion", "")}
-            >
-              <Flame className="h-3 w-3" />
-              Promotion
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          )}
-          {hasPriceFilter && (
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={clearPrice}
-            >
-              <DollarSign className="h-3 w-3" />
-              {urlMinPrice && urlMaxPrice
-                ? `${urlMinPrice} – ${urlMaxPrice}`
-                : urlMinPrice
-                ? `Min ${urlMinPrice}`
-                : `Max ${urlMaxPrice}`}
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          )}
-        </div>
-      )}
-
-      {activeFiltersCount > 0 && <Separator />}
 
       {/* Promotion - top, hidden when locked */}
       {!lockedPromotion && (
@@ -245,20 +186,33 @@ export function ProductFilters({
               "flex items-center justify-between rounded-lg px-3 py-3 border transition-colors cursor-pointer",
               hasPromotion
                 ? "border-orange-400/60 bg-orange-500/5"
-                : "border-border/60 hover:border-border"
+                : "border-border/60 hover:border-border",
             )}
-            onClick={() => updateFilter("hasPromotion", hasPromotion ? "" : "true")}
+            onClick={() =>
+              updateFilter("hasPromotion", hasPromotion ? "" : "true")
+            }
           >
             <div className="flex items-center gap-2.5">
-              <div className={cn(
-                "flex items-center justify-center w-7 h-7 rounded-lg transition-colors",
-                hasPromotion ? "bg-orange-500/20" : "bg-orange-500/10"
-              )}>
-                <Flame className={cn("h-3.5 w-3.5", hasPromotion ? "text-orange-500" : "text-orange-400")} />
+              <div
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-lg transition-colors",
+                  hasPromotion ? "bg-orange-500/20" : "bg-orange-500/10",
+                )}
+              >
+                <Flame
+                  className={cn(
+                    "h-3.5 w-3.5",
+                    hasPromotion ? "text-orange-500" : "text-orange-400",
+                  )}
+                />
               </div>
               <div>
-                <p className="text-sm font-semibold leading-none">On Sale Only</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Show promotional items</p>
+                <p className="text-sm font-semibold leading-none">
+                  On Sale Only
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Show promotional items
+                </p>
               </div>
             </div>
             <Switch
@@ -290,7 +244,8 @@ export function ProductFilters({
               aria-expanded={categoryOpen}
               className={cn(
                 "w-full justify-between font-normal",
-                selectedCategory && "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary"
+                selectedCategory &&
+                  "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary",
               )}
             >
               <span className="truncate text-sm font-medium">
@@ -299,7 +254,10 @@ export function ProductFilters({
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+          <PopoverContent
+            className="w-[--radix-popover-trigger-width] p-0"
+            align="start"
+          >
             <Command>
               <CommandInput placeholder="Search category..." />
               <CommandList>
@@ -313,7 +271,10 @@ export function ProductFilters({
                     }}
                   >
                     <Check
-                      className={cn("mr-2 h-4 w-4", !selectedCategory ? "opacity-100" : "opacity-0")}
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        !selectedCategory ? "opacity-100" : "opacity-0",
+                      )}
                     />
                     All Categories
                   </CommandItem>
@@ -322,12 +283,20 @@ export function ProductFilters({
                       key={cat.id}
                       value={cat.name}
                       onSelect={() => {
-                        updateFilter("categoryId", cat.id === selectedCategory ? "" : cat.id);
+                        updateFilter(
+                          "categoryId",
+                          cat.id === selectedCategory ? "" : cat.id,
+                        );
                         setCategoryOpen(false);
                       }}
                     >
                       <Check
-                        className={cn("mr-2 h-4 w-4", selectedCategory === cat.id ? "opacity-100" : "opacity-0")}
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          selectedCategory === cat.id
+                            ? "opacity-100"
+                            : "opacity-0",
+                        )}
                       />
                       {cat.name}
                     </CommandItem>
@@ -357,7 +326,8 @@ export function ProductFilters({
               aria-expanded={brandOpen}
               className={cn(
                 "w-full justify-between font-normal",
-                selectedBrand && "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary"
+                selectedBrand &&
+                  "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary",
               )}
             >
               <span className="truncate text-sm font-medium">
@@ -366,7 +336,10 @@ export function ProductFilters({
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+          <PopoverContent
+            className="w-[--radix-popover-trigger-width] p-0"
+            align="start"
+          >
             <Command>
               <CommandInput placeholder="Search brand..." />
               <CommandList>
@@ -380,7 +353,10 @@ export function ProductFilters({
                     }}
                   >
                     <Check
-                      className={cn("mr-2 h-4 w-4", !selectedBrand ? "opacity-100" : "opacity-0")}
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        !selectedBrand ? "opacity-100" : "opacity-0",
+                      )}
                     />
                     All Brands
                   </CommandItem>
@@ -389,12 +365,20 @@ export function ProductFilters({
                       key={brand.id}
                       value={brand.name}
                       onSelect={() => {
-                        updateFilter("brandId", brand.id === selectedBrand ? "" : brand.id);
+                        updateFilter(
+                          "brandId",
+                          brand.id === selectedBrand ? "" : brand.id,
+                        );
                         setBrandOpen(false);
                       }}
                     >
                       <Check
-                        className={cn("mr-2 h-4 w-4", selectedBrand === brand.id ? "opacity-100" : "opacity-0")}
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          selectedBrand === brand.id
+                            ? "opacity-100"
+                            : "opacity-0",
+                        )}
                       />
                       {brand.name}
                     </CommandItem>
@@ -482,17 +466,12 @@ export function ProductFilters({
             Apply
           </Button>
           {hasPriceFilter && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={clearPrice}
-            >
+            <Button size="sm" variant="outline" onClick={clearPrice}>
               <X className="h-3.5 w-3.5" />
             </Button>
           )}
         </div>
       </div>
-
     </div>
   );
 
@@ -549,7 +528,8 @@ export function ProductFilters({
         <div className="flex items-center justify-between gap-3 bg-card border rounded-xl p-4 shadow-sm">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold truncate">
-              {totalResults.toLocaleString()} result{totalResults !== 1 ? "s" : ""}
+              {totalResults.toLocaleString()} result
+              {totalResults !== 1 ? "s" : ""}
             </p>
             <p className="text-xs text-muted-foreground">
               {activeFiltersCount > 0
@@ -585,7 +565,10 @@ export function ProductFilters({
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-80 sm:w-96 p-0 flex flex-col">
+              <SheetContent
+                side="left"
+                className="w-80 sm:w-96 p-0 flex flex-col"
+              >
                 <SheetHeader className="px-5 py-4 border-b border-border/60 flex-shrink-0">
                   <div className="flex items-center justify-between">
                     <SheetTitle className="flex items-center gap-2.5">
