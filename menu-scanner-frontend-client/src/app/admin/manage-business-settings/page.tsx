@@ -55,8 +55,6 @@ function convertResponseToFormData(
     enableStock: response.enableStock || "DISABLED",
     socialMedia: response.socialMedia || [],
     primaryColor: response.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
-    secondaryColor: response.secondaryColor || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
-    accentColor: response.accentColor || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
   };
 }
 
@@ -77,8 +75,6 @@ export default function BusinessSettingsPage() {
       enableStock: "DISABLED",
       socialMedia: [],
       primaryColor: BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
-      secondaryColor: BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR,
-      accentColor: BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR,
     },
   });
 
@@ -95,11 +91,7 @@ export default function BusinessSettingsPage() {
       console.log(
         `[THEME] Applied cached colors for business ${reduxBusinessSettings.businessId}`
       );
-      applyThemeColors(
-        cachedColors.primaryColor,
-        cachedColors.secondaryColor,
-        cachedColors.accentColor
-      );
+      applyThemeColors(cachedColors.primaryColor);
     }
 
     // Then reset form with latest data
@@ -122,11 +114,7 @@ export default function BusinessSettingsPage() {
           console.log(
             `[THEME] Loading cached colors for business ${reduxBusinessSettings.businessId}`
           );
-          applyThemeColors(
-            cachedColors.primaryColor,
-            cachedColors.secondaryColor,
-            cachedColors.accentColor
-          );
+          applyThemeColors(cachedColors.primaryColor);
           const formData = convertResponseToFormData(reduxBusinessSettings);
           form.reset(formData);
         }
@@ -149,8 +137,6 @@ export default function BusinessSettingsPage() {
         const cachedColors = getCachedThemeColors(data.businessId);
         const currentColors = {
           primaryColor: data.primaryColor || "",
-          secondaryColor: data.secondaryColor || "",
-          accentColor: data.accentColor || "",
         };
 
         if (hasThemeChanged(cachedColors, currentColors)) {
@@ -161,11 +147,7 @@ export default function BusinessSettingsPage() {
         }
 
         // Apply theme colors (may have changed from cache)
-        applyThemeColors(
-          data.primaryColor,
-          data.secondaryColor,
-          data.accentColor
-        );
+        applyThemeColors(data.primaryColor);
       } else {
         showToast.error("Failed to load business settings");
       }
@@ -215,8 +197,6 @@ export default function BusinessSettingsPage() {
         enableStock: data.enableStock,
         socialMedia: data.socialMedia,
         primaryColor: data.primaryColor,
-        secondaryColor: data.secondaryColor,
-        accentColor: data.accentColor,
       };
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
@@ -230,8 +210,6 @@ export default function BusinessSettingsPage() {
           businessName: result.businessName,
           logoBusinessUrl: result.logoBusinessUrl,
           primaryColor: result.primaryColor,
-          secondaryColor: result.secondaryColor,
-          accentColor: result.accentColor,
         });
 
         // Store business ID in localStorage for theme initializer
@@ -240,8 +218,6 @@ export default function BusinessSettingsPage() {
         // Cache the colors for instant load on next page refresh
         const colors = {
           primaryColor: result.primaryColor || "",
-          secondaryColor: result.secondaryColor || "",
-          accentColor: result.accentColor || "",
         };
         cacheThemeColors(result.businessId, colors);
         console.log(
@@ -249,12 +225,8 @@ export default function BusinessSettingsPage() {
         );
 
         // Apply colors in real-time without refresh
-        if (result.primaryColor || result.secondaryColor || result.accentColor) {
-          applyThemeColors(
-            result.primaryColor,
-            result.secondaryColor,
-            result.accentColor
-          );
+        if (result.primaryColor) {
+          applyThemeColors(result.primaryColor);
         }
 
         showToast.success("Business settings updated successfully");
@@ -398,11 +370,11 @@ export default function BusinessSettingsPage() {
           <CardHeader>
             <CardTitle>Brand Colors</CardTitle>
             <p className="text-sm text-muted-foreground mt-2">
-              Customize your brand colors (applies site-wide)
+              Customize your brand color (applies site-wide)
             </p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Primary Color */}
               <div className="space-y-2">
                 <Label>Primary Color</Label>
@@ -424,54 +396,6 @@ export default function BusinessSettingsPage() {
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Main brand color
-                </p>
-              </div>
-
-              {/* Secondary Color */}
-              <div className="space-y-2">
-                <Label>Secondary Color</Label>
-                <div className="flex gap-3">
-                  <Input
-                    type="color"
-                    value={form.watch("secondaryColor") || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR}
-                    onChange={(e) => form.setValue("secondaryColor", e.target.value, { shouldDirty: true })}
-                    disabled={isSaving}
-                    className="w-20 h-10 cursor-pointer"
-                  />
-                  <Input
-                    placeholder={BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR}
-                    value={form.watch("secondaryColor") || BUSINESS_SETTINGS_DEFAULTS.SECONDARY_COLOR}
-                    onChange={(e) => form.setValue("secondaryColor", e.target.value, { shouldDirty: true })}
-                    disabled={isSaving}
-                    className="flex-1"
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Secondary brand color
-                </p>
-              </div>
-
-              {/* Accent Color */}
-              <div className="space-y-2">
-                <Label>Accent Color</Label>
-                <div className="flex gap-3">
-                  <Input
-                    type="color"
-                    value={form.watch("accentColor") || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR}
-                    onChange={(e) => form.setValue("accentColor", e.target.value, { shouldDirty: true })}
-                    disabled={isSaving}
-                    className="w-20 h-10 cursor-pointer"
-                  />
-                  <Input
-                    placeholder={BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR}
-                    value={form.watch("accentColor") || BUSINESS_SETTINGS_DEFAULTS.ACCENT_COLOR}
-                    onChange={(e) => form.setValue("accentColor", e.target.value, { shouldDirty: true })}
-                    disabled={isSaving}
-                    className="flex-1"
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Accent color for highlights
                 </p>
               </div>
             </div>

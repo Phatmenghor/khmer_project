@@ -5,8 +5,6 @@
 
 export interface ThemeCacheData {
   primaryColor: string;
-  secondaryColor: string;
-  accentColor: string;
   timestamp: number;
 }
 
@@ -69,14 +67,12 @@ export function cacheThemeColors(
   businessId: string,
   colors: {
     primaryColor: string;
-    secondaryColor: string;
-    accentColor: string;
   }
 ): void {
   try {
     const cookieName = `theme_colors_${businessId}`;
     const cacheData: ThemeCacheData = {
-      ...colors,
+      primaryColor: colors.primaryColor,
       timestamp: Date.now(),
     };
     setCookie(cookieName, JSON.stringify(cacheData), 30);
@@ -92,11 +88,7 @@ export function cacheThemeColors(
 /**
  * Apply theme colors to DOM as CSS variables
  */
-export function applyThemeColors(
-  primaryColor?: string,
-  secondaryColor?: string,
-  accentColor?: string
-): void {
+export function applyThemeColors(primaryColor?: string): void {
   const hexToHsl = (hex: string): string => {
     if (!hex) return "";
 
@@ -141,20 +133,6 @@ export function applyThemeColors(
       document.documentElement.style.setProperty("--primary", hsl);
     }
   }
-
-  if (secondaryColor) {
-    const hsl = hexToHsl(secondaryColor);
-    if (hsl) {
-      document.documentElement.style.setProperty("--secondary", hsl);
-    }
-  }
-
-  if (accentColor) {
-    const hsl = hexToHsl(accentColor);
-    if (hsl) {
-      document.documentElement.style.setProperty("--accent", hsl);
-    }
-  }
 }
 
 /**
@@ -164,14 +142,8 @@ export function hasThemeChanged(
   cached: ThemeCacheData | null,
   current: {
     primaryColor: string;
-    secondaryColor: string;
-    accentColor: string;
   }
 ): boolean {
   if (!cached) return true;
-  return (
-    cached.primaryColor !== current.primaryColor ||
-    cached.secondaryColor !== current.secondaryColor ||
-    cached.accentColor !== current.accentColor
-  );
+  return cached.primaryColor !== current.primaryColor;
 }

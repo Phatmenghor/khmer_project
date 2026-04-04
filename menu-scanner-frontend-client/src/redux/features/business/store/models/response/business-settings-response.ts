@@ -23,4 +23,5 @@ export interface BusinessSettingsResponse {
   logoBusinessUrl: string;
   enableStock: StockStatus;
   socialMedia: SocialMedia[];
+  primaryColor?: string;
 }

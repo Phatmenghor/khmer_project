@@ -18,8 +18,6 @@ export const businessSettingsSchema = z.object({
     })
   ),
   primaryColor: z.string().min(1, "Primary color is required"),
-  secondaryColor: z.string().min(1, "Secondary color is required"),
-  accentColor: z.string().min(1, "Accent color is required"),
 });
 
 export type BusinessSettingsFormData = z.infer<typeof businessSettingsSchema>;
