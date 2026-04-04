@@ -4,18 +4,12 @@ import { Edit, Eye, Trash, Package, RotateCcw, Zap, Check } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomSelect } from "@/components/shared/common/custom-select";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AllProductResponseModel,
   ProductDetailResponseModel,
@@ -107,7 +101,7 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
 }
 
 /**
- * StatusSelect - Select component for status updates
+ * StatusSelect - CustomSelect component for status updates
  */
 function StatusSelect({
   value,
@@ -124,37 +118,14 @@ function StatusSelect({
     { value: "OUT_OF_STOCK", label: "Out Of Stock" },
   ];
 
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "Active";
-      case "INACTIVE":
-        return "Inactive";
-      case "OUT_OF_STOCK":
-        return "Out Of Stock";
-      default:
-        return status;
-    }
-  };
-
   return (
-    <Select
+    <CustomSelect
+      options={statusOptions}
       value={value}
       onValueChange={(newStatus) => onStatusChange?.(productId, newStatus)}
-    >
-      <SelectTrigger
-        className={cn("w-36 h-8 text-xs bg-gray-100 text-gray-700")}
-      >
-        <SelectValue>{getStatusDisplay(value)}</SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        {statusOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+      placeholder="Select status"
+      size="sm"
+    />
   );
 }
 
