@@ -15,15 +15,23 @@ export interface ThemeCacheData {
  */
 function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null;
-  const nameEQ = name + "=";
-  const cookies = document.cookie.split(";");
-  for (let cookie of cookies) {
-    cookie = cookie.trim();
-    if (cookie.indexOf(nameEQ) === 0) {
-      return decodeURIComponent(cookie.substring(nameEQ.length));
+  try {
+    const nameEQ = name + "=";
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.indexOf(nameEQ) === 0) {
+        const value = decodeURIComponent(cookie.substring(nameEQ.length));
+        console.log(`[THEME CACHE] Retrieved cookie ${name}`);
+        return value;
+      }
     }
+    console.log(`[THEME CACHE] Cookie ${name} not found`);
+    return null;
+  } catch (error) {
+    console.error(`[THEME CACHE] Error reading cookie ${name}:`, error);
+    return null;
   }
-  return null;
 }
 
 /**
@@ -34,7 +42,9 @@ function setCookie(name: string, value: string, days: number = 30): void {
   if (typeof document === "undefined") return;
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+  // Match auth token cookie pattern with SameSite attribute
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+  console.log(`[THEME CACHE] Cookie set: ${name}`);
 }
 
 /**
