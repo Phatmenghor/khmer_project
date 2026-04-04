@@ -373,7 +373,6 @@ export const productPromotionTableColumns = ({
               icon={<RotateCcw className="w-4 h-4" />}
               tooltip="Reset Promotion"
               onClick={() => handleResetPromotion(brand)}
-              variant="secondary"
             />
           )}
           <ActionButton
