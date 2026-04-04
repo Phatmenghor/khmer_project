@@ -70,14 +70,14 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             variant="ghost"
             size="icon"
             onClick={onMenuClick}
-            className="shrink-0 h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors sm:hidden"
+            className="shrink-0 h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors md:hidden"
             aria-label="Toggle menu"
           >
             <Menu className="h-5 w-5" />
           </Button>
 
-          {/* Breadcrumb — hidden on very small screens */}
-          <nav className="hidden sm:flex items-center gap-2 text-sm min-w-0">
+          {/* Breadcrumb — hidden on small screens */}
+          <nav className="hidden md:flex items-center gap-2 text-sm min-w-0">
             {breadcrumbs.map((crumb, i) => (
               <div key={crumb.href} className="flex items-center gap-1 min-w-0">
                 {i > 0 && (
@@ -100,7 +100,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
           </nav>
 
           {/* Page title mobile */}
-          <span className="sm:hidden font-semibold text-sm text-foreground truncate">
+          <span className="md:hidden font-semibold text-sm text-foreground truncate">
             {breadcrumbs[breadcrumbs.length - 1]?.label ?? "Dashboard"}
           </span>
         </div>
