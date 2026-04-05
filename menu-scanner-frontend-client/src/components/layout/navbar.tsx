@@ -114,6 +114,14 @@ export function Navbar() {
     }
   }, [pathname]);
 
+  /**
+   * Navigate to home and clear search
+   */
+  const handleNavigateToHome = () => {
+    setSearchQuery("");
+    router.push("/");
+  };
+
   // Debounce search query to reduce URL updates (500ms delay)
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
@@ -277,7 +285,7 @@ export function Navbar() {
           ) : (
             /* ── Mobile: compact top bar ── */
             <div className="sm:hidden flex items-center justify-between w-full h-14 gap-2">
-              <Link href="/" className="flex items-center gap-2 shrink-0">
+              <button onClick={handleNavigateToHome} className="flex items-center gap-2 shrink-0">
                 <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm overflow-hidden">
                   {businessLogoUrl ? (
                     <img
@@ -302,7 +310,7 @@ export function Navbar() {
                 <span className="font-bold text-sm text-foreground">
                   {businessName}
                 </span>
-              </Link>
+              </button>
 
               <div className="flex items-center gap-0.5">
                 <Button
@@ -366,7 +374,7 @@ export function Navbar() {
           {/* ── Desktop top bar ── */}
           <div className="hidden sm:flex h-full w-full items-center justify-between gap-4">
             <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center gap-2 group">
+              <button onClick={handleNavigateToHome} className="flex items-center gap-2 group">
                 <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
                   {businessLogoUrl ? (
                     <img
@@ -396,7 +404,7 @@ export function Navbar() {
                     Shop Online
                   </span>
                 </div>
-              </Link>
+              </button>
 
               <div className="hidden lg:flex items-center gap-1">
                 {navigationLinks.map((link) => {
@@ -404,6 +412,25 @@ export function Navbar() {
                     pathname === link.href ||
                     (link.href === "/products" &&
                       pathname.startsWith("/products"));
+
+                  // Special handler for Home link to clear search
+                  if (link.name === "Home") {
+                    return (
+                      <Button
+                        key={link.name}
+                        variant="ghost"
+                        className={cn(
+                          "text-foreground hover:text-primary hover:bg-primary/10 relative",
+                          active &&
+                            "text-primary after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-3/4 after:h-0.5 after:bg-primary after:rounded-full",
+                        )}
+                        onClick={handleNavigateToHome}
+                      >
+                        {link.name}
+                      </Button>
+                    );
+                  }
+
                   return (
                     <Link key={link.name} href={link.href}>
                       <Button
