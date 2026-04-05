@@ -162,9 +162,9 @@ export function ComboboxSelectBrandPublic({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // Load more on scroll - only when inView changes to true
+  // Load more on scroll - ONLY when dropdown is open AND user scrolls to bottom
   useEffect(() => {
-    if (!inView) return; // Only proceed if at bottom
+    if (!inView || !open) return; // Only proceed if at bottom AND dropdown is open
 
     const nextPage = pageRef.current + 1;
 
@@ -173,9 +173,9 @@ export function ComboboxSelectBrandPublic({
       return;
     }
 
-    console.log("📜 Scrolled to bottom, fetching next page:", nextPage);
+    console.log("📜 Scrolled to bottom in dropdown, fetching next page:", nextPage);
     fetchData(searchRef.current, nextPage);
-  }, [inView]);
+  }, [inView, open]);
 
   const handleSelect = (brandId: string) => {
     onChangeSelected(brandId);
