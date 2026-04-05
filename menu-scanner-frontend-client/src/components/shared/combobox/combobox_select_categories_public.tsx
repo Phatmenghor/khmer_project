@@ -79,6 +79,17 @@ function ComboboxSelectCategoriesPublicComponent({
     searchTermRef.current = searchTerm;
   }, [page, data.length, debouncedSearch, searchTerm]);
 
+  // Debug: Check if ref is being set
+  useEffect(() => {
+    console.log("🔍 commandListRef status:", {
+      hasRef: !!commandListRef.current,
+      refElement: commandListRef.current?.tagName,
+      scrollHeight: commandListRef.current?.scrollHeight,
+      clientHeight: commandListRef.current?.clientHeight,
+      isScrollable: (commandListRef.current?.scrollHeight || 0) > (commandListRef.current?.clientHeight || 0),
+    });
+  }, [open, data.length]);
+
   const sizeClasses = {
     sm: "h-8 text-xs",
     md: "h-9 text-sm",
