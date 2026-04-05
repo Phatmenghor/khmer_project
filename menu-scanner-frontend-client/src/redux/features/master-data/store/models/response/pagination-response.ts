@@ -1,5 +1,5 @@
 export interface PaginationResponseModel<T> {
-    data: T[];
+    content: T[];
     pageNo: number;
     pageSize: number;
     totalElements: number;
