@@ -91,7 +91,6 @@ function ComboboxSelectBrandPublicComponent({
     if (loadingRef.current || (lastPageRef.current && newPage > 1)) return;
 
     setLoading(true);
-    console.log("🔍 Fetching brands:", { search, newPage, pageSize: 15 });
 
     try {
       const result = await dispatch(
@@ -103,15 +102,11 @@ function ComboboxSelectBrandPublicComponent({
         }),
       ).unwrap();
 
-      console.log("✅ Brands result:", result);
-
       if (!result) {
-        console.warn("⚠️ No result returned");
         return;
       }
 
       const items = result.content || [];
-      console.log("📦 Items extracted:", items);
 
       if (newPage === 1) {
         if (!search) {
@@ -126,7 +121,7 @@ function ComboboxSelectBrandPublicComponent({
       setPage(result.pageNo || newPage);
       setLastPage(result.last || false);
     } catch (error) {
-      console.error("❌ Error fetching brands:", error);
+      console.error("Error fetching brands:", error);
     } finally {
       setLoading(false);
     }
@@ -139,7 +134,6 @@ function ComboboxSelectBrandPublicComponent({
     setPage(1);
     setLastPage(false);
     setData([]);
-    console.log("🔍 Search term changed, fetching brands:", debouncedSearch);
     fetchData(debouncedSearch, 1);
   }, [debouncedSearch, open]);
 
@@ -149,7 +143,6 @@ function ComboboxSelectBrandPublicComponent({
       return;
     }
 
-    console.log("📜 Last item in view, fetching next page:", page + 1);
     fetchData(debouncedSearch, page + 1);
   }, [inView, open, page, data.length, debouncedSearch]);
 
