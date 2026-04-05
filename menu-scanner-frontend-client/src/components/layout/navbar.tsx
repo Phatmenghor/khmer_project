@@ -107,16 +107,27 @@ export function Navbar() {
     }
   }, [mobileSearchOpen]);
 
+  /**
+   * Clear search when navigating to home page
+   * Happens AFTER navigation completes to avoid API calls
+   */
+  useEffect(() => {
+    if (pathname === "/") {
+      setSearchQuery("");
+    }
+  }, [pathname]);
+
 
   /**
-   * Navigate to home and clear search + products cache
+   * Navigate to home and clear products cache
+   * Don't clear search here - it triggers API calls
+   * Search will be cleared by pathname change effect
    */
   const handleNavigateToHome = () => {
     navigatingRef.current = true; // Flag that we're navigating
     setMobileSearchOpen(false); // Close mobile search overlay
-    setSearchQuery(""); // Clear navbar search
     dispatch(clearProducts()); // Clear product search results
-    router.push("/"); // Navigate to home
+    router.push("/"); // Navigate to home (search cleared in effect below)
   };
 
   /**
