@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -39,7 +39,7 @@ const ALL_OPTION: BrandResponseModel = {
   description: "",
 } as unknown as BrandResponseModel;
 
-export function ComboboxSelectBrandPublic({
+function ComboboxSelectBrandPublicComponent({
   selectedBrand,
   onChangeSelected,
   disabled = false,
@@ -148,19 +148,22 @@ export function ComboboxSelectBrandPublic({
   };
 
   useEffect(() => {
+    if (!open) return; // Don't fetch if dropdown is closed
+
     setPage(1);
     setLastPage(false);
     setData([]);
+    console.log("🔍 Search term changed, fetching brands:", debouncedSearch);
     fetchData(debouncedSearch, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch]);
+  }, [debouncedSearch, open]);
 
   // Fetch initial data when popover opens
   useEffect(() => {
-    if (open && data.length === 0) {
-      fetchData(searchTerm || "", 1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!open) return; // Don't fetch if closed
+    if (data.length > 0) return; // Don't fetch if already has data
+
+    console.log("📂 Dropdown opened, fetching initial brands");
+    fetchData(searchTerm || "", 1);
   }, [open]);
 
   // Manual scroll detection - ONLY when dropdown is open
@@ -299,3 +302,5 @@ export function ComboboxSelectBrandPublic({
     </div>
   );
 }
+
+export const ComboboxSelectBrandPublic = memo(ComboboxSelectBrandPublicComponent);
