@@ -153,18 +153,21 @@ export function ComboboxSelectCategoriesPublic({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // Load more on scroll
+  // Load more on scroll - only when inView changes to true
   useEffect(() => {
+    const nextPage = page + 1;
     if (
       inView &&
       !loadingRef.current &&
       !lastPageRef.current &&
+      !fetchingRef.current.has(nextPage) &&
       data.length > 0
     ) {
-      fetchData(debouncedSearch || searchTerm, page + 1);
+      console.log("📜 Scrolled to bottom, fetching next page:", nextPage);
+      fetchData(debouncedSearch || searchTerm, nextPage);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, page, data.length]);
+  }, [inView]);
 
   const handleSelect = (categoryId: string) => {
     onChangeSelected(categoryId);
