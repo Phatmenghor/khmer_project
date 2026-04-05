@@ -107,13 +107,11 @@ export function Navbar() {
   }, [mobileSearchOpen]);
 
   /**
-   * Clear search when navigating to home page
-   * Ensures clean URL and search state on home
+   * Clear search when route changes
+   * Ensures each page starts with clean search state
    */
   useEffect(() => {
-    if (pathname === "/") {
-      setSearchQuery("");
-    }
+    setSearchQuery("");
   }, [pathname]);
 
   /**
