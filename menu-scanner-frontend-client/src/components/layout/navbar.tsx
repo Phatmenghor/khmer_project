@@ -142,8 +142,14 @@ export function Navbar() {
    * - Empty query: removes from URL
    * - Search on home page: redirect to /products
    * - Search on other page: search within current page
+   * - Don't search if on home page (user probably just navigated there)
    */
   useEffect(() => {
+    // Don't update search if we're on home page (user just navigated there)
+    if (pathname === "/") {
+      return;
+    }
+
     if (!debouncedSearchQuery.trim()) {
       // Clear search from URL
       const currentParams = new URLSearchParams(window.location.search);
@@ -159,9 +165,8 @@ export function Navbar() {
 
     // Add/update search in URL
     const params = new URLSearchParams(window.location.search);
-    const searchRoute = pathname === "/" ? "/products" : pathname;
     params.set("q", debouncedSearchQuery.trim());
-    router.push(`${searchRoute}?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   }, [debouncedSearchQuery, pathname, router]);
 
   /**
