@@ -115,10 +115,13 @@ export function ProductListPage({
 
   const loadProducts = useCallback(
     async (pageNo: number) => {
+      console.log("[LOAD_PRODUCTS] Called with pageNo:", pageNo);
+
       const hasPromotion = lockedPromotion
         ? true
         : searchParams.get("hasPromotion") === "true" || undefined;
 
+      console.log("[LOAD_PRODUCTS] Dispatching fetchPublicProducts with pageNo:", pageNo);
       await dispatch(
         fetchPublicProducts({
           pageNo,
@@ -133,6 +136,7 @@ export function ProductListPage({
           ...(maxPrice && { maxPrice: Number(maxPrice) }),
         }),
       );
+      console.log("[LOAD_PRODUCTS] Dispatch completed for pageNo:", pageNo);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -181,16 +185,25 @@ export function ProductListPage({
     const hasProductsInStore = products.length > 0;
     const filtersMatch = loadedFilters === currentFilters;
 
+    console.log("[PRODUCT_LIST] Effect triggered", {
+      hasProductsInStore,
+      filtersMatch,
+      currentFilters: currentFilters.substring(0, 50),
+    });
+
     if (hasProductsInStore && filtersMatch) {
+      console.log("[PRODUCT_LIST] Skipping - products in store and filters match");
       return;
     }
 
     if (!filtersMatch || !hasProductsInStore) {
       if (!filtersMatch && hasProductsInStore) {
+        console.log("[PRODUCT_LIST] Clearing products - filters changed");
         dispatch(clearProducts());
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
+      console.log("[PRODUCT_LIST] Loading products with filters:", currentFilters.substring(0, 50));
       dispatch(setLoadedFilters(currentFilters));
       loadProducts(1);
     }
