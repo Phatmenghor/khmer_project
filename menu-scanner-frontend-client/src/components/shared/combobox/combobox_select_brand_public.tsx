@@ -62,11 +62,22 @@ export function ComboboxSelectBrandPublic({
   const loadingRef = useRef(false);
   const lastPageRef = useRef(false);
   const fetchingRef = useRef<Set<number>>(new Set());
+  const pageRef = useRef(page);
+  const dataLengthRef = useRef(data.length);
+  const debouncedSearchRef = useRef(debouncedSearch);
+  const searchTermRef = useRef(searchTerm);
 
   useEffect(() => {
     loadingRef.current = loading;
     lastPageRef.current = lastPage;
   }, [loading, lastPage]);
+
+  useEffect(() => {
+    pageRef.current = page;
+    dataLengthRef.current = data.length;
+    debouncedSearchRef.current = debouncedSearch;
+    searchTermRef.current = searchTerm;
+  }, [page, data.length, debouncedSearch, searchTerm]);
 
   const sizeClasses = {
     sm: "h-8 text-xs",
@@ -165,20 +176,20 @@ export function ComboboxSelectBrandPublic({
 
       if (!isAtBottom) return;
 
-      const nextPage = page + 1;
+      const nextPage = pageRef.current + 1;
 
       // Prevent duplicate requests
-      if (loadingRef.current || lastPageRef.current || fetchingRef.current.has(nextPage) || data.length === 0) {
+      if (loadingRef.current || lastPageRef.current || fetchingRef.current.has(nextPage) || dataLengthRef.current === 0) {
         return;
       }
 
       console.log("📜 Scrolled to bottom in dropdown, fetching next page:", nextPage);
-      fetchData(debouncedSearch || searchTerm, nextPage);
+      fetchData(debouncedSearchRef.current || searchTermRef.current, nextPage);
     };
 
     commandList.addEventListener("scroll", handleScroll);
     return () => commandList.removeEventListener("scroll", handleScroll);
-  }, [open, page, data.length, debouncedSearch, searchTerm]);
+  }, [open]);
 
   const handleSelect = (brandId: string) => {
     onChangeSelected(brandId);
