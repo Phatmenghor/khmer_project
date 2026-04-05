@@ -217,6 +217,7 @@ export function ProductListPage({
       hasProducts: hasProductsInStore,
       filtersMatch,
       count: products.length,
+      isLoading: loading.list,
     });
 
     if (hasProductsInStore && filtersMatch) {
@@ -224,7 +225,10 @@ export function ProductListPage({
       return;
     }
 
-    if (!filtersMatch || !hasProductsInStore) {
+    // Only load products if:
+    // 1. Filters changed (filtersMatch is false), OR
+    // 2. We need products AND we're not already loading
+    if (!filtersMatch || (!hasProductsInStore && !loading.list)) {
       if (!filtersMatch && hasProductsInStore) {
         console.log(`## [EFFECT] CLEAR_PRODUCTS - filters changed`);
         dispatch(clearProducts());
@@ -234,8 +238,10 @@ export function ProductListPage({
       console.log(`## [EFFECT] LOAD_PRODUCTS - calling loadProducts(1)`);
       dispatch(setLoadedFilters(currentFilters));
       loadProducts(1);
+    } else if (!hasProductsInStore && loading.list) {
+      console.log(`## [EFFECT] SKIP - already loading products`);
     }
-  }, [currentFilters, loadedFilters, products.length, loadProducts, dispatch]);
+  }, [currentFilters, loadedFilters, products.length, loadProducts, dispatch, loading.list]);
 
   const isInitialLoad = products.length === 0 && loading.list;
   const noSearch = lockedPromotion ? undefined : search;
