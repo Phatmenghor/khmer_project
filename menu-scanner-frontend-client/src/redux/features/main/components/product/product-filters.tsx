@@ -139,7 +139,8 @@ function ProductFiltersComponent({
     (hasPriceFilter ? 1 : 0);
 
 
-  const FilterContent = () => (
+  // Create filter content once to avoid duplicate component instances
+  const filterContent = (
     <div className="space-y-5">
       {/* Promotion - top, hidden when locked */}
       {!lockedPromotion && (
@@ -341,7 +342,7 @@ function ProductFiltersComponent({
             {/* Scrollable content */}
             <ScrollArea className="flex-1">
               <div className="p-5">
-                <FilterContent />
+                {filterContent}
               </div>
             </ScrollArea>
           </div>
@@ -426,7 +427,7 @@ function ProductFiltersComponent({
                 </SheetHeader>
                 <ScrollArea className="flex-1">
                   <div className="p-5">
-                    <FilterContent />
+                    {filterContent}
                   </div>
                 </ScrollArea>
               </SheetContent>
