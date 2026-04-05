@@ -13,10 +13,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 
-
-  const searchParams = useSearchParams();
-  const search = searchParams.get("q") || "";
-
 export default function CategoriesPage() {
   const isLoadingRef = useRef(false);
   const searchParams = useSearchParams();
