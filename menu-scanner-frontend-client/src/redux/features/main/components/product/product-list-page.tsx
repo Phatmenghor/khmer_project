@@ -43,18 +43,34 @@ export function ProductListPage({
   hero,
   scrollKey = "products",
 }: ProductListPageProps) {
+  console.log("[PAGE_RENDER] ProductListPage rendering", {
+    basePath,
+    lockedPromotion,
+    scrollKey,
+  });
+
   const [isMounted, setIsMounted] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    console.log("[PAGE_MOUNT] ProductListPage mounted");
     setIsMounted(true);
   }, []);
 
   const { dispatch, products, pagination, loading, loadedFilters } =
     usePublicProductState();
 
+  console.log("[STATE] Current state", {
+    productsCount: products.length,
+    currentPage: pagination.currentPage,
+    hasMore: pagination.hasMore,
+    isLoading: loading.list,
+    loadedFilters: loadedFilters?.substring(0, 50),
+  });
+
   // Always start at top on page load/refresh - don't restore scroll
   useEffect(() => {
+    console.log("[SCROLL_EFFECT] Scrolling to top");
     window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
 
@@ -73,6 +89,16 @@ export function ProductListPage({
   const sortBy = searchParams.get("sortBy");
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
+
+  console.log("[FILTERS] URL search params", {
+    search,
+    categoryId,
+    brandId,
+    statusParam,
+    sortBy,
+    minPrice,
+    maxPrice,
+  });
 
   // Memoize currentFilters to prevent effect re-runs on every render
   const currentFilters = useMemo(
@@ -115,28 +141,29 @@ export function ProductListPage({
 
   const loadProducts = useCallback(
     async (pageNo: number) => {
-      console.log("[LOAD_PRODUCTS] Called with pageNo:", pageNo);
+      const timestamp = new Date().toISOString();
+      console.log(`[LOAD_PRODUCTS ${timestamp}] Called with pageNo:`, pageNo);
 
       const hasPromotion = lockedPromotion
         ? true
         : searchParams.get("hasPromotion") === "true" || undefined;
 
-      console.log("[LOAD_PRODUCTS] Dispatching fetchPublicProducts with pageNo:", pageNo);
-      await dispatch(
-        fetchPublicProducts({
-          pageNo,
-          pageSize: getPageSize(),
-          ...(search && { search }),
-          ...(hasPromotion && { hasPromotion: true }),
-          ...(categoryId && { categoryId }),
-          ...(brandId && { brandId }),
-          ...(statuses.length > 0 && { statuses }),
-          ...(sortBy && { sortBy }),
-          ...(minPrice && { minPrice: Number(minPrice) }),
-          ...(maxPrice && { maxPrice: Number(maxPrice) }),
-        }),
-      );
-      console.log("[LOAD_PRODUCTS] Dispatch completed for pageNo:", pageNo);
+      const payload = {
+        pageNo,
+        pageSize: getPageSize(),
+        ...(search && { search }),
+        ...(hasPromotion && { hasPromotion: true }),
+        ...(categoryId && { categoryId }),
+        ...(brandId && { brandId }),
+        ...(statuses.length > 0 && { statuses }),
+        ...(sortBy && { sortBy }),
+        ...(minPrice && { minPrice: Number(minPrice) }),
+        ...(maxPrice && { maxPrice: Number(maxPrice) }),
+      };
+
+      console.log(`[LOAD_PRODUCTS ${timestamp}] Dispatching with payload:`, payload);
+      await dispatch(fetchPublicProducts(payload));
+      console.log(`[LOAD_PRODUCTS ${timestamp}] Dispatch completed for pageNo:`, pageNo);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -182,28 +209,31 @@ export function ProductListPage({
 
   // Initial filter load
   useEffect(() => {
+    const timestamp = new Date().toISOString();
     const hasProductsInStore = products.length > 0;
     const filtersMatch = loadedFilters === currentFilters;
 
-    console.log("[PRODUCT_LIST] Effect triggered", {
+    console.log(`[FILTER_LOAD_EFFECT ${timestamp}] Triggered`, {
       hasProductsInStore,
       filtersMatch,
-      currentFilters: currentFilters.substring(0, 50),
+      productsCount: products.length,
+      currentFilters: currentFilters.substring(0, 80),
+      loadedFilters: loadedFilters?.substring(0, 80),
     });
 
     if (hasProductsInStore && filtersMatch) {
-      console.log("[PRODUCT_LIST] Skipping - products in store and filters match");
+      console.log(`[FILTER_LOAD_EFFECT ${timestamp}] SKIP: products in store and filters match`);
       return;
     }
 
     if (!filtersMatch || !hasProductsInStore) {
       if (!filtersMatch && hasProductsInStore) {
-        console.log("[PRODUCT_LIST] Clearing products - filters changed");
+        console.log(`[FILTER_LOAD_EFFECT ${timestamp}] Clearing products - filters changed`);
         dispatch(clearProducts());
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      console.log("[PRODUCT_LIST] Loading products with filters:", currentFilters.substring(0, 50));
+      console.log(`[FILTER_LOAD_EFFECT ${timestamp}] LOADING products with new filters`);
       dispatch(setLoadedFilters(currentFilters));
       loadProducts(1);
     }
