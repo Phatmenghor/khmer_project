@@ -63,6 +63,7 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
+  const navigatingRef = useRef(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -111,6 +112,8 @@ export function Navbar() {
    * Navigate to home and clear search + products cache
    */
   const handleNavigateToHome = () => {
+    navigatingRef.current = true; // Flag that we're navigating
+    setMobileSearchOpen(false); // Close mobile search overlay
     setSearchQuery(""); // Clear navbar search
     dispatch(clearProducts()); // Clear product search results
     router.push("/"); // Navigate to home
@@ -143,9 +146,15 @@ export function Navbar() {
    * - Empty query: removes from URL
    * - Search on home page: redirect to /products with search
    * - Search on other page: search within current page
-   * - Don't redirect if user just cleared search by clicking Home
+   * - Skip if user is navigating (to prevent interference)
    */
   useEffect(() => {
+    // Skip if we're in the middle of navigation
+    if (navigatingRef.current) {
+      navigatingRef.current = false; // Reset flag
+      return;
+    }
+
     if (!debouncedSearchQuery.trim()) {
       // Clear search from URL (only if not on home page)
       if (pathname !== "/") {
