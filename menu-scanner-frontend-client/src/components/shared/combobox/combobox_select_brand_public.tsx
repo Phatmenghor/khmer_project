@@ -164,30 +164,63 @@ function ComboboxSelectBrandPublicComponent({
 
   // Manual scroll detection - ONLY when dropdown is open
   useEffect(() => {
-    if (!open || !commandListRef.current) return;
+    if (!open || !commandListRef.current) {
+      console.log("📜 Scroll effect - not attaching listener", { open, hasRef: !!commandListRef.current });
+      return;
+    }
 
     const commandList = commandListRef.current;
+    console.log("📜 Attaching scroll listener");
 
     const handleScroll = () => {
-      // Check if scrolled to bottom (within 100px)
-      const isAtBottom =
-        commandList.scrollHeight - commandList.scrollTop - commandList.clientHeight < 100;
+      const scrollPosition = commandList.scrollHeight - commandList.scrollTop - commandList.clientHeight;
+      const isAtBottom = scrollPosition < 100;
+
+      console.log("📜 Scroll event triggered", {
+        scrollHeight: commandList.scrollHeight,
+        scrollTop: commandList.scrollTop,
+        clientHeight: commandList.clientHeight,
+        scrollPosition,
+        isAtBottom,
+        currentPage: pageRef.current,
+        dataLength: dataLengthRef.current,
+        lastPage: lastPageRef.current,
+        loading: loadingRef.current,
+      });
 
       if (!isAtBottom) return;
 
       const nextPage = pageRef.current + 1;
 
       // Prevent duplicate requests
-      if (loadingRef.current || lastPageRef.current || fetchingRef.current.has(nextPage) || dataLengthRef.current === 0) {
+      if (loadingRef.current) {
+        console.log("⚠️ Blocking: already loading");
+        return;
+      }
+      if (lastPageRef.current) {
+        console.log("⚠️ Blocking: last page reached");
+        return;
+      }
+      if (fetchingRef.current.has(nextPage)) {
+        console.log("⚠️ Blocking: already fetching page", nextPage);
+        return;
+      }
+      if (dataLengthRef.current === 0) {
+        console.log("⚠️ Blocking: no data loaded yet");
         return;
       }
 
-      console.log("📜 Scrolled to bottom in dropdown, fetching next page:", nextPage);
+      console.log("✅ Fetching next page:", nextPage);
       fetchData(debouncedSearchRef.current || searchTermRef.current, nextPage);
     };
 
     commandList.addEventListener("scroll", handleScroll);
-    return () => commandList.removeEventListener("scroll", handleScroll);
+    console.log("✅ Scroll listener attached");
+
+    return () => {
+      commandList.removeEventListener("scroll", handleScroll);
+      console.log("🗑️ Scroll listener removed");
+    };
   }, [open]);
 
   const handleSelect = (brandId: string) => {
