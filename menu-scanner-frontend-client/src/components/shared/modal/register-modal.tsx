@@ -18,7 +18,7 @@ import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import {
-  loginService,
+  registerService,
 } from "@/redux/features/auth/store/thunks/auth-thunks";
 import { telegramAuthenticateService } from "@/redux/features/auth/store/thunks/social-auth-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -28,18 +28,25 @@ import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { useAppSelector } from "@/redux/store";
 import { selectBusinessName } from "@/redux/features/business/store/selectors/business-settings-selector";
 
-interface LoginModalProps {
+interface RegisterModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onRegisterClick?: () => void;
+  onLoginClick?: () => void;
 }
 
-const loginSchema = z.object({
-  userIdentifier: z.string().min(1, "Email or username is required"),
+const registerSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(1, "Phone number is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Password confirmation is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 function Divider() {
   return (
@@ -54,8 +61,9 @@ function Divider() {
   );
 }
 
-export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalProps) {
+export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModalProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isTelegramLoading, setIsTelegramLoading] = useState(false);
 
   const { isLoading, dispatch } = useAuthState();
@@ -63,39 +71,32 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
   const businessName = useAppSelector(selectBusinessName);
   const isAnyLoading = isLoading || isSocialLoading || isTelegramLoading;
 
-  const loginForm = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { userIdentifier: "", password: "" },
+  const registerForm = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "" },
   });
 
-  async function onLoginSubmit(values: LoginFormData) {
+  async function onRegisterSubmit(values: RegisterFormData) {
     try {
       const result = await dispatch(
-        loginService({
-          userIdentifier: values.userIdentifier,
+        registerService({
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          phone: values.phone,
           password: values.password,
           userType: "CUSTOMER",
         }),
       ).unwrap();
 
-      if (result?.userType === "BUSINESS_USER") {
-        showToast.error("❌ Business accounts must use the Admin Login page");
-        const { clearAllTokens, clearAdminTokens } = await import("@/utils/local-storage/token");
-        const { clearUserInfo, clearAdminUserInfo } = await import("@/utils/local-storage/userInfo");
-        clearAllTokens();
-        clearAdminTokens();
-        clearUserInfo();
-        clearAdminUserInfo();
-        loginForm.reset();
-        return;
+      if (result) {
+        showToast.success("Welcome! Your account has been created successfully.");
+        onOpenChange(false);
+        registerForm.reset();
+        window.location.reload();
       }
-
-      showToast.success("Welcome! You've successfully logged in.");
-      onOpenChange(false);
-      loginForm.reset();
-      window.location.reload();
     } catch (err: any) {
-      showToast.error(err || "Login failed. Please check your credentials.");
+      showToast.error(err || "Registration failed. Please try again.");
     }
   }
 
@@ -140,34 +141,79 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
           <div>
             <DialogTitle className="text-2xl">{businessName}</DialogTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Sign in to your account
+              Create a new account
             </p>
           </div>
         </DialogHeader>
 
         <Separator />
 
-        {/* Body - Login Form */}
-        <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+        {/* Body - Register Form */}
+        <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+          {/* First and Last Name Row */}
+          <div className="grid grid-cols-2 gap-3">
+            <TextField
+              name="firstName"
+              label="First Name"
+              placeholder="John"
+              control={registerForm.control}
+              error={registerForm.formState.errors.firstName}
+              disabled={isAnyLoading}
+              required
+            />
+            <TextField
+              name="lastName"
+              label="Last Name"
+              placeholder="Doe"
+              control={registerForm.control}
+              error={registerForm.formState.errors.lastName}
+              disabled={isAnyLoading}
+              required
+            />
+          </div>
+
           <TextField
-            name="userIdentifier"
-            label="Email or Username"
+            name="email"
+            label="Email"
             placeholder="name@example.com"
-            control={loginForm.control}
-            error={loginForm.formState.errors.userIdentifier}
+            control={registerForm.control}
+            error={registerForm.formState.errors.email}
             disabled={isAnyLoading}
             required
           />
+
+          <TextField
+            name="phone"
+            label="Phone Number"
+            placeholder="+1 (555) 000-0000"
+            control={registerForm.control}
+            error={registerForm.formState.errors.phone}
+            disabled={isAnyLoading}
+            required
+          />
+
           <PasswordField
             name="password"
             label="Password"
             placeholder="Enter password"
-            control={loginForm.control}
-            error={loginForm.formState.errors.password}
+            control={registerForm.control}
+            error={registerForm.formState.errors.password}
             disabled={isAnyLoading}
             required
             showPassword={showPassword}
             onTogglePassword={() => setShowPassword((v) => !v)}
+          />
+
+          <PasswordField
+            name="confirmPassword"
+            label="Confirm Password"
+            placeholder="Confirm password"
+            control={registerForm.control}
+            error={registerForm.formState.errors.confirmPassword}
+            disabled={isAnyLoading}
+            required
+            showPassword={showConfirmPassword}
+            onTogglePassword={() => setShowConfirmPassword((v) => !v)}
           />
 
           {/* Footer - Submit Button */}
@@ -178,7 +224,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               disabled={isAnyLoading}
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </DialogFooter>
 
@@ -194,16 +240,16 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
           />
 
           <p className="text-center text-sm text-muted-foreground">
-            No account?{" "}
+            Already have an account?{" "}
             <button
               type="button"
               onClick={() => {
                 onOpenChange(false);
-                onRegisterClick?.();
+                onLoginClick?.();
               }}
               className="text-primary font-semibold hover:underline"
             >
-              Register
+              Sign In
             </button>
           </p>
         </form>
