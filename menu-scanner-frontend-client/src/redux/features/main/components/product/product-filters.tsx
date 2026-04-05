@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +41,7 @@ interface ProductFiltersProps {
   lockedPromotion?: boolean;
 }
 
-export function ProductFilters({
+function ProductFiltersComponent({
   totalResults,
   basePath = "/products",
   lockedPromotion = false,
@@ -437,3 +437,12 @@ export function ProductFilters({
     </>
   );
 }
+
+export const ProductFilters = memo(ProductFiltersComponent, (prevProps, nextProps) => {
+  // Only re-render if basePath or lockedPromotion changes
+  // Ignore totalResults changes as they don't affect filter behavior
+  return (
+    prevProps.basePath === nextProps.basePath &&
+    prevProps.lockedPromotion === nextProps.lockedPromotion
+  );
+});
