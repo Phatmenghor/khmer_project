@@ -1,13 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-"use client";
-
 import { useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePublicCategoriesState } from "@/redux/features/main/store/state/public-categories-state";
-  const searchParams = useSearchParams();
-  const search = searchParams.get("q") || "";
 import { LayoutGrid, Loader2, CheckCircle2 } from "lucide-react";
 import { CategoryCard } from "@/components/shared/card/category-card";
 import { CategoryCardSkeleton } from "@/components/shared/skeletons/category-card-skeleton";
@@ -17,6 +13,10 @@ import { useSkeletonCount, SkeletonPresets } from "@/hooks/use-skeleton-count";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
+
+
+  const searchParams = useSearchParams();
+  const search = searchParams.get("q") || "";
 
 export default function CategoriesPage() {
   const isLoadingRef = useRef(false);

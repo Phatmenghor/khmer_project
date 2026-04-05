@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 
+
 export default function BrandsPage() {
   const isLoadingRef = useRef(false);
   const searchParams = useSearchParams();
