@@ -127,15 +127,13 @@ function ComboboxSelectBrandPublicComponent({
     }
   };
 
-  // Fetch when search changes (ONLY if dropdown is open)
+  // Fetch when component mounts or search changes
   useEffect(() => {
-    if (!open) return; // Don't fetch if dropdown is closed
-
     setPage(1);
     setLastPage(false);
     setData([]);
     fetchData(debouncedSearch, 1);
-  }, [debouncedSearch, open]);
+  }, [debouncedSearch]);
 
   // Pagination: Load more when last item comes into view (ONLY if dropdown is open)
   useEffect(() => {
