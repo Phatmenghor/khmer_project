@@ -138,33 +138,30 @@ export function Navbar() {
   /**
    * Sync search query to URL as user types (with debounce)
    * - Empty query: removes from URL
-   * - Search on home page: redirect to /products
+   * - Search on home page: redirect to /products with search
    * - Search on other page: search within current page
-   * - Don't search if on home page (user probably just navigated there)
    */
   useEffect(() => {
-    // Don't update search if we're on home page (user just navigated there)
-    if (pathname === "/") {
-      return;
-    }
-
     if (!debouncedSearchQuery.trim()) {
-      // Clear search from URL
-      const currentParams = new URLSearchParams(window.location.search);
-      if (currentParams.has("q")) {
-        currentParams.delete("q");
-        const newUrl = currentParams.toString()
-          ? `${pathname}?${currentParams.toString()}`
-          : pathname;
-        router.push(newUrl);
+      // Clear search from URL (only if not on home page)
+      if (pathname !== "/") {
+        const currentParams = new URLSearchParams(window.location.search);
+        if (currentParams.has("q")) {
+          currentParams.delete("q");
+          const newUrl = currentParams.toString()
+            ? `${pathname}?${currentParams.toString()}`
+            : pathname;
+          router.push(newUrl);
+        }
       }
       return;
     }
 
     // Add/update search in URL
     const params = new URLSearchParams(window.location.search);
+    const searchRoute = pathname === "/" ? "/products" : pathname;
     params.set("q", debouncedSearchQuery.trim());
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`${searchRoute}?${params.toString()}`);
   }, [debouncedSearchQuery, pathname, router]);
 
   /**
