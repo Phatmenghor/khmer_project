@@ -23,6 +23,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import { fetchPublicCategories } from "@/redux/features/main/store/thunks/public-categories-thunks";
+import { Package } from "lucide-react";
 
 interface ComboboxSelectCategoriesPublicProps {
   selectedCategory: string;
@@ -157,7 +158,12 @@ export function ComboboxSelectCategoriesPublic({
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
-        <Label className="text-xs font-medium text-foreground">{label}</Label>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-500/10">
+            <Package className="h-3.5 w-3.5 text-blue-500" />
+          </div>
+          <Label className="text-xs font-medium text-foreground">{label}</Label>
+        </div>
       )}
       <Popover open={open} onOpenChange={setOpen} modal={true}>
         <PopoverTrigger asChild>

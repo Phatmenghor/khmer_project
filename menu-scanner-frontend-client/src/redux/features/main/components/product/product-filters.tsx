@@ -19,8 +19,6 @@ import {
 import {
   X,
   SlidersHorizontal,
-  Tag,
-  Package,
   Flame,
   ListChecks,
   FilterX,
@@ -194,12 +192,7 @@ export function ProductFilters({
       )}
 
       {/* Category - Combobox */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-500/10">
-            <Package className="h-3.5 w-3.5 text-blue-500" />
-          </div>
-        </div>
+      <div className="space-y-3">
         <ComboboxSelectCategoriesPublic
           selectedCategory={selectedCategory}
           onChangeSelected={(categoryId) =>
@@ -214,12 +207,7 @@ export function ProductFilters({
       <Separator />
 
       {/* Brand - Combobox */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-500/10">
-            <Tag className="h-3.5 w-3.5 text-purple-500" />
-          </div>
-        </div>
+      <div className="space-y-3">
         <ComboboxSelectBrandPublic
           selectedBrand={selectedBrand}
           onChangeSelected={(brandId) => updateFilter("brandId", brandId)}

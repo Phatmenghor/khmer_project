@@ -23,6 +23,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { fetchPublicBrands } from "@/redux/features/main/store/thunks/public-brands-thunks";
+import { Tag } from "lucide-react";
 
 interface ComboboxSelectBrandPublicProps {
   selectedBrand: string;
@@ -155,7 +156,12 @@ export function ComboboxSelectBrandPublic({
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
-        <Label className="text-xs font-medium text-foreground">{label}</Label>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-500/10">
+            <Tag className="h-3.5 w-3.5 text-purple-500" />
+          </div>
+          <Label className="text-xs font-medium text-foreground">{label}</Label>
+        </div>
       )}
       <Popover open={open} onOpenChange={setOpen} modal={true}>
         <PopoverTrigger asChild>
