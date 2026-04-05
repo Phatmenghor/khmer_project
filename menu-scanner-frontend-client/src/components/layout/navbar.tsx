@@ -44,6 +44,7 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { useLogout } from "@/redux/store/use-logout";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { LoginModal } from "../shared/modal/login-modal";
+import { RegisterModal } from "../shared/modal/register-modal";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
 import { PageContainer } from "../shared/common/page-container";
 import { cn } from "@/lib/utils";
@@ -62,6 +63,7 @@ export function Navbar() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const navigatingRef = useRef(false);
 
@@ -128,6 +130,24 @@ export function Navbar() {
     setMobileSearchOpen(false); // Close mobile search overlay
     dispatch(clearProducts()); // Clear product search results
     router.push("/"); // Navigate to home (search cleared in effect below)
+  };
+
+  /**
+   * Switch from login modal to register modal
+   * Close login and open register
+   */
+  const handleSwitchToRegister = () => {
+    setIsLoginModalOpen(false);
+    setIsRegisterModalOpen(true);
+  };
+
+  /**
+   * Switch from register modal to login modal
+   * Close register and open login
+   */
+  const handleSwitchToLogin = () => {
+    setIsRegisterModalOpen(false);
+    setIsLoginModalOpen(true);
   };
 
   /**
@@ -571,7 +591,16 @@ export function Navbar() {
         </PageContainer>
       </nav>
 
-      <LoginModal open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen} />
+      <LoginModal
+        open={isLoginModalOpen}
+        onOpenChange={setIsLoginModalOpen}
+        onRegisterClick={handleSwitchToRegister}
+      />
+      <RegisterModal
+        open={isRegisterModalOpen}
+        onOpenChange={setIsRegisterModalOpen}
+        onLoginClick={handleSwitchToLogin}
+      />
     </>
   );
 }
