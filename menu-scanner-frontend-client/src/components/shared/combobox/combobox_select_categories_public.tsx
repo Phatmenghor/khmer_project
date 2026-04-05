@@ -155,19 +155,19 @@ export function ComboboxSelectCategoriesPublic({
 
   // Load more on scroll - only when inView changes to true
   useEffect(() => {
+    if (!inView) return; // Only proceed if at bottom
+
     const nextPage = page + 1;
-    if (
-      inView &&
-      !loadingRef.current &&
-      !lastPageRef.current &&
-      !fetchingRef.current.has(nextPage) &&
-      data.length > 0
-    ) {
-      console.log("📜 Scrolled to bottom, fetching next page:", nextPage);
-      fetchData(debouncedSearch || searchTerm, nextPage);
+
+    // Guard: prevent if already loading, at last page, or already fetching this page
+    if (loadingRef.current || lastPageRef.current || fetchingRef.current.has(nextPage) || data.length === 0) {
+      return;
     }
+
+    console.log("📜 Scrolled to bottom, fetching next page:", nextPage);
+    fetchData(debouncedSearch || searchTerm, nextPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView]);
+  }, [inView, page, data.length]);
 
   const handleSelect = (categoryId: string) => {
     onChangeSelected(categoryId);
