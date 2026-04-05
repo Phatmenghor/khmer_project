@@ -197,26 +197,16 @@ export function ProductListPage({
       {/* Products Section with home page styling */}
       <div className="relative py-6 sm:py-10">
         <PageContainer className="max-w-8xl">
-          <div className="flex gap-6 lg:gap-8">
-            {/* Desktop Sidebar Filters */}
-            <aside className="hidden lg:block w-72 flex-shrink-0">
-              <ProductFilters
-                totalResults={pagination.totalElements}
-                basePath={basePath}
-                lockedPromotion={lockedPromotion}
-              />
-            </aside>
+          <div className="flex gap-6 lg:gap-8 flex-col lg:flex-row">
+            {/* Filters - Single instance, responsive layout inside component */}
+            <ProductFilters
+              totalResults={pagination.totalElements}
+              basePath={basePath}
+              lockedPromotion={lockedPromotion}
+            />
 
             {/* Main Product List */}
             <div className="flex-1 min-w-0">
-              {/* Mobile Filters */}
-              <div className="lg:hidden mb-6">
-                <ProductFilters
-                  totalResults={pagination.totalElements}
-                  basePath={basePath}
-                  lockedPromotion={lockedPromotion}
-                />
-              </div>
 
               {/* Products Grid - with initial skeleton loading (like home page) */}
               {isInitialLoad ? (

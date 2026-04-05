@@ -192,30 +192,26 @@ export function ProductFilters({
       )}
 
       {/* Category - Combobox */}
-      <div className="space-y-3">
-        <ComboboxSelectCategoriesPublic
-          selectedCategory={selectedCategory}
-          onChangeSelected={(categoryId) =>
-            updateFilter("categoryId", categoryId)
-          }
-          label="Category"
-          size="md"
-          placeholder="All Categories"
-        />
-      </div>
+      <ComboboxSelectCategoriesPublic
+        selectedCategory={selectedCategory}
+        onChangeSelected={(categoryId) =>
+          updateFilter("categoryId", categoryId)
+        }
+        label="Category"
+        size="md"
+        placeholder="All Categories"
+      />
 
       <Separator />
 
       {/* Brand - Combobox */}
-      <div className="space-y-3">
-        <ComboboxSelectBrandPublic
-          selectedBrand={selectedBrand}
-          onChangeSelected={(brandId) => updateFilter("brandId", brandId)}
-          label="Brand"
-          size="md"
-          placeholder="All Brands"
-        />
-      </div>
+      <ComboboxSelectBrandPublic
+        selectedBrand={selectedBrand}
+        onChangeSelected={(brandId) => updateFilter("brandId", brandId)}
+        label="Brand"
+        size="md"
+        placeholder="All Brands"
+      />
 
       <Separator />
 
@@ -305,53 +301,55 @@ export function ProductFilters({
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block sticky top-24 h-[calc(100vh-7rem)]">
-        <div className="bg-card border rounded-xl shadow-sm h-full flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border/60 flex-shrink-0">
-            <div className="flex items-center gap-2.5">
-              <SlidersHorizontal className="h-5 w-5 text-primary" />
-              <h3 className="font-bold text-base">Filters</h3>
+      <div className="hidden lg:flex w-72 flex-shrink-0">
+        <div className="sticky top-24 h-[calc(100vh-7rem)] w-full">
+          <div className="bg-card border rounded-xl shadow-sm h-full flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border/60 flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <SlidersHorizontal className="h-5 w-5 text-primary" />
+                <h3 className="font-bold text-base">Filters</h3>
+                {activeFiltersCount > 0 && (
+                  <Badge className="rounded-full h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold">
+                    {activeFiltersCount}
+                  </Badge>
+                )}
+              </div>
               {activeFiltersCount > 0 && (
-                <Badge className="rounded-full h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold">
-                  {activeFiltersCount}
-                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1.5 text-xs"
+                  onClick={clearAllFilters}
+                >
+                  <FilterX className="h-3.5 w-3.5" />
+                  Clear all
+                </Button>
               )}
             </div>
-            {activeFiltersCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1.5 text-xs"
-                onClick={clearAllFilters}
-              >
-                <FilterX className="h-3.5 w-3.5" />
-                Clear all
-              </Button>
-            )}
-          </div>
 
-          {/* Results count */}
-          <div className="px-5 py-3 border-b border-border/40 flex-shrink-0 bg-muted/30">
-            <p className="text-xs text-muted-foreground">
-              <span className="font-semibold text-foreground">
-                {totalResults.toLocaleString()}
-              </span>{" "}
-              result{totalResults !== 1 ? "s" : ""} found
-            </p>
-          </div>
-
-          {/* Scrollable content */}
-          <ScrollArea className="flex-1">
-            <div className="p-5">
-              <FilterContent />
+            {/* Results count */}
+            <div className="px-5 py-3 border-b border-border/40 flex-shrink-0 bg-muted/30">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">
+                  {totalResults.toLocaleString()}
+                </span>{" "}
+                result{totalResults !== 1 ? "s" : ""} found
+              </p>
             </div>
-          </ScrollArea>
+
+            {/* Scrollable content */}
+            <ScrollArea className="flex-1">
+              <div className="p-5">
+                <FilterContent />
+              </div>
+            </ScrollArea>
+          </div>
         </div>
       </div>
 
-      {/* Mobile */}
-      <div className="lg:hidden">
+      {/* Mobile Filters */}
+      <div className="lg:hidden w-full">
         <div className="flex items-center justify-between gap-3 bg-card border rounded-xl p-4 shadow-sm">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold truncate">
