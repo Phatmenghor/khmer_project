@@ -62,6 +62,7 @@ export function ComboboxSelectCategoriesPublic({
 
   const loadingRef = useRef(false);
   const lastPageRef = useRef(false);
+  const fetchingRef = useRef<Set<number>>(new Set()); // Track which pages are being fetched
 
   useEffect(() => {
     loadingRef.current = loading;
@@ -88,8 +89,10 @@ export function ComboboxSelectCategoriesPublic({
   };
 
   const fetchData = async (search: string, newPage: number) => {
-    if (loadingRef.current || (lastPageRef.current && newPage > 1)) return;
+    // Prevent duplicate requests for same page
+    if (loadingRef.current || fetchingRef.current.has(newPage) || (lastPageRef.current && newPage > 1)) return;
 
+    fetchingRef.current.add(newPage);
     setLoading(true);
     console.log("🔍 Fetching categories:", { search, newPage, pageSize: 15 });
 
@@ -130,6 +133,7 @@ export function ComboboxSelectCategoriesPublic({
       console.error("❌ Error fetching categories:", error);
     } finally {
       setLoading(false);
+      fetchingRef.current.delete(newPage);
     }
   };
 
