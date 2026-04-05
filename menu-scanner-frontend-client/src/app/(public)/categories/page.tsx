@@ -1,7 +1,13 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+"use client";
+
 import { useEffect, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { usePublicCategoriesState } from "@/redux/features/main/store/state/public-categories-state";
+  const searchParams = useSearchParams();
+  const search = searchParams.get("q") || "";
 import { LayoutGrid, Loader2, CheckCircle2 } from "lucide-react";
 import { CategoryCard } from "@/components/shared/card/category-card";
 import { CategoryCardSkeleton } from "@/components/shared/skeletons/category-card-skeleton";
@@ -14,6 +20,8 @@ import { PageHeader } from "@/components/shared/common/page-header";
 
 export default function CategoriesPage() {
   const isLoadingRef = useRef(false);
+  const searchParams = useSearchParams();
+  const search = searchParams.get("q") || "";
 
   const {
     categories,
@@ -30,15 +38,15 @@ export default function CategoriesPage() {
   useScrollRestoration({ enabled: true, restoreOnMount: true, customKey: "categories" });
 
   useEffect(() => {
-    fetchCategories({ pageNo: 1, status: "ACTIVE" });
-  }, [fetchCategories]);
+    fetchCategories({ pageNo: 1, status: "ACTIVE", search });
+  }, [fetchCategories, search]);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore && !isLoadingRef.current) {
       isLoadingRef.current = true;
       fetchCategories({
         pageNo: pagination.currentPage + 1,
-        status: "ACTIVE",
+        status: "ACTIVE", search,
         append: true,
       }).finally(() => {
         isLoadingRef.current = false;

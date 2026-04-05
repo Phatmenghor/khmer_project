@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { usePublicBrandsState } from "@/redux/features/main/store/state/public-brands-state";
 import { Store, Loader2, CheckCircle2 } from "lucide-react";
 import { BrandCard } from "@/components/shared/card/brand-card";
@@ -14,6 +15,8 @@ import { PageHeader } from "@/components/shared/common/page-header";
 
 export default function BrandsPage() {
   const isLoadingRef = useRef(false);
+  const searchParams = useSearchParams();
+  const search = searchParams.get("q") || "";
 
   const {
     brands,
@@ -30,8 +33,8 @@ export default function BrandsPage() {
   useScrollRestoration({ enabled: true, restoreOnMount: true, customKey: "brands" });
 
   useEffect(() => {
-    fetchBrands({ pageNo: 1, status: "ACTIVE" });
-  }, [fetchBrands]);
+    fetchBrands({ pageNo: 1, status: "ACTIVE", search });
+  }, [fetchBrands, search]);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore && !isLoadingRef.current) {
@@ -39,6 +42,7 @@ export default function BrandsPage() {
       fetchBrands({
         pageNo: pagination.currentPage + 1,
         status: "ACTIVE",
+        search,
         append: true,
       }).finally(() => {
         isLoadingRef.current = false;
