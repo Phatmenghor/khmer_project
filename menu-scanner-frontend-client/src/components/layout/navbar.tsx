@@ -135,9 +135,10 @@ export function Navbar() {
    * Used for Products, Promotions, Categories, Brands links
    */
   const handleNavigateToPage = (href: string) => {
-    setSearchQuery(""); // Clear navbar search
+    navigatingRef.current = true; // Flag that we're navigating (prevent search effect interference)
+    setMobileSearchOpen(false); // Close mobile search overlay
     dispatch(clearProducts()); // Clear product search results
-    router.push(href); // Navigate to page
+    router.push(href); // Navigate to page (search cleared in effect after navigation)
   };
 
   // Debounce search query to reduce URL updates (500ms delay)
