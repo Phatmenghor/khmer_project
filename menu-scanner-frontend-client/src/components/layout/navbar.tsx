@@ -106,13 +106,6 @@ export function Navbar() {
     }
   }, [mobileSearchOpen]);
 
-  /**
-   * Clear search when route changes
-   * Ensures each page starts with clean search state
-   */
-  useEffect(() => {
-    setSearchQuery("");
-  }, [pathname]);
 
   /**
    * Navigate to home and clear search + products cache
@@ -121,6 +114,16 @@ export function Navbar() {
     setSearchQuery(""); // Clear navbar search
     dispatch(clearProducts()); // Clear product search results
     router.push("/"); // Navigate to home
+  };
+
+  /**
+   * Navigate to another page and clear search
+   * Used for Products, Promotions, Categories, Brands links
+   */
+  const handleNavigateToPage = (href: string) => {
+    setSearchQuery(""); // Clear navbar search
+    dispatch(clearProducts()); // Clear product search results
+    router.push(href); // Navigate to page
   };
 
   // Debounce search query to reduce URL updates (500ms delay)
@@ -416,7 +419,7 @@ export function Navbar() {
                     (link.href === "/products" &&
                       pathname.startsWith("/products"));
 
-                  // Special handler for Home link to clear search
+                  // Special handler for Home link
                   if (link.name === "Home") {
                     return (
                       <Button
@@ -434,19 +437,20 @@ export function Navbar() {
                     );
                   }
 
+                  // Special handler for other navigation links to clear search
                   return (
-                    <Link key={link.name} href={link.href}>
-                      <Button
-                        variant="ghost"
-                        className={cn(
-                          "text-foreground hover:text-primary hover:bg-primary/10 relative",
-                          active &&
-                            "text-primary after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-3/4 after:h-0.5 after:bg-primary after:rounded-full",
-                        )}
-                      >
-                        {link.name}
-                      </Button>
-                    </Link>
+                    <Button
+                      key={link.name}
+                      variant="ghost"
+                      className={cn(
+                        "text-foreground hover:text-primary hover:bg-primary/10 relative",
+                        active &&
+                          "text-primary after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-3/4 after:h-0.5 after:bg-primary after:rounded-full",
+                      )}
+                      onClick={() => handleNavigateToPage(link.href)}
+                    >
+                      {link.name}
+                    </Button>
                   );
                 })}
               </div>
