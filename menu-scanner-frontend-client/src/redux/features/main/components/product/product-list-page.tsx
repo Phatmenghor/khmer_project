@@ -43,34 +43,18 @@ export function ProductListPage({
   hero,
   scrollKey = "products",
 }: ProductListPageProps) {
-  console.log("## [RENDER] ProductListPage rendering", {
-    basePath,
-    lockedPromotion,
-    scrollKey,
-  });
-
   const [isMounted, setIsMounted] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    console.log("## [MOUNT] ProductListPage mounted");
     setIsMounted(true);
   }, []);
 
   const { dispatch, products, pagination, loading, loadedFilters } =
     usePublicProductState();
 
-  console.log("## [STATE] Current state", {
-    productsCount: products.length,
-    currentPage: pagination.currentPage,
-    hasMore: pagination.hasMore,
-    isLoading: loading.list,
-    loadedFilters: loadedFilters?.substring(0, 50),
-  });
-
   // Always start at top on page load/refresh - don't restore scroll
   useEffect(() => {
-    console.log("## [SCROLL] Scrolling to top");
     window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
 
@@ -89,16 +73,6 @@ export function ProductListPage({
   const sortBy = searchParams.get("sortBy");
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
-
-  console.log("## [FILTERS] URL search params", {
-    search,
-    categoryId,
-    brandId,
-    statusParam,
-    sortBy,
-    minPrice,
-    maxPrice,
-  });
 
   // Memoize currentFilters to prevent effect re-runs on every render
   const currentFilters = useMemo(
@@ -141,29 +115,24 @@ export function ProductListPage({
 
   const loadProducts = useCallback(
     async (pageNo: number) => {
-      const timestamp = new Date().toISOString();
-      console.log(`## [API_CALL] pageNo:${pageNo} timestamp:${timestamp}`);
-
       const hasPromotion = lockedPromotion
         ? true
         : searchParams.get("hasPromotion") === "true" || undefined;
 
-      const payload = {
-        pageNo,
-        pageSize: getPageSize(),
-        ...(search && { search }),
-        ...(hasPromotion && { hasPromotion: true }),
-        ...(categoryId && { categoryId }),
-        ...(brandId && { brandId }),
-        ...(statuses.length > 0 && { statuses }),
-        ...(sortBy && { sortBy }),
-        ...(minPrice && { minPrice: Number(minPrice) }),
-        ...(maxPrice && { maxPrice: Number(maxPrice) }),
-      };
-
-      console.log(`## [DISPATCH] START pageNo:${pageNo}`, payload);
-      await dispatch(fetchPublicProducts(payload));
-      console.log(`## [DISPATCH] END pageNo:${pageNo}`);
+      await dispatch(
+        fetchPublicProducts({
+          pageNo,
+          pageSize: getPageSize(),
+          ...(search && { search }),
+          ...(hasPromotion && { hasPromotion: true }),
+          ...(categoryId && { categoryId }),
+          ...(brandId && { brandId }),
+          ...(statuses.length > 0 && { statuses }),
+          ...(sortBy && { sortBy }),
+          ...(minPrice && { minPrice: Number(minPrice) }),
+          ...(maxPrice && { maxPrice: Number(maxPrice) }),
+        }),
+      );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -209,19 +178,10 @@ export function ProductListPage({
 
   // Initial filter load
   useEffect(() => {
-    const timestamp = new Date().toISOString();
     const hasProductsInStore = products.length > 0;
     const filtersMatch = loadedFilters === currentFilters;
 
-    console.log(`## [EFFECT] TRIGGERED (${timestamp})`, {
-      hasProducts: hasProductsInStore,
-      filtersMatch,
-      count: products.length,
-      isLoading: loading.list,
-    });
-
     if (hasProductsInStore && filtersMatch) {
-      console.log(`## [EFFECT] SKIP - products and filters match`);
       return;
     }
 
@@ -230,16 +190,12 @@ export function ProductListPage({
     // 2. We need products AND we're not already loading
     if (!filtersMatch || (!hasProductsInStore && !loading.list)) {
       if (!filtersMatch && hasProductsInStore) {
-        console.log(`## [EFFECT] CLEAR_PRODUCTS - filters changed`);
         dispatch(clearProducts());
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      console.log(`## [EFFECT] LOAD_PRODUCTS - calling loadProducts(1)`);
       dispatch(setLoadedFilters(currentFilters));
       loadProducts(1);
-    } else if (!hasProductsInStore && loading.list) {
-      console.log(`## [EFFECT] SKIP - already loading products`);
     }
   }, [currentFilters, loadedFilters, products.length, loadProducts, dispatch, loading.list]);
 
