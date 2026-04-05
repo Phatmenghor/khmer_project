@@ -62,6 +62,7 @@ function ComboboxSelectCategoriesPublicComponent({
 
   const loadingRef = useRef(false);
   const lastPageRef = useRef(false);
+  const initialFetchRef = useRef(false);
 
   useEffect(() => {
     loadingRef.current = loading;
@@ -129,9 +130,9 @@ function ComboboxSelectCategoriesPublicComponent({
 
   // Initial fetch on mount (to show selected category name)
   useEffect(() => {
-    if (data.length === 0) {
-      fetchData(debouncedSearch, 1);
-    }
+    if (initialFetchRef.current || data.length > 0) return;
+    initialFetchRef.current = true;
+    fetchData(debouncedSearch, 1);
   }, []); // Run only once on mount
 
   // Fetch when search changes (ONLY if dropdown is open)
