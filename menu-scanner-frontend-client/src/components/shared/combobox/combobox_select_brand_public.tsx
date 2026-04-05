@@ -63,11 +63,20 @@ export function ComboboxSelectBrandPublic({
   const loadingRef = useRef(false);
   const lastPageRef = useRef(false);
   const fetchingRef = useRef<Set<number>>(new Set()); // Track which pages are being fetched
+  const pageRef = useRef(page);
+  const dataLengthRef = useRef(data.length);
+  const searchRef = useRef(debouncedSearch || searchTerm);
 
   useEffect(() => {
     loadingRef.current = loading;
     lastPageRef.current = lastPage;
   }, [loading, lastPage]);
+
+  useEffect(() => {
+    pageRef.current = page;
+    dataLengthRef.current = data.length;
+    searchRef.current = debouncedSearch || searchTerm;
+  }, [page, data.length, debouncedSearch, searchTerm]);
 
   const sizeClasses = {
     sm: "h-8 text-xs",
@@ -157,17 +166,16 @@ export function ComboboxSelectBrandPublic({
   useEffect(() => {
     if (!inView) return; // Only proceed if at bottom
 
-    const nextPage = page + 1;
+    const nextPage = pageRef.current + 1;
 
     // Guard: prevent if already loading, at last page, or already fetching this page
-    if (loadingRef.current || lastPageRef.current || fetchingRef.current.has(nextPage) || data.length === 0) {
+    if (loadingRef.current || lastPageRef.current || fetchingRef.current.has(nextPage) || dataLengthRef.current === 0) {
       return;
     }
 
     console.log("📜 Scrolled to bottom, fetching next page:", nextPage);
-    fetchData(debouncedSearch || searchTerm, nextPage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, page, data.length]);
+    fetchData(searchRef.current, nextPage);
+  }, [inView]);
 
   const handleSelect = (brandId: string) => {
     onChangeSelected(brandId);
