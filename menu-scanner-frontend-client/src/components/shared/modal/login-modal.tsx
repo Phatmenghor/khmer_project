@@ -193,7 +193,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-xl">
         {/* Header */}
         <DialogHeader>
           <DialogTitle>{businessName}</DialogTitle>
@@ -283,7 +283,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
         {/* Body - Register Form */}
         {activeTab === "register" && (
           <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <TextField
                 name="firstName"
                 label="First Name"
