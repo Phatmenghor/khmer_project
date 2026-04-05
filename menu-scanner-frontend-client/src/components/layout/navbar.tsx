@@ -17,7 +17,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Search,
   ShoppingCart,
@@ -38,6 +38,7 @@ import { CustomButton } from "../shared/button/custom-button";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
+import { clearProducts } from "@/redux/features/main/store/slice/public-product-slice";
 import { selectBusinessName, selectBusinessLogo } from "@/redux/features/business/store/selectors/business-settings-selector";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useLogout } from "@/redux/store/use-logout";
@@ -65,6 +66,7 @@ export function Navbar() {
 
   const router = useRouter();
   const pathname = usePathname();
+  const dispatch = useDispatch();
 
   const { isAuthenticated, profile, fullName, email, profileImage } =
     useAuthState();
@@ -115,11 +117,12 @@ export function Navbar() {
   }, [pathname]);
 
   /**
-   * Navigate to home and clear search
+   * Navigate to home and clear search + products cache
    */
   const handleNavigateToHome = () => {
-    setSearchQuery("");
-    router.push("/");
+    setSearchQuery(""); // Clear navbar search
+    dispatch(clearProducts()); // Clear product search results
+    router.push("/"); // Navigate to home
   };
 
   // Debounce search query to reduce URL updates (500ms delay)
