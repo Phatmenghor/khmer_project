@@ -1,7 +1,7 @@
 "use client";
 
 import "react-toastify/dist/ReactToastify.css";
-import { ReactNode } from "react";
+import { ReactNode, StrictMode } from "react";
 import { Provider } from "react-redux";
 import { Toaster } from "sonner";
 import store from "../redux/store";
@@ -19,7 +19,9 @@ function ThemeInitializer() {
 }
 
 export function ClientProviders({ children }: ClientProvidersProps) {
-  return (
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const content = (
     <Provider store={store}>
       <ThemeInitializer />
       {children}
@@ -37,5 +39,13 @@ export function ClientProviders({ children }: ClientProvidersProps) {
         theme="light"
       />
     </Provider>
+  );
+
+  // Disable StrictMode in development to avoid double-mounting
+  // (it's still useful for production debugging if needed)
+  return isProduction ? (
+    <StrictMode>{content}</StrictMode>
+  ) : (
+    content
   );
 }
