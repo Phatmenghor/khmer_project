@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { fetchPublicProducts } from "@/redux/features/main/store/thunks/public-product-thunks";
@@ -74,19 +74,35 @@ export function ProductListPage({
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
 
-  const currentFilters = JSON.stringify({
-    search,
-    hasPromotion: lockedPromotion
-      ? true
-      : searchParams.get("hasPromotion") === "true",
-    categoryId,
-    brandId,
-    statuses,
-    sortBy,
-    minPrice,
-    maxPrice,
-    _page: basePath,
-  });
+  // Memoize currentFilters to prevent effect re-runs on every render
+  const currentFilters = useMemo(
+    () =>
+      JSON.stringify({
+        search,
+        hasPromotion: lockedPromotion
+          ? true
+          : searchParams.get("hasPromotion") === "true",
+        categoryId,
+        brandId,
+        statuses,
+        sortBy,
+        minPrice,
+        maxPrice,
+        _page: basePath,
+      }),
+    [
+      search,
+      lockedPromotion,
+      searchParams,
+      categoryId,
+      brandId,
+      statuses,
+      sortBy,
+      minPrice,
+      maxPrice,
+      basePath,
+    ]
+  );
 
   // Dynamic page size based on screen width (like home page)
   const getPageSize = useCallback(() => {
