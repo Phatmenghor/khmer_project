@@ -251,6 +251,18 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
               onTogglePassword={() => setShowPassword((v) => !v)}
             />
 
+            {/* Footer - Submit Button */}
+            <DialogFooter className="pt-2">
+              <Button
+                type="submit"
+                className="w-full h-11 font-semibold"
+                disabled={isAnyLoading}
+              >
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </DialogFooter>
+
             <Divider />
 
             <TelegramLoginButton
@@ -272,18 +284,6 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
                 Register
               </button>
             </p>
-
-            {/* Footer - Submit Button */}
-            <DialogFooter className="pt-2">
-              <Button
-                type="submit"
-                className="w-full h-11 font-semibold"
-                disabled={isAnyLoading}
-              >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? "Signing in..." : "Sign In"}
-              </Button>
-            </DialogFooter>
           </form>
         )}
 
@@ -354,6 +354,18 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
               onTogglePassword={() => setShowConfirmPassword((v) => !v)}
             />
 
+            {/* Footer - Submit Button */}
+            <DialogFooter className="pt-2">
+              <Button
+                type="submit"
+                className="w-full h-11 font-semibold"
+                disabled={isAnyLoading}
+              >
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading ? "Creating..." : "Create Account"}
+              </Button>
+            </DialogFooter>
+
             <Divider />
 
             <TelegramLoginButton
@@ -377,18 +389,6 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
                 Sign in
               </button>
             </p>
-
-            {/* Footer - Submit Button */}
-            <DialogFooter className="pt-2">
-              <Button
-                type="submit"
-                className="w-full h-11 font-semibold"
-                disabled={isAnyLoading}
-              >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? "Creating..." : "Create Account"}
-              </Button>
-            </DialogFooter>
           </form>
         )}
       </DialogContent>
