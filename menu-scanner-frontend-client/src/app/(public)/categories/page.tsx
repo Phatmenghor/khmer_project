@@ -2,7 +2,6 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useCallback, useRef } from "react";
-import { useSearchParams } from "next/navigation";
 import { usePublicCategoriesState } from "@/redux/features/main/store/state/public-categories-state";
 import { LayoutGrid, Loader2, CheckCircle2 } from "lucide-react";
 import { CategoryCard } from "@/components/shared/card/category-card";
