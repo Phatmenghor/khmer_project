@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -18,7 +18,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
@@ -57,26 +56,17 @@ export function ComboboxSelectCategoriesPublic({
   const [lastPage, setLastPage] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { ref, inView } = useInView({ threshold: 0.5 });
   const debouncedSearch = useDebounce(searchTerm, 400);
 
+  const commandListRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
   const lastPageRef = useRef(false);
-  const fetchingRef = useRef<Set<number>>(new Set()); // Track which pages are being fetched
-  const pageRef = useRef(page);
-  const dataLengthRef = useRef(data.length);
-  const searchRef = useRef(debouncedSearch || searchTerm);
+  const fetchingRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     loadingRef.current = loading;
     lastPageRef.current = lastPage;
   }, [loading, lastPage]);
-
-  useEffect(() => {
-    pageRef.current = page;
-    dataLengthRef.current = data.length;
-    searchRef.current = debouncedSearch || searchTerm;
-  }, [page, data.length, debouncedSearch, searchTerm]);
 
   const sizeClasses = {
     sm: "h-8 text-xs",
@@ -162,20 +152,33 @@ export function ComboboxSelectCategoriesPublic({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // Load more on scroll - ONLY when dropdown is open AND user scrolls to bottom
+  // Manual scroll detection - ONLY when dropdown is open
   useEffect(() => {
-    if (!inView || !open) return; // Only proceed if at bottom AND dropdown is open
+    if (!open || !commandListRef.current) return;
 
-    const nextPage = pageRef.current + 1;
+    const commandList = commandListRef.current;
 
-    // Guard: prevent if already loading, at last page, or already fetching this page
-    if (loadingRef.current || lastPageRef.current || fetchingRef.current.has(nextPage) || dataLengthRef.current === 0) {
-      return;
-    }
+    const handleScroll = () => {
+      // Check if scrolled to bottom (within 100px)
+      const isAtBottom =
+        commandList.scrollHeight - commandList.scrollTop - commandList.clientHeight < 100;
 
-    console.log("📜 Scrolled to bottom in dropdown, fetching next page:", nextPage);
-    fetchData(searchRef.current, nextPage);
-  }, [inView, open]);
+      if (!isAtBottom) return;
+
+      const nextPage = page + 1;
+
+      // Prevent duplicate requests
+      if (loadingRef.current || lastPageRef.current || fetchingRef.current.has(nextPage) || data.length === 0) {
+        return;
+      }
+
+      console.log("📜 Scrolled to bottom in dropdown, fetching next page:", nextPage);
+      fetchData(debouncedSearch || searchTerm, nextPage);
+    };
+
+    commandList.addEventListener("scroll", handleScroll);
+    return () => commandList.removeEventListener("scroll", handleScroll);
+  }, [open, page, data.length, debouncedSearch, searchTerm]);
 
   const handleSelect = (categoryId: string) => {
     onChangeSelected(categoryId);
@@ -239,7 +242,7 @@ export function ComboboxSelectCategoriesPublic({
               value={searchTerm}
               onValueChange={setSearchTerm}
             />
-            <CommandList className="max-h-60 overflow-y-auto">
+            <CommandList ref={commandListRef} className="max-h-60 overflow-y-auto">
               <CommandEmpty>No categories found.</CommandEmpty>
               <CommandGroup>
                 {data.map((item, index) => (
@@ -247,7 +250,6 @@ export function ComboboxSelectCategoriesPublic({
                     key={item.id || `all-${index}`}
                     value={item.name}
                     onSelect={() => handleSelect(item.id)}
-                    ref={index === data.length - 1 ? ref : null}
                     className={cn(
                       sizeClasses[size],
                       "hover:bg-primary/10 hover:text-primary cursor-pointer",
