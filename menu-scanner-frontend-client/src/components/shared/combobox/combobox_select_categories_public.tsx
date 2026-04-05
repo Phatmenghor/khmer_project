@@ -111,7 +111,7 @@ export function ComboboxSelectCategoriesPublic({
       }
 
       // Handle both array and object responses
-      const items = Array.isArray(result) ? result : (result.data || []);
+      const items = Array.isArray(result) ? result : (result.content || result.data || []);
       console.log("📦 Items extracted:", items);
 
       if (newPage === 1) {
