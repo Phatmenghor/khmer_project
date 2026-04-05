@@ -134,6 +134,15 @@ export function ComboboxSelectCategoriesPublic({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
+  // Fetch initial data when popover opens
+  useEffect(() => {
+    if (open && data.length === 0) {
+      fetchData(searchTerm || "", 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  // Load more on scroll
   useEffect(() => {
     if (
       inView &&
@@ -141,7 +150,7 @@ export function ComboboxSelectCategoriesPublic({
       !lastPageRef.current &&
       data.length > 0
     ) {
-      fetchData(debouncedSearch, page + 1);
+      fetchData(debouncedSearch || searchTerm, page + 1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, page, data.length]);
