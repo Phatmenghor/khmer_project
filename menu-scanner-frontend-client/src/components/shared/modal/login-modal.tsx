@@ -195,8 +195,15 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
         {/* Header */}
-        <DialogHeader>
-          <DialogTitle>{businessName}</DialogTitle>
+        <DialogHeader className="text-left">
+          <div>
+            <DialogTitle className="text-2xl">{businessName}</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              {activeTab === "login"
+                ? "Sign in to your account"
+                : "Create a new account"}
+            </p>
+          </div>
         </DialogHeader>
 
         <Separator />
