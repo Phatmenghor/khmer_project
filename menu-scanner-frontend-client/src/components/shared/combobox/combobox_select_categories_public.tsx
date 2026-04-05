@@ -110,8 +110,8 @@ export function ComboboxSelectCategoriesPublic({
         return;
       }
 
-      // Handle both array and object responses
-      const items = Array.isArray(result) ? result : (result.content || result.data || []);
+      // Extract items and pagination from response
+      const items = result.content || [];
       console.log("📦 Items extracted:", items);
 
       if (newPage === 1) {
@@ -124,8 +124,8 @@ export function ComboboxSelectCategoriesPublic({
         setData((prev) => removeDuplicates([...prev, ...items]));
       }
 
-      setPage(Array.isArray(result) ? newPage : result.pageNo);
-      setLastPage(Array.isArray(result) ? false : result.last);
+      setPage(result.pageNo || newPage);
+      setLastPage(result.last || false);
     } catch (error) {
       console.error("❌ Error fetching categories:", error);
     } finally {
