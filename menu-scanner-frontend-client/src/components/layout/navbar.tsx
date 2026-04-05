@@ -104,6 +104,16 @@ export function Navbar() {
     }
   }, [mobileSearchOpen]);
 
+  /**
+   * Clear search when navigating to home page
+   * Ensures clean URL and search state on home
+   */
+  useEffect(() => {
+    if (pathname === "/") {
+      setSearchQuery("");
+    }
+  }, [pathname]);
+
   // Debounce search query to reduce URL updates (500ms delay)
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
