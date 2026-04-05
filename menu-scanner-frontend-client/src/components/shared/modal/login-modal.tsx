@@ -5,7 +5,7 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, LogIn, UserPlus, ArrowRight } from "lucide-react";
+import { Loader2, LogIn, UserPlus, ArrowRight, ShoppingBag } from "lucide-react";
 import {
   Dialog,
   DialogContent,
