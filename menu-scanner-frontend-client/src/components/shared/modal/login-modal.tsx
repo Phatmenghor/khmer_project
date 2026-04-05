@@ -8,9 +8,12 @@ import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
@@ -190,31 +193,26 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 gap-0 w-full sm:max-w-md rounded-2xl">
-        <DialogTitle className="sr-only">
-          {activeTab === "login" ? "Sign in" : "Create account"}
-        </DialogTitle>
-
+      <DialogContent className="sm:max-w-md">
         {/* Header */}
-        <div className="bg-primary text-primary-foreground px-6 py-6">
-          <h2 className="text-2xl font-bold">{businessName}</h2>
-          <p className="text-sm opacity-80 mt-1">
-            {activeTab === "login" ? "Sign in" : "Create account"}
-          </p>
-        </div>
+        <DialogHeader>
+          <DialogTitle>{businessName}</DialogTitle>
+        </DialogHeader>
+
+        <Separator />
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-border/60 bg-muted/20">
+        <div className="flex gap-2 bg-muted/50 p-1 rounded-lg">
           {(["login", "register"] as Tab[]).map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => switchTab(tab)}
               className={cn(
-                "flex-1 py-3 text-sm font-medium transition-all border-b-2 -mb-px",
+                "flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all",
                 activeTab === tab
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {tab === "login" ? "Sign In" : "Register"}
@@ -222,167 +220,170 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
           ))}
         </div>
 
-        {/* Form Content */}
-        <div className="px-6 py-6 max-h-[70dvh] overflow-y-auto">
-          {/* Login Form */}
-          {activeTab === "login" && (
-            <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-              <TextField
-                name="userIdentifier"
-                label="Email or Username"
-                placeholder="name@example.com"
-                control={loginForm.control}
-                error={loginForm.formState.errors.userIdentifier}
-                disabled={isAnyLoading}
-                required
-              />
-              <PasswordField
-                name="password"
-                label="Password"
-                placeholder="Enter password"
-                control={loginForm.control}
-                error={loginForm.formState.errors.password}
-                disabled={isAnyLoading}
-                required
-                showPassword={showPassword}
-                onTogglePassword={() => setShowPassword((v) => !v)}
-              />
+        {/* Body - Login Form */}
+        {activeTab === "login" && (
+          <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+            <TextField
+              name="userIdentifier"
+              label="Email or Username"
+              placeholder="name@example.com"
+              control={loginForm.control}
+              error={loginForm.formState.errors.userIdentifier}
+              disabled={isAnyLoading}
+              required
+            />
+            <PasswordField
+              name="password"
+              label="Password"
+              placeholder="Enter password"
+              control={loginForm.control}
+              error={loginForm.formState.errors.password}
+              disabled={isAnyLoading}
+              required
+              showPassword={showPassword}
+              onTogglePassword={() => setShowPassword((v) => !v)}
+            />
 
+            <Divider />
+
+            <TelegramLoginButton
+              botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
+              botId={SocialAuthConfig.TELEGRAM_BOT_ID}
+              onAuth={handleTelegramAuth}
+              disabled={isAnyLoading}
+              loading={isTelegramLoading}
+              className="w-full"
+            />
+
+            <p className="text-center text-sm text-muted-foreground">
+              No account?{" "}
+              <button
+                type="button"
+                onClick={() => switchTab("register")}
+                className="text-primary font-semibold hover:underline"
+              >
+                Register
+              </button>
+            </p>
+
+            {/* Footer - Submit Button */}
+            <DialogFooter className="pt-2">
               <Button
                 type="submit"
-                className="w-full h-11 font-semibold rounded-lg"
+                className="w-full h-11 font-semibold"
                 disabled={isAnyLoading}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
+            </DialogFooter>
+          </form>
+        )}
 
-              <Divider />
-
-              <TelegramLoginButton
-                botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
-                botId={SocialAuthConfig.TELEGRAM_BOT_ID}
-                onAuth={handleTelegramAuth}
-                disabled={isAnyLoading}
-                loading={isTelegramLoading}
-                className="w-full"
-              />
-
-              <p className="text-center text-sm text-muted-foreground pt-2">
-                No account?{" "}
-                <button
-                  type="button"
-                  onClick={() => switchTab("register")}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Register
-                </button>
-              </p>
-            </form>
-          )}
-
-          {/* Register Form */}
-          {activeTab === "register" && (
-            <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <TextField
-                  name="firstName"
-                  label="First Name"
-                  placeholder="John"
-                  control={registerForm.control}
-                  error={registerForm.formState.errors.firstName}
-                  disabled={isAnyLoading}
-                />
-                <TextField
-                  name="lastName"
-                  label="Last Name"
-                  placeholder="Doe"
-                  control={registerForm.control}
-                  error={registerForm.formState.errors.lastName}
-                  disabled={isAnyLoading}
-                />
-              </div>
-
+        {/* Body - Register Form */}
+        {activeTab === "register" && (
+          <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
               <TextField
-                name="userIdentifier"
-                label="Email"
-                type="email"
-                placeholder="name@example.com"
+                name="firstName"
+                label="First Name"
+                placeholder="John"
                 control={registerForm.control}
-                error={registerForm.formState.errors.userIdentifier}
+                error={registerForm.formState.errors.firstName}
                 disabled={isAnyLoading}
-                required
               />
-
               <TextField
-                name="phoneNumber"
-                label="Phone"
-                type="tel"
-                placeholder="+855 12 345 678"
+                name="lastName"
+                label="Last Name"
+                placeholder="Doe"
                 control={registerForm.control}
-                error={registerForm.formState.errors.phoneNumber}
+                error={registerForm.formState.errors.lastName}
                 disabled={isAnyLoading}
               />
+            </div>
 
-              <PasswordField
-                name="password"
-                label="Password"
-                placeholder="Min 8 characters"
-                control={registerForm.control}
-                error={registerForm.formState.errors.password}
-                disabled={isAnyLoading}
-                required
-                showPassword={showPassword}
-                onTogglePassword={() => setShowPassword((v) => !v)}
-              />
+            <TextField
+              name="userIdentifier"
+              label="Email"
+              type="email"
+              placeholder="name@example.com"
+              control={registerForm.control}
+              error={registerForm.formState.errors.userIdentifier}
+              disabled={isAnyLoading}
+              required
+            />
 
-              <PasswordField
-                name="confirmPassword"
-                label="Confirm Password"
-                placeholder="Re-enter password"
-                control={registerForm.control}
-                error={registerForm.formState.errors.confirmPassword}
-                disabled={isAnyLoading}
-                required
-                showPassword={showConfirmPassword}
-                onTogglePassword={() => setShowConfirmPassword((v) => !v)}
-              />
+            <TextField
+              name="phoneNumber"
+              label="Phone"
+              type="tel"
+              placeholder="+855 12 345 678"
+              control={registerForm.control}
+              error={registerForm.formState.errors.phoneNumber}
+              disabled={isAnyLoading}
+            />
 
+            <PasswordField
+              name="password"
+              label="Password"
+              placeholder="Min 8 characters"
+              control={registerForm.control}
+              error={registerForm.formState.errors.password}
+              disabled={isAnyLoading}
+              required
+              showPassword={showPassword}
+              onTogglePassword={() => setShowPassword((v) => !v)}
+            />
+
+            <PasswordField
+              name="confirmPassword"
+              label="Confirm Password"
+              placeholder="Re-enter password"
+              control={registerForm.control}
+              error={registerForm.formState.errors.confirmPassword}
+              disabled={isAnyLoading}
+              required
+              showPassword={showConfirmPassword}
+              onTogglePassword={() => setShowConfirmPassword((v) => !v)}
+            />
+
+            <Divider />
+
+            <TelegramLoginButton
+              botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
+              botId={SocialAuthConfig.TELEGRAM_BOT_ID}
+              onAuth={handleTelegramAuth}
+              disabled={isAnyLoading}
+              loading={isTelegramLoading}
+              className="w-full"
+            >
+              Register with Telegram
+            </TelegramLoginButton>
+
+            <p className="text-center text-sm text-muted-foreground">
+              Have account?{" "}
+              <button
+                type="button"
+                onClick={() => switchTab("login")}
+                className="text-primary font-semibold hover:underline"
+              >
+                Sign in
+              </button>
+            </p>
+
+            {/* Footer - Submit Button */}
+            <DialogFooter className="pt-2">
               <Button
                 type="submit"
-                className="w-full h-11 font-semibold rounded-lg"
+                className="w-full h-11 font-semibold"
                 disabled={isAnyLoading}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isLoading ? "Creating..." : "Create Account"}
               </Button>
-
-              <Divider />
-
-              <TelegramLoginButton
-                botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
-                botId={SocialAuthConfig.TELEGRAM_BOT_ID}
-                onAuth={handleTelegramAuth}
-                disabled={isAnyLoading}
-                loading={isTelegramLoading}
-                className="w-full"
-              >
-                Register with Telegram
-              </TelegramLoginButton>
-
-              <p className="text-center text-sm text-muted-foreground pt-2">
-                Have account?{" "}
-                <button
-                  type="button"
-                  onClick={() => switchTab("login")}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Sign in
-                </button>
-              </p>
-            </form>
-          )}
-        </div>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
