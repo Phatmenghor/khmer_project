@@ -43,7 +43,7 @@ export function ProductListPage({
   hero,
   scrollKey = "products",
 }: ProductListPageProps) {
-  console.log("[PAGE_RENDER] ProductListPage rendering", {
+  console.log("## [RENDER] ProductListPage rendering", {
     basePath,
     lockedPromotion,
     scrollKey,
@@ -53,14 +53,14 @@ export function ProductListPage({
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    console.log("[PAGE_MOUNT] ProductListPage mounted");
+    console.log("## [MOUNT] ProductListPage mounted");
     setIsMounted(true);
   }, []);
 
   const { dispatch, products, pagination, loading, loadedFilters } =
     usePublicProductState();
 
-  console.log("[STATE] Current state", {
+  console.log("## [STATE] Current state", {
     productsCount: products.length,
     currentPage: pagination.currentPage,
     hasMore: pagination.hasMore,
@@ -70,7 +70,7 @@ export function ProductListPage({
 
   // Always start at top on page load/refresh - don't restore scroll
   useEffect(() => {
-    console.log("[SCROLL_EFFECT] Scrolling to top");
+    console.log("## [SCROLL] Scrolling to top");
     window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
 
@@ -90,7 +90,7 @@ export function ProductListPage({
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
 
-  console.log("[FILTERS] URL search params", {
+  console.log("## [FILTERS] URL search params", {
     search,
     categoryId,
     brandId,
@@ -142,7 +142,7 @@ export function ProductListPage({
   const loadProducts = useCallback(
     async (pageNo: number) => {
       const timestamp = new Date().toISOString();
-      console.log(`[LOAD_PRODUCTS ${timestamp}] Called with pageNo:`, pageNo);
+      console.log(`## [API_CALL] pageNo:${pageNo} timestamp:${timestamp}`);
 
       const hasPromotion = lockedPromotion
         ? true
@@ -161,9 +161,9 @@ export function ProductListPage({
         ...(maxPrice && { maxPrice: Number(maxPrice) }),
       };
 
-      console.log(`[LOAD_PRODUCTS ${timestamp}] Dispatching with payload:`, payload);
+      console.log(`## [DISPATCH] START pageNo:${pageNo}`, payload);
       await dispatch(fetchPublicProducts(payload));
-      console.log(`[LOAD_PRODUCTS ${timestamp}] Dispatch completed for pageNo:`, pageNo);
+      console.log(`## [DISPATCH] END pageNo:${pageNo}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -213,27 +213,25 @@ export function ProductListPage({
     const hasProductsInStore = products.length > 0;
     const filtersMatch = loadedFilters === currentFilters;
 
-    console.log(`[FILTER_LOAD_EFFECT ${timestamp}] Triggered`, {
-      hasProductsInStore,
+    console.log(`## [EFFECT] TRIGGERED (${timestamp})`, {
+      hasProducts: hasProductsInStore,
       filtersMatch,
-      productsCount: products.length,
-      currentFilters: currentFilters.substring(0, 80),
-      loadedFilters: loadedFilters?.substring(0, 80),
+      count: products.length,
     });
 
     if (hasProductsInStore && filtersMatch) {
-      console.log(`[FILTER_LOAD_EFFECT ${timestamp}] SKIP: products in store and filters match`);
+      console.log(`## [EFFECT] SKIP - products and filters match`);
       return;
     }
 
     if (!filtersMatch || !hasProductsInStore) {
       if (!filtersMatch && hasProductsInStore) {
-        console.log(`[FILTER_LOAD_EFFECT ${timestamp}] Clearing products - filters changed`);
+        console.log(`## [EFFECT] CLEAR_PRODUCTS - filters changed`);
         dispatch(clearProducts());
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      console.log(`[FILTER_LOAD_EFFECT ${timestamp}] LOADING products with new filters`);
+      console.log(`## [EFFECT] LOAD_PRODUCTS - calling loadProducts(1)`);
       dispatch(setLoadedFilters(currentFilters));
       loadProducts(1);
     }
