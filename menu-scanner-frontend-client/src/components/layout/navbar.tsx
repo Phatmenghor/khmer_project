@@ -137,8 +137,9 @@ export function Navbar() {
   const handleNavigateToPage = (href: string) => {
     navigatingRef.current = true; // Flag that we're navigating (prevent search effect interference)
     setMobileSearchOpen(false); // Close mobile search overlay
+    setSearchQuery(""); // Clear search input immediately
     dispatch(clearProducts()); // Clear product search results
-    router.push(href); // Navigate to page (search cleared in effect after navigation)
+    router.push(href); // Navigate to page
   };
 
   // Debounce search query to reduce URL updates (500ms delay)
