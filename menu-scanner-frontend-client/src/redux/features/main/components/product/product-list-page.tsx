@@ -65,7 +65,7 @@ export function ProductListPage({
     restoreDelay: 150,
   });
 
-  const search = lockedPromotion ? null : searchParams.get("q");
+  const search = searchParams.get("q");
   const categoryId = searchParams.get("categoryId");
   const brandId = searchParams.get("brandId");
   const statusParam = searchParams.get("status");
