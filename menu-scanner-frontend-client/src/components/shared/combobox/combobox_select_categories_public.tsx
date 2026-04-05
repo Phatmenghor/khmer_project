@@ -91,6 +91,7 @@ export function ComboboxSelectCategoriesPublic({
     if (loadingRef.current || (lastPageRef.current && newPage > 1)) return;
 
     setLoading(true);
+    console.log("🔍 Fetching categories:", { search, newPage, pageSize: 15 });
 
     try {
       const result = await dispatch(
@@ -102,10 +103,16 @@ export function ComboboxSelectCategoriesPublic({
         }),
       ).unwrap();
 
-      if (!result) return;
+      console.log("✅ Categories result:", result);
+
+      if (!result) {
+        console.warn("⚠️ No result returned");
+        return;
+      }
 
       // Handle both array and object responses
       const items = Array.isArray(result) ? result : (result.data || []);
+      console.log("📦 Items extracted:", items);
 
       if (newPage === 1) {
         if (!search) {
@@ -120,7 +127,7 @@ export function ComboboxSelectCategoriesPublic({
       setPage(Array.isArray(result) ? newPage : result.pageNo);
       setLastPage(Array.isArray(result) ? false : result.last);
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("❌ Error fetching categories:", error);
     } finally {
       setLoading(false);
     }
