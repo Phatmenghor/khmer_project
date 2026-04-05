@@ -143,7 +143,7 @@ export function Navbar() {
    * - Empty query: removes from URL
    * - Search on home page: redirect to /products with search
    * - Search on other page: search within current page
-   * - Don't redirect if on home page with no active search (user cleared or just arrived)
+   * - Don't redirect if user just cleared search by clicking Home
    */
   useEffect(() => {
     if (!debouncedSearchQuery.trim()) {
@@ -161,9 +161,9 @@ export function Navbar() {
       return;
     }
 
-    // Don't redirect if we're on home page (user probably just navigated there)
-    // Only redirect when user actively types on home page
-    if (pathname === "/" && !window.location.search.includes("q=")) {
+    // Don't redirect if user just cleared search (searchQuery is empty but debouncedSearchQuery still has value)
+    // This prevents redirect loop when clicking Home from products with search
+    if (pathname === "/" && searchQuery === "") {
       return;
     }
 
@@ -172,7 +172,7 @@ export function Navbar() {
     const searchRoute = pathname === "/" ? "/products" : pathname;
     params.set("q", debouncedSearchQuery.trim());
     router.push(`${searchRoute}?${params.toString()}`);
-  }, [debouncedSearchQuery, pathname, router]);
+  }, [debouncedSearchQuery, pathname, searchQuery, router]);
 
   /**
    * Handle search form submission
