@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useCallback, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Trash2,
@@ -143,7 +143,55 @@ export default function CartPage() {
 
   const handleLoadMore = useCallback(() => {
     // Only load more if hasMore is true and not already loading
+  // Calculate responsive page size
+  const getPageSize = useMemo(() => {
+    return () => {
+      if (typeof window === "undefined") return 20;
+      const width = window.innerWidth;
+      if (width >= 1024) return 30;
+      return 20;
+    };
+  }, []);
+
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!authReady) return;
+    if (!isAuthenticated) return;
+    // Fetch with responsive page size
+    if (!loading.fetch) {
+      const pageSize = getPageSize();
+      dispatch(fetchCartPaginated({ pageNo: 1, pageSize }));
+    }
+  }, [authReady, isAuthenticated, loading.fetch, dispatch, getPageSize]);
+
+  const handleLoadMore = useCallback(() => {
+    // Only load more if hasMore is true and not already loading
     if (!pagination.hasMore || loading.paginate || isLoadingRef.current) return;
+
+    isLoadingRef.current = true;
+    const nextPage = pagination.currentPage + 1;
+    const pageSize = getPageSize();
+    dispatch(fetchCartPaginated({ pageNo: nextPage, pageSize })).finally(() => {
+      isLoadingRef.current = false;
+    });
+  }, [pagination.hasMore, pagination.currentPage, getPageSize, loading.paginate, dispatch]);
+
+  useEffect(() => {
+    if (!observerRef.current || !pagination.hasMore || loading.paginate) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && pagination.hasMore && !loading.paginate && !isLoadingRef.current) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "200px" }
+    );
+
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [pagination.hasMore, loading.paginate, handleLoadMore]);
 
     isLoadingRef.current = true;
     const nextPage = pagination.currentPage + 1;
