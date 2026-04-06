@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState, useRef, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Trash2,
@@ -9,22 +9,19 @@ import {
   LogIn,
   ShoppingCart,
   ArrowRight,
-  Loader2,
 } from "lucide-react";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
-import { clearCart, fetchCartPaginated } from "@/redux/features/main/store/thunks/cart-thunks";
+import { clearCart, fetchCart } from "@/redux/features/main/store/thunks/cart-thunks";
 import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
-import { cn } from "@/lib/utils";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 
 function CartItemSkeleton() {
@@ -118,7 +115,6 @@ export default function CartPage() {
     subtotal,
     totalDiscount,
     finalTotal,
-    pagination,
     loading,
     loaded,
   } = useCartState();
@@ -127,75 +123,17 @@ export default function CartPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [clearCartModalOpen, setClearCartModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [skeletonCount, setSkeletonCount] = useState(2);
-  const observerRef = useRef<HTMLDivElement>(null);
-  const isLoadingRef = useRef(false);
 
   useEffect(() => setMounted(true), []);
 
-  // Calculate responsive skeleton count for cart (fewer items in one column)
-  const calculateSkeletonCount = useMemo(() => {
-    return () => {
-      const width = window.innerWidth;
-      if (width < 1024) setSkeletonCount(1);
-      else setSkeletonCount(2);
-    };
-  }, []);
-
-  // Handle window resize for skeleton count
-  useEffect(() => {
-    calculateSkeletonCount();
-    window.addEventListener("resize", calculateSkeletonCount);
-    return () => window.removeEventListener("resize", calculateSkeletonCount);
-  }, [calculateSkeletonCount]);
-
-  // Calculate responsive page size
-  const getPageSize = useMemo(() => {
-    return () => {
-      if (typeof window === "undefined") return 20;
-      const width = window.innerWidth;
-      if (width >= 1024) return 30;
-      return 20;
-    };
-  }, []);
-
+  // Fetch all cart items on mount
   useEffect(() => {
     if (!authReady) return;
     if (!isAuthenticated) return;
-    // Fetch with responsive page size
-    if (!loading.fetch) {
-      const pageSize = getPageSize();
-      dispatch(fetchCartPaginated({ pageNo: 1, pageSize }));
+    if (!loaded && !loading.fetch) {
+      dispatch(fetchCart());
     }
-  }, [authReady, isAuthenticated, loading.fetch, dispatch, getPageSize]);
-
-  const handleLoadMore = useCallback(() => {
-    // Only load more if hasMore is true and not already loading
-    if (!pagination.hasMore || loading.paginate || isLoadingRef.current) return;
-
-    isLoadingRef.current = true;
-    const nextPage = pagination.currentPage + 1;
-    const pageSize = getPageSize();
-    dispatch(fetchCartPaginated({ pageNo: nextPage, pageSize })).finally(() => {
-      isLoadingRef.current = false;
-    });
-  }, [pagination.hasMore, pagination.currentPage, getPageSize, loading.paginate, dispatch]);
-
-  useEffect(() => {
-    if (!observerRef.current || !pagination.hasMore || loading.paginate) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && pagination.hasMore && !loading.paginate && !isLoadingRef.current) {
-          handleLoadMore();
-        }
-      },
-      { threshold: 0.1, rootMargin: "200px" }
-    );
-
-    observer.observe(observerRef.current);
-    return () => observer.disconnect();
-  }, [pagination.hasMore, loading.paginate, handleLoadMore]);
+  }, [authReady, isAuthenticated, loaded, loading.fetch, dispatch]);
 
   const handleUpdateQuantity = useCallback(
     (productId: string, productSizeId: string | null, newQuantity: number) => {
@@ -312,54 +250,6 @@ export default function CartPage() {
             );
             })}
 
-            {/* Skeleton loaders ALWAYS show while hasMore: true */}
-            {pagination.hasMore && (
-              <div className="col-span-full space-y-3 mt-6">
-                {Array.from({ length: skeletonCount }).map((_, i) => (
-                  <div key={`skeleton-${i}`} className="bg-card border rounded-2xl p-3 sm:p-4">
-                    <div className="flex gap-3">
-                      <Skeleton className="w-[72px] h-[72px] rounded-xl flex-shrink-0" />
-                      <div className="flex-1 space-y-3">
-                        <Skeleton className="h-5 w-3/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                        <div className="flex gap-2">
-                          <Skeleton className="h-8 w-24" />
-                          <Skeleton className="h-8 w-20" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Loading spinner ALWAYS show while hasMore: true */}
-            {pagination.hasMore && (
-              <div className="col-span-full flex flex-col items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Loading more items...
-                </p>
-              </div>
-            )}
-
-            {/* Sentinel element for scroll detection */}
-            {pagination.hasMore && !loading.paginate && (
-              <div ref={observerRef} className="h-10" />
-            )}
-
-            {/* End of cart message */}
-            {!pagination.hasMore && items.length > 0 && (
-              <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <ShoppingCart className="h-8 w-8 text-primary" strokeWidth={1.5} />
-                </div>
-                <p className="text-sm font-medium text-foreground">You've reached the end</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  All {totalItems} items are loaded
-                </p>
-              </div>
-            )}
           </div>
 
           {/* ── Order Summary (desktop) ── */}

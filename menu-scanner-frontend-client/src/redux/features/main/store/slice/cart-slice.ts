@@ -3,7 +3,7 @@ import {
   addToCart,
   updateCartItem,
   clearCart,
-  fetchCartPaginated,
+  fetchCart,
 } from "../thunks/cart-thunks";
 import {
   CartResponseModel,
@@ -17,17 +17,11 @@ interface CartState {
   subtotal: number;
   totalDiscount: number;
   finalTotal: number;
-  pagination: {
-    currentPage: number;
-    pageSize: number;
-    hasMore: boolean;
-  };
   loading: {
     fetch: boolean;
     add: boolean;
     update: boolean;
     clear: boolean;
-    paginate: boolean;
   };
   error: string | null;
   loaded: boolean;
@@ -40,17 +34,11 @@ const initialState: CartState = {
   subtotal: 0,
   totalDiscount: 0,
   finalTotal: 0,
-  pagination: {
-    currentPage: 1,
-    pageSize: 20,
-    hasMore: false,
-  },
   loading: {
     fetch: false,
     add: false,
     update: false,
     clear: false,
-    paginate: false,
   },
   error: null,
   loaded: false,
@@ -336,42 +324,26 @@ const cartSlice = createSlice({
         state.error = action.error.message || "Failed to update cart item";
       })
 
-      // Fetch Cart Paginated (for infinite scroll)
-      .addCase(fetchCartPaginated.pending, (state) => {
-        state.loading.paginate = true;
+      // Fetch All Cart Items (no pagination)
+      .addCase(fetchCart.pending, (state) => {
+        state.loading.fetch = true;
         state.error = null;
       })
       .addCase(
-        fetchCartPaginated.fulfilled,
+        fetchCart.fulfilled,
         (state, action: PayloadAction<CartResponseModel>) => {
-          state.loading.paginate = false;
-          const newItems = action.payload.items || [];
-          const pageNo = action.meta.arg.pageNo;
-
-          // First page: replace items, subsequent pages: append
-          if (pageNo === 1) {
-            state.items = newItems;
-          } else {
-            // Accumulate items (deduplicate by ID to avoid duplicates)
-            const existingIds = new Set(state.items.map((i) => i.id));
-            const uniqueNew = newItems.filter((i) => !existingIds.has(i.id));
-            state.items = [...state.items, ...uniqueNew];
-          }
-
-          // Update pagination state
-          state.pagination = {
-            currentPage: pageNo,
-            pageSize: action.meta.arg.pageSize,
-            hasMore: state.items.length < action.payload.totalItems,
-          };
+          state.loading.fetch = false;
+          // Load all items at once - no pagination
+          state.items = action.payload.items || [];
 
           recalculateTotals(state);
+          state.loaded = true;
           state.error = null;
         }
       )
-      .addCase(fetchCartPaginated.rejected, (state, action) => {
-        state.loading.paginate = false;
-        state.error = action.error.message || "Failed to fetch more cart items";
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.loading.fetch = false;
+        state.error = action.error.message || "Failed to fetch cart";
       })
 
       // Clear Cart

@@ -13,7 +13,6 @@ export const useCartState = () => {
     subtotal: cart.subtotal,
     totalDiscount: cart.totalDiscount,
     finalTotal: cart.finalTotal,
-    pagination: cart.pagination,
     loading: cart.loading,
     error: cart.error,
     loaded: cart.loaded,
