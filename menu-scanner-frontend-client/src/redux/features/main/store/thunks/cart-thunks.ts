@@ -13,16 +13,20 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
   async (data, signal) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { optimisticTimestamp, ...requestData } = data;
+    const businessId = AppDefault.BUSINESS_ID;
 
     // DEBUG: Log request
     console.log("%c## CART API REQUEST", "background:#007bff;color:white;padding:5px;border-radius:3px;font-weight:bold", {
       endpoint: "POST /api/v1/cart",
-      payload: requestData,
+      payload: { ...requestData, businessId },
       action: requestData.quantity === 0 ? "REMOVE" : "ADD/UPDATE",
       timestamp: new Date().toLocaleTimeString()
     });
 
-    const response = await axiosClientWithAuth.post("/api/v1/cart", requestData, {
+    const response = await axiosClientWithAuth.post("/api/v1/cart", {
+      ...requestData,
+      businessId,
+    }, {
       signal,
     });
 
@@ -73,8 +77,12 @@ export const updateCartItem = createApiThunk<
 >("cart/updateCartItem", async (data, signal) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { optimisticTimestamp, ...requestData } = data;
+  const businessId = AppDefault.BUSINESS_ID;
 
-  const response = await axiosClientWithAuth.post("/api/v1/cart", requestData, {
+  const response = await axiosClientWithAuth.post("/api/v1/cart", {
+    ...requestData,
+    businessId,
+  }, {
     signal,
   });
   let responseData = response.data.data;
