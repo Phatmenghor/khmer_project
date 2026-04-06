@@ -24,10 +24,10 @@ export default function LocationPage() {
     primaryLocation,
     locationCount,
     isLoading,
-    operations,
-    fetchAll,
+    locationPagination,
     update,
     remove,
+    fetchAllWithPagination,
   } = useLocationState();
 
   const colors = useAppSelector(selectBusinessColors);
@@ -46,10 +46,22 @@ export default function LocationPage() {
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(6);
 
-  const isInitialLoading = isLoading.fetch && locations.length === 0;
+  // Calculate responsive page size
+  const getPageSize = useMemo(() => {
+    return () => {
+      if (typeof window === "undefined") return 6;
+      const width = window.innerWidth;
+      if (width >= 1024) return 12;
+      if (width >= 640) return 9;
+      return 6;
+    };
+  }, []);
+
+  const isInitialLoading =
+    isLoading.fetch &&
+    locations.length === 0 &&
+    !locationPagination.isInitialLoaded;
 
   // Get user GPS coords on mount
   useEffect(() => {
@@ -66,24 +78,68 @@ export default function LocationPage() {
 
   // Initial fetch
   useEffect(() => {
-    if (locations.length === 0 && !isLoading.fetch) {
-      fetchAll();
+    if (!locationPagination.isInitialLoaded && !isLoading.fetch) {
+      const pageSize = getPageSize();
+      fetchAllWithPagination({ pageNo: 1, pageSize });
     }
-  }, []);
+  }, [locationPagination.isInitialLoaded, isLoading.fetch, fetchAllWithPagination, getPageSize]);
 
   // Load more handler
   const handleLoadMore = useCallback(() => {
-    if (isLoading.fetch) return;
-    // In a real pagination scenario, increment page
-    // For now, just show all locations
-  }, [isLoading.fetch]);
+    if (
+      locationPagination.hasMore &&
+      !isLoading.fetch &&
+      locations.length > 0
+    ) {
+      const nextPage = locationPagination.currentPage + 1;
+      const pageSize = getPageSize();
+      fetchAllWithPagination({ pageNo: nextPage, pageSize });
+    }
+  }, [
+    locationPagination.hasMore,
+    locationPagination.currentPage,
+    isLoading.fetch,
+    locations.length,
+    fetchAllWithPagination,
+    getPageSize,
+  ]);
 
   // Smart pagination with debounce
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
     handleLoadMore,
-    !isLoading.fetch,
-    [isLoading.fetch, handleLoadMore]
+    locationPagination.hasMore && !isLoading.fetch,
+    [locationPagination.hasMore, isLoading.fetch, handleLoadMore]
   );
+
+  // Intersection observer for infinite scroll
+  useEffect(() => {
+    if (!locationPagination.hasMore || !sentinelRef.current) {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          debouncedLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "200px" }
+    );
+
+    observerRef.current = observer;
+    observer.observe(sentinelRef.current);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
+  }, [locationPagination.hasMore, debouncedLoadMore]);
 
   // Handlers
   const handleAddLocation = useCallback(() => {
@@ -147,7 +203,7 @@ export default function LocationPage() {
     return <LocationEmptyState onAddNew={handleAddLocation} />;
   }
 
-  // Locations grid
+  // Locations grid with infinite scroll
   return (
     <PageContainer className="py-4 sm:py-8">
       <PageHeader
@@ -185,8 +241,22 @@ export default function LocationPage() {
         ))}
       </div>
 
+      {/* Load more sentinel for infinite scroll */}
+      {locationPagination.hasMore && (
+        <div ref={sentinelRef} className="h-10 w-full mt-4" />
+      )}
+
+      {/* Pagination skeleton */}
+      {isLoading.fetch && locations.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-48 rounded-2xl" />
+          ))}
+        </div>
+      )}
+
       {/* End of locations message */}
-      {locations.length > 0 && !isLoading.fetch && (
+      {!locationPagination.hasMore && locations.length > 0 && !isLoading.fetch && (
         <div className="flex flex-col items-center justify-center mt-12 py-8 px-4">
           <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
             <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -195,7 +265,7 @@ export default function LocationPage() {
             All locations loaded!
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md">
-            Add a new location to expand your coverage.
+            You've loaded all your saved locations. Add a new one to expand your coverage.
           </p>
         </div>
       )}

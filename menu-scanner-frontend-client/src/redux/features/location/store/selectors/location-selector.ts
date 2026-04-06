@@ -19,6 +19,9 @@ export const selectLocationError = (state: RootState) => state.location.error;
 export const selectLocationOperations = (state: RootState) =>
   state.location.operations;
 
+export const selectLocationPagination = (state: RootState) =>
+  state.location.pagination;
+
 export const selectPrimaryLocation = createSelector(
   [selectLocations],
   (locations) =>
