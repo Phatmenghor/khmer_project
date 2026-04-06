@@ -1180,10 +1180,7 @@ INSERT INTO location_images (id, version, created_at, updated_at, created_by, up
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     ca.id,
-    CASE WHEN (img_num % 4) = 0 THEN 'https://example.com/location/' || ca.id::text || '/entrance.jpg'
-         WHEN (img_num % 4) = 1 THEN 'https://example.com/location/' || ca.id::text || '/front-view.jpg'
-         WHEN (img_num % 4) = 2 THEN 'https://example.com/location/' || ca.id::text || '/street-map.jpg'
-         ELSE 'https://example.com/location/' || ca.id::text || '/location-view.jpg' END
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400'
 FROM customer_addresses ca
 CROSS JOIN (SELECT generate_series(1, 4) as img_num);
 
