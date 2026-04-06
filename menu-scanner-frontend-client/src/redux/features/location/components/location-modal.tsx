@@ -354,16 +354,15 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   useEffect(() => {
     if (!isMapReady || !mapContainerRef.current) return;
+    if (selectionMode !== "map") { googleMapRef.current = null; geocoderRef.current = null; return; }
     if (googleMapRef.current) return;
     const lat = editData?.latitude || initialCoords?.lat || 11.5564;
     const lng = editData?.longitude || initialCoords?.lng || 104.9282;
     initMap(mapContainerRef.current, lat, lng);
     return () => {
       if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
-      googleMapRef.current = null; geocoderRef.current = null;
-      fullscreenAutocompleteRef.current = null;
     };
-  }, [isMapReady]);
+  }, [isMapReady, selectionMode]);
 
   useEffect(() => {
     const map = googleMapRef.current;
