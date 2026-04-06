@@ -540,7 +540,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
-        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-2xl lg:max-w-4xl max-h-[95dvh] rounded-2xl"
+        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-2xl lg:max-w-3xl max-h-[95dvh] rounded-2xl"
         onInteractOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
         onPointerDownOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
       >
@@ -560,17 +560,17 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
             )}
 
             {/* Mode selector tabs */}
-            <div className="flex gap-2 border-b -mx-6 px-6">
+            <div className="flex border-b -mx-6 px-6">
               {(["map", "select"] as SelectionMode[]).map((mode) => (
                 <button
                   key={mode}
                   type="button"
                   onClick={() => handleModeChange(mode)}
                   className={cn(
-                    "flex items-center gap-2 py-2.5 px-3 text-sm font-medium border-b-2 -mb-px transition-all",
+                    "flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px rounded-t-lg",
                     selectionMode === mode
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                      ? "border-primary text-primary bg-primary/5"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
                   {mode === "map" ? <><Map className="h-4 w-4" /> Map</> : <><ListFilter className="h-4 w-4" /> Select</>}
