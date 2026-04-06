@@ -140,12 +140,12 @@ public interface OrderMapper {
 
         var deliveryAddress = order.getDeliveryAddress();
 
-        // Check if any delivery address field is populated
+        // Check if any delivery address field is populated (address fields or location reference)
         if (deliveryAddress.getVillage() == null && deliveryAddress.getCommune() == null &&
             deliveryAddress.getDistrict() == null && deliveryAddress.getProvince() == null &&
             deliveryAddress.getStreetNumber() == null && deliveryAddress.getHouseNumber() == null &&
             deliveryAddress.getNote() == null && deliveryAddress.getLatitude() == null &&
-            deliveryAddress.getLongitude() == null) {
+            deliveryAddress.getLongitude() == null && deliveryAddress.getLocationId() == null) {
             return null;
         }
 
