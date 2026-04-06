@@ -262,7 +262,16 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   // Load Google Maps as soon as modal opens
   useEffect(() => {
-    if (!isOpen) { setIsMapReady(false); setIsFullScreen(false); setMapError(null); return; }
+    if (!isOpen) {
+      setIsMapReady(false);
+      setIsFullScreen(false);
+      setMapError(null);
+      // Clean up map refs when modal closes
+      googleMapRef.current = null;
+      geocoderRef.current = null;
+      fullscreenAutocompleteRef.current = null;
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -378,9 +387,21 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       if (isFullScreen && fullscreenSearchRef.current && google.maps.places) {
         setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
       }
-    }, 100);
+    }, 50);
     return () => clearTimeout(t);
   }, [isFullScreen, selectionMode, isMapReady, setupAutocomplete]);
+
+  // Trigger map resize when switching to map mode
+  useEffect(() => {
+    if (selectionMode === "map" && googleMapRef.current && isMapReady) {
+      const t = setTimeout(() => {
+        google.maps.event.trigger(googleMapRef.current!, "resize");
+        const c = googleMapRef.current!.getCenter();
+        if (c) googleMapRef.current!.setCenter(c);
+      }, 100);
+      return () => clearTimeout(t);
+    }
+  }, [selectionMode, isMapReady]);
 
   const handleMyLocation = useCallback(() => {
     if (!navigator.geolocation) { showToast.error("Geolocation not supported"); return; }
