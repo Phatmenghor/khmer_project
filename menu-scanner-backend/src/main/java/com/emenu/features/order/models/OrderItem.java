@@ -52,6 +52,13 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "size_name")
     private String sizeName; // "Standard" if no size
 
+    // Product SKU and barcode snapshot from store master data
+    @Column(name = "sku")
+    private String sku; // Product SKU from store master data
+
+    @Column(name = "barcode")
+    private String barcode; // Product barcode from store master data
+
     // Pricing snapshot - preserves discount/promotion at time of order
     @Column(name = "current_price", precision = 10, scale = 2)
     private BigDecimal currentPrice; // Base price before discount

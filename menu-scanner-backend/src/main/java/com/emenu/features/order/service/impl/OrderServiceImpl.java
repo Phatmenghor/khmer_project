@@ -371,6 +371,15 @@ public class OrderServiceImpl implements OrderService {
                 item.setProductName(itemRequest.getProductName());
                 item.setProductImageUrl(itemRequest.getProductImageUrl());
                 item.setSizeName(itemRequest.getSizeName());
+
+                // Set SKU and barcode from product master data if available
+                if (itemRequest.getSku() != null) {
+                    item.setSku(itemRequest.getSku());
+                }
+                if (itemRequest.getBarcode() != null) {
+                    item.setBarcode(itemRequest.getBarcode());
+                }
+
                 item.setCurrentPrice(itemRequest.getCurrentPrice());
                 item.setFinalPrice(itemRequest.getFinalPrice());
                 item.setUnitPrice(itemRequest.getUnitPrice());
@@ -763,6 +772,11 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setProductName(itemRequest.getProductName() != null ? itemRequest.getProductName() : product.getName());
                 orderItem.setProductImageUrl(itemRequest.getProductImageUrl() != null ? itemRequest.getProductImageUrl() : product.getMainImageUrl());
                 orderItem.setSizeName(itemRequest.getSizeName());
+
+                // Set SKU and barcode from product master data
+                orderItem.setSku(product.getSku());
+                orderItem.setBarcode(product.getBarcode());
+
                 orderItem.setQuantity(itemRequest.getQuantity());
                 orderItem.setHadChangeFromPOS(false); // No POS changes in regular POS checkout
 

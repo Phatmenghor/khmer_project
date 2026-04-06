@@ -32,6 +32,8 @@ public class OrderItemResponse {
         private UUID id;
         private String name;
         private String imageUrl;
+        private String sku;
+        private String barcode;
         private UUID sizeId;
         private String sizeName;
         private String status;

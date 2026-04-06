@@ -31,6 +31,8 @@ public interface OrderItemMapper {
         info.setId(orderItem.getProduct().getId());
         info.setName(orderItem.getProductName());
         info.setImageUrl(orderItem.getProductImageUrl());
+        info.setSku(orderItem.getSku());
+        info.setBarcode(orderItem.getBarcode());
         info.setSizeId(orderItem.getProductSizeId());
         info.setSizeName(orderItem.getSizeName());
         if (orderItem.getProduct().getStatus() != null) {
