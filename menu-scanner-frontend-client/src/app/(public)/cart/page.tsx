@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Trash2,
@@ -13,6 +13,7 @@ import {
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
 import { clearCart, fetchCart } from "@/redux/features/main/store/thunks/cart-thunks";

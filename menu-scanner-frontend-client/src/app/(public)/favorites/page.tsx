@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useMemo, useRef } from "react";
+import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Trash2, LogIn, CheckCircle2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/common/page-header";
@@ -21,7 +21,6 @@ import { LoginModal } from "@/components/shared/modal/login-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
-import { useState } from "react";
 
 export default function FavoritesPage() {
   const router = useRouter();
