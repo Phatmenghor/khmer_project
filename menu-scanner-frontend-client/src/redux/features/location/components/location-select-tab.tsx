@@ -60,59 +60,66 @@ export function LocationSelectTab({
   return (
     <div className="space-y-4">
       {/* ── Hierarchy selectors ── */}
-      <div className="bg-muted/40 rounded-lg p-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="bg-muted/40 rounded-lg p-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <Navigation2 className="h-4 w-4 text-primary shrink-0" />
-          <p>
-            Select your location hierarchy, then click &quot;Get
-            Coordinates&quot; to resolve lat/lng.
-          </p>
+          <p>Select your location hierarchy</p>
         </div>
 
-        {/* Province */}
-        <ComboboxSelectProvince
-          dataSelect={selectedProvince}
-          onChangeSelected={onProvinceChange}
-          label="Province / City"
-          required
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Province */}
+          <div>
+            <ComboboxSelectProvince
+              dataSelect={selectedProvince}
+              onChangeSelected={onProvinceChange}
+              label="Province / City"
+              required
+            />
+          </div>
 
-        {/* District */}
-        <ComboboxSelectDistrict
-          dataSelect={selectedDistrict}
-          onChangeSelected={onDistrictChange}
-          provinceCode={selectedProvince?.provinceCode}
-          label="District / Khan"
-        />
+          {/* District */}
+          <div>
+            <ComboboxSelectDistrict
+              dataSelect={selectedDistrict}
+              onChangeSelected={onDistrictChange}
+              provinceCode={selectedProvince?.provinceCode}
+              label="District / Khan"
+            />
+          </div>
 
-        {/* Commune — required */}
-        <ComboboxSelectCommune
-          dataSelect={selectedCommune}
-          onChangeSelected={onCommuneChange}
-          districtCode={selectedDistrict?.districtCode}
-          label="Commune / Sangkat"
-          required
-        />
+          {/* Commune — required */}
+          <div>
+            <ComboboxSelectCommune
+              dataSelect={selectedCommune}
+              onChangeSelected={onCommuneChange}
+              districtCode={selectedDistrict?.districtCode}
+              label="Commune / Sangkat"
+              required
+            />
+          </div>
 
-        {/* Village — optional */}
-        <ComboboxSelectVillage
-          dataSelect={selectedVillage}
-          onChangeSelected={onVillageChange}
-          communeCode={selectedCommune?.communeCode}
-          label="Village / Phum"
-        />
+          {/* Village — optional */}
+          <div>
+            <ComboboxSelectVillage
+              dataSelect={selectedVillage}
+              onChangeSelected={onVillageChange}
+              communeCode={selectedCommune?.communeCode}
+              label="Village / Phum"
+            />
+          </div>
+        </div>
       </div>
 
       {/* ── Address preview ── */}
       {addressPreview && (
         <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3">
-          <div className="flex items-start gap-2">
-            <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <div className="flex items-start gap-3">
+            <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-primary mb-1">
+              <p className="text-xs font-semibold text-primary mb-1">
                 Selected Address
               </p>
-              <p className="text-sm text-foreground leading-relaxed">
+              <p className="text-sm text-foreground leading-relaxed break-words">
                 {addressPreview}
               </p>
             </div>
@@ -124,7 +131,7 @@ export function LocationSelectTab({
       <div className="space-y-2">
         <Button
           type="button"
-          variant="outline"
+          variant="default"
           className="w-full"
           onClick={onGetCoordinates}
           disabled={!selectedProvince || isGeocodingAddress}
@@ -143,13 +150,13 @@ export function LocationSelectTab({
         </Button>
 
         {geocodeSuccess && geocodedCoords && (
-          <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg px-4 py-2.5">
-            <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-            <div>
-              <p className="text-xs font-medium text-green-700 dark:text-green-400">
-                Coordinates resolved
+          <div className="flex items-center gap-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg px-4 py-3">
+            <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-500 shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-green-700 dark:text-green-400">
+                Coordinates Resolved
               </p>
-              <p className="text-xs font-mono text-green-600 dark:text-green-500 mt-0.5">
+              <p className="text-xs font-mono text-green-600 dark:text-green-500 mt-1">
                 {geocodedCoords.lat.toFixed(6)}, {geocodedCoords.lng.toFixed(6)}
               </p>
             </div>
