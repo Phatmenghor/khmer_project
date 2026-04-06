@@ -39,7 +39,7 @@ BEGIN
     ALTER TABLE order_counters DROP COLUMN id;
     ALTER TABLE order_counters RENAME COLUMN id_new TO id;
     ALTER TABLE order_counters ADD CONSTRAINT order_counters_pkey PRIMARY KEY (id);
-    ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_date UNIQUE (counter_date);
+    -- Note: Do NOT create unique constraint here - V3 will create it with business_id
   END IF;
 END $$;
 COMMIT;
@@ -76,20 +76,24 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns
                  WHERE table_name = 'order_counters' AND column_name = 'business_id') THEN
     ALTER TABLE order_counters ADD COLUMN business_id UUID NOT NULL DEFAULT '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid;
+  END IF;
 
-    -- Add foreign key if it doesn't exist
-    IF NOT EXISTS (SELECT 1 FROM information_schema.constraint_column_usage
-                   WHERE table_name = 'order_counters' AND constraint_name = 'fk_order_counter_business') THEN
-      ALTER TABLE order_counters ADD CONSTRAINT fk_order_counter_business FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE;
-    END IF;
+  -- Add foreign key if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints
+                 WHERE table_name = 'order_counters' AND constraint_name = 'fk_order_counter_business') THEN
+    ALTER TABLE order_counters ADD CONSTRAINT fk_order_counter_business FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE;
+  END IF;
 
-    -- Drop old unique constraint and add new one
-    ALTER TABLE order_counters DROP CONSTRAINT IF EXISTS uk_order_counter_date;
+  -- Drop old unique constraint if it exists
+  IF EXISTS (SELECT 1 FROM information_schema.table_constraints
+             WHERE table_name = 'order_counters' AND constraint_name = 'uk_order_counter_date') THEN
+    ALTER TABLE order_counters DROP CONSTRAINT uk_order_counter_date;
+  END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.constraint_column_usage
-                   WHERE table_name = 'order_counters' AND constraint_name = 'uk_order_counter_business_date') THEN
-      ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_business_date UNIQUE (business_id, counter_date);
-    END IF;
+  -- Add new unique constraint if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints
+                 WHERE table_name = 'order_counters' AND constraint_name = 'uk_order_counter_business_date') THEN
+    ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_business_date UNIQUE (business_id, counter_date);
   END IF;
 
   -- Create indexes if they don't exist
