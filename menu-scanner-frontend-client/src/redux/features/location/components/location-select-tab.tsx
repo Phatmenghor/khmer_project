@@ -60,12 +60,7 @@ export function LocationSelectTab({
   return (
     <div className="space-y-4">
       {/* ── Hierarchy selectors ── */}
-      <div className="bg-muted/40 rounded-lg p-4">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-          <Navigation2 className="h-4 w-4 text-primary shrink-0" />
-          <p>Select your location hierarchy</p>
-        </div>
-
+      <div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Province */}
           <div>
