@@ -280,21 +280,40 @@ export function OrderDetailModal({
                   <CardTitle className="text-base">Delivery Address</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Full Address */}
-                  <DisplayField
-                    label="Address"
-                    value={(() => {
-                      const parts = [
-                        orderData.deliveryAddress.houseNumber,
-                        orderData.deliveryAddress.streetNumber,
-                        orderData.deliveryAddress.village,
-                        orderData.deliveryAddress.commune,
-                        orderData.deliveryAddress.district,
-                        orderData.deliveryAddress.province,
-                      ].filter(Boolean);
-                      return parts.length > 0 ? parts.join(", ") : "---";
-                    })()}
-                  />
+                  {/* Full Address with Google Maps Button */}
+                  <div className="flex items-end gap-3 justify-between">
+                    <div className="flex-1">
+                      <label className="text-sm font-medium text-foreground block mb-1.5">
+                        Address
+                      </label>
+                      <p className="text-sm text-foreground">
+                        {(() => {
+                          const parts = [
+                            orderData.deliveryAddress.houseNumber,
+                            orderData.deliveryAddress.streetNumber,
+                            orderData.deliveryAddress.village,
+                            orderData.deliveryAddress.commune,
+                            orderData.deliveryAddress.district,
+                            orderData.deliveryAddress.province,
+                          ].filter(Boolean);
+                          return parts.length > 0 ? parts.join(", ") : "---";
+                        })()}
+                      </p>
+                    </div>
+
+                    {/* View in Google Maps Button */}
+                    {orderData.deliveryAddress.latitude && orderData.deliveryAddress.longitude && (
+                      <button
+                        onClick={() => {
+                          const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
+                          window.open(mapsUrl, '_blank');
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap flex-shrink-0"
+                      >
+                        📍 Maps
+                      </button>
+                    )}
+                  </div>
 
                   {/* Delivery Note */}
                   {orderData.deliveryAddress.note && (
@@ -302,21 +321,6 @@ export function OrderDetailModal({
                       label="Delivery Note"
                       value={orderData.deliveryAddress.note}
                     />
-                  )}
-
-                  {/* View in Google Maps */}
-                  {orderData.deliveryAddress.latitude && orderData.deliveryAddress.longitude && (
-                    <div className="mt-4 pt-4 border-t">
-                      <button
-                        onClick={() => {
-                          const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
-                          window.open(mapsUrl, '_blank');
-                        }}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-                      >
-                        📍 View in Google Maps
-                      </button>
-                    </div>
                   )}
                 </CardContent>
               </Card>
