@@ -1,6 +1,7 @@
 package com.emenu.features.order.dto.response;
 
 import com.emenu.enums.order.OrderStatus;
+import com.emenu.features.order.enums.OrderFromEnum;
 import com.emenu.shared.dto.BaseAuditResponse;
 import jakarta.validation.Valid;
 import lombok.Data;
@@ -14,6 +15,9 @@ import java.util.UUID;
 @Data
 public class OrderResponse extends BaseAuditResponse {
     private String orderNumber;
+
+    // Order source identifier
+    private OrderFromEnum orderFrom;
 
     // Customer info
     private UUID customerId;

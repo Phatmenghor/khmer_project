@@ -440,7 +440,12 @@ public class OrderServiceImpl implements OrderService {
 
     private Order createBaseOrder(OrderCreateRequest request, UUID customerId) {
         OrderCreateHelper helper = orderMapper.buildOrderHelper(request, customerId, generateOrderNumber());
-        return orderMapper.createFromHelper(helper);
+        Order order = orderMapper.createFromHelper(helper);
+        // Set orderFrom to distinguish between CUSTOMER (checkout) and BUSINESS (POS) orders
+        if (request.getOrderFrom() != null) {
+            order.setOrderFrom(request.getOrderFrom());
+        }
+        return order;
     }
 
     private void createOrderItemsFromCart(UUID orderId, Cart cart) {

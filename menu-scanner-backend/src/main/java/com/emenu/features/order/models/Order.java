@@ -6,6 +6,7 @@ import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.location.models.Location;
+import com.emenu.features.order.enums.OrderFromEnum;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -58,6 +59,10 @@ public class Order extends BaseUUIDEntity {
 
     @Column(name = "source", nullable = false, length = 50)
     private String source = "PUBLIC"; // PUBLIC or POS
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_from", nullable = false, length = 20)
+    private OrderFromEnum orderFrom = OrderFromEnum.CUSTOMER;
 
     @Column(name = "customer_note", columnDefinition = "TEXT")
     private String customerNote;

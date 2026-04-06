@@ -1,6 +1,7 @@
 package com.emenu.features.order.dto.request;
 
 import com.emenu.enums.order.OrderStatus;
+import com.emenu.features.order.enums.OrderFromEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -25,6 +26,9 @@ public class OrderCreateRequest {
     private OrderPaymentRequest payment;
 
     private String customerNote;
+
+    @NotNull(message = "Order source (orderFrom) is required - CUSTOMER or BUSINESS")
+    private OrderFromEnum orderFrom;
 
     private OrderStatus orderStatus = OrderStatus.PENDING;
 }
