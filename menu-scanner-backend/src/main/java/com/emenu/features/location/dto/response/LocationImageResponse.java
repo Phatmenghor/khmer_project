@@ -11,5 +11,4 @@ import java.util.UUID;
 public class LocationImageResponse extends BaseAuditResponse {
     private UUID locationId;
     private String imageUrl;
-    private Integer displayOrder;
 }

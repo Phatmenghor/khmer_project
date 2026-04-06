@@ -26,7 +26,4 @@ public class LocationImage extends BaseUUIDEntity {
 
     @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
     private String imageUrl; // Store image URLs (file paths or URLs)
-
-    @Column(name = "display_order", nullable = false)
-    private Integer displayOrder = 0; // For ordering images
 }

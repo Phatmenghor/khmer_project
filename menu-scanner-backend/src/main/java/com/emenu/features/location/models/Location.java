@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OrderBy;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class Location extends BaseUUIDEntity {
     private Boolean isDefault = false;
 
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy(clause = "created_at ASC")
     private List<LocationImage> locationImages = new ArrayList<>();
 
     // Business Methods
