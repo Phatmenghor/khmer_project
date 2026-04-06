@@ -1109,9 +1109,9 @@ SELECT
     'system', 'system', false, NULL, NULL,
     order_id,
     status_flow[status_idx],
-    CASE WHEN (rn % 5) = 0 THEN '550e8400-e29b-41d4-a716-446655550001'
-         WHEN (rn % 5) = 1 THEN '550e8400-e29b-41d4-a716-446655550000'
-         ELSE 'system'::uuid END,
+    CASE WHEN (rn % 5) = 0 THEN '550e8400-e29b-41d4-a716-446655550001'::uuid
+         WHEN (rn % 5) = 1 THEN '550e8400-e29b-41d4-a716-446655550000'::uuid
+         ELSE '550e8400-e29b-41d4-a716-446655550000'::uuid END,
     CASE WHEN (rn % 5) = 0 THEN 'Admin User'
          WHEN (rn % 5) = 1 THEN 'Platform Admin'
          ELSE 'System' END,
