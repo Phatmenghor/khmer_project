@@ -48,7 +48,7 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
     Optional<Location> findByIdWithUser(@Param("id") UUID id);
 
     /**
-     * Find all customer addresses with dynamic filtering
+     * Find all customer addresses with dynamic filtering, ordered by default status then creation date
      */
     @Query("SELECT ca FROM Location ca " +
            "WHERE ca.isDeleted = false " +
@@ -59,7 +59,8 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
            "     LOWER(ca.commune) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "     LOWER(ca.village) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "     LOWER(ca.streetNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(ca.note) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "     LOWER(ca.note) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "ORDER BY ca.isDefault DESC, ca.createdAt DESC")
     Page<Location> findAllWithFilters(
         @Param("userId") UUID userId,
         @Param("search") String search,
