@@ -516,7 +516,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   // ---------------------------------------------------------------------------
   if (isFullScreen) {
     return (
-      <div className="fixed inset-0 z-[201] flex flex-col bg-background">
+      <div className="fixed inset-0 z-[201] flex flex-col bg-white">
         {/* Toolbar */}
         <div className="flex items-center justify-between px-4 py-3 border-b bg-background shrink-0 gap-3 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
@@ -554,9 +554,9 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         </div>
 
         {/* Map container */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative bg-gray-100">
           <CenterPin isDragging={isDragging} size="h-10 w-10" />
-          <div ref={mapContainerRef} className="w-full h-full" />
+          <div ref={mapContainerRef} className="w-full h-full bg-white" />
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm border rounded-lg px-3 py-2 shadow-lg flex items-center gap-2 text-xs">
             <MapPin className="h-3 w-3 text-red-500 shrink-0" />
             <span className="font-mono">
