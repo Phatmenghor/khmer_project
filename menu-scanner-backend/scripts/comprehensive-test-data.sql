@@ -18,6 +18,45 @@
 -- ============================================================================
 
 -- ============================================================================
+-- MIGRATIONS (Database Schema Updates)
+-- ============================================================================
+
+-- ============================================================================
+-- V1: Migrate OrderCounter.id from IDENTITY (Long) to UUID
+-- ============================================================================
+BEGIN;
+ALTER TABLE order_counters ADD COLUMN id_new UUID;
+UPDATE order_counters SET id_new = gen_random_uuid();
+ALTER TABLE order_counters ALTER COLUMN id_new SET NOT NULL;
+ALTER TABLE order_counters DROP CONSTRAINT pk_order_counters;
+ALTER TABLE order_counters DROP COLUMN id;
+ALTER TABLE order_counters RENAME COLUMN id_new TO id;
+ALTER TABLE order_counters ADD CONSTRAINT pk_order_counters PRIMARY KEY (id);
+ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_date UNIQUE (counter_date);
+COMMIT;
+
+-- ============================================================================
+-- V2: Add orderFrom column to orders table
+-- ============================================================================
+ALTER TABLE orders ADD COLUMN order_from VARCHAR(20) DEFAULT 'CUSTOMER';
+ALTER TABLE orders ALTER COLUMN order_from SET NOT NULL;
+ALTER TABLE orders ALTER COLUMN order_from SET DEFAULT 'CUSTOMER';
+CREATE INDEX idx_orders_order_from ON orders(order_from);
+UPDATE orders SET order_from = CASE WHEN source = 'POS' THEN 'BUSINESS' ELSE 'CUSTOMER' END;
+COMMENT ON COLUMN orders.order_from IS 'Order source: CUSTOMER (public checkout) or BUSINESS (admin/POS)';
+
+-- ============================================================================
+-- V3: Add business_id column to order_counters for per-business sequences
+-- ============================================================================
+ALTER TABLE order_counters ADD COLUMN business_id UUID NOT NULL DEFAULT '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid;
+ALTER TABLE order_counters ADD CONSTRAINT fk_order_counter_business FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE;
+ALTER TABLE order_counters DROP CONSTRAINT uk_order_counter_date;
+ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_business_date UNIQUE (business_id, counter_date);
+CREATE INDEX idx_order_counter_business_date ON order_counters(business_id, counter_date);
+CREATE INDEX idx_order_counter_business ON order_counters(business_id);
+COMMENT ON COLUMN order_counters.counter_value IS 'Daily counter per business: 001 → 999 → 1000 → 9999 → 10000 onwards (unlimited)';
+
+-- ============================================================================
 -- TRUNCATE ALL TABLES (preserve order of cascade)
 -- ============================================================================
 
@@ -113,9 +152,10 @@ INSERT INTO location_village_cbc (id, version, created_at, updated_at, created_b
 INSERT INTO exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, usd_to_khr_rate, is_active, notes) VALUES
 ('05000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 4100.0, true, 'Current exchange rate');
 
--- Initialize order counter for today
--- NOTE: After migration V3 is applied, this should be updated to include business_id for per-business sequences
-INSERT INTO order_counters (counter_date, counter_value) VALUES (CURRENT_DATE, 200);
+-- Initialize order counters for businesses (per-business sequences with migration V3)
+INSERT INTO order_counters (business_id, counter_date, counter_value) VALUES
+('550cad56-cafd-4aba-baef-c4dcd53940d0', CURRENT_DATE, 200),
+('550cad56-cafd-4aba-baef-c4dcd53940d1', CURRENT_DATE, 0);
 
 INSERT INTO reference_counters (entity_type, counter_date, counter_value) VALUES
 ('ORDER', CURRENT_DATE, 0),
