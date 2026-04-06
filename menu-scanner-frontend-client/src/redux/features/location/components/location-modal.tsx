@@ -610,10 +610,10 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         </div>
 
         {/* Search bar */}
-        <div className="px-4 py-2 border-b bg-background/95 backdrop-blur shrink-0">
-          <div className="relative max-w-lg mx-auto">
+        <div className="px-4 py-3 border-b bg-background/95 backdrop-blur shrink-0">
+          <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input ref={fullscreenSearchRef} type="text" placeholder="Search for a place, address…" className="pl-9 h-9 rounded-lg text-sm" autoComplete="off" />
+            <Input ref={fullscreenSearchRef} type="text" placeholder="Search for a place, address…" className="pl-9 h-10 rounded-lg text-sm w-full" autoComplete="off" />
           </div>
         </div>
 
@@ -629,12 +629,22 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           )}
           <CenterPin isDragging={isDragging} size="h-10 w-10" />
           <div ref={fullscreenMapContainerRef} className="w-full h-full bg-white" />
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm border rounded-lg px-3 py-2 shadow-lg flex items-center gap-2 text-xs">
-            <MapPin className="h-3 w-3 text-red-500 shrink-0" />
-            <span className="font-mono">
-              {latitude.toFixed(6)}, {longitude.toFixed(6)}
-            </span>
-            {isReverseGeocoding && <Loader2 className="h-3 w-3 animate-spin shrink-0" />}
+          {/* Address display */}
+          <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm border rounded-xl px-4 py-3 shadow-lg max-w-md">
+            <div className="flex items-start gap-2">
+              <MapPin className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                {addressPreview && (
+                  <p className="text-sm font-medium text-foreground leading-snug break-words">
+                    {addressPreview}
+                  </p>
+                )}
+                <p className="text-xs font-mono text-muted-foreground mt-1.5 flex items-center gap-1">
+                  {latitude.toFixed(6)}, {longitude.toFixed(6)}
+                  {isReverseGeocoding && <Loader2 className="h-3 w-3 animate-spin shrink-0" />}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
