@@ -315,19 +315,22 @@ export function OrderDetailModal({
                         value={orderData.deliveryAddress.note}
                       />
                     )}
-                    {orderData.deliveryAddress.latitude && (
-                      <DisplayField
-                        label="Latitude"
-                        value={orderData.deliveryAddress.latitude}
-                      />
-                    )}
-                    {orderData.deliveryAddress.longitude && (
-                      <DisplayField
-                        label="Longitude"
-                        value={orderData.deliveryAddress.longitude}
-                      />
-                    )}
                   </div>
+
+                  {/* View in Google Maps */}
+                  {orderData.deliveryAddress.latitude && orderData.deliveryAddress.longitude && (
+                    <div className="mt-4 pt-4 border-t">
+                      <button
+                        onClick={() => {
+                          const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
+                          window.open(mapsUrl, '_blank');
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                      >
+                        📍 View in Google Maps
+                      </button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
