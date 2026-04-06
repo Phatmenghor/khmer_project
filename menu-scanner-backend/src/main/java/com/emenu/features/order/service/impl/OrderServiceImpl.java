@@ -42,6 +42,7 @@ import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.generate.ReferenceNumberGenerator;
+import com.emenu.shared.generate.OrderNumberGenerator;
 import com.emenu.shared.generate.PaymentReferenceGenerator;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -76,6 +77,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderPaymentMapper paymentMapper;
     private final SecurityUtils securityUtils;
     private final ReferenceNumberGenerator referenceNumberGenerator;
+    private final OrderNumberGenerator orderNumberGenerator;
     private final PaymentReferenceGenerator paymentReferenceGenerator;
     private final PaginationMapper paginationMapper;
     private final StockServiceImpl stockService;
@@ -439,7 +441,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Order createBaseOrder(OrderCreateRequest request, UUID customerId) {
-        OrderCreateHelper helper = orderMapper.buildOrderHelper(request, customerId, generateOrderNumber());
+        // Generate order number with per-business counter (ORD-YYYYMMDD-XXXXX)
+        String orderNumber = orderNumberGenerator.generateOrderNumber(request.getBusinessId());
+        OrderCreateHelper helper = orderMapper.buildOrderHelper(request, customerId, orderNumber);
         Order order = orderMapper.createFromHelper(helper);
         // Set orderFrom to distinguish between CUSTOMER (checkout) and BUSINESS (POS) orders
         if (request.getOrderFrom() != null) {
@@ -670,9 +674,8 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    private String generateOrderNumber() {
-        return referenceNumberGenerator.generateOrderNumber();
-    }
+    // Order number generation is now handled by orderNumberGenerator with per-business counters
+    // Format: ORD-YYYYMMDD-XXXXX (where XXXXX can be 00001-99999, 100000 onwards)
 
     @Override
     public POSCheckoutResponse createPOSCheckoutOrder(POSCheckoutRequest request) {
@@ -698,9 +701,12 @@ public class OrderServiceImpl implements OrderService {
             Order order = new Order();
             order.setBusinessId(request.getBusinessId());
             order.setCustomerId(request.getCustomerId());
-            order.setOrderNumber(generateOrderNumber());
+            // Generate per-business order number (ORD-YYYYMMDD-XXXXX)
+            order.setOrderNumber(orderNumberGenerator.generateOrderNumber(request.getBusinessId()));
             order.setOrderStatus(OrderStatus.COMPLETED); // POS orders are always completed
             order.setSource("POS"); // Mark as POS order
+            // Set orderFrom for POS orders
+            order.setOrderFrom(com.emenu.features.order.enums.OrderFromEnum.BUSINESS);
             order.setPaymentMethod(PaymentMethod.CASH);
             order.setPaymentStatus(PaymentStatus.PAID);
             order.setDeliveryFee(deliveryPrice);

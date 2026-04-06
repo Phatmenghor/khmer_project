@@ -113,7 +113,10 @@ INSERT INTO location_village_cbc (id, version, created_at, updated_at, created_b
 INSERT INTO exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, usd_to_khr_rate, is_active, notes) VALUES
 ('05000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 4100.0, true, 'Current exchange rate');
 
-INSERT INTO order_counters (counter_date, counter_value) VALUES (CURRENT_DATE, 0);
+-- Initialize order counters for each business (per-business sequence)
+INSERT INTO order_counters (business_id, counter_date, counter_value) VALUES
+('550cad56-cafd-4aba-baef-c4dcd53940d0', CURRENT_DATE, 100),  -- Business A: starts at 100 (first 100 are for CUSTOMER orders 0001-0100)
+('550cad56-cafd-4aba-baef-c4dcd53940d1', CURRENT_DATE, 0);    -- Business B: fresh sequence
 
 INSERT INTO reference_counters (entity_type, counter_date, counter_value) VALUES
 ('ORDER', CURRENT_DATE, 0),
@@ -860,7 +863,7 @@ INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by,
 SELECT
     gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, '550e8400-e29b-41d4-a716-446655550002'::uuid,
-    'ORD-' || LPAD(i::text, 4, '0'),
+    'ORD-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-' || LPAD(i::text, 5, '0'),
     CASE WHEN (i % 5) = 0 THEN 'PENDING' WHEN (i % 5) = 1 THEN 'CONFIRMED' WHEN (i % 5) = 2 THEN 'PREPARING' WHEN (i % 5) = 3 THEN 'COMPLETED' ELSE 'CANCELLED' END,
     'PUBLIC', 'CUSTOMER', (50 + (i % 100))::numeric, CASE WHEN (i % 8) = 0 THEN 5::numeric ELSE 0::numeric END, 2::numeric, 5::numeric,
     (50 + (i % 100) - CASE WHEN (i % 8) = 0 THEN 5::numeric ELSE 0::numeric END + 2::numeric + 5::numeric)::numeric,
@@ -869,12 +872,12 @@ SELECT
     NOW() - (random() * 90)::int * INTERVAL '1 day', CASE WHEN (i % 5) = 3 THEN NOW() - (random() * 90)::int * INTERVAL '1 day' ELSE NULL END
 FROM generate_series(1, 100) AS t(i);
 
--- POS ORDERS
+-- POS ORDERS (using separate sequence for business A)
 INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, order_from, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, confirmed_at, completed_at)
 SELECT
     gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, CASE WHEN (i % 3) = 0 THEN '550e8400-e29b-41d4-a716-446655550002'::uuid ELSE NULL END,
-    'ORD-' || LPAD((100 + i)::text, 4, '0'),
+    'ORD-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-' || LPAD((100 + i)::text, 5, '0'),
     'COMPLETED', 'POS', 'BUSINESS', (45 + (i % 100))::numeric, CASE WHEN (i % 5) = 0 THEN 3::numeric ELSE 0::numeric END, 0::numeric, 4::numeric,
     (45 + (i % 100) - CASE WHEN (i % 5) = 0 THEN 3::numeric ELSE 0::numeric END + 4::numeric)::numeric,
     'CASH', 'PAID', 'POS ' || i::text, 'Admin order ' || i::text, (i % 5) = 0, CASE WHEN (i % 5) = 0 THEN 'Override' ELSE 'None' END,

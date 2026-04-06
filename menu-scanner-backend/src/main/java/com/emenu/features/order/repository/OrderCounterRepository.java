@@ -15,7 +15,13 @@ public interface OrderCounterRepository extends JpaRepository<OrderCounter, UUID
 
     Optional<OrderCounter> findByCounterDate(LocalDate counterDate);
 
+    Optional<OrderCounter> findByBusinessIdAndCounterDate(UUID businessId, LocalDate counterDate);
+
     @Modifying
     @Query("UPDATE OrderCounter SET counterValue = counterValue + 1 WHERE counterDate = :date")
     int incrementCounterForDate(LocalDate date);
+
+    @Modifying
+    @Query("UPDATE OrderCounter SET counterValue = counterValue + 1 WHERE businessId = :businessId AND counterDate = :date")
+    int incrementCounterForBusinessAndDate(UUID businessId, LocalDate date);
 }

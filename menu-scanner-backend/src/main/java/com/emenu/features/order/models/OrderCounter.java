@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "order_counters", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "counter_date", name = "uk_order_counter_date")
+    @UniqueConstraint(columnNames = {"business_id", "counter_date"}, name = "uk_order_counter_business_date")
 })
 @Data
 @NoArgsConstructor
@@ -20,6 +20,9 @@ public class OrderCounter {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(name = "business_id", nullable = false)
+    private UUID businessId;
 
     @Column(name = "counter_date", nullable = false)
     private LocalDate counterDate;
