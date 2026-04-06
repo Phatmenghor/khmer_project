@@ -952,7 +952,7 @@ ON CONFLICT DO NOTHING;
 -- 23. ORDERS (100 WEB + 100 POS = 200 total)
 -- ============================================================================
 
-INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, order_from, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, confirmed_at, completed_at)
+INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, order_from, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_name, customer_phone, customer_email, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, confirmed_at, completed_at)
 SELECT
     gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, '550e8400-e29b-41d4-a716-446655550002'::uuid,
@@ -961,19 +961,22 @@ SELECT
     'PUBLIC', 'CUSTOMER', (50 + (i % 100))::numeric, CASE WHEN (i % 8) = 0 THEN 5::numeric ELSE 0::numeric END, 2::numeric, 5::numeric,
     (50 + (i % 100) - CASE WHEN (i % 8) = 0 THEN 5::numeric ELSE 0::numeric END + 2::numeric + 5::numeric)::numeric,
     'CASH', CASE WHEN (i % 5) IN (3,4) THEN 'PAID' ELSE 'PENDING' END,
+    'Customer ' || i::text, '+855 10 ' || LPAD((900000 + i)::text, 6, '0'), 'customer' || i::text || '@example.com',
     'Note ' || i::text, 'Processing ' || i::text, (i % 8) = 0, CASE WHEN (i % 8) = 0 THEN 'Discount applied' ELSE 'No changes' END,
     NOW() - (random() * 90)::int * INTERVAL '1 day', CASE WHEN (i % 5) = 3 THEN NOW() - (random() * 90)::int * INTERVAL '1 day' ELSE NULL END
 FROM generate_series(1, 100) AS t(i);
 
 -- POS ORDERS (using separate sequence for business A)
-INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, order_from, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, confirmed_at, completed_at)
+INSERT INTO orders (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, customer_id, order_number, order_status, source, order_from, subtotal, discount_amount, delivery_fee, tax_amount, total_amount, payment_method, payment_status, customer_name, customer_phone, customer_email, customer_note, business_note, had_order_level_change_from_pos, order_level_change_reason, confirmed_at, completed_at)
 SELECT
     gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, CASE WHEN (i % 3) = 0 THEN '550e8400-e29b-41d4-a716-446655550002'::uuid ELSE NULL END,
     'ORD-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-' || LPAD((100 + i)::text, 3, '0'),
     'COMPLETED', 'POS', 'BUSINESS', (45 + (i % 100))::numeric, CASE WHEN (i % 5) = 0 THEN 3::numeric ELSE 0::numeric END, 0::numeric, 4::numeric,
     (45 + (i % 100) - CASE WHEN (i % 5) = 0 THEN 3::numeric ELSE 0::numeric END + 4::numeric)::numeric,
-    'CASH', 'PAID', 'POS ' || i::text, 'Admin order ' || i::text, (i % 5) = 0, CASE WHEN (i % 5) = 0 THEN 'Override' ELSE 'None' END,
+    'CASH', 'PAID',
+    'POS Customer ' || i::text, '+855 10 ' || LPAD((800000 + i)::text, 6, '0'), 'pos.customer' || i::text || '@example.com',
+    'POS ' || i::text, 'Admin order ' || i::text, (i % 5) = 0, CASE WHEN (i % 5) = 0 THEN 'Override' ELSE 'None' END,
     NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day'
 FROM generate_series(1, 100) AS t(i);
 
