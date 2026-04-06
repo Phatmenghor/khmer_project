@@ -38,18 +38,27 @@ export default function LocationPage() {
   const primaryColor = colors.primary;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingLocation, setEditingLocation] = useState<LocationResponseModel | null>(null);
-  const [deletingLocation, setDeleteingLocation] = useState<LocationResponseModel | null>(null);
+  const [editingLocation, setEditingLocation] =
+    useState<LocationResponseModel | null>(null);
+  const [deletingLocation, setDeleteingLocation] =
+    useState<LocationResponseModel | null>(null);
   const [settingPrimaryId, setSettingPrimaryId] = useState<string | null>(null);
-  const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [currentCoords, setCurrentCoords] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Get user GPS coords on mount
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (pos) => setCurrentCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => {}
+      (pos) =>
+        setCurrentCoords({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }),
+      () => {},
     );
   }, []);
 
@@ -137,7 +146,7 @@ export default function LocationPage() {
   }
 
   return (
-    <PageContainer className="max-w-6xl">
+    <PageContainer>
       <div className="flex flex-1 flex-col gap-4 py-4">
         {/* Header */}
         <div className="mb-2">
@@ -155,7 +164,9 @@ export default function LocationPage() {
                 <div
                   className="p-3 rounded-xl"
                   style={{
-                    backgroundColor: primaryColor ? `${primaryColor}15` : "hsl(var(--primary) / 0.1)",
+                    backgroundColor: primaryColor
+                      ? `${primaryColor}15`
+                      : "hsl(var(--primary) / 0.1)",
                   }}
                 >
                   <MapPin
@@ -165,10 +176,13 @@ export default function LocationPage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-foreground">
-                    {locationCount} {locationCount === 1 ? "Location" : "Locations"}
+                    {locationCount}{" "}
+                    {locationCount === 1 ? "Location" : "Locations"}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    {primaryLocation ? "Primary location set" : "Set a primary location"}
+                    {primaryLocation
+                      ? "Primary location set"
+                      : "Set a primary location"}
                   </p>
                 </div>
               </div>
@@ -178,9 +192,11 @@ export default function LocationPage() {
                   <Badge
                     className="hidden sm:flex items-center gap-1 text-xs py-1 px-3"
                     style={{
-                      backgroundColor: `${primaryColor}20` || "hsl(var(--primary) / 0.2)",
+                      backgroundColor:
+                        `${primaryColor}20` || "hsl(var(--primary) / 0.2)",
                       color: primaryColor || "hsl(var(--primary))",
-                      borderColor: `${primaryColor}40` || "hsl(var(--primary) / 0.4)",
+                      borderColor:
+                        `${primaryColor}40` || "hsl(var(--primary) / 0.4)",
                     }}
                     variant="outline"
                   >
@@ -230,7 +246,9 @@ export default function LocationPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-6 border-t">
                 <p className="text-sm text-muted-foreground">
-                  Showing {Math.min(currentPage * ITEMS_PER_PAGE, locations.length)} of {locationCount} locations
+                  Showing{" "}
+                  {Math.min(currentPage * ITEMS_PER_PAGE, locations.length)} of{" "}
+                  {locationCount} locations
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -254,7 +272,10 @@ export default function LocationPage() {
                         className="h-8 w-8 p-0 rounded-lg"
                         style={
                           currentPage === i + 1
-                            ? { backgroundColor: primaryColor || "hsl(var(--primary))" }
+                            ? {
+                                backgroundColor:
+                                  primaryColor || "hsl(var(--primary))",
+                              }
                             : {}
                         }
                       >
@@ -266,7 +287,9 @@ export default function LocationPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
                     disabled={currentPage === totalPages}
                     className="rounded-lg"
                   >
