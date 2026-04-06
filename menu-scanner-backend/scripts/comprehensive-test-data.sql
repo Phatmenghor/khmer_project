@@ -25,35 +25,84 @@
 -- V1: Migrate OrderCounter.id from IDENTITY (Long) to UUID
 -- ============================================================================
 BEGIN;
-ALTER TABLE order_counters ADD COLUMN id_new UUID;
-UPDATE order_counters SET id_new = gen_random_uuid();
-ALTER TABLE order_counters ALTER COLUMN id_new SET NOT NULL;
-ALTER TABLE order_counters DROP CONSTRAINT order_counters_pkey;
-ALTER TABLE order_counters DROP COLUMN id;
-ALTER TABLE order_counters RENAME COLUMN id_new TO id;
-ALTER TABLE order_counters ADD CONSTRAINT order_counters_pkey PRIMARY KEY (id);
-ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_date UNIQUE (counter_date);
+-- Only run if id column is still numeric (not already migrated to UUID)
+DO $$
+BEGIN
+  -- Check if id column is still BIGINT/numeric type
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'order_counters' AND column_name = 'id'
+             AND data_type IN ('bigint', 'integer')) THEN
+    ALTER TABLE order_counters ADD COLUMN id_new UUID;
+    UPDATE order_counters SET id_new = gen_random_uuid();
+    ALTER TABLE order_counters ALTER COLUMN id_new SET NOT NULL;
+    ALTER TABLE order_counters DROP CONSTRAINT order_counters_pkey;
+    ALTER TABLE order_counters DROP COLUMN id;
+    ALTER TABLE order_counters RENAME COLUMN id_new TO id;
+    ALTER TABLE order_counters ADD CONSTRAINT order_counters_pkey PRIMARY KEY (id);
+    ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_date UNIQUE (counter_date);
+  END IF;
+END $$;
 COMMIT;
 
 -- ============================================================================
 -- V2: Add orderFrom column to orders table
 -- ============================================================================
-ALTER TABLE orders ADD COLUMN order_from VARCHAR(20) DEFAULT 'CUSTOMER';
-ALTER TABLE orders ALTER COLUMN order_from SET NOT NULL;
-ALTER TABLE orders ALTER COLUMN order_from SET DEFAULT 'CUSTOMER';
-CREATE INDEX idx_orders_order_from ON orders(order_from);
-UPDATE orders SET order_from = CASE WHEN source = 'POS' THEN 'BUSINESS' ELSE 'CUSTOMER' END;
+DO $$
+BEGIN
+  -- Add order_from column if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'orders' AND column_name = 'order_from') THEN
+    ALTER TABLE orders ADD COLUMN order_from VARCHAR(20) DEFAULT 'CUSTOMER';
+    ALTER TABLE orders ALTER COLUMN order_from SET NOT NULL;
+    ALTER TABLE orders ALTER COLUMN order_from SET DEFAULT 'CUSTOMER';
+    UPDATE orders SET order_from = CASE WHEN source = 'POS' THEN 'BUSINESS' ELSE 'CUSTOMER' END;
+  END IF;
+
+  -- Create index if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'orders' AND indexname = 'idx_orders_order_from') THEN
+    CREATE INDEX idx_orders_order_from ON orders(order_from);
+  END IF;
+END $$;
+
+-- Add comment to column
 COMMENT ON COLUMN orders.order_from IS 'Order source: CUSTOMER (public checkout) or BUSINESS (admin/POS)';
 
 -- ============================================================================
 -- V3: Add business_id column to order_counters for per-business sequences
 -- ============================================================================
-ALTER TABLE order_counters ADD COLUMN business_id UUID NOT NULL DEFAULT '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid;
-ALTER TABLE order_counters ADD CONSTRAINT fk_order_counter_business FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE;
-ALTER TABLE order_counters DROP CONSTRAINT uk_order_counter_date;
-ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_business_date UNIQUE (business_id, counter_date);
-CREATE INDEX idx_order_counter_business_date ON order_counters(business_id, counter_date);
-CREATE INDEX idx_order_counter_business ON order_counters(business_id);
+DO $$
+BEGIN
+  -- Add business_id column if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'order_counters' AND column_name = 'business_id') THEN
+    ALTER TABLE order_counters ADD COLUMN business_id UUID NOT NULL DEFAULT '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid;
+
+    -- Add foreign key if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.constraint_column_usage
+                   WHERE table_name = 'order_counters' AND constraint_name = 'fk_order_counter_business') THEN
+      ALTER TABLE order_counters ADD CONSTRAINT fk_order_counter_business FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE;
+    END IF;
+
+    -- Drop old unique constraint and add new one
+    ALTER TABLE order_counters DROP CONSTRAINT IF EXISTS uk_order_counter_date;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.constraint_column_usage
+                   WHERE table_name = 'order_counters' AND constraint_name = 'uk_order_counter_business_date') THEN
+      ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_business_date UNIQUE (business_id, counter_date);
+    END IF;
+  END IF;
+
+  -- Create indexes if they don't exist
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'order_counters' AND indexname = 'idx_order_counter_business_date') THEN
+    CREATE INDEX idx_order_counter_business_date ON order_counters(business_id, counter_date);
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'order_counters' AND indexname = 'idx_order_counter_business') THEN
+    CREATE INDEX idx_order_counter_business ON order_counters(business_id);
+  END IF;
+END $$;
+
+-- Add comment to column
 COMMENT ON COLUMN order_counters.counter_value IS 'Daily counter per business: 001 → 999 → 1000 → 9999 → 10000 onwards (unlimited)';
 
 -- ============================================================================
