@@ -37,6 +37,7 @@ import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
 import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
 import com.emenu.features.order.repository.OrderItemPricingSnapshotRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
+import com.emenu.features.location.repository.LocationRepository;
 import com.emenu.features.order.service.OrderService;
 import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;
@@ -70,6 +71,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final DeliveryOptionRepository deliveryOptionRepository;
     private final ProductRepository productRepository;
+    private final LocationRepository locationRepository;
     private final OrderDeliveryAddressRepository orderDeliveryAddressRepository;
     private final OrderDeliveryOptionRepository orderDeliveryOptionRepository;
     private final OrderItemPricingSnapshotRepository orderItemPricingSnapshotRepository;
@@ -102,22 +104,27 @@ public class OrderServiceImpl implements OrderService {
             Order savedOrder = orderRepository.save(order);
             log.info("✅ [ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
-            // Create delivery snapshots from request
-            if (request.getDeliveryAddress() != null) {
-                OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
-                deliveryAddress.setOrderId(savedOrder.getId());
-                deliveryAddress.setVillage(request.getDeliveryAddress().getVillage());
-                deliveryAddress.setCommune(request.getDeliveryAddress().getCommune());
-                deliveryAddress.setDistrict(request.getDeliveryAddress().getDistrict());
-                deliveryAddress.setProvince(request.getDeliveryAddress().getProvince());
-                deliveryAddress.setStreetNumber(request.getDeliveryAddress().getStreetNumber());
-                deliveryAddress.setHouseNumber(request.getDeliveryAddress().getHouseNumber());
-                deliveryAddress.setNote(request.getDeliveryAddress().getNote());
-                deliveryAddress.setLatitude(request.getDeliveryAddress().getLatitude());
-                deliveryAddress.setLongitude(request.getDeliveryAddress().getLongitude());
-                orderDeliveryAddressRepository.save(deliveryAddress);
-                log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for order: {}", savedOrder.getId());
+            // Create delivery snapshots from request - fetch address by ID
+            if (request.getAddressId() != null) {
+                OrderDeliveryAddress deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
+                if (deliveryAddress != null) {
+                    orderDeliveryAddressRepository.save(deliveryAddress);
+                    log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for order: {}", savedOrder.getId());
+                }
             }
+
+            // Set customer details
+            if (request.getCustomerName() != null) {
+                savedOrder.setCustomerName(request.getCustomerName());
+            }
+            if (request.getCustomerPhone() != null) {
+                savedOrder.setCustomerPhone(request.getCustomerPhone());
+            }
+            if (request.getCustomerEmail() != null) {
+                savedOrder.setCustomerEmail(request.getCustomerEmail());
+            }
+            // Save customer details
+            orderRepository.save(savedOrder);
 
             if (request.getDeliveryOption() != null) {
                 OrderDeliveryOption deliveryOption = new OrderDeliveryOption();
@@ -735,25 +742,27 @@ public class OrderServiceImpl implements OrderService {
             order.setCustomerNote(request.getCustomerNote());
             order.setBusinessNote(request.getBusinessNote());
 
+            // Set customer details
+            if (request.getCustomerName() != null) {
+                order.setCustomerName(request.getCustomerName());
+            }
+            if (request.getCustomerPhone() != null) {
+                order.setCustomerPhone(request.getCustomerPhone());
+            }
+            if (request.getCustomerEmail() != null) {
+                order.setCustomerEmail(request.getCustomerEmail());
+            }
 
             log.debug("💾 [STEP 3/6] Saving order...");
             Order savedOrder = orderRepository.save(order);
 
-            // Create delivery address snapshot
-            if (request.getDeliveryAddress() != null) {
-                OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
-                deliveryAddress.setOrderId(savedOrder.getId());
-                deliveryAddress.setVillage(request.getDeliveryAddress().getVillage());
-                deliveryAddress.setCommune(request.getDeliveryAddress().getCommune());
-                deliveryAddress.setDistrict(request.getDeliveryAddress().getDistrict());
-                deliveryAddress.setProvince(request.getDeliveryAddress().getProvince());
-                deliveryAddress.setStreetNumber(request.getDeliveryAddress().getStreetNumber());
-                deliveryAddress.setHouseNumber(request.getDeliveryAddress().getHouseNumber());
-                deliveryAddress.setNote(request.getDeliveryAddress().getNote());
-                deliveryAddress.setLatitude(request.getDeliveryAddress().getLatitude());
-                deliveryAddress.setLongitude(request.getDeliveryAddress().getLongitude());
-                orderDeliveryAddressRepository.save(deliveryAddress);
-                log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for POS order: {}", savedOrder.getId());
+            // Create delivery address snapshot - fetch address by ID
+            if (request.getAddressId() != null) {
+                OrderDeliveryAddress deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
+                if (deliveryAddress != null) {
+                    orderDeliveryAddressRepository.save(deliveryAddress);
+                    log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for POS order: {}", savedOrder.getId());
+                }
             }
 
             // Create delivery option snapshot
@@ -949,5 +958,47 @@ public class OrderServiceImpl implements OrderService {
         }
 
         log.info("Stock deducted via FIFO for confirmed order: {}", order.getOrderNumber());
+    }
+
+    /**
+     * Create delivery address snapshot by fetching location from database
+     * Includes all address details and location images
+     */
+    private OrderDeliveryAddress createDeliveryAddressSnapshot(UUID orderId, UUID addressId) {
+        try {
+            // Fetch location from database
+            com.emenu.features.location.models.Location location = locationRepository.findById(addressId)
+                    .orElseThrow(() -> new NotFoundException("Address not found: " + addressId));
+
+            // Create snapshot with all location details
+            OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
+            deliveryAddress.setOrderId(orderId);
+            deliveryAddress.setVillage(location.getVillage());
+            deliveryAddress.setCommune(location.getCommune());
+            deliveryAddress.setDistrict(location.getDistrict());
+            deliveryAddress.setProvince(location.getProvince());
+            deliveryAddress.setStreetNumber(location.getStreetNumber());
+            deliveryAddress.setHouseNumber(location.getHouseNumber());
+            deliveryAddress.setNote(location.getNote());
+            deliveryAddress.setLatitude(location.getLatitude());
+            deliveryAddress.setLongitude(location.getLongitude());
+
+            // Extract location image URLs and store in delivery address
+            if (location.getLocationImages() != null && !location.getLocationImages().isEmpty()) {
+                java.util.List<String> imageUrls = location.getLocationImages().stream()
+                        .map(img -> img.getImageUrl())
+                        .collect(java.util.stream.Collectors.toList());
+                deliveryAddress.setLocationImages(imageUrls);
+                log.debug("✅ [LOCATION IMAGES] Stored {} images for order delivery address", imageUrls.size());
+            }
+
+            return deliveryAddress;
+        } catch (NotFoundException e) {
+            log.error("❌ [ADDRESS ERROR] Failed to fetch address: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("❌ [ADDRESS ERROR] Error creating delivery address snapshot: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to create delivery address snapshot", e);
+        }
     }
 }
