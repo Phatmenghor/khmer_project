@@ -8,6 +8,7 @@ import { createApiThunk } from "@/utils/axios/api-wrapper";
 import { PaymentOptionType } from "@/redux/features/master-data/store/models/response/payment-option-response";
 import { OrderResponse } from "../models/response/order-response";
 import { OrderStatus } from "@/enums/order-status.enum";
+import { OrderFromEnum } from "@/enums/order.enum";
 
 export interface CheckoutPayload {
   businessId: string;
@@ -63,6 +64,7 @@ export interface CheckoutPayload {
     paymentStatus: "PENDING";
   };
   customerNote: string;
+  orderFrom: OrderFromEnum;
   orderStatus?: OrderStatus;
 }
 

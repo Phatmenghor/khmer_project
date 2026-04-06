@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { OrderStatus } from "@/enums/order-status.enum";
+import { OrderFromEnum } from "@/enums/order.enum";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -261,7 +262,7 @@ export default function CheckoutPage() {
           paymentStatus: "PENDING" as const,
         },
         customerNote: checkoutState.customerNote,
-        
+        orderFrom: OrderFromEnum.CUSTOMER,
       };
 
       console.log("🛒 Checkout Payload:", checkoutPayload);

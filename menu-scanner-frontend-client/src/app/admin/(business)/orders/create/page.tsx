@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Plus, Minus, Trash2, ShoppingCart, X, ArrowLeft } from "lucide-react";
+import { OrderFromEnum } from "@/enums/order.enum";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -278,6 +279,7 @@ export default function PosOrderPage() {
           paymentStatus: "PAID" as const,
         },
         customerNote: customerNote || "",
+        orderFrom: OrderFromEnum.BUSINESS,
         orderStatus: OrderStatus.CONFIRMED,
       };
 
