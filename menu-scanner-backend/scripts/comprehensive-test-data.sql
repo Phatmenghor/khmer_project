@@ -981,39 +981,6 @@ SELECT
 FROM generate_series(1, 100) AS t(i);
 
 -- ============================================================================
--- 24. ORDER DELIVERY ADDRESSES
--- ============================================================================
-
--- Populate order_delivery_addresses - SIMPLE DIRECT APPROACH
-INSERT INTO order_delivery_addresses (
-    id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
-    order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude,
-    location_id, location_images
-)
-SELECT
-    gen_random_uuid(),
-    0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
-    orders.id,
-    COALESCE(ca.village, 'Village 1'),
-    COALESCE(ca.commune, 'Commune 1'),
-    COALESCE(ca.district, 'District 1'),
-    COALESCE(ca.province, 'Phnom Penh'),
-    COALESCE(ca.street_number, 'Street 1'),
-    COALESCE(ca.house_number, 'House 1'),
-    COALESCE(ca.note, 'Delivery address'),
-    COALESCE(ca.latitude::numeric, 11.5564),
-    COALESCE(ca.longitude::numeric, 104.9282),
-    ca.id,
-    '[]'::jsonb
-FROM orders
-CROSS JOIN (
-    SELECT id, village, commune, district, province, street_number, house_number, note, latitude, longitude
-    FROM customer_addresses
-    WHERE is_deleted = false
-    LIMIT 1
-) ca;
-
--- ============================================================================
 -- 25. ORDER DELIVERY OPTIONS
 -- ============================================================================
 
@@ -1219,6 +1186,38 @@ SELECT
          ELSE 'https://example.com/location/' || ca.id::text || '/location-view.jpg' END
 FROM customer_addresses ca
 CROSS JOIN (SELECT generate_series(1, 4) as img_num);
+
+-- ============================================================================
+-- 32.6. ORDER DELIVERY ADDRESSES (MUST BE AFTER customer_addresses & location_images)
+-- ============================================================================
+
+INSERT INTO order_delivery_addresses (
+    id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude,
+    location_id, location_images
+)
+SELECT
+    gen_random_uuid(),
+    0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+    o.id,
+    COALESCE(ca.village, 'Village 1'),
+    COALESCE(ca.commune, 'Commune 1'),
+    COALESCE(ca.district, 'District 1'),
+    COALESCE(ca.province, 'Phnom Penh'),
+    COALESCE(ca.street_number, 'Street 1'),
+    COALESCE(ca.house_number, 'House 1'),
+    COALESCE(ca.note, 'Delivery address'),
+    COALESCE(ca.latitude::numeric, 11.5564),
+    COALESCE(ca.longitude::numeric, 104.9282),
+    ca.id,
+    '[]'::jsonb
+FROM orders o
+CROSS JOIN (
+    SELECT id, village, commune, district, province, street_number, house_number, note, latitude, longitude
+    FROM customer_addresses
+    WHERE is_deleted = false
+    LIMIT 1
+) ca;
 
 -- ============================================================================
 -- 33. SUBSCRIPTION PLANS
