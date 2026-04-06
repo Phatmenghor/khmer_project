@@ -984,31 +984,35 @@ FROM generate_series(1, 100) AS t(i);
 -- 24. ORDER DELIVERY ADDRESSES
 -- ============================================================================
 
-WITH order_with_rn AS (
-    SELECT id, ROW_NUMBER() OVER (ORDER BY id) as order_rn
-    FROM orders
-),
-location_with_rn AS (
+WITH location_ids AS (
     SELECT id, village, commune, district, province, street_number, house_number, note, latitude, longitude,
-           ROW_NUMBER() OVER (ORDER BY id) as loc_rn,
-           COUNT(*) OVER() as total_locations
+           ROW_NUMBER() OVER (ORDER BY id) as location_seq
     FROM customer_addresses
     WHERE is_deleted = false
+),
+location_count AS (
+    SELECT COUNT(*) as total FROM location_ids
 ),
 location_images_agg AS (
     SELECT location_id, json_agg(image_url ORDER BY created_at) as images
     FROM location_images
     GROUP BY location_id
+),
+orders_with_location AS (
+    SELECT o.id as order_id,
+           ROW_NUMBER() OVER (ORDER BY o.id) as order_seq
+    FROM orders o
 )
 INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude, location_id, location_images)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
-    o.id, l.village, l.commune, l.district, l.province, l.street_number, l.house_number, l.note,
+    o.order_id, l.village, l.commune, l.district, l.province, l.street_number, l.house_number, l.note,
     l.latitude, l.longitude,
     l.id,
     COALESCE(lia.images, '[]'::json)
-FROM order_with_rn o
-JOIN location_with_rn l ON ((o.order_rn - 1) % CASE WHEN l.total_locations > 0 THEN l.total_locations ELSE 1 END) = (l.loc_rn - 1)
+FROM orders_with_location o
+CROSS JOIN location_count lc
+JOIN location_ids l ON l.location_seq = ((o.order_seq - 1) % lc.total) + 1
 LEFT JOIN location_images_agg lia ON l.id = lia.location_id;
 
 -- ============================================================================
