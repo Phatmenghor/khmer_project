@@ -88,37 +88,120 @@ export function OrderDetailModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Order Information */}
+            {/* Order & Pricing Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Order Information</CardTitle>
+                <CardTitle className="text-base">Order & Pricing Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <DisplayField
-                    label="Order Number"
-                    value={orderData.orderNumber}
-                  />
-                  <DisplayField
-                    label="Order Type"
-                    value={
-                      orderData.orderFrom === "CUSTOMER"
-                        ? "Customer (Public)"
-                        : "Business (POS)"
-                    }
-                  />
-                  <DisplayField
-                    label="Order Status"
-                    value={getOrderStatusLabel(orderData.orderStatus)}
-                  />
-                  <DisplayField
-                    label="Created At"
-                    value={dateTimeFormat(orderData.createdAt)}
-                  />
-                  <DisplayField
-                    label="Business"
-                    value={orderData.businessName || "---"}
-                  />
+              <CardContent className="space-y-6">
+                {/* Order Details */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Order Details</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayField
+                      label="Order Number"
+                      value={orderData.orderNumber}
+                    />
+                    <DisplayField
+                      label="Order Type"
+                      value={
+                        orderData.orderFrom === "CUSTOMER"
+                          ? "Customer (Public)"
+                          : "Business (POS)"
+                      }
+                    />
+                    <DisplayField
+                      label="Order Status"
+                      value={getOrderStatusLabel(orderData.orderStatus)}
+                    />
+                    <DisplayField
+                      label="Created At"
+                      value={dateTimeFormat(orderData.createdAt)}
+                    />
+                    <DisplayField
+                      label="Business"
+                      value={orderData.businessName || "---"}
+                    />
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t" />
+
+                {/* Pricing Details */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Pricing Details</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {(() => {
+                      const before = orderData.pricing?.before;
+                      const after = orderData.pricing?.after;
+                      const current = after ?? before;
+
+                      return (
+                        <>
+                          <DisplayField
+                            label="Total Items"
+                            value={String(current?.totalItems || 0)}
+                          />
+                          <DisplayField
+                            label="Subtotal (Before Discount)"
+                            value={formatCurrency(
+                              current?.subtotalBeforeDiscount || 0
+                            )}
+                          />
+                          {(current?.totalDiscount ?? 0) > 0 && (
+                            <DisplayField
+                              label="Discount"
+                              value={
+                                <span className="text-red-600">
+                                  -{formatCurrency(current!.totalDiscount)}
+                                </span>
+                              }
+                            />
+                          )}
+                          <DisplayField
+                            label="Subtotal"
+                            value={formatCurrency(current?.subtotal || 0)}
+                          />
+                          <DisplayField
+                            label="Delivery Fee"
+                            value={formatCurrency(current?.deliveryFee || 0)}
+                          />
+                          {(current?.taxAmount ?? 0) > 0 && (
+                            <DisplayField
+                              label="Tax"
+                              value={formatCurrency(current!.taxAmount)}
+                            />
+                          )}
+                          <DisplayField
+                            label="Final Total"
+                            value={
+                              <span className="text-lg font-bold text-green-600">
+                                {formatCurrency(current?.finalTotal || 0)}
+                              </span>
+                            }
+                          />
+                          {orderData.pricing?.hadOrderLevelChangeFromPOS &&
+                            before && (
+                              <DisplayField
+                                label="Original Total"
+                                value={
+                                  <span className="line-through text-muted-foreground">
+                                    {formatCurrency(before.finalTotal || 0)}
+                                  </span>
+                                }
+                              />
+                            )}
+                          {orderData.pricing?.reason && (
+                            <DisplayField
+                              label="Change Reason"
+                              value={orderData.pricing.reason}
+                            />
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -144,86 +227,6 @@ export function OrderDetailModal({
                       value={orderData.customerNote}
                     />
                   )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Pricing Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Pricing Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(() => {
-                    const before = orderData.pricing?.before;
-                    const after = orderData.pricing?.after;
-                    const current = after ?? before;
-
-                    return (
-                      <>
-                        <DisplayField
-                          label="Total Items"
-                          value={String(current?.totalItems || 0)}
-                        />
-                        <DisplayField
-                          label="Subtotal (Before Discount)"
-                          value={formatCurrency(
-                            current?.subtotalBeforeDiscount || 0
-                          )}
-                        />
-                        {(current?.totalDiscount ?? 0) > 0 && (
-                          <DisplayField
-                            label="Discount"
-                            value={
-                              <span className="text-red-600">
-                                -{formatCurrency(current!.totalDiscount)}
-                              </span>
-                            }
-                          />
-                        )}
-                        <DisplayField
-                          label="Subtotal"
-                          value={formatCurrency(current?.subtotal || 0)}
-                        />
-                        <DisplayField
-                          label="Delivery Fee"
-                          value={formatCurrency(current?.deliveryFee || 0)}
-                        />
-                        {(current?.taxAmount ?? 0) > 0 && (
-                          <DisplayField
-                            label="Tax"
-                            value={formatCurrency(current!.taxAmount)}
-                          />
-                        )}
-                        <DisplayField
-                          label="Final Total"
-                          value={
-                            <span className="text-lg font-bold text-green-600">
-                              {formatCurrency(current?.finalTotal || 0)}
-                            </span>
-                          }
-                        />
-                        {orderData.pricing?.hadOrderLevelChangeFromPOS &&
-                          before && (
-                            <DisplayField
-                              label="Original Total"
-                              value={
-                                <span className="line-through text-muted-foreground">
-                                  {formatCurrency(before.finalTotal || 0)}
-                                </span>
-                              }
-                            />
-                          )}
-                        {orderData.pricing?.reason && (
-                          <DisplayField
-                            label="Change Reason"
-                            value={orderData.pricing.reason}
-                          />
-                        )}
-                      </>
-                    );
-                  })()}
                 </div>
               </CardContent>
             </Card>
