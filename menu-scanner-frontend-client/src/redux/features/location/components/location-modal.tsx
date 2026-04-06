@@ -427,16 +427,19 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       setIsFullScreenMapReady(false);
       // Clean up fullscreen map when exiting
       fullscreenMapRef.current = null;
-      // Reset modal map options
-      map.setOptions({
-        gestureHandling: "none",
-        zoomControl: false,
-      });
-      // Trigger resize when map becomes visible again from hidden state
+
+      // Reinitialize modal map with current coordinates from form
       const t = setTimeout(() => {
-        google.maps.event.trigger(map, "resize");
-        const center = map.getCenter();
-        if (center) map.setCenter(center);
+        if (mapContainerRef.current) {
+          // Clear the container
+          mapContainerRef.current.innerHTML = "";
+          // Get current coordinates from form or fullscreen map
+          const currentLat = latitude || map.getCenter()?.lat() || 11.5564;
+          const currentLng = longitude || map.getCenter()?.lng() || 104.9282;
+          // Reinitialize the map
+          googleMapRef.current = null;
+          initMap(mapContainerRef.current, currentLat, currentLng);
+        }
       }, 50);
       return () => clearTimeout(t);
     }
