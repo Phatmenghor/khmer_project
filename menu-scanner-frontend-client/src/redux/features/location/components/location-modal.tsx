@@ -379,15 +379,23 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       gestureHandling: isFullScreen ? "greedy" : "none",
       zoomControl: isFullScreen,
     });
-    const t = setTimeout(() => {
+    const t1 = setTimeout(() => {
       google.maps.event.trigger(map, "resize");
       const c = map.getCenter();
       if (c) map.setCenter(c);
-      if (isFullScreen && fullscreenSearchRef.current && google.maps.places) {
+    }, isFullScreen ? 200 : 100);
+
+    // For fullscreen, trigger another resize after more time
+    const t2 = isFullScreen ? setTimeout(() => {
+      google.maps.event.trigger(map, "resize");
+      const c = map.getCenter();
+      if (c) map.setCenter(c);
+      if (fullscreenSearchRef.current && google.maps.places) {
         setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
       }
-    }, 100);
-    return () => clearTimeout(t);
+    }, 400) : null;
+
+    return () => { clearTimeout(t1); if (t2) clearTimeout(t2); };
   }, [isFullScreen, selectionMode, isMapReady, setupAutocomplete]);
 
   const handleMyLocation = useCallback(() => {
