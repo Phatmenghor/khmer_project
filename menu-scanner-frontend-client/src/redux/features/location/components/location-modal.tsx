@@ -363,7 +363,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   useEffect(() => {
     if (!isMapReady || !mapContainerRef.current) return;
-    if (selectionMode !== "map") { googleMapRef.current = null; geocoderRef.current = null; return; }
     if (googleMapRef.current) return;
     const lat = editData?.latitude || initialCoords?.lat || 11.5564;
     const lng = editData?.longitude || initialCoords?.lng || 104.9282;
@@ -371,7 +370,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     return () => {
       if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
     };
-  }, [isMapReady, selectionMode]);
+  }, [isMapReady]);
 
   useEffect(() => {
     const map = googleMapRef.current;
@@ -390,18 +389,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     }, 50);
     return () => clearTimeout(t);
   }, [isFullScreen, selectionMode, isMapReady, setupAutocomplete]);
-
-  // Trigger map resize when switching to map mode
-  useEffect(() => {
-    if (selectionMode === "map" && googleMapRef.current && isMapReady) {
-      const t = setTimeout(() => {
-        google.maps.event.trigger(googleMapRef.current!, "resize");
-        const c = googleMapRef.current!.getCenter();
-        if (c) googleMapRef.current!.setCenter(c);
-      }, 100);
-      return () => clearTimeout(t);
-    }
-  }, [selectionMode, isMapReady]);
 
   const handleMyLocation = useCallback(() => {
     if (!navigator.geolocation) { showToast.error("Geolocation not supported"); return; }
