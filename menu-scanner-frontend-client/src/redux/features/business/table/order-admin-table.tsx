@@ -97,7 +97,7 @@ export const orderAdminTableColumns = ({
       maxWidth: "400px",
       render: (order) => (
         <span className="text-xs font-medium">
-          {order?.orderFrom === "CUSTOMER" ? "🛒 Public" : "🏪 POS"}
+          {order?.orderFrom === "CUSTOMER" ? "Public" : "POS"}
         </span>
       ),
     },
@@ -122,8 +122,8 @@ export const orderAdminTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (
-        <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded">
-          {order?.items?.length || 0} items
+        <span className="text-xs font-medium">
+          {order?.items?.length || 0}
         </span>
       ),
     },

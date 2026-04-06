@@ -84,7 +84,7 @@ export function OrderDetailModal({
               label="Order Type"
               value={
                 <span className="text-sm font-medium">
-                  {orderData.orderFrom === "CUSTOMER" ? "🛒 Customer (Public)" : "🏪 Business (POS)"}
+                  {orderData.orderFrom === "CUSTOMER" ? "Customer (Public)" : "Business (POS)"}
                 </span>
               }
             />
