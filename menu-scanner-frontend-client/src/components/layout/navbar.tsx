@@ -382,7 +382,7 @@ export function Navbar() {
                   className="relative h-10 w-10"
                   onClick={() => router.push("/favorites")}
                 >
-                  <Heart className="h-6 w-6" />
+                  <Heart className="h-7 w-7" />
                   {favoriteItemCount > 0 && (
                     <Badge
                       variant="destructive"
@@ -525,10 +525,10 @@ export function Navbar() {
               <CustomButton
                 variant="ghost"
                 size="icon"
-                className="relative hover:text-primary"
+                className="relative h-10 w-10 hover:text-primary flex items-center justify-center"
                 onClick={() => router.push("/favorites")}
               >
-                <Heart className="h-6 w-6" />
+                <Heart className="h-7 w-7" />
                 {favoriteItemCount > 0 && (
                   <Badge
                     variant="destructive"
@@ -545,10 +545,10 @@ export function Navbar() {
               <CustomButton
                 variant="ghost"
                 size="icon"
-                className="relative hover:text-primary"
+                className="relative h-10 w-10 hover:text-primary flex items-center justify-center"
                 onClick={() => router.push("/cart")}
               >
-                <ShoppingCart className="h-6 w-6" />
+                <ShoppingCart className="h-7 w-7" />
                 {cartItemCount > 0 && (
                   <Badge
                     variant="destructive"
