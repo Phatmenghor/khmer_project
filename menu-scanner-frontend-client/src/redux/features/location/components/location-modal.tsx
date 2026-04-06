@@ -606,7 +606,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
                       Click to expand
                     </div>
                   </div>
-                  {!isMapReady && <CenterPin isDragging={isDragging} size="h-8 w-8" />}
+                  <CenterPin isDragging={isDragging} size="h-8 w-8" />
                 </div>
 
                 {hasCoords && (
