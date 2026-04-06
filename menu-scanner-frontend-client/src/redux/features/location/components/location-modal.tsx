@@ -432,8 +432,27 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         gestureHandling: "none",
         zoomControl: false,
       });
+      // Trigger resize when map becomes visible again from hidden state
+      const t = setTimeout(() => {
+        google.maps.event.trigger(map, "resize");
+        const center = map.getCenter();
+        if (center) map.setCenter(center);
+      }, 50);
+      return () => clearTimeout(t);
     }
   }, [isFullScreen, isMapReady, setupAutocomplete, reverseGeocode]);
+
+  // Handle tab switching - trigger resize when switching to map mode
+  useEffect(() => {
+    if (selectionMode === "map" && googleMapRef.current) {
+      const t = setTimeout(() => {
+        google.maps.event.trigger(googleMapRef.current, "resize");
+        const center = googleMapRef.current.getCenter();
+        if (center) googleMapRef.current.setCenter(center);
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [selectionMode]);
 
   const handleMyLocation = useCallback(() => {
     if (!navigator.geolocation) { showToast.error("Geolocation not supported"); return; }
