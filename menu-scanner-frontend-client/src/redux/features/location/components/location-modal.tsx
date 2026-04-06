@@ -202,6 +202,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const fullscreenMapContainerRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
+  const fullscreenMapRef = useRef<google.maps.Map | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const fullscreenSearchRef = useRef<HTMLInputElement>(null);
   const fullscreenAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -378,11 +379,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     const map = googleMapRef.current;
     if (!map || !isMapReady) return;
 
-    map.setOptions({
-      gestureHandling: isFullScreen ? "greedy" : "none",
-      zoomControl: isFullScreen,
-    });
-
     if (isFullScreen && fullscreenMapContainerRef.current) {
       setIsFullScreenMapReady(false);
       // Get current center and zoom from modal map
@@ -414,7 +410,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 400);
       });
 
-      googleMapRef.current = fullscreenMap;
+      fullscreenMapRef.current = fullscreenMap;
 
       // Trigger resize and setup autocomplete after DOM is ready
       const t = setTimeout(() => {
@@ -429,14 +425,15 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       return () => clearTimeout(t);
     } else if (!isFullScreen) {
       setIsFullScreenMapReady(false);
-      // Reinitialize modal map if it was replaced by fullscreen map
-      if (mapContainerRef.current && !googleMapRef.current) {
-        const lat = parseFloat(getValues("latitude")) || editData?.latitude || initialCoords?.lat || 11.5564;
-        const lng = parseFloat(getValues("longitude")) || editData?.longitude || initialCoords?.lng || 104.9282;
-        initMap(mapContainerRef.current, lat, lng);
-      }
+      // Clean up fullscreen map when exiting
+      fullscreenMapRef.current = null;
+      // Reset modal map options
+      map.setOptions({
+        gestureHandling: "none",
+        zoomControl: false,
+      });
     }
-  }, [isFullScreen, isMapReady, setupAutocomplete, getValues, initMap, reverseGeocode, editData, initialCoords]);
+  }, [isFullScreen, isMapReady, setupAutocomplete, reverseGeocode]);
 
   const handleMyLocation = useCallback(() => {
     if (!navigator.geolocation) { showToast.error("Geolocation not supported"); return; }
