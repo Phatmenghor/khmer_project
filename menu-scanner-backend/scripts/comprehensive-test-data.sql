@@ -1077,7 +1077,7 @@ SELECT
     CASE WHEN oi.had_change_from_pos THEN 0 ELSE oi.promotion_value END,
     CASE WHEN oi.had_change_from_pos THEN NOW() ELSE oi.promotion_from_date END,
     CASE WHEN oi.had_change_from_pos THEN NOW() ELSE oi.promotion_to_date END
-FROM order_items;
+FROM order_items oi;
 
 -- ============================================================================
 -- 28. ORDER STATUS HISTORY (4-30 entries per order with full progression)
