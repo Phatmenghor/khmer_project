@@ -11,7 +11,7 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useAppSelector } from "@/redux/store";
-import { selectBusinessPrimaryColor } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { selectBusinessColors } from "@/redux/features/business/store/selectors/business-settings-selector";
 
 import { useLocationState } from "@/redux/features/location/store/state/location-state";
 import { LocationResponseModel } from "@/redux/features/location/store/models/response/location-response";
@@ -34,7 +34,8 @@ export default function LocationPage() {
     remove,
   } = useLocationState();
 
-  const primaryColor = useAppSelector(selectBusinessPrimaryColor);
+  const colors = useAppSelector(selectBusinessColors);
+  const primaryColor = colors.primary;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState<LocationResponseModel | null>(null);
