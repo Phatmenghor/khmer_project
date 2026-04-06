@@ -376,21 +376,36 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     const map = googleMapRef.current;
     if (!map || !isMapReady) return;
 
-    const t = setTimeout(() => {
-      google.maps.event.trigger(map, "resize");
-      const c = map.getCenter();
-      if (c) map.setCenter(c);
-      if (isFullScreen && fullscreenSearchRef.current && google.maps.places) {
-        setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
-      }
-    }, isFullScreen ? 300 : 100);
-
     map.setOptions({
       gestureHandling: isFullScreen ? "greedy" : "none",
       zoomControl: isFullScreen,
     });
 
-    return () => clearTimeout(t);
+    if (isFullScreen) {
+      // For fullscreen, do multiple resizes to ensure proper rendering
+      const t1 = setTimeout(() => {
+        google.maps.event.trigger(map, "resize");
+      }, 100);
+      const t2 = setTimeout(() => {
+        google.maps.event.trigger(map, "resize");
+        const c = map.getCenter();
+        if (c) map.setCenter(c);
+      }, 300);
+      const t3 = setTimeout(() => {
+        google.maps.event.trigger(map, "resize");
+        if (fullscreenSearchRef.current && google.maps.places) {
+          setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
+        }
+      }, 500);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    } else {
+      const t = setTimeout(() => {
+        google.maps.event.trigger(map, "resize");
+        const c = map.getCenter();
+        if (c) map.setCenter(c);
+      }, 100);
+      return () => clearTimeout(t);
+    }
   }, [isFullScreen, selectionMode, isMapReady, setupAutocomplete]);
 
   const handleMyLocation = useCallback(() => {
