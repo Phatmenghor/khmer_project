@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -65,5 +67,6 @@ public class OrderDeliveryAddress extends BaseUUIDEntity {
     // Snapshot of location images at time of order - preserves history
     // If location images are updated later, orders still show the original images from checkout
     @Column(name = "location_images", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<String> locationImages = new ArrayList<>();
 }

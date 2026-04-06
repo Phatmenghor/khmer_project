@@ -18,7 +18,7 @@ location_count AS (
     SELECT COUNT(*) as total_locations FROM location_list
 ),
 location_images_json AS (
-    SELECT location_id, json_agg(image_url ORDER BY created_at) as images
+    SELECT location_id, json_agg(image_url ORDER BY created_at)::jsonb as images
     FROM location_images
     GROUP BY location_id
 ),
@@ -32,7 +32,7 @@ SELECT
     o.id,
     l.village, l.commune, l.district, l.province, l.street_number, l.house_number, l.note, l.latitude, l.longitude,
     l.id,
-    COALESCE(lij.images, '[]'::json)
+    COALESCE(lij.images, '[]'::jsonb)
 FROM order_list o
 CROSS JOIN location_count lc
 JOIN location_list l ON l.loc_idx = ((o.order_idx - 1) % lc.total_locations) + 1

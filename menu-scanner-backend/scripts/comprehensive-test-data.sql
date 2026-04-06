@@ -1004,7 +1004,7 @@ orders_with_idx AS (
     FROM orders
 ),
 location_images_map AS (
-    SELECT location_id, json_agg(image_url ORDER BY created_at) as image_urls
+    SELECT location_id, json_agg(image_url ORDER BY created_at)::jsonb as image_urls
     FROM location_images
     GROUP BY location_id
 )
@@ -1021,7 +1021,7 @@ SELECT
     la.latitudes[((o.idx % array_length(la.location_ids, 1)) + 1)],
     la.longitudes[((o.idx % array_length(la.location_ids, 1)) + 1)],
     la.location_ids[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    COALESCE(lim.image_urls, '[]'::json)
+    COALESCE(lim.image_urls, '[]'::jsonb)
 FROM orders_with_idx o
 CROSS JOIN locations_array la
 LEFT JOIN location_images_map lim ON lim.location_id = la.location_ids[((o.idx % array_length(la.location_ids, 1)) + 1)];
