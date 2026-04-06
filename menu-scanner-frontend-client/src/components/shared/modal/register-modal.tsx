@@ -18,7 +18,7 @@ import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import {
-  registerService,
+  registerCustomerService,
 } from "@/redux/features/auth/store/thunks/auth-thunks";
 import { telegramAuthenticateService } from "@/redux/features/auth/store/thunks/social-auth-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -79,12 +79,13 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
   async function onRegisterSubmit(values: RegisterFormData) {
     try {
       const result = await dispatch(
-        registerService({
+        registerCustomerService({
+          userIdentifier: values.email,
+          email: values.email,
+          password: values.password,
           firstName: values.firstName,
           lastName: values.lastName,
-          email: values.email,
-          phone: values.phone,
-          password: values.password,
+          phoneNumber: values.phone,
           userType: "CUSTOMER",
         }),
       ).unwrap();
