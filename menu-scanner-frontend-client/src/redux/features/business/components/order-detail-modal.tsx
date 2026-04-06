@@ -75,20 +75,13 @@ export function OrderDetailModal({
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-start gap-6">
-            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted flex items-center justify-center">
-              <span className="text-2xl font-semibold text-primary">
-                {orderData.orderNumber?.charAt(4)?.toUpperCase() || "O"}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-foreground">
-                Order Details
-              </h2>
-              <p className="text-sm text-foreground mt-1">
-                {orderData.orderNumber}
-              </p>
-            </div>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Order Details
+            </h2>
+            <p className="text-sm text-foreground mt-1">
+              {orderData.orderNumber}
+            </p>
           </div>
         </div>
 
@@ -121,10 +114,6 @@ export function OrderDetailModal({
                   <DisplayField
                     label="Created At"
                     value={dateTimeFormat(orderData.createdAt)}
-                  />
-                  <DisplayField
-                    label="Updated At"
-                    value={dateTimeFormat(orderData.updatedAt)}
                   />
                   <DisplayField
                     label="Business"
