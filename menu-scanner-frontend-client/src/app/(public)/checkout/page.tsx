@@ -210,23 +210,16 @@ export default function CheckoutPage() {
       // Production: Will get businessId from subdomain routing
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
-        deliveryAddress: {
-          village: selectedAddress.village || "",
-          commune: selectedAddress.commune || "",
-          district: selectedAddress.district || "",
-          province: selectedAddress.province || "",
-          streetNumber: selectedAddress.streetNumber || "",
-          houseNumber: selectedAddress.houseNumber || "",
-          note: selectedAddress.note || "",
-          latitude: selectedAddress.latitude || 0,
-          longitude: selectedAddress.longitude || 0,
-        },
+        addressId: selectedAddress?.id,
         deliveryOption: {
           name: selectedDeliveryOption.name || "",
           description: selectedDeliveryOption.description || "",
           imageUrl: selectedDeliveryOption.imageUrl || "",
           price: selectedDeliveryOption.price || 0,
         },
+        customerName: profile?.fullName || "",
+        customerPhone: profile?.phoneNumber || "",
+        customerEmail: profile?.email || "",
         cart: {
           businessId: AppDefault.BUSINESS_ID,
           businessName: "Default Business",

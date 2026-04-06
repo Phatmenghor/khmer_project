@@ -529,18 +529,8 @@ export default function PosPage() {
     const payload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
 
-      // Full delivery details (same as public checkout)
-      deliveryAddress: {
-        village: "",
-        commune: "",
-        district: "",
-        province: "",
-        streetNumber: "",
-        houseNumber: "",
-        note: "",
-        latitude: 0,
-        longitude: 0,
-      },
+      // Address - use ID for backend to fetch full details
+      addressId: "",  // TODO: Implement address selection modal for POS
 
       // Full delivery option details (same as public checkout)
       deliveryOption: {
