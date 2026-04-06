@@ -132,17 +132,6 @@ export default function CartPage() {
 
   useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
-    if (!authReady) return;
-    if (!isAuthenticated) return;
-    // Always fetch fresh cart data when navigating to cart page
-    // This ensures server state is synced even after optimistic adds from product pages
-    // Use 50 items per page to reduce pagination for most users
-    if (!loading.fetch) dispatch(fetchCartPaginated({ pageNo: 1, pageSize: 50 }));
-  }, [authReady, isAuthenticated, loading.fetch, dispatch]);
-
-  const handleLoadMore = useCallback(() => {
-    // Only load more if hasMore is true and not already loading
   // Calculate responsive page size
   const getPageSize = useMemo(() => {
     return () => {
@@ -152,8 +141,6 @@ export default function CartPage() {
       return 20;
     };
   }, []);
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!authReady) return;
@@ -176,29 +163,6 @@ export default function CartPage() {
       isLoadingRef.current = false;
     });
   }, [pagination.hasMore, pagination.currentPage, getPageSize, loading.paginate, dispatch]);
-
-  useEffect(() => {
-    if (!observerRef.current || !pagination.hasMore || loading.paginate) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && pagination.hasMore && !loading.paginate && !isLoadingRef.current) {
-          handleLoadMore();
-        }
-      },
-      { threshold: 0.1, rootMargin: "200px" }
-    );
-
-    observer.observe(observerRef.current);
-    return () => observer.disconnect();
-  }, [pagination.hasMore, loading.paginate, handleLoadMore]);
-
-    isLoadingRef.current = true;
-    const nextPage = pagination.currentPage + 1;
-    dispatch(fetchCartPaginated({ pageNo: nextPage, pageSize: pagination.pageSize })).finally(() => {
-      isLoadingRef.current = false;
-    });
-  }, [pagination.hasMore, pagination.currentPage, pagination.pageSize, loading.paginate, dispatch]);
 
   useEffect(() => {
     if (!observerRef.current || !pagination.hasMore || loading.paginate) return;
