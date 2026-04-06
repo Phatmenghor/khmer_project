@@ -161,7 +161,7 @@ export function ComboboxSelectLocation({
         <Button
           onClick={() => router.push("/account/addresses")}
           variant="outline"
-          className="w-full h-9 text-xs gap-2"
+          className="w-full h-10 text-xs gap-2"
         >
           <Plus className="h-3.5 w-3.5" />
           Add Address

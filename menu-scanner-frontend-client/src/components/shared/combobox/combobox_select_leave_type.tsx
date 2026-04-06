@@ -112,7 +112,7 @@ export function ComboboxSelectLeaveType({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between h-9 text-sm transition-all duration-200 border-input",
+              "w-full justify-between h-10 text-sm transition-all duration-200 border-input",
               !value && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
@@ -157,7 +157,7 @@ export function ComboboxSelectLeaveType({
                         key={type.id}
                         value={type.enumName}
                         onSelect={() => handleSelect(type.enumName)}
-                        className="h-9 text-sm"
+                        className="h-10 text-sm"
                       >
                         <Check
                           className={cn(

@@ -155,7 +155,7 @@ export function ComboboxSelectCommune({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between h-9 text-sm transition-all duration-200 border-input",
+              "w-full justify-between h-10 text-sm transition-all duration-200 border-input",
               !dataSelect && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
@@ -192,7 +192,7 @@ export function ComboboxSelectCommune({
                     value={item.communeCode}
                     onSelect={() => handleSelect(item)}
                     ref={index === data.length - 1 ? ref : null}
-                    className="h-9 text-sm"
+                    className="h-10 text-sm"
                   >
                     <Check
                       className={cn(
