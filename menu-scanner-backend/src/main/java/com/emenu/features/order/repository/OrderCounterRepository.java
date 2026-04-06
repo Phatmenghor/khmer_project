@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface OrderCounterRepository extends JpaRepository<OrderCounter, Long> {
+public interface OrderCounterRepository extends JpaRepository<OrderCounter, UUID> {
 
     Optional<OrderCounter> findByCounterDate(LocalDate counterDate);
 
