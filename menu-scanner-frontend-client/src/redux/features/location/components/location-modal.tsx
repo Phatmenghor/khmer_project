@@ -386,7 +386,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       if (isFullScreen && fullscreenSearchRef.current && google.maps.places) {
         setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
       }
-    }, 50);
+    }, 100);
     return () => clearTimeout(t);
   }, [isFullScreen, selectionMode, isMapReady, setupAutocomplete]);
 
@@ -611,7 +611,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
             </div>
 
             {/* Map section */}
-            {selectionMode === "map" && (
+            <div className={cn(selectionMode !== "map" && "hidden")}>
               <div className="space-y-3">
                 <div className="relative h-64 rounded-lg overflow-hidden border bg-muted">
                   <div ref={mapContainerRef} className="w-full h-full" />
@@ -654,7 +654,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
                   Use My Location
                 </Button>
               </div>
-            )}
+            </div>
 
             {/* Location selector tab */}
             {selectionMode === "select" && (
