@@ -379,15 +379,15 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative h-9 w-9"
+                  className="relative h-10 w-10"
                   onClick={() => router.push("/favorites")}
                 >
-                  <Heart className="h-5 w-5" />
+                  <Heart className="h-6 w-6" />
                   {favoriteItemCount > 0 && (
                     <Badge
                       variant="destructive"
                       className={cn(
-                        "absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-0.5 flex items-center justify-center text-[10px] leading-none transition-transform duration-300",
+                        "absolute -top-1 -right-1 h-5 min-w-[20px] max-w-[28px] px-1 flex items-center justify-center text-[11px] font-semibold leading-none transition-transform duration-300",
                         favoriteAnimating && "animate-slide-down",
                       )}
                     >
@@ -528,12 +528,12 @@ export function Navbar() {
                 className="relative hover:text-primary"
                 onClick={() => router.push("/favorites")}
               >
-                <Heart className="h-5 w-5" />
+                <Heart className="h-6 w-6" />
                 {favoriteItemCount > 0 && (
                   <Badge
                     variant="destructive"
                     className={cn(
-                      "absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs transition-transform duration-300",
+                      "absolute -top-1 -right-1 h-5 min-w-[20px] max-w-[28px] px-1 flex items-center justify-center text-xs font-semibold leading-none transition-transform duration-300",
                       favoriteAnimating && "animate-slide-down",
                     )}
                   >
@@ -548,11 +548,11 @@ export function Navbar() {
                 className="relative hover:text-primary"
                 onClick={() => router.push("/cart")}
               >
-                <ShoppingCart className="h-5 w-5" />
+                <ShoppingCart className="h-6 w-6" />
                 {cartItemCount > 0 && (
                   <Badge
                     variant="destructive"
-                    className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center px-1 text-xs"
+                    className="absolute -top-1 -right-1 min-w-[20px] max-w-[28px] h-5 px-1 flex items-center justify-center text-xs font-semibold leading-none"
                   >
                     {cartItemCount > 99 ? "99+" : cartItemCount}
                   </Badge>
