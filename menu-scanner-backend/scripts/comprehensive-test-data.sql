@@ -985,47 +985,52 @@ FROM generate_series(1, 100) AS t(i);
 -- ============================================================================
 
 INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude, location_id, location_images)
-WITH locations_array AS (
-    SELECT ARRAY_AGG(id ORDER BY id) as location_ids,
-           ARRAY_AGG(COALESCE(village, 'Village Default')) as villages,
-           ARRAY_AGG(COALESCE(commune, 'Commune Default')) as communes,
-           ARRAY_AGG(COALESCE(district, 'District Default')) as districts,
-           ARRAY_AGG(COALESCE(province, 'Province Default')) as provinces,
-           ARRAY_AGG(COALESCE(street_number, 'Street 1')) as street_numbers,
-           ARRAY_AGG(COALESCE(house_number, 'House 1')) as house_numbers,
-           ARRAY_AGG(COALESCE(note, 'Delivery address')) as notes,
-           ARRAY_AGG(COALESCE(latitude, 11.5564)) as latitudes,
-           ARRAY_AGG(COALESCE(longitude, 104.9282)) as longitudes
+WITH location_list AS (
+    SELECT
+        id,
+        COALESCE(village, 'Village Default') as village,
+        COALESCE(commune, 'Commune Default') as commune,
+        COALESCE(district, 'District Default') as district,
+        COALESCE(province, 'Province Default') as province,
+        COALESCE(street_number, 'Street 1') as street_number,
+        COALESCE(house_number, 'House 1') as house_number,
+        COALESCE(note, 'Delivery address') as note,
+        COALESCE(latitude, 11.5564::numeric(10,6)) as latitude,
+        COALESCE(longitude, 104.9282::numeric(11,6)) as longitude,
+        ROW_NUMBER() OVER (ORDER BY id) as loc_rn,
+        COUNT(*) OVER() as total_locs
     FROM customer_addresses
     WHERE is_deleted = false
 ),
-orders_with_idx AS (
-    SELECT id, ROW_NUMBER() OVER (ORDER BY id) - 1 as idx
+order_list AS (
+    SELECT
+        id,
+        ROW_NUMBER() OVER (ORDER BY id) as order_rn
     FROM orders
 ),
-location_images_map AS (
+location_images_agg AS (
     SELECT location_id,
-           COALESCE(json_agg(image_url ORDER BY created_at)::jsonb, '[]'::jsonb) as image_urls
+           COALESCE(json_agg(image_url ORDER BY created_at)::jsonb, '[]'::jsonb) as images
     FROM location_images
     GROUP BY location_id
 )
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     o.id,
-    COALESCE(la.villages[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Village Default'),
-    COALESCE(la.communes[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Commune Default'),
-    COALESCE(la.districts[((o.idx % array_length(la.location_ids, 1)) + 1)], 'District Default'),
-    COALESCE(la.provinces[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Province Default'),
-    COALESCE(la.street_numbers[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Street 1'),
-    COALESCE(la.house_numbers[((o.idx % array_length(la.location_ids, 1)) + 1)], 'House 1'),
-    COALESCE(la.notes[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Delivery address'),
-    COALESCE(la.latitudes[((o.idx % array_length(la.location_ids, 1)) + 1)], 11.5564),
-    COALESCE(la.longitudes[((o.idx % array_length(la.location_ids, 1)) + 1)], 104.9282),
-    la.location_ids[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    COALESCE(lim.image_urls, '[]'::jsonb)
-FROM orders_with_idx o
-CROSS JOIN locations_array la
-LEFT JOIN location_images_map lim ON lim.location_id = la.location_ids[((o.idx % array_length(la.location_ids, 1)) + 1)];
+    l.village,
+    l.commune,
+    l.district,
+    l.province,
+    l.street_number,
+    l.house_number,
+    l.note,
+    l.latitude,
+    l.longitude,
+    l.id,
+    COALESCE(lia.images, '[]'::jsonb)
+FROM order_list o
+JOIN location_list l ON l.loc_rn = ((o.order_rn - 1) % l.total_locs) + 1
+LEFT JOIN location_images_agg lia ON lia.location_id = l.id;
 
 -- ============================================================================
 -- 25. ORDER DELIVERY OPTIONS
