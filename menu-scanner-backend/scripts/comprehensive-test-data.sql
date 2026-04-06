@@ -1016,8 +1016,8 @@ SELECT
     p.name,
     p.main_image_url,
     ps.size_name,
-    ps.barcode,
-    ps.sku,
+    p.product_barcode,
+    p.product_sku,
     p.price,
     CASE WHEN (t.item_num % 5) = 0 THEN ROUND(p.price * 0.85, 2)
          WHEN (t.item_num % 5) = 1 THEN ROUND(p.price * 0.90, 2)
@@ -1045,14 +1045,14 @@ SELECT
 FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY id) as rn FROM orders) o
 CROSS JOIN (SELECT 1 as item_num UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) t
 JOIN LATERAL (
-    SELECT id, name, main_image_url, price, has_sizes
+    SELECT id, name, main_image_url, price, has_sizes, sku as product_sku, barcode as product_barcode
     FROM products
     WHERE status = 'ACTIVE'
     ORDER BY id
     LIMIT 1 OFFSET ((o.rn + t.item_num) % 100)
 ) p ON true
 JOIN LATERAL (
-    SELECT id, name as size_name, barcode, sku
+    SELECT id, name as size_name, sku, barcode
     FROM product_sizes
     WHERE product_id = p.id AND name = CASE WHEN (t.item_num % 4) = 0 THEN 'Small' WHEN (t.item_num % 4) = 1 THEN 'Medium' WHEN (t.item_num % 4) = 2 THEN 'Large' ELSE 'Medium' END
     LIMIT 1
