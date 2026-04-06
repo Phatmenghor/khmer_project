@@ -1210,7 +1210,12 @@ SELECT
     COALESCE(ca.latitude::numeric, 11.5564),
     COALESCE(ca.longitude::numeric, 104.9282),
     ca.id,
-    '[]'::jsonb
+    COALESCE(
+        (SELECT json_agg(image_url ORDER BY created_at)::jsonb
+         FROM location_images
+         WHERE location_id = ca.id),
+        '[]'::jsonb
+    )
 FROM orders o
 CROSS JOIN (
     SELECT id, village, commune, district, province, street_number, house_number, note, latitude, longitude
