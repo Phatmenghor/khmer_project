@@ -124,10 +124,16 @@ interface MultiImageUploadProps {
 function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const MAX_IMAGES = 5;
+  const canAddMore = images.length < MAX_IMAGES;
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     Array.from(e.target.files ?? []).forEach((file) => {
       if (!file.type.startsWith("image/")) return;
+      if (images.length >= MAX_IMAGES) {
+        showToast.warning(`Maximum ${MAX_IMAGES} images allowed`);
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => { if (typeof reader.result === "string") onAdd(reader.result); };
       reader.readAsDataURL(file);
@@ -149,7 +155,7 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
       <Label className="text-sm font-medium flex items-center gap-2">
         <ImageIcon className="h-4 w-4 text-muted-foreground" />
         Location Images
-        <span className="text-muted-foreground text-xs font-normal">(optional)</span>
+        <span className="text-muted-foreground text-xs font-normal">({images.length}/{MAX_IMAGES})</span>
       </Label>
 
       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
@@ -163,7 +169,7 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
             )}
           </div>
         ))}
-        {!disabled && (
+        {!disabled && canAddMore && (
           <button type="button" onClick={() => inputRef.current?.click()} className="aspect-square rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center gap-1 transition-colors text-muted-foreground hover:text-primary">
             <Upload className="h-3.5 w-3.5" />
             <span className="text-[10px] font-medium">Add</span>
