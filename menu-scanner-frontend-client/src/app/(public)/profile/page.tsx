@@ -593,6 +593,7 @@ export default function PublicProfilePage() {
             confirmationText="DELETE"
           />
 
+<<<<<<< HEAD
           {/* Profile Picture Modal */}
           <ProfilePictureModal
             isOpen={isProfilePictureModalOpen}
@@ -608,3 +609,15 @@ export default function PublicProfilePage() {
     </PageContainer>
   );
 }
+=======
+            {/* Profile Picture Modal */}
+            <ProfilePictureModal
+              isOpen={isProfilePictureModalOpen}
+              onClose={() => setIsProfilePictureModalOpen(false)}
+              onImageSelect={handleAutoUploadProfilePicture}
+              onImageRemove={() => setValue("profileImageUrl", "")}
+              isLoading={isUploadingImage}
+              currentImageUrl={watch("profileImageUrl") || userProfile?.profileImageUrl}
+              userName={userProfile?.fullName}
+            />
+>>>>>>> 4a789db (Fix ProfilePictureModal props in public profile page)
