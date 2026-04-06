@@ -209,6 +209,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   const [isMapReady, setIsMapReady] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isFullScreenMapReady, setIsFullScreenMapReady] = useState(false);
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
@@ -382,6 +383,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     });
 
     if (isFullScreen) {
+      setIsFullScreenMapReady(false);
       // For fullscreen, do multiple resizes to ensure proper rendering
       const t1 = setTimeout(() => {
         google.maps.event.trigger(map, "resize");
@@ -393,12 +395,16 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       }, 300);
       const t3 = setTimeout(() => {
         google.maps.event.trigger(map, "resize");
+        const c = map.getCenter();
+        if (c) map.setCenter(c);
+        setIsFullScreenMapReady(true);
         if (fullscreenSearchRef.current && google.maps.places) {
           setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
         }
-      }, 500);
+      }, 600);
       return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     } else {
+      setIsFullScreenMapReady(false);
       const t = setTimeout(() => {
         google.maps.event.trigger(map, "resize");
         const c = map.getCenter();
@@ -570,6 +576,14 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
         {/* Map container */}
         <div className="flex-1 relative bg-gray-100">
+          {!isFullScreenMapReady && (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted/80 z-10">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">Loading map…</span>
+              </div>
+            </div>
+          )}
           <CenterPin isDragging={isDragging} size="h-10 w-10" />
           <div ref={mapContainerRef} className="w-full h-full bg-white" />
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm border rounded-lg px-3 py-2 shadow-lg flex items-center gap-2 text-xs">
