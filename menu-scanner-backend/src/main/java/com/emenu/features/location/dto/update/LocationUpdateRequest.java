@@ -1,10 +1,12 @@
 package com.emenu.features.location.dto.update;
 
+import com.emenu.features.location.dto.request.LocationImageRequest;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class LocationUpdateRequest {
@@ -23,6 +25,8 @@ public class LocationUpdateRequest {
     @DecimalMin(value = "-180.0", message = "Longitude must be between -180 and 180")
     @DecimalMax(value = "180.0", message = "Longitude must be between -180 and 180")
     private BigDecimal longitude;
-    
+
     private Boolean isDefault;
+
+    private List<LocationImageRequest> locationImages; // Optional images
 }

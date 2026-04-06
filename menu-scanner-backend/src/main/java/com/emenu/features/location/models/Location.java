@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -58,6 +60,9 @@ public class Location extends BaseUUIDEntity {
 
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault = false;
+
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LocationImage> locationImages = new ArrayList<>();
 
     // Business Methods
     public void setAsDefault() {

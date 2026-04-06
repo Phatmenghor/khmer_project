@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -23,4 +24,5 @@ public class LocationResponse extends BaseAuditResponse {
     private Boolean isDefault;
     private String fullAddress;
     private Boolean hasCoordinates;
+    private List<LocationImageResponse> locationImages;
 }
