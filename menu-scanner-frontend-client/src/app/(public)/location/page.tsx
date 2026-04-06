@@ -1,26 +1,22 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Plus, Star, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Loading } from "@/components/shared/common/loading";
+import { MapPin, Plus, CheckCircle2 } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useAppSelector } from "@/redux/store";
 import { selectBusinessColors } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { PageHeader } from "@/components/shared/common/page-header";
 
 import { useLocationState } from "@/redux/features/location/store/state/location-state";
 import { LocationResponseModel } from "@/redux/features/location/store/models/response/location-response";
 import LocationModal from "@/redux/features/location/components/location-modal";
 import { LocationCard } from "@/redux/features/location/components/location-card";
 import { LocationEmptyState } from "@/redux/features/location/components/location-empty-state";
-import { isLocationPrimary } from "@/redux/features/location/utils/location-helpers";
-
-const ITEMS_PER_PAGE = 6;
+import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LocationPage() {
   const {
@@ -37,17 +33,23 @@ export default function LocationPage() {
   const colors = useAppSelector(selectBusinessColors);
   const primaryColor = colors.primary;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [editingLocation, setEditingLocation] =
-    useState<LocationResponseModel | null>(null);
+    React.useState<LocationResponseModel | null>(null);
   const [deletingLocation, setDeleteingLocation] =
-    useState<LocationResponseModel | null>(null);
-  const [settingPrimaryId, setSettingPrimaryId] = useState<string | null>(null);
-  const [currentCoords, setCurrentCoords] = useState<{
+    React.useState<LocationResponseModel | null>(null);
+  const [settingPrimaryId, setSettingPrimaryId] = React.useState<string | null>(null);
+  const [currentCoords, setCurrentCoords] = React.useState<{
     lat: number;
     lng: number;
   } | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(6);
+
+  const isInitialLoading = isLoading.fetch && locations.length === 0;
 
   // Get user GPS coords on mount
   useEffect(() => {
@@ -62,18 +64,26 @@ export default function LocationPage() {
     );
   }, []);
 
-  // Fetch locations on mount
+  // Initial fetch
   useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+    if (locations.length === 0 && !isLoading.fetch) {
+      fetchAll();
+    }
+  }, []);
 
-  // Pagination logic
-  const paginatedLocations = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return locations.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [locations, currentPage]);
+  // Load more handler
+  const handleLoadMore = useCallback(() => {
+    if (isLoading.fetch) return;
+    // In a real pagination scenario, increment page
+    // For now, just show all locations
+  }, [isLoading.fetch]);
 
-  const totalPages = Math.ceil(locations.length / ITEMS_PER_PAGE);
+  // Smart pagination with debounce
+  const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
+    handleLoadMore,
+    !isLoading.fetch,
+    [isLoading.fetch, handleLoadMore]
+  );
 
   // Handlers
   const handleAddLocation = useCallback(() => {
@@ -97,37 +107,20 @@ export default function LocationPage() {
       await remove(deletingLocation.id).unwrap();
       showToast.success("Location deleted successfully");
       setDeleteingLocation(null);
-      if (paginatedLocations.length === 1 && currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-      }
     } catch (error: any) {
       showToast.error(error?.message || "Failed to delete location");
     }
   };
 
-  const handleSetPrimary = async (location: LocationResponseModel) => {
-    if (isLocationPrimary(location)) return;
-    setSettingPrimaryId(location.id);
+  const handleSetPrimary = async (locationId: string) => {
     try {
-      await update({
-        locationId: location.id,
-        locationData: {
-          label: location.label ?? "",
-          latitude: location.latitude ?? 0,
-          longitude: location.longitude ?? 0,
-          houseNumber: location.houseNumber || "",
-          streetNumber: location.streetNumber || "",
-          village: location.village || "",
-          commune: location.commune || "",
-          district: location.district || "",
-          province: location.province || "",
-          country: location.country || "",
-          note: location.note || "",
-          isPrimary: true,
-          locationImages: location.locationImages ?? [],
-        },
-      }).unwrap();
-      showToast.success("Primary location updated");
+      setSettingPrimaryId(locationId);
+      const location = locations.find((l) => l.id === locationId);
+      if (location) {
+        const updatedLocation = { ...location, isPrimary: true };
+        await update({ locationId, locationData: updatedLocation }).unwrap();
+        showToast.success("Location set as primary");
+      }
     } catch (error: any) {
       showToast.error(error?.message || "Failed to set primary location");
     } finally {
@@ -135,172 +128,77 @@ export default function LocationPage() {
     }
   };
 
-  if (isLoading && locations.length === 0) {
+  // Loading skeleton
+  if (isInitialLoading) {
     return (
-      <PageContainer className="max-w-6xl">
-        <div className="py-8">
-          <Loading />
+      <PageContainer className="py-4 sm:py-8">
+        <div className="h-8 w-48 bg-muted rounded mb-6 animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Skeleton key={i} className="h-48 rounded-2xl" />
+          ))}
         </div>
       </PageContainer>
     );
   }
 
+  // Empty state
+  if (locations.length === 0) {
+    return <LocationEmptyState onAddNew={handleAddLocation} />;
+  }
+
+  // Locations grid
   return (
-    <PageContainer>
-      <div className="flex flex-1 flex-col gap-4 py-4">
-        {/* Header */}
-        <div className="mb-2">
-          <h1 className="text-3xl font-bold text-foreground">My Locations</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Manage your saved delivery addresses for faster checkout
+    <PageContainer className="py-4 sm:py-8">
+      <PageHeader
+        title="My Locations"
+        icon={MapPin}
+        count={locationCount}
+        countLabel={locationCount === 1 ? "location" : "locations"}
+        subtitle="Manage your saved addresses"
+        actions={
+          <Button
+            onClick={handleAddLocation}
+            size="sm"
+            className="gap-2 h-9 rounded-lg"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Add Location</span>
+          </Button>
+        }
+      />
+
+      {/* Locations Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {locations.map((location) => (
+          <LocationCard
+            key={location.id}
+            location={location}
+            isPrimary={primaryLocation?.id === location.id}
+            onEdit={() => handleEditLocation(location)}
+            onDelete={() => setDeleteingLocation(location)}
+            onSetPrimary={() => handleSetPrimary(location.id)}
+            isSettingPrimary={settingPrimaryId === location.id}
+            currentCoords={currentCoords}
+            primaryColor={primaryColor}
+          />
+        ))}
+      </div>
+
+      {/* End of locations message */}
+      {locations.length > 0 && !isLoading.fetch && (
+        <div className="flex flex-col items-center justify-center mt-12 py-8 px-4">
+          <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
+            <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+          </div>
+          <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">
+            All locations loaded!
+          </h3>
+          <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md">
+            Add a new location to expand your coverage.
           </p>
         </div>
-
-        {/* Premium Header Card */}
-        <Card className="mb-6 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5 shadow-md">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div
-                  className="p-3 rounded-xl"
-                  style={{
-                    backgroundColor: primaryColor
-                      ? `${primaryColor}15`
-                      : "hsl(var(--primary) / 0.1)",
-                  }}
-                >
-                  <MapPin
-                    className="h-6 w-6"
-                    style={{ color: primaryColor || "hsl(var(--primary))" }}
-                  />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">
-                    {locationCount}{" "}
-                    {locationCount === 1 ? "Location" : "Locations"}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {primaryLocation
-                      ? "Primary location set"
-                      : "Set a primary location"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {primaryLocation && (
-                  <Badge
-                    className="hidden sm:flex items-center gap-1 text-xs py-1 px-3"
-                    style={{
-                      backgroundColor:
-                        `${primaryColor}20` || "hsl(var(--primary) / 0.2)",
-                      color: primaryColor || "hsl(var(--primary))",
-                      borderColor:
-                        `${primaryColor}40` || "hsl(var(--primary) / 0.4)",
-                    }}
-                    variant="outline"
-                  >
-                    <Star className="h-3 w-3 fill-current" />
-                    Primary Set
-                  </Badge>
-                )}
-                <Button
-                  onClick={handleAddLocation}
-                  size="sm"
-                  className="gap-2 rounded-xl h-10"
-                  style={{
-                    backgroundColor: primaryColor || "hsl(var(--primary))",
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline">Add Location</span>
-                  <span className="sm:hidden">Add</span>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Content */}
-        {locations.length === 0 ? (
-          <div className="bg-background rounded-2xl border shadow-sm overflow-hidden">
-            <LocationEmptyState onAdd={handleAddLocation} />
-          </div>
-        ) : (
-          <>
-            {/* Locations Grid */}
-            <div className="grid gap-3">
-              {paginatedLocations.map((location) => (
-                <LocationCard
-                  key={location.id}
-                  location={location}
-                  settingPrimaryId={settingPrimaryId}
-                  onEdit={handleEditLocation}
-                  onDelete={setDeleteingLocation}
-                  onSetPrimary={handleSetPrimary}
-                />
-              ))}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between pt-6 border-t">
-                <p className="text-sm text-muted-foreground">
-                  Showing{" "}
-                  {Math.min(currentPage * ITEMS_PER_PAGE, locations.length)} of{" "}
-                  {locationCount} locations
-                </p>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className="rounded-lg"
-                  >
-                    Previous
-                  </Button>
-
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => (
-                      <Button
-                        key={i + 1}
-                        variant={currentPage === i + 1 ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setCurrentPage(i + 1)}
-                        className="h-8 w-8 p-0 rounded-lg"
-                        style={
-                          currentPage === i + 1
-                            ? {
-                                backgroundColor:
-                                  primaryColor || "hsl(var(--primary))",
-                              }
-                            : {}
-                        }
-                      >
-                        {i + 1}
-                      </Button>
-                    ))}
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                    className="rounded-lg"
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      )}
 
       {/* Location Modal */}
       <LocationModal
@@ -310,15 +208,14 @@ export default function LocationPage() {
         initialCoords={currentCoords}
       />
 
-      {/* Delete Confirmation */}
+      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={!!deletingLocation}
         onClose={() => setDeleteingLocation(null)}
         onDelete={handleDeleteLocation}
         title="Delete Location"
         description="Are you sure you want to delete this location? This action cannot be undone."
-        itemName={deletingLocation?.label || deletingLocation?.fullAddress}
-        isSubmitting={operations.isDeleting}
+        variant="critical"
       />
     </PageContainer>
   );
