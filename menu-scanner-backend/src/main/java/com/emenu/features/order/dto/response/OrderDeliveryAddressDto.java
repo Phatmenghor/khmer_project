@@ -6,9 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 /**
- * Clean DTO for order delivery address snapshot - mirrors DeliveryAddressRequest exactly
+ * Clean DTO for order delivery address snapshot - includes location reference and image snapshots
  */
 @Data
 @Builder
@@ -24,4 +26,8 @@ public class OrderDeliveryAddressDto {
     private String note;
     private BigDecimal latitude;
     private BigDecimal longitude;
+
+    // Location reference and images snapshot
+    private UUID locationId;  // Reference to original Location entity
+    private List<String> locationImages;  // Snapshot of location images at order time
 }

@@ -23,6 +23,7 @@ public class OrderResponse extends BaseAuditResponse {
     private UUID customerId;
     private String customerName;
     private String customerPhone;
+    private String customerEmail;
 
     // Business info
     private UUID businessId;

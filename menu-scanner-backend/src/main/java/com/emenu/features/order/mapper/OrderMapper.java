@@ -31,8 +31,9 @@ public interface OrderMapper {
     @Mapping(target = "updatedAt", source = "updatedAt")
     @Mapping(target = "createdBy", source = "createdBy")
     @Mapping(target = "updatedBy", source = "updatedBy")
-    @Mapping(target = "customerName", expression = "java(order.getCustomerIdentifier())")
-    @Mapping(target = "customerPhone", expression = "java(order.getCustomerContact())")
+    @Mapping(source = "customerName", target = "customerName")
+    @Mapping(source = "customerPhone", target = "customerPhone")
+    @Mapping(source = "customerEmail", target = "customerEmail")
     @Mapping(source = "business.name", target = "businessName")
     @Mapping(target = "deliveryAddress", expression = "java(mapDeliveryAddress(order))")
     @Mapping(target = "deliveryOption", expression = "java(mapDeliveryOption(order))")
@@ -158,6 +159,8 @@ public interface OrderMapper {
                 .note(deliveryAddress.getNote())
                 .latitude(deliveryAddress.getLatitude())
                 .longitude(deliveryAddress.getLongitude())
+                .locationId(deliveryAddress.getLocationId())
+                .locationImages(deliveryAddress.getLocationImages())
                 .build();
     }
 
