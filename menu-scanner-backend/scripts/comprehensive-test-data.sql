@@ -1090,7 +1090,7 @@ WITH status_sequence AS (
          o.order_status,
          o.rn,
          CASE WHEN (o.rn % 3) = 0 THEN ARRAY['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED']
-              WHEN (o.rn % 3) = 1 THEN ARRAY['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'PICKED_UP']
+              WHEN (o.rn % 3) = 1 THEN ARRAY['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED']
               ELSE ARRAY['PENDING', 'CONFIRMED', 'CANCELLED'] END as status_flow,
          CASE WHEN (o.rn % 3) = 0 THEN 5
               WHEN (o.rn % 3) = 1 THEN 5
@@ -1120,7 +1120,6 @@ SELECT
          WHEN status_flow[status_idx] = 'PREPARING' THEN 'Order is being prepared in the kitchen'
          WHEN status_flow[status_idx] = 'READY' THEN 'Order ready for pickup/delivery'
          WHEN status_flow[status_idx] = 'DELIVERED' THEN 'Order successfully delivered to customer'
-         WHEN status_flow[status_idx] = 'PICKED_UP' THEN 'Order picked up by customer'
          WHEN status_flow[status_idx] = 'CANCELLED' THEN 'Order cancelled by customer request'
          ELSE 'Status changed: ' || status_flow[status_idx] END
 FROM expanded_statuses;
