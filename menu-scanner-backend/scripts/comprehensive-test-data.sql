@@ -1089,11 +1089,11 @@ WITH status_sequence AS (
          o.created_at,
          o.order_status,
          o.rn,
-         CASE WHEN (o.rn % 3) = 0 THEN ARRAY['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED']
-              WHEN (o.rn % 3) = 1 THEN ARRAY['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED']
+         CASE WHEN (o.rn % 3) = 0 THEN ARRAY['PENDING', 'CONFIRMED', 'PREPARING', 'COMPLETED']
+              WHEN (o.rn % 3) = 1 THEN ARRAY['PENDING', 'CONFIRMED', 'PREPARING', 'COMPLETED']
               ELSE ARRAY['PENDING', 'CONFIRMED', 'CANCELLED'] END as status_flow,
-         CASE WHEN (o.rn % 3) = 0 THEN 5
-              WHEN (o.rn % 3) = 1 THEN 5
+         CASE WHEN (o.rn % 3) = 0 THEN 4
+              WHEN (o.rn % 3) = 1 THEN 4
               ELSE 3 END as flow_length
   FROM (SELECT id, created_at, order_status, ROW_NUMBER() OVER (ORDER BY id) as rn FROM orders) o
 ),
@@ -1118,8 +1118,7 @@ SELECT
     CASE WHEN status_flow[status_idx] = 'PENDING' THEN 'Order received and awaiting confirmation'
          WHEN status_flow[status_idx] = 'CONFIRMED' THEN 'Order confirmed by restaurant/kitchen'
          WHEN status_flow[status_idx] = 'PREPARING' THEN 'Order is being prepared in the kitchen'
-         WHEN status_flow[status_idx] = 'READY' THEN 'Order ready for pickup/delivery'
-         WHEN status_flow[status_idx] = 'DELIVERED' THEN 'Order successfully delivered to customer'
+         WHEN status_flow[status_idx] = 'COMPLETED' THEN 'Order completed and ready for customer'
          WHEN status_flow[status_idx] = 'CANCELLED' THEN 'Order cancelled by customer request'
          ELSE 'Status changed: ' || status_flow[status_idx] END
 FROM expanded_statuses;
