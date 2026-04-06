@@ -50,6 +50,17 @@ const getPaymentVariant = (status: string) => {
   }
 };
 
+const getOrderFromVariant = (orderFrom: string) => {
+  switch (orderFrom) {
+    case "CUSTOMER":
+      return "outline";
+    case "BUSINESS":
+      return "secondary";
+    default:
+      return "outline";
+  }
+};
+
 export const orderAdminTableColumns = ({
   data,
   handlers,
@@ -74,9 +85,14 @@ export const orderAdminTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (
-        <span className="text-xs font-mono font-medium">
-          {order?.orderNumber || "---"}
-        </span>
+        <div className="flex flex-col">
+          <span className="text-xs font-mono font-medium">
+            {order?.orderNumber || "---"}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {order?.orderFrom === "CUSTOMER" ? "🛒 Public" : "🏪 POS"}
+          </span>
+        </div>
       ),
     },
     {
@@ -87,21 +103,33 @@ export const orderAdminTableColumns = ({
       truncate: true,
       render: (order) => (
         <div className="flex flex-col">
-          <span className="text-xs">{order?.customerName || "---"}</span>
+          <span className="text-xs font-medium">{order?.customerName || "Walk-in"}</span>
           <span className="text-xs text-muted-foreground">
-            {order?.customerPhone || ""}
+            {order?.customerPhone || "No phone"}
           </span>
         </div>
       ),
     },
     {
-      key: "totalItems",
+      key: "businessName",
+      label: "Business",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (order) => (
+        <span className="text-xs font-medium">
+          {order?.businessName || "---"}
+        </span>
+      ),
+    },
+    {
+      key: "items",
       label: "Items",
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (
-        <span className="text-xs text-muted-foreground">
-          {order?.pricing?.totalItems || 0}
+        <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded">
+          {order?.items?.length || 0} items
         </span>
       ),
     },
@@ -111,9 +139,18 @@ export const orderAdminTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (
-        <span className="text-xs font-medium">
-          {formatCurrency(order?.pricing?.finalTotal || 0)}
-        </span>
+        <div className="flex flex-col">
+          <span className="text-xs font-bold text-green-600">
+            {formatCurrency(
+              order?.pricing?.after?.finalTotal ?? order?.pricing?.before?.finalTotal ?? 0
+            )}
+          </span>
+          {order?.pricing?.hadOrderLevelChangeFromPOS && (
+            <span className="text-xs text-muted-foreground line-through">
+              {formatCurrency(order?.pricing?.before?.finalTotal ?? 0)}
+            </span>
+          )}
+        </div>
       ),
     },
     {
@@ -139,8 +176,19 @@ export const orderAdminTableColumns = ({
       ),
     },
     {
+      key: "deliveryOption",
+      label: "Delivery",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (order) => (
+        <span className="text-xs font-medium">
+          {order?.deliveryOption?.name || "---"}
+        </span>
+      ),
+    },
+    {
       key: "createdAt",
-      label: "Created At",
+      label: "Created",
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (

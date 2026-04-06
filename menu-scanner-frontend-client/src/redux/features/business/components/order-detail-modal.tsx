@@ -75,9 +75,17 @@ export function OrderDetailModal({
             <DetailRow
               label="Order Number"
               value={
-                <span className="font-mono font-medium">
+                <span className="font-mono font-medium text-base">
                   {orderData.orderNumber}
                 </span>
+              }
+            />
+            <DetailRow
+              label="Order Type"
+              value={
+                <Badge variant={orderData.orderFrom === "CUSTOMER" ? "outline" : "secondary"}>
+                  {orderData.orderFrom === "CUSTOMER" ? "🛒 Customer (Public)" : "🏪 Business (POS)"}
+                </Badge>
               }
             />
             <DetailRow
@@ -89,9 +97,20 @@ export function OrderDetailModal({
               }
             />
             <DetailRow
-              label="Created At"
+              label="Created"
               value={dateTimeFormat(orderData.createdAt)}
             />
+            <DetailRow
+              label="Last Updated"
+              value={dateTimeFormat(orderData.updatedAt)}
+              isLast={!orderData.customerNote && !orderData.businessNote}
+            />
+            {orderData.businessNote && (
+              <DetailRow
+                label="Business Note"
+                value={orderData.businessNote}
+              />
+            )}
           </DetailSection>
 
           {/* Customer Information */}
@@ -110,63 +129,111 @@ export function OrderDetailModal({
           </DetailSection>
 
           {/* Pricing Information */}
-          <DetailSection title="Pricing">
+          <DetailSection title="Pricing Information">
             {(() => {
-              const snapshot = orderData.pricing?.after ?? orderData.pricing?.before;
+              const before = orderData.pricing?.before;
+              const after = orderData.pricing?.after;
+              const current = after ?? before;
+              const hasOrderLevelChange = orderData.pricing?.hadOrderLevelChangeFromPOS && before && after;
+
               return (
                 <>
                   <DetailRow
                     label="Total Items"
-                    value={String(snapshot?.totalItems || 0)}
+                    value={String(current?.totalItems || 0)}
                   />
+
+                  {/* Before Pricing (if changed) */}
+                  {hasOrderLevelChange && before && (
+                    <div className="border rounded-lg p-3 bg-gray-50 my-2">
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">Original Pricing:</p>
+                      <DetailRow
+                        label="Subtotal (Before Discount)"
+                        value={formatCurrency(before.subtotalBeforeDiscount || 0)}
+                      />
+                      {(before.totalDiscount ?? 0) > 0 && (
+                        <DetailRow
+                          label="Discount"
+                          value={
+                            <span className="text-red-500">
+                              -{formatCurrency(before.totalDiscount)}
+                            </span>
+                          }
+                        />
+                      )}
+                      <DetailRow
+                        label="Subtotal"
+                        value={formatCurrency(before.subtotal || 0)}
+                      />
+                      <DetailRow
+                        label="Delivery Fee"
+                        value={formatCurrency(before.deliveryFee || 0)}
+                      />
+                      {(before.taxAmount ?? 0) > 0 && (
+                        <DetailRow
+                          label="Tax"
+                          value={formatCurrency(before.taxAmount)}
+                        />
+                      )}
+                      <DetailRow
+                        label="Original Total"
+                        value={
+                          <span className="font-semibold text-base line-through">
+                            {formatCurrency(before.finalTotal || 0)}
+                          </span>
+                        }
+                        isLast
+                      />
+                    </div>
+                  )}
+
+                  {/* Current/After Pricing */}
                   <DetailRow
                     label="Subtotal (Before Discount)"
-                    value={formatCurrency(snapshot?.subtotalBeforeDiscount || 0)}
+                    value={formatCurrency(current?.subtotalBeforeDiscount || 0)}
                   />
-                  {(snapshot?.totalDiscount ?? 0) > 0 && (
+                  {(current?.totalDiscount ?? 0) > 0 && (
                     <DetailRow
                       label="Discount"
                       value={
                         <span className="text-red-500">
-                          -{formatCurrency(snapshot!.totalDiscount)}
+                          -{formatCurrency(current!.totalDiscount)}
                         </span>
                       }
                     />
                   )}
                   <DetailRow
                     label="Subtotal"
-                    value={formatCurrency(snapshot?.subtotal || 0)}
+                    value={formatCurrency(current?.subtotal || 0)}
                   />
                   <DetailRow
                     label="Delivery Fee"
-                    value={formatCurrency(snapshot?.deliveryFee || 0)}
+                    value={formatCurrency(current?.deliveryFee || 0)}
                   />
-                  {(snapshot?.taxAmount ?? 0) > 0 && (
+                  {(current?.taxAmount ?? 0) > 0 && (
                     <DetailRow
                       label="Tax"
-                      value={formatCurrency(snapshot!.taxAmount)}
+                      value={formatCurrency(current!.taxAmount)}
                     />
                   )}
                   <DetailRow
                     label="Final Total"
                     value={
-                      <span className="text-lg font-semibold text-green-600">
-                        {formatCurrency(snapshot?.finalTotal || 0)}
+                      <span className={`text-lg font-bold ${hasOrderLevelChange ? "text-green-600" : "text-green-600"}`}>
+                        {formatCurrency(current?.finalTotal || 0)}
                       </span>
                     }
                   />
-                  {orderData.pricing?.hadOrderLevelChangeFromPOS && orderData.pricing.before && (
-                    <DetailRow
-                      label="Original Total"
-                      value={
-                        <span className="text-muted-foreground line-through text-sm">
-                          {formatCurrency(orderData.pricing.before.finalTotal)}
-                        </span>
-                      }
-                    />
-                  )}
-                  {orderData.pricing?.reason && (
-                    <DetailRow label="Change Reason" value={orderData.pricing.reason} />
+
+                  {hasOrderLevelChange && orderData.pricing?.reason && (
+                    <div className="border rounded-lg p-3 bg-orange-50 border-orange-200 my-2">
+                      <p className="text-xs font-semibold text-orange-900">
+                        Reason for Change:
+                      </p>
+                      <p className="text-sm text-orange-800 mt-1">
+                        {orderData.pricing.reason}
+                      </p>
+                    </div>
                   )}
                 </>
               );
@@ -244,62 +311,143 @@ export function OrderDetailModal({
 
           {/* Order Items */}
           {orderData.items && orderData.items.length > 0 && (
-            <DetailSection title="Order Items">
-              <div className="space-y-3">
-                {orderData.items.map((item) => {
-                  const snapshot = item.after ?? item.before;
+            <DetailSection title={`Order Items (${orderData.items.length} items)`}>
+              <div className="space-y-4">
+                {orderData.items.map((item, idx) => {
+                  const before = item.before;
+                  const after = item.after;
+                  const current = after ?? before;
+                  const hasChange = item.hadChangeFromPOS && after;
+
                   return (
                     <div
                       key={item.id}
-                      className="p-3 border rounded-lg bg-muted/50"
+                      className={`p-4 border rounded-lg ${
+                        hasChange
+                          ? "bg-orange-50 border-orange-200"
+                          : "bg-muted/50"
+                      }`}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h4 className="font-medium text-sm">
-                            {item.product?.name || "Unknown Product"}
-                          </h4>
-                          {item.product?.sizeName && (
-                            <span className="text-xs text-muted-foreground">
-                              Size: {item.product.sizeName}
+                      {/* Item Header */}
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              #{idx + 1}
                             </span>
-                          )}
+                            <h4 className="font-semibold text-sm">
+                              {item.product?.name || "Unknown Product"}
+                            </h4>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {item.product?.sizeName && (
+                              <>Size: <span className="font-medium">{item.product.sizeName}</span></>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          {item.hadChangeFromPOS && (
-                            <Badge variant="outline" className="text-[10px] px-1 text-orange-600 border-orange-300">
+                        <div className="flex items-center gap-2">
+                          {hasChange && (
+                            <Badge className="bg-orange-600 text-white text-[10px]">
                               Modified
                             </Badge>
                           )}
-                          <span className="text-sm font-medium">
-                            x{snapshot?.quantity ?? 0}
+                          {current?.hasActivePromotion && (
+                            <Badge variant="outline" className="text-[10px] text-green-600 border-green-300">
+                              Promo
+                            </Badge>
+                          )}
+                          <span className="text-sm font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                            ×{current?.quantity ?? 0}
                           </span>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <span className="text-muted-foreground">Price: </span>
-                          <span>{formatCurrency(snapshot?.finalPrice ?? 0)}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Total: </span>
-                          <span className="font-medium">
-                            {formatCurrency(snapshot?.totalPrice ?? 0)}
-                          </span>
-                        </div>
-                        {(snapshot?.discountAmount ?? 0) > 0 && (
-                          <div>
-                            <span className="text-muted-foreground">Discount: </span>
-                            <span className="text-red-500">
-                              -{formatCurrency(snapshot!.discountAmount)}
-                            </span>
+
+                      {/* Pricing Details */}
+                      <div className="space-y-2">
+                        {/* Before Pricing (if changed) */}
+                        {hasChange && before && (
+                          <div className="text-xs bg-white p-2 rounded border border-dashed">
+                            <div className="text-muted-foreground font-medium mb-1">Before:</div>
+                            <div className="grid grid-cols-3 gap-2">
+                              <div>
+                                <span className="text-muted-foreground">Price: </span>
+                                <span className="line-through">
+                                  {formatCurrency(before.finalPrice)}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Qty: </span>
+                                <span className="line-through">{before.quantity}</span>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Total: </span>
+                                <span className="line-through font-medium">
+                                  {formatCurrency(before.totalPrice)}
+                                </span>
+                              </div>
+                              {before.discountAmount > 0 && (
+                                <div className="col-span-3">
+                                  <span className="text-red-500">
+                                    Discount: -{formatCurrency(before.discountAmount)}
+                                  </span>
+                                </div>
+                              )}
+                              {before.hasActivePromotion && (
+                                <div className="col-span-3 text-green-600">
+                                  {before.promotionType}: {before.promotionValue}
+                                  {before.promotionType === "PERCENTAGE" ? "%" : ""}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
-                        {item.hadChangeFromPOS && item.before && (
-                          <div className="col-span-2 text-muted-foreground">
-                            Original: {formatCurrency(item.before.finalPrice)} → {formatCurrency(snapshot?.finalPrice ?? 0)}
+
+                        {/* After/Current Pricing */}
+                        <div className="text-xs bg-white p-2 rounded">
+                          <div className="text-muted-foreground font-medium mb-1">
+                            {hasChange ? "After:" : "Price:"}
                           </div>
-                        )}
+                          <div className="grid grid-cols-3 gap-2">
+                            <div>
+                              <span className="text-muted-foreground">Price: </span>
+                              <span className={hasChange ? "font-bold text-green-600" : ""}>
+                                {formatCurrency(current?.finalPrice ?? 0)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Qty: </span>
+                              <span>{current?.quantity ?? 0}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Total: </span>
+                              <span className={`font-bold ${hasChange ? "text-green-600" : ""}`}>
+                                {formatCurrency(current?.totalPrice ?? 0)}
+                              </span>
+                            </div>
+                            {(current?.discountAmount ?? 0) > 0 && (
+                              <div className="col-span-3">
+                                <span className="text-red-500">
+                                  Discount: -{formatCurrency(current!.discountAmount)}
+                                </span>
+                              </div>
+                            )}
+                            {current?.hasActivePromotion && (
+                              <div className="col-span-3 text-green-600">
+                                {current.promotionType}: {current.promotionValue}
+                                {current.promotionType === "PERCENTAGE" ? "%" : ""}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
+
+                      {/* Change Reason */}
+                      {hasChange && item.reason && (
+                        <div className="mt-2 text-xs p-2 bg-orange-100 rounded border border-orange-200">
+                          <span className="font-medium text-orange-900">Reason: </span>
+                          <span className="text-orange-800">{item.reason}</span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -309,26 +457,48 @@ export function OrderDetailModal({
 
           {/* Status History */}
           {orderData.statusHistory && orderData.statusHistory.length > 0 && (
-            <DetailSection title="Status History">
-              <div className="space-y-2">
-                {orderData.statusHistory.map((history) => (
+            <DetailSection title={`Status History (${orderData.statusHistory.length} changes)`}>
+              <div className="space-y-3">
+                {orderData.statusHistory.map((history, idx) => (
                   <div
                     key={history.id}
-                    className="flex items-center justify-between p-2 border rounded text-xs"
+                    className="p-3 border rounded-lg bg-muted/30"
                   >
-                    <div>
-                      <Badge variant="outline" className="mr-2">
-                        {history.statusName}
-                      </Badge>
-                      {history.note && (
-                        <span className="text-muted-foreground">
-                          {history.note}
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-1 rounded">
+                          Step {idx + 1}
                         </span>
-                      )}
+                        <Badge variant="outline">
+                          {history.statusName}
+                        </Badge>
+                      </div>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {dateTimeFormat(history.changedAt)}
+                      </span>
                     </div>
-                    <span className="text-muted-foreground whitespace-nowrap">
-                      {dateTimeFormat(history.changedAt)}
-                    </span>
+                    {history.note && (
+                      <p className="text-xs text-muted-foreground mb-2">
+                        📝 {history.note}
+                      </p>
+                    )}
+                    {history.changedBy && (
+                      <div className="text-xs bg-white p-2 rounded border border-dashed">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-muted-foreground">Changed by: </span>
+                            <span className="font-medium">
+                              {history.changedBy.fullName || `${history.changedBy.firstName} ${history.changedBy.lastName}`}
+                            </span>
+                          </div>
+                          {history.changedBy.phoneNumber && (
+                            <span className="text-muted-foreground">
+                              {history.changedBy.phoneNumber}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -336,7 +506,7 @@ export function OrderDetailModal({
           )}
 
           {/* Business & System Info */}
-          <DetailSection title="System Information">
+          <DetailSection title="System & Business Information">
             <DetailRow
               label="Order ID"
               value={
@@ -346,18 +516,34 @@ export function OrderDetailModal({
               }
             />
             <DetailRow
+              label="Business ID"
+              value={
+                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
+                  {orderData.businessId}
+                </span>
+              }
+            />
+            <DetailRow
               label="Business"
               value={orderData.businessName || "---"}
             />
-            {orderData.businessNote && (
+            {orderData.customerId && (
               <DetailRow
-                label="Business Note"
-                value={orderData.businessNote}
+                label="Customer ID"
+                value={
+                  <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
+                    {orderData.customerId}
+                  </span>
+                }
               />
             )}
             <DetailRow
-              label="Last Updated"
-              value={dateTimeFormat(orderData.updatedAt ?? "")}
+              label="Created By"
+              value={orderData.createdBy || "---"}
+            />
+            <DetailRow
+              label="Updated By"
+              value={orderData.updatedBy || "---"}
               isLast
             />
           </DetailSection>
