@@ -281,8 +281,8 @@ export function OrderDetailModal({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Full Address with Google Maps Button */}
-                  <div className="flex items-end gap-3 justify-between">
-                    <div className="flex-1">
+                  <div className="space-y-3">
+                    <div>
                       <label className="text-sm font-medium text-foreground block mb-1.5">
                         Address
                       </label>
@@ -308,9 +308,9 @@ export function OrderDetailModal({
                           const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
                           window.open(mapsUrl, '_blank');
                         }}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap flex-shrink-0"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
                       >
-                        📍 Maps
+                        📍 View in Google Maps
                       </button>
                     )}
                   </div>
