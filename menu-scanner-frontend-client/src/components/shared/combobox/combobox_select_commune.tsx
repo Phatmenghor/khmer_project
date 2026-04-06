@@ -21,6 +21,7 @@ import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
+import { showToast } from "@/components/shared/common/show-toast";
 import { CommuneResponseModel } from "@/redux/features/location/store/models/response/location-response";
 import { fetchCommunesService } from "@/redux/features/location/store/thunks/public-location-thunks";
 
@@ -140,6 +141,14 @@ export function ComboboxSelectCommune({
     placeholder ??
     (!districtCode ? "Select district first" : "Select commune...");
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen && !districtCode) {
+      showToast.info("Please select a district first");
+      return;
+    }
+    setOpen(newOpen);
+  };
+
   return (
     <div className="space-y-1.5 w-full">
       {label && (
@@ -148,7 +157,7 @@ export function ComboboxSelectCommune({
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
       )}
-      <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -160,10 +169,9 @@ export function ComboboxSelectCommune({
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
               open && "bg-primary/20 border-primary text-primary",
-              error && "border-red-500",
-              (disabled || !districtCode) && "opacity-50 cursor-not-allowed"
+              error && "border-red-500"
             )}
-            disabled={disabled || !districtCode}
+            disabled={disabled}
           >
             {dataSelect ? dataSelect.communeEn : resolvedPlaceholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

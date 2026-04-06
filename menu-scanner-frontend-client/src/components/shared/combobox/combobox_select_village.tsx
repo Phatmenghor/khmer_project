@@ -21,6 +21,7 @@ import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
+import { showToast } from "@/components/shared/common/show-toast";
 import { VillageResponseModel } from "@/redux/features/location/store/models/response/location-response";
 import { fetchVillagesService } from "@/redux/features/location/store/thunks/public-location-thunks";
 
@@ -140,6 +141,14 @@ export function ComboboxSelectVillage({
     placeholder ??
     (!communeCode ? "Select commune first" : "Select village...");
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen && !communeCode) {
+      showToast.info("Please select a commune first");
+      return;
+    }
+    setOpen(newOpen);
+  };
+
   return (
     <div className="space-y-1.5 w-full">
       {label && (
@@ -151,7 +160,7 @@ export function ComboboxSelectVillage({
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
       )}
-      <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -163,10 +172,9 @@ export function ComboboxSelectVillage({
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
               open && "bg-primary/20 border-primary text-primary",
-              error && "border-red-500",
-              (disabled || !communeCode) && "opacity-50 cursor-not-allowed"
+              error && "border-red-500"
             )}
-            disabled={disabled || !communeCode}
+            disabled={disabled}
           >
             {dataSelect ? dataSelect.villageEn : resolvedPlaceholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
