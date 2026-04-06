@@ -158,22 +158,54 @@ export const orderAdminTableColumns = ({
       label: "Status",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (order) => (
-        <Badge variant={getStatusVariant(order?.orderStatus)}>
-          {getOrderStatusLabel(order?.orderStatus)}
-        </Badge>
-      ),
+      render: (order) => {
+        const getStatusColor = (status: string) => {
+          switch (status) {
+            case "COMPLETED":
+            case "READY":
+              return "text-green-600 font-medium";
+            case "CANCELLED":
+            case "FAILED":
+              return "text-red-600 font-medium";
+            case "PENDING":
+            case "PREPARING":
+              return "text-blue-600 font-medium";
+            default:
+              return "text-gray-600 font-medium";
+          }
+        };
+        return (
+          <span className={`text-xs ${getStatusColor(order?.orderStatus)}`}>
+            {getOrderStatusLabel(order?.orderStatus)}
+          </span>
+        );
+      },
     },
     {
       key: "paymentStatus",
       label: "Payment",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (order) => (
-        <Badge variant={getPaymentVariant(order?.payment?.paymentStatus)}>
-          {order?.payment?.paymentStatus || "---"}
-        </Badge>
-      ),
+      render: (order) => {
+        const getPaymentColor = (status: string) => {
+          switch (status) {
+            case "PAID":
+              return "text-green-600 font-medium";
+            case "UNPAID":
+            case "PENDING":
+              return "text-orange-600 font-medium";
+            case "REFUNDED":
+              return "text-red-600 font-medium";
+            default:
+              return "text-gray-600 font-medium";
+          }
+        };
+        return (
+          <span className={`text-xs ${getPaymentColor(order?.payment?.paymentStatus)}`}>
+            {order?.payment?.paymentStatus || "---"}
+          </span>
+        );
+      },
     },
     {
       key: "deliveryOption",

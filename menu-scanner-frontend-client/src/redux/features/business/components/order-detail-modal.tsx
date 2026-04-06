@@ -83,17 +83,23 @@ export function OrderDetailModal({
             <DetailRow
               label="Order Type"
               value={
-                <Badge variant={orderData.orderFrom === "CUSTOMER" ? "outline" : "secondary"}>
+                <span className="text-sm font-medium">
                   {orderData.orderFrom === "CUSTOMER" ? "🛒 Customer (Public)" : "🏪 Business (POS)"}
-                </Badge>
+                </span>
               }
             />
             <DetailRow
               label="Status"
               value={
-                <Badge variant={getStatusVariant(orderData.orderStatus)}>
+                <span className={`text-sm font-medium ${
+                  orderData.orderStatus === "COMPLETED" || orderData.orderStatus === "READY"
+                    ? "text-green-600"
+                    : orderData.orderStatus === "CANCELLED" || orderData.orderStatus === "FAILED"
+                    ? "text-red-600"
+                    : "text-blue-600"
+                }`}>
                   {getOrderStatusLabel(orderData.orderStatus)}
-                </Badge>
+                </span>
               }
             />
             <DetailRow
@@ -249,16 +255,17 @@ export function OrderDetailModal({
             <DetailRow
               label="Payment Status"
               value={
-                <Badge
-                  variant={
-                    orderData.payment?.paymentStatus === "PAID"
-                      ? "default"
-                      : "secondary"
-                  }
-                >
+                <span className={`text-sm font-medium ${
+                  orderData.payment?.paymentStatus === "PAID"
+                    ? "text-green-600"
+                    : orderData.payment?.paymentStatus === "PENDING" || orderData.payment?.paymentStatus === "UNPAID"
+                    ? "text-orange-600"
+                    : "text-red-600"
+                }`}>
                   {orderData.payment?.paymentStatus || "---"}
-                </Badge>
+                </span>
               }
+              isLast
             />
           </DetailSection>
 
