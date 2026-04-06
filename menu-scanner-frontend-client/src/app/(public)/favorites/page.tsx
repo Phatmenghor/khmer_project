@@ -52,14 +52,12 @@ export default function FavoritesPage() {
 
   // Load more handler
   const handleLoadMore = useCallback(() => {
-    console.log("handleLoadMore called - hasMore:", pagination.hasMore, "loading:", loading.fetch, "items:", items.length);
     if (
       pagination.hasMore &&
       !loading.fetch &&
       items.length > 0
     ) {
       const nextPage = pagination.currentPage + 1;
-      console.log("Fetching page:", nextPage);
       dispatch(fetchFavoritePaginated({ pageNo: nextPage, pageSize }));
     }
   }, [dispatch, pagination.hasMore, pagination.currentPage, loading.fetch, items.length, pageSize]);
@@ -84,7 +82,6 @@ export default function FavoritesPage() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          console.log("Sentinel intersecting, calling load more");
           debouncedLoadMore();
         }
       },
