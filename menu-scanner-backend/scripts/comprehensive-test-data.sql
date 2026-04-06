@@ -239,9 +239,9 @@ INSERT INTO business_settings (id, version, created_at, updated_at, created_by, 
 
 -- Initialize order counters for businesses (per-business sequences with migration V3)
 -- Must be after businesses table is populated due to foreign key constraint
-INSERT INTO order_counters (business_id, counter_date, counter_value) VALUES
-('550cad56-cafd-4aba-baef-c4dcd53940d0', CURRENT_DATE, 200),
-('550cad56-cafd-4aba-baef-c4dcd53940d1', CURRENT_DATE, 0);
+INSERT INTO order_counters (id, business_id, counter_date, counter_value) VALUES
+(gen_random_uuid(), '550cad56-cafd-4aba-baef-c4dcd53940d0', CURRENT_DATE, 200),
+(gen_random_uuid(), '550cad56-cafd-4aba-baef-c4dcd53940d1', CURRENT_DATE, 0);
 
 -- ============================================================================
 -- 6. BANNERS (18 items)
