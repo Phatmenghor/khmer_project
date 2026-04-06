@@ -200,6 +200,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   // Map refs
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const fullscreenMapContainerRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const fullscreenSearchRef = useRef<HTMLInputElement>(null);
@@ -219,7 +220,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const [geocodedCoords, setGeocodedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geocodeSuccess, setGeocodeSuccess] = useState(false);
 
-  const { control, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<LocationFormData>({
+  const { control, handleSubmit, reset, setValue, watch, getValues, formState: { errors, isDirty } } = useForm<LocationFormData>({
     resolver: zodResolver(createLocationSchema) as any,
     defaultValues: {
       label: "", latitude: 0, longitude: 0,
@@ -382,37 +383,60 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       zoomControl: isFullScreen,
     });
 
-    if (isFullScreen) {
+    if (isFullScreen && fullscreenMapContainerRef.current) {
       setIsFullScreenMapReady(false);
-      // For fullscreen, do multiple resizes to ensure proper rendering
-      const t1 = setTimeout(() => {
-        google.maps.event.trigger(map, "resize");
-      }, 100);
-      const t2 = setTimeout(() => {
-        google.maps.event.trigger(map, "resize");
-        const c = map.getCenter();
-        if (c) map.setCenter(c);
-      }, 300);
-      const t3 = setTimeout(() => {
-        google.maps.event.trigger(map, "resize");
-        const c = map.getCenter();
-        if (c) map.setCenter(c);
+      // Get current center and zoom from modal map
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+
+      // Reinitialize map in fullscreen container
+      const fullscreenMap = new google.maps.Map(fullscreenMapContainerRef.current, {
+        center: center || { lat: 11.5564, lng: 104.9282 },
+        zoom: zoom || 15,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: true,
+        gestureHandling: "greedy",
+      });
+
+      // Add same listeners to fullscreen map
+      fullscreenMap.addListener("dragstart", () => setIsDragging(true));
+      fullscreenMap.addListener("dragend", () => {
+        const c = fullscreenMap.getCenter();
+        if (!c) return;
+        const lat = c.lat();
+        const lng = c.lng();
+        setValueRef.current("latitude", lat, { shouldDirty: true });
+        setValueRef.current("longitude", lng, { shouldDirty: true });
+        setIsDragging(false);
+        if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+        geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 400);
+      });
+
+      googleMapRef.current = fullscreenMap;
+
+      // Trigger resize and setup autocomplete after DOM is ready
+      const t = setTimeout(() => {
+        google.maps.event.trigger(fullscreenMap, "resize");
+        if (center) fullscreenMap.setCenter(center);
         setIsFullScreenMapReady(true);
         if (fullscreenSearchRef.current && google.maps.places) {
           setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
         }
-      }, 600);
-      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-    } else {
-      setIsFullScreenMapReady(false);
-      const t = setTimeout(() => {
-        google.maps.event.trigger(map, "resize");
-        const c = map.getCenter();
-        if (c) map.setCenter(c);
       }, 100);
+
       return () => clearTimeout(t);
+    } else if (!isFullScreen) {
+      setIsFullScreenMapReady(false);
+      // Reinitialize modal map if it was replaced by fullscreen map
+      if (mapContainerRef.current && !googleMapRef.current) {
+        const lat = parseFloat(getValues("latitude")) || editData?.latitude || initialCoords?.lat || 11.5564;
+        const lng = parseFloat(getValues("longitude")) || editData?.longitude || initialCoords?.lng || 104.9282;
+        initMap(mapContainerRef.current, lat, lng);
+      }
     }
-  }, [isFullScreen, selectionMode, isMapReady, setupAutocomplete]);
+  }, [isFullScreen, isMapReady, setupAutocomplete, getValues, initMap, reverseGeocode, editData, initialCoords]);
 
   const handleMyLocation = useCallback(() => {
     if (!navigator.geolocation) { showToast.error("Geolocation not supported"); return; }
@@ -585,7 +609,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
             </div>
           )}
           <CenterPin isDragging={isDragging} size="h-10 w-10" />
-          <div ref={mapContainerRef} className="w-full h-full bg-white" />
+          <div ref={fullscreenMapContainerRef} className="w-full h-full bg-white" />
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm border rounded-lg px-3 py-2 shadow-lg flex items-center gap-2 text-xs">
             <MapPin className="h-3 w-3 text-red-500 shrink-0" />
             <span className="font-mono">
