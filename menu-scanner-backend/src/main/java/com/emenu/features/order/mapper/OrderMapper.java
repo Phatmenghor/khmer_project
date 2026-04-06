@@ -75,18 +75,8 @@ public interface OrderMapper {
                 // Initialize businessNote as empty (will be set later if provided)
                 .businessNote("");
 
-        // Set delivery address fields (no JSON serialization)
-        if (request.getDeliveryAddress() != null) {
-            builder.deliveryVillage(request.getDeliveryAddress().getVillage());
-            builder.deliveryCommune(request.getDeliveryAddress().getCommune());
-            builder.deliveryDistrict(request.getDeliveryAddress().getDistrict());
-            builder.deliveryProvince(request.getDeliveryAddress().getProvince());
-            builder.deliveryStreetNumber(request.getDeliveryAddress().getStreetNumber());
-            builder.deliveryHouseNumber(request.getDeliveryAddress().getHouseNumber());
-            builder.deliveryNote(request.getDeliveryAddress().getNote());
-            builder.deliveryLatitude(request.getDeliveryAddress().getLatitude());
-            builder.deliveryLongitude(request.getDeliveryAddress().getLongitude());
-        }
+        // Delivery address will be created from addressId in service layer
+        // by fetching from database - not set here
 
         // Set delivery option fields (no JSON serialization)
         if (request.getDeliveryOption() != null) {
