@@ -962,7 +962,7 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * Create delivery address snapshot by fetching location from database
-     * Includes all address details and location images
+     * Stores address details and location reference (not images - images fetched from Location entity)
      */
     private OrderDeliveryAddress createDeliveryAddressSnapshot(UUID orderId, UUID addressId) {
         try {
@@ -983,14 +983,9 @@ public class OrderServiceImpl implements OrderService {
             deliveryAddress.setLatitude(location.getLatitude());
             deliveryAddress.setLongitude(location.getLongitude());
 
-            // Extract location image URLs and store in delivery address
-            if (location.getLocationImages() != null && !location.getLocationImages().isEmpty()) {
-                java.util.List<String> imageUrls = location.getLocationImages().stream()
-                        .map(img -> img.getImageUrl())
-                        .collect(java.util.stream.Collectors.toList());
-                deliveryAddress.setLocationImages(imageUrls);
-                log.debug("✅ [LOCATION IMAGES] Stored {} images for order delivery address", imageUrls.size());
-            }
+            // Store reference to location - images will be fetched from Location entity via this reference
+            deliveryAddress.setLocationId(addressId);
+            log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created with location reference: {}", addressId);
 
             return deliveryAddress;
         } catch (NotFoundException e) {
