@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -9,15 +9,12 @@ import {
   Edit2,
   Trash2,
   Star,
-  StickyNote,
-  Loader2,
+  Map,
   Crown,
-  X,
 } from "lucide-react";
 import { LocationResponseModel } from "../store/models/response/location-response";
 import {
   getLabelIcon,
-  formatLocationAddress,
   isLocationPrimary,
 } from "../utils/location-helpers";
 
@@ -63,193 +60,146 @@ export function LocationCard({
   const isPrimary = isLocationPrimary(location);
   const isSettingPrimary = settingPrimaryId === location.id;
   const theme = getLabelTheme(location.label);
-  const images = location.locationImages ?? [];
-  const [lightbox, setLightbox] = useState<string | null>(null);
+  const hasCoordinates = location.hasCoordinates && location.latitude && location.longitude;
+
+  // Google Maps URL
+  const googleMapsUrl = hasCoordinates
+    ? `https://www.google.com/maps/search/${location.latitude},${location.longitude}`
+    : null;
+
+  const handleViewMap = () => {
+    if (googleMapsUrl) {
+      window.open(googleMapsUrl, "_blank");
+    }
+  };
 
   return (
-    <>
-      {/* Lightbox */}
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-[300] bg-black/85 flex items-center justify-center"
-          onClick={() => setLightbox(null)}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={lightbox}
-            alt="Location"
-            className="max-w-[90vw] max-h-[85vh] object-contain rounded-xl shadow-2xl"
-          />
-          <button
-            type="button"
-            onClick={() => setLightbox(null)}
-            className="absolute top-4 right-4 rounded-full bg-white/20 text-white p-2 hover:bg-white/40 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <div
+      className={cn(
+        "group relative rounded-xl border bg-background overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md",
+        isPrimary
+          ? "border-amber-300/70 dark:border-amber-700/50"
+          : "border-border"
       )}
-
-      {/* Card */}
+    >
+      {/* Left accent strip */}
       <div
         className={cn(
-          "group relative rounded-xl border bg-background overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md",
+          "absolute left-0 top-0 bottom-0 w-1 rounded-l-xl",
           isPrimary
-            ? "border-amber-300/70 dark:border-amber-700/50"
-            : "border-border"
+            ? "bg-gradient-to-b from-amber-400 to-amber-500"
+            : theme
+            ? theme.accent
+            : "bg-primary/40"
         )}
-      >
-        {/* Left accent strip */}
-        <div
-          className={cn(
-            "absolute left-0 top-0 bottom-0 w-1 rounded-l-xl",
-            isPrimary
-              ? "bg-gradient-to-b from-amber-400 to-amber-500"
-              : theme
-              ? theme.accent
-              : "bg-primary/40"
-          )}
-        />
+      />
 
-        <div className="pl-4 pr-3 py-3">
-          {/* ── Main row: icon + content + action buttons ── */}
-          <div className="flex items-start gap-2.5">
-            {/* Icon bubble */}
-            <div
-              className={cn(
-                "p-2 rounded-lg shrink-0 mt-0.5",
-                isPrimary
-                  ? "bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
-                  : theme
-                  ? `${theme.iconBg} ${theme.text}`
-                  : "bg-primary/10 text-primary"
-              )}
-            >
-              <LabelIcon className="h-4 w-4" />
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              {/* Label + Primary badge */}
-              <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                <span
-                  className={cn(
-                    "text-sm font-semibold leading-tight",
-                    isPrimary
-                      ? "text-amber-700 dark:text-amber-400"
-                      : "text-foreground"
-                  )}
-                >
-                  {location.label || "Location"}
-                </span>
-                {isPrimary && (
-                  <Badge className="h-4 px-1.5 text-[10px] font-bold tracking-wide bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700/50 shrink-0">
-                    <Crown className="h-2.5 w-2.5 mr-0.5" />
-                    Primary
-                  </Badge>
-                )}
-              </div>
-
-              {/* Address */}
-              <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                {formatLocationAddress(location)}
-              </p>
-
-              {/* Coords + Note — inline */}
-              {(location.hasCoordinates || location.note) && (
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
-                  {location.hasCoordinates && (
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-red-400 shrink-0" />
-                      <span className="text-[11px] font-mono text-muted-foreground/70">
-                        {(location.latitude || 0).toFixed(4)},{" "}
-                        {(location.longitude || 0).toFixed(4)}
-                      </span>
-                    </div>
-                  )}
-                  {location.note && (
-                    <div className="flex items-center gap-1 max-w-[200px]">
-                      <StickyNote className="h-3 w-3 text-muted-foreground/60 shrink-0" />
-                      <span className="text-[11px] text-muted-foreground italic truncate">
-                        {location.note}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Edit + Delete icon buttons */}
-            <div className="flex items-center gap-0.5 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg"
-                onClick={() => onEdit(location)}
-                title="Edit"
-              >
-                <Edit2 className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
-                onClick={() => onDelete(location)}
-                title="Delete"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+      <div className="pl-4 pr-3 py-4">
+        {/* Main row: icon + label + isDefault + actions */}
+        <div className="flex items-start gap-3">
+          {/* Icon bubble */}
+          <div
+            className={cn(
+              "p-2 rounded-lg shrink-0 mt-0.5",
+              isPrimary
+                ? "bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
+                : theme
+                ? `${theme.iconBg} ${theme.text}`
+                : "bg-primary/10 text-primary"
+            )}
+          >
+            <LabelIcon className="h-4 w-4" />
           </div>
 
-          {/* ── Image thumbnails ── */}
-          {images.length > 0 && (
-            <div className="mt-2 ml-[38px] flex gap-1.5">
-              {images.slice(0, 5).map((img, idx) => (
-                <div
-                  key={idx}
-                  className="relative h-10 w-10 rounded-lg overflow-hidden border border-border/50 cursor-pointer hover:opacity-75 hover:scale-105 transition-all duration-150 shadow-sm"
-                  onClick={() => setLightbox(img.imageUrl)}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.imageUrl} alt="" className="w-full h-full object-cover" />
-                  {idx === 4 && images.length > 5 && (
-                    <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
-                      <span className="text-white text-[10px] font-bold">+{images.length - 5}</span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* ── Set as Primary button OR primary indicator ── */}
-          <div className="mt-2.5 ml-[38px]">
-            {!isPrimary ? (
-              <Button
-                size="sm"
-                className="h-7 text-xs gap-1.5 bg-amber-500 hover:bg-amber-600 text-white shadow-sm border-0 rounded-lg"
-                onClick={() => onSetPrimary(location)}
-                disabled={isSettingPrimary}
-              >
-                {isSettingPrimary ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <Star className="h-3 w-3" />
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            {/* Label row */}
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span
+                className={cn(
+                  "text-sm font-semibold leading-tight",
+                  isPrimary
+                    ? "text-amber-700 dark:text-amber-400"
+                    : "text-foreground"
                 )}
-                {isSettingPrimary ? "Setting..." : "Set as Primary"}
-              </Button>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
-                <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                  Default delivery address
-                </span>
-              </div>
+              >
+                {location.label || "Location"}
+              </span>
+              {isPrimary && (
+                <Badge className="h-5 px-2 text-[10px] font-bold tracking-wide bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700/50 shrink-0 flex items-center gap-1">
+                  <Crown className="h-3 w-3" />
+                  Default
+                </Badge>
+              )}
+            </div>
+
+            {/* Full Address - Clickable if has coordinates */}
+            <button
+              onClick={handleViewMap}
+              disabled={!hasCoordinates}
+              className={cn(
+                "text-left w-full transition-colors",
+                hasCoordinates && "hover:text-primary cursor-pointer",
+                !hasCoordinates && "cursor-default"
+              )}
+              title={hasCoordinates ? "Click to view on Google Maps" : ""}
+            >
+              <p className="text-sm font-medium text-foreground line-clamp-2">
+                {location.fullAddress || "No address provided"}
+              </p>
+            </button>
+
+            {/* View Map button - Only show if has coordinates */}
+            {hasCoordinates && (
+              <button
+                onClick={handleViewMap}
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                <Map className="h-3.5 w-3.5" />
+                View on Map
+              </button>
             )}
           </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-0.5 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg"
+              onClick={() => onEdit(location)}
+              title="Edit"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
+              onClick={() => onDelete(location)}
+              title="Delete"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
+
+        {/* Set as Primary button */}
+        {!isPrimary && (
+          <div className="mt-3 ml-[38px]">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs gap-1.5 rounded-lg border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-700/50 dark:text-amber-400 dark:hover:bg-amber-950/30"
+              onClick={() => onSetPrimary(location)}
+              disabled={isSettingPrimary}
+            >
+              <Star className="h-3 w-3" />
+              {isSettingPrimary ? "Setting..." : "Set as Default"}
+            </Button>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
