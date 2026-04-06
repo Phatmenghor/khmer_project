@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, Trash2, LogIn, CheckCircle2 } from "lucide-react";
+import { Heart, ShoppingCart, Trash2, LogIn, CheckCircle2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
@@ -31,6 +31,7 @@ export default function FavoritesPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [clearAllModalOpen, setClearAllModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [skeletonCount, setSkeletonCount] = useState(6);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -39,6 +40,23 @@ export default function FavoritesPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Calculate responsive skeleton count based on screen width
+  const calculateSkeletonCount = useCallback(() => {
+    const width = window.innerWidth;
+    if (width < 640) setSkeletonCount(2);
+    else if (width < 768) setSkeletonCount(3);
+    else if (width < 1024) setSkeletonCount(4);
+    else if (width < 1280) setSkeletonCount(5);
+    else setSkeletonCount(6);
+  }, []);
+
+  // Handle window resize for skeleton count
+  useEffect(() => {
+    calculateSkeletonCount();
+    window.addEventListener("resize", calculateSkeletonCount);
+    return () => window.removeEventListener("resize", calculateSkeletonCount);
+  }, [calculateSkeletonCount]);
 
   // Fixed page size of 15 for favorites
   const pageSize = 15;
@@ -249,11 +267,21 @@ export default function FavoritesPage() {
 
       {/* Skeleton loaders ALWAYS show while hasMore: true */}
       {pagination.hasMore && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mt-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <ProductCardSkeleton key={`skeleton-${i}`} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mt-6">
+            {Array.from({ length: skeletonCount }).map((_, i) => (
+              <ProductCardSkeleton key={`skeleton-${i}`} />
+            ))}
+          </div>
+
+          {/* Loading spinner */}
+          <div className="flex flex-col items-center justify-center mt-6 py-6">
+            <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Loading more favorites...
+            </p>
+          </div>
+        </>
       )}
 
       {/* Sentinel element for scroll detection */}

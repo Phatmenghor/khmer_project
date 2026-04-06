@@ -127,10 +127,27 @@ export default function CartPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [clearCartModalOpen, setClearCartModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [skeletonCount, setSkeletonCount] = useState(2);
   const observerRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
 
   useEffect(() => setMounted(true), []);
+
+  // Calculate responsive skeleton count for cart (fewer items in one column)
+  const calculateSkeletonCount = useMemo(() => {
+    return () => {
+      const width = window.innerWidth;
+      if (width < 1024) setSkeletonCount(1);
+      else setSkeletonCount(2);
+    };
+  }, []);
+
+  // Handle window resize for skeleton count
+  useEffect(() => {
+    calculateSkeletonCount();
+    window.addEventListener("resize", calculateSkeletonCount);
+    return () => window.removeEventListener("resize", calculateSkeletonCount);
+  }, [calculateSkeletonCount]);
 
   // Calculate responsive page size
   const getPageSize = useMemo(() => {
@@ -294,6 +311,27 @@ export default function CartPage() {
               />
             );
             })}
+
+            {/* Skeleton loaders ALWAYS show while hasMore: true */}
+            {pagination.hasMore && (
+              <div className="col-span-full space-y-3 mt-6">
+                {Array.from({ length: skeletonCount }).map((_, i) => (
+                  <div key={`skeleton-${i}`} className="bg-card border rounded-2xl p-3 sm:p-4">
+                    <div className="flex gap-3">
+                      <Skeleton className="w-[72px] h-[72px] rounded-xl flex-shrink-0" />
+                      <div className="flex-1 space-y-3">
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <div className="flex gap-2">
+                          <Skeleton className="h-8 w-24" />
+                          <Skeleton className="h-8 w-20" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Loading spinner ALWAYS show while hasMore: true */}
             {pagination.hasMore && (

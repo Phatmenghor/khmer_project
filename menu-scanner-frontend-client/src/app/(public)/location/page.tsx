@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useCallback, useRef, useMemo } from "react";
+import React, { useEffect, useCallback, useRef, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, Plus, CheckCircle2 } from "lucide-react";
+import { MapPin, Plus, CheckCircle2, Loader2 } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -43,9 +43,25 @@ export default function LocationPage() {
     lat: number;
     lng: number;
   } | null>(null);
+  const [skeletonCount, setSkeletonCount] = useState(3);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Calculate responsive skeleton count based on screen width
+  const calculateSkeletonCount = useCallback(() => {
+    const width = window.innerWidth;
+    if (width < 768) setSkeletonCount(1);
+    else if (width < 1024) setSkeletonCount(2);
+    else setSkeletonCount(3);
+  }, []);
+
+  // Handle window resize for skeleton count
+  useEffect(() => {
+    calculateSkeletonCount();
+    window.addEventListener("resize", calculateSkeletonCount);
+    return () => window.removeEventListener("resize", calculateSkeletonCount);
+  }, [calculateSkeletonCount]);
 
   // Calculate responsive page size
   const getPageSize = useMemo(() => {
@@ -246,11 +262,21 @@ export default function LocationPage() {
 
       {/* Skeleton loaders ALWAYS show while hasMore: true */}
       {locationPagination.hasMore && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-48 rounded-2xl" />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {Array.from({ length: skeletonCount }).map((i) => (
+              <Skeleton key={i} className="h-48 rounded-2xl" />
+            ))}
+          </div>
+
+          {/* Loading spinner */}
+          <div className="flex flex-col items-center justify-center mt-6 py-6">
+            <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Loading more locations...
+            </p>
+          </div>
+        </>
       )}
 
       {/* Sentinel element for scroll detection */}
