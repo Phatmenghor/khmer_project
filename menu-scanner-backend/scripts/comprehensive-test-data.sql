@@ -28,10 +28,10 @@ BEGIN;
 ALTER TABLE order_counters ADD COLUMN id_new UUID;
 UPDATE order_counters SET id_new = gen_random_uuid();
 ALTER TABLE order_counters ALTER COLUMN id_new SET NOT NULL;
-ALTER TABLE order_counters DROP CONSTRAINT pk_order_counters;
+ALTER TABLE order_counters DROP CONSTRAINT order_counters_pkey;
 ALTER TABLE order_counters DROP COLUMN id;
 ALTER TABLE order_counters RENAME COLUMN id_new TO id;
-ALTER TABLE order_counters ADD CONSTRAINT pk_order_counters PRIMARY KEY (id);
+ALTER TABLE order_counters ADD CONSTRAINT order_counters_pkey PRIMARY KEY (id);
 ALTER TABLE order_counters ADD CONSTRAINT uk_order_counter_date UNIQUE (counter_date);
 COMMIT;
 
