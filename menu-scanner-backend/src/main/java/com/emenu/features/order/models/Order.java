@@ -64,6 +64,16 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "order_from", nullable = false, length = 20)
     private OrderFromEnum orderFrom = OrderFromEnum.CUSTOMER;
 
+    // Customer contact info - captured at checkout time
+    @Column(name = "customer_name")
+    private String customerName;
+
+    @Column(name = "customer_phone")
+    private String customerPhone;
+
+    @Column(name = "customer_email")
+    private String customerEmail;
+
     @Column(name = "customer_note", columnDefinition = "TEXT")
     private String customerNote;
 

@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -51,4 +53,8 @@ public class OrderDeliveryAddress extends BaseUUIDEntity {
 
     @Column(name = "longitude", precision = 11, scale = 8)
     private BigDecimal longitude;
+
+    // Location images from address at checkout time
+    @Column(name = "location_images", columnDefinition = "jsonb")
+    private List<String> locationImages = new ArrayList<>();
 }

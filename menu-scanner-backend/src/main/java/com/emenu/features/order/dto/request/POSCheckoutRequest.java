@@ -36,11 +36,11 @@ public class POSCheckoutRequest {
     private UUID customerId;
     private String customerName;
     private String customerPhone;
+    private String customerEmail;
 
-    // Delivery address
-    @NotNull(message = "Delivery address is required")
-    @Valid
-    private POSCheckoutAddressRequest deliveryAddress;
+    // Delivery address - use ID to fetch from database
+    @NotNull(message = "Address ID is required")
+    private UUID addressId;
 
     // Delivery option (full object with price, not just ID)
     @Valid
