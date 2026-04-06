@@ -280,42 +280,29 @@ export function OrderDetailModal({
                   <CardTitle className="text-base">Delivery Address</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Full Address */}
+                  <DisplayField
+                    label="Address"
+                    value={(() => {
+                      const parts = [
+                        orderData.deliveryAddress.houseNumber,
+                        orderData.deliveryAddress.streetNumber,
+                        orderData.deliveryAddress.village,
+                        orderData.deliveryAddress.commune,
+                        orderData.deliveryAddress.district,
+                        orderData.deliveryAddress.province,
+                      ].filter(Boolean);
+                      return parts.length > 0 ? parts.join(", ") : "---";
+                    })()}
+                  />
+
+                  {/* Delivery Note */}
+                  {orderData.deliveryAddress.note && (
                     <DisplayField
-                      label="Province"
-                      value={orderData.deliveryAddress.province || "---"}
+                      label="Delivery Note"
+                      value={orderData.deliveryAddress.note}
                     />
-                    <DisplayField
-                      label="District"
-                      value={orderData.deliveryAddress.district || "---"}
-                    />
-                    <DisplayField
-                      label="Commune"
-                      value={orderData.deliveryAddress.commune || "---"}
-                    />
-                    <DisplayField
-                      label="Village"
-                      value={orderData.deliveryAddress.village || "---"}
-                    />
-                    {orderData.deliveryAddress.streetNumber && (
-                      <DisplayField
-                        label="Street Number"
-                        value={orderData.deliveryAddress.streetNumber}
-                      />
-                    )}
-                    {orderData.deliveryAddress.houseNumber && (
-                      <DisplayField
-                        label="House Number"
-                        value={orderData.deliveryAddress.houseNumber}
-                      />
-                    )}
-                    {orderData.deliveryAddress.note && (
-                      <DisplayField
-                        label="Delivery Note"
-                        value={orderData.deliveryAddress.note}
-                      />
-                    )}
-                  </div>
+                  )}
 
                   {/* View in Google Maps */}
                   {orderData.deliveryAddress.latitude && orderData.deliveryAddress.longitude && (
