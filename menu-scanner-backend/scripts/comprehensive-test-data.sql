@@ -1004,7 +1004,7 @@ SELECT
 FROM orders;
 
 -- ============================================================================
--- 26. ORDER ITEMS (3 per order = 600 items)
+-- 26. ORDER ITEMS (3-5 per order with full pricing and change tracking)
 -- ============================================================================
 
 INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date, quantity, total_price, special_instructions, had_change_from_pos, change_reason)
@@ -1015,19 +1015,32 @@ SELECT
     NULL,
     p.name,
     p.main_image_url,
-    'Medium',
+    CASE WHEN (t.item_num % 4) = 0 THEN 'Small' WHEN (t.item_num % 4) = 1 THEN 'Medium' WHEN (t.item_num % 4) = 2 THEN 'Large' ELSE 'XL' END,
     p.price,
-    CASE WHEN (t.item_num % 3) = 0 THEN ROUND(p.price * 0.9, 2) ELSE p.price END,
+    CASE WHEN (t.item_num % 5) = 0 THEN ROUND(p.price * 0.85, 2)
+         WHEN (t.item_num % 5) = 1 THEN ROUND(p.price * 0.90, 2)
+         ELSE p.price END,
     p.price,
-    true,
-    CASE WHEN (t.item_num % 3) = 0 THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END,
-    CASE WHEN (t.item_num % 3) = 0 THEN 10 ELSE 2 END,
-    NOW(), NOW() + INTERVAL '30 days',
-    2,
-    CASE WHEN (t.item_num % 3) = 0 THEN ROUND(p.price * 0.9 * 2, 2) ELSE ROUND(p.price * 2, 2) END,
-    'Special notes', false, 'No changes'
+    CASE WHEN (t.item_num % 5) < 3 THEN true ELSE false END,
+    CASE WHEN (t.item_num % 5) = 0 THEN 'PERCENTAGE' WHEN (t.item_num % 5) = 1 THEN 'FIXED_AMOUNT' ELSE NULL END,
+    CASE WHEN (t.item_num % 5) = 0 THEN 15 WHEN (t.item_num % 5) = 1 THEN 5 ELSE 0 END,
+    NOW() - INTERVAL '5 days', NOW() + INTERVAL '25 days',
+    CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END,
+    CASE WHEN (t.item_num % 5) = 0 THEN ROUND(p.price * 0.85 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2)
+         WHEN (t.item_num % 5) = 1 THEN ROUND(p.price * 0.90 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2)
+         ELSE ROUND(p.price * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2) END,
+    'Special preparation instructions: ' || CASE WHEN (t.item_num % 4) = 0 THEN 'No onions, extra spicy'
+                                                   WHEN (t.item_num % 4) = 1 THEN 'Light salt, no MSG'
+                                                   WHEN (t.item_num % 4) = 2 THEN 'Well done, extra sauce'
+                                                   ELSE 'Quick service requested' END,
+    CASE WHEN (o.rn % 5) = 0 AND (t.item_num % 2) = 0 THEN true ELSE false END,
+    CASE WHEN (o.rn % 5) = 0 AND (t.item_num % 2) = 0 THEN
+         CASE WHEN (t.item_num % 3) = 0 THEN 'Out of stock, substituted with similar item'
+              WHEN (t.item_num % 3) = 1 THEN 'Price adjustment from promotion'
+              ELSE 'Customer requested change after ordering' END
+    ELSE NULL END
 FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY id) as rn FROM orders) o
-CROSS JOIN (SELECT 1 as item_num UNION SELECT 2 UNION SELECT 3) t
+CROSS JOIN (SELECT 1 as item_num UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) t
 JOIN LATERAL (
     SELECT id, name, main_image_url, price
     FROM products
@@ -1037,27 +1050,80 @@ JOIN LATERAL (
 ) p ON true;
 
 -- ============================================================================
--- 27. ORDER ITEM PRICING SNAPSHOTS
+-- 27. ORDER ITEM PRICING SNAPSHOTS (before and after pricing for POS changes)
 -- ============================================================================
 
 INSERT INTO order_item_pricing_snapshots (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_item_id, before_current_price, before_final_price, before_has_active_promotion, before_discount_amount, before_total_price, before_promotion_type, before_promotion_value, before_promotion_from_date, before_promotion_to_date, after_current_price, after_final_price, after_has_active_promotion, after_discount_amount, after_total_price, after_promotion_type, after_promotion_value, after_promotion_from_date, after_promotion_to_date)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
-    id, current_price, final_price, has_promotion, (current_price - final_price)::numeric, total_price,
-    CASE WHEN has_promotion THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN has_promotion THEN 10 ELSE 0 END, NOW(), NOW() + INTERVAL '30 days',
-    current_price, final_price, has_promotion, (current_price - final_price)::numeric, total_price,
-    CASE WHEN has_promotion THEN 'PERCENTAGE' ELSE NULL END, CASE WHEN has_promotion THEN 10 ELSE 0 END, NOW(), NOW() + INTERVAL '30 days'
+    oi.id,
+    -- BEFORE pricing (original order)
+    oi.current_price,
+    oi.final_price,
+    oi.has_promotion,
+    ROUND((oi.current_price - oi.final_price)::numeric, 2),
+    oi.total_price,
+    oi.promotion_type,
+    oi.promotion_value,
+    oi.promotion_from_date,
+    oi.promotion_to_date,
+    -- AFTER pricing (for items with POS changes)
+    CASE WHEN oi.had_change_from_pos THEN ROUND(oi.current_price * 1.1, 2) ELSE oi.current_price END,
+    CASE WHEN oi.had_change_from_pos THEN ROUND(oi.final_price * 1.1, 2) ELSE oi.final_price END,
+    CASE WHEN oi.had_change_from_pos THEN false ELSE oi.has_promotion END,
+    CASE WHEN oi.had_change_from_pos THEN 0 ELSE ROUND((oi.current_price - oi.final_price)::numeric, 2) END,
+    CASE WHEN oi.had_change_from_pos THEN ROUND(ROUND(oi.current_price * 1.1, 2) * oi.quantity, 2) ELSE oi.total_price END,
+    CASE WHEN oi.had_change_from_pos THEN NULL ELSE oi.promotion_type END,
+    CASE WHEN oi.had_change_from_pos THEN 0 ELSE oi.promotion_value END,
+    CASE WHEN oi.had_change_from_pos THEN NOW() ELSE oi.promotion_from_date END,
+    CASE WHEN oi.had_change_from_pos THEN NOW() ELSE oi.promotion_to_date END
 FROM order_items;
 
 -- ============================================================================
--- 28. ORDER STATUS HISTORY
+-- 28. ORDER STATUS HISTORY (4-30 entries per order with full progression)
 -- ============================================================================
 
 INSERT INTO order_status_history (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, order_status, changed_by_user_id, changed_by_name, note)
+WITH status_sequence AS (
+  SELECT o.id as order_id,
+         o.created_at,
+         o.order_status,
+         o.rn,
+         CASE WHEN (o.rn % 3) = 0 THEN ARRAY['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED']
+              WHEN (o.rn % 3) = 1 THEN ARRAY['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'PICKED_UP']
+              ELSE ARRAY['PENDING', 'CONFIRMED', 'CANCELLED'] END as status_flow,
+         CASE WHEN (o.rn % 3) = 0 THEN 5
+              WHEN (o.rn % 3) = 1 THEN 5
+              ELSE 3 END as flow_length
+  FROM (SELECT id, created_at, order_status, ROW_NUMBER() OVER (ORDER BY id) as rn FROM orders) o
+),
+expanded_statuses AS (
+  SELECT order_id, created_at, order_status, rn, flow_length, status_flow,
+         generate_subscripts(status_flow, 1) as status_idx
+  FROM status_sequence
+)
 SELECT
-    gen_random_uuid(), 0, created_at, created_at, 'system', 'system', false, NULL, NULL,
-    id, order_status, '550e8400-e29b-41d4-a716-446655550001', 'Admin', 'Status: ' || order_status
-FROM orders;
+    gen_random_uuid(), 0,
+    created_at + (status_idx - 1) * INTERVAL '2 hours' + (rn % 30) * INTERVAL '5 minutes',
+    created_at + (status_idx - 1) * INTERVAL '2 hours' + (rn % 30) * INTERVAL '5 minutes',
+    'system', 'system', false, NULL, NULL,
+    order_id,
+    status_flow[status_idx],
+    CASE WHEN (rn % 5) = 0 THEN '550e8400-e29b-41d4-a716-446655550001'
+         WHEN (rn % 5) = 1 THEN '550e8400-e29b-41d4-a716-446655550000'
+         ELSE 'system'::uuid END,
+    CASE WHEN (rn % 5) = 0 THEN 'Admin User'
+         WHEN (rn % 5) = 1 THEN 'Platform Admin'
+         ELSE 'System' END,
+    CASE WHEN status_flow[status_idx] = 'PENDING' THEN 'Order received and awaiting confirmation'
+         WHEN status_flow[status_idx] = 'CONFIRMED' THEN 'Order confirmed by restaurant/kitchen'
+         WHEN status_flow[status_idx] = 'PREPARING' THEN 'Order is being prepared in the kitchen'
+         WHEN status_flow[status_idx] = 'READY' THEN 'Order ready for pickup/delivery'
+         WHEN status_flow[status_idx] = 'DELIVERED' THEN 'Order successfully delivered to customer'
+         WHEN status_flow[status_idx] = 'PICKED_UP' THEN 'Order picked up by customer'
+         WHEN status_flow[status_idx] = 'CANCELLED' THEN 'Order cancelled by customer request'
+         ELSE 'Status changed: ' || status_flow[status_idx] END
+FROM expanded_statuses;
 
 -- ============================================================================
 -- 29. ORDER PAYMENTS
