@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   selectOrderAdminIsFetchingDetail,
   selectSelectedOrder,
+  selectOrderAdminDetailError,
 } from "../store/selectors/order-admin-selector";
 import { fetchOrderByIdAdminService } from "../store/thunks/order-admin-thunks";
 import { clearSelectedOrder } from "../store/slice/order-admin-slice";
@@ -30,6 +31,7 @@ export function OrderDetailModal({
   const dispatch = useAppDispatch();
   const isFetchingDetail = useAppSelector(selectOrderAdminIsFetchingDetail);
   const orderData = useAppSelector(selectSelectedOrder);
+  const detailError = useAppSelector(selectOrderAdminDetailError);
 
   useEffect(() => {
     if (!orderId || !isOpen) return;
@@ -60,7 +62,18 @@ export function OrderDetailModal({
         <DialogTitle className="sr-only">Order Details</DialogTitle>
         <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground">No order data available</p>
+            <div className="text-center">
+              <p className="text-muted-foreground">
+                {detailError
+                  ? `Error: ${detailError}`
+                  : "No order data available"}
+              </p>
+              {detailError && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  The order may have been deleted or you may not have permission to view it.
+                </p>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
