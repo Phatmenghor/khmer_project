@@ -346,16 +346,21 @@ const cartSlice = createSlice({
         (state, action: PayloadAction<CartResponseModel>) => {
           state.loading.paginate = false;
           const newItems = action.payload.items || [];
-          const pageSize = action.payload.totalItems || 20;
+          const pageNo = action.meta.arg.pageNo;
 
-          // Accumulate items (deduplicate by ID)
-          const existingIds = new Set(state.items.map((i) => i.id));
-          const uniqueNew = newItems.filter((i) => !existingIds.has(i.id));
-          state.items = [...state.items, ...uniqueNew];
+          // First page: replace items, subsequent pages: append
+          if (pageNo === 1) {
+            state.items = newItems;
+          } else {
+            // Accumulate items (deduplicate by ID to avoid duplicates)
+            const existingIds = new Set(state.items.map((i) => i.id));
+            const uniqueNew = newItems.filter((i) => !existingIds.has(i.id));
+            state.items = [...state.items, ...uniqueNew];
+          }
 
           // Update pagination state
           state.pagination = {
-            currentPage: action.meta.arg.pageNo,
+            currentPage: pageNo,
             pageSize: action.meta.arg.pageSize,
             hasMore: state.items.length < action.payload.totalItems,
           };

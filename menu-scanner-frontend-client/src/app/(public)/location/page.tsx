@@ -226,9 +226,11 @@ export default function LocationPage() {
 
       {/* Locations Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {locations.map((location) => (
+        {locations.map((location, index) => {
+          const uniqueKey = `location-${location.id}-${index}`;
+          return (
           <LocationCard
-            key={location.id}
+            key={uniqueKey}
             location={location}
             isPrimary={primaryLocation?.id === location.id}
             onEdit={() => handleEditLocation(location)}
@@ -238,7 +240,8 @@ export default function LocationPage() {
             currentCoords={currentCoords}
             primaryColor={primaryColor}
           />
-        ))}
+          );
+        })}
       </div>
 
       {/* Load more sentinel for infinite scroll */}

@@ -241,9 +241,10 @@ export default function FavoritesPage() {
 
       {/* Favorites Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-        {items.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        {items.map((product, index) => {
+          const uniqueKey = `favorites-${product.id}-${index}`;
+          return <ProductCard key={uniqueKey} product={product} />;
+        })}
       </div>
 
       {/* Load more sentinel for infinite scroll */}

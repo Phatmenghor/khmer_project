@@ -267,9 +267,11 @@ export default function CartPage() {
                 Showing {items.length} items with total quantity {totalQuantity}
               </div>
             )}
-            {items.map((item) => (
+            {items.map((item, index) => {
+              const uniqueKey = `cart-${item.id}-${index}`;
+              return (
               <CartItemCard
-                key={item.id}
+                key={uniqueKey}
                 id={item.id}
                 productId={item.productId}
                 productName={item.productName}
@@ -290,7 +292,8 @@ export default function CartPage() {
                 showLink={true}
                 showControls={true}
               />
-            ))}
+            );
+            })}
 
             {/* Infinite scroll observer + loading state */}
             {pagination.hasMore ? (
