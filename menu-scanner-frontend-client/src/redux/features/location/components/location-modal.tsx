@@ -18,6 +18,7 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { showToast } from "@/components/shared/common/show-toast";
+import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -448,13 +449,31 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   const onSubmit = async (data: LocationFormData) => {
     try {
+      // Upload location images if they're base64
+      const processedImages = await Promise.all(
+        (data.locationImages ?? []).map(async (img) => {
+          let imageUrl = img.imageUrl;
+          if (imageUrl && isBase64Image(imageUrl)) {
+            try {
+              imageUrl = await uploadImage(imageUrl);
+            } catch (error) {
+              console.error("Failed to upload image:", error);
+              return null;
+            }
+          }
+          return { imageUrl };
+        })
+      );
+
+      const validImages = processedImages.filter((img) => img !== null);
+
       const payload = {
         label: data.label, latitude: data.latitude, longitude: data.longitude,
         houseNumber: data.houseNumber || "", streetNumber: data.streetNumber || "",
         village: data.village || "", commune: data.commune || "",
         district: data.district || "", province: data.province || "",
         country: data.country || "", note: data.note || "",
-        isPrimary: data.isPrimary, locationImages: data.locationImages ?? [],
+        isPrimary: data.isPrimary, locationImages: validImages,
       };
       if (isCreate) { await create(payload).unwrap(); showToast.success("Location created"); }
       else { await update({ locationId: editData!.id, locationData: payload }).unwrap(); showToast.success("Location updated"); }
