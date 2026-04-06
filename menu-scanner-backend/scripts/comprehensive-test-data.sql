@@ -991,9 +991,9 @@ WITH locations_array AS (
            ARRAY_AGG(COALESCE(commune, 'Commune Default')) as communes,
            ARRAY_AGG(COALESCE(district, 'District Default')) as districts,
            ARRAY_AGG(COALESCE(province, 'Province Default')) as provinces,
-           ARRAY_AGG(COALESCE(street_number, 'Street ' || ROW_NUMBER() OVER (ORDER BY id)::text)) as street_numbers,
-           ARRAY_AGG(COALESCE(house_number, 'House ' || ROW_NUMBER() OVER (ORDER BY id)::text)) as house_numbers,
-           ARRAY_AGG(COALESCE(note, 'Delivery location ' || ROW_NUMBER() OVER (ORDER BY id)::text)) as notes,
+           ARRAY_AGG(COALESCE(street_number, 'Street 1')) as street_numbers,
+           ARRAY_AGG(COALESCE(house_number, 'House 1')) as house_numbers,
+           ARRAY_AGG(COALESCE(note, 'Delivery address')) as notes,
            ARRAY_AGG(COALESCE(latitude, 11.5564)) as latitudes,
            ARRAY_AGG(COALESCE(longitude, 104.9282)) as longitudes
     FROM customer_addresses
