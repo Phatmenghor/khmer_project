@@ -9,6 +9,7 @@ import com.emenu.features.location.dto.response.LocationResponse;
 import com.emenu.features.location.dto.update.LocationUpdateRequest;
 import com.emenu.features.location.mapper.LocationMapper;
 import com.emenu.features.location.models.Location;
+import com.emenu.features.location.models.LocationImage;
 import com.emenu.features.location.repository.LocationRepository;
 import com.emenu.features.location.service.LocationService;
 import com.emenu.security.SecurityUtils;
@@ -39,19 +40,32 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public LocationResponse createAddress(LocationCreateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
-        
+
         Location address = addressMapper.toEntity(request);
         address.setUserId(currentUser.getId());
-        
+
         // If this is set as default or no default exists, make it default
         if (request.getIsDefault() || !hasDefaultAddress(currentUser.getId())) {
             clearDefaultForUser(currentUser.getId());
             address.setAsDefault();
         }
-        
+
         Location savedAddress = addressRepository.save(address);
+
+        // Handle location images - set the location_id on each image after location is saved
+        if (request.getLocationImages() != null && !request.getLocationImages().isEmpty()) {
+            for (var imageRequest : request.getLocationImages()) {
+                var locationImage = new LocationImage();
+                locationImage.setLocationId(savedAddress.getId());
+                locationImage.setImageUrl(imageRequest.getImageUrl());
+                savedAddress.getLocationImages().add(locationImage);
+            }
+            // Save again with images
+            savedAddress = addressRepository.save(savedAddress);
+        }
+
         log.info("Address created for user: {}", currentUser.getUserIdentifier());
-        
+
         return addressMapper.toResponse(savedAddress);
     }
 
@@ -105,6 +119,20 @@ public class LocationServiceImpl implements LocationService {
 
         // Update fields from request
         addressMapper.updateEntity(request, address);
+
+        // Handle location images - set the location_id on each image
+        if (request.getLocationImages() != null && !request.getLocationImages().isEmpty()) {
+            // Clear existing images (cascade delete via JPA)
+            address.getLocationImages().clear();
+
+            // Create new LocationImage entities with proper location_id
+            for (var imageRequest : request.getLocationImages()) {
+                var locationImage = new LocationImage();
+                locationImage.setLocationId(address.getId());
+                locationImage.setImageUrl(imageRequest.getImageUrl());
+                address.getLocationImages().add(locationImage);
+            }
+        }
 
         // Handle default address logic
         if (Boolean.TRUE.equals(request.getIsDefault())) {
