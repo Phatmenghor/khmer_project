@@ -987,15 +987,15 @@ FROM generate_series(1, 100) AS t(i);
 INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude, location_id, location_images)
 WITH locations_array AS (
     SELECT ARRAY_AGG(id ORDER BY id) as location_ids,
-           ARRAY_AGG(village ORDER BY id) as villages,
-           ARRAY_AGG(commune ORDER BY id) as communes,
-           ARRAY_AGG(district ORDER BY id) as districts,
-           ARRAY_AGG(province ORDER BY id) as provinces,
-           ARRAY_AGG(street_number ORDER BY id) as street_numbers,
-           ARRAY_AGG(house_number ORDER BY id) as house_numbers,
-           ARRAY_AGG(note ORDER BY id) as notes,
-           ARRAY_AGG(latitude ORDER BY id) as latitudes,
-           ARRAY_AGG(longitude ORDER BY id) as longitudes
+           ARRAY_AGG(COALESCE(village, 'Village Default')) as villages,
+           ARRAY_AGG(COALESCE(commune, 'Commune Default')) as communes,
+           ARRAY_AGG(COALESCE(district, 'District Default')) as districts,
+           ARRAY_AGG(COALESCE(province, 'Province Default')) as provinces,
+           ARRAY_AGG(COALESCE(street_number, 'Street ' || ROW_NUMBER() OVER (ORDER BY id)::text)) as street_numbers,
+           ARRAY_AGG(COALESCE(house_number, 'House ' || ROW_NUMBER() OVER (ORDER BY id)::text)) as house_numbers,
+           ARRAY_AGG(COALESCE(note, 'Delivery location ' || ROW_NUMBER() OVER (ORDER BY id)::text)) as notes,
+           ARRAY_AGG(COALESCE(latitude, 11.5564)) as latitudes,
+           ARRAY_AGG(COALESCE(longitude, 104.9282)) as longitudes
     FROM customer_addresses
     WHERE is_deleted = false
 ),
@@ -1004,22 +1004,23 @@ orders_with_idx AS (
     FROM orders
 ),
 location_images_map AS (
-    SELECT location_id, json_agg(image_url ORDER BY created_at)::jsonb as image_urls
+    SELECT location_id,
+           COALESCE(json_agg(image_url ORDER BY created_at)::jsonb, '[]'::jsonb) as image_urls
     FROM location_images
     GROUP BY location_id
 )
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     o.id,
-    la.villages[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    la.communes[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    la.districts[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    la.provinces[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    la.street_numbers[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    la.house_numbers[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    la.notes[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    la.latitudes[((o.idx % array_length(la.location_ids, 1)) + 1)],
-    la.longitudes[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    COALESCE(la.villages[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Village Default'),
+    COALESCE(la.communes[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Commune Default'),
+    COALESCE(la.districts[((o.idx % array_length(la.location_ids, 1)) + 1)], 'District Default'),
+    COALESCE(la.provinces[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Province Default'),
+    COALESCE(la.street_numbers[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Street 1'),
+    COALESCE(la.house_numbers[((o.idx % array_length(la.location_ids, 1)) + 1)], 'House 1'),
+    COALESCE(la.notes[((o.idx % array_length(la.location_ids, 1)) + 1)], 'Delivery address'),
+    COALESCE(la.latitudes[((o.idx % array_length(la.location_ids, 1)) + 1)], 11.5564),
+    COALESCE(la.longitudes[((o.idx % array_length(la.location_ids, 1)) + 1)], 104.9282),
     la.location_ids[((o.idx % array_length(la.location_ids, 1)) + 1)],
     COALESCE(lim.image_urls, '[]'::jsonb)
 FROM orders_with_idx o

@@ -6,10 +6,19 @@
 -- Clear existing data first (optional - comment out if you want to keep existing)
 -- TRUNCATE TABLE order_delivery_addresses CASCADE;
 
--- Get all locations
+-- Get all locations with NO NULL values
 WITH location_list AS (
     SELECT
-        id, village, commune, district, province, street_number, house_number, note, latitude, longitude,
+        id,
+        COALESCE(village, 'Village Default') as village,
+        COALESCE(commune, 'Commune Default') as commune,
+        COALESCE(district, 'District Default') as district,
+        COALESCE(province, 'Province Default') as province,
+        COALESCE(street_number, 'Street 1') as street_number,
+        COALESCE(house_number, 'House 1') as house_number,
+        COALESCE(note, 'Delivery address') as note,
+        COALESCE(latitude, 11.5564) as latitude,
+        COALESCE(longitude, 104.9282) as longitude,
         ROW_NUMBER() OVER (ORDER BY id) as loc_idx
     FROM customer_addresses
     WHERE is_deleted = false
@@ -18,7 +27,7 @@ location_count AS (
     SELECT COUNT(*) as total_locations FROM location_list
 ),
 location_images_json AS (
-    SELECT location_id, json_agg(image_url ORDER BY created_at)::jsonb as images
+    SELECT location_id, COALESCE(json_agg(image_url ORDER BY created_at)::jsonb, '[]'::jsonb) as images
     FROM location_images
     GROUP BY location_id
 ),
