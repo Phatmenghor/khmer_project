@@ -1012,7 +1012,7 @@ SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     o.id,
     p.id,
-    NULL,
+    ps.id,
     p.name,
     p.main_image_url,
     CASE WHEN (t.item_num % 4) = 0 THEN 'Small' WHEN (t.item_num % 4) = 1 THEN 'Medium' WHEN (t.item_num % 4) = 2 THEN 'Large' ELSE 'XL' END,
@@ -1048,7 +1048,13 @@ JOIN LATERAL (
     WHERE status = 'ACTIVE'
     ORDER BY id
     LIMIT 1 OFFSET ((o.rn + t.item_num) % 100)
-) p ON true;
+) p ON true
+LEFT JOIN LATERAL (
+    SELECT id
+    FROM product_sizes
+    WHERE product_id = p.id AND size_name = CASE WHEN (t.item_num % 4) = 0 THEN 'Small' WHEN (t.item_num % 4) = 1 THEN 'Medium' WHEN (t.item_num % 4) = 2 THEN 'Large' ELSE 'XL' END
+    LIMIT 1
+) ps ON true;
 
 -- ============================================================================
 -- 27. ORDER ITEM PRICING SNAPSHOTS (before and after pricing for POS changes)
