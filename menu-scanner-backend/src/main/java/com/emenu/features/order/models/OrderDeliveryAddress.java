@@ -54,11 +54,16 @@ public class OrderDeliveryAddress extends BaseUUIDEntity {
     @Column(name = "longitude", precision = 11, scale = 8)
     private BigDecimal longitude;
 
-    // Reference to original Location entity for accessing locationImages
+    // Reference to original Location entity
     @Column(name = "location_id")
     private UUID locationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", insertable = false, updatable = false)
     private com.emenu.features.location.models.Location location;
+
+    // Snapshot of location images at time of order - preserves history
+    // If location images are updated later, orders still show the original images from checkout
+    @Column(name = "location_images", columnDefinition = "jsonb")
+    private List<String> locationImages = new ArrayList<>();
 }
