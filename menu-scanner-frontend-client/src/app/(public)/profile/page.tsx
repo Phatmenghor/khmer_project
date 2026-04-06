@@ -551,7 +551,6 @@ export default function PublicProfilePage() {
                 </Card>
               </div>
             )}
-          </div>
 
           {/* Change Password Modal */}
           <ChangePasswordModal
