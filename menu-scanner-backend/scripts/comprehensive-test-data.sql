@@ -1033,12 +1033,13 @@ SELECT
                                                    WHEN (t.item_num % 4) = 1 THEN 'Light salt, no MSG'
                                                    WHEN (t.item_num % 4) = 2 THEN 'Well done, extra sauce'
                                                    ELSE 'Quick service requested' END,
-    CASE WHEN (o.rn % 5) = 0 AND (t.item_num % 2) = 0 THEN true ELSE false END,
-    CASE WHEN (o.rn % 5) = 0 AND (t.item_num % 2) = 0 THEN
-         CASE WHEN (t.item_num % 3) = 0 THEN 'Out of stock, substituted with similar item'
-              WHEN (t.item_num % 3) = 1 THEN 'Price adjustment from promotion'
-              ELSE 'Customer requested change after ordering' END
-    ELSE NULL END
+    true,
+    CASE WHEN (o.rn % 6) = 0 THEN 'Out of stock, substituted with similar item'
+         WHEN (o.rn % 6) = 1 THEN 'Price adjustment from promotion applied'
+         WHEN (o.rn % 6) = 2 THEN 'Customer requested change after ordering'
+         WHEN (o.rn % 6) = 3 THEN 'Item upgraded to premium version'
+         WHEN (o.rn % 6) = 4 THEN 'Special request fulfilled with adjustment'
+         ELSE 'Kitchen recommendation - better alternative' END
 FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY id) as rn FROM orders) o
 CROSS JOIN (SELECT 1 as item_num UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) t
 JOIN LATERAL (
