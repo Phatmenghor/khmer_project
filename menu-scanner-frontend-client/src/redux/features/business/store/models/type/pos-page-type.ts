@@ -61,6 +61,10 @@ export interface PosPageCartItem {
   // Top-level quantity for UI controls (mirrors after.quantity)
   quantity: number;
 
+  // SKU and barcode for store tracking
+  sku?: string;
+  barcode?: string;
+
   // ===== AUDIT TRAIL =====
   // Before: Original pricing from product (immutable once set)
   before: ItemPricingSnapshot;

@@ -31,6 +31,8 @@ export interface CartItemModel {
   totalBeforeDiscount?: number;
   discountAmount?: number;
   lastOptimisticTimestamp?: number;
+  sku?: string;  // Product SKU from store master data
+  barcode?: string;  // Product barcode from store master data
 }
 
 // Backward compatible alias

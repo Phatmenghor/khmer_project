@@ -322,6 +322,8 @@ export default function PosPage() {
         productSizeId: size?.id || null,
         sizeName: size?.name || null,
         quantity,
+        sku: product.sku || "",
+        barcode: product.barcode || "",
         before: snapshot,
         hadChangeFromPOS: false,
         after: snapshot,
@@ -571,6 +573,9 @@ export default function PosPage() {
           totalBeforeDiscount: item.after.totalBeforeDiscount,
           discountAmount: item.after.discountAmount,
           totalPrice: item.after.totalPrice,
+          // SKU and barcode for store tracking
+          sku: item.sku || "",
+          barcode: item.barcode || "",
         })),
         totalItems: cartSummary.totalItems,
         totalQuantity: cartSummary.totalQuantity,

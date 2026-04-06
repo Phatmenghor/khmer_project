@@ -249,6 +249,8 @@ export default function CheckoutPage() {
             promotionValue: item.promotionValue || 0,
             promotionFromDate: item.promotionFromDate || new Date().toISOString(),
             promotionToDate: item.promotionToDate || new Date().toISOString(),
+            sku: item.sku || "",
+            barcode: item.barcode || "",
           })),
           totalItems: items.length,
           totalQuantity: totalQuantity,
