@@ -205,11 +205,6 @@ INSERT INTO location_village_cbc (id, version, created_at, updated_at, created_b
 INSERT INTO exchange_rates (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, usd_to_khr_rate, is_active, notes) VALUES
 ('05000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, 4100.0, true, 'Current exchange rate');
 
--- Initialize order counters for businesses (per-business sequences with migration V3)
-INSERT INTO order_counters (business_id, counter_date, counter_value) VALUES
-('550cad56-cafd-4aba-baef-c4dcd53940d0', CURRENT_DATE, 200),
-('550cad56-cafd-4aba-baef-c4dcd53940d1', CURRENT_DATE, 0);
-
 INSERT INTO reference_counters (entity_type, counter_date, counter_value) VALUES
 ('ORDER', CURRENT_DATE, 0),
 ('LEAVE', CURRENT_DATE, 0),
@@ -241,6 +236,12 @@ INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated
 INSERT INTO business_settings (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, business_name, logo_business_url, tax_percentage, primary_color, secondary_color, accent_color, enable_stock) VALUES
 ('550cad56-cafd-4aba-baef-c4dcd53940d2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Phatmenghor Business', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 10.0, '#57823D', '#404040', '#2E74D0', 'ENABLED'),
 ('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'Test Coffee Cafe', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 5.0, '#57823D', '#404040', '#2E74D0', 'ENABLED');
+
+-- Initialize order counters for businesses (per-business sequences with migration V3)
+-- Must be after businesses table is populated due to foreign key constraint
+INSERT INTO order_counters (business_id, counter_date, counter_value) VALUES
+('550cad56-cafd-4aba-baef-c4dcd53940d0', CURRENT_DATE, 200),
+('550cad56-cafd-4aba-baef-c4dcd53940d1', CURRENT_DATE, 0);
 
 -- ============================================================================
 -- 6. BANNERS (18 items)
