@@ -1007,7 +1007,7 @@ FROM orders;
 -- 26. ORDER ITEMS (3-5 per order with full pricing and change tracking)
 -- ============================================================================
 
-INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date, quantity, total_price, special_instructions, had_change_from_pos, change_reason)
+INSERT INTO order_items (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, product_id, product_size_id, product_name, product_image_url, size_name, barcode, sku, current_price, final_price, unit_price, has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date, quantity, total_price, special_instructions, had_change_from_pos, change_reason)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     o.id,
@@ -1015,7 +1015,9 @@ SELECT
     ps.id,
     p.name,
     p.main_image_url,
-    CASE WHEN (t.item_num % 4) = 0 THEN 'Small' WHEN (t.item_num % 4) = 1 THEN 'Medium' WHEN (t.item_num % 4) = 2 THEN 'Large' ELSE 'XL' END,
+    ps.size_name,
+    ps.barcode,
+    ps.sku,
     p.price,
     CASE WHEN (t.item_num % 5) = 0 THEN ROUND(p.price * 0.85, 2)
          WHEN (t.item_num % 5) = 1 THEN ROUND(p.price * 0.90, 2)
@@ -1043,16 +1045,16 @@ SELECT
 FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY id) as rn FROM orders) o
 CROSS JOIN (SELECT 1 as item_num UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) t
 JOIN LATERAL (
-    SELECT id, name, main_image_url, price
+    SELECT id, name, main_image_url, price, has_sizes
     FROM products
     WHERE status = 'ACTIVE'
     ORDER BY id
     LIMIT 1 OFFSET ((o.rn + t.item_num) % 100)
 ) p ON true
-LEFT JOIN LATERAL (
-    SELECT id
+JOIN LATERAL (
+    SELECT id, name as size_name, barcode, sku
     FROM product_sizes
-    WHERE product_id = p.id AND size_name = CASE WHEN (t.item_num % 4) = 0 THEN 'Small' WHEN (t.item_num % 4) = 1 THEN 'Medium' WHEN (t.item_num % 4) = 2 THEN 'Large' ELSE 'XL' END
+    WHERE product_id = p.id AND name = CASE WHEN (t.item_num % 4) = 0 THEN 'Small' WHEN (t.item_num % 4) = 1 THEN 'Medium' WHEN (t.item_num % 4) = 2 THEN 'Large' ELSE 'Medium' END
     LIMIT 1
 ) ps ON true;
 
