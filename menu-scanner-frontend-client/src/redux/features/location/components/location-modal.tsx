@@ -630,7 +630,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           <CenterPin isDragging={isDragging} size="h-10 w-10" />
           <div ref={fullscreenMapContainerRef} className="w-full h-full bg-white" />
           {/* Address display */}
-          <div className="absolute bottom-1/2 left-1/2 -translate-x-1/2 translate-y-1/2 bg-background/95 backdrop-blur-sm border rounded-xl px-6 py-4 shadow-lg w-[90%] max-w-2xl">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/95 backdrop-blur-sm border rounded-xl px-6 py-4 shadow-lg w-[90%] max-w-2xl">
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
