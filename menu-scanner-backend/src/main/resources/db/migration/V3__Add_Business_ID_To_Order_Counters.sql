@@ -21,4 +21,4 @@ CREATE INDEX idx_order_counter_business_date ON order_counters(business_id, coun
 CREATE INDEX idx_order_counter_business ON order_counters(business_id);
 
 -- Update comment to document the new counter format
-COMMENT ON COLUMN order_counters.counter_value IS 'Daily counter per business: 0001 → 9999 → 10000 → 99999 → 100000 onwards (unlimited)';
+COMMENT ON COLUMN order_counters.counter_value IS 'Daily counter per business: 001 → 999 → 1000 → 9999 → 10000 onwards (unlimited)';

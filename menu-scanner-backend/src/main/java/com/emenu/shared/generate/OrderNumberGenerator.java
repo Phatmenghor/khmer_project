@@ -13,8 +13,8 @@ import java.util.function.Predicate;
 
 /**
  * Utility class for generating unique order numbers.
- * Pattern: ORD-YYYYMMDD-XXXXX where XXXXX is a database-backed counter per business per day.
- * Counter grows from 0001 to 9999, then 10000 onwards (unlimited).
+ * Pattern: ORD-YYYYMMDD-XXX where XXX is a database-backed counter per business per day.
+ * Counter grows: 001 → 999 → 1000 → 9999 → 10000 onwards (unlimited).
  * Each business has its own independent sequence.
  */
 @Component
@@ -28,10 +28,10 @@ public class OrderNumberGenerator {
 
     /**
      * Generate a unique order number with per-business counter.
-     * Counter is per-business-per-day and grows dynamically: 0001 → 9999 → 10000 onwards.
+     * Counter is per-business-per-day and grows dynamically: 001 → 999 → 1000 → 9999 → 10000 onwards.
      *
      * @param businessId UUID of the business
-     * @return Unique order number in format ORD-YYYYMMDD-XXXXX (where XXXXX can be 5+ digits)
+     * @return Unique order number in format ORD-YYYYMMDD-XXX (where XXX can be 3, 4, 5+ digits)
      */
     @Transactional
     public String generateOrderNumber(java.util.UUID businessId) {
@@ -52,8 +52,8 @@ public class OrderNumberGenerator {
         OrderCounter savedCounter = orderCounterRepository.save(counter);
 
         String date = today.format(DATE_FORMATTER);
-        // Dynamic format: 0001-9999 (4 digits), 10000+ (5+ digits)
-        return String.format("%s-%s-%05d", ORDER_PREFIX, date, savedCounter.getCounterValue());
+        // Dynamic format: 001-999 (3 digits), 1000-9999 (4 digits), 10000+ (5+ digits)
+        return String.format("%s-%s-%03d", ORDER_PREFIX, date, savedCounter.getCounterValue());
     }
 
     /**
