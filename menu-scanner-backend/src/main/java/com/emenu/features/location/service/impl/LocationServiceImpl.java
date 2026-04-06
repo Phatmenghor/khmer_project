@@ -98,19 +98,30 @@ public class LocationServiceImpl implements LocationService {
         User currentUser = securityUtils.getCurrentUser();
         Location address = addressRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Address not found"));
-        
+
         if (!address.getUserId().equals(currentUser.getId())) {
             throw new ValidationException("You can only update your own addresses");
         }
-        
+
+        // Update fields from request
         addressMapper.updateEntity(request, address);
-        
+
+        // Handle default address logic
         if (Boolean.TRUE.equals(request.getIsDefault())) {
+            // Clear default for all other addresses first
             clearDefaultForUser(currentUser.getId());
+            // Set this address as default
             address.setAsDefault();
+            log.info("Setting address {} as default for user: {}", id, currentUser.getUserIdentifier());
+        } else if (Boolean.FALSE.equals(request.getIsDefault())) {
+            // Explicitly set as non-default if requested
+            address.unsetDefault();
         }
-        
+
+        // Save the updated address
         Location updatedAddress = addressRepository.save(address);
+        log.info("Address {} updated for user: {}", id, currentUser.getUserIdentifier());
+
         return addressMapper.toResponse(updatedAddress);
     }
 

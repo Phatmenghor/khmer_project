@@ -30,7 +30,7 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
     /**
      * Clears the default flag for all non-deleted addresses belonging to a user
      */
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Location ca SET ca.isDefault = false WHERE ca.userId = :userId AND ca.isDeleted = false")
     void clearDefaultForUser(@Param("userId") UUID userId);
 
