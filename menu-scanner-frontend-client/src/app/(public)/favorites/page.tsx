@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, Trash2, LogIn } from "lucide-react";
+import { Heart, ShoppingCart, Trash2, LogIn, CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import {
-  fetchFavoriteList,
+  fetchFavoritePaginated,
   toggleFavorite,
   clearAllFavorites,
 } from "@/redux/features/main/store/thunks/favorite-thunks";
@@ -20,28 +20,89 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { PageContainer } from "@/components/shared/common/page-container";
+import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
+import { useState } from "react";
 
 export default function FavoritesPage() {
   const router = useRouter();
   const { isAuthenticated, authReady } = useAuthState();
-  const { dispatch, items, totalItems, loading, loaded } = useFavoriteState();
+  const { dispatch, items, totalItems, pagination, loading, loaded } = useFavoriteState();
   const { dispatch: cartDispatch } = useCartState();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [clearAllModalOpen, setClearAllModalOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
+  // Fixed page size of 15 for favorites
+  const pageSize = 15;
+
+  const isInitialFavoritesLoading =
+    loading.fetch &&
+    items.length === 0 &&
+    !loaded;
+
+  // Initial load
   useEffect(() => {
     if (!authReady) return;
     if (isAuthenticated && !loaded) {
-      dispatch(fetchFavoriteList());
+      dispatch(fetchFavoritePaginated({ pageNo: 1, pageSize }));
     }
-  }, [authReady, isAuthenticated, loaded, dispatch]);
+  }, [authReady, isAuthenticated, loaded, dispatch, pageSize]);
 
+  // Load more handler
+  const handleLoadMore = useCallback(() => {
+    console.log("handleLoadMore called - hasMore:", pagination.hasMore, "loading:", loading.fetch, "items:", items.length);
+    if (
+      pagination.hasMore &&
+      !loading.fetch &&
+      items.length > 0
+    ) {
+      const nextPage = pagination.currentPage + 1;
+      console.log("Fetching page:", nextPage);
+      dispatch(fetchFavoritePaginated({ pageNo: nextPage, pageSize }));
+    }
+  }, [dispatch, pagination.hasMore, pagination.currentPage, loading.fetch, items.length, pageSize]);
+
+  // Smart pagination with debounce
+  const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
+    handleLoadMore,
+    pagination.hasMore && !loading.fetch,
+    [pagination.hasMore, loading.fetch, handleLoadMore]
+  );
+
+  // Intersection observer for infinite scroll
+  useEffect(() => {
+    if (!pagination.hasMore || !sentinelRef.current) {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          console.log("Sentinel intersecting, calling load more");
+          debouncedLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "200px" }
+    );
+
+    observerRef.current = observer;
+    observer.observe(sentinelRef.current);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
+  }, [pagination.hasMore, debouncedLoadMore]);
 
   const handleRemoveOne = (productId: string) => {
-    // Remove from UI immediately (optimistic) - no await!
     dispatch(toggleFavorite({ productId, isFavorited: true }))
       .unwrap()
       .then(() => {
@@ -53,7 +114,6 @@ export default function FavoritesPage() {
   };
 
   const handleClearAll = () => {
-    // Clear from UI immediately (optimistic) - no await!
     dispatch(clearAllFavorites())
       .unwrap()
       .then(() => {
@@ -65,7 +125,6 @@ export default function FavoritesPage() {
   };
 
   const handleMoveToCart = (productId: string) => {
-    // Move to cart and remove from favorites immediately (optimistic) - no await!
     cartDispatch(addToCart({ productId, quantity: 1 }))
       .unwrap()
       .then(() => {
@@ -79,9 +138,8 @@ export default function FavoritesPage() {
       });
   };
 
-
-  // Loading skeleton (also shown on server to prevent hydration mismatch)
-  if (!mounted || !authReady || (loading.fetch && !loaded)) {
+  // Loading skeleton
+  if (!authReady || (loading.fetch && !loaded)) {
     return (
       <PageContainer className="py-4 sm:py-8">
         <div className="h-7 w-40 bg-muted rounded mb-4 animate-pulse" />
@@ -155,6 +213,7 @@ export default function FavoritesPage() {
     );
   }
 
+  // Favorites with infinite scroll
   return (
     <PageContainer className="py-4 sm:py-8">
       <PageHeader
@@ -168,7 +227,7 @@ export default function FavoritesPage() {
             variant="ghost"
             size="sm"
             onClick={() => setClearAllModalOpen(true)}
-            disabled={loading.clearAll}
+            disabled={loading.fetch}
             className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -183,6 +242,35 @@ export default function FavoritesPage() {
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+
+      {/* Load more sentinel for infinite scroll */}
+      {pagination.hasMore && (
+        <div ref={sentinelRef} className="h-10 w-full mt-6" />
+      )}
+
+      {/* Pagination skeleton */}
+      {loading.fetch && items.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mt-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <ProductCardSkeleton key={`skeleton-${i}`} />
+          ))}
+        </div>
+      )}
+
+      {/* End of favorites message */}
+      {!pagination.hasMore && items.length > 0 && !loading.fetch && (
+        <div className="flex flex-col items-center justify-center mt-10 py-8 px-4">
+          <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
+            <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+          </div>
+          <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">
+            You've seen all your favorites!
+          </h3>
+          <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md">
+            You've reached the end of your saved items. Keep shopping to add more favorites!
+          </p>
+        </div>
+      )}
 
       {/* Bottom action */}
       <div className="mt-8 sm:mt-12 flex justify-center">
