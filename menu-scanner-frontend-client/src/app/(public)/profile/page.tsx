@@ -43,6 +43,7 @@ import { clearToken } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { Loading } from "@/components/shared/common/loading";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
+import { PageContainer } from "@/components/shared/common/page-container";
 import { GENDER_OPTIONS } from "@/constants/form-options";
 import { ROUTES } from "@/constants/app-routes/routes";
 
@@ -247,339 +248,341 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2 py-4">
-      {/* Page Header */}
-      <div className="max-w-4xl mx-auto w-full mb-2">
-        <h1 className="text-3xl font-bold text-foreground">Customer Profile</h1>
-        <p className="text-muted-foreground text-sm mt-1">Manage your personal information and account settings</p>
-      </div>
+    <PageContainer className="max-w-6xl">
+      <div className="flex flex-1 flex-col gap-4 py-4">
+        {/* Page Header */}
+        <div className="w-full mb-2">
+          <h1 className="text-3xl font-bold text-foreground">Customer Profile</h1>
+          <p className="text-muted-foreground text-sm mt-1">Manage your personal information and account settings</p>
+        </div>
 
-      <div className="space-y-4 max-w-4xl mx-auto w-full">
-        {/* Profile Header */}
-        <Card className="mb-6 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5 shadow-md">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              {/* Profile Image - Camera Icon */}
-              <div
-                className="relative group cursor-pointer"
-                onClick={() => setIsProfilePictureModalOpen(true)}
-              >
-                <div className="relative ring-2 ring-primary/20 rounded-2xl">
-                  <CustomAvatar
-                    imageUrl={userProfile?.profileImageUrl}
-                    name={userProfile?.fullName}
-                    size="xxl"
-                  />
-                  {/* Camera Icon Overlay */}
-                  <div className="absolute bottom-1 right-1 bg-primary rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
-                    <Camera className="h-4 w-4 text-white" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground">
-                      {userProfile?.fullName}
-                    </h2>
-                    <p className="text-primary/70 text-sm font-medium">
-                      {userProfile?.email}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold">
-                        {userProfile?.accountStatus}
-                      </span>
+        <div className="space-y-4 w-full">
+            <Card className="mb-6 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5 shadow-md">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  {/* Profile Image - Camera Icon */}
+                  <div
+                    className="relative group cursor-pointer"
+                    onClick={() => setIsProfilePictureModalOpen(true)}
+                  >
+                    <div className="relative ring-2 ring-primary/20 rounded-2xl">
+                      <CustomAvatar
+                        imageUrl={userProfile?.profileImageUrl}
+                        name={userProfile?.fullName}
+                        size="xxl"
+                      />
+                      {/* Camera Icon Overlay */}
+                      <div className="absolute bottom-1 right-1 bg-primary rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
+                        <Camera className="h-4 w-4 text-white" />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
-                    {isEditing ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleCancel}
-                          disabled={isProfileLoading || isUploadingImage}
-                          className="border-primary/30 hover:bg-primary/5 hover:text-primary hover:border-primary/50"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={handleSubmit(onSubmit)}
-                          disabled={isProfileLoading || isUploadingImage || !isDirty}
-                          className="bg-primary hover:bg-primary/90"
-                        >
-                          {isProfileLoading || isUploadingImage ? (
-                            <>
-                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                              {isUploadingImage ? "Uploading..." : "Saving..."}
-                            </>
-                          ) : (
-                            "Save"
-                          )}
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => setIsEditing(true)}
-                        className="bg-primary hover:bg-primary/90 text-white"
-                      >
-                        <Edit className="h-3 w-3 mr-1" />
-                        Edit
-                      </Button>
-                    )}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h2 className="text-2xl font-bold text-foreground">
+                          {userProfile?.fullName}
+                        </h2>
+                        <p className="text-primary/70 text-sm font-medium">
+                          {userProfile?.email}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold">
+                            {userProfile?.accountStatus}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        {isEditing ? (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleCancel}
+                              disabled={isProfileLoading || isUploadingImage}
+                              className="border-primary/30 hover:bg-primary/5 hover:text-primary hover:border-primary/50"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={handleSubmit(onSubmit)}
+                              disabled={isProfileLoading || isUploadingImage || !isDirty}
+                              className="bg-primary hover:bg-primary/90"
+                            >
+                              {isProfileLoading || isUploadingImage ? (
+                                <>
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                  {isUploadingImage ? "Uploading..." : "Saving..."}
+                                </>
+                              ) : (
+                                "Save"
+                              )}
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => setIsEditing(true)}
+                            className="bg-primary hover:bg-primary/90 text-white"
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Edit
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        {/* Navigation Tabs - Premium Clean Design */}
-        <div className="flex gap-0 mb-8 w-full relative group border border-primary/30 rounded-xl overflow-hidden">
-          {/* Background indicator */}
-          <div
-            className={cn(
-              "absolute inset-y-0 h-full bg-primary/5 transition-all duration-500 ease-out",
-              activeSection === "profile" ? "left-0 w-1/2" : "left-1/2 w-1/2"
+            {/* Navigation Tabs - Premium Clean Design */}
+            <div className="flex gap-0 mb-8 w-full relative group border border-primary/30 rounded-xl overflow-hidden">
+              {/* Background indicator */}
+              <div
+                className={cn(
+                  "absolute inset-y-0 h-full bg-primary/5 transition-all duration-500 ease-out",
+                  activeSection === "profile" ? "left-0 w-1/2" : "left-1/2 w-1/2"
+                )}
+              />
+
+              {/* Center divider line */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20" />
+
+              {/* Profile Tab */}
+              <button
+                onClick={() => setActiveSection("profile")}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative z-10",
+                  "text-sm font-semibold transition-all duration-300",
+                  "border-r border-primary/20",
+                  activeSection === "profile"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground/70"
+                )}
+              >
+                <User
+                  className={cn(
+                    "h-4 w-4 transition-all duration-300",
+                    activeSection === "profile" ? "scale-110" : "scale-100"
+                  )}
+                />
+                <span>Profile</span>
+              </button>
+
+              {/* Security Tab */}
+              <button
+                onClick={() => setActiveSection("security")}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative z-10",
+                  "text-sm font-semibold transition-all duration-300",
+                  activeSection === "security"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground/70"
+                )}
+              >
+                <Lock
+                  className={cn(
+                    "h-4 w-4 transition-all duration-300",
+                    activeSection === "security" ? "scale-110" : "scale-100"
+                  )}
+                />
+                <span>Security</span>
+              </button>
+            </div>
+
+            {/* Profile Section */}
+            {activeSection === "profile" && (
+              <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+                <div className="w-full space-y-6">
+                  {/* Personal Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Personal Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {isEditing ? (
+                          <>
+                            <TextField
+                              control={control}
+                              name="firstName"
+                              label="First Name"
+                              placeholder="First name"
+                              error={errors.firstName}
+                            />
+
+                            <TextField
+                              control={control}
+                              name="lastName"
+                              label="Last Name"
+                              placeholder="Last name"
+                              error={errors.lastName}
+                            />
+
+                            <TextField
+                              control={control}
+                              name="nickname"
+                              label="Nickname"
+                              placeholder="Nickname"
+                              error={errors.nickname}
+                            />
+
+                            <TextField
+                              control={control}
+                              name="email"
+                              label="Email"
+                              placeholder="Email"
+                              type="email"
+                              error={errors.email}
+                            />
+
+                            <TextField
+                              control={control}
+                              name="phoneNumber"
+                              label="Phone Number"
+                              placeholder="Phone"
+                              error={errors.phoneNumber}
+                            />
+
+                            <SelectField
+                              control={control}
+                              name="gender"
+                              label="Gender"
+                              placeholder="Select gender"
+                              options={GENDER_OPTIONS}
+                              error={errors.gender}
+                            />
+
+                            <DateTimePickerField
+                              control={control}
+                              name="dateOfBirth"
+                              label="Date of Birth"
+                              mode="date"
+                              placeholder="Date of birth"
+                              error={errors.dateOfBirth}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <DisplayField label="First Name" value={watch("firstName")} />
+                            <DisplayField label="Last Name" value={watch("lastName")} />
+                            <DisplayField label="Nickname" value={watch("nickname")} />
+                            <DisplayField label="Email" value={watch("email")} />
+                            <DisplayField label="Phone Number" value={watch("phoneNumber")} />
+                            <DisplayField
+                              label="Gender"
+                              value={
+                                GENDER_OPTIONS.find((o) => o.value === watch("gender"))?.label
+                              }
+                            />
+                            <DisplayField label="Date of Birth" value={watch("dateOfBirth")} />
+                          </>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </form>
             )}
+
+            {/* Security Section */}
+            {activeSection === "security" && (
+              <div className="space-y-4">
+                {/* Connected Accounts */}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                    Connected Accounts
+                  </h3>
+                  <TelegramSyncCard socialSync={socialSync} />
+                </div>
+
+                {/* Change Password */}
+                <Card>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold text-foreground">
+                          Change Password
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Update your password to keep your account secure
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsChangePasswordModalOpen(true)}
+                        className="w-full sm:w-auto"
+                      >
+                        <Lock className="h-4 w-4 mr-2" />
+                        Change Password
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Delete Account */}
+                <Card className="border-destructive/50">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold text-destructive">
+                          Delete Account
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Permanently delete your account and all associated data
+                        </p>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                        className="w-full sm:w-auto"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Account
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+
+          {/* Change Password Modal */}
+          <ChangePasswordModal
+            isOpen={isChangePasswordModalOpen}
+            onClose={() => setIsChangePasswordModalOpen(false)}
           />
 
-          {/* Center divider line */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20" />
+          {/* Delete Account Confirmation */}
+          <DeleteConfirmationModal
+            isOpen={isDeleteDialogOpen}
+            onClose={() => setIsDeleteDialogOpen(false)}
+            onDelete={handleDeleteAccount}
+            title="Delete Account"
+            description="Are you absolutely sure you want to delete your account? This will permanently delete your account and remove all your data from our servers."
+            itemName={userProfile?.email}
+            isSubmitting={isProfileLoading}
+            variant="critical"
+            requireConfirmation={true}
+            confirmationText="DELETE"
+          />
 
-          {/* Profile Tab */}
-          <button
-            onClick={() => setActiveSection("profile")}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative z-10",
-              "text-sm font-semibold transition-all duration-300",
-              "border-r border-primary/20",
-              activeSection === "profile"
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground/70"
-            )}
-          >
-            <User
-              className={cn(
-                "h-4 w-4 transition-all duration-300",
-                activeSection === "profile" ? "scale-110" : "scale-100"
-              )}
+            {/* Profile Picture Modal */}
+            <ProfilePictureModal
+              isOpen={isProfilePictureModalOpen}
+              onClose={() => setIsProfilePictureModalOpen(false)}
+              onUpload={handleAutoUploadProfilePicture}
+              disabled={isUploadingImage}
+              currentImageUrl={watch("profileImageUrl") || userProfile?.profileImageUrl}
             />
-            <span>Profile</span>
-          </button>
-
-          {/* Security Tab */}
-          <button
-            onClick={() => setActiveSection("security")}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative z-10",
-              "text-sm font-semibold transition-all duration-300",
-              activeSection === "security"
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground/70"
-            )}
-          >
-            <Lock
-              className={cn(
-                "h-4 w-4 transition-all duration-300",
-                activeSection === "security" ? "scale-110" : "scale-100"
-              )}
-            />
-            <span>Security</span>
-          </button>
         </div>
-
-        {/* Profile Section */}
-        {activeSection === "profile" && (
-          <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-            <div className="w-full space-y-6">
-              {/* Personal Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {isEditing ? (
-                      <>
-                        <TextField
-                          control={control}
-                          name="firstName"
-                          label="First Name"
-                          placeholder="First name"
-                          error={errors.firstName}
-                        />
-
-                        <TextField
-                          control={control}
-                          name="lastName"
-                          label="Last Name"
-                          placeholder="Last name"
-                          error={errors.lastName}
-                        />
-
-                        <TextField
-                          control={control}
-                          name="nickname"
-                          label="Nickname"
-                          placeholder="Nickname"
-                          error={errors.nickname}
-                        />
-
-                        <TextField
-                          control={control}
-                          name="email"
-                          label="Email"
-                          placeholder="Email"
-                          type="email"
-                          error={errors.email}
-                        />
-
-                        <TextField
-                          control={control}
-                          name="phoneNumber"
-                          label="Phone Number"
-                          placeholder="Phone"
-                          error={errors.phoneNumber}
-                        />
-
-                        <SelectField
-                          control={control}
-                          name="gender"
-                          label="Gender"
-                          placeholder="Select gender"
-                          options={GENDER_OPTIONS}
-                          error={errors.gender}
-                        />
-
-                        <DateTimePickerField
-                          control={control}
-                          name="dateOfBirth"
-                          label="Date of Birth"
-                          mode="date"
-                          placeholder="Date of birth"
-                          error={errors.dateOfBirth}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <DisplayField label="First Name" value={watch("firstName")} />
-                        <DisplayField label="Last Name" value={watch("lastName")} />
-                        <DisplayField label="Nickname" value={watch("nickname")} />
-                        <DisplayField label="Email" value={watch("email")} />
-                        <DisplayField label="Phone Number" value={watch("phoneNumber")} />
-                        <DisplayField
-                          label="Gender"
-                          value={
-                            GENDER_OPTIONS.find((o) => o.value === watch("gender"))?.label
-                          }
-                        />
-                        <DisplayField label="Date of Birth" value={watch("dateOfBirth")} />
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </form>
-        )}
-
-        {/* Security Section */}
-        {activeSection === "security" && (
-          <div className="space-y-4">
-            {/* Connected Accounts */}
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">
-                Connected Accounts
-              </h3>
-              <TelegramSyncCard socialSync={socialSync} />
-            </div>
-
-            {/* Change Password */}
-            <Card>
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <h3 className="font-semibold text-foreground">
-                      Change Password
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Update your password to keep your account secure
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsChangePasswordModalOpen(true)}
-                    className="w-full sm:w-auto"
-                  >
-                    <Lock className="h-4 w-4 mr-2" />
-                    Change Password
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Delete Account */}
-            <Card className="border-destructive/50">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <h3 className="font-semibold text-destructive">
-                      Delete Account
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Permanently delete your account and all associated data
-                    </p>
-                  </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setIsDeleteDialogOpen(true)}
-                    className="w-full sm:w-auto"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete Account
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
-
-      {/* Change Password Modal */}
-      <ChangePasswordModal
-        isOpen={isChangePasswordModalOpen}
-        onClose={() => setIsChangePasswordModalOpen(false)}
-      />
-
-      {/* Delete Account Confirmation */}
-      <DeleteConfirmationModal
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onDelete={handleDeleteAccount}
-        title="Delete Account"
-        description="Are you absolutely sure you want to delete your account? This will permanently delete your account and remove all your data from our servers."
-        itemName={userProfile?.email}
-        isSubmitting={isProfileLoading}
-        variant="critical"
-        requireConfirmation={true}
-        confirmationText="DELETE"
-      />
-
-      {/* Profile Picture Modal */}
-      <ProfilePictureModal
-        isOpen={isProfilePictureModalOpen}
-        onClose={() => setIsProfilePictureModalOpen(false)}
-        onUpload={handleAutoUploadProfilePicture}
-        disabled={isUploadingImage}
-        currentImageUrl={watch("profileImageUrl") || userProfile?.profileImageUrl}
-      />
-    </div>
+    </PageContainer>
   );
 }
