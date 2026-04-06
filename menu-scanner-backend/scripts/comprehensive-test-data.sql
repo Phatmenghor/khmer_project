@@ -981,14 +981,32 @@ FROM generate_series(1, 100) AS t(i);
 -- 24. ORDER DELIVERY ADDRESSES
 -- ============================================================================
 
-INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude)
+WITH order_with_rn AS (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY id) as order_rn
+    FROM orders
+),
+location_with_rn AS (
+    SELECT id, village, commune, district, province, street_number, house_number, note, latitude, longitude,
+           ROW_NUMBER() OVER (ORDER BY id) as loc_rn,
+           COUNT(*) OVER() as total_locations
+    FROM customer_addresses
+    WHERE is_deleted = false
+),
+location_images_agg AS (
+    SELECT location_id, json_agg(image_url ORDER BY created_at) as images
+    FROM location_images
+    GROUP BY location_id
+)
+INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude, location_id, location_images)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
-    id, 'Village ' || (ROW_NUMBER() OVER() % 50)::text, 'Commune ' || (ROW_NUMBER() OVER() % 25)::text,
-    'District ' || (ROW_NUMBER() OVER() % 12)::text, 'Phnom Penh', LPAD((ROW_NUMBER() OVER() % 500)::text, 3, '0'),
-    'Building ' || CHR((65 + (ROW_NUMBER() OVER() % 26))::int), 'Delivery note ' || (ROW_NUMBER() OVER())::text,
-    11.5564::numeric, 104.9282::numeric
-FROM orders;
+    o.id, l.village, l.commune, l.district, l.province, l.street_number, l.house_number, l.note,
+    l.latitude, l.longitude,
+    l.id,
+    COALESCE(lia.images, '[]'::json)
+FROM order_with_rn o
+JOIN location_with_rn l ON ((o.order_rn - 1) % CASE WHEN l.total_locations > 0 THEN l.total_locations ELSE 1 END) = (l.loc_rn - 1)
+LEFT JOIN location_images_agg lia ON l.id = lia.location_id;
 
 -- ============================================================================
 -- 25. ORDER DELIVERY OPTIONS
@@ -1181,6 +1199,21 @@ SELECT
     u.id, 'Village ' || i::text, 'Chamkarmon', 'Chamkarmon', 'Phnom Penh', 'Cambodia',
     i::text, 'House ' || i::text, 'Delivery address ' || i::text, 11.5564, 104.9282, (i = 1)
 FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 10) u, generate_series(1, 2) AS t(i);
+
+-- ============================================================================
+-- 32.5. LOCATION IMAGES (Multiple images per location - no null values)
+-- ============================================================================
+
+INSERT INTO location_images (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, location_id, image_url)
+SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+    ca.id,
+    CASE WHEN (img_num % 4) = 0 THEN 'https://example.com/location/' || ca.id::text || '/entrance.jpg'
+         WHEN (img_num % 4) = 1 THEN 'https://example.com/location/' || ca.id::text || '/front-view.jpg'
+         WHEN (img_num % 4) = 2 THEN 'https://example.com/location/' || ca.id::text || '/street-map.jpg'
+         ELSE 'https://example.com/location/' || ca.id::text || '/location-view.jpg' END
+FROM customer_addresses ca
+CROSS JOIN (SELECT generate_series(1, 4) as img_num);
 
 -- ============================================================================
 -- 33. SUBSCRIPTION PLANS
