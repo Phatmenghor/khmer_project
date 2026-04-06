@@ -984,36 +984,47 @@ FROM generate_series(1, 100) AS t(i);
 -- 24. ORDER DELIVERY ADDRESSES
 -- ============================================================================
 
-WITH location_ids AS (
-    SELECT id, village, commune, district, province, street_number, house_number, note, latitude, longitude,
-           ROW_NUMBER() OVER (ORDER BY id) as location_seq
+INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude, location_id, location_images)
+WITH locations_array AS (
+    SELECT ARRAY_AGG(id ORDER BY id) as location_ids,
+           ARRAY_AGG(village ORDER BY id) as villages,
+           ARRAY_AGG(commune ORDER BY id) as communes,
+           ARRAY_AGG(district ORDER BY id) as districts,
+           ARRAY_AGG(province ORDER BY id) as provinces,
+           ARRAY_AGG(street_number ORDER BY id) as street_numbers,
+           ARRAY_AGG(house_number ORDER BY id) as house_numbers,
+           ARRAY_AGG(note ORDER BY id) as notes,
+           ARRAY_AGG(latitude ORDER BY id) as latitudes,
+           ARRAY_AGG(longitude ORDER BY id) as longitudes
     FROM customer_addresses
     WHERE is_deleted = false
 ),
-location_count AS (
-    SELECT COUNT(*) as total FROM location_ids
+orders_with_idx AS (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY id) - 1 as idx
+    FROM orders
 ),
-location_images_agg AS (
-    SELECT location_id, json_agg(image_url ORDER BY created_at) as images
+location_images_map AS (
+    SELECT location_id, json_agg(image_url ORDER BY created_at) as image_urls
     FROM location_images
     GROUP BY location_id
-),
-orders_with_location AS (
-    SELECT o.id as order_id,
-           ROW_NUMBER() OVER (ORDER BY o.id) as order_seq
-    FROM orders o
 )
-INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude, location_id, location_images)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
-    o.order_id, l.village, l.commune, l.district, l.province, l.street_number, l.house_number, l.note,
-    l.latitude, l.longitude,
-    l.id,
-    COALESCE(lia.images, '[]'::json)
-FROM orders_with_location o
-CROSS JOIN location_count lc
-JOIN location_ids l ON l.location_seq = ((o.order_seq - 1) % lc.total) + 1
-LEFT JOIN location_images_agg lia ON l.id = lia.location_id;
+    o.id,
+    la.villages[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    la.communes[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    la.districts[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    la.provinces[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    la.street_numbers[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    la.house_numbers[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    la.notes[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    la.latitudes[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    la.longitudes[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    la.location_ids[((o.idx % array_length(la.location_ids, 1)) + 1)],
+    COALESCE(lim.image_urls, '[]'::json)
+FROM orders_with_idx o
+CROSS JOIN locations_array la
+LEFT JOIN location_images_map lim ON lim.location_id = la.location_ids[((o.idx % array_length(la.location_ids, 1)) + 1)];
 
 -- ============================================================================
 -- 25. ORDER DELIVERY OPTIONS
