@@ -280,8 +280,9 @@ export function OrderDetailModal({
                   <CardTitle className="text-base">Delivery Address</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Full Address with Google Maps Button */}
-                  <div className="space-y-3">
+                  {/* Full Address with Google Maps Button - Grid 2 per row on large screens */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Address Field */}
                     <div>
                       <label className="text-sm font-medium text-foreground block mb-1.5">
                         Address
@@ -303,15 +304,17 @@ export function OrderDetailModal({
 
                     {/* View in Google Maps Button */}
                     {orderData.deliveryAddress.latitude && orderData.deliveryAddress.longitude && (
-                      <button
-                        onClick={() => {
-                          const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
-                          window.open(mapsUrl, '_blank');
-                        }}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-                      >
-                        📍 View in Google Maps
-                      </button>
+                      <div className="flex items-end">
+                        <button
+                          onClick={() => {
+                            const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
+                            window.open(mapsUrl, '_blank');
+                          }}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        >
+                          📍 View in Google Maps
+                        </button>
+                      </div>
                     )}
                   </div>
 
