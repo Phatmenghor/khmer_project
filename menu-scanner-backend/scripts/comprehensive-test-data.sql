@@ -984,53 +984,26 @@ FROM generate_series(1, 100) AS t(i);
 -- 24. ORDER DELIVERY ADDRESSES
 -- ============================================================================
 
+-- Populate order_delivery_addresses with all 200 orders
 INSERT INTO order_delivery_addresses (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude, location_id, location_images)
-WITH location_list AS (
-    SELECT
-        id,
-        COALESCE(village, 'Village Default') as village,
-        COALESCE(commune, 'Commune Default') as commune,
-        COALESCE(district, 'District Default') as district,
-        COALESCE(province, 'Province Default') as province,
-        COALESCE(street_number, 'Street 1') as street_number,
-        COALESCE(house_number, 'House 1') as house_number,
-        COALESCE(note, 'Delivery address') as note,
-        COALESCE(latitude, 11.5564::numeric(10,6)) as latitude,
-        COALESCE(longitude, 104.9282::numeric(11,6)) as longitude,
-        ROW_NUMBER() OVER (ORDER BY id) as loc_rn,
-        COUNT(*) OVER() as total_locs
-    FROM customer_addresses
-    WHERE is_deleted = false
-),
-order_list AS (
-    SELECT
-        id,
-        ROW_NUMBER() OVER (ORDER BY id) as order_rn
-    FROM orders
-),
-location_images_agg AS (
-    SELECT location_id,
-           COALESCE(json_agg(image_url ORDER BY created_at)::jsonb, '[]'::jsonb) as images
-    FROM location_images
-    GROUP BY location_id
-)
 SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+    gen_random_uuid(),
+    0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     o.id,
-    l.village,
-    l.commune,
-    l.district,
-    l.province,
-    l.street_number,
-    l.house_number,
-    l.note,
-    l.latitude,
-    l.longitude,
-    l.id,
-    COALESCE(lia.images, '[]'::jsonb)
-FROM order_list o
-JOIN location_list l ON l.loc_rn = ((o.order_rn - 1) % l.total_locs) + 1
-LEFT JOIN location_images_agg lia ON lia.location_id = l.id;
+    COALESCE(ca.village, 'Village Default'),
+    COALESCE(ca.commune, 'Commune Default'),
+    COALESCE(ca.district, 'District Default'),
+    COALESCE(ca.province, 'Province Default'),
+    COALESCE(ca.street_number, 'Street 1'),
+    COALESCE(ca.house_number, 'House 1'),
+    COALESCE(ca.note, 'Delivery address'),
+    COALESCE(ca.latitude, 11.5564),
+    COALESCE(ca.longitude, 104.9282),
+    ca.id,
+    COALESCE((SELECT json_agg(image_url)::jsonb FROM location_images WHERE location_id = ca.id), '[]'::jsonb)
+FROM orders o, customer_addresses ca
+WHERE ca.is_deleted = false
+  AND ca.id = (SELECT id FROM customer_addresses WHERE is_deleted = false ORDER BY id LIMIT 1 OFFSET (abs(hashtext(o.id::text)) % (SELECT COUNT(*) FROM customer_addresses WHERE is_deleted = false)));
 
 -- ============================================================================
 -- 25. ORDER DELIVERY OPTIONS
