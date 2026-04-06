@@ -540,7 +540,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
-        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-2xl lg:max-w-3xl max-h-[95dvh] rounded-2xl"
+        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-3xl lg:max-w-5xl max-h-[95dvh] rounded-2xl"
         onInteractOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
         onPointerDownOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
       >
