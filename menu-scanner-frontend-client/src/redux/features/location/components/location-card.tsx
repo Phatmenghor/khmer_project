@@ -8,7 +8,6 @@ import {
   Edit2,
   Trash2,
   Star,
-  Map,
   Crown,
 } from "lucide-react";
 import { LocationResponseModel } from "../store/models/response/location-response";
@@ -148,18 +147,7 @@ export function LocationCard({
               </p>
             </button>
 
-            {/* View Map button - Only show if has coordinates */}
-            {hasCoordinates && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleViewMap}
-                className="mt-2 h-7 text-xs gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
-              >
-                <Map className="h-3.5 w-3.5" />
-                View on Map
-              </Button>
-            )}
+
           </div>
 
           {/* Action buttons */}
