@@ -30,9 +30,15 @@ export default function FavoritesPage() {
   const { dispatch: cartDispatch } = useCartState();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [clearAllModalOpen, setClearAllModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Prevent hydration mismatch by only rendering after client mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fixed page size of 15 for favorites
   const pageSize = 15;
@@ -135,8 +141,8 @@ export default function FavoritesPage() {
       });
   };
 
-  // Loading skeleton
-  if (!authReady || (loading.fetch && !loaded)) {
+  // Loading skeleton (also shown on server to prevent hydration mismatch)
+  if (!mounted || !authReady || (loading.fetch && !loaded)) {
     return (
       <PageContainer className="py-4 sm:py-8">
         <div className="h-7 w-40 bg-muted rounded mb-4 animate-pulse" />
