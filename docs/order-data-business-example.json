@@ -1,0 +1,303 @@
+{
+  "_comment": "Complete BUSINESS Order Data - From Admin/POS System",
+  "_description": "orderFrom: BUSINESS means order created from admin page or POS system, not from customer checkout",
+
+  "id": "12345678-acc3-4998-a289-8aac6f7d7d42",
+  "createdAt": "2026-04-03T14:30:15.500000",
+  "updatedAt": "2026-04-03T14:45:22.750000",
+  "createdBy": "admin-user-001",
+  "updatedBy": "staff-user-005",
+
+  "orderNumber": "ORD-20260403-POS-0145",
+  "orderFrom": "BUSINESS",
+
+  "customerId": "550e8400-e29b-41d4-a716-446655550005",
+  "customerName": "Walk-in Customer",
+  "customerPhone": "+855 10 500 1234",
+  "customerEmail": "walkin@example.com",
+
+  "businessId": "550cad56-cafd-4aba-baef-c4dcd53940d0",
+  "businessName": "Phatmenghor Business",
+
+  "deliveryAddress": {
+    "id": "addr-walkin-001",
+    "village": "Village 1",
+    "commune": "Commune 1",
+    "district": "Toul Kork",
+    "province": "Phnom Penh",
+    "streetNumber": "Street 123",
+    "houseNumber": "Restaurant Location",
+    "landmark": "Main Branch",
+    "note": "Dine-in counter",
+    "latitude": 11.5564,
+    "longitude": 104.9282,
+    "isDefault": true,
+    "addressType": "RESTAURANT",
+    "isActive": true
+  },
+
+  "deliveryOption": {
+    "id": "delivery-opt-dine-in",
+    "name": "Dine-in",
+    "description": "Eat at restaurant",
+    "imageUrl": "https://cdn.example.com/dine-in.jpg",
+    "price": 0.0,
+    "estimatedMinutes": 15,
+    "estimatedMaxMinutes": 20,
+    "isActive": true,
+    "deliveryType": "DINE_IN"
+  },
+
+  "orderStatus": "COMPLETED",
+  "orderStatusHistory": [
+    {
+      "status": "PENDING",
+      "changedAt": "2026-04-03T14:30:15.500000",
+      "changedBy": "admin-user-001",
+      "note": "Order created from POS"
+    },
+    {
+      "status": "CONFIRMED",
+      "changedAt": "2026-04-03T14:31:00.000000",
+      "changedBy": "admin-user-001",
+      "note": "Payment received - Cash"
+    },
+    {
+      "status": "PREPARING",
+      "changedAt": "2026-04-03T14:31:15.000000",
+      "changedBy": "chef-user-001",
+      "note": "Kitchen started preparation"
+    },
+    {
+      "status": "READY",
+      "changedAt": "2026-04-03T14:43:00.000000",
+      "changedBy": "chef-user-001",
+      "note": "Dishes ready for serving"
+    },
+    {
+      "status": "COMPLETED",
+      "changedAt": "2026-04-03T14:45:22.750000",
+      "changedBy": "staff-user-005",
+      "note": "Order served and completed"
+    }
+  ],
+
+  "customerNote": "Allergic to peanuts - NO PEANUTS",
+  "businessNote": "URGENT: Priority customer, table 5, call when ready",
+
+  "pricing": {
+    "before": {
+      "totalItems": 4,
+      "subtotalBeforeDiscount": 250.0,
+      "subtotal": 250.0,
+      "totalDiscount": 0.0,
+      "deliveryFee": 0.0,
+      "taxAmount": 0.0,
+      "finalTotal": 250.0
+    },
+    "after": {
+      "totalItems": 4,
+      "subtotalBeforeDiscount": 250.0,
+      "subtotal": 225.0,
+      "totalDiscount": 25.0,
+      "deliveryFee": 0.0,
+      "taxAmount": 0.0,
+      "finalTotal": 225.0
+    },
+    "hadOrderLevelChangeFromPOS": true,
+    "reason": "Staff discount applied for loyal customer",
+    "discountPercent": 10.0,
+    "taxPercent": 0.0,
+    "currency": "USD"
+  },
+
+  "payment": {
+    "id": "payment-uuid-456",
+    "paymentMethod": "CASH",
+    "paymentStatus": "PAID",
+    "paidAmount": 225.0,
+    "changeAmount": 25.0,
+    "paymentDate": "2026-04-03T14:31:00.000000",
+    "transactionId": "POS-TXN-145",
+    "notes": "Paid in cash at counter by customer"
+  },
+
+  "items": [
+    {
+      "id": "item-uuid-pos-001",
+      "product": {
+        "id": "product-uuid-001",
+        "name": "Grilled Fish",
+        "imageUrl": "https://cdn.example.com/grilled-fish.jpg",
+        "sizeId": "size-uuid-large",
+        "sizeName": "Large",
+        "status": "ACTIVE",
+        "category": "Main Course"
+      },
+      "before": {
+        "currentPrice": 80.0,
+        "finalPrice": 80.0,
+        "hasActivePromotion": false,
+        "quantity": 1,
+        "totalBeforeDiscount": 80.0,
+        "discountAmount": 0.0,
+        "totalPrice": 80.0,
+        "promotionType": "NONE",
+        "promotionValue": 0.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": true,
+      "after": {
+        "currentPrice": 80.0,
+        "finalPrice": 80.0,
+        "hasActivePromotion": false,
+        "quantity": 1,
+        "totalBeforeDiscount": 80.0,
+        "discountAmount": 8.0,
+        "totalPrice": 72.0,
+        "promotionType": "PERCENTAGE",
+        "promotionValue": 10.0,
+        "promotionFromDate": "2026-04-03T14:30:15.500000",
+        "promotionToDate": "2026-04-03T14:30:15.500000"
+      },
+      "reason": "Staff discount applied",
+      "notes": "No peanuts - customer allergy",
+      "specialInstructions": "Extra lemon, remove all nuts, grilled medium",
+      "isAvailable": true
+    },
+    {
+      "id": "item-uuid-pos-002",
+      "product": {
+        "id": "product-uuid-002",
+        "name": "Jasmine Rice",
+        "imageUrl": "https://cdn.example.com/rice.jpg",
+        "sizeId": "size-uuid-regular",
+        "sizeName": "Regular",
+        "status": "ACTIVE",
+        "category": "Side"
+      },
+      "before": {
+        "currentPrice": 8.0,
+        "finalPrice": 8.0,
+        "hasActivePromotion": false,
+        "quantity": 2,
+        "totalBeforeDiscount": 16.0,
+        "discountAmount": 0.0,
+        "totalPrice": 16.0,
+        "promotionType": "NONE",
+        "promotionValue": 0.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": true,
+      "after": {
+        "currentPrice": 8.0,
+        "finalPrice": 8.0,
+        "hasActivePromotion": false,
+        "quantity": 2,
+        "totalBeforeDiscount": 16.0,
+        "discountAmount": 1.6,
+        "totalPrice": 14.4,
+        "promotionType": "PERCENTAGE",
+        "promotionValue": 10.0,
+        "promotionFromDate": "2026-04-03T14:30:15.500000",
+        "promotionToDate": "2026-04-03T14:30:15.500000"
+      },
+      "reason": "Staff discount applied",
+      "notes": "Fluffy",
+      "specialInstructions": "Served hot",
+      "isAvailable": true
+    },
+    {
+      "id": "item-uuid-pos-003",
+      "product": {
+        "id": "product-uuid-003",
+        "name": "Vegetable Stir Fry",
+        "imageUrl": "https://cdn.example.com/veg-stir-fry.jpg",
+        "sizeId": "size-uuid-medium",
+        "sizeName": "Medium",
+        "status": "ACTIVE",
+        "category": "Vegetable"
+      },
+      "before": {
+        "currentPrice": 25.0,
+        "finalPrice": 25.0,
+        "hasActivePromotion": true,
+        "quantity": 1,
+        "totalBeforeDiscount": 25.0,
+        "discountAmount": 0.0,
+        "totalPrice": 25.0,
+        "promotionType": "PERCENTAGE",
+        "promotionValue": 15.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": false,
+      "after": null,
+      "reason": "",
+      "notes": "Fresh vegetables",
+      "specialInstructions": "Garlic on the side, no peanuts",
+      "isAvailable": true
+    },
+    {
+      "id": "item-uuid-pos-004",
+      "product": {
+        "id": "product-uuid-004",
+        "name": "Fresh Lime Juice",
+        "imageUrl": "https://cdn.example.com/lime-juice.jpg",
+        "sizeId": "size-uuid-regular",
+        "sizeName": "Regular",
+        "status": "ACTIVE",
+        "category": "Beverage"
+      },
+      "before": {
+        "currentPrice": 6.0,
+        "finalPrice": 6.0,
+        "hasActivePromotion": false,
+        "quantity": 2,
+        "totalBeforeDiscount": 12.0,
+        "discountAmount": 0.0,
+        "totalPrice": 12.0,
+        "promotionType": "NONE",
+        "promotionValue": 0.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": true,
+      "after": {
+        "currentPrice": 6.0,
+        "finalPrice": 6.0,
+        "hasActivePromotion": false,
+        "quantity": 2,
+        "totalBeforeDiscount": 12.0,
+        "discountAmount": 1.2,
+        "totalPrice": 10.8,
+        "promotionType": "PERCENTAGE",
+        "promotionValue": 10.0,
+        "promotionFromDate": "2026-04-03T14:30:15.500000",
+        "promotionToDate": "2026-04-03T14:30:15.500000"
+      },
+      "reason": "Staff discount applied",
+      "notes": "Cold with ice",
+      "specialInstructions": "Extra ice, no sugar",
+      "isAvailable": true
+    }
+  ],
+
+  "estimatedDeliveryTime": "2026-04-03T14:43:00.000000",
+  "actualDeliveryTime": "2026-04-03T14:45:22.750000",
+  "isSpecialOrder": false,
+  "isPriority": true,
+  "source": "BUSINESS",
+
+  "deviceInfo": {
+    "deviceType": "DESKTOP",
+    "osType": "Windows",
+    "appVersion": "2.0.0",
+    "userAgent": "POS System v2.0",
+    "ipAddress": "192.168.1.50",
+    "timezone": "GMT+7",
+    "language": "km"
+  }
+}

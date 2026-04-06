@@ -1,0 +1,335 @@
+{
+  "_comment": "Complete Order Data Structure - All Fields Populated, No Nulls",
+  "_description": "orderFrom: CUSTOMER (from checkout) or BUSINESS (from admin/POS)",
+
+  "id": "96bff881-acc3-4998-a289-8aac6f7d7d42",
+  "createdAt": "2026-04-02T09:17:32.270867",
+  "updatedAt": "2026-01-14T09:17:32.270867",
+  "createdBy": "customer-user",
+  "updatedBy": "customer-user",
+
+  "orderNumber": "ORD-20260403-WEB-0088",
+  "orderFrom": "CUSTOMER",
+
+  "customerId": "550e8400-e29b-41d4-a716-446655550002",
+  "customerName": "John Customer",
+  "customerPhone": "+855 10 300 0001",
+  "customerEmail": "john.customer@example.com",
+
+  "businessId": "550cad56-cafd-4aba-baef-c4dcd53940d0",
+  "businessName": "Phatmenghor Business",
+
+  "deliveryAddress": {
+    "id": "addr-123-456",
+    "village": "Village 1",
+    "commune": "Commune 1",
+    "district": "Toul Kork",
+    "province": "Phnom Penh",
+    "streetNumber": "Street 123",
+    "houseNumber": "House 456",
+    "landmark": "Near Central Market",
+    "note": "Ring doorbell twice",
+    "latitude": 11.5564,
+    "longitude": 104.9282,
+    "isDefault": true,
+    "addressType": "HOME",
+    "isActive": true
+  },
+
+  "deliveryOption": {
+    "id": "delivery-opt-1",
+    "name": "Standard Delivery",
+    "description": "Delivery within 30-45 minutes",
+    "imageUrl": "https://cdn.example.com/delivery-standard.jpg",
+    "price": 2.0,
+    "estimatedMinutes": 30,
+    "estimatedMaxMinutes": 45,
+    "isActive": true,
+    "deliveryType": "STANDARD"
+  },
+
+  "orderStatus": "COMPLETED",
+  "orderStatusHistory": [
+    {
+      "status": "PENDING",
+      "changedAt": "2026-04-02T09:17:32.270867",
+      "changedBy": "system",
+      "note": "Order created"
+    },
+    {
+      "status": "CONFIRMED",
+      "changedAt": "2026-04-02T09:25:32.270867",
+      "changedBy": "system",
+      "note": "Payment confirmed"
+    },
+    {
+      "status": "PREPARING",
+      "changedAt": "2026-04-02T09:35:32.270867",
+      "changedBy": "staff-user",
+      "note": "Kitchen started preparation"
+    },
+    {
+      "status": "READY",
+      "changedAt": "2026-04-02T09:55:32.270867",
+      "changedBy": "staff-user",
+      "note": "Order ready for delivery"
+    },
+    {
+      "status": "DELIVERING",
+      "changedAt": "2026-04-02T10:05:32.270867",
+      "changedBy": "driver-user",
+      "note": "Out for delivery"
+    },
+    {
+      "status": "COMPLETED",
+      "changedAt": "2026-04-02T10:15:32.270867",
+      "changedBy": "driver-user",
+      "note": "Delivered successfully"
+    }
+  ],
+
+  "customerNote": "Please prepare carefully, no extra salt",
+  "businessNote": "VIP customer - priority preparation, call on arrival",
+
+  "pricing": {
+    "before": {
+      "totalItems": 6,
+      "subtotalBeforeDiscount": 364.0,
+      "subtotal": 364.0,
+      "totalDiscount": 0.0,
+      "deliveryFee": 2.0,
+      "taxAmount": 5.0,
+      "finalTotal": 371.0
+    },
+    "after": {
+      "totalItems": 6,
+      "subtotalBeforeDiscount": 364.0,
+      "subtotal": 359.0,
+      "totalDiscount": 5.0,
+      "deliveryFee": 2.0,
+      "taxAmount": 5.0,
+      "finalTotal": 366.0
+    },
+    "hadOrderLevelChangeFromPOS": false,
+    "reason": "",
+    "discountPercent": 1.37,
+    "taxPercent": 10.0,
+    "currency": "USD"
+  },
+
+  "payment": {
+    "id": "payment-uuid-123",
+    "paymentMethod": "CASH",
+    "paymentStatus": "PAID",
+    "paidAmount": 366.0,
+    "changeAmount": 34.0,
+    "paymentDate": "2026-04-02T10:15:32.270867",
+    "transactionId": "TXN-ABC123DE",
+    "notes": "Paid in cash at delivery"
+  },
+
+  "items": [
+    {
+      "id": "item-uuid-001",
+      "product": {
+        "id": "product-uuid-001",
+        "name": "Chicken Fried Rice",
+        "imageUrl": "https://cdn.example.com/product-1.jpg",
+        "sizeId": "size-uuid-001",
+        "sizeName": "Medium",
+        "status": "ACTIVE",
+        "category": "Main Course"
+      },
+      "before": {
+        "currentPrice": 30.0,
+        "finalPrice": 30.0,
+        "hasActivePromotion": true,
+        "quantity": 2,
+        "totalBeforeDiscount": 60.0,
+        "discountAmount": 0.0,
+        "totalPrice": 60.0,
+        "promotionType": "PERCENTAGE",
+        "promotionValue": 10.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": false,
+      "after": null,
+      "reason": "",
+      "notes": "Well prepared",
+      "specialInstructions": "Extra sauce on the side",
+      "isAvailable": true
+    },
+    {
+      "id": "item-uuid-002",
+      "product": {
+        "id": "product-uuid-002",
+        "name": "Beef Pad Thai",
+        "imageUrl": "https://cdn.example.com/product-2.jpg",
+        "sizeId": "size-uuid-002",
+        "sizeName": "Large",
+        "status": "ACTIVE",
+        "category": "Main Course"
+      },
+      "before": {
+        "currentPrice": 35.0,
+        "finalPrice": 35.0,
+        "hasActivePromotion": false,
+        "quantity": 1,
+        "totalBeforeDiscount": 35.0,
+        "discountAmount": 0.0,
+        "totalPrice": 35.0,
+        "promotionType": "NONE",
+        "promotionValue": 0.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": false,
+      "after": null,
+      "reason": "",
+      "notes": "Extra spicy",
+      "specialInstructions": "More peanuts",
+      "isAvailable": true
+    },
+    {
+      "id": "item-uuid-003",
+      "product": {
+        "id": "product-uuid-003",
+        "name": "Green Curry",
+        "imageUrl": "https://cdn.example.com/product-3.jpg",
+        "sizeId": "size-uuid-003",
+        "sizeName": "Medium",
+        "status": "ACTIVE",
+        "category": "Curry"
+      },
+      "before": {
+        "currentPrice": 40.0,
+        "finalPrice": 40.0,
+        "hasActivePromotion": true,
+        "quantity": 1,
+        "totalBeforeDiscount": 40.0,
+        "discountAmount": 0.0,
+        "totalPrice": 40.0,
+        "promotionType": "PERCENTAGE",
+        "promotionValue": 15.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": false,
+      "after": null,
+      "reason": "",
+      "notes": "Mild spice level",
+      "specialInstructions": "Less salt",
+      "isAvailable": true
+    },
+    {
+      "id": "item-uuid-004",
+      "product": {
+        "id": "product-uuid-004",
+        "name": "Spring Rolls",
+        "imageUrl": "https://cdn.example.com/product-4.jpg",
+        "sizeId": "size-uuid-004",
+        "sizeName": "Regular",
+        "status": "ACTIVE",
+        "category": "Appetizer"
+      },
+      "before": {
+        "currentPrice": 15.0,
+        "finalPrice": 15.0,
+        "hasActivePromotion": false,
+        "quantity": 3,
+        "totalBeforeDiscount": 45.0,
+        "discountAmount": 0.0,
+        "totalPrice": 45.0,
+        "promotionType": "NONE",
+        "promotionValue": 0.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": false,
+      "after": null,
+      "reason": "",
+      "notes": "Crispy",
+      "specialInstructions": "Sweet and sour sauce",
+      "isAvailable": true
+    },
+    {
+      "id": "item-uuid-005",
+      "product": {
+        "id": "product-uuid-005",
+        "name": "Tom Yum Soup",
+        "imageUrl": "https://cdn.example.com/product-5.jpg",
+        "sizeId": "size-uuid-005",
+        "sizeName": "Large",
+        "status": "ACTIVE",
+        "category": "Soup"
+      },
+      "before": {
+        "currentPrice": 25.0,
+        "finalPrice": 25.0,
+        "hasActivePromotion": true,
+        "quantity": 1,
+        "totalBeforeDiscount": 25.0,
+        "discountAmount": 0.0,
+        "totalPrice": 25.0,
+        "promotionType": "FIXED",
+        "promotionValue": 5.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": false,
+      "after": null,
+      "reason": "",
+      "notes": "Hot and sour",
+      "specialInstructions": "Extra lime juice",
+      "isAvailable": true
+    },
+    {
+      "id": "item-uuid-006",
+      "product": {
+        "id": "product-uuid-006",
+        "name": "Mango Sticky Rice",
+        "imageUrl": "https://cdn.example.com/product-6.jpg",
+        "sizeId": "size-uuid-006",
+        "sizeName": "Regular",
+        "status": "ACTIVE",
+        "category": "Dessert"
+      },
+      "before": {
+        "currentPrice": 12.0,
+        "finalPrice": 12.0,
+        "hasActivePromotion": false,
+        "quantity": 2,
+        "totalBeforeDiscount": 24.0,
+        "discountAmount": 0.0,
+        "totalPrice": 24.0,
+        "promotionType": "NONE",
+        "promotionValue": 0.0,
+        "promotionFromDate": "2026-03-26T09:17:32.270867",
+        "promotionToDate": "2026-05-02T09:17:32.270867"
+      },
+      "hadChangeFromPOS": false,
+      "after": null,
+      "reason": "",
+      "notes": "Fresh and sweet",
+      "specialInstructions": "Extra coconut cream",
+      "isAvailable": true
+    }
+  ],
+
+  "estimatedDeliveryTime": "2026-04-02T09:47:32.270867",
+  "actualDeliveryTime": "2026-04-02T10:15:32.270867",
+  "isSpecialOrder": false,
+  "isPriority": false,
+  "source": "CUSTOMER",
+
+  "deviceInfo": {
+    "deviceType": "MOBILE",
+    "osType": "iOS",
+    "appVersion": "1.2.5",
+    "userAgent": "Mobile Safari iOS 17",
+    "ipAddress": "192.168.1.105",
+    "timezone": "GMT+7",
+    "language": "km"
+  }
+}
