@@ -39,6 +39,9 @@ public interface CartMapper {
             response.setProductImageUrl(cartItem.getProduct().getMainImageUrl());
             response.setStatus(cartItem.getProduct().getStatus() != null
                     ? cartItem.getProduct().getStatus().name() : null);
+            // Set SKU and barcode from product master data
+            response.setSku(cartItem.getProduct().getSku());
+            response.setBarcode(cartItem.getProduct().getBarcode());
         }
     }
 

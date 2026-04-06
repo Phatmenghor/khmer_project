@@ -18,6 +18,10 @@ public class OrderItemUpdateRequest {
     private String productImageUrl;
     private String sizeName;
 
+    // SKU and barcode (optional)
+    private String sku;
+    private String barcode;
+
     // Pricing
     private BigDecimal currentPrice;  // Base price
     private BigDecimal finalPrice;    // Price after discount

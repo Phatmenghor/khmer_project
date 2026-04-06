@@ -38,6 +38,10 @@ public class OrderItemCreateHelper {
 
     private Integer quantity;
 
+    // SKU and barcode from product master data or checkout
+    private String sku;
+    private String barcode;
+
     // Customer instructions
     private String specialInstructions;
 }

@@ -372,13 +372,10 @@ public class OrderServiceImpl implements OrderService {
                 item.setProductImageUrl(itemRequest.getProductImageUrl());
                 item.setSizeName(itemRequest.getSizeName());
 
-                // Set SKU and barcode from product master data if available
-                if (itemRequest.getSku() != null) {
-                    item.setSku(itemRequest.getSku());
-                }
-                if (itemRequest.getBarcode() != null) {
-                    item.setBarcode(itemRequest.getBarcode());
-                }
+                // Set SKU and barcode: prefer product master data, fallback to request data
+                Product product = productRepository.findById(itemRequest.getProductId()).orElse(null);
+                item.setSku(product != null && product.getSku() != null ? product.getSku() : itemRequest.getSku());
+                item.setBarcode(product != null && product.getBarcode() != null ? product.getBarcode() : itemRequest.getBarcode());
 
                 item.setCurrentPrice(itemRequest.getCurrentPrice());
                 item.setFinalPrice(itemRequest.getFinalPrice());
@@ -466,7 +463,16 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal discountAmount = BigDecimal.ZERO;
 
         for (var cartItem : cart.getItems()) {
+            // Get product for SKU/barcode
+            Product product = productRepository.findById(cartItem.getProductId())
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + cartItem.getProductId()));
+
             OrderItemCreateHelper helper = orderMapper.buildOrderItemHelperFromCartItem(cartItem, orderId);
+
+            // Set SKU and barcode from product master data (primary source)
+            helper.setSku(product.getSku());
+            helper.setBarcode(product.getBarcode());
+
             OrderItem orderItem = orderMapper.createOrderItemFromHelper(helper);
             orderItem.calculateTotalPrice();
 
@@ -526,6 +532,10 @@ public class OrderServiceImpl implements OrderService {
         for (var item : cartResponse.getItems()) {
             itemCount++;
 
+            // Get product for SKU/barcode
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + item.getProductId()));
+
             // Use after snapshot for final pricing if available (new audit trail structure)
             BigDecimal finalPrice = item.getAfter() != null ? item.getAfter().getFinalPrice() : item.getFinalPrice();
 
@@ -550,6 +560,9 @@ public class OrderServiceImpl implements OrderService {
                     .promotionFromDate(item.getAfter() != null ? item.getAfter().getPromotionFromDate() : null)
                     .promotionToDate(item.getAfter() != null ? item.getAfter().getPromotionToDate() : null)
                     .quantity(item.getQuantity())
+                    // Set SKU and barcode from product master data (primary source)
+                    .sku(product.getSku())
+                    .barcode(product.getBarcode())
                     .build();
 
             OrderItem orderItem = orderMapper.createOrderItemFromHelper(helper);
@@ -773,9 +786,9 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setProductImageUrl(itemRequest.getProductImageUrl() != null ? itemRequest.getProductImageUrl() : product.getMainImageUrl());
                 orderItem.setSizeName(itemRequest.getSizeName());
 
-                // Set SKU and barcode from product master data
-                orderItem.setSku(product.getSku());
-                orderItem.setBarcode(product.getBarcode());
+                // Set SKU and barcode: prefer product master data, fallback to request data if not available
+                orderItem.setSku(product.getSku() != null ? product.getSku() : itemRequest.getSku());
+                orderItem.setBarcode(product.getBarcode() != null ? product.getBarcode() : itemRequest.getBarcode());
 
                 orderItem.setQuantity(itemRequest.getQuantity());
                 orderItem.setHadChangeFromPOS(false); // No POS changes in regular POS checkout

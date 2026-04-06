@@ -19,6 +19,10 @@ public class CartItemResponse {
     private String sizeName;           // "Standard" for products without sizes
     private String status;             // ProductStatus: ACTIVE, INACTIVE, OUT_OF_STOCK
 
+    // SKU and barcode from product master data
+    private String sku;
+    private String barcode;
+
     // Current pricing (always real-time from product)
     private BigDecimal currentPrice;           // Base price
     private BigDecimal finalPrice;             // Price with active promotions

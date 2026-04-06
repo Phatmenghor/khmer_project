@@ -37,6 +37,10 @@ public class POSCheckoutItemRequest {
     private String sizeName;
     private String status; // ACTIVE
 
+    // SKU and barcode (optional - from request, fallback if not in product master data)
+    private String sku;
+    private String barcode;
+
     // ===== AUDIT TRAIL: Before/After snapshots =====
     // Snapshot BEFORE any POS modifications
     @Valid
