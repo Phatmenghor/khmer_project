@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
-  MapPin,
   Edit2,
   Trash2,
   Star,
@@ -151,54 +150,52 @@ export function LocationCard({
 
             {/* View Map button - Only show if has coordinates */}
             {hasCoordinates && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handleViewMap}
-                className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                className="mt-2 h-7 text-xs gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
               >
                 <Map className="h-3.5 w-3.5" />
                 View on Map
-              </button>
+              </Button>
             )}
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-0.5 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+            {!isPrimary && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onSetPrimary(location)}
+                disabled={isSettingPrimary}
+                className="h-8 text-xs gap-1.5 rounded-lg"
+              >
+                <Star className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Default</span>
+              </Button>
+            )}
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg"
+              variant="outline"
+              size="sm"
               onClick={() => onEdit(location)}
+              className="h-8 w-8 p-0 rounded-lg"
               title="Edit"
             >
               <Edit2 className="h-3.5 w-3.5" />
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
+              variant="outline"
+              size="sm"
               onClick={() => onDelete(location)}
+              className="h-8 w-8 p-0 rounded-lg"
               title="Delete"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
-
-        {/* Set as Primary button */}
-        {!isPrimary && (
-          <div className="mt-3 ml-[38px]">
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs gap-1.5 rounded-lg border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-700/50 dark:text-amber-400 dark:hover:bg-amber-950/30"
-              onClick={() => onSetPrimary(location)}
-              disabled={isSettingPrimary}
-            >
-              <Star className="h-3 w-3" />
-              {isSettingPrimary ? "Setting..." : "Set as Default"}
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
