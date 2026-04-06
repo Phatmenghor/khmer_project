@@ -85,14 +85,20 @@ export const orderAdminTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (
-        <div className="flex flex-col">
-          <span className="text-xs font-mono font-medium">
-            {order?.orderNumber || "---"}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {order?.orderFrom === "CUSTOMER" ? "🛒 Public" : "🏪 POS"}
-          </span>
-        </div>
+        <span className="text-xs font-mono font-medium">
+          {order?.orderNumber || "---"}
+        </span>
+      ),
+    },
+    {
+      key: "orderFrom",
+      label: "Type",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (order) => (
+        <span className="text-xs font-medium">
+          {order?.orderFrom === "CUSTOMER" ? "🛒 Public" : "🏪 POS"}
+        </span>
       ),
     },
     {
@@ -108,18 +114,6 @@ export const orderAdminTableColumns = ({
             {order?.customerPhone || "No phone"}
           </span>
         </div>
-      ),
-    },
-    {
-      key: "businessName",
-      label: "Business",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (order) => (
-        <span className="text-xs font-medium">
-          {order?.businessName || "---"}
-        </span>
       ),
     },
     {
