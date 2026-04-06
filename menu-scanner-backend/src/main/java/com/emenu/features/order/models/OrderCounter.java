@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "order_counters", uniqueConstraints = {
@@ -17,8 +18,8 @@ import java.time.LocalDate;
 public class OrderCounter {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "counter_date", nullable = false)
     private LocalDate counterDate;
