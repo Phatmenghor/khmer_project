@@ -295,18 +295,24 @@ export default function CartPage() {
             );
             })}
 
-            {/* Infinite scroll observer + loading state */}
-            {pagination.hasMore ? (
-              <div ref={observerRef} className="flex justify-center py-8">
-                {loading.paginate && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading more items...
-                  </div>
-                )}
+            {/* Loading spinner ALWAYS show while hasMore: true */}
+            {pagination.hasMore && (
+              <div className="col-span-full flex flex-col items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Loading more items...
+                </p>
               </div>
-            ) : items.length > 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
+            )}
+
+            {/* Sentinel element for scroll detection */}
+            {pagination.hasMore && !loading.paginate && (
+              <div ref={observerRef} className="h-10" />
+            )}
+
+            {/* End of cart message */}
+            {!pagination.hasMore && items.length > 0 && (
+              <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                   <ShoppingCart className="h-8 w-8 text-primary" strokeWidth={1.5} />
                 </div>
@@ -315,7 +321,7 @@ export default function CartPage() {
                   All {totalItems} items are loaded
                 </p>
               </div>
-            ) : null}
+            )}
           </div>
 
           {/* ── Order Summary (desktop) ── */}
@@ -376,14 +382,6 @@ export default function CartPage() {
               <CustomButton className="w-full mb-2.5 gap-2 h-11 rounded-xl" onClick={handleCheckout}>
                 <CreditCard className="h-4 w-4" />
                 Proceed to Checkout
-              </CustomButton>
-              <CustomButton
-                variant="outline"
-                className="w-full gap-2 h-11 rounded-xl"
-                onClick={() => router.push("/products")}
-              >
-                <ShoppingBag className="h-4 w-4" />
-                Continue Shopping
               </CustomButton>
             </div>
           </div>

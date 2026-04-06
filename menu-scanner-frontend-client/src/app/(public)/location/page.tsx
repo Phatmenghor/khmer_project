@@ -244,13 +244,8 @@ export default function LocationPage() {
         })}
       </div>
 
-      {/* Load more sentinel for infinite scroll */}
+      {/* Skeleton loaders ALWAYS show while hasMore: true */}
       {locationPagination.hasMore && (
-        <div ref={sentinelRef} className="h-10 w-full mt-4" />
-      )}
-
-      {/* Pagination skeleton */}
-      {isLoading.fetch && locations.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-48 rounded-2xl" />
@@ -258,8 +253,13 @@ export default function LocationPage() {
         </div>
       )}
 
+      {/* Sentinel element for scroll detection */}
+      {locationPagination.hasMore && !isLoading.fetch && (
+        <div ref={sentinelRef} className="h-10 w-full mt-4" />
+      )}
+
       {/* End of locations message */}
-      {!locationPagination.hasMore && locations.length > 0 && !isLoading.fetch && (
+      {!locationPagination.hasMore && locations.length > 0 && (
         <div className="flex flex-col items-center justify-center mt-12 py-8 px-4">
           <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
             <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />

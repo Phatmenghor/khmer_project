@@ -247,13 +247,8 @@ export default function FavoritesPage() {
         })}
       </div>
 
-      {/* Load more sentinel for infinite scroll */}
+      {/* Skeleton loaders ALWAYS show while hasMore: true */}
       {pagination.hasMore && (
-        <div ref={sentinelRef} className="h-10 w-full mt-6" />
-      )}
-
-      {/* Pagination skeleton */}
-      {loading.fetch && items.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mt-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <ProductCardSkeleton key={`skeleton-${i}`} />
@@ -261,8 +256,13 @@ export default function FavoritesPage() {
         </div>
       )}
 
+      {/* Sentinel element for scroll detection */}
+      {pagination.hasMore && !loading.fetch && (
+        <div ref={sentinelRef} className="h-10 w-full mt-6" />
+      )}
+
       {/* End of favorites message */}
-      {!pagination.hasMore && items.length > 0 && !loading.fetch && (
+      {!pagination.hasMore && items.length > 0 && (
         <div className="flex flex-col items-center justify-center mt-10 py-8 px-4">
           <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
             <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -275,18 +275,6 @@ export default function FavoritesPage() {
           </p>
         </div>
       )}
-
-      {/* Bottom action */}
-      <div className="mt-8 sm:mt-12 flex justify-center">
-        <CustomButton
-          variant="outline"
-          onClick={() => router.push("/products")}
-          className="gap-2"
-        >
-          <ShoppingCart className="h-4 w-4" />
-          Continue Shopping
-        </CustomButton>
-      </div>
 
       <DeleteConfirmationModal
         isOpen={clearAllModalOpen}
