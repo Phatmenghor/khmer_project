@@ -65,7 +65,10 @@ export interface OrderPricingDetails {
   totalItems: number;
   subtotalBeforeDiscount: number;
   subtotal: number;
-  totalDiscount: number;
+  discountAmount: number;
+  hasActivePromotion: boolean;
+  promotionType: PromotionTypeEnum | null;
+  promotionValue: number | null;
   deliveryFee: number;
   taxAmount: number;
   finalTotal: number;
