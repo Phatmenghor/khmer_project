@@ -691,6 +691,8 @@ export function OrderDetailModal({
                               {formatCurrency(current?.finalPrice || 0)}
                             </div>
                           )}
+                            </div>
+                          </div>
                         </div>
 
                         {item.hadChangeFromPOS && item.reason && (
