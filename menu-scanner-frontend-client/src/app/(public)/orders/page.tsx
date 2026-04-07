@@ -292,10 +292,10 @@ export default function OrdersPage() {
 
       {/* Filters Section */}
       <div className="mt-8 mb-6 space-y-4">
-        {/* Search and Filters Row - All on one line, responsive */}
+        {/* Search and Filters Row - Search left, Filters right */}
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end w-full">
-          {/* Search Bar */}
-          <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
+          {/* Search Bar - Left side, takes available space */}
+          <div className="flex-1 min-w-0 w-full sm:w-auto">
             <label className="text-sm font-semibold text-foreground mb-2 block">
               Search Orders
             </label>
@@ -325,50 +325,53 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          {/* Order Status Filter */}
-          <div className="w-auto flex-shrink-0
-            [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
-            [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
-            [&_.w-full]:!w-auto">
-            <CustomSelect
-              options={[
-                { value: "", label: "All Order Status" },
-                ...ORDER_STATUS_ADMIN_FILTER.filter(opt => opt.value !== "ALL"),
-              ]}
-              value={filters.status || ""}
-              placeholder="Filter by order status"
-              onValueChange={handleStatusChange}
-              label="Order Status"
-              size="xl"
-            />
-          </div>
+          {/* Filters and Clear Button Container - Right side */}
+          <div className="flex flex-shrink-0 gap-3 items-end w-full sm:w-auto">
+            {/* Order Status Filter */}
+            <div className="w-auto flex-shrink-0
+              [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
+              [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
+              [&_.w-full]:!w-auto">
+              <CustomSelect
+                options={[
+                  { value: "", label: "All Order Status" },
+                  ...ORDER_STATUS_ADMIN_FILTER.filter(opt => opt.value !== "ALL"),
+                ]}
+                value={filters.status || ""}
+                placeholder="Filter by order status"
+                onValueChange={handleStatusChange}
+                label="Order Status"
+                size="xl"
+              />
+            </div>
 
-          {/* Payment Status Filter */}
-          <div className="w-auto flex-shrink-0
-            [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
-            [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
-            [&_.w-full]:!w-auto">
-            <CustomSelect
-              options={PAYMENT_STATUS_ADMIN_FILTER}
-              value={filters.paymentStatus || "ALL"}
-              placeholder="Filter by payment status"
-              onValueChange={handlePaymentStatusChange}
-              label="Payment Status"
-              size="xl"
-            />
-          </div>
+            {/* Payment Status Filter */}
+            <div className="w-auto flex-shrink-0
+              [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
+              [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
+              [&_.w-full]:!w-auto">
+              <CustomSelect
+                options={PAYMENT_STATUS_ADMIN_FILTER}
+                value={filters.paymentStatus || "ALL"}
+                placeholder="Filter by payment status"
+                onValueChange={handlePaymentStatusChange}
+                label="Payment Status"
+                size="xl"
+              />
+            </div>
 
-          {/* Clear Filters Button */}
-          {hasActiveFilters && (
-            <CustomButton
-              onClick={handleClearFilters}
-              variant="ghost"
-              className="h-11 px-4 flex items-center gap-2 border border-border/50 self-end"
-            >
-              <X className="h-4 w-4" />
-              Clear
-            </CustomButton>
-          )}
+            {/* Clear Filters Button */}
+            {hasActiveFilters && (
+              <CustomButton
+                onClick={handleClearFilters}
+                variant="ghost"
+                className="h-11 px-4 flex items-center gap-2 border border-border/50 flex-shrink-0"
+              >
+                <X className="h-4 w-4" />
+                Clear
+              </CustomButton>
+            )}
+          </div>
         </div>
 
         {/* Active Filters Display */}
