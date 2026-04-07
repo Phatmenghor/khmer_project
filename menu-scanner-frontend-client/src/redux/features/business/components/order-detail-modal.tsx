@@ -627,7 +627,7 @@ export function OrderDetailModal({
                   {orderData.statusHistory.map((history, idx) => (
                     <div
                       key={history.id}
-                      className="text-sm"
+                      className="text-sm border border-border rounded-lg p-3"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
