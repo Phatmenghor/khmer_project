@@ -632,6 +632,11 @@ public class OrderServiceImpl implements OrderService {
             // Always set hadOrderLevelChangeFromPOS (true/false, never null)
             order.setHadOrderLevelChangeFromPOS(pricingInfo.getHadOrderLevelChangeFromPOS() != null && pricingInfo.getHadOrderLevelChangeFromPOS());
 
+            // Store the discount type (PERCENTAGE or FIXED_AMOUNT)
+            if (pricingInfo.getDiscountType() != null && !pricingInfo.getDiscountType().isEmpty()) {
+                order.setDiscountType(pricingInfo.getDiscountType());
+            }
+
             // Store the reason for order-level changes
             if (pricingInfo.getOrderLevelChangeReason() != null && !pricingInfo.getOrderLevelChangeReason().isEmpty()) {
                 order.setOrderLevelChangeReason(pricingInfo.getOrderLevelChangeReason());

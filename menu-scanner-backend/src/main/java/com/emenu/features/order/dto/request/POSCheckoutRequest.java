@@ -112,6 +112,9 @@ public class POSCheckoutRequest {
         // Snapshot AFTER order-level modifications
         private OrderPricingSnapshot after;
 
+        // Type of order-level discount (PERCENTAGE or FIXED_AMOUNT)
+        private String discountType;
+
         // Reason for order-level change
         private String orderLevelChangeReason;
     }
