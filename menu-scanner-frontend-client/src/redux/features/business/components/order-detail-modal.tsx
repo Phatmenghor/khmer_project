@@ -723,6 +723,7 @@ export function OrderDetailModal({
                       value={orderData.businessNote}
                     />
                   )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
