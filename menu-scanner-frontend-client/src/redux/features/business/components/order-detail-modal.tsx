@@ -120,8 +120,8 @@ export function OrderDetailModal({
               </CardHeader>
               <CardContent className="space-y-4 pt-4">
                 {/* Order Details */}
-                <div>
-                  <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Order Details</h4>
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                  <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-3">Order Details</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Order Number"
@@ -207,15 +207,15 @@ export function OrderDetailModal({
                 </div>
 
                 {/* Pricing Details */}
-                <div>
-                  <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-3 mt-2">💰 Pricing Details</h4>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-3">💰 Pricing Details</h4>
                   <div className="space-y-3">
                     {/* Before Snapshot */}
                     {(() => {
                       const before = orderData.pricing?.before;
                       return (
-                        <div className="space-y-2">
-                          <h5 className="text-xs font-medium text-muted-foreground mb-1 uppercase">📌 Before</h5>
+                        <div className="bg-gray-50 border border-gray-200 rounded p-3 space-y-2">
+                          <h5 className="text-xs font-medium text-gray-700 font-bold mb-2">📌 Before (Item Discounts Applied)</h5>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                             <DisplayField
                               label="Total Items"
@@ -280,8 +280,8 @@ export function OrderDetailModal({
 
                     {/* After Snapshot (if changes occurred) */}
                     {orderData.pricing?.hadOrderLevelChangeFromPOS && orderData.pricing?.after && (
-                      <div className="space-y-2">
-                        <h5 className="text-xs font-medium text-muted-foreground mb-1 uppercase">🔄 After</h5>
+                      <div className="bg-orange-50 border border-orange-200 rounded p-3 space-y-2">
+                        <h5 className="text-xs font-medium text-orange-700 font-bold mb-2">🔄 After (Order-Level Discount Applied)</h5>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                           <DisplayField
                             label="Total Items"
@@ -524,9 +524,9 @@ export function OrderDetailModal({
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {/* Full Address */}
-                  <div>
-                    <label className="text-xs font-bold text-primary uppercase tracking-wider block mb-1">
-                      Address
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <label className="text-xs font-bold text-blue-700 uppercase tracking-wider block mb-2">
+                      📫 Address
                     </label>
                     <p className="text-sm text-foreground">
                       {(() => {
@@ -547,11 +547,11 @@ export function OrderDetailModal({
 
                   {/* Delivery Note with Action Buttons */}
                   {orderData.deliveryAddress.note && (
-                    <div>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
-                          <label className="text-xs font-bold text-primary uppercase tracking-wider block mb-1">
-                            Delivery Note
+                          <label className="text-xs font-bold text-blue-700 uppercase tracking-wider block mb-2">
+                            📝 Delivery Note
                           </label>
                           <p className="text-sm text-foreground">
                             {orderData.deliveryAddress.note}
@@ -602,8 +602,8 @@ export function OrderDetailModal({
 
                   {/* Delivery Option */}
                   {orderData.deliveryOption && (
-                    <div>
-                      <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-1 mt-2">🚚 Delivery</h4>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <h4 className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">🚚 Delivery Method</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <DisplayField
                           label="Method"
@@ -633,14 +633,14 @@ export function OrderDetailModal({
                   {orderData.statusHistory.map((history, idx) => (
                     <div
                       key={history.id}
-                      className="p-2 border rounded text-sm"
+                      className="p-3 border border-purple-200 rounded-lg text-sm bg-purple-50"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold bg-muted px-2 py-1 rounded">
+                          <span className="text-xs font-bold bg-purple-200 text-purple-700 px-2 py-1 rounded">
                             Step {idx + 1}
                           </span>
-                          <span className="font-medium text-sm">
+                          <span className="font-medium text-sm text-purple-900">
                             {history.statusName}
                           </span>
                         </div>
@@ -676,12 +676,13 @@ export function OrderDetailModal({
             )}
 
             {/* System Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">System Information</CardTitle>
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
+              <CardHeader className="pb-4 border-b">
+                <CardTitle className="text-lg font-bold text-foreground">⚙️ System Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DisplayField
                     label="Order ID"
                     value={
