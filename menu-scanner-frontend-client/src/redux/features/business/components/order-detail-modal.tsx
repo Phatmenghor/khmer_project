@@ -340,40 +340,44 @@ export function OrderDetailModal({
                       >
                         {/* Product Image and Header */}
                         <div className="mb-3">
-                          {item.product?.imageUrl && (
-                            <div className="mb-3 rounded-lg overflow-hidden border border-gray-200">
-                              <img
-                                src={item.product.imageUrl}
-                                alt={item.product.name}
-                                className="w-full h-32 object-cover"
-                              />
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-semibold text-sm">
-                              #{idx + 1} - {item.product?.name || "Unknown"}
-                            </h4>
-                            <div className="flex gap-2">
-                              {(current?.discountAmount ?? 0) > 0 && (
-                                <span className="text-xs px-2 py-1 bg-red-600 text-white rounded">
-                                  💰 Discounted
-                                </span>
-                              )}
-                              {item.hadChangeFromPOS && (
-                                <span className="text-xs px-2 py-1 bg-orange-600 text-white rounded">
-                                  Modified
-                                </span>
-                              )}
+                          <div className="flex items-start gap-3 mb-2">
+                            {/* Product Image - 64x64 */}
+                            {item.product?.imageUrl && (
+                              <div className="flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
+                                <img
+                                  src={item.product.imageUrl}
+                                  alt={item.product.name}
+                                  className="w-16 h-16 object-cover"
+                                />
+                              </div>
+                            )}
+                            {/* Product Name and Badges */}
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <h4 className="font-semibold text-sm">
+                                  #{idx + 1} - {item.product?.name || "Unknown"}
+                                </h4>
+                                <div className="flex gap-2">
+                                  {(current?.discountAmount ?? 0) > 0 && (
+                                    <span className="text-xs px-2 py-1 bg-red-600 text-white rounded whitespace-nowrap">
+                                      💰 Discounted
+                                    </span>
+                                  )}
+                                  {item.hadChangeFromPOS && (
+                                    <span className="text-xs px-2 py-1 bg-orange-600 text-white rounded whitespace-nowrap">
+                                      Modified
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           </div>
-                          <div className="flex flex-wrap gap-3 mt-1 text-xs">
-                            {item.product?.sizeName && (
+                          {/* Size and SKU */}
+                          <div className="flex flex-wrap gap-3 text-xs">
+                            {item.product?.sizeName && item.product?.sku && (
                               <span className="text-muted-foreground">
                                 Size: <span className="font-medium">{item.product.sizeName}</span>
-                              </span>
-                            )}
-                            {item.product?.sku && (
-                              <span className="text-muted-foreground">
+                                {" | "}
                                 SKU: <span className="font-mono font-medium text-foreground">{item.product.sku}</span>
                               </span>
                             )}
