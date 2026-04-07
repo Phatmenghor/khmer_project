@@ -1011,11 +1011,41 @@ SELECT
     '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, '550e8400-e29b-41d4-a716-446655550002'::uuid,
     'ORD-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-' || LPAD(i::text, 3, '0'),
     CASE WHEN (i % 5) = 0 THEN 'PENDING' WHEN (i % 5) = 1 THEN 'CONFIRMED' WHEN (i % 5) = 2 THEN 'PREPARING' WHEN (i % 5) = 3 THEN 'COMPLETED' ELSE 'CANCELLED' END,
-    'PUBLIC', 'CUSTOMER', (50 + (i % 100))::numeric, CASE WHEN (i % 8) = 0 THEN 5::numeric ELSE 0::numeric END, CASE WHEN (i % 8) = 0 THEN 'FIXED_AMOUNT' ELSE NULL END, 2::numeric, 5::numeric,
-    (50 + (i % 100) - CASE WHEN (i % 8) = 0 THEN 5::numeric ELSE 0::numeric END + 2::numeric + 5::numeric)::numeric,
-    'CASH', CASE WHEN (i % 5) IN (3,4) THEN 'PAID' ELSE 'PENDING' END,
+    'PUBLIC', 'CUSTOMER', (50 + (i % 100))::numeric,
+    -- Discount amount varies by type
+    CASE
+      WHEN (i % 10) = 0 THEN ROUND(((50 + (i % 100)) * 0.10)::numeric, 2)  -- 10% discount
+      WHEN (i % 10) = 1 THEN 3::numeric                                     -- $3 fixed discount
+      WHEN (i % 10) = 2 THEN ROUND(((50 + (i % 100)) * 0.05)::numeric, 2)  -- 5% discount
+      WHEN (i % 10) = 3 THEN 5::numeric                                     -- $5 fixed discount
+      ELSE 0::numeric
+    END,
+    -- Discount type
+    CASE
+      WHEN (i % 10) IN (0, 2) THEN 'PERCENTAGE'
+      WHEN (i % 10) IN (1, 3) THEN 'FIXED_AMOUNT'
+      ELSE NULL
+    END,
+    2::numeric, 5::numeric,
+    (50 + (i % 100)) - CASE
+      WHEN (i % 10) = 0 THEN ROUND(((50 + (i % 100)) * 0.10)::numeric, 2)
+      WHEN (i % 10) = 1 THEN 3::numeric
+      WHEN (i % 10) = 2 THEN ROUND(((50 + (i % 100)) * 0.05)::numeric, 2)
+      WHEN (i % 10) = 3 THEN 5::numeric
+      ELSE 0::numeric
+    END + 2::numeric + 5::numeric,
+    CASE WHEN (i % 3) = 0 THEN 'CASH' WHEN (i % 3) = 1 THEN 'ONLINE' ELSE 'CARD' END,
+    CASE WHEN (i % 5) IN (3,4) THEN 'PAID' ELSE 'PENDING' END,
     'Customer ' || i::text, '+855 10 ' || LPAD((900000 + i)::text, 6, '0'), 'customer' || i::text || '@example.com',
-    'Note ' || i::text, 'Processing ' || i::text, (i % 8) = 0, CASE WHEN (i % 8) = 0 THEN 'Discount applied' ELSE 'No changes' END,
+    'Note ' || i::text, 'Processing ' || i::text,
+    (i % 10) IN (0, 1, 2, 3),
+    CASE
+      WHEN (i % 10) = 0 THEN 'Senior discount (10% off)'
+      WHEN (i % 10) = 1 THEN 'Loyalty promotion ($3 off)'
+      WHEN (i % 10) = 2 THEN 'Happy hour special (5% off)'
+      WHEN (i % 10) = 3 THEN 'Voucher applied ($5 off)'
+      ELSE 'No order-level discount'
+    END,
     NOW() - (random() * 90)::int * INTERVAL '1 day', CASE WHEN (i % 5) = 3 THEN NOW() - (random() * 90)::int * INTERVAL '1 day' ELSE NULL END
 FROM generate_series(1, 100) AS t(i);
 
@@ -1025,11 +1055,44 @@ SELECT
     gen_random_uuid(), 0, NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day', 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, CASE WHEN (i % 3) = 0 THEN '550e8400-e29b-41d4-a716-446655550002'::uuid ELSE NULL END,
     'ORD-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-' || LPAD((100 + i)::text, 3, '0'),
-    'COMPLETED', 'POS', 'BUSINESS', (45 + (i % 100))::numeric, CASE WHEN (i % 5) = 0 THEN 3::numeric ELSE 0::numeric END, CASE WHEN (i % 5) = 0 THEN 'FIXED_AMOUNT' ELSE NULL END, 0::numeric, 4::numeric,
-    (45 + (i % 100) - CASE WHEN (i % 5) = 0 THEN 3::numeric ELSE 0::numeric END + 4::numeric)::numeric,
-    'CASH', 'PAID',
+    'COMPLETED', 'POS', 'BUSINESS', (45 + (i % 100))::numeric,
+    -- POS discount amount (more variety with higher discounts for staff/manager adjustments)
+    CASE
+      WHEN (i % 6) = 0 THEN ROUND(((45 + (i % 100)) * 0.15)::numeric, 2)  -- 15% manager discount
+      WHEN (i % 6) = 1 THEN 5::numeric                                     -- $5 adjustment
+      WHEN (i % 6) = 2 THEN ROUND(((45 + (i % 100)) * 0.20)::numeric, 2)  -- 20% staff discount
+      WHEN (i % 6) = 3 THEN 8::numeric                                     -- $8 adjustment
+      WHEN (i % 6) = 4 THEN ROUND(((45 + (i % 100)) * 0.10)::numeric, 2)  -- 10% complimentary
+      ELSE 0::numeric
+    END,
+    -- POS discount type
+    CASE
+      WHEN (i % 6) IN (0, 2, 4) THEN 'PERCENTAGE'
+      WHEN (i % 6) IN (1, 3) THEN 'FIXED_AMOUNT'
+      ELSE NULL
+    END,
+    0::numeric, 4::numeric,
+    (45 + (i % 100)) - CASE
+      WHEN (i % 6) = 0 THEN ROUND(((45 + (i % 100)) * 0.15)::numeric, 2)
+      WHEN (i % 6) = 1 THEN 5::numeric
+      WHEN (i % 6) = 2 THEN ROUND(((45 + (i % 100)) * 0.20)::numeric, 2)
+      WHEN (i % 6) = 3 THEN 8::numeric
+      WHEN (i % 6) = 4 THEN ROUND(((45 + (i % 100)) * 0.10)::numeric, 2)
+      ELSE 0::numeric
+    END + 4::numeric,
+    CASE WHEN (i % 3) = 0 THEN 'CASH' WHEN (i % 3) = 1 THEN 'CARD' ELSE 'ONLINE' END,
+    'PAID',
     'POS Customer ' || i::text, '+855 10 ' || LPAD((800000 + i)::text, 6, '0'), 'pos.customer' || i::text || '@example.com',
-    'POS ' || i::text, 'Admin order ' || i::text, (i % 5) = 0, CASE WHEN (i % 5) = 0 THEN 'Override' ELSE 'None' END,
+    'POS ' || i::text, 'Admin order ' || i::text,
+    (i % 6) IN (0, 1, 2, 3, 4),
+    CASE
+      WHEN (i % 6) = 0 THEN 'Manager discount (15% off)'
+      WHEN (i % 6) = 1 THEN 'Price adjustment ($5 off)'
+      WHEN (i % 6) = 2 THEN 'Staff meal discount (20% off)'
+      WHEN (i % 6) = 3 THEN 'Complimentary adjustment ($8 off)'
+      WHEN (i % 6) = 4 THEN 'Complimentary item (10% off)'
+      ELSE 'No POS adjustment'
+    END,
     NOW() - (random() * 90)::int * INTERVAL '1 day', NOW() - (random() * 90)::int * INTERVAL '1 day'
 FROM generate_series(1, 100) AS t(i);
 
