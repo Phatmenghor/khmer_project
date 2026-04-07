@@ -24,6 +24,7 @@ public interface OrderItemMapper {
     List<OrderItemResponse> toResponseList(List<OrderItem> orderItems);
 
     default OrderItemResponse.OrderItemProductInfo mapProductInfo(OrderItem orderItem) {
+
         if (orderItem.getProduct() == null) {
             return null;
         }
@@ -51,13 +52,10 @@ public interface OrderItemMapper {
                     .finalPrice(snapshot.getBeforeFinalPrice())
                     .hasActivePromotion(snapshot.getBeforeHasActivePromotion())
                     .quantity(orderItem.getQuantity())
-                    .totalBeforeDiscount(calculateTotalBeforeDiscount(snapshot.getBeforeCurrentPrice(), orderItem.getQuantity()))
                     .discountAmount(snapshot.getBeforeDiscountAmount())
                     .totalPrice(snapshot.getBeforeTotalPrice())
                     .promotionType(snapshot.getBeforePromotionType())
                     .promotionValue(snapshot.getBeforePromotionValue())
-                    .promotionFromDate(snapshot.getBeforePromotionFromDate())
-                    .promotionToDate(snapshot.getBeforePromotionToDate())
                     .build();
         }
         // Fall back to building from current pricing if no before data
@@ -73,24 +71,14 @@ public interface OrderItemMapper {
                     .finalPrice(snapshot.getAfterFinalPrice())
                     .hasActivePromotion(snapshot.getAfterHasActivePromotion())
                     .quantity(orderItem.getQuantity())
-                    .totalBeforeDiscount(calculateTotalBeforeDiscount(snapshot.getAfterCurrentPrice(), orderItem.getQuantity()))
                     .discountAmount(snapshot.getAfterDiscountAmount())
                     .totalPrice(snapshot.getAfterTotalPrice())
                     .promotionType(snapshot.getAfterPromotionType())
                     .promotionValue(snapshot.getAfterPromotionValue())
-                    .promotionFromDate(snapshot.getAfterPromotionFromDate())
-                    .promotionToDate(snapshot.getAfterPromotionToDate())
                     .build();
         }
         // Fall back to building from current pricing if no after data
         return buildDefaultAfterSnapshot(orderItem);
-    }
-
-    default BigDecimal calculateTotalBeforeDiscount(BigDecimal price, Integer quantity) {
-        if (price == null || quantity == null) {
-            return BigDecimal.ZERO;
-        }
-        return price.multiply(new BigDecimal(quantity));
     }
 
     default OrderItemPricingSnapshot buildDefaultBeforeSnapshot(OrderItem orderItem) {
@@ -101,13 +89,10 @@ public interface OrderItemMapper {
         snapshot.setFinalPrice(orderItem.getCurrentPrice() != null ? orderItem.getCurrentPrice() : BigDecimal.ZERO);
         snapshot.setHasActivePromotion(orderItem.getHasPromotion() != null ? orderItem.getHasPromotion() : false);
         snapshot.setQuantity(orderItem.getQuantity() != null ? orderItem.getQuantity() : 0);
-        snapshot.setTotalBeforeDiscount(calculateTotalBeforeDiscount(orderItem));
         snapshot.setDiscountAmount(BigDecimal.ZERO);
         snapshot.setTotalPrice(calculateTotalBeforeDiscount(orderItem));
         snapshot.setPromotionType(orderItem.getPromotionType());
         snapshot.setPromotionValue(orderItem.getPromotionValue());
-        snapshot.setPromotionFromDate(orderItem.getPromotionFromDate());
-        snapshot.setPromotionToDate(orderItem.getPromotionToDate());
         return snapshot;
     }
 
@@ -118,13 +103,10 @@ public interface OrderItemMapper {
         snapshot.setFinalPrice(orderItem.getFinalPrice() != null ? orderItem.getFinalPrice() : orderItem.getUnitPrice());
         snapshot.setHasActivePromotion(orderItem.getHasPromotion() != null ? orderItem.getHasPromotion() : false);
         snapshot.setQuantity(orderItem.getQuantity() != null ? orderItem.getQuantity() : 0);
-        snapshot.setTotalBeforeDiscount(calculateTotalBeforeDiscount(orderItem));
         snapshot.setDiscountAmount(calculateDiscountAmount(orderItem));
         snapshot.setTotalPrice(orderItem.getTotalPrice() != null ? orderItem.getTotalPrice() : BigDecimal.ZERO);
         snapshot.setPromotionType(orderItem.getPromotionType());
         snapshot.setPromotionValue(orderItem.getPromotionValue());
-        snapshot.setPromotionFromDate(orderItem.getPromotionFromDate());
-        snapshot.setPromotionToDate(orderItem.getPromotionToDate());
         return snapshot;
     }
 

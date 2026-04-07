@@ -16,15 +16,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItemPricingSnapshot {
-    private BigDecimal currentPrice;           // Base price (before promotion)
-    private BigDecimal finalPrice;             // Price after promotion
-    private Boolean hasActivePromotion;        // Has promotion applied
-    private Integer quantity;
-    private BigDecimal totalBeforeDiscount;    // currentPrice × quantity
-    private BigDecimal discountAmount;         // (currentPrice - finalPrice) × quantity
-    private BigDecimal totalPrice;             // finalPrice × quantity
-    private String promotionType;              // PERCENTAGE or FIXED_AMOUNT
-    private BigDecimal promotionValue;
-    private LocalDateTime promotionFromDate;
-    private LocalDateTime promotionToDate;
+    private BigDecimal currentPrice;        // Base price per unit (before promotion/discount)
+    private BigDecimal finalPrice;          // Unit price after all adjustments
+    private Integer quantity;               // Item quantity
+    private BigDecimal discountAmount;      // Total discount on this item
+    private BigDecimal totalPrice;          // Final total = (finalPrice × quantity) - discountAmount
+    private Boolean hasActivePromotion;     // Whether promotion is applied
+    private String promotionType;           // PERCENTAGE or FIXED_AMOUNT (only if hasActivePromotion=true)
+    private BigDecimal promotionValue;      // Promotion amount/percentage (only if hasActivePromotion=true)
 }
