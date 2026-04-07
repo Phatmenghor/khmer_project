@@ -161,7 +161,7 @@ public class OrderController {
         long startTime = System.currentTimeMillis();
         log.info("✏️ [API REQUEST] PUT /api/v1/orders/{} | Order ID: {}", id, id);
         log.debug("📋 [UPDATE DETAILS] Status: {}, PaymentStatus: {}, HasDeliveryAddress: {}, BusinessNote: {}",
-                request.getOrderStatus(), request.getPaymentStatus(), request.getDeliveryAddress() != null, request.getBusinessNote() != null);
+                request.getOrderStatus(), request.getPayment() != null ? request.getPayment().getPaymentStatus() : null, request.getDeliveryAddress() != null, request.getBusinessNote() != null);
 
         OrderResponse order = orderService.updateOrder(id, request);
 

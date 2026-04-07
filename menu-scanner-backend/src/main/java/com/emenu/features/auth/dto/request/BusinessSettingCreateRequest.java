@@ -34,10 +34,6 @@ public class BusinessSettingCreateRequest {
 
     private String primaryColor;
 
-    private String secondaryColor;
-
-    private String accentColor;
-
     // Contact Information
     private String contactAddress;
 

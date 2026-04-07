@@ -350,11 +350,13 @@ public class OrderServiceImpl implements OrderService {
             order.setTotalAmount(order.getSubtotal().add(request.getDeliveryOption().getPrice()));
         }
 
-        if (request.getPaymentMethod() != null) {
-            order.setPaymentMethod(request.getPaymentMethod());
-        }
-        if (request.getPaymentStatus() != null) {
-            order.setPaymentStatus(request.getPaymentStatus());
+        if (request.getPayment() != null) {
+            if (request.getPayment().getPaymentMethod() != null) {
+                order.setPaymentMethod(request.getPayment().getPaymentMethod());
+            }
+            if (request.getPayment().getPaymentStatus() != null) {
+                order.setPaymentStatus(request.getPayment().getPaymentStatus());
+            }
         }
         if (request.getCustomerNote() != null) {
             order.setCustomerNote(request.getCustomerNote());
@@ -406,21 +408,27 @@ public class OrderServiceImpl implements OrderService {
             order.setSubtotal(newSubtotal);
         }
 
-        // Full update fields
-        if (request.getDiscountAmount() != null) {
-            order.setDiscountAmount(request.getDiscountAmount());
-        }
-        if (request.getTaxAmount() != null) {
-            order.setTaxAmount(request.getTaxAmount());
-        }
-        if (request.getDeliveryFee() != null && request.getDeliveryOption() == null) {
-            // Only update delivery fee directly if delivery option is not provided
-            order.setDeliveryFee(request.getDeliveryFee());
+        // Full update fields (from pricing info if available)
+        if (request.getPricing() != null && request.getPricing().getAfter() != null) {
+            OrderPricingSnapshot after = request.getPricing().getAfter();
+            if (after.getDiscountAmount() != null) {
+                order.setDiscountAmount(after.getDiscountAmount());
+            }
+            if (after.getTaxAmount() != null) {
+                order.setTaxAmount(after.getTaxAmount());
+            }
+            if (after.getDeliveryFee() != null && request.getDeliveryOption() == null) {
+                // Only update delivery fee directly if delivery option is not provided
+                order.setDeliveryFee(after.getDeliveryFee());
+            }
         }
 
         // Recalculate total amount if any pricing fields are updated or items changed
-        if (request.getItems() != null || request.getDiscountAmount() != null || request.getTaxAmount() != null ||
-            (request.getDeliveryFee() != null && request.getDeliveryOption() == null)) {
+        if (request.getItems() != null ||
+            (request.getPricing() != null && request.getPricing().getAfter() != null &&
+             (request.getPricing().getAfter().getDiscountAmount() != null ||
+              request.getPricing().getAfter().getTaxAmount() != null ||
+              (request.getPricing().getAfter().getDeliveryFee() != null && request.getDeliveryOption() == null)))) {
             BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
             BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
             BigDecimal delivery = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;

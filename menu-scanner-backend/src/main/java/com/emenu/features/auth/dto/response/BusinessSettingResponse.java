@@ -24,8 +24,6 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private StockStatus enableStock;
     private List<SocialMediaResponse> socialMedia;
     private String primaryColor;
-    private String secondaryColor;
-    private String accentColor;
 
     // Contact Information
     private String contactAddress;

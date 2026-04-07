@@ -42,12 +42,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "primary_color")
     private String primaryColor;
 
-    @Column(name = "secondary_color")
-    private String secondaryColor;
-
-    @Column(name = "accent_color")
-    private String accentColor;
-
     // Contact Information
     @Column(name = "contact_address", length = 500)
     private String contactAddress;
