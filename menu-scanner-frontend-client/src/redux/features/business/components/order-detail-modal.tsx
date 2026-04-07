@@ -340,7 +340,7 @@ export function OrderDetailModal({
                       >
                         {/* Product Image and Header */}
                         <div className="mb-3">
-                          <div className="flex items-start gap-3 mb-2">
+                          <div className="flex items-start gap-3">
                             {/* Product Image - 64x64 */}
                             {item.product?.imageUrl && (
                               <div className="flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
@@ -351,9 +351,9 @@ export function OrderDetailModal({
                                 />
                               </div>
                             )}
-                            {/* Product Name and Badges */}
+                            {/* Product Name, Badges, and Details */}
                             <div className="flex-1">
-                              <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center justify-between gap-2 mb-1">
                                 <h4 className="font-semibold text-sm">
                                   #{idx + 1} - {item.product?.name || "Unknown"}
                                 </h4>
@@ -370,22 +370,22 @@ export function OrderDetailModal({
                                   )}
                                 </div>
                               </div>
+                              {/* Size, SKU, and Barcode - under product name */}
+                              <div className="flex flex-wrap gap-3 text-xs">
+                                {item.product?.sizeName && item.product?.sku && (
+                                  <span className="text-muted-foreground">
+                                    Size: <span className="font-medium">{item.product.sizeName}</span>
+                                    {" | "}
+                                    SKU: <span className="font-mono font-medium text-foreground">{item.product.sku}</span>
+                                  </span>
+                                )}
+                                {item.product?.barcode && (
+                                  <span className="text-muted-foreground">
+                                    Barcode: <span className="font-mono font-medium text-foreground">{item.product.barcode}</span>
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          {/* Size and SKU */}
-                          <div className="flex flex-wrap gap-3 text-xs">
-                            {item.product?.sizeName && item.product?.sku && (
-                              <span className="text-muted-foreground">
-                                Size: <span className="font-medium">{item.product.sizeName}</span>
-                                {" | "}
-                                SKU: <span className="font-mono font-medium text-foreground">{item.product.sku}</span>
-                              </span>
-                            )}
-                            {item.product?.barcode && (
-                              <span className="text-muted-foreground">
-                                Barcode: <span className="font-mono font-medium text-foreground">{item.product.barcode}</span>
-                              </span>
-                            )}
                           </div>
                         </div>
 
