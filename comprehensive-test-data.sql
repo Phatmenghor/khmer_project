@@ -138,18 +138,18 @@ SELECT
     p.product_sku,
     p.price,
     -- Final price with discount applied
-    CASE WHEN (t.item_num % 3) = 0 THEN ROUND(p.price * 0.85, 2)
-         WHEN (t.item_num % 3) = 1 THEN ROUND(p.price * 0.90, 2)
-         ELSE p.price END,
+    CASE WHEN (t.item_num % 3) = 0 THEN ROUND(p.price * 0.85, 2)    -- 15% discount
+         WHEN (t.item_num % 3) = 1 THEN ROUND(p.price * 0.95, 2)    -- 5% discount (matches $5 fixed amount better)
+         ELSE ROUND(p.price * 0.90, 2) END,                          -- 10% discount
     p.price,
     true,  -- All items have active promotions
-    -- Varied promotion types: 15%, $5 discount, 10%
+    -- Varied promotion types: 15% PERCENTAGE, ~5% FIXED_AMOUNT, 10% PERCENTAGE
     CASE WHEN (t.item_num % 3) = 0 THEN 'PERCENTAGE'
          WHEN (t.item_num % 3) = 1 THEN 'FIXED_AMOUNT'
          ELSE 'PERCENTAGE' END,
-    CASE WHEN (t.item_num % 3) = 0 THEN 15
-         WHEN (t.item_num % 3) = 1 THEN 5
-         ELSE 10 END,
+    CASE WHEN (t.item_num % 3) = 0 THEN 15                           -- 15%
+         WHEN (t.item_num % 3) = 1 THEN 5                            -- $5 fixed
+         ELSE 10 END,                                                 -- 10%
     NOW() - INTERVAL '5 days',
     NOW() + INTERVAL '25 days',
     -- Quantity: 1, 2, or 3
@@ -158,7 +158,7 @@ SELECT
          ELSE 1 END,
     -- Total price calculation
     CASE WHEN (t.item_num % 3) = 0 THEN ROUND(p.price * 0.85 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2)
-         WHEN (t.item_num % 3) = 1 THEN ROUND(p.price * 0.90 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2)
+         WHEN (t.item_num % 3) = 1 THEN ROUND(p.price * 0.95 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2)
          ELSE ROUND(p.price * 0.90 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2) END,
     'Special preparation: ' || CASE WHEN (t.item_num % 4) = 0 THEN 'No onions, extra spicy'
                                      WHEN (t.item_num % 4) = 1 THEN 'Light salt, no MSG'
@@ -217,7 +217,7 @@ SELECT
     oi.current_price,
     oi.final_price,
     oi.has_promotion,
-    ROUND((oi.current_price - oi.final_price)::numeric, 2),
+    ROUND(((oi.current_price - oi.final_price) * oi.quantity)::numeric, 2),  -- Total discount for quantity
     oi.total_price,
     oi.promotion_type,
     oi.promotion_value,
@@ -232,11 +232,11 @@ SELECT
                                                    (oi.final_price / NULLIF(oi.current_price, 0)), 2)
          ELSE oi.final_price END,
     oi.has_promotion,
-    -- Discount amount on new price
+    -- Discount amount on new price (including quantity)
     CASE WHEN oi.had_change_from_pos
-         THEN ROUND((ROUND(oi.current_price * 1.1, 2) -
-                     ROUND(ROUND(oi.current_price * 1.1, 2) * (oi.final_price / NULLIF(oi.current_price, 0)), 2))::numeric, 2)
-         ELSE ROUND((oi.current_price - oi.final_price)::numeric, 2) END,
+         THEN ROUND(((ROUND(oi.current_price * 1.1, 2) -
+                      ROUND(ROUND(oi.current_price * 1.1, 2) * (oi.final_price / NULLIF(oi.current_price, 0)), 2)) * oi.quantity)::numeric, 2)
+         ELSE ROUND(((oi.current_price - oi.final_price) * oi.quantity)::numeric, 2) END,
     -- Total price on new price
     CASE WHEN oi.had_change_from_pos
          THEN ROUND(ROUND(ROUND(oi.current_price * 1.1, 2) * (oi.final_price / NULLIF(oi.current_price, 0)), 2) * oi.quantity, 2)
