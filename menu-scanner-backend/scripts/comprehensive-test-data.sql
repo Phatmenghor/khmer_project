@@ -84,7 +84,8 @@ BEGIN
   -- Check if id column is still BIGINT/numeric type
   IF EXISTS (SELECT 1 FROM information_schema.columns
              WHERE table_name = 'order_counters' AND column_name = 'id'
-             AND data_type IN ('bigint', 'integer')) THEN
+             AND data_type IN ('bigint', 'integer')
+             ) THEN
     ALTER TABLE order_counters ADD COLUMN id_new UUID;
     UPDATE order_counters SET id_new = gen_random_uuid();
     ALTER TABLE order_counters ALTER COLUMN id_new SET NOT NULL;
@@ -104,7 +105,8 @@ DO $$
 BEGIN
   -- Add order_from column if it doesn't exist
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                 WHERE table_name = 'orders' AND column_name = 'order_from') THEN
+                 WHERE table_name = 'orders' AND column_name = 'order_from'
+                 ) THEN
     ALTER TABLE orders ADD COLUMN order_from VARCHAR(20) DEFAULT 'CUSTOMER';
     ALTER TABLE orders ALTER COLUMN order_from SET NOT NULL;
     ALTER TABLE orders ALTER COLUMN order_from SET DEFAULT 'CUSTOMER';
@@ -127,7 +129,8 @@ DO $$
 BEGIN
   -- Add business_id column if it doesn't exist
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                 WHERE table_name = 'order_counters' AND column_name = 'business_id') THEN
+                 WHERE table_name = 'order_counters' AND column_name = 'business_id'
+                 ) THEN
     ALTER TABLE order_counters ADD COLUMN business_id UUID NOT NULL DEFAULT '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid;
   END IF;
 
