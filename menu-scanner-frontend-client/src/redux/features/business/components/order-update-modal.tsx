@@ -205,8 +205,6 @@ export function OrderUpdateModal({
               required={false}
               disabled={isSaving || isFetchingDetail}
               error={errors.businessNote}
-              multiline
-              rows={4}
             />
           </FormBody>
 
