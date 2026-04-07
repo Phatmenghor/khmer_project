@@ -24,15 +24,12 @@ export const createItemSnapshot = (item: PosPageCartItem): ItemPricingSnapshot =
   return {
     currentPrice: item.before?.currentPrice || 0,
     finalPrice: item.before?.finalPrice || 0,
-    hasActivePromotion: item.before?.hasActivePromotion || false,
     quantity: item.before?.quantity || 0,
-    totalBeforeDiscount: item.before?.totalBeforeDiscount || 0,
     discountAmount: item.before?.discountAmount || 0,
     totalPrice: item.before?.totalPrice || 0,
+    hasActivePromotion: item.before?.hasActivePromotion || false,
     promotionType: item.before?.promotionType || null,
     promotionValue: item.before?.promotionValue || null,
-    promotionFromDate: item.before?.promotionFromDate || null,
-    promotionToDate: item.before?.promotionToDate || null,
   };
 };
 
@@ -59,16 +56,22 @@ export const createOrderPricingSnapshot = (
   totalItems: number,
   subtotalBeforeDiscount: number,
   subtotal: number,
-  totalDiscount: number,
+  discountAmount: number,
   deliveryFee: number,
   taxAmount: number,
-  finalTotal: number
+  finalTotal: number,
+  hasActivePromotion: boolean = false,
+  promotionType: string | null = null,
+  promotionValue: number | null = null
 ): OrderPricingSnapshot => {
   return {
     totalItems,
     subtotalBeforeDiscount,
     subtotal,
-    totalDiscount,
+    discountAmount,
+    hasActivePromotion,
+    promotionType,
+    promotionValue,
     deliveryFee,
     taxAmount,
     finalTotal,
