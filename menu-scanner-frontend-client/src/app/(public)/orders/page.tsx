@@ -32,6 +32,7 @@ import { CustomerOrderDetailModal } from "@/components/shared/modal/customer-ord
 import { showToast } from "@/components/shared/common/show-toast";
 import { ORDER_STATUS_ADMIN_FILTER, PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
 import { CustomSelect } from "@/components/shared/common/custom-select";
+import { indexDisplay } from "@/utils/common/common";
 
 type Order = OrderResponse;
 
@@ -206,8 +207,8 @@ export default function OrdersPage() {
 
   // Create table columns
   const tableColumns = useMemo(
-    () => createOrderTableColumns(handleViewOrder, handleCancelOrder, cancelingOrderId),
-    [cancelingOrderId]
+    () => createOrderTableColumns(handleViewOrder, handleCancelOrder, cancelingOrderId, pagination),
+    [cancelingOrderId, pagination]
   );
 
   const totalOrders = pagination.totalElements;
@@ -442,30 +443,48 @@ export default function OrdersPage() {
 function createOrderTableColumns(
   handleViewOrder: (order: Order) => void,
   handleCancelOrder: (order: Order) => void,
-  cancelingOrderId: string | null
+  cancelingOrderId: string | null,
+  pagination: any
 ): TableColumn<Order>[] {
   return [
     {
+      key: "index",
+      label: "#",
+      minWidth: "40px",
+      maxWidth: "60px",
+      render: (_, index) => (
+        <span className="font-medium text-xs">
+          {indexDisplay(pagination.pageNo || 1, pagination.pageSize || 15, index + 1)}
+        </span>
+      ),
+    },
+    {
+      key: "createdAt",
+      label: "Created Date",
+      minWidth: "140px",
+      maxWidth: "170px",
+      render: (order) => (
+        <span className="text-xs text-muted-foreground">
+          {dateTimeFormat(order?.createdAt)}
+        </span>
+      ),
+    },
+    {
       key: "orderNumber",
       label: "Order #",
-      minWidth: "120px",
-      maxWidth: "150px",
+      minWidth: "100px",
+      maxWidth: "130px",
       render: (order) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-mono font-bold text-foreground">
-            {order?.orderNumber || "---"}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {dateTimeFormat(order?.createdAt)}
-          </span>
-        </div>
+        <span className="text-xs font-mono font-medium">
+          {order?.orderNumber || "---"}
+        </span>
       ),
     },
     {
       key: "orderStatus",
       label: "Status",
-      minWidth: "130px",
-      maxWidth: "160px",
+      minWidth: "120px",
+      maxWidth: "150px",
       render: (order) => {
         const getStatusColor = (status: string) => {
           switch (status) {
@@ -490,17 +509,15 @@ function createOrderTableColumns(
           }
         };
         return (
-          <div className="flex flex-col gap-1">
-            <span className={`text-xs font-semibold px-2.5 py-1.5 rounded-md w-fit ${getStatusColor(order?.orderStatus)}`}>
-              {getOrderStatusLabel(order?.orderStatus)}
-            </span>
-          </div>
+          <span className={`text-xs font-semibold px-2.5 py-1.5 rounded-md w-fit ${getStatusColor(order?.orderStatus)}`}>
+            {getOrderStatusLabel(order?.orderStatus)}
+          </span>
         );
       },
     },
     {
       key: "paymentStatus",
-      label: "Payment",
+      label: "Payment Status",
       minWidth: "130px",
       maxWidth: "160px",
       render: (order) => {
@@ -530,32 +547,27 @@ function createOrderTableColumns(
     {
       key: "items",
       label: "Items",
-      minWidth: "100px",
-      maxWidth: "120px",
+      minWidth: "80px",
+      maxWidth: "110px",
       render: (order) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-bold text-foreground">
-            {order?.items?.length || 0} item{(order?.items?.length || 0) !== 1 ? 's' : ''}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {order?.items?.map(item => item.before?.quantity || 0).reduce((a, b) => a + b, 0) || 0} units
-          </span>
-        </div>
+        <span className="text-xs font-medium">
+          {order?.items?.length || 0}
+        </span>
       ),
     },
     {
       key: "finalTotal",
       label: "Total",
-      minWidth: "130px",
-      maxWidth: "160px",
+      minWidth: "110px",
+      maxWidth: "140px",
       render: (order) => {
         const finalTotal = order?.pricing?.after?.finalTotal ?? order?.pricing?.before?.finalTotal ?? 0;
         const hadChange = order?.pricing?.hadOrderLevelChangeFromPOS;
         const beforeTotal = order?.pricing?.before?.finalTotal ?? 0;
 
         return (
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-bold text-green-600 dark:text-green-400">
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-green-600 dark:text-green-400">
               {formatCurrency(finalTotal)}
             </span>
             {hadChange && beforeTotal !== finalTotal && (
@@ -570,15 +582,14 @@ function createOrderTableColumns(
     {
       key: "actions",
       label: "Actions",
-      minWidth: "160px",
-      maxWidth: "200px",
+      minWidth: "100px",
+      maxWidth: "130px",
       render: (order) => (
         <div className="flex items-center gap-2">
           <ActionButton
             icon={<Eye className="w-4 h-4" />}
             tooltip="View Details"
             onClick={() => handleViewOrder(order)}
-            variant="default"
           />
           {order.orderStatus === "PENDING" && (
             <ActionButton
