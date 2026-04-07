@@ -20,6 +20,7 @@ public class OrderPricingSnapshot {
     private BigDecimal subtotalBeforeDiscount; // Sum of all items at original price
     private BigDecimal subtotal;               // After item-level discounts
     private BigDecimal totalDiscount;          // Total discounts from items
+    private String discountType;               // Type of discount (PERCENTAGE or FIXED_AMOUNT) - null if no discount
     private BigDecimal deliveryFee;            // Delivery charge
     private BigDecimal taxAmount;              // Tax amount
     private BigDecimal finalTotal;             // Total amount to pay

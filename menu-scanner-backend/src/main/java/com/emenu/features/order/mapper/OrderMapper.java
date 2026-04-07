@@ -264,6 +264,7 @@ public interface OrderMapper {
                 .subtotalBeforeDiscount(subtotalBeforeDiscount)
                 .subtotal(subtotalBeforeDiscount)  // Before discount
                 .totalDiscount(BigDecimal.ZERO)
+                .discountType(null)  // No discount before changes
                 .deliveryFee(deliveryFee)
                 .taxAmount(taxAmount)
                 .finalTotal(subtotalBeforeDiscount.add(deliveryFee).add(taxAmount))
@@ -275,6 +276,7 @@ public interface OrderMapper {
                 .subtotalBeforeDiscount(subtotalBeforeDiscount)
                 .subtotal(subtotalAfterDiscount)  // After discount
                 .totalDiscount(discount)
+                .discountType(order.getDiscountType())  // Show discount type after changes
                 .deliveryFee(deliveryFee)
                 .taxAmount(taxAmount)
                 .finalTotal(order.getTotalAmount() != null ? order.getTotalAmount() :

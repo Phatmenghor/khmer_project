@@ -157,88 +157,133 @@ export function OrderDetailModal({
                 {/* Pricing Details */}
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground mb-3">Pricing Details</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-6">
+                    {/* Before Snapshot */}
                     {(() => {
                       const before = orderData.pricing?.before;
-                      const after = orderData.pricing?.after;
-                      const current = after ?? before;
-
                       return (
-                        <>
+                        <div>
+                          <h5 className="text-xs font-medium text-muted-foreground mb-2 uppercase">Before</h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-2 border-l-2 border-gray-200">
+                            <DisplayField
+                              label="Total Items"
+                              value={String(before?.totalItems || 0)}
+                            />
+                            <DisplayField
+                              label="Subtotal (Before Discount)"
+                              value={formatCurrency(before?.subtotalBeforeDiscount || 0)}
+                            />
+                            {(before?.totalDiscount ?? 0) > 0 && (
+                              <DisplayField
+                                label="Discount"
+                                value={
+                                  <span className="text-red-600">
+                                    -{formatCurrency(before!.totalDiscount)}
+                                  </span>
+                                }
+                              />
+                            )}
+                            {before?.discountType && (
+                              <DisplayField
+                                label="Discount Type"
+                                value={
+                                  <span className="font-medium">
+                                    {before.discountType === "PERCENTAGE" ? "Percentage (%)" : "Fixed Amount ($)"}
+                                  </span>
+                                }
+                              />
+                            )}
+                            <DisplayField
+                              label="Subtotal"
+                              value={formatCurrency(before?.subtotal || 0)}
+                            />
+                            <DisplayField
+                              label="Delivery Fee"
+                              value={formatCurrency(before?.deliveryFee || 0)}
+                            />
+                            {(before?.taxAmount ?? 0) > 0 && (
+                              <DisplayField
+                                label="Tax"
+                                value={formatCurrency(before!.taxAmount)}
+                              />
+                            )}
+                            <DisplayField
+                              label="Total"
+                              value={
+                                <span className="text-sm font-semibold">
+                                  {formatCurrency(before?.finalTotal || 0)}
+                                </span>
+                              }
+                            />
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* After Snapshot (if changes occurred) */}
+                    {orderData.pricing?.hadOrderLevelChangeFromPOS && orderData.pricing?.after && (
+                      <div>
+                        <h5 className="text-xs font-medium text-muted-foreground mb-2 uppercase">After Changes</h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-2 border-l-2 border-orange-200 bg-orange-50 p-3 rounded">
                           <DisplayField
                             label="Total Items"
-                            value={String(current?.totalItems || 0)}
+                            value={String(orderData.pricing.after?.totalItems || 0)}
                           />
                           <DisplayField
                             label="Subtotal (Before Discount)"
-                            value={formatCurrency(
-                              current?.subtotalBeforeDiscount || 0
-                            )}
+                            value={formatCurrency(orderData.pricing.after?.subtotalBeforeDiscount || 0)}
                           />
-                          {(current?.totalDiscount ?? 0) > 0 && (
+                          {(orderData.pricing.after?.totalDiscount ?? 0) > 0 && (
                             <DisplayField
                               label="Discount"
                               value={
-                                <span className="text-red-600">
-                                  -{formatCurrency(current!.totalDiscount)}
+                                <span className="text-red-600 font-medium">
+                                  -{formatCurrency(orderData.pricing.after!.totalDiscount)}
                                 </span>
                               }
                             />
                           )}
-                          {orderData.pricing?.discountType && (
+                          {orderData.pricing.after?.discountType && (
                             <DisplayField
                               label="Discount Type"
                               value={
-                                <span className="font-medium">
-                                  {orderData.pricing.discountType === "PERCENTAGE"
-                                    ? "Percentage (%)"
-                                    : "Fixed Amount ($)"}
+                                <span className="font-medium text-orange-600">
+                                  {orderData.pricing.after.discountType === "PERCENTAGE" ? "Percentage (%)" : "Fixed Amount ($)"}
                                 </span>
                               }
                             />
                           )}
                           <DisplayField
                             label="Subtotal"
-                            value={formatCurrency(current?.subtotal || 0)}
+                            value={formatCurrency(orderData.pricing.after?.subtotal || 0)}
                           />
                           <DisplayField
                             label="Delivery Fee"
-                            value={formatCurrency(current?.deliveryFee || 0)}
+                            value={formatCurrency(orderData.pricing.after?.deliveryFee || 0)}
                           />
-                          {(current?.taxAmount ?? 0) > 0 && (
+                          {(orderData.pricing.after?.taxAmount ?? 0) > 0 && (
                             <DisplayField
                               label="Tax"
-                              value={formatCurrency(current!.taxAmount)}
+                              value={formatCurrency(orderData.pricing.after!.taxAmount)}
                             />
                           )}
                           <DisplayField
                             label="Final Total"
                             value={
                               <span className="text-lg font-bold text-green-600">
-                                {formatCurrency(current?.finalTotal || 0)}
+                                {formatCurrency(orderData.pricing.after?.finalTotal || 0)}
                               </span>
                             }
                           />
-                          {orderData.pricing?.hadOrderLevelChangeFromPOS &&
-                            before && (
-                              <DisplayField
-                                label="Original Total"
-                                value={
-                                  <span className="line-through text-muted-foreground">
-                                    {formatCurrency(before.finalTotal || 0)}
-                                  </span>
-                                }
-                              />
-                            )}
-                          {orderData.pricing?.reason && (
-                            <DisplayField
-                              label="Change Reason"
-                              value={orderData.pricing.reason}
-                            />
-                          )}
-                        </>
-                      );
-                    })()}
+                        </div>
+                        {orderData.pricing?.reason && (
+                          <DisplayField
+                            label="Change Reason"
+                            value={orderData.pricing.reason}
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
