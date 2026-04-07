@@ -102,7 +102,7 @@ export default async function RootLayout({
 
                   // Create and inject style tag to apply colors
                   const style = document.createElement('style');
-                  style.textContent = ':root{--primary:' + hexToHsl(cachedColors.primaryColor) + ';--secondary:' + hexToHsl(cachedColors.secondaryColor) + ';--accent:' + hexToHsl(cachedColors.accentColor) + ';}';
+                  style.textContent = ':root{--primary:' + hexToHsl(cachedColors.primaryColor) + ';}';
                   document.head.appendChild(style);
 
                   console.log('[THEME SYNC] Colors applied synchronously from cache');

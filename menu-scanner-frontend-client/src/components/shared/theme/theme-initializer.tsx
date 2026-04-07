@@ -77,11 +77,7 @@ function initializeTheme() {
       );
 
       // Apply colors immediately
-      applyThemeColorsSync(
-        cachedColors.primaryColor,
-        cachedColors.secondaryColor,
-        cachedColors.accentColor
-      );
+      applyThemeColorsSync(cachedColors.primaryColor);
     } catch (e) {
       console.error("[THEME] Failed to parse cached colors:", e);
     }
@@ -93,11 +89,7 @@ function initializeTheme() {
 /**
  * Apply theme colors synchronously (hex to HSL conversion)
  */
-function applyThemeColorsSync(
-  primaryColor?: string,
-  secondaryColor?: string,
-  accentColor?: string
-): void {
+function applyThemeColorsSync(primaryColor?: string): void {
   const hexToHsl = (hex: string): string => {
     if (!hex || !hex.startsWith("#")) return "";
 
@@ -140,20 +132,6 @@ function applyThemeColorsSync(
     const hsl = hexToHsl(primaryColor);
     if (hsl) {
       document.documentElement.style.setProperty("--primary", hsl);
-    }
-  }
-
-  if (secondaryColor) {
-    const hsl = hexToHsl(secondaryColor);
-    if (hsl) {
-      document.documentElement.style.setProperty("--secondary", hsl);
-    }
-  }
-
-  if (accentColor) {
-    const hsl = hexToHsl(accentColor);
-    if (hsl) {
-      document.documentElement.style.setProperty("--accent", hsl);
     }
   }
 }

@@ -24,8 +24,6 @@ export interface BusinessSettingsResponse {
   enableStock: "ENABLED" | "DISABLED";
   socialMedia: SocialMedia[];
   primaryColor?: string;
-  secondaryColor?: string;
-  accentColor?: string;
 }
 
 export interface UpdateBusinessSettingsRequest {
@@ -35,8 +33,6 @@ export interface UpdateBusinessSettingsRequest {
   enableStock?: "ENABLED" | "DISABLED";
   socialMedia?: SocialMedia[];
   primaryColor?: string;
-  secondaryColor?: string;
-  accentColor?: string;
 }
 
 const API_BASE_URL = "/api/v1/business-settings";
