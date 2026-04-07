@@ -564,8 +564,6 @@ public class OrderServiceImpl implements OrderService {
                     .promotionType(item.getAfter() != null && item.getAfter().getPromotionType() != null ?
                             item.getAfter().getPromotionType() : item.getPromotionType())
                     .promotionValue(item.getAfter() != null ? item.getAfter().getPromotionValue() : item.getPromotionValue())
-                    .promotionFromDate(item.getAfter() != null ? item.getAfter().getPromotionFromDate() : null)
-                    .promotionToDate(item.getAfter() != null ? item.getAfter().getPromotionToDate() : null)
                     .quantity(item.getQuantity())
                     // Set SKU and barcode from product master data (primary source)
                     .sku(product.getSku())
@@ -598,8 +596,6 @@ public class OrderServiceImpl implements OrderService {
                 snapshot.setBeforeTotalPrice(item.getBefore().getTotalPrice());
                 snapshot.setBeforePromotionType(item.getBefore().getPromotionType());
                 snapshot.setBeforePromotionValue(item.getBefore().getPromotionValue());
-                snapshot.setBeforePromotionFromDate(item.getBefore().getPromotionFromDate());
-                snapshot.setBeforePromotionToDate(item.getBefore().getPromotionToDate());
             }
 
             // Store after snapshot fields
@@ -611,8 +607,6 @@ public class OrderServiceImpl implements OrderService {
                 snapshot.setAfterTotalPrice(item.getAfter().getTotalPrice());
                 snapshot.setAfterPromotionType(item.getAfter().getPromotionType());
                 snapshot.setAfterPromotionValue(item.getAfter().getPromotionValue());
-                snapshot.setAfterPromotionFromDate(item.getAfter().getPromotionFromDate());
-                snapshot.setAfterPromotionToDate(item.getAfter().getPromotionToDate());
             }
 
             orderItemPricingSnapshotRepository.save(snapshot);
