@@ -1037,7 +1037,7 @@ SELECT
       WHEN (i % 10) = 3 THEN 5::numeric
       ELSE 0::numeric
     END + 2::numeric + 5::numeric,
-    CASE WHEN (i % 3) = 0 THEN 'CASH' WHEN (i % 3) = 1 THEN 'ONLINE' ELSE 'CARD' END,
+    'CASH',
     CASE WHEN (i % 5) IN (3,4) THEN 'PAID' ELSE 'PENDING' END,
     'Customer ' || i::text, '+855 10 ' || LPAD((900000 + i)::text, 6, '0'), 'customer' || i::text || '@example.com',
     'Note ' || i::text, 'Processing ' || i::text,
