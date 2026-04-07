@@ -287,6 +287,7 @@ public interface OrderMapper {
                 .before(before)
                 .hadOrderLevelChangeFromPOS(hadChange)
                 .after(hadChange ? after : null)  // Only include after if there were changes
+                .discountType(order.getDiscountType())  // PERCENTAGE, FIXED_AMOUNT, or null
                 .reason(order.getOrderLevelChangeReason() != null ? order.getOrderLevelChangeReason() : "No order-level changes")
                 .build();
     }

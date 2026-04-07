@@ -185,6 +185,18 @@ export function OrderDetailModal({
                               }
                             />
                           )}
+                          {orderData.pricing?.discountType && (
+                            <DisplayField
+                              label="Discount Type"
+                              value={
+                                <span className="font-medium">
+                                  {orderData.pricing.discountType === "PERCENTAGE"
+                                    ? "Percentage (%)"
+                                    : "Fixed Amount ($)"}
+                                </span>
+                              }
+                            />
+                          )}
                           <DisplayField
                             label="Subtotal"
                             value={formatCurrency(current?.subtotal || 0)}

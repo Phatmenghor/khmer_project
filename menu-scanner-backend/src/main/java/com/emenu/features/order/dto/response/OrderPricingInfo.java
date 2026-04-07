@@ -28,6 +28,9 @@ public class OrderPricingInfo {
     @Valid
     private OrderPricingSnapshot after;
 
+    // Type of order-level discount (PERCENTAGE or FIXED_AMOUNT)
+    private String discountType;
+
     // Reason for change (POS order-level modifications)
     private String reason;
 }

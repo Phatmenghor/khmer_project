@@ -96,6 +96,9 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "discount_amount", precision = 10, scale = 2)
     private BigDecimal discountAmount = BigDecimal.ZERO; // Total discount applied
 
+    @Column(name = "discount_type", length = 20)
+    private String discountType; // PERCENTAGE or FIXED_AMOUNT (null if no discount)
+
     @Column(name = "delivery_fee", precision = 10, scale = 2)
     private BigDecimal deliveryFee = BigDecimal.ZERO;
 
