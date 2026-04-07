@@ -542,6 +542,7 @@ export function OrderDetailModal({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Full Address */}
+                  {/* Full Address */}
                   <div>
                     <label className="text-sm font-medium text-foreground block mb-2">
                       Full Address
@@ -565,31 +566,57 @@ export function OrderDetailModal({
                     </div>
                   </div>
 
-                  {/* Delivery Note */}
+                  {/* Delivery Note with Action Buttons */}
                   {orderData.deliveryAddress.note && (
-                    <div>
-                      <label className="text-sm font-medium text-foreground block mb-2">
-                        Delivery Note
-                      </label>
-                      <p className="text-sm p-2 bg-blue-50 rounded border border-blue-200 text-foreground">
-                        {orderData.deliveryAddress.note}
-                      </p>
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <label className="text-sm font-medium text-foreground block mb-2">
+                          Delivery Note
+                        </label>
+                        <p className="text-sm p-2 bg-blue-50 rounded border border-blue-200 text-foreground">
+                          {orderData.deliveryAddress.note}
+                        </p>
+                      </div>
+                      <div className="flex gap-2 pt-7">
+                        {/* Copy Button */}
+                        <button
+                          onClick={() => {
+                            const fullAddress = [
+                              orderData.deliveryAddress.houseNumber,
+                              orderData.deliveryAddress.streetNumber,
+                              orderData.deliveryAddress.village,
+                              orderData.deliveryAddress.commune,
+                              orderData.deliveryAddress.district,
+                              orderData.deliveryAddress.province,
+                            ]
+                              .filter(Boolean)
+                              .join(", ");
+                            navigator.clipboard.writeText(
+                              `${fullAddress}\n\nDelivery Note: ${orderData.deliveryAddress.note}`
+                            );
+                          }}
+                          className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-xs font-medium rounded-lg transition-all shadow-sm whitespace-nowrap"
+                          title="Copy address and note to clipboard"
+                        >
+                          📋 Copy
+                        </button>
+                        {/* View Google Maps Button */}
+                        {orderData.deliveryAddress.latitude &&
+                          orderData.deliveryAddress.longitude && (
+                            <button
+                              onClick={() => {
+                                const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
+                                window.open(mapsUrl, "_blank");
+                              }}
+                              className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all shadow-sm whitespace-nowrap"
+                              title="View on Google Maps"
+                            >
+                              🗺️ View
+                            </button>
+                          )}
+                      </div>
                     </div>
                   )}
-
-                  {/* Google Maps Button */}
-                  {orderData.deliveryAddress.latitude &&
-                    orderData.deliveryAddress.longitude && (
-                      <button
-                        onClick={() => {
-                          const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
-                          window.open(mapsUrl, "_blank");
-                        }}
-                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm"
-                      >
-                        🗺️ View on Google Maps
-                      </button>
-                    )}
                 </CardContent>
               </Card>
             )}
