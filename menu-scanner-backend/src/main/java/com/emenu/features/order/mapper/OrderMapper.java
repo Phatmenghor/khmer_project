@@ -253,34 +253,36 @@ public interface OrderMapper {
         }
 
         BigDecimal subtotalBeforeDiscount = calculateSubtotalBeforeDiscount(order);
-        BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
-        BigDecimal subtotalAfterDiscount = subtotalBeforeDiscount.subtract(discount);
+        BigDecimal itemLevelDiscounts = calculateItemLevelDiscounts(order);  // Sum of all item discounts
+        BigDecimal subtotalAfterItemDiscounts = subtotalBeforeDiscount.subtract(itemLevelDiscounts);
+        BigDecimal orderLevelDiscount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
         BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
         BigDecimal taxAmount = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
 
-        // Build before snapshot (before order-level changes)
+        // Build before snapshot (before order-level changes, but after item-level discounts)
         OrderPricingSnapshot before = OrderPricingSnapshot.builder()
                 .totalItems(calculateTotalItems(order))
                 .subtotalBeforeDiscount(subtotalBeforeDiscount)
-                .subtotal(subtotalBeforeDiscount)  // Before discount
-                .totalDiscount(BigDecimal.ZERO)
-                .discountType(null)  // No discount before changes
+                .subtotal(subtotalAfterItemDiscounts)  // After item-level discounts
+                .totalDiscount(itemLevelDiscounts)  // Sum of item-level discounts
+                .discountType(null)  // No order-level discount in before state
                 .deliveryFee(deliveryFee)
                 .taxAmount(taxAmount)
-                .finalTotal(subtotalBeforeDiscount.add(deliveryFee).add(taxAmount))
+                .finalTotal(subtotalAfterItemDiscounts.add(deliveryFee).add(taxAmount))
                 .build();
 
         // Build after snapshot (after order-level changes if any)
+        BigDecimal subtotalAfterAllDiscounts = subtotalAfterItemDiscounts.subtract(orderLevelDiscount);
         OrderPricingSnapshot after = OrderPricingSnapshot.builder()
                 .totalItems(calculateTotalItems(order))
                 .subtotalBeforeDiscount(subtotalBeforeDiscount)
-                .subtotal(subtotalAfterDiscount)  // After discount
-                .totalDiscount(discount)
+                .subtotal(subtotalAfterAllDiscounts)  // After both item-level and order-level discounts
+                .totalDiscount(itemLevelDiscounts.add(orderLevelDiscount))  // Sum of all discounts
                 .discountType(order.getDiscountType())  // Show discount type after changes
                 .deliveryFee(deliveryFee)
                 .taxAmount(taxAmount)
                 .finalTotal(order.getTotalAmount() != null ? order.getTotalAmount() :
-                           subtotalAfterDiscount.add(deliveryFee).add(taxAmount))
+                           subtotalAfterAllDiscounts.add(deliveryFee).add(taxAmount))
                 .build();
 
         boolean hadChange = order.getHadOrderLevelChangeFromPOS() != null && order.getHadOrderLevelChangeFromPOS();
@@ -292,6 +294,25 @@ public interface OrderMapper {
                 .discountType(order.getDiscountType())  // PERCENTAGE, FIXED_AMOUNT, or null
                 .reason(order.getOrderLevelChangeReason() != null ? order.getOrderLevelChangeReason() : "No order-level changes")
                 .build();
+    }
+
+    /**
+     * Calculate sum of item-level discounts
+     */
+    default BigDecimal calculateItemLevelDiscounts(Order order) {
+        if (order == null || order.getItems() == null || order.getItems().isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        return order.getItems().stream()
+                .map(item -> {
+                    if (item.getCurrentPrice() != null && item.getFinalPrice() != null && item.getQuantity() != null) {
+                        BigDecimal discountPerItem = item.getCurrentPrice().subtract(item.getFinalPrice());
+                        return discountPerItem.multiply(new BigDecimal(item.getQuantity()));
+                    }
+                    return BigDecimal.ZERO;
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
