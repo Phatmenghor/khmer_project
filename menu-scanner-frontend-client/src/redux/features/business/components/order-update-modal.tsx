@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
+import { TextAreaField } from "@/components/shared/form-field/textarea-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { FormHeader } from "@/components/shared/form-field/form-header";
@@ -197,14 +198,14 @@ export function OrderUpdateModal({
             />
 
             {/* Business Note */}
-            <TextField
+            <TextAreaField
               control={control}
               name="businessNote"
               label="Business Note"
               placeholder="Enter business note (optional)"
-              required={false}
               disabled={isSaving || isFetchingDetail}
               error={errors.businessNote}
+              rows={3}
             />
           </FormBody>
 
