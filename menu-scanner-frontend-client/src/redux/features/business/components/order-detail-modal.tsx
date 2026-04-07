@@ -618,23 +618,23 @@ export function OrderDetailModal({
             {/* Status History */}
             {orderData.statusHistory && orderData.statusHistory.length > 0 && (
               <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
-                <CardHeader className="pb-4 border-b">
+                <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-bold text-foreground">
                     📈 Status History ({orderData.statusHistory.length})
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-3">
                   {orderData.statusHistory.map((history, idx) => (
                     <div
                       key={history.id}
-                      className="p-3 border border-purple-200 rounded-lg text-sm bg-purple-50"
+                      className="text-sm"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold bg-purple-200 text-purple-700 px-2 py-1 rounded">
+                          <span className="text-xs font-bold text-muted-foreground">
                             Step {idx + 1}
                           </span>
-                          <span className="font-medium text-sm text-purple-900">
+                          <span className="font-semibold text-sm text-foreground">
                             {history.statusName}
                           </span>
                         </div>
@@ -643,15 +643,15 @@ export function OrderDetailModal({
                         </span>
                       </div>
                       {history.note && (
-                        <p className="text-xs text-muted-foreground mb-2">
+                        <p className="text-xs text-muted-foreground mb-2 ml-1">
                           {history.note}
                         </p>
                       )}
                       {history.changedBy && (
-                        <div className="text-xs border-t pt-2 mt-2">
+                        <div className="text-xs ml-1">
                           <p className="text-muted-foreground">
                             Changed by:{" "}
-                            <span className="font-medium">
+                            <span className="font-medium text-foreground">
                               {history.changedBy.fullName ||
                                 `${history.changedBy.firstName} ${history.changedBy.lastName}`}
                             </span>
