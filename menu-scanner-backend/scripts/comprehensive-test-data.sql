@@ -1261,7 +1261,7 @@ BEGIN
     ca.id,
     'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400'
   FROM customer_addresses ca
-  CROSS JOIN (SELECT generate_series(1, 4) as img_num)
+  CROSS JOIN (SELECT generate_series(1, 4) as img_num) AS t(img_num)
   WHERE NOT EXISTS (
     SELECT 1 FROM location_images li WHERE li.location_id = ca.id
   );
