@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -16,6 +16,8 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
 import { Loading } from "@/components/shared/common/loading";
 import { DisplayField } from "@/components/shared/form-field/display-field";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface OrderDetailModalProps {
   orderId?: string;
@@ -32,6 +34,7 @@ export function OrderDetailModal({
   const isFetchingDetail = useAppSelector(selectOrderAdminIsFetchingDetail);
   const orderData = useAppSelector(selectSelectedOrder);
   const detailError = useAppSelector(selectOrderAdminDetailError);
+  const [imageIndex, setImageIndex] = useState(0);
 
   useEffect(() => {
     if (!orderId || !isOpen) return;
@@ -41,6 +44,16 @@ export function OrderDetailModal({
   const handleClose = () => {
     dispatch(clearSelectedOrder());
     onClose();
+  };
+
+  const locationImages = orderData?.deliveryAddress?.locationImages || [];
+  const handleNextImage = () => {
+    setImageIndex((prev) => (prev + 1) % (locationImages.length || 1));
+  };
+  const handlePrevImage = () => {
+    setImageIndex((prev) =>
+      prev === 0 ? (locationImages.length || 1) - 1 : prev - 1
+    );
   };
 
   if (isFetchingDetail) {
@@ -220,19 +233,47 @@ export function OrderDetailModal({
             </Card>
 
             {/* Customer Information */}
-            <Card>
+            <Card className="border-blue-100 bg-gradient-to-br from-blue-50 to-transparent">
               <CardHeader>
-                <CardTitle className="text-base">Customer Information</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  👤 Customer Information
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DisplayField
-                    label="Customer Name"
-                    value={orderData.customerName || "Walk-in"}
+                    label="Name"
+                    value={
+                      <span className="font-semibold text-foreground">
+                        {orderData.customerName || "Walk-in Customer"}
+                      </span>
+                    }
                   />
                   <DisplayField
                     label="Phone Number"
-                    value={orderData.customerPhone || "---"}
+                    value={
+                      <a
+                        href={`tel:${orderData.customerPhone}`}
+                        className="text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        {orderData.customerPhone || "---"}
+                      </a>
+                    }
+                  />
+                  <DisplayField
+                    label="Email"
+                    value={
+                      orderData.customerEmail ? (
+                        <a
+                          href={`mailto:${orderData.customerEmail}`}
+                          className="text-blue-600 hover:text-blue-700 font-medium break-all"
+                        >
+                          {orderData.customerEmail}
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground">---</span>
+                      )
+                    }
                   />
                   {orderData.customerNote && (
                     <DisplayField
@@ -275,58 +316,183 @@ export function OrderDetailModal({
 
             {/* Delivery Information */}
             {orderData.deliveryAddress && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Delivery Address</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Full Address with Google Maps Button - Grid 2 per row on large screens */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Address Field */}
-                    <div>
-                      <label className="text-sm font-medium text-foreground block mb-1.5">
-                        Address
-                      </label>
-                      <p className="text-sm text-foreground">
-                        {(() => {
-                          const parts = [
-                            orderData.deliveryAddress.houseNumber,
-                            orderData.deliveryAddress.streetNumber,
-                            orderData.deliveryAddress.village,
-                            orderData.deliveryAddress.commune,
-                            orderData.deliveryAddress.district,
-                            orderData.deliveryAddress.province,
-                          ].filter(Boolean);
-                          return parts.length > 0 ? parts.join(", ") : "---";
-                        })()}
-                      </p>
+              <>
+                {/* Location Images Gallery */}
+                {locationImages && locationImages.length > 0 && (
+                  <Card className="border-green-100 bg-gradient-to-br from-green-50 to-transparent">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        🖼️ Location Photos
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="relative">
+                        {/* Image Carousel */}
+                        <div className="relative w-full h-80 bg-gray-900 rounded-lg overflow-hidden group">
+                          <img
+                            src={locationImages[imageIndex]}
+                            alt={`Location photo ${imageIndex + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+
+                          {/* Image Counter */}
+                          <div className="absolute top-3 right-3 bg-black/60 px-3 py-1 rounded-full">
+                            <span className="text-white text-xs font-medium">
+                              {imageIndex + 1} / {locationImages.length}
+                            </span>
+                          </div>
+
+                          {/* Navigation Buttons */}
+                          {locationImages.length > 1 && (
+                            <>
+                              <button
+                                onClick={handlePrevImage}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-900 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                                aria-label="Previous image"
+                              >
+                                <ChevronLeft className="w-5 h-5" />
+                              </button>
+                              <button
+                                onClick={handleNextImage}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-900 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                                aria-label="Next image"
+                              >
+                                <ChevronRight className="w-5 h-5" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Image Thumbnails */}
+                        {locationImages.length > 1 && (
+                          <div className="flex gap-2 mt-3">
+                            {locationImages.map((img, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => setImageIndex(idx)}
+                                className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                                  idx === imageIndex
+                                    ? "border-green-600"
+                                    : "border-gray-300 hover:border-gray-400"
+                                }`}
+                              >
+                                <img
+                                  src={img}
+                                  alt={`Thumbnail ${idx + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Delivery Address Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      📍 Delivery Address
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Full Address with Google Maps Button */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Address Field */}
+                      <div className="md:col-span-2">
+                        <label className="text-sm font-medium text-foreground block mb-2">
+                          Full Address
+                        </label>
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <p className="text-sm font-medium text-foreground leading-relaxed">
+                            {(() => {
+                              const parts = [
+                                orderData.deliveryAddress.houseNumber,
+                                orderData.deliveryAddress.streetNumber,
+                                orderData.deliveryAddress.village,
+                                orderData.deliveryAddress.commune,
+                                orderData.deliveryAddress.district,
+                                orderData.deliveryAddress.province,
+                              ].filter(Boolean);
+                              return parts.length > 0
+                                ? parts.join(", ")
+                                : "---";
+                            })()}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Address Components Grid */}
+                      <DisplayField
+                        label="House #"
+                        value={orderData.deliveryAddress.houseNumber || "---"}
+                      />
+                      <DisplayField
+                        label="Street"
+                        value={orderData.deliveryAddress.streetNumber || "---"}
+                      />
+                      <DisplayField
+                        label="Village"
+                        value={orderData.deliveryAddress.village || "---"}
+                      />
+                      <DisplayField
+                        label="Commune"
+                        value={orderData.deliveryAddress.commune || "---"}
+                      />
+                      <DisplayField
+                        label="District"
+                        value={orderData.deliveryAddress.district || "---"}
+                      />
+                      <DisplayField
+                        label="Province"
+                        value={orderData.deliveryAddress.province || "---"}
+                      />
+
+                      {/* Coordinates and Map Button */}
+                      {orderData.deliveryAddress.latitude &&
+                        orderData.deliveryAddress.longitude && (
+                          <div className="md:col-span-2 flex items-end justify-between gap-4">
+                            <div className="text-xs text-muted-foreground">
+                              <p>
+                                📌 Lat:{" "}
+                                {orderData.deliveryAddress.latitude.toFixed(4)}
+                              </p>
+                              <p>
+                                📌 Lng:{" "}
+                                {orderData.deliveryAddress.longitude.toFixed(4)}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
+                                window.open(mapsUrl, "_blank");
+                              }}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm"
+                            >
+                              🗺️ View on Google Maps
+                            </button>
+                          </div>
+                        )}
                     </div>
 
-                    {/* View in Google Maps Button */}
-                    {orderData.deliveryAddress.latitude && orderData.deliveryAddress.longitude && (
-                      <div className="flex items-end">
-                        <button
-                          onClick={() => {
-                            const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
-                            window.open(mapsUrl, '_blank');
-                          }}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-                        >
-                          📍 View in Google Maps
-                        </button>
+                    {/* Delivery Note */}
+                    {orderData.deliveryAddress.note && (
+                      <div className="border-t pt-4">
+                        <DisplayField
+                          label="Delivery Note"
+                          value={
+                            <p className="text-sm p-2 bg-blue-50 rounded border border-blue-200 text-foreground">
+                              {orderData.deliveryAddress.note}
+                            </p>
+                          }
+                        />
                       </div>
                     )}
-                  </div>
-
-                  {/* Delivery Note */}
-                  {orderData.deliveryAddress.note && (
-                    <DisplayField
-                      label="Delivery Note"
-                      value={orderData.deliveryAddress.note}
-                    />
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </>
             )}
 
             {/* Delivery Option */}
