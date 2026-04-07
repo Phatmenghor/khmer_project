@@ -5,10 +5,10 @@ import { PageContainer } from "../shared/common/page-container";
 
 export function Footer() {
   return (
-    <footer className="bg-primary/80 text-white">
+    <footer className="bg-primary/90 text-white">
       <PageContainer>
         {/* Main Footer Content */}
-        <div className="py-12 grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Section 1: Logo & Description */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 w-fit">
@@ -25,7 +25,7 @@ export function Footer() {
                 Menu Scanner
               </span>
             </div>
-            <p className="text-white/80 text-sm leading-relaxed">
+            <p className="text-white text-sm leading-relaxed">
               Discover and explore menus from your favorite restaurants. Browse,
               compare, and order with ease.
             </p>
@@ -36,22 +36,22 @@ export function Footer() {
             <h3 className="font-semibold text-white text-base">Contact Info</h3>
             <div className="space-y-3 text-sm">
               <div className="flex gap-3">
-                <MapPin className="w-5 h-5 text-white/70 flex-shrink-0 mt-0.5" />
-                <p className="text-white/80">
+                <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                <p className="text-white">
                   123 Street Name, Phnom Penh, Cambodia
                 </p>
               </div>
               <div className="flex gap-3">
-                <Phone className="w-5 h-5 text-white/70 flex-shrink-0 mt-0.5" />
-                <p className="text-white/80">
+                <Phone className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                <p className="text-white">
                   +855 12 345 678
                 </p>
               </div>
               <div className="flex gap-3">
-                <Mail className="w-5 h-5 text-white/70 flex-shrink-0 mt-0.5" />
+                <Mail className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
                 <a
                   href="mailto:support@menuscanner.com"
-                  className="text-white/80 hover:text-white transition-colors"
+                  className="text-white hover:text-white/80 transition-colors"
                 >
                   support@menuscanner.com
                 </a>
@@ -64,8 +64,8 @@ export function Footer() {
             <h3 className="font-semibold text-white text-base">Business Hours</h3>
             <div className="space-y-2 text-sm">
               <div className="flex gap-3">
-                <Clock className="w-5 h-5 text-white/70 flex-shrink-0 mt-0.5" />
-                <div className="text-white/80">
+                <Clock className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                <div className="text-white">
                   <p className="font-medium">Mon - Fri: 09:00 - 22:00</p>
                   <p className="font-medium">Sat: 10:00 - 23:00</p>
                   <p className="font-medium">Sun: 10:00 - 21:00</p>
@@ -74,26 +74,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Section 4: Quick Links */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-white text-base">Quick Links</h3>
-            <div className="space-y-2 text-sm">
-              <a href="#" className="text-white/80 hover:text-white transition-colors block">
-                Browse Menus
-              </a>
-              <a href="#" className="text-white/80 hover:text-white transition-colors block">
-                Promotions
-              </a>
-              <a href="#" className="text-white/80 hover:text-white transition-colors block">
-                My Orders
-              </a>
-              <a href="#" className="text-white/80 hover:text-white transition-colors block">
-                Help Center
-              </a>
-            </div>
-          </div>
-
-          {/* Section 5: Follow Us */}
+          {/* Section 4: Follow Us */}
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Follow Us</h3>
             <div className="space-y-2">
@@ -133,17 +114,17 @@ export function Footer() {
 
         {/* Footer Bottom */}
         <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/70 text-sm">
+          <p className="text-white text-sm">
             Copyright © 2026 Menu Scanner. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
+            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
+            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
               Terms of Service
             </a>
-            <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
+            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
               Cookie Policy
             </a>
           </div>
