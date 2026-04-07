@@ -518,104 +518,98 @@ export function OrderDetailModal({
             {orderData.deliveryAddress && (
               <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
                 <CardHeader className="pb-4 border-b">
-                  <CardTitle className="text-lg font-bold text-foreground">
-                    📍 Delivery Information
-                  </CardTitle>
+                  <CardTitle className="text-lg font-bold text-foreground">📍 Delivery Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {/* Full Address */}
+                <CardContent className="space-y-4 pt-4">
+                  {/* Delivery Details */}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <label className="text-xs font-bold text-blue-700 uppercase tracking-wider block mb-2">
-                      📫 Address
-                    </label>
-                    <p className="text-sm text-foreground">
-                      {(() => {
-                        const parts = [
-                          orderData.deliveryAddress.houseNumber,
-                          orderData.deliveryAddress.streetNumber,
-                          orderData.deliveryAddress.village,
-                          orderData.deliveryAddress.commune,
-                          orderData.deliveryAddress.district,
-                          orderData.deliveryAddress.province,
-                        ].filter(Boolean);
-                        return parts.length > 0
-                          ? parts.join(", ")
-                          : "---";
-                      })()}
-                    </p>
-                  </div>
-
-                  {/* Delivery Note with Action Buttons */}
-                  {orderData.deliveryAddress.note && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <label className="text-xs font-bold text-blue-700 uppercase tracking-wider block mb-2">
-                            📝 Delivery Note
-                          </label>
-                          <p className="text-sm text-foreground">
-                            {orderData.deliveryAddress.note}
-                          </p>
-                        </div>
-                        <div className="flex gap-1">
-                          {/* Copy Button - Clean table style */}
-                          <button
-                            onClick={() => {
-                              const fullAddress = [
+                    <h4 className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-3">📫 Address & Delivery</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <DisplayField
+                        label="Full Address"
+                        value={
+                          <span className="text-sm">
+                            {(() => {
+                              const parts = [
                                 orderData.deliveryAddress.houseNumber,
                                 orderData.deliveryAddress.streetNumber,
                                 orderData.deliveryAddress.village,
                                 orderData.deliveryAddress.commune,
                                 orderData.deliveryAddress.district,
                                 orderData.deliveryAddress.province,
-                              ]
-                                .filter(Boolean)
-                                .join(", ");
-                              navigator.clipboard.writeText(
-                                `${fullAddress}\n\nDelivery Note: ${orderData.deliveryAddress.note}`
-                              );
-                              showToast.success("✅ Address copied to clipboard!");
-                            }}
-                            className="text-primary hover:text-primary/70 hover:bg-primary/5 p-2 rounded transition-colors"
-                            title="Copy address and note to clipboard"
-                          >
-                            📋
-                          </button>
-                          {/* View Google Maps Button - Clean table style */}
-                          {orderData.deliveryAddress.latitude &&
-                            orderData.deliveryAddress.longitude && (
+                              ].filter(Boolean);
+                              return parts.length > 0
+                                ? parts.join(", ")
+                                : "---";
+                            })()}
+                          </span>
+                        }
+                      />
+                      {orderData.deliveryOption && (
+                        <>
+                          <DisplayField
+                            label="Delivery Method"
+                            value={orderData.deliveryOption.name || "---"}
+                          />
+                          <DisplayField
+                            label="Delivery Fee"
+                            value={formatCurrency(orderData.deliveryOption.price || 0)}
+                          />
+                        </>
+                      )}
+                      {orderData.deliveryAddress.note && (
+                        <div className="md:col-span-2">
+                          <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">
+                            Delivery Note
+                          </label>
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="text-sm text-foreground flex-1">
+                              {orderData.deliveryAddress.note}
+                            </p>
+                            <div className="flex gap-1 flex-shrink-0">
+                              {/* Copy Button */}
                               <button
                                 onClick={() => {
-                                  const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
-                                  window.open(mapsUrl, "_blank");
+                                  const fullAddress = [
+                                    orderData.deliveryAddress.houseNumber,
+                                    orderData.deliveryAddress.streetNumber,
+                                    orderData.deliveryAddress.village,
+                                    orderData.deliveryAddress.commune,
+                                    orderData.deliveryAddress.district,
+                                    orderData.deliveryAddress.province,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(", ");
+                                  navigator.clipboard.writeText(
+                                    `${fullAddress}\n\nDelivery Note: ${orderData.deliveryAddress.note}`
+                                  );
+                                  showToast.success("✅ Address copied!");
                                 }}
-                                className="text-primary hover:text-primary/70 hover:bg-primary/5 p-2 rounded transition-colors"
-                                title="View on Google Maps"
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-2 rounded transition-colors font-semibold"
+                                title="Copy address and note"
                               >
-                                🗺️
+                                📋 Copy
                               </button>
-                            )}
+                              {/* View Google Maps Button */}
+                              {orderData.deliveryAddress.latitude &&
+                                orderData.deliveryAddress.longitude && (
+                                  <button
+                                    onClick={() => {
+                                      const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
+                                      window.open(mapsUrl, "_blank");
+                                    }}
+                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-2 rounded transition-colors font-semibold"
+                                    title="View on Google Maps"
+                                  >
+                                    🗺️ Map
+                                  </button>
+                                )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  )}
-
-                  {/* Delivery Option */}
-                  {orderData.deliveryOption && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <h4 className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">🚚 Delivery Method</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <DisplayField
-                          label="Method"
-                          value={orderData.deliveryOption.name || "---"}
-                        />
-                        <DisplayField
-                          label="Price"
-                          value={formatCurrency(orderData.deliveryOption.price || 0)}
-                        />
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             )}
