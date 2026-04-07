@@ -24,4 +24,14 @@ export interface BusinessSettingsResponse {
   enableStock: StockStatus;
   socialMedia: SocialMedia[];
   primaryColor?: string;
+  secondaryColor?: string;
+  accentColor?: string;
+  // Contact Information
+  contactAddress?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  // Business Hours
+  businessHoursMonFri?: string;
+  businessHoursSat?: string;
+  businessHoursSun?: string;
 }

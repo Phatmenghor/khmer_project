@@ -1,9 +1,38 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Instagram, Mail, MapPin, Phone, Clock, MessageCircle } from "lucide-react";
+import { MapPin, Phone, Clock } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
+import { useAppSelector } from "@/redux/store";
+import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
+
+// Default constants for fallback
+const DEFAULT_CONTACT_ADDRESS = "123 Street Name, Phnom Penh, Cambodia";
+const DEFAULT_CONTACT_PHONE = "+855 12 345 678";
+const DEFAULT_CONTACT_EMAIL = "support@menuscanner.com";
+const DEFAULT_HOURS_MON_FRI = "09:00 - 22:00";
+const DEFAULT_HOURS_SAT = "10:00 - 23:00";
+const DEFAULT_HOURS_SUN = "10:00 - 21:00";
+
+// Social media links - these are hardcoded but could be moved to Redux
+const SOCIAL_LINKS = [
+  { name: "Facebook", url: "https://facebook.com" },
+  { name: "Instagram", url: "https://instagram.com" },
+  { name: "Telegram", url: "https://telegram.me" },
+];
 
 export function Footer() {
+  const businessSettings = useAppSelector(selectBusinessSettings);
+
+  // Use Redux data or fallback to defaults
+  const contactAddress = businessSettings?.contactAddress || DEFAULT_CONTACT_ADDRESS;
+  const contactPhone = businessSettings?.contactPhone || DEFAULT_CONTACT_PHONE;
+  const contactEmail = businessSettings?.contactEmail || DEFAULT_CONTACT_EMAIL;
+  const businessHoursMonFri = businessSettings?.businessHoursMonFri || DEFAULT_HOURS_MON_FRI;
+  const businessHoursSat = businessSettings?.businessHoursSat || DEFAULT_HOURS_SAT;
+  const businessHoursSun = businessSettings?.businessHoursSun || DEFAULT_HOURS_SUN;
+
   return (
     <footer className="bg-primary/90 text-white">
       <PageContainer>
@@ -38,22 +67,22 @@ export function Footer() {
               <div className="flex gap-3">
                 <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
                 <p className="text-white">
-                  123 Street Name, Phnom Penh, Cambodia
+                  {contactAddress}
                 </p>
               </div>
               <div className="flex gap-3">
                 <Phone className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
                 <p className="text-white">
-                  +855 12 345 678
+                  {contactPhone}
                 </p>
               </div>
               <div className="flex gap-3">
-                <Mail className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
                 <a
-                  href="mailto:support@menuscanner.com"
-                  className="text-white hover:text-white/80 transition-colors"
+                  href={`mailto:${contactEmail}`}
+                  className="text-white hover:text-white/80 transition-colors flex gap-3"
                 >
-                  support@menuscanner.com
+                  <span className="text-white/80 text-xs">✉</span>
+                  <span>{contactEmail}</span>
                 </a>
               </div>
             </div>
@@ -66,9 +95,9 @@ export function Footer() {
               <div className="flex gap-3">
                 <Clock className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
                 <div className="text-white">
-                  <p className="font-medium">Mon - Fri: 09:00 - 22:00</p>
-                  <p className="font-medium">Sat: 10:00 - 23:00</p>
-                  <p className="font-medium">Sun: 10:00 - 21:00</p>
+                  <p className="font-medium">Mon - Fri: {businessHoursMonFri}</p>
+                  <p className="font-medium">Sat: {businessHoursSat}</p>
+                  <p className="font-medium">Sun: {businessHoursSun}</p>
                 </div>
               </div>
             </div>
@@ -77,34 +106,18 @@ export function Footer() {
           {/* Section 4: Follow Us */}
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Follow Us</h3>
-            <div className="space-y-2">
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
-              >
-                <Facebook className="w-5 h-5" />
-                <span className="text-sm font-medium">Facebook</span>
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
-              >
-                <Instagram className="w-5 h-5" />
-                <span className="text-sm font-medium">Instagram</span>
-              </a>
-              <a
-                href="https://telegram.me"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
-              >
-                <MessageCircle className="w-5 h-5" />
-                <span className="text-sm font-medium">Telegram</span>
-              </a>
+            <div className="space-y-2 text-sm">
+              {SOCIAL_LINKS.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-white hover:text-white/80 transition-colors"
+                >
+                  {social.name}
+                </a>
+              ))}
             </div>
           </div>
         </div>

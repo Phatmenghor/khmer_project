@@ -48,6 +48,26 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "accent_color")
     private String accentColor;
 
+    // Contact Information
+    @Column(name = "contact_address", length = 500)
+    private String contactAddress;
+
+    @Column(name = "contact_phone", length = 20)
+    private String contactPhone;
+
+    @Column(name = "contact_email", length = 100)
+    private String contactEmail;
+
+    // Business Hours
+    @Column(name = "business_hours_mon_fri", length = 50)
+    private String businessHoursMonFri;
+
+    @Column(name = "business_hours_sat", length = 50)
+    private String businessHoursSat;
+
+    @Column(name = "business_hours_sun", length = 50)
+    private String businessHoursSun;
+
     @OneToMany(
         mappedBy = "businessSetting",
         cascade = CascadeType.ALL,

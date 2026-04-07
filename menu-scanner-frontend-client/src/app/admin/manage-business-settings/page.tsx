@@ -55,6 +55,12 @@ function convertResponseToFormData(
     enableStock: response.enableStock || "DISABLED",
     socialMedia: response.socialMedia || [],
     primaryColor: response.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+    contactAddress: response.contactAddress || "",
+    contactPhone: response.contactPhone || "",
+    contactEmail: response.contactEmail || "",
+    businessHoursMonFri: response.businessHoursMonFri || "",
+    businessHoursSat: response.businessHoursSat || "",
+    businessHoursSun: response.businessHoursSun || "",
   };
 }
 
@@ -75,6 +81,12 @@ export default function BusinessSettingsPage() {
       enableStock: "DISABLED",
       socialMedia: [],
       primaryColor: BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+      contactAddress: "",
+      contactPhone: "",
+      contactEmail: "",
+      businessHoursMonFri: "",
+      businessHoursSat: "",
+      businessHoursSun: "",
     },
   });
 
@@ -197,6 +209,12 @@ export default function BusinessSettingsPage() {
         enableStock: data.enableStock,
         socialMedia: data.socialMedia,
         primaryColor: data.primaryColor,
+        contactAddress: data.contactAddress,
+        contactPhone: data.contactPhone,
+        contactEmail: data.contactEmail,
+        businessHoursMonFri: data.businessHoursMonFri,
+        businessHoursSat: data.businessHoursSat,
+        businessHoursSun: data.businessHoursSun,
       };
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
@@ -396,6 +414,105 @@ export default function BusinessSettingsPage() {
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Main brand color
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Contact Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Contact Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Contact Address */}
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="contactAddress">Contact Address</Label>
+                <Input
+                  id="contactAddress"
+                  placeholder="123 Street Name, Phnom Penh, Cambodia"
+                  {...form.register("contactAddress")}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Physical address displayed in footer
+                </p>
+              </div>
+
+              {/* Contact Phone */}
+              <div className="space-y-2">
+                <Label htmlFor="contactPhone">Contact Phone</Label>
+                <Input
+                  id="contactPhone"
+                  placeholder="+855 12 345 678"
+                  {...form.register("contactPhone")}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Phone number for customer inquiries
+                </p>
+              </div>
+
+              {/* Contact Email */}
+              <div className="space-y-2">
+                <Label htmlFor="contactEmail">Contact Email</Label>
+                <Input
+                  id="contactEmail"
+                  type="email"
+                  placeholder="support@example.com"
+                  {...form.register("contactEmail")}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Email for customer support
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Business Hours */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Business Hours</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Monday to Friday */}
+              <div className="space-y-2">
+                <Label htmlFor="businessHoursMonFri">Monday - Friday</Label>
+                <Input
+                  id="businessHoursMonFri"
+                  placeholder="09:00 - 22:00"
+                  {...form.register("businessHoursMonFri")}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Format: HH:MM - HH:MM
+                </p>
+              </div>
+
+              {/* Saturday */}
+              <div className="space-y-2">
+                <Label htmlFor="businessHoursSat">Saturday</Label>
+                <Input
+                  id="businessHoursSat"
+                  placeholder="10:00 - 23:00"
+                  {...form.register("businessHoursSat")}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Format: HH:MM - HH:MM
+                </p>
+              </div>
+
+              {/* Sunday */}
+              <div className="space-y-2">
+                <Label htmlFor="businessHoursSun">Sunday</Label>
+                <Input
+                  id="businessHoursSun"
+                  placeholder="10:00 - 21:00"
+                  {...form.register("businessHoursSun")}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Format: HH:MM - HH:MM
                 </p>
               </div>
             </div>

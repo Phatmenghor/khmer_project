@@ -18,6 +18,14 @@ export const businessSettingsSchema = z.object({
     })
   ),
   primaryColor: z.string().min(1, "Primary color is required"),
+  // Contact Information
+  contactAddress: z.string().optional(),
+  contactPhone: z.string().optional(),
+  contactEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
+  // Business Hours
+  businessHoursMonFri: z.string().optional(),
+  businessHoursSat: z.string().optional(),
+  businessHoursSun: z.string().optional(),
 });
 
 export type BusinessSettingsFormData = z.infer<typeof businessSettingsSchema>;
