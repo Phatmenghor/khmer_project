@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 /**
  * Single pricing snapshot for an order at a point in time (before or after modifications)
  * Captures the complete financial state of the order
+ * Uses consistent naming with OrderItemPricingSnapshot for uniformity
  */
 @Data
 @Builder
@@ -18,9 +19,11 @@ import java.math.BigDecimal;
 public class OrderPricingSnapshot {
     private Integer totalItems;                // Number of items in order
     private BigDecimal subtotalBeforeDiscount; // Sum of all items at original price
-    private BigDecimal subtotal;               // After item-level discounts
-    private BigDecimal totalDiscount;          // Total discounts from items
-    private String discountType;               // Type of discount (PERCENTAGE or FIXED_AMOUNT) - null if no discount
+    private BigDecimal subtotal;               // After all discounts (item + order level)
+    private BigDecimal discountAmount;         // Total discount amount (item discounts + order discount)
+    private Boolean hasActivePromotion;        // Has promotion/discount applied
+    private String promotionType;              // Type of discount (PERCENTAGE or FIXED_AMOUNT)
+    private BigDecimal promotionValue;         // Promotion value (percentage or fixed amount)
     private BigDecimal deliveryFee;            // Delivery charge
     private BigDecimal taxAmount;              // Tax amount
     private BigDecimal finalTotal;             // Total amount to pay

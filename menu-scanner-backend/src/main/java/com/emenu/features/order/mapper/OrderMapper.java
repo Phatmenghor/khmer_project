@@ -264,8 +264,10 @@ public interface OrderMapper {
                 .totalItems(calculateTotalItems(order))
                 .subtotalBeforeDiscount(subtotalBeforeDiscount)
                 .subtotal(subtotalAfterItemDiscounts)  // After item-level discounts
-                .totalDiscount(itemLevelDiscounts)  // Sum of item-level discounts
-                .discountType(null)  // No order-level discount in before state
+                .discountAmount(itemLevelDiscounts)  // Sum of item-level discounts
+                .hasActivePromotion(itemLevelDiscounts.compareTo(BigDecimal.ZERO) > 0)  // True if item discounts exist
+                .promotionType(null)  // No order-level discount in before state
+                .promotionValue(null)  // No order-level discount value in before state
                 .deliveryFee(deliveryFee)
                 .taxAmount(taxAmount)
                 .finalTotal(subtotalAfterItemDiscounts.add(deliveryFee).add(taxAmount))
@@ -273,12 +275,15 @@ public interface OrderMapper {
 
         // Build after snapshot (after order-level changes if any)
         BigDecimal subtotalAfterAllDiscounts = subtotalAfterItemDiscounts.subtract(orderLevelDiscount);
+        BigDecimal totalAllDiscounts = itemLevelDiscounts.add(orderLevelDiscount);
         OrderPricingSnapshot after = OrderPricingSnapshot.builder()
                 .totalItems(calculateTotalItems(order))
                 .subtotalBeforeDiscount(subtotalBeforeDiscount)
                 .subtotal(subtotalAfterAllDiscounts)  // After both item-level and order-level discounts
-                .totalDiscount(itemLevelDiscounts.add(orderLevelDiscount))  // Sum of all discounts
-                .discountType(order.getDiscountType())  // Show discount type after changes
+                .discountAmount(totalAllDiscounts)  // Sum of all discounts
+                .hasActivePromotion(totalAllDiscounts.compareTo(BigDecimal.ZERO) > 0)  // True if any discount exists
+                .promotionType(order.getDiscountType())  // Show order-level discount type after changes
+                .promotionValue(orderLevelDiscount)  // Show order-level discount value after changes
                 .deliveryFee(deliveryFee)
                 .taxAmount(taxAmount)
                 .finalTotal(order.getTotalAmount() != null ? order.getTotalAmount() :

@@ -162,40 +162,46 @@ export function OrderDetailModal({
                     {(() => {
                       const before = orderData.pricing?.before;
                       return (
-                        <div>
-                          <h5 className="text-xs font-medium text-muted-foreground mb-2 uppercase">Before</h5>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-2 border-l-2 border-gray-200">
+                        <div className="space-y-3">
+                          <h5 className="text-xs font-medium text-muted-foreground mb-2 uppercase">📌 Before (Item Discounts Applied)</h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-4 border-gray-300 bg-gray-50 p-3 rounded">
                             <DisplayField
                               label="Total Items"
                               value={String(before?.totalItems || 0)}
                             />
                             <DisplayField
-                              label="Subtotal (Before Discount)"
+                              label="Original Subtotal"
                               value={formatCurrency(before?.subtotalBeforeDiscount || 0)}
                             />
                             {(before?.totalDiscount ?? 0) > 0 && (
-                              <DisplayField
-                                label="Discount"
-                                value={
-                                  <span className="text-red-600">
-                                    -{formatCurrency(before!.totalDiscount)}
-                                  </span>
-                                }
-                              />
-                            )}
-                            {before?.discountType && (
-                              <DisplayField
-                                label="Discount Type"
-                                value={
-                                  <span className="font-medium">
-                                    {before.discountType === "PERCENTAGE" ? "Percentage (%)" : "Fixed Amount ($)"}
-                                  </span>
-                                }
-                              />
+                              <>
+                                <DisplayField
+                                  label="Item Discounts"
+                                  value={
+                                    <span className="text-red-600 font-semibold">
+                                      -{formatCurrency(before!.totalDiscount)}
+                                    </span>
+                                  }
+                                />
+                                {before?.discountType && (
+                                  <DisplayField
+                                    label="Discount Type"
+                                    value={
+                                      <span className="font-medium text-blue-600">
+                                        {before.discountType === "PERCENTAGE" ? "PERCENTAGE" : "FIXED_AMOUNT"}
+                                      </span>
+                                    }
+                                  />
+                                )}
+                              </>
                             )}
                             <DisplayField
-                              label="Subtotal"
-                              value={formatCurrency(before?.subtotal || 0)}
+                              label="Subtotal After Items"
+                              value={
+                                <span className="font-semibold">
+                                  {formatCurrency(before?.subtotal || 0)}
+                                </span>
+                              }
                             />
                             <DisplayField
                               label="Delivery Fee"
@@ -222,40 +228,46 @@ export function OrderDetailModal({
 
                     {/* After Snapshot (if changes occurred) */}
                     {orderData.pricing?.hadOrderLevelChangeFromPOS && orderData.pricing?.after && (
-                      <div>
-                        <h5 className="text-xs font-medium text-muted-foreground mb-2 uppercase">After Changes</h5>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-2 border-l-2 border-orange-200 bg-orange-50 p-3 rounded">
+                      <div className="space-y-3">
+                        <h5 className="text-xs font-medium text-muted-foreground mb-2 uppercase">🔄 After (Order-Level Discount Applied)</h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-4 border-orange-300 bg-orange-50 p-3 rounded">
                           <DisplayField
                             label="Total Items"
                             value={String(orderData.pricing.after?.totalItems || 0)}
                           />
                           <DisplayField
-                            label="Subtotal (Before Discount)"
+                            label="Original Subtotal"
                             value={formatCurrency(orderData.pricing.after?.subtotalBeforeDiscount || 0)}
                           />
                           {(orderData.pricing.after?.totalDiscount ?? 0) > 0 && (
-                            <DisplayField
-                              label="Discount"
-                              value={
-                                <span className="text-red-600 font-medium">
-                                  -{formatCurrency(orderData.pricing.after!.totalDiscount)}
-                                </span>
-                              }
-                            />
-                          )}
-                          {orderData.pricing.after?.discountType && (
-                            <DisplayField
-                              label="Discount Type"
-                              value={
-                                <span className="font-medium text-orange-600">
-                                  {orderData.pricing.after.discountType === "PERCENTAGE" ? "Percentage (%)" : "Fixed Amount ($)"}
-                                </span>
-                              }
-                            />
+                            <>
+                              <DisplayField
+                                label="All Discounts (Items + Order)"
+                                value={
+                                  <span className="text-red-600 font-semibold">
+                                    -{formatCurrency(orderData.pricing.after!.totalDiscount)}
+                                  </span>
+                                }
+                              />
+                              {orderData.pricing.after?.discountType && (
+                                <DisplayField
+                                  label="Order Discount Type"
+                                  value={
+                                    <span className="font-medium text-orange-600">
+                                      {orderData.pricing.after.discountType === "PERCENTAGE" ? "PERCENTAGE" : "FIXED_AMOUNT"}
+                                    </span>
+                                  }
+                                />
+                              )}
+                            </>
                           )}
                           <DisplayField
-                            label="Subtotal"
-                            value={formatCurrency(orderData.pricing.after?.subtotal || 0)}
+                            label="Subtotal After All"
+                            value={
+                              <span className="font-semibold">
+                                {formatCurrency(orderData.pricing.after?.subtotal || 0)}
+                              </span>
+                            }
                           />
                           <DisplayField
                             label="Delivery Fee"
@@ -277,10 +289,11 @@ export function OrderDetailModal({
                           />
                         </div>
                         {orderData.pricing?.reason && (
-                          <DisplayField
-                            label="Change Reason"
-                            value={orderData.pricing.reason}
-                          />
+                          <div className="pl-4 border-l-4 border-orange-300 bg-orange-100 p-3 rounded">
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-semibold">Reason:</span> {orderData.pricing.reason}
+                            </p>
+                          </div>
                         )}
                       </div>
                     )}

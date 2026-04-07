@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
  * Pricing and costs breakdown for an order with audit trail
  * Shows before/after snapshots for complete audit trail of all pricing changes
  * Includes: item-level discounts, order-level discounts, delivery fees, taxes
+ * Uses consistent field naming across all pricing snapshots
  */
 @Data
 @Builder
@@ -27,9 +28,6 @@ public class OrderPricingInfo {
     // Snapshot AFTER order-level modifications
     @Valid
     private OrderPricingSnapshot after;
-
-    // Type of order-level discount (PERCENTAGE or FIXED_AMOUNT)
-    private String discountType;
 
     // Reason for change (POS order-level modifications)
     private String reason;
