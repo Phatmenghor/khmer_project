@@ -87,14 +87,25 @@ export function OrderDetailModal({
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">
-              Order Details
-            </h2>
-            <p className="text-sm text-foreground mt-1">
-              {orderData.orderNumber}
-            </p>
+        <div className="px-6 py-5 border-b bg-gradient-to-r from-primary/5 to-primary/10 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">
+                Order Details
+              </h2>
+              <p className="text-sm text-primary font-semibold mt-1">
+                {orderData.orderNumber}
+              </p>
+            </div>
+            <div className="text-right">
+              <span className={`text-sm font-bold px-3 py-1 rounded-full ${
+                orderData.payment?.paymentStatus === "PAID"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-amber-100 text-amber-700"
+              }`}>
+                {orderData.payment?.paymentStatus || "---"}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -102,14 +113,14 @@ export function OrderDetailModal({
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
             {/* Order & Pricing Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Order & Pricing Information</CardTitle>
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
+              <CardHeader className="pb-4 border-b">
+                <CardTitle className="text-lg font-bold text-foreground">📋 Order & Pricing</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 pt-6">
                 {/* Order Details */}
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Order Details</h4>
+                  <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-4">Order Details</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DisplayField
                       label="Order Number"
@@ -195,11 +206,11 @@ export function OrderDetailModal({
                 </div>
 
                 {/* Divider */}
-                <div className="border-t" />
+                <div className="border-t my-2" />
 
                 {/* Pricing Details */}
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Pricing Details</h4>
+                  <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-4">💰 Pricing Details</h4>
                   <div className="space-y-6">
                     {/* Before Snapshot */}
                     {(() => {
@@ -359,10 +370,10 @@ export function OrderDetailModal({
 
             {/* Order Items */}
             {orderData.items && orderData.items.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">
-                    Order Items ({orderData.items.length})
+              <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
+                <CardHeader className="pb-4 border-b">
+                  <CardTitle className="text-lg font-bold text-foreground">
+                    🛒 Order Items ({orderData.items.length})
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -509,9 +520,9 @@ export function OrderDetailModal({
 
             {/* Delivery Information */}
             {orderData.deliveryAddress && (
-              <Card className="border-green-100 bg-gradient-to-br from-green-50 to-transparent">
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
+              <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
+                <CardHeader className="pb-4 border-b">
+                  <CardTitle className="text-lg font-bold text-foreground">
                     📍 Delivery Information
                   </CardTitle>
                 </CardHeader>
@@ -570,7 +581,7 @@ export function OrderDetailModal({
                               `${fullAddress}\n\nDelivery Note: ${orderData.deliveryAddress.note}`
                             );
                           }}
-                          className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-xs font-medium rounded-lg transition-all shadow-sm whitespace-nowrap"
+                          className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-primary/20 hover:bg-primary/30 text-primary text-xs font-bold rounded-lg transition-all shadow-sm whitespace-nowrap border border-primary/30"
                           title="Copy address and note to clipboard"
                         >
                           📋 Copy
@@ -583,7 +594,7 @@ export function OrderDetailModal({
                                 const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
                                 window.open(mapsUrl, "_blank");
                               }}
-                              className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all shadow-sm whitespace-nowrap"
+                              className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-primary hover:bg-primary/90 text-white text-xs font-bold rounded-lg transition-all shadow-sm whitespace-nowrap"
                               title="View on Google Maps"
                             >
                               🗺️ View
@@ -599,7 +610,7 @@ export function OrderDetailModal({
                   {/* Delivery Option */}
                   {orderData.deliveryOption && (
                     <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-3">Delivery Option</h4>
+                      <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-3">🚚 Delivery Option</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <DisplayField
                           label="Method"
@@ -609,12 +620,6 @@ export function OrderDetailModal({
                           label="Price"
                           value={formatCurrency(orderData.deliveryOption.price || 0)}
                         />
-                        {orderData.deliveryOption.description && (
-                          <DisplayField
-                            label="Description"
-                            value={orderData.deliveryOption.description}
-                          />
-                        )}
                       </div>
                     </div>
                   )}
@@ -625,10 +630,10 @@ export function OrderDetailModal({
 
             {/* Status History */}
             {orderData.statusHistory && orderData.statusHistory.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">
-                    Status History ({orderData.statusHistory.length})
+              <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
+                <CardHeader className="pb-4 border-b">
+                  <CardTitle className="text-lg font-bold text-foreground">
+                    📈 Status History ({orderData.statusHistory.length})
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
