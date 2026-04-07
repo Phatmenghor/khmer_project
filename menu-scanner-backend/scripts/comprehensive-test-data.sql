@@ -287,8 +287,8 @@ INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated
 -- ============================================================================
 
 INSERT INTO business_settings (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, business_name, logo_business_url, tax_percentage, primary_color, secondary_color, accent_color, enable_stock) VALUES
-('550cad56-cafd-4aba-baef-c4dcd53940d2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Phatmenghor Business', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'Test Coffee Cafe', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+('550cad56-cafd-4aba-baef-c4dcd53940d2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Phatmenghor Business', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 10.0, '#57823D', '#404040', '#2E74D0', 'ENABLED'),
+('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'Test Coffee Cafe', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 5.0, '#57823D', '#404040', '#2E74D0', 'ENABLED');
 
 -- Initialize order counters for businesses (per-business sequences with migration V3)
 -- Must be after businesses table is populated due to foreign key constraint
@@ -304,7 +304,7 @@ INSERT INTO banners (id, version, created_at, updated_at, created_by, updated_by
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
     'https://example.com/promotion-' || LPAD(i::text, 2, '0'),
     CASE WHEN (i % 4) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
 FROM generate_series(1, 18) AS t(i);
@@ -406,17 +406,17 @@ INSERT INTO user_profiles (id, version, created_at, updated_at, created_by, upda
 ('ee000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550000', 'phatmenghor19@gmail.com', 'Platform', 'Admin', 'Admin',
  'MALE', '1990-01-15', '+855 10 100 0001',
- 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200'),
 -- Business Manager
 ('ee000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550001', 'phatmenghor20@gmail.com', 'Business', 'Manager', 'BizMgr',
  'MALE', '1988-05-20', '+855 10 200 0001',
- 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=1200'),
 -- Customer
 ('ee000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
  '550e8400-e29b-41d4-a716-446655550002', 'phatmenghor21@gmail.com', 'Customer', 'User', 'CustUser',
  'FEMALE', '1995-11-10', '+855 10 300 0001',
- 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=1200');
 
 -- Bulk profiles for 500 staff + 5 customers
 INSERT INTO user_profiles (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
@@ -431,7 +431,7 @@ SELECT
     CASE WHEN (ROW_NUMBER() OVER (ORDER BY u.created_at) % 2) = 0 THEN 'MALE' ELSE 'FEMALE' END,
     (DATE '1988-01-01' + ((ROW_NUMBER() OVER (ORDER BY u.created_at) % 3650)::text || ' days')::INTERVAL)::DATE,
     '+855 10 ' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) % 10000000)::text, 7, '0'),
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
 FROM users u
 WHERE u.user_identifier NOT IN ('phatmenghor19@gmail.com', 'phatmenghor20@gmail.com', 'phatmenghor21@gmail.com');
 
@@ -578,17 +578,17 @@ INSERT INTO user_documents (id, version, created_at, updated_at, created_by, upd
     user_id, type, number, file_url) VALUES
 -- Platform Admin documents
 ('cc000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550000', 'ID_CARD', 'ID-1990-001-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550000', 'ID_CARD', 'ID-1990-001-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 ('cc000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550000', 'FAMILY_BOOK', 'FB-PP-2020-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550000', 'FAMILY_BOOK', 'FB-PP-2020-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 -- Business Manager documents
 ('cc000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550001', 'ID_CARD', 'ID-1988-002-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550001', 'ID_CARD', 'ID-1988-002-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 ('cc000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550001', 'PASSPORT', 'PB-2022-456789', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550001', 'PASSPORT', 'PB-2022-456789', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 -- Customer documents
 ('cc000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550002', 'ID_CARD', 'ID-1995-003-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550002', 'ID_CARD', 'ID-1995-003-0001', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce');
 
 -- Bulk documents for all staff (1 per staff)
 INSERT INTO user_documents (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
@@ -602,7 +602,7 @@ SELECT
         WHEN 0 THEN 'ID-19' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) % 90 + 80)::text, 2, '0') || '-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 3, '0') || '-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 4, '0')
         WHEN 1 THEN 'PB-2022-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at) * 7 % 900000 + 100000)::text, 6, '0')
         ELSE 'FB-PP-2020-' || LPAD((ROW_NUMBER() OVER (ORDER BY u.created_at))::text, 4, '0') END,
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
 FROM users u
 WHERE u.user_type = 'BUSINESS_USER'
   AND u.user_identifier LIKE 'staff%@business.com';
@@ -615,17 +615,17 @@ INSERT INTO user_educations (id, version, created_at, updated_at, created_by, up
     user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url) VALUES
 -- Platform Admin education
 ('dd000000-0000-0000-0000-000000000001', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550000', 'BACHELOR', 'Royal University of Phnom Penh', 'Computer Science', '2008', '2012', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550000', 'BACHELOR', 'Royal University of Phnom Penh', 'Computer Science', '2008', '2012', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 ('dd000000-0000-0000-0000-000000000002', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550000', 'MASTER', 'Institute of Technology of Cambodia', 'Information Technology', '2013', '2015', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550000', 'MASTER', 'Institute of Technology of Cambodia', 'Information Technology', '2013', '2015', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 -- Business Manager education
 ('dd000000-0000-0000-0000-000000000003', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550001', 'BACHELOR', 'Build Bright University', 'Business Administration', '2006', '2010', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550001', 'BACHELOR', 'Build Bright University', 'Business Administration', '2006', '2010', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 -- Customer education
 ('dd000000-0000-0000-0000-000000000004', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550002', 'HIGH_SCHOOL', 'Hun Sen Phnom Penh High School', 'General Education', '2010', '2013', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550002', 'HIGH_SCHOOL', 'Hun Sen Phnom Penh High School', 'General Education', '2010', '2013', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
 ('dd000000-0000-0000-0000-000000000005', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
- '550e8400-e29b-41d4-a716-446655550002', 'DIPLOMA', 'Paññāsāstra University of Cambodia', 'Hospitality Management', '2013', '2015', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+ '550e8400-e29b-41d4-a716-446655550002', 'DIPLOMA', 'Paññāsāstra University of Cambodia', 'Hospitality Management', '2013', '2015', true, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce');
 
 -- Bulk education for all staff (1 per staff)
 INSERT INTO user_educations (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
@@ -649,7 +649,7 @@ SELECT
     (2000 + (ROW_NUMBER() OVER (ORDER BY u.created_at) % 15))::text,
     (2003 + (ROW_NUMBER() OVER (ORDER BY u.created_at) % 15))::text,
     true,
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
 FROM users u
 WHERE u.user_type = 'BUSINESS_USER'
   AND u.user_identifier LIKE 'staff%@business.com';
@@ -702,7 +702,7 @@ INSERT INTO categories (id, version, created_at, updated_at, created_by, updated
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Category ' || i::text,
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400',
     CASE WHEN (i % 10) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
 FROM generate_series(1, 20) AS t(i);
 
@@ -714,7 +714,7 @@ INSERT INTO brands (id, version, created_at, updated_at, created_by, updated_by,
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Brand ' || i::text, 'Premium brand number ' || i::text,
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+    'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=400',
     CASE WHEN (i % 15) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
 FROM generate_series(1, 20) AS t(i);
 
@@ -741,7 +741,7 @@ SELECT
     CASE WHEN (i % 3) = 0 THEN 10 WHEN (i % 3) = 1 THEN 2 ELSE 5 END,
     NOW(), NOW() + INTERVAL '30 days',
     true,
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400',
     CASE WHEN (i % 20) = 0 THEN 'INACTIVE' WHEN (i % 25) = 0 THEN 'OUT_OF_STOCK' ELSE 'ACTIVE' END,
     (i % 3) = 0,
     CASE WHEN (i % 15) = 0 THEN 'DISABLED' ELSE 'ENABLED' END,
@@ -784,16 +784,16 @@ SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     p.id,
     CASE ((p.rn + t.img_num) % 10)
-        WHEN 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-        WHEN 1 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-        WHEN 2 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-        WHEN 3 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-        WHEN 4 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-        WHEN 5 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-        WHEN 6 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-        WHEN 7 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-        WHEN 8 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
-        ELSE       'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+        WHEN 0 THEN 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=600'
+        WHEN 1 THEN 'https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?q=80&w=600'
+        WHEN 2 THEN 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600'
+        WHEN 3 THEN 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?q=80&w=600'
+        WHEN 4 THEN 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=600'
+        WHEN 5 THEN 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=600'
+        WHEN 6 THEN 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600'
+        WHEN 7 THEN 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=600'
+        WHEN 8 THEN 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600'
+        ELSE       'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?q=80&w=600'
     END
 FROM (
     SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) AS rn
@@ -953,7 +953,7 @@ SELECT
         ELSE 'Same Day'
     END,
     'Delivery method ' || i || ' with estimated time',
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
     (5.00 + (i * 0.5))::numeric,
     CASE WHEN (i % 3) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
 FROM generate_series(1, 18) AS t(i);
@@ -1259,7 +1259,7 @@ BEGIN
   SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     ca.id,
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400'
   FROM customer_addresses ca
   CROSS JOIN (SELECT generate_series(1, 4) as img_num)
   WHERE NOT EXISTS (
