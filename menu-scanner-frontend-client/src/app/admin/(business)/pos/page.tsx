@@ -401,14 +401,14 @@ export default function PosPage() {
     let totalQuantity = 0;
     let subtotalBeforeDiscount = 0;
     let subtotal = 0;
-    let totalDiscount = 0;
+    let discountAmount = 0;
     cartItems.forEach((item) => {
       totalQuantity += item.quantity;
       const beforeDiscount = item.after.currentPrice * item.quantity;
       const afterDiscount = item.after.finalPrice * item.quantity;
       subtotalBeforeDiscount += beforeDiscount;
       subtotal += afterDiscount;
-      totalDiscount += beforeDiscount - afterDiscount;
+      discountAmount += beforeDiscount - afterDiscount;
     });
     const deliveryFee = selectedDeliveryOption?.price || 0;
     const taxRate = 0;
@@ -419,7 +419,7 @@ export default function PosPage() {
       totalQuantity,
       subtotalBeforeDiscount,
       subtotal,
-      totalDiscount,
+      discountAmount,
       deliveryFee,
       taxRate,
       taxAmount,
@@ -571,7 +571,7 @@ export default function PosPage() {
         totalQuantity: cartSummary.totalQuantity,
         subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
         subtotal: cartSummary.subtotal,
-        totalDiscount: cartSummary.totalDiscount,
+        discountAmount: cartSummary.discountAmount,
         finalTotal: cartSummary.finalTotal,
       },
 
@@ -582,7 +582,7 @@ export default function PosPage() {
           totalItems: cartSummary.totalItems,
           subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
           subtotal: cartSummary.subtotalBeforeDiscount,
-          totalDiscount: 0,
+          discountAmount: 0,
           deliveryFee,
           taxAmount: 0,
           finalTotal: cartSummary.subtotalBeforeDiscount + deliveryFee,
@@ -597,7 +597,7 @@ export default function PosPage() {
           totalItems: cartSummary.totalItems,
           subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
           subtotal: cartSummary.subtotal,
-          totalDiscount: cartSummary.totalDiscount,
+          discountAmount: cartSummary.discountAmount,
           deliveryFee,
           taxAmount: 0,
           finalTotal: afterFinalTotal,
@@ -1047,10 +1047,10 @@ export default function PosPage() {
                   </span>
                   <span className="font-medium">{formatCurrency(cartSummary.subtotalBeforeDiscount)}</span>
                 </div>
-                {cartSummary.totalDiscount > 0 && (
+                {cartSummary.discountAmount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-red-500 font-medium">Discount</span>
-                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.totalDiscount)}</span>
+                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-xs">

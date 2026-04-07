@@ -185,7 +185,7 @@ export default function PosOrderPage() {
     let totalQuantity = 0;
     let subtotalBeforeDiscount = 0;
     let subtotal = 0;
-    let totalDiscount = 0;
+    let discountAmount = 0;
 
     cartItems.forEach((item) => {
       totalQuantity += item.quantity;
@@ -193,7 +193,7 @@ export default function PosOrderPage() {
       const afterDiscount = item.finalPrice * item.quantity;
       subtotalBeforeDiscount += beforeDiscount;
       subtotal += afterDiscount;
-      totalDiscount += beforeDiscount - afterDiscount;
+      discountAmount += beforeDiscount - afterDiscount;
     });
 
     return {
@@ -201,7 +201,7 @@ export default function PosOrderPage() {
       totalQuantity,
       subtotalBeforeDiscount,
       subtotal,
-      totalDiscount,
+      discountAmount,
       finalTotal: subtotal,
     };
   }, [cartItems]);
@@ -271,7 +271,7 @@ export default function PosOrderPage() {
           totalQuantity: cartSummary.totalQuantity,
           subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
           subtotal: cartSummary.subtotal,
-          totalDiscount: cartSummary.totalDiscount,
+          discountAmount: cartSummary.discountAmount,
           finalTotal: cartSummary.finalTotal,
         },
         payment: {
@@ -557,10 +557,10 @@ export default function PosOrderPage() {
                 <span className="text-muted-foreground">Subtotal</span>
                 <span>{formatCurrency(cartSummary.subtotalBeforeDiscount)}</span>
               </div>
-              {cartSummary.totalDiscount > 0 && (
+              {cartSummary.discountAmount > 0 && (
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Discount</span>
-                  <span className="text-red-500">-{formatCurrency(cartSummary.totalDiscount)}</span>
+                  <span className="text-red-500">-{formatCurrency(cartSummary.discountAmount)}</span>
                 </div>
               )}
               <Separator />
