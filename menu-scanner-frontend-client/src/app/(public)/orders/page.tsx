@@ -295,7 +295,7 @@ export default function OrdersPage() {
         {/* Search and Filters Row - All on one line, responsive */}
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end w-full">
           {/* Search Bar */}
-          <div className="flex-1 min-w-0">
+          <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
             <label className="text-sm font-semibold text-foreground mb-2 block">
               Search Orders
             </label>
