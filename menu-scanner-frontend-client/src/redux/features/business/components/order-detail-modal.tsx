@@ -556,11 +556,23 @@ export function OrderDetailModal({
                               </span>
                             )}
                           </div>
-                          {item.product?.sizeName && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Size: {item.product.sizeName}
-                            </p>
-                          )}
+                          <div className="flex flex-wrap gap-3 mt-1 text-xs">
+                            {item.product?.sizeName && (
+                              <span className="text-muted-foreground">
+                                Size: <span className="font-medium">{item.product.sizeName}</span>
+                              </span>
+                            )}
+                            {item.product?.sku && (
+                              <span className="text-muted-foreground">
+                                SKU: <span className="font-mono font-medium text-foreground">{item.product.sku}</span>
+                              </span>
+                            )}
+                            {item.product?.barcode && (
+                              <span className="text-muted-foreground">
+                                Barcode: <span className="font-mono font-medium text-foreground">{item.product.barcode}</span>
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
