@@ -29,13 +29,15 @@ import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomerOrderDetailModal } from "@/components/shared/modal/customer-order-detail-modal";
+import { CancelOrderModal } from "@/components/shared/modal/cancel-order-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ORDER_STATUS_ADMIN_FILTER, PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { indexDisplay } from "@/utils/common/common";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { useAppSelector, useAppDispatch } from "@/redux/store";
+import { cancelOrderService } from "@/redux/features/main/store/thunks/my-orders-thunks";
 
 type Order = OrderResponse;
 
@@ -52,6 +54,7 @@ interface FilterState {
 
 export default function OrdersPage() {
   const router = useRouter();
+  const reduxDispatch = useAppDispatch();
   const { isAuthenticated, profile, authReady } = useAuthState();
   const {
     dispatch,
@@ -77,6 +80,11 @@ export default function OrdersPage() {
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     orderId: "",
+  });
+  const [cancelModalState, setCancelModalState] = useState({
+    isOpen: false,
+    orderId: "",
+    orderNumber: "",
   });
   const [cancelingOrderId, setCancelingOrderId] = useState<string | null>(null);
 
@@ -164,21 +172,47 @@ export default function OrdersPage() {
     setDetailModalState({ isOpen: true, orderId: order.id });
   };
 
-  const handleCancelOrder = async (order: Order) => {
+  const handleCancelOrder = (order: Order) => {
     // Only allow canceling PENDING orders
     if (order.orderStatus !== "PENDING") {
       showToast.error("Only pending orders can be cancelled");
       return;
     }
 
-    setCancelingOrderId(order.id);
+    // Open cancel modal instead of calling API directly
+    setCancelModalState({
+      isOpen: true,
+      orderId: order.id,
+      orderNumber: order.orderNumber || "",
+    });
+  };
+
+  const handleConfirmCancel = async (data: {
+    status: "CANCELLED";
+    customerNote: string;
+  }) => {
+    const orderId = cancelModalState.orderId;
+    if (!orderId) return;
+
     try {
-      // TODO: Implement cancel order service
-      // For now, just show a notification
-      showToast.info("Cancel order feature coming soon");
-      setCancelingOrderId(null);
+      setCancelingOrderId(orderId);
+
+      // Call the cancel order service from Redux
+      await reduxDispatch(cancelOrderService(orderId)).unwrap();
+
+      showToast.success("Order cancelled successfully");
+
+      // Close the modal
+      setCancelModalState({ isOpen: false, orderId: "", orderNumber: "" });
+
+      // Reload orders to reflect the cancellation
+      loadOrders(currentPage);
     } catch (error: any) {
-      showToast.error(error?.message || "Failed to cancel order");
+      const errorMessage =
+        error?.message || "Failed to cancel order. Please try again.";
+      showToast.error(errorMessage);
+      throw error; // Re-throw to let the modal handle it
+    } finally {
       setCancelingOrderId(null);
     }
   };
@@ -439,6 +473,17 @@ export default function OrdersPage() {
         orderId={detailModalState.orderId}
         isOpen={detailModalState.isOpen}
         onClose={() => setDetailModalState({ isOpen: false, orderId: "" })}
+      />
+
+      {/* Cancel Order Modal */}
+      <CancelOrderModal
+        isOpen={cancelModalState.isOpen}
+        onClose={() =>
+          setCancelModalState({ isOpen: false, orderId: "", orderNumber: "" })
+        }
+        orderId={cancelModalState.orderId}
+        orderNumber={cancelModalState.orderNumber}
+        onConfirm={handleConfirmCancel}
       />
     </PageContainer>
   );
