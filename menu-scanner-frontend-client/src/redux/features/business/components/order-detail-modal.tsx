@@ -591,7 +591,8 @@ export function OrderDetailModal({
                   {orderData.items.map((item, idx) => {
                     const before = item.before;
                     const after = item.after;
-                    const current = after ?? before;
+                    // Show 'after' if item changed from POS, otherwise show 'before'
+                    const current = item.hadChangeFromPOS ? (after ?? before) : (before ?? after);
 
                     return (
                       <div
@@ -632,46 +633,52 @@ export function OrderDetailModal({
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                        {/* Current State - Show Before if no changes, After if changes occurred */}
+                        <div className="space-y-4">
                           <div>
-                            <span className="text-muted-foreground">
-                              Quantity:
-                            </span>
-                            <p className="font-medium">
-                              {current?.quantity || 0}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Price:</span>
-                            <p className="font-medium">
-                              {formatCurrency(current?.finalPrice || 0)}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Total:</span>
-                            <p className="font-bold text-green-600">
-                              {formatCurrency(current?.totalPrice || 0)}
-                            </p>
-                          </div>
-                          {(current?.discountAmount ?? 0) > 0 && (
-                            <div>
-                              <span className="text-muted-foreground">
-                                Discount:
-                              </span>
-                              <p className="font-medium text-red-600">
-                                -{formatCurrency(current!.discountAmount)}
-                              </p>
-                            </div>
-                          )}
-                          {current?.hasActivePromotion && (
-                            <div>
-                              <span className="text-muted-foreground">
-                                Promo:
-                              </span>
-                              <p className="font-medium text-green-600">
-                                {current.promotionType}: {current.promotionValue}
-                                {current.promotionType === "PERCENTAGE"
-                                  ? "%"
+                            <h5 className="text-xs font-medium text-muted-foreground mb-2 uppercase">
+                              {item.hadChangeFromPOS ? "After Changes" : "Current"}
+                            </h5>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs pl-2 border-l-2 border-current">
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Quantity:
+                                </span>
+                                <p className="font-medium">
+                                  {current?.quantity || 0}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Price:</span>
+                                <p className="font-medium">
+                                  {formatCurrency(current?.finalPrice || 0)}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Total:</span>
+                                <p className="font-bold text-green-600">
+                                  {formatCurrency(current?.totalPrice || 0)}
+                                </p>
+                              </div>
+                              {(current?.discountAmount ?? 0) > 0 && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Discount:
+                                  </span>
+                                  <p className="font-medium text-red-600">
+                                    -{formatCurrency(current!.discountAmount)}
+                                  </p>
+                                </div>
+                              )}
+                              {current?.hasActivePromotion && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Promo:
+                                  </span>
+                                  <p className="font-medium text-green-600">
+                                    {current.promotionType}: {current.promotionValue}
+                                    {current.promotionType === "PERCENTAGE"
+                                      ? "%"
                                   : ""}
                               </p>
                             </div>
