@@ -33,6 +33,9 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { ORDER_STATUS_ADMIN_FILTER, PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { indexDisplay } from "@/utils/common/common";
+import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/redux/store";
 
 type Order = OrderResponse;
 
@@ -59,6 +62,8 @@ export default function OrdersPage() {
     statusTabs,
     loadedFilters,
   } = useMyOrdersState();
+
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const [filters, setFilters] = useState<FilterState>({
     status: "",
@@ -112,7 +117,7 @@ export default function OrdersPage() {
     await dispatch(
       fetchMyOrdersService({
         pageNo,
-        pageSize: AppDefault.PAGE_SIZE_OPTIONS?.[1] || 15,
+        pageSize: globalPageSize,
         status: filters.status || undefined,
         paymentStatus: filters.paymentStatus && filters.paymentStatus !== "ALL" ? filters.paymentStatus : undefined,
         search: filters.search || undefined,
@@ -185,7 +190,8 @@ export default function OrdersPage() {
   };
 
   const handlePageSizeChange = (size: number) => {
-    // Not changing page size dynamically, keeping consistent
+    dispatch(setGlobalPageSize(size));
+    setCurrentPage(1);
   };
 
   const handleStatusChange = (value: string) => {
@@ -419,13 +425,12 @@ export default function OrdersPage() {
           emptyMessage="No orders found"
           getRowKey={(order) => order.id}
           currentPage={currentPage}
-          totalPages={pagination.totalPages}
           totalElements={pagination.totalElements}
+          totalPages={pagination.totalPages}
           onPageChange={handlePageChange}
+          pageSize={globalPageSize}
           onPageSizeChange={handlePageSizeChange}
-          pageSize={AppDefault.PAGE_SIZE_OPTIONS?.[1] || 15}
-          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS || [10, 15, 20]}
-          showPageSizeSelector={false}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       )}
 
