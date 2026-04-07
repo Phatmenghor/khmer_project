@@ -135,6 +135,62 @@ export function OrderDetailModal({
                       label="Business"
                       value={orderData.businessName || "---"}
                     />
+                    <DisplayField
+                      label="Payment Method"
+                      value={orderData.payment?.paymentMethod || "---"}
+                    />
+                    <DisplayField
+                      label="Payment Status"
+                      value={
+                        <span
+                          className={
+                            orderData.payment?.paymentStatus === "PAID"
+                              ? "text-green-600 font-medium"
+                              : "text-orange-600 font-medium"
+                          }
+                        >
+                          {orderData.payment?.paymentStatus || "---"}
+                        </span>
+                      }
+                    />
+                    <DisplayField
+                      label="Customer Name"
+                      value={
+                        <span className="font-semibold text-foreground">
+                          {orderData.customerName || "Walk-in Customer"}
+                        </span>
+                      }
+                    />
+                    <DisplayField
+                      label="Phone Number"
+                      value={
+                        <a
+                          href={`tel:${orderData.customerPhone}`}
+                          className="text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          {orderData.customerPhone || "---"}
+                        </a>
+                      }
+                    />
+                    {orderData.customerEmail && (
+                      <DisplayField
+                        label="Email"
+                        value={
+                          <a
+                            href={`mailto:${orderData.customerEmail}`}
+                            className="text-blue-600 hover:text-blue-700 font-medium break-all"
+                          >
+                            {orderData.customerEmail}
+                          </a>
+                        }
+                      />
+                    )}
+                    {orderData.customerNote && (
+                      <DisplayField
+                        label="Customer Note"
+                        value={orderData.customerNote}
+                      />
+                    )}
                   </div>
                 </div>
 
@@ -450,87 +506,6 @@ export function OrderDetailModal({
               </Card>
             )}
 
-            {/* Customer Information */}
-            <Card className="border-blue-100 bg-gradient-to-br from-blue-50 to-transparent">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  👤 Customer Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <DisplayField
-                    label="Name"
-                    value={
-                      <span className="font-semibold text-foreground">
-                        {orderData.customerName || "Walk-in Customer"}
-                      </span>
-                    }
-                  />
-                  <DisplayField
-                    label="Phone Number"
-                    value={
-                      <a
-                        href={`tel:${orderData.customerPhone}`}
-                        className="text-blue-600 hover:text-blue-700 font-medium"
-                      >
-                        {orderData.customerPhone || "---"}
-                      </a>
-                    }
-                  />
-                  <DisplayField
-                    label="Email"
-                    value={
-                      orderData.customerEmail ? (
-                        <a
-                          href={`mailto:${orderData.customerEmail}`}
-                          className="text-blue-600 hover:text-blue-700 font-medium break-all"
-                        >
-                          {orderData.customerEmail}
-                        </a>
-                      ) : (
-                        <span className="text-muted-foreground">---</span>
-                      )
-                    }
-                  />
-                  {orderData.customerNote && (
-                    <DisplayField
-                      label="Customer Note"
-                      value={orderData.customerNote}
-                    />
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Payment Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Payment Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <DisplayField
-                    label="Payment Method"
-                    value={orderData.payment?.paymentMethod || "---"}
-                  />
-                  <DisplayField
-                    label="Payment Status"
-                    value={
-                      <span
-                        className={
-                          orderData.payment?.paymentStatus === "PAID"
-                            ? "text-green-600 font-medium"
-                            : "text-orange-600 font-medium"
-                        }
-                      >
-                        {orderData.payment?.paymentStatus || "---"}
-                      </span>
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Delivery Information */}
             {orderData.deliveryAddress && (
