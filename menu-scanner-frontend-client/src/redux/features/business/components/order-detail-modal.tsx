@@ -89,24 +89,13 @@ export function OrderDetailModal({
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">
-                Order Details
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {orderData.orderNumber}
-              </p>
-            </div>
-            <div className="text-right">
-              <span className={`text-sm font-bold px-3 py-1 rounded-full ${
-                orderData.payment?.paymentStatus === "PAID"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-amber-100 text-amber-700"
-              }`}>
-                {orderData.payment?.paymentStatus || "---"}
-              </span>
-            </div>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Order Details
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {orderData.orderNumber}
+            </p>
           </div>
         </div>
 
