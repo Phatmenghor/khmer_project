@@ -125,7 +125,7 @@ export default function OrdersPage() {
     await dispatch(
       fetchMyOrdersService({
         pageNo,
-        pageSize: globalPageSize,
+        pageSize: 15,
         status: filters.status || undefined,
         paymentStatus: filters.paymentStatus && filters.paymentStatus !== "ALL" ? filters.paymentStatus : undefined,
         search: filters.search || undefined,
@@ -223,10 +223,11 @@ export default function OrdersPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handlePageSizeChange = (size: number) => {
-    dispatch(setGlobalPageSize(size));
-    setCurrentPage(1);
-  };
+  // Page size is now fixed at 15 items per page
+  // const handlePageSizeChange = (size: number) => {
+  //   dispatch(setGlobalPageSize(size));
+  //   setCurrentPage(1);
+  // };
 
   const handleStatusChange = (value: string) => {
     setFilters((prev) => ({ ...prev, status: value }));
@@ -291,10 +292,10 @@ export default function OrdersPage() {
 
       {/* Filters Section */}
       <div className="mt-8 mb-6 space-y-4">
-        {/* Search and Quick Filters Row */}
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+        {/* Search and Filters Row - All on one line, responsive */}
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end w-full">
           {/* Search Bar */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <label className="text-sm font-semibold text-foreground mb-2 block">
               Search Orders
             </label>
@@ -324,22 +325,8 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          {/* Quick Filter Buttons */}
-          {hasActiveFilters && (
-            <CustomButton
-              onClick={handleClearFilters}
-              variant="ghost"
-              className="h-11 px-4 flex items-center gap-2 border border-border/50"
-            >
-              <X className="h-4 w-4" />
-              Clear
-            </CustomButton>
-          )}
-        </div>
-
-        {/* Filter Dropdowns */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1">
+          {/* Order Status Filter */}
+          <div className="flex-1 min-w-0">
             <CustomSelect
               options={[
                 { value: "", label: "All Order Status" },
@@ -351,7 +338,9 @@ export default function OrdersPage() {
               label="Order Status"
             />
           </div>
-          <div className="flex-1">
+
+          {/* Payment Status Filter */}
+          <div className="flex-1 min-w-0">
             <CustomSelect
               options={PAYMENT_STATUS_ADMIN_FILTER}
               value={filters.paymentStatus || "ALL"}
@@ -360,6 +349,18 @@ export default function OrdersPage() {
               label="Payment Status"
             />
           </div>
+
+          {/* Clear Filters Button */}
+          {hasActiveFilters && (
+            <CustomButton
+              onClick={handleClearFilters}
+              variant="ghost"
+              className="h-11 px-4 flex items-center gap-2 border border-border/50 self-end"
+            >
+              <X className="h-4 w-4" />
+              Clear
+            </CustomButton>
+          )}
         </div>
 
         {/* Active Filters Display */}
@@ -462,9 +463,9 @@ export default function OrdersPage() {
           totalElements={pagination.totalElements}
           totalPages={pagination.totalPages}
           onPageChange={handlePageChange}
-          pageSize={globalPageSize}
-          onPageSizeChange={handlePageSizeChange}
-          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
+          pageSize={15}
+          pageSizeOptions={[15]}
+          hidePageSizeSelector={true}
         />
       )}
 
