@@ -1173,21 +1173,48 @@ SELECT
 FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 10) u, generate_series(1, 2) AS t(i);
 
 -- ============================================================================
--- 32.5. LOCATION IMAGES (Multiple images per location - no null values)
+-- 32.5. LOCATION IMAGES (Multiple images per location - handled in section 32.6)
 -- ============================================================================
-
-INSERT INTO location_images (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, location_id, image_url)
-SELECT
-    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
-    ca.id,
-    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400'
-FROM customer_addresses ca
-CROSS JOIN (SELECT generate_series(1, 4) as img_num);
+-- Note: Location images are now populated within the order delivery addresses section
+-- to ensure they are created before being referenced
 
 -- ============================================================================
 -- 32.6. ORDER DELIVERY ADDRESSES (MUST BE AFTER customer_addresses & location_images)
+-- Ensures EVERY order (all 200) gets a delivery address entry
 -- ============================================================================
 
+DO $$
+BEGIN
+  -- First, ensure we have at least one customer address
+  IF (SELECT COUNT(*) FROM customer_addresses WHERE is_deleted = false) = 0 THEN
+    INSERT INTO customer_addresses (
+      id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+      user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default
+    )
+    SELECT
+      gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+      u.id, 'Default Village', 'Chamkarmon', 'Chamkarmon', 'Phnom Penh', 'Cambodia',
+      '1', 'House 1', 'Default Delivery Address', 11.5564, 104.9282, true
+    FROM (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 1) u;
+  END IF;
+
+  -- Then ensure we have location images for all customer addresses
+  INSERT INTO location_images (
+    id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
+    location_id, image_url
+  )
+  SELECT
+    gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
+    ca.id,
+    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce?q=80&w=400'
+  FROM customer_addresses ca
+  CROSS JOIN (SELECT generate_series(1, 4) as img_num)
+  WHERE NOT EXISTS (
+    SELECT 1 FROM location_images li WHERE li.location_id = ca.id
+  );
+END $$;
+
+-- Now insert order delivery addresses for ALL 200 orders
 INSERT INTO order_delivery_addresses (
     id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by,
     order_id, village, commune, district, province, street_number, house_number, note, latitude, longitude,
@@ -1209,8 +1236,8 @@ SELECT
     ca.id,
     COALESCE(
         (SELECT json_agg(image_url ORDER BY created_at)::jsonb
-         FROM location_images
-         WHERE location_id = ca.id),
+         FROM location_images li
+         WHERE li.location_id = ca.id),
         '[]'::jsonb
     )
 FROM orders o
@@ -1218,8 +1245,12 @@ CROSS JOIN (
     SELECT id, village, commune, district, province, street_number, house_number, note, latitude, longitude
     FROM customer_addresses
     WHERE is_deleted = false
+    ORDER BY created_at ASC
     LIMIT 1
-) ca;
+) ca
+WHERE NOT EXISTS (
+    SELECT 1 FROM order_delivery_addresses oda WHERE oda.order_id = o.id
+);
 
 -- ============================================================================
 -- 33. SUBSCRIPTION PLANS
