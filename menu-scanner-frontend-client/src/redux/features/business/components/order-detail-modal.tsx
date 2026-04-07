@@ -88,13 +88,13 @@ export function OrderDetailModal({
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b bg-gradient-to-r from-primary/5 to-primary/10 flex-shrink-0">
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-foreground">
+              <h2 className="text-lg font-semibold text-foreground">
                 Order Details
               </h2>
-              <p className="text-sm text-primary font-semibold mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {orderData.orderNumber}
               </p>
             </div>
