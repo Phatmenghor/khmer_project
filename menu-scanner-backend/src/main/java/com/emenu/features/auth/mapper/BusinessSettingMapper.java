@@ -24,12 +24,6 @@ public interface BusinessSettingMapper {
         if (response.getPrimaryColor() == null) {
             response.setPrimaryColor(BusinessSettingConstants.DEFAULT_PRIMARY_COLOR);
         }
-        if (response.getSecondaryColor() == null) {
-            response.setSecondaryColor(BusinessSettingConstants.DEFAULT_SECONDARY_COLOR);
-        }
-        if (response.getAccentColor() == null) {
-            response.setAccentColor(BusinessSettingConstants.DEFAULT_ACCENT_COLOR);
-        }
     }
 
     BusinessSetting toEntity(BusinessSettingCreateRequest request);
@@ -47,12 +41,6 @@ public interface BusinessSettingMapper {
         }
         if (businessSetting.getPrimaryColor() == null) {
             businessSetting.setPrimaryColor(BusinessSettingConstants.DEFAULT_PRIMARY_COLOR);
-        }
-        if (businessSetting.getSecondaryColor() == null) {
-            businessSetting.setSecondaryColor(BusinessSettingConstants.DEFAULT_SECONDARY_COLOR);
-        }
-        if (businessSetting.getAccentColor() == null) {
-            businessSetting.setAccentColor(BusinessSettingConstants.DEFAULT_ACCENT_COLOR);
         }
         if (businessSetting.getTaxPercentage() == null) {
             businessSetting.setTaxPercentage(BusinessSettingConstants.DEFAULT_TAX_PERCENTAGE);

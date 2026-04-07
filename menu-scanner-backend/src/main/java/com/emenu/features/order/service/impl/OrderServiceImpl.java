@@ -29,6 +29,7 @@ import com.emenu.features.order.models.OrderItem;
 import com.emenu.features.order.models.OrderDeliveryAddress;
 import com.emenu.features.order.models.OrderDeliveryOption;
 import com.emenu.features.order.models.OrderItemPricingSnapshot;
+import com.emenu.features.order.dto.response.OrderPricingSnapshot;
 import com.emenu.features.order.repository.OrderPaymentRepository;
 import com.emenu.features.order.repository.CartRepository;
 import com.emenu.features.order.repository.OrderRepository;
@@ -352,10 +353,18 @@ public class OrderServiceImpl implements OrderService {
 
         if (request.getPayment() != null) {
             if (request.getPayment().getPaymentMethod() != null) {
-                order.setPaymentMethod(request.getPayment().getPaymentMethod());
+                try {
+                    order.setPaymentMethod(PaymentMethod.valueOf(request.getPayment().getPaymentMethod()));
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid payment method: {}", request.getPayment().getPaymentMethod());
+                }
             }
             if (request.getPayment().getPaymentStatus() != null) {
-                order.setPaymentStatus(request.getPayment().getPaymentStatus());
+                try {
+                    order.setPaymentStatus(PaymentStatus.valueOf(request.getPayment().getPaymentStatus()));
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid payment status: {}", request.getPayment().getPaymentStatus());
+                }
             }
         }
         if (request.getCustomerNote() != null) {
