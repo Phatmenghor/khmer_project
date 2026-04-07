@@ -208,9 +208,9 @@ export function OrderDetailModal({
                               />
                             )}
                             <DisplayField
-                              label="Total"
+                              label="Final Total"
                               value={
-                                <span className="text-sm font-semibold">
+                                <span className="text-lg font-bold text-green-600">
                                   {formatCurrency(before?.finalTotal || 0)}
                                 </span>
                               }
