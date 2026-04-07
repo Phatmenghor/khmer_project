@@ -466,6 +466,7 @@ export default function OrdersPage() {
           pageSize={15}
           pageSizeOptions={[15]}
           hidePageSizeSelector={true}
+          hideEllipsis={true}
         />
       )}
 

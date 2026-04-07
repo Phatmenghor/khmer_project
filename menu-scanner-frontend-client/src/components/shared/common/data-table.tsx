@@ -40,6 +40,7 @@ interface DataTableWithPaginationProps<T = any> {
   onPageChange: (page: number) => void;
   paginationSize?: "sm" | "md" | "lg";
   showPagination?: boolean;
+  hideEllipsis?: boolean;
 
   // Page size selector props
   pageSize?: number;
@@ -61,6 +62,7 @@ export function DataTableWithPagination<T = any>({
   onPageChange,
   paginationSize = "md",
   showPagination = true,
+  hideEllipsis = false,
   pageSize = 10,
   totalElements = 0,
   onPageSizeChange = () => {},
@@ -113,7 +115,7 @@ export function DataTableWithPagination<T = any>({
         end = totalPages - 1;
       }
 
-      if (start > PAGINATION_START_OFFSET) {
+      if (!hideEllipsis && start > PAGINATION_START_OFFSET) {
         items.push("ellipsis");
       }
 
@@ -121,7 +123,7 @@ export function DataTableWithPagination<T = any>({
         items.push(i);
       }
 
-      if (end < totalPages - 1) {
+      if (!hideEllipsis && end < totalPages - 1) {
         items.push("ellipsis");
       }
 
