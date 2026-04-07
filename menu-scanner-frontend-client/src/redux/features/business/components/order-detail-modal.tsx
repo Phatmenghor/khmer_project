@@ -173,22 +173,22 @@ export function OrderDetailModal({
                               label="Original Subtotal"
                               value={formatCurrency(before?.subtotalBeforeDiscount || 0)}
                             />
-                            {(before?.totalDiscount ?? 0) > 0 && (
+                            {before?.hasActivePromotion && (before?.discountAmount ?? 0) > 0 && (
                               <>
                                 <DisplayField
                                   label="Item Discounts"
                                   value={
                                     <span className="text-red-600 font-semibold">
-                                      -{formatCurrency(before!.totalDiscount)}
+                                      -{formatCurrency(before!.discountAmount)}
                                     </span>
                                   }
                                 />
-                                {before?.discountType && (
+                                {before?.promotionType && (
                                   <DisplayField
                                     label="Discount Type"
                                     value={
                                       <span className="font-medium text-blue-600">
-                                        {before.discountType === "PERCENTAGE" ? "PERCENTAGE" : "FIXED_AMOUNT"}
+                                        {before.promotionType === "PERCENTAGE" ? "PERCENTAGE" : "FIXED_AMOUNT"}
                                       </span>
                                     }
                                   />
@@ -239,22 +239,34 @@ export function OrderDetailModal({
                             label="Original Subtotal"
                             value={formatCurrency(orderData.pricing.after?.subtotalBeforeDiscount || 0)}
                           />
-                          {(orderData.pricing.after?.totalDiscount ?? 0) > 0 && (
+                          {orderData.pricing.after?.hasActivePromotion && (orderData.pricing.after?.discountAmount ?? 0) > 0 && (
                             <>
                               <DisplayField
                                 label="All Discounts (Items + Order)"
                                 value={
                                   <span className="text-red-600 font-semibold">
-                                    -{formatCurrency(orderData.pricing.after!.totalDiscount)}
+                                    -{formatCurrency(orderData.pricing.after!.discountAmount)}
                                   </span>
                                 }
                               />
-                              {orderData.pricing.after?.discountType && (
+                              {orderData.pricing.after?.promotionType && (
                                 <DisplayField
                                   label="Order Discount Type"
                                   value={
                                     <span className="font-medium text-orange-600">
-                                      {orderData.pricing.after.discountType === "PERCENTAGE" ? "PERCENTAGE" : "FIXED_AMOUNT"}
+                                      {orderData.pricing.after.promotionType === "PERCENTAGE" ? "PERCENTAGE" : "FIXED_AMOUNT"}
+                                    </span>
+                                  }
+                                />
+                              )}
+                              {orderData.pricing.after?.promotionValue && orderData.pricing.after.promotionValue > 0 && (
+                                <DisplayField
+                                  label="Order Discount Amount"
+                                  value={
+                                    <span className="font-semibold text-orange-600">
+                                      {orderData.pricing.after.promotionType === "PERCENTAGE"
+                                        ? `${orderData.pricing.after.promotionValue}%`
+                                        : formatCurrency(orderData.pricing.after.promotionValue)}
                                     </span>
                                   }
                                 />
