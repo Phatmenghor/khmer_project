@@ -338,7 +338,17 @@ export function OrderDetailModal({
                             : "bg-gray-50"
                         }`}
                       >
+                        {/* Product Image and Header */}
                         <div className="mb-3">
+                          {item.product?.imageUrl && (
+                            <div className="mb-3 rounded-lg overflow-hidden border border-gray-200">
+                              <img
+                                src={item.product.imageUrl}
+                                alt={item.product.name}
+                                className="w-full h-32 object-cover"
+                              />
+                            </div>
+                          )}
                           <div className="flex items-center justify-between">
                             <h4 className="font-semibold text-sm">
                               #{idx + 1} - {item.product?.name || "Unknown"}
@@ -412,27 +422,26 @@ export function OrderDetailModal({
                                   </p>
                                 </div>
                               )}
-                              {current?.hasActivePromotion && (
+                              {current?.hasActivePromotion && current?.promotionValue !== null && (
                                 <div>
                                   <span className="text-muted-foreground">
                                     Promo:
                                   </span>
-                                  <p className="font-medium text-green-600">
-                                    {current.promotionType}: {current.promotionValue}
+                                  <p className="font-medium text-green-600 text-sm">
                                     {current.promotionType === "PERCENTAGE"
-                                      ? "%"
-                                  : ""}
-                              </p>
-                            </div>
-                          )}
+                                      ? `${current.promotionValue}%`
+                                      : `$${current.promotionValue.toFixed(2)}`}
+                                  </p>
+                                </div>
+                              )}
 
-                          {item.hadChangeFromPOS && before && (
-                            <div className="col-span-full text-muted-foreground">
-                              Original:{" "}
-                              {formatCurrency(before.finalPrice)} → Current:{" "}
-                              {formatCurrency(current?.finalPrice || 0)}
-                            </div>
-                          )}
+                              {item.hadChangeFromPOS && before && (
+                                <div className="col-span-full text-muted-foreground">
+                                  Original:{" "}
+                                  {formatCurrency(before.finalPrice)} → Current:{" "}
+                                  {formatCurrency(current?.finalPrice || 0)}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
