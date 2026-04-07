@@ -318,11 +318,18 @@ export function OrderDetailModal({
                             <h4 className="font-semibold text-sm">
                               #{idx + 1} - {item.product?.name || "Unknown"}
                             </h4>
-                            {item.hadChangeFromPOS && (
-                              <span className="text-xs px-2 py-1 bg-orange-600 text-white rounded">
-                                Modified
-                              </span>
-                            )}
+                            <div className="flex gap-2">
+                              {(current?.discountAmount ?? 0) > 0 && (
+                                <span className="text-xs px-2 py-1 bg-red-600 text-white rounded">
+                                  💰 Discounted
+                                </span>
+                              )}
+                              {item.hadChangeFromPOS && (
+                                <span className="text-xs px-2 py-1 bg-orange-600 text-white rounded">
+                                  Modified
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <div className="flex flex-wrap gap-3 mt-1 text-xs">
                             {item.product?.sizeName && (
