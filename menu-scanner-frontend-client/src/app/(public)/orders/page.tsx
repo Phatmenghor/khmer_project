@@ -326,7 +326,10 @@ export default function OrdersPage() {
           </div>
 
           {/* Order Status Filter */}
-          <div className="flex-1 min-w-0">
+          <div className="w-auto flex-shrink-0
+            [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
+            [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
+            [&_.w-full]:!w-auto">
             <CustomSelect
               options={[
                 { value: "", label: "All Order Status" },
@@ -340,7 +343,10 @@ export default function OrdersPage() {
           </div>
 
           {/* Payment Status Filter */}
-          <div className="flex-1 min-w-0">
+          <div className="w-auto flex-shrink-0
+            [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
+            [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
+            [&_.w-full]:!w-auto">
             <CustomSelect
               options={PAYMENT_STATUS_ADMIN_FILTER}
               value={filters.paymentStatus || "ALL"}
