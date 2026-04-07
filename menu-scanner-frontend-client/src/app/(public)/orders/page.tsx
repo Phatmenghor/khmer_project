@@ -339,6 +339,7 @@ export default function OrdersPage() {
               placeholder="Filter by order status"
               onValueChange={handleStatusChange}
               label="Order Status"
+              size="xl"
             />
           </div>
 
@@ -353,6 +354,7 @@ export default function OrdersPage() {
               placeholder="Filter by payment status"
               onValueChange={handlePaymentStatusChange}
               label="Payment Status"
+              size="xl"
             />
           </div>
 
@@ -579,24 +581,9 @@ function createOrderTableColumns(
       minWidth: "130px",
       maxWidth: "160px",
       render: (order) => {
-        const getPaymentColor = (status: string) => {
-          switch (status) {
-            case "PAID":
-              return "bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-300 border border-green-300 dark:border-green-800";
-            case "UNPAID":
-            case "PENDING":
-              return "bg-orange-100 dark:bg-orange-950/30 text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-800";
-            case "REFUNDED":
-              return "bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800";
-            case "PARTIALLY_PAID":
-              return "bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800";
-            default:
-              return "bg-gray-100 dark:bg-gray-950/30 text-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-800";
-          }
-        };
         const paymentStatus = order?.payment?.paymentStatus || "---";
         return (
-          <span className={`text-xs font-semibold px-2.5 py-1.5 rounded-md w-fit ${getPaymentColor(paymentStatus)}`}>
+          <span className="text-xs text-muted-foreground">
             {paymentStatus}
           </span>
         );

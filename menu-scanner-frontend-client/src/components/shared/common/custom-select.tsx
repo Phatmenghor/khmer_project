@@ -24,7 +24,7 @@ interface CustomSelectProps {
   onValueChange: (value: string) => void;
   className?: string;
   disabled?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   label?: string;
   required?: boolean;
   layout?: "vertical" | "horizontal";
@@ -44,6 +44,11 @@ const CUSTOM_SELECT_SIZES = {
   },
   lg: {
     button: "h-10 text-base",
+    icon: "h-5 w-5",
+    item: "text-base py-2 px-3",
+  },
+  xl: {
+    button: "h-11 text-base",
     icon: "h-5 w-5",
     item: "text-base py-2 px-3",
   },
