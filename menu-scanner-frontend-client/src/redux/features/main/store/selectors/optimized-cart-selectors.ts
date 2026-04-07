@@ -83,7 +83,7 @@ export const selectCartTotals = createSelector(
   (cartState) => ({
     totalItems: cartState.totalItems,
     subtotal: cartState.subtotal,
-    totalDiscount: cartState.totalDiscount,
+    discountAmount: cartState.discountAmount,
     finalTotal: cartState.finalTotal,
   })
 );

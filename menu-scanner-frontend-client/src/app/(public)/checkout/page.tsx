@@ -70,7 +70,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, profile, authReady } = useAuthState();
-  const { items, finalTotal, subtotal, totalDiscount, totalQuantity } = useCartState();
+  const { items, finalTotal, subtotal, discountAmount, totalQuantity } = useCartState();
   const { locations: addresses } = useLocationState();
   const { deliveryOptionsContent: deliveryOptions } = useDeliveryOptionsState();
   const { paymentOptionsContent: paymentOptions } = usePaymentOptionsState();
@@ -249,7 +249,7 @@ export default function CheckoutPage() {
           totalQuantity: totalQuantity,
           subtotalBeforeDiscount: subtotal,
           subtotal: subtotal,
-          totalDiscount: totalDiscount,
+          discountAmount: discountAmount,
           finalTotal: finalTotal,
         },
         payment: {
@@ -533,10 +533,10 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Discount */}
-                {totalDiscount > 0 && (
+                {discountAmount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-red-600 dark:text-red-400 font-medium">Discount</span>
-                    <span className="font-semibold text-red-600 dark:text-red-500">-{formatCurrency(totalDiscount)}</span>
+                    <span className="font-semibold text-red-600 dark:text-red-500">-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
 
@@ -565,9 +565,9 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {totalDiscount > 0 && (
+                {discountAmount > 0 && (
                   <p className="text-xs text-red-600 dark:text-red-400 text-right font-medium">
-                    You save {formatCurrency(totalDiscount)}
+                    You save {formatCurrency(discountAmount)}
                   </p>
                 )}
               </div>

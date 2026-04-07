@@ -11,7 +11,7 @@ export const useCartState = () => {
     totalItems: cart.totalItems,
     totalQuantity: cart.totalQuantity,
     subtotal: cart.subtotal,
-    totalDiscount: cart.totalDiscount,
+    discountAmount: cart.discountAmount,
     finalTotal: cart.finalTotal,
     loading: cart.loading,
     error: cart.error,

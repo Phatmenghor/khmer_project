@@ -4,7 +4,7 @@ export interface CartResponseModel {
   totalQuantity?: number;              // Total quantity across all items
   subtotalBeforeDiscount?: number;  // Original price total (currentPrice * qty)
   subtotal: number;                  // Final price total before shipping/fees
-  totalDiscount: number;              // Total discount applied
+  discountAmount: number;              // Total discount applied
   finalTotal: number;                 // Final total (subtotal + shipping/fees)
 }
 

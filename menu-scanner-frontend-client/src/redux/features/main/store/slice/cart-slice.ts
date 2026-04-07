@@ -15,7 +15,7 @@ interface CartState {
   totalItems: number;              // Number of unique products
   totalQuantity: number;            // Total quantity across all items
   subtotal: number;
-  totalDiscount: number;
+  discountAmount: number;
   finalTotal: number;
   loading: {
     fetch: boolean;
@@ -32,7 +32,7 @@ const initialState: CartState = {
   totalItems: 0,
   totalQuantity: 0,
   subtotal: 0,
-  totalDiscount: 0,
+  discountAmount: 0,
   finalTotal: 0,
   loading: {
     fetch: false,
@@ -129,7 +129,7 @@ const recalculateTotals = (state: CartState) => {
   state.subtotal = state.finalTotal;
 
   // Discount is the difference between original price and final price
-  state.totalDiscount = subtotalBeforeDiscount - state.finalTotal;
+  state.discountAmount = subtotalBeforeDiscount - state.finalTotal;
 };
 
 const cartSlice = createSlice({
@@ -141,7 +141,7 @@ const cartSlice = createSlice({
       state.totalItems = 0;
       state.totalQuantity = 0;
       state.subtotal = 0;
-      state.totalDiscount = 0;
+      state.discountAmount = 0;
       state.finalTotal = 0;
       state.loaded = false;
       state.error = null;
@@ -356,7 +356,7 @@ const cartSlice = createSlice({
         state.items = [];
         state.totalItems = 0;
         state.subtotal = 0;
-        state.totalDiscount = 0;
+        state.discountAmount = 0;
         state.finalTotal = 0;
         state.error = null;
       })
