@@ -1,6 +1,7 @@
 package com.emenu.features.auth.dto.update;
 
 import com.emenu.features.auth.dto.response.SocialMediaResponse;
+import com.emenu.features.auth.dto.request.BusinessHoursRequest;
 import com.emenu.features.auth.enums.StockStatus;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -37,9 +38,5 @@ public class BusinessSettingUpdateRequest {
     private String contactEmail;
 
     // Business Hours
-    private String businessHoursMonFri;
-
-    private String businessHoursSat;
-
-    private String businessHoursSun;
+    private List<BusinessHoursRequest> businessHours;
 }

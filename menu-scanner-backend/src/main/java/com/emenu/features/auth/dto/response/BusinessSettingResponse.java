@@ -31,7 +31,5 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private String contactEmail;
 
     // Business Hours
-    private String businessHoursMonFri;
-    private String businessHoursSat;
-    private String businessHoursSun;
+    private List<BusinessHoursResponse> businessHours;
 }

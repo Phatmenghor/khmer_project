@@ -7,8 +7,14 @@ export type StockStatus = "ENABLED" | "DISABLED";
 
 export interface SocialMedia {
   name: string;
-  imageUrl: string;
   linkUrl: string;
+}
+
+export interface BusinessHours {
+  id?: string;
+  day: string;
+  openingTime: string;
+  closingTime: string;
 }
 
 export interface BusinessSettingsResponse {
@@ -29,7 +35,5 @@ export interface BusinessSettingsResponse {
   contactPhone?: string;
   contactEmail?: string;
   // Business Hours
-  businessHoursMonFri?: string;
-  businessHoursSat?: string;
-  businessHoursSun?: string;
+  businessHours?: BusinessHours[];
 }

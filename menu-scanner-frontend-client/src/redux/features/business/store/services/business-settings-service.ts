@@ -7,8 +7,13 @@ import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
 
 export interface SocialMedia {
   name: string;
-  imageUrl: string;
   linkUrl: string;
+}
+
+export interface BusinessHours {
+  day: string;
+  openingTime: string;
+  closingTime: string;
 }
 
 export interface BusinessSettingsResponse {
@@ -24,6 +29,10 @@ export interface BusinessSettingsResponse {
   enableStock: "ENABLED" | "DISABLED";
   socialMedia: SocialMedia[];
   primaryColor?: string;
+  contactAddress?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  businessHours?: BusinessHours[];
 }
 
 export interface UpdateBusinessSettingsRequest {
@@ -33,6 +42,10 @@ export interface UpdateBusinessSettingsRequest {
   enableStock?: "ENABLED" | "DISABLED";
   socialMedia?: SocialMedia[];
   primaryColor?: string;
+  contactAddress?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  businessHours?: BusinessHours[];
 }
 
 const API_BASE_URL = "/api/v1/business-settings";

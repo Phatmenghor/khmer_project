@@ -13,7 +13,6 @@ export const businessSettingsSchema = z.object({
   socialMedia: z.array(
     z.object({
       name: z.string(),
-      imageUrl: z.string(),
       linkUrl: z.string(),
     })
   ),
@@ -23,9 +22,13 @@ export const businessSettingsSchema = z.object({
   contactPhone: z.string().optional(),
   contactEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
   // Business Hours
-  businessHoursMonFri: z.string().optional(),
-  businessHoursSat: z.string().optional(),
-  businessHoursSun: z.string().optional(),
+  businessHours: z.array(
+    z.object({
+      day: z.string(),
+      openingTime: z.string(),
+      closingTime: z.string(),
+    })
+  ).optional(),
 });
 
 export type BusinessSettingsFormData = z.infer<typeof businessSettingsSchema>;

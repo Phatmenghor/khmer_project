@@ -52,16 +52,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "contact_email", length = 100)
     private String contactEmail;
 
-    // Business Hours
-    @Column(name = "business_hours_mon_fri", length = 50)
-    private String businessHoursMonFri;
-
-    @Column(name = "business_hours_sat", length = 50)
-    private String businessHoursSat;
-
-    @Column(name = "business_hours_sun", length = 50)
-    private String businessHoursSun;
-
     @OneToMany(
         mappedBy = "businessSetting",
         cascade = CascadeType.ALL,
@@ -69,4 +59,12 @@ public class BusinessSetting extends BaseUUIDEntity {
         fetch = FetchType.LAZY
     )
     private List<SocialMedia> socialMedia;
+
+    @OneToMany(
+        mappedBy = "businessSetting",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    private List<BusinessHours> businessHours;
 }

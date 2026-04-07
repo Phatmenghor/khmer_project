@@ -13,6 +13,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SocialMediaResponse {
     private String name;       // e.g., "Facebook", "Instagram"
-    private String imageUrl;   // Icon or logo URL
     private String linkUrl;    // Link to the social media profile
 }

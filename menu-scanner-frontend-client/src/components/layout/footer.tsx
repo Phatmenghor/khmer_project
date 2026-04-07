@@ -11,9 +11,11 @@ import { selectBusinessSettings } from "@/redux/features/business/store/selector
 const DEFAULT_CONTACT_ADDRESS = "123 Street Name, Phnom Penh, Cambodia";
 const DEFAULT_CONTACT_PHONE = "+855 12 345 678";
 const DEFAULT_CONTACT_EMAIL = "support@menuscanner.com";
-const DEFAULT_HOURS_MON_FRI = "09:00 - 22:00";
-const DEFAULT_HOURS_SAT = "10:00 - 23:00";
-const DEFAULT_HOURS_SUN = "10:00 - 21:00";
+const DEFAULT_BUSINESS_HOURS = [
+  { day: "Mon - Fri", openingTime: "09:00", closingTime: "22:00" },
+  { day: "Sat", openingTime: "10:00", closingTime: "23:00" },
+  { day: "Sun", openingTime: "10:00", closingTime: "21:00" },
+];
 
 // Social media links - these are hardcoded but could be moved to Redux
 const SOCIAL_LINKS = [
@@ -29,9 +31,7 @@ export function Footer() {
   const contactAddress = businessSettings?.contactAddress || DEFAULT_CONTACT_ADDRESS;
   const contactPhone = businessSettings?.contactPhone || DEFAULT_CONTACT_PHONE;
   const contactEmail = businessSettings?.contactEmail || DEFAULT_CONTACT_EMAIL;
-  const businessHoursMonFri = businessSettings?.businessHoursMonFri || DEFAULT_HOURS_MON_FRI;
-  const businessHoursSat = businessSettings?.businessHoursSat || DEFAULT_HOURS_SAT;
-  const businessHoursSun = businessSettings?.businessHoursSun || DEFAULT_HOURS_SUN;
+  const businessHours = businessSettings?.businessHours || DEFAULT_BUSINESS_HOURS;
 
   return (
     <footer className="bg-primary/90 text-white">
@@ -95,9 +95,11 @@ export function Footer() {
               <div className="flex gap-3">
                 <Clock className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
                 <div className="text-white">
-                  <p className="font-medium">Mon - Fri: {businessHoursMonFri}</p>
-                  <p className="font-medium">Sat: {businessHoursSat}</p>
-                  <p className="font-medium">Sun: {businessHoursSun}</p>
+                  {businessHours.map((hours, index) => (
+                    <p key={index} className="font-medium">
+                      {hours.day}: {hours.openingTime} - {hours.closingTime}
+                    </p>
+                  ))}
                 </div>
               </div>
             </div>

@@ -58,9 +58,7 @@ function convertResponseToFormData(
     contactAddress: response.contactAddress || "",
     contactPhone: response.contactPhone || "",
     contactEmail: response.contactEmail || "",
-    businessHoursMonFri: response.businessHoursMonFri || "",
-    businessHoursSat: response.businessHoursSat || "",
-    businessHoursSun: response.businessHoursSun || "",
+    businessHours: response.businessHours || [],
   };
 }
 
@@ -84,9 +82,7 @@ export default function BusinessSettingsPage() {
       contactAddress: "",
       contactPhone: "",
       contactEmail: "",
-      businessHoursMonFri: "",
-      businessHoursSat: "",
-      businessHoursSun: "",
+      businessHours: [],
     },
   });
 
@@ -212,9 +208,7 @@ export default function BusinessSettingsPage() {
         contactAddress: data.contactAddress,
         contactPhone: data.contactPhone,
         contactEmail: data.contactEmail,
-        businessHoursMonFri: data.businessHoursMonFri,
-        businessHoursSat: data.businessHoursSat,
-        businessHoursSun: data.businessHoursSun,
+        businessHours: data.businessHours,
       };
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
@@ -471,53 +465,132 @@ export default function BusinessSettingsPage() {
         </Card>
 
         {/* Business Hours */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Business Hours</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Monday to Friday */}
-              <div className="space-y-2">
-                <Label htmlFor="businessHoursMonFri">Monday - Friday</Label>
-                <Input
-                  id="businessHoursMonFri"
-                  placeholder="09:00 - 22:00"
-                  {...form.register("businessHoursMonFri")}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Format: HH:MM - HH:MM
-                </p>
-              </div>
-
-              {/* Saturday */}
-              <div className="space-y-2">
-                <Label htmlFor="businessHoursSat">Saturday</Label>
-                <Input
-                  id="businessHoursSat"
-                  placeholder="10:00 - 23:00"
-                  {...form.register("businessHoursSat")}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Format: HH:MM - HH:MM
-                </p>
-              </div>
-
-              {/* Sunday */}
-              <div className="space-y-2">
-                <Label htmlFor="businessHoursSun">Sunday</Label>
-                <Input
-                  id="businessHoursSun"
-                  placeholder="10:00 - 21:00"
-                  {...form.register("businessHoursSun")}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Format: HH:MM - HH:MM
-                </p>
-              </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">Business Hours</h3>
+              <p className="text-sm text-muted-foreground">
+                {form.watch("businessHours")?.length > 0
+                  ? `${form.watch("businessHours").length} day${
+                      form.watch("businessHours").length > 1 ? "s" : ""
+                    } configured`
+                  : "No business hours configured"}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const currentHours = form.getValues("businessHours") || [];
+                form.setValue("businessHours", [
+                  ...currentHours,
+                  { day: "", openingTime: "", closingTime: "" },
+                ]);
+              }}
+              disabled={isSaving}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Day
+            </Button>
+          </div>
+
+          {form.watch("businessHours")?.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                No business hours configured
+              </p>
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {form.watch("businessHours")?.map((hours, index) => (
+                    <div
+                      key={index}
+                      className="border rounded-lg p-4 relative lg:col-span-2"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Day
+                          </Label>
+                          <Input
+                            placeholder="e.g., Monday"
+                            value={hours.day}
+                            onChange={(e) => {
+                              const updated = [
+                                ...(form.getValues("businessHours") || []),
+                              ];
+                              updated[index].day = e.target.value;
+                              form.setValue("businessHours", updated, { shouldDirty: true });
+                            }}
+                            disabled={isSaving}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Opening Time
+                          </Label>
+                          <Input
+                            placeholder="09:00"
+                            type="time"
+                            value={hours.openingTime}
+                            onChange={(e) => {
+                              const updated = [
+                                ...(form.getValues("businessHours") || []),
+                              ];
+                              updated[index].openingTime = e.target.value;
+                              form.setValue("businessHours", updated, { shouldDirty: true });
+                            }}
+                            disabled={isSaving}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Closing Time
+                          </Label>
+                          <Input
+                            placeholder="22:00"
+                            type="time"
+                            value={hours.closingTime}
+                            onChange={(e) => {
+                              const updated = [
+                                ...(form.getValues("businessHours") || []),
+                              ];
+                              updated[index].closingTime = e.target.value;
+                              form.setValue("businessHours", updated, { shouldDirty: true });
+                            }}
+                            disabled={isSaving}
+                          />
+                        </div>
+                      </div>
+                      {!isSaving && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => {
+                            const currentHours =
+                              form.getValues("businessHours") || [];
+                            form.setValue(
+                              "businessHours",
+                              currentHours.filter((_, i) => i !== index),
+                              { shouldDirty: true }
+                            );
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
         {/* Social Media Accounts */}
         <div className="space-y-4">
@@ -540,7 +613,7 @@ export default function BusinessSettingsPage() {
                 const currentSocialMedia = form.getValues("socialMedia") || [];
                 form.setValue("socialMedia", [
                   ...currentSocialMedia,
-                  { name: "", imageUrl: "", linkUrl: "" },
+                  { name: "", linkUrl: "" },
                 ]);
               }}
               disabled={isSaving}
@@ -565,7 +638,7 @@ export default function BusinessSettingsPage() {
                       key={index}
                       className="border rounded-lg p-4 relative lg:col-span-2"
                     >
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label className="text-sm font-medium">
                             Platform Name
@@ -578,24 +651,6 @@ export default function BusinessSettingsPage() {
                                 ...(form.getValues("socialMedia") || []),
                               ];
                               updated[index].name = e.target.value;
-                              form.setValue("socialMedia", updated, { shouldDirty: true });
-                            }}
-                            disabled={isSaving}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">
-                            Icon/Logo URL
-                          </Label>
-                          <Input
-                            placeholder="https://example.com/icon.png"
-                            type="url"
-                            value={social.imageUrl}
-                            onChange={(e) => {
-                              const updated = [
-                                ...(form.getValues("socialMedia") || []),
-                              ];
-                              updated[index].imageUrl = e.target.value;
                               form.setValue("socialMedia", updated, { shouldDirty: true });
                             }}
                             disabled={isSaving}
