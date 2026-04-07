@@ -12,15 +12,12 @@ import { DeliveryOptionsResponseModel } from "@/redux/features/master-data/store
 export interface ItemPricingSnapshot {
   currentPrice: number;           // Base price before promotion
   finalPrice: number;             // Price after promotion
-  hasActivePromotion: boolean;
   quantity: number;
-  totalBeforeDiscount: number;    // currentPrice × quantity
   discountAmount: number;         // (currentPrice - finalPrice) × quantity
   totalPrice: number;             // finalPrice × quantity
+  hasActivePromotion: boolean;
   promotionType: string | null;   // PERCENTAGE or FIXED_AMOUNT
   promotionValue: number | null;
-  promotionFromDate: string | null;
-  promotionToDate: string | null;
 }
 
 // ─── Item Audit Trail Metadata ───
@@ -81,7 +78,10 @@ export interface OrderPricingSnapshot {
   totalItems: number;
   subtotalBeforeDiscount: number;  // Sum of all items original price
   subtotal: number;                // After item-level discounts
-  totalDiscount: number;           // Total from items
+  discountAmount: number;          // Total from items
+  hasActivePromotion: boolean;
+  promotionType: string | null;    // PERCENTAGE or FIXED_AMOUNT
+  promotionValue: number | null;
   deliveryFee: number;
   taxAmount: number;
   finalTotal: number;              // Total to pay

@@ -55,7 +55,7 @@ export interface CartSummary {
   totalQuantity: number;
   subtotalBeforeDiscount: number;
   subtotal: number;
-  totalDiscount: number;
+  discountAmount: number;
   finalTotal: number;
 }
 

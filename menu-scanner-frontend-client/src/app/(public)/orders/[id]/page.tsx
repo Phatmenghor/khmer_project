@@ -585,15 +585,15 @@ export default function OrderDetailPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Subtotal</span>
                 <span className="text-sm font-semibold text-foreground">
-                  {formatCurrency(order.pricing?.subtotal || 0)}
+                  {formatCurrency(order.pricing?.before?.subtotal || 0)}
                 </span>
               </div>
 
-              {order.pricing?.totalDiscount > 0 && (
+              {order.pricing?.before?.discountAmount > 0 && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Discount</span>
                   <span className="text-sm font-semibold text-green-700 dark:text-green-400">
-                    -{formatCurrency(order.pricing.totalDiscount)}
+                    -{formatCurrency(order.pricing.before.discountAmount)}
                   </span>
                 </div>
               )}
@@ -603,15 +603,15 @@ export default function OrderDetailPage() {
                   Delivery Fee
                 </span>
                 <span className="text-sm font-semibold text-foreground">
-                  {formatCurrency(order.pricing?.deliveryFee || 0)}
+                  {formatCurrency(order.pricing?.before?.deliveryFee || 0)}
                 </span>
               </div>
 
-              {order.pricing?.taxAmount > 0 && (
+              {order.pricing?.before?.taxAmount > 0 && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Tax</span>
                   <span className="text-sm font-semibold text-foreground">
-                    {formatCurrency(order.pricing.taxAmount)}
+                    {formatCurrency(order.pricing.before.taxAmount)}
                   </span>
                 </div>
               )}
@@ -619,7 +619,7 @@ export default function OrderDetailPage() {
               <div className="pt-3 border-t border-border/50 flex items-center justify-between">
                 <span className="font-semibold text-foreground">Total</span>
                 <span className="text-2xl font-bold text-primary">
-                  {formatCurrency(order.pricing?.finalTotal || 0)}
+                  {formatCurrency(order.pricing?.before?.finalTotal || 0)}
                 </span>
               </div>
             </div>

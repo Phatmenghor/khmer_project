@@ -48,7 +48,10 @@ export interface OrderPricingSnapshot {
   totalItems: number;
   subtotalBeforeDiscount: number;
   subtotal: number;
-  totalDiscount: number;
+  discountAmount: number;
+  hasActivePromotion: boolean;
+  promotionType: string | null;
+  promotionValue: number | null;
   deliveryFee: number;
   taxAmount: number;
   finalTotal: number;
@@ -80,15 +83,12 @@ export interface OrderItemProductInfo {
 export interface OrderItemPricingSnapshot {
   currentPrice: number;
   finalPrice: number;
-  hasActivePromotion: boolean;
   quantity: number;
-  totalBeforeDiscount: number;
   discountAmount: number;
   totalPrice: number;
+  hasActivePromotion: boolean;
   promotionType: string | null;
   promotionValue: number | null;
-  promotionFromDate: string | null;
-  promotionToDate: string | null;
 }
 
 // Item with before/after audit trail — matches backend OrderItemResponse

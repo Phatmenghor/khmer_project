@@ -7,15 +7,12 @@
 export interface OrderItemPricingSnapshotApi {
   currentPrice: number;
   finalPrice: number;
-  hasActivePromotion: boolean;
   quantity: number;
-  totalBeforeDiscount: number;
   discountAmount: number;
   totalPrice: number;
+  hasActivePromotion: boolean;
   promotionType: string | null;
   promotionValue: number | null;
-  promotionFromDate: string | null;
-  promotionToDate: string | null;
 }
 
 export interface OrderItemApiResponse {
@@ -47,7 +44,10 @@ export interface OrderPricingSnapshotApi {
   totalItems: number;
   subtotalBeforeDiscount: number;
   subtotal: number;
-  totalDiscount: number;
+  discountAmount: number;
+  hasActivePromotion: boolean;
+  promotionType: string | null;
+  promotionValue: number | null;
   deliveryFee: number;
   taxAmount: number;
   finalTotal: number;
