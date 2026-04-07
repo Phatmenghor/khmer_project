@@ -16,6 +16,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
 import { Loading } from "@/components/shared/common/loading";
 import { DisplayField } from "@/components/shared/form-field/display-field";
+import { showToast } from "@/components/shared/common/show-toast";
 
 interface OrderDetailModalProps {
   orderId?: string;
@@ -528,78 +529,78 @@ export function OrderDetailModal({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Full Address */}
-                  {/* Full Address */}
                   <div>
-                    <label className="text-sm font-medium text-foreground block mb-2">
+                    <label className="text-xs font-bold text-primary uppercase tracking-wider block mb-1">
                       Full Address
                     </label>
-                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <p className="text-sm font-medium text-foreground leading-relaxed">
-                        {(() => {
-                          const parts = [
-                            orderData.deliveryAddress.houseNumber,
-                            orderData.deliveryAddress.streetNumber,
-                            orderData.deliveryAddress.village,
-                            orderData.deliveryAddress.commune,
-                            orderData.deliveryAddress.district,
-                            orderData.deliveryAddress.province,
-                          ].filter(Boolean);
-                          return parts.length > 0
-                            ? parts.join(", ")
-                            : "---";
-                        })()}
-                      </p>
-                    </div>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {(() => {
+                        const parts = [
+                          orderData.deliveryAddress.houseNumber,
+                          orderData.deliveryAddress.streetNumber,
+                          orderData.deliveryAddress.village,
+                          orderData.deliveryAddress.commune,
+                          orderData.deliveryAddress.district,
+                          orderData.deliveryAddress.province,
+                        ].filter(Boolean);
+                        return parts.length > 0
+                          ? parts.join(", ")
+                          : "---";
+                      })()}
+                    </p>
                   </div>
 
                   {/* Delivery Note with Action Buttons */}
                   {orderData.deliveryAddress.note && (
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1">
-                        <label className="text-sm font-medium text-foreground block mb-2">
-                          Delivery Note
-                        </label>
-                        <p className="text-sm p-2 bg-blue-50 rounded border border-blue-200 text-foreground">
-                          {orderData.deliveryAddress.note}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 pt-7">
-                        {/* Copy Button */}
-                        <button
-                          onClick={() => {
-                            const fullAddress = [
-                              orderData.deliveryAddress.houseNumber,
-                              orderData.deliveryAddress.streetNumber,
-                              orderData.deliveryAddress.village,
-                              orderData.deliveryAddress.commune,
-                              orderData.deliveryAddress.district,
-                              orderData.deliveryAddress.province,
-                            ]
-                              .filter(Boolean)
-                              .join(", ");
-                            navigator.clipboard.writeText(
-                              `${fullAddress}\n\nDelivery Note: ${orderData.deliveryAddress.note}`
-                            );
-                          }}
-                          className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-primary/20 hover:bg-primary/30 text-primary text-xs font-bold rounded-lg transition-all shadow-sm whitespace-nowrap border border-primary/30"
-                          title="Copy address and note to clipboard"
-                        >
-                          📋 Copy
-                        </button>
-                        {/* View Google Maps Button */}
-                        {orderData.deliveryAddress.latitude &&
-                          orderData.deliveryAddress.longitude && (
-                            <button
-                              onClick={() => {
-                                const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
-                                window.open(mapsUrl, "_blank");
-                              }}
-                              className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-primary hover:bg-primary/90 text-white text-xs font-bold rounded-lg transition-all shadow-sm whitespace-nowrap"
-                              title="View on Google Maps"
-                            >
-                              🗺️ View
-                            </button>
-                          )}
+                    <div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <label className="text-xs font-bold text-primary uppercase tracking-wider block mb-1">
+                            Delivery Note
+                          </label>
+                          <p className="text-sm text-foreground">
+                            {orderData.deliveryAddress.note}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          {/* Copy Button - Clean table style */}
+                          <button
+                            onClick={() => {
+                              const fullAddress = [
+                                orderData.deliveryAddress.houseNumber,
+                                orderData.deliveryAddress.streetNumber,
+                                orderData.deliveryAddress.village,
+                                orderData.deliveryAddress.commune,
+                                orderData.deliveryAddress.district,
+                                orderData.deliveryAddress.province,
+                              ]
+                                .filter(Boolean)
+                                .join(", ");
+                              navigator.clipboard.writeText(
+                                `${fullAddress}\n\nDelivery Note: ${orderData.deliveryAddress.note}`
+                              );
+                              showToast.success("✅ Address copied to clipboard!");
+                            }}
+                            className="text-primary hover:text-primary/70 hover:bg-primary/5 p-2 rounded transition-colors"
+                            title="Copy address and note to clipboard"
+                          >
+                            📋
+                          </button>
+                          {/* View Google Maps Button - Clean table style */}
+                          {orderData.deliveryAddress.latitude &&
+                            orderData.deliveryAddress.longitude && (
+                              <button
+                                onClick={() => {
+                                  const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
+                                  window.open(mapsUrl, "_blank");
+                                }}
+                                className="text-primary hover:text-primary/70 hover:bg-primary/5 p-2 rounded transition-colors"
+                                title="View on Google Maps"
+                              >
+                                🗺️
+                              </button>
+                            )}
+                        </div>
                       </div>
                     </div>
                   )}
