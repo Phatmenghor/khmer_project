@@ -1128,29 +1128,29 @@ SELECT
     p.product_barcode,
     p.product_sku,
     p.price,
-    CASE WHEN (t.item_num % 5) = 0 THEN ROUND(p.price * 0.85, 2)
-         WHEN (t.item_num % 5) = 1 THEN ROUND(p.price * 0.90, 2)
+    CASE WHEN (t.item_num % 3) = 0 THEN ROUND(p.price * 0.85, 2)
+         WHEN (t.item_num % 3) = 1 THEN ROUND(p.price * 0.90, 2)
          ELSE p.price END,
     p.price,
-    CASE WHEN (t.item_num % 5) < 3 THEN true ELSE false END,
-    CASE WHEN (t.item_num % 5) = 0 THEN 'PERCENTAGE' WHEN (t.item_num % 5) = 1 THEN 'FIXED_AMOUNT' ELSE NULL END,
-    CASE WHEN (t.item_num % 5) = 0 THEN 15 WHEN (t.item_num % 5) = 1 THEN 5 ELSE 0 END,
+    true,
+    CASE WHEN (t.item_num % 3) = 0 THEN 'PERCENTAGE' WHEN (t.item_num % 3) = 1 THEN 'FIXED_AMOUNT' ELSE 'PERCENTAGE' END,
+    CASE WHEN (t.item_num % 3) = 0 THEN 15 WHEN (t.item_num % 3) = 1 THEN 5 ELSE 10 END,
     NOW() - INTERVAL '5 days', NOW() + INTERVAL '25 days',
     CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END,
-    CASE WHEN (t.item_num % 5) = 0 THEN ROUND(p.price * 0.85 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2)
-         WHEN (t.item_num % 5) = 1 THEN ROUND(p.price * 0.90 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2)
-         ELSE ROUND(p.price * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2) END,
+    CASE WHEN (t.item_num % 3) = 0 THEN ROUND(p.price * 0.85 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2)
+         WHEN (t.item_num % 3) = 1 THEN ROUND(p.price * 0.90 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2)
+         ELSE ROUND(p.price * 0.90 * CASE WHEN (t.item_num % 3) = 0 THEN 3 WHEN (t.item_num % 3) = 1 THEN 2 ELSE 1 END, 2) END,
     'Special preparation instructions: ' || CASE WHEN (t.item_num % 4) = 0 THEN 'No onions, extra spicy'
                                                    WHEN (t.item_num % 4) = 1 THEN 'Light salt, no MSG'
                                                    WHEN (t.item_num % 4) = 2 THEN 'Well done, extra sauce'
                                                    ELSE 'Quick service requested' END,
-    true,
+    CASE WHEN (o.rn % 4) = 0 THEN true ELSE false END,
     CASE WHEN (o.rn % 6) = 0 THEN 'Out of stock, substituted with similar item'
          WHEN (o.rn % 6) = 1 THEN 'Price adjustment from promotion applied'
          WHEN (o.rn % 6) = 2 THEN 'Customer requested change after ordering'
          WHEN (o.rn % 6) = 3 THEN 'Item upgraded to premium version'
          WHEN (o.rn % 6) = 4 THEN 'Special request fulfilled with adjustment'
-         ELSE 'Kitchen recommendation - better alternative' END
+         ELSE NULL END
 FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY id) as rn FROM orders) o
 CROSS JOIN (SELECT 1 as item_num UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) t
 JOIN LATERAL (
@@ -1185,16 +1185,16 @@ SELECT
     oi.promotion_value,
     oi.promotion_from_date,
     oi.promotion_to_date,
-    -- AFTER pricing (for items with POS changes)
+    -- AFTER pricing (for items with POS changes - preserve promotion data)
     CASE WHEN oi.had_change_from_pos THEN ROUND(oi.current_price * 1.1, 2) ELSE oi.current_price END,
     CASE WHEN oi.had_change_from_pos THEN ROUND(oi.final_price * 1.1, 2) ELSE oi.final_price END,
-    CASE WHEN oi.had_change_from_pos THEN false ELSE oi.has_promotion END,
-    CASE WHEN oi.had_change_from_pos THEN 0 ELSE ROUND((oi.current_price - oi.final_price)::numeric, 2) END,
+    oi.has_promotion,
+    CASE WHEN oi.had_change_from_pos THEN ROUND((ROUND(oi.current_price * 1.1, 2) - ROUND(oi.final_price * 1.1, 2))::numeric, 2) ELSE ROUND((oi.current_price - oi.final_price)::numeric, 2) END,
     CASE WHEN oi.had_change_from_pos THEN ROUND(ROUND(oi.current_price * 1.1, 2) * oi.quantity, 2) ELSE oi.total_price END,
-    CASE WHEN oi.had_change_from_pos THEN NULL ELSE oi.promotion_type END,
-    CASE WHEN oi.had_change_from_pos THEN 0 ELSE oi.promotion_value END,
-    CASE WHEN oi.had_change_from_pos THEN NOW() ELSE oi.promotion_from_date END,
-    CASE WHEN oi.had_change_from_pos THEN NOW() ELSE oi.promotion_to_date END
+    oi.promotion_type,
+    oi.promotion_value,
+    oi.promotion_from_date,
+    oi.promotion_to_date
 FROM order_items oi;
 
 -- ============================================================================
