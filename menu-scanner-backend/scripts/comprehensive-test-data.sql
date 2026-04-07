@@ -1083,7 +1083,7 @@ SELECT
       WHEN (i % 6) = 4 THEN ROUND(((45 + (i % 100)) * 0.10)::numeric, 2)
       ELSE 0::numeric
     END + 4::numeric,
-    CASE WHEN (i % 3) = 0 THEN 'CASH' WHEN (i % 3) = 1 THEN 'CARD' ELSE 'ONLINE' END,
+    'CASH',
     'PAID',
     'POS Customer ' || i::text, '+855 10 ' || LPAD((800000 + i)::text, 6, '0'), 'pos.customer' || i::text || '@example.com',
     'POS ' || i::text, 'Admin order ' || i::text,
