@@ -512,7 +512,7 @@ export function OrderDetailModal({
               <Card className="border-green-100 bg-gradient-to-br from-green-50 to-transparent">
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
-                    📍 Delivery Address
+                    📍 Delivery Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -592,36 +592,36 @@ export function OrderDetailModal({
                       </div>
                     </div>
                   )}
+
+                  {/* Divider */}
+                  {orderData.deliveryOption && <div className="border-t pt-4 mt-4" />}
+
+                  {/* Delivery Option */}
+                  {orderData.deliveryOption && (
+                    <div>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-3">Delivery Option</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <DisplayField
+                          label="Method"
+                          value={orderData.deliveryOption.name || "---"}
+                        />
+                        <DisplayField
+                          label="Price"
+                          value={formatCurrency(orderData.deliveryOption.price || 0)}
+                        />
+                        {orderData.deliveryOption.description && (
+                          <DisplayField
+                            label="Description"
+                            value={orderData.deliveryOption.description}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
 
-            {/* Delivery Option */}
-            {orderData.deliveryOption && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Delivery Option</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <DisplayField
-                      label="Method"
-                      value={orderData.deliveryOption.name || "---"}
-                    />
-                    <DisplayField
-                      label="Price"
-                      value={formatCurrency(orderData.deliveryOption.price || 0)}
-                    />
-                    {orderData.deliveryOption.description && (
-                      <DisplayField
-                        label="Description"
-                        value={orderData.deliveryOption.description}
-                      />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Status History */}
             {orderData.statusHistory && orderData.statusHistory.length > 0 && (
