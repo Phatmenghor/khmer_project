@@ -55,15 +55,6 @@ export function AdminFooter() {
             </Link>
           </div>
         </div>
-
-        {/* Version Info */}
-        <div className="mt-4 pt-4 border-t">
-          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-            <span>Dashboard v1.0.0</span>
-            <span>•</span>
-            <span>Last updated: {new Date().toLocaleDateString()}</span>
-          </div>
-        </div>
       </div>
     </footer>
   );
