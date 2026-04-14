@@ -45,9 +45,6 @@ export default function LoginPage() {
 
   async function onSubmit(values: FormData) {
     try {
-      console.log("═══════════════════════════════════════════");
-      console.log("## [LOGIN] Starting admin login...");
-
       const result = await dispatch(
         loginService({
           userIdentifier: values.userIdentifier,
@@ -57,31 +54,18 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      console.log("## [LOGIN] ✓ API successful, userType:", result.userType);
-
-      // Verify token storage
-      const { getAdminToken } = await import("@/utils/local-storage/token");
-      const storedToken = getAdminToken();
-      console.log("## [LOGIN] Token stored:", !!storedToken);
-
       showToast.success("✓ Welcome to admin dashboard!");
 
-      // Use router.replace() — Next routing, no back button loop
-      console.log("## [LOGIN] Hard redirect to /admin");
       router.replace(ROUTES.ADMIN.DASHBOARD);
-      console.log("═══════════════════════════════════════════");
     } catch (err: any) {
-      console.error("## ═══════════════════════════════════════════");
-      console.error("## ❌ [LOGIN ERROR]", err?.message || err);
+      console.error("Login failed:", err);
       showToast.error(err?.message || error || "Login failed");
-      console.error("## ═══════════════════════════════════════════");
     }
   }
 
   const handleTelegramAuth = async (telegramData: TelegramAuthData) => {
     setIsTelegramLoading(true);
     try {
-      console.log("🔐 Attempting Telegram auth...");
       const result = await dispatch(
         telegramAuthenticateService({
           telegramData,
@@ -90,18 +74,18 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      console.log("✓ Telegram auth successful, result:", result);
       showToast.success(
         result?.isNewUser
           ? "Welcome! Your account has been created successfully."
           : "Welcome back!",
       );
 
-      // Use router.replace() — Next routing, no back button loop
       router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: any) {
       console.error("✗ Telegram auth failed:", err);
-      showToast.error(err?.message || err || "Telegram login failed. Please try again.");
+      showToast.error(
+        err?.message || err || "Telegram login failed. Please try again.",
+      );
     } finally {
       setIsTelegramLoading(false);
     }
