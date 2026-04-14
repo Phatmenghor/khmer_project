@@ -6,6 +6,7 @@
 "use client";
 
 import Link from "next/link";
+import { Heart } from "lucide-react";
 
 export function AdminFooter() {
   const currentYear = new Date().getFullYear();
@@ -23,6 +24,13 @@ export function AdminFooter() {
               </span>
               . All rights reserved.
             </p>
+          </div>
+
+          {/* Made with love */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>Made with</span>
+            <Heart className="h-4 w-4 text-red-500 fill-red-500" />
+            <span>by the Menu Scanner Team</span>
           </div>
 
           {/* Quick Links */}
