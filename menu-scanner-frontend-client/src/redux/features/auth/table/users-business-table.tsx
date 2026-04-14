@@ -74,27 +74,20 @@ export const userBusinessTableColumns = ({
       },
     },
     {
-      key: "userIdentifier",
-      label: "User Identifier",
+      key: "userIdentifierAndPhone",
+      label: "User Identifier / Phone Number",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {user?.userIdentifier || "---"}
-        </span>
-      ),
-    },
-    {
-      key: "phoneNumber",
-      label: "Phone Number",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {user?.phoneNumber || "---"}
-        </span>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">
+            {user?.userIdentifier || "---"}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {user?.phoneNumber || "---"}
+          </span>
+        </div>
       ),
     },
     {
