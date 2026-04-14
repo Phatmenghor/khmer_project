@@ -32,9 +32,6 @@ public class Banner extends BaseUUIDEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "link_url")
-    private String linkUrl;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;

@@ -70,7 +70,6 @@ export default function BannerModal({
     defaultValues: {
       imageUrl: "",
       description: "",
-      linkUrl: "",
       status: Status.ACTIVE,
     },
     mode: "onChange",
@@ -85,7 +84,6 @@ export default function BannerModal({
         reset({
           imageUrl: "",
           description: "",
-          linkUrl: "",
           status: Status.ACTIVE,
         });
       } else if (banner) {
@@ -93,7 +91,6 @@ export default function BannerModal({
         reset({
           imageUrl: banner.imageUrl || "",
           description: banner.description || "",
-          linkUrl: banner.linkUrl || "",
           status: banner.status || "",
         });
       }
@@ -128,7 +125,6 @@ export default function BannerModal({
       const payload = {
         imageUrl: finalImageUrl,
         description: data.description || "",
-        linkUrl: data.linkUrl || "",
         status: data.status,
       };
 
@@ -222,18 +218,8 @@ export default function BannerModal({
                     />
                   </div>
 
-                  {/* Link & Status Grid */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <TextField
-                      control={control}
-                      name="linkUrl"
-                      label="Link URL"
-                      type="url"
-                      placeholder="https://example.com (optional)"
-                      disabled={isProcessing}
-                      error={errors.linkUrl}
-                    />
-
+                  {/* Status Field */}
+                  <div className="grid grid-cols-1 gap-4">
                     <SelectField
                       control={control}
                       name="status"
