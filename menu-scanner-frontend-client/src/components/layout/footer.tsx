@@ -128,20 +128,27 @@ export function Footer() {
         <div className="border-t border-white/20 my-8"></div>
 
         {/* Footer Bottom */}
-        <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white text-sm">
-            Copyright © 2026 Menu Scanner. All rights reserved.
-          </p>
-          <div className="flex gap-6">
-            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
-              Terms of Service
-            </a>
-            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
-              Cookie Policy
-            </a>
+        <div className="py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-center md:text-left space-y-2">
+              <p className="text-white text-sm">
+                © 2026 Menu Scanner E-Commerce. All rights reserved.
+              </p>
+              <p className="text-white text-sm flex items-center gap-1 justify-center md:justify-start">
+                Made with <span className="text-red-500">❤</span> by the Menu Scanner Team
+              </p>
+            </div>
+            <div className="flex gap-6">
+              <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
+                Privacy
+              </a>
+              <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
+                Terms
+              </a>
+              <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
+                Support
+              </a>
+            </div>
           </div>
         </div>
       </PageContainer>
