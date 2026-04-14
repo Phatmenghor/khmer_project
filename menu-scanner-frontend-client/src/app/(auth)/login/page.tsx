@@ -20,6 +20,7 @@ import { appImages } from "@/constants/app-resource/icons/app-images";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { TelegramLoginModal } from "@/components/shared/telegram/telegram-login-modal";
 import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
+import { UserGropeType } from "@/constants/status/status";
 
 const formSchema = z.object({
   userIdentifier: z.string().min(1, "Email or username is required"),
@@ -69,7 +70,7 @@ export default function LoginPage() {
       const result = await dispatch(
         telegramAuthenticateService({
           telegramData,
-          userType: "BUSINESS_USER",
+          userType: UserGropeType.BUSINESS_USER,
           businessId: AppDefault.BUSINESS_ID,
         }),
       ).unwrap();
