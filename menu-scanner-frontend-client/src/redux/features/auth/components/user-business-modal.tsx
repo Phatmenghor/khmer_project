@@ -683,6 +683,20 @@ export default function UserBusinessModal({
                         error={errors.dateOfBirth}
                       />
                     </div>
+
+                    {/* Profile Image Upload */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <ClickableImageUpload
+                        label="Profile Image"
+                        value={watch("profileImageUrl") || ""}
+                        onChange={(base64) => setValue("profileImageUrl", base64)}
+                        aspectRatio="square"
+                        required={false}
+                        disabled={isSubmitting}
+                        error={errors.profileImageUrl}
+                        placeholder="Click to upload profile image"
+                      />
+                    </div>
                   </div>
                 </div>
 
