@@ -289,9 +289,9 @@ INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated
 -- 5. BUSINESS SETTINGS
 -- ============================================================================
 
-INSERT INTO business_settings (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, business_name, logo_business_url, tax_percentage, primary_color, secondary_color, accent_color, enable_stock) VALUES
-('550cad56-cafd-4aba-baef-c4dcd53940d2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Phatmenghor Business', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 10.0, '#57823D', '#404040', '#2E74D0', 'ENABLED'),
-('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'Test Coffee Cafe', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 5.0, '#57823D', '#404040', '#2E74D0', 'ENABLED');
+INSERT INTO business_settings (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, business_name, logo_business_url, tax_percentage, primary_color, enable_stock) VALUES
+('550cad56-cafd-4aba-baef-c4dcd53940d2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Phatmenghor Business', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 10.0, '#57823D', 'ENABLED'),
+('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'Test Coffee Cafe', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 5.0, '#57823D', 'ENABLED');
 
 -- Initialize order counters for businesses (per-business sequences with migration V3)
 -- Must be after businesses table is populated due to foreign key constraint
