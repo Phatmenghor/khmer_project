@@ -1,6 +1,8 @@
-# 🍔 Restaurant Configuration Example
+# 🍔 Restaurant - Size + Add-ons Example
 
-Complete example of a restaurant using the feature visibility and customization system.
+Simple customization pattern: Choose portion size, then add optional toppings/sides.
+
+---
 
 ## Business Settings
 
@@ -13,101 +15,40 @@ Complete example of a restaurant using the feature visibility and customization 
 }
 ```
 
-**Why these settings:**
-- Categories: YES (Appetizers, Main Courses, Sides, Desserts, Drinks)
-- Subcategories: NO (Menu structure is simple enough with categories)
-- Brands: NO (Not applicable for food service)
-
 ---
 
-## Product Structure
+## Product: Classic Burger ($12.00)
 
-### Categories
-```
-├── Appetizers
-│   ├── Chicken Wings
-│   └── Bruschetta
-├── Main Courses
-│   ├── Burgers
-│   ├── Steaks
-│   └── Pasta
-├── Sides
-│   ├── Fries
-│   └── Salads
-├── Desserts
-│   ├── Cake
-│   └── Ice Cream
-└── Drinks
-    ├── Soft Drinks
-    └── Coffee
-```
+### Customer UI Experience
 
----
-
-## Example: Classic Burger ($12.00)
-
-**Customization Group 1: Meat Type (Required, Single Select)**
 ```
-├── Beef: +$0.00
-├── Chicken: +$0.00
-├── Veggie: +$1.00
-└── Beyond Meat: +$2.00
-```
-
-**Customization Group 2: Cook Level (Required, Single Select)** *(For Beef)*
-```
-├── Rare: +$0.00
-├── Medium-Rare: +$0.00
-├── Medium: +$0.00
-├── Medium-Well: +$0.00
-└── Well Done: +$0.00
-```
-
-**Customization Group 3: Toppings (Optional, Multiple Select)**
-```
-├── Bacon: +$1.50
-├── Cheese: +$0.50
-├── Fried Egg: +$1.00
-├── Mushrooms: +$0.75
-├── Onions: +$0.00
-├── Tomato: +$0.00
-├── Lettuce: +$0.00
-└── Pickles: +$0.00
-```
-
-**Customization Group 4: Sauce (Required, Single Select)**
-```
-├── Ketchup: +$0.00
-├── Mustard: +$0.00
-├── Mayonnaise: +$0.00
-├── BBQ: +$0.00
-├── Sriracha: +$0.00
-└── House Special: +$0.50
-```
-
-**Customization Group 5: Sides (Optional, Single Select)**
-```
-├── French Fries: +$2.00
-├── Onion Rings: +$2.50
-├── Sweet Potato Fries: +$3.00
-└── Coleslaw: +$1.50
+┌──────────────────────────────┐
+│  Classic Burger              │
+│  Base: $12.00                │
+├──────────────────────────────┤
+│ PROTEIN (Required):          │
+│ ◉ Beef       +$0.00          │
+│ ○ Chicken    +$0.00          │
+│ ○ Veggie     +$1.00          │
+│ ○ Beyond     +$2.00          │
+├──────────────────────────────┤
+│ ADD-ONS (Optional):          │
+│ ☑ Bacon          +$1.50      │
+│ ☐ Cheese         +$0.50      │
+│ ☑ Fried Egg      +$1.00      │
+│ ☐ Mushrooms      +$0.75      │
+│ ☐ French Fries   +$2.00      │
+├──────────────────────────────┤
+│ Total: $17.00                │
+│ [Add to Cart]                │
+└──────────────────────────────┘
 ```
 
 ---
 
-## API Example: Create Classic Burger
+## Backend Setup
 
-### Step 1: Create Main Courses Category
-```bash
-POST /api/v1/categories
-{
-  "name": "Main Courses",
-  "description": "Entrees and main dishes",
-  "status": "ACTIVE"
-}
-```
-
-### Step 2: Create Classic Burger Product
+### 1. Create Product
 ```bash
 POST /api/v1/products
 {
@@ -119,162 +60,175 @@ POST /api/v1/products
 }
 ```
 
-### Step 3: Create Customization Groups
+---
 
-**Meat Type:**
+### 2. Create Protein Group (Required, Single-Select)
+
 ```bash
 POST /api/v1/product-customizations/groups
 {
-  "productId": "product-burger-123",
-  "name": "Meat Type",
+  "productId": "prod-burger-456",
+  "name": "Protein",
   "description": "Choose your protein",
   "isRequired": true,
   "allowMultiple": false,
   "sortOrder": 1,
   "status": "ACTIVE"
 }
+```
 
+---
+
+### 3. Add Protein Options
+
+**Beef:**
+```bash
 POST /api/v1/product-customizations
 {
-  "productCustomizationGroupId": "group-meat-123",
+  "productCustomizationGroupId": "group-protein-789",
   "name": "Beef",
   "priceAdjustment": "0.00",
-  "sortOrder": 1
-}
-
-POST /api/v1/product-customizations
-{
-  "productCustomizationGroupId": "group-meat-123",
-  "name": "Chicken",
-  "priceAdjustment": "0.00",
-  "sortOrder": 2
-}
-
-POST /api/v1/product-customizations
-{
-  "productCustomizationGroupId": "group-meat-123",
-  "name": "Veggie",
-  "priceAdjustment": "1.00",
-  "sortOrder": 3
-}
-
-POST /api/v1/product-customizations
-{
-  "productCustomizationGroupId": "group-meat-123",
-  "name": "Beyond Meat",
-  "priceAdjustment": "2.00",
-  "sortOrder": 4
+  "sortOrder": 1,
+  "status": "ACTIVE"
 }
 ```
 
-**Toppings (Multiple Select):**
+**Chicken:**
 ```bash
-POST /api/v1/product-customizations/groups
+POST /api/v1/product-customizations
 {
-  "productId": "product-burger-123",
-  "name": "Toppings",
-  "description": "Add extras",
-  "isRequired": false,
-  "allowMultiple": true,
+  "productCustomizationGroupId": "group-protein-789",
+  "name": "Chicken",
+  "priceAdjustment": "0.00",
+  "sortOrder": 2,
+  "status": "ACTIVE"
+}
+```
+
+**Veggie:**
+```bash
+POST /api/v1/product-customizations
+{
+  "productCustomizationGroupId": "group-protein-789",
+  "name": "Veggie",
+  "priceAdjustment": "1.00",
   "sortOrder": 3,
   "status": "ACTIVE"
 }
-
-POST /api/v1/product-customizations
-{
-  "productCustomizationGroupId": "group-toppings-123",
-  "name": "Bacon",
-  "priceAdjustment": "1.50"
-}
-
-POST /api/v1/product-customizations
-{
-  "productCustomizationGroupId": "group-toppings-123",
-  "name": "Cheese",
-  "priceAdjustment": "0.50"
-}
-
-POST /api/v1/product-customizations
-{
-  "productCustomizationGroupId": "group-toppings-123",
-  "name": "Fried Egg",
-  "priceAdjustment": "1.00"
-}
 ```
 
-**Sauce:**
+**Beyond Meat:**
 ```bash
-POST /api/v1/product-customizations/groups
+POST /api/v1/product-customizations
 {
-  "productId": "product-burger-123",
-  "name": "Sauce",
-  "description": "Choose sauce",
-  "isRequired": true,
-  "allowMultiple": false,
+  "productCustomizationGroupId": "group-protein-789",
+  "name": "Beyond Meat",
+  "priceAdjustment": "2.00",
   "sortOrder": 4,
   "status": "ACTIVE"
 }
-
-POST /api/v1/product-customizations
-{
-  "productCustomizationGroupId": "group-sauce-123",
-  "name": "Ketchup",
-  "priceAdjustment": "0.00"
-}
-
-POST /api/v1/product-customizations
-{
-  "productCustomizationGroupId": "group-sauce-123",
-  "name": "House Special",
-  "priceAdjustment": "0.50"
-}
 ```
 
 ---
 
-## Customer Order Example
-
-### Selected Customizations:
-- **Meat Type:** Beef (+$0.00)
-- **Toppings:** Bacon (+$1.50), Cheese (+$0.50), Fried Egg (+$1.00)
-- **Sauce:** House Special (+$0.50)
-- **Sides:** French Fries (+$2.00)
-
-### Price Calculation:
-```
-Base Price:           $12.00
-+ Beef Meat:          $0.00
-+ Bacon Topping:      $1.50
-+ Cheese Topping:     $0.50
-+ Fried Egg Topping:  $1.00
-+ House Special Sauce: $0.50
-+ French Fries:       $2.00
-─────────────────────────────
-Total:               $17.50
-```
-
----
-
-## GET Product Customizations Response
+### 4. Create Add-ons Group (Optional, Multi-Select)
 
 ```bash
-GET /api/v1/public/product-customizations/product/product-burger-123
+POST /api/v1/product-customizations/groups
+{
+  "productId": "prod-burger-456",
+  "name": "Add-ons",
+  "description": "Add toppings and sides",
+  "isRequired": false,
+  "allowMultiple": true,
+  "sortOrder": 2,
+  "status": "ACTIVE"
+}
 ```
 
-**Response (Abbreviated):**
+---
+
+### 5. Add Add-on Options
+
+**Bacon:**
+```bash
+POST /api/v1/product-customizations
+{
+  "productCustomizationGroupId": "group-addons-101",
+  "name": "Bacon",
+  "priceAdjustment": "1.50",
+  "sortOrder": 1,
+  "status": "ACTIVE"
+}
+```
+
+**Cheese:**
+```bash
+POST /api/v1/product-customizations
+{
+  "productCustomizationGroupId": "group-addons-101",
+  "name": "Cheese",
+  "priceAdjustment": "0.50",
+  "sortOrder": 2,
+  "status": "ACTIVE"
+}
+```
+
+**Fried Egg:**
+```bash
+POST /api/v1/product-customizations
+{
+  "productCustomizationGroupId": "group-addons-101",
+  "name": "Fried Egg",
+  "priceAdjustment": "1.00",
+  "sortOrder": 3,
+  "status": "ACTIVE"
+}
+```
+
+**Mushrooms:**
+```bash
+POST /api/v1/product-customizations
+{
+  "productCustomizationGroupId": "group-addons-101",
+  "name": "Mushrooms",
+  "priceAdjustment": "0.75",
+  "sortOrder": 4,
+  "status": "ACTIVE"
+}
+```
+
+**French Fries:**
+```bash
+POST /api/v1/product-customizations
+{
+  "productCustomizationGroupId": "group-addons-101",
+  "name": "French Fries",
+  "priceAdjustment": "2.00",
+  "sortOrder": 5,
+  "status": "ACTIVE"
+}
+```
+
+---
+
+## Customer Gets Product
+
+### Request:
+```bash
+GET /api/v1/public/product-customizations/product/prod-burger-456
+```
+
+### Response:
 ```json
 {
   "success": true,
-  "message": "Product customizations retrieved successfully",
   "data": [
     {
-      "id": "group-meat-123",
-      "productId": "product-burger-123",
-      "name": "Meat Type",
-      "description": "Choose your protein",
+      "id": "group-protein-789",
+      "name": "Protein",
       "isRequired": true,
       "allowMultiple": false,
-      "sortOrder": 1,
       "customizations": [
         {"id": "opt-beef", "name": "Beef", "priceAdjustment": "0.00"},
         {"id": "opt-chicken", "name": "Chicken", "priceAdjustment": "0.00"},
@@ -283,35 +237,16 @@ GET /api/v1/public/product-customizations/product/product-burger-123
       ]
     },
     {
-      "id": "group-sauce-123",
-      "productId": "product-burger-123",
-      "name": "Sauce",
-      "description": "Choose sauce",
-      "isRequired": true,
-      "allowMultiple": false,
-      "sortOrder": 4,
-      "customizations": [
-        {"id": "opt-ketchup", "name": "Ketchup", "priceAdjustment": "0.00"},
-        {"id": "opt-mustard", "name": "Mustard", "priceAdjustment": "0.00"},
-        {"id": "opt-mayo", "name": "Mayonnaise", "priceAdjustment": "0.00"},
-        {"id": "opt-bbq", "name": "BBQ", "priceAdjustment": "0.00"},
-        {"id": "opt-sriracha", "name": "Sriracha", "priceAdjustment": "0.00"},
-        {"id": "opt-house", "name": "House Special", "priceAdjustment": "0.50"}
-      ]
-    },
-    {
-      "id": "group-toppings-123",
-      "productId": "product-burger-123",
-      "name": "Toppings",
-      "description": "Add extras",
+      "id": "group-addons-101",
+      "name": "Add-ons",
       "isRequired": false,
       "allowMultiple": true,
-      "sortOrder": 3,
       "customizations": [
         {"id": "opt-bacon", "name": "Bacon", "priceAdjustment": "1.50"},
         {"id": "opt-cheese", "name": "Cheese", "priceAdjustment": "0.50"},
         {"id": "opt-egg", "name": "Fried Egg", "priceAdjustment": "1.00"},
-        {"id": "opt-mushroom", "name": "Mushrooms", "priceAdjustment": "0.75"}
+        {"id": "opt-mushroom", "name": "Mushrooms", "priceAdjustment": "0.75"},
+        {"id": "opt-fries", "name": "French Fries", "priceAdjustment": "2.00"}
       ]
     }
   ]
@@ -320,45 +255,63 @@ GET /api/v1/public/product-customizations/product/product-burger-123
 
 ---
 
-## Menu Structure
+## Example Orders
 
-| Category | Product | Base Price | Popular Customizations |
-|----------|---------|-----------|----------------------|
-| Appetizers | Chicken Wings | $8.00 | Spice Level, Sauce |
-| Main Courses | Classic Burger | $12.00 | Meat, Toppings, Sauce |
-| Main Courses | Grilled Steak | $25.00 | Cut, Cook Level, Sides |
-| Main Courses | Pasta Alfredo | $14.00 | Protein, Vegetables |
-| Sides | French Fries | $4.00 | Size, Seasoning |
-| Desserts | Chocolate Cake | $6.00 | Size, Topping |
-| Drinks | Soft Drinks | $3.00 | Size, Ice |
+### Order 1: Basic Beef Burger
+```
+Protein: Beef (+$0.00)
+Add-ons: None
+Total: $12.00
+```
 
----
+### Order 2: Loaded Burger
+```
+Protein: Beef (+$0.00)
+Add-ons: Bacon (+$1.50), Fried Egg (+$1.00), French Fries (+$2.00)
+Total: $16.50
+```
 
-## Feature Visibility Example
+### Order 3: Premium Veggie Burger
+```
+Protein: Veggie (+$1.00)
+Add-ons: Cheese (+$0.50), Mushrooms (+$0.75), French Fries (+$2.00)
+Total: $16.25
+```
 
-When restaurant customer accesses API:
-```bash
-GET /api/v1/public/categories/all
-→ Returns Main Courses, Appetizers, Sides, Desserts, Drinks
-
-GET /api/v1/public/brands/all
-→ Returns empty (useSubcategories = false)
-
-GET /api/v1/public/subcategories/all
-→ Returns empty (useSubcategories = false)
+### Order 4: Beyond Meat Special
+```
+Protein: Beyond Meat (+$2.00)
+Add-ons: Bacon (+$1.50), Cheese (+$0.50), Egg (+$1.00), Fries (+$2.00)
+Total: $19.00
 ```
 
 ---
 
-## Phase 1 Integration (Upcoming)
+## Menu Structure
 
-When Phase 1 completes:
-1. Customer orders Classic Burger with selected toppings (Bacon, Cheese, Egg), House Special sauce, and French Fries
-2. Cart item stores all customization selections in JSON format
-3. Total price: $12.00 + $1.50 + $0.50 + $1.00 + $0.50 + $2.00 = $17.50
-4. Order confirms customization details and maintains final price
+All products use the same **Size/Protein + Add-ons** pattern:
+
+| Product | Price | Primary Option | Add-on Examples |
+|---------|-------|-----------------|-----------------|
+| Classic Burger | $12.00 | Protein | Bacon, Cheese, Egg, Fries |
+| Grilled Steak | $25.00 | Cut/Cook | Sauce, Sides, Toppings |
+| Pasta Alfredo | $14.00 | Portion | Protein, Vegetables, Sauce |
+| Fish & Chips | $15.00 | Size | Extra Sides, Sauce |
+| Chicken Wings | $10.00 | Quantity | Sauce, Dip |
+
+---
+
+## Phase 1 Integration (Ready Now)
+
+When Phase 1 completes, customers will:
+1. Select product (Classic Burger)
+2. Choose protein (Beef)
+3. Select add-ons (Bacon, Fried Egg, French Fries)
+4. **Add to cart with customizations stored**
+5. Proceed to checkout with calculated price ($16.50)
 
 ---
 
 **Generated:** 2026-04-22  
-**Status:** Ready for Phase 1 Integration
+**Pattern:** Primary (required) + Add-ons (optional, multi-select)  
+**Status:** Ready for Phase 1

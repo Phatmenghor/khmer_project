@@ -50,21 +50,23 @@ Feature disabled? → Return empty list with message
 - `sortOrder`: Integer (display order)
 - `status`: String (ACTIVE/INACTIVE)
 
-**Example:**
+**Simple Pattern: Size + Add-ons**
 ```
 Product: Iced Latte ($3.50)
-├── Size (Required, Single Select)
-│   ├── Small: $0.00
+├── SIZE (Required, Single Select)
+│   ├── Small: +$0.00
 │   ├── Medium: +$0.50
 │   └── Large: +$1.00
-├── Extra Shots (Optional, Multiple)
-│   ├── 1 Shot: +$0.50
-│   └── 2 Shots: +$1.00
-└── Milk Type (Optional, Single)
-    ├── Regular: $0.00
-    ├── Oat: +$0.75
-    └── Almond: +$0.75
+└── ADD-ONS (Optional, Multiple Select)
+    ├── Extra Shot: +$0.50
+    ├── Oat Milk: +$0.75
+    ├── Extra Sugar: +$0.25
+    └── Whipped Cream: +$0.50
 ```
+
+**Example Order:**
+- Customer selects: Medium size + Oat Milk + Extra Sugar
+- Calculation: $3.50 + $0.50 + $0.75 + $0.25 = **$5.00**
 
 ---
 

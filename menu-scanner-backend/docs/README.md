@@ -18,11 +18,11 @@ Complete backend implementation for multi-business e-commerce platform with dyna
   - Business type examples (Coffee, Restaurant, Clothing, Pharmacy)
   - Testing scenarios
 
-- **[Product Customizations Guide](./features/PRODUCT_CUSTOMIZATIONS_GUIDE.md)** - Add-ons and price adjustments
-  - Customization groups (Size, Toppings, Extras, etc.)
+- **[Product Customizations Guide](./features/PRODUCT_CUSTOMIZATIONS_GUIDE.md)** - Simple Size + Add-ons pattern
+  - Primary option (Size, Portion, Style) - required, single-select
+  - Add-ons (Extras, Toppings, Modifications) - optional, multi-select
   - Price adjustable options
   - Business examples with real pricing
-  - API endpoints documentation
 
 ### 3. Implementation
 - **[Implementation Roadmap](./roadmap/IMPLEMENTATION_ROADMAP.md)** - Complete 6-phase roadmap
@@ -50,20 +50,20 @@ Complete backend implementation for multi-business e-commerce platform with dyna
   - Price calculation examples
 
 ### 5. Business Examples
-- **[Coffee Shop Configuration](./examples/COFFEE_SHOP.md)** - Complete example
-  - Feature flags: categories=true, brands=false
-  - Products: Iced Latte with Size, Shots, Milk, Sweeteners
-  - Order example with pricing
+- **[Coffee Shop Configuration](./examples/COFFEE_SHOP.md)** - Iced Latte example
+  - Size (required): Small, Medium, Large
+  - Add-ons (optional): Extra Shot, Oat Milk, Sugar, Whipped Cream
+  - Pricing: $3.50 base + customizations
 
-- **[Clothing Store Configuration](./examples/CLOTHING_STORE.md)** - Complete example
-  - Feature flags: categories=true, brands=true, subcategories=true
-  - Products: T-Shirt with Size, Color, Embroidery, Gift Wrap
-  - Order example with pricing
+- **[Clothing Store Configuration](./examples/CLOTHING_STORE.md)** - T-Shirt example
+  - Size (required): XS, S, M, L, XL, XXL
+  - Add-ons (optional): Custom Color, Embroidery, Gift Wrap
+  - Pricing: $25.00 base + customizations
 
-- **[Restaurant Configuration](./examples/RESTAURANT.md)** - Complete example
-  - Feature flags: categories=true, brands=false
-  - Products: Burger with Meat Type, Sides, Sauces
-  - Order example with pricing
+- **[Restaurant Configuration](./examples/RESTAURANT.md)** - Burger example
+  - Protein (required): Beef, Chicken, Veggie, Beyond Meat
+  - Add-ons (optional): Bacon, Cheese, Egg, Mushrooms, Fries
+  - Pricing: $12.00 base + customizations
 
 ---
 
@@ -97,10 +97,11 @@ Complete backend implementation for multi-business e-commerce platform with dyna
   - Support for 5+ business types
   - Complete documentation & examples
 
-- **Product Customizations**
+- **Product Customizations (Size + Add-ons Pattern)**
   - ProductCustomizationGroup & ProductCustomization models
-  - Complete CRUD service layer
-  - Mappers & Repositories
+  - Complete CRUD service layer (create, read, update, delete)
+  - Primary option (Size/Portion) - required, single-select
+  - Add-ons - optional, multi-select
   - Protected & public controllers
   - Database migrations (V6, V7)
 
