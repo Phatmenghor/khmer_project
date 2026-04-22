@@ -366,45 +366,7 @@ export default function CheckoutPage() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Card 1: Order Items */}
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7">
-            <div className="mb-6">
-              <h3 className="font-semibold text-foreground mb-1.5">Order Items</h3>
-              <p className="text-xs text-muted-foreground">
-                {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} total quantity
-              </p>
-            </div>
-            <div className="space-y-3">
-              {items.map((item) => (
-                <CartItemCard
-                  key={item.id}
-                  id={item.id}
-                  productId={item.productId}
-                  productName={item.productName}
-                  productImageUrl={item.productImageUrl}
-                  productSizeId={item.productSizeId}
-                  sizeName={item.sizeName}
-                  currentPrice={item.currentPrice}
-                  finalPrice={item.finalPrice}
-                  quantity={item.quantity}
-                  totalPrice={item.totalPrice}
-                  hasPromotion={item.hasPromotion}
-                  promotionType={item.promotionType}
-                  promotionValue={item.promotionValue}
-                  onQuantityChange={(newQuantity) =>
-                    handleQuantityChange(item.productId, item.productSizeId || null, newQuantity)
-                  }
-                  onRemove={() =>
-                    handleQuantityChange(item.productId, item.productSizeId || null, 0)
-                  }
-                  showLink={false}
-                  showControls={true}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Card 2: Delivery Information - Clean & Professional */}
+          {/* Card 1: Delivery Information - Clean & Professional */}
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 space-y-6">
             {/* Delivery Address */}
             <div className="space-y-3">
@@ -515,6 +477,44 @@ export default function CheckoutPage() {
                   </span>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Card 2: Order Items */}
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7">
+            <div className="mb-6">
+              <h3 className="font-semibold text-foreground mb-1.5">Order Items</h3>
+              <p className="text-xs text-muted-foreground">
+                {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} total quantity
+              </p>
+            </div>
+            <div className="space-y-3">
+              {items.map((item) => (
+                <CartItemCard
+                  key={item.id}
+                  id={item.id}
+                  productId={item.productId}
+                  productName={item.productName}
+                  productImageUrl={item.productImageUrl}
+                  productSizeId={item.productSizeId}
+                  sizeName={item.sizeName}
+                  currentPrice={item.currentPrice}
+                  finalPrice={item.finalPrice}
+                  quantity={item.quantity}
+                  totalPrice={item.totalPrice}
+                  hasPromotion={item.hasPromotion}
+                  promotionType={item.promotionType}
+                  promotionValue={item.promotionValue}
+                  onQuantityChange={(newQuantity) =>
+                    handleQuantityChange(item.productId, item.productSizeId || null, newQuantity)
+                  }
+                  onRemove={() =>
+                    handleQuantityChange(item.productId, item.productSizeId || null, 0)
+                  }
+                  showLink={false}
+                  showControls={true}
+                />
+              ))}
             </div>
           </div>
         </div>
