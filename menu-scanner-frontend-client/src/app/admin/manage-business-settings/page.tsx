@@ -638,40 +638,42 @@ export default function BusinessSettingsPage() {
                       key={index}
                       className="border rounded-lg p-4 relative lg:col-span-2"
                     >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">
-                            Platform Name
-                          </Label>
-                          <Input
-                            placeholder="e.g., Facebook"
-                            value={social.name}
-                            onChange={(e) => {
-                              const updated = [
-                                ...(form.getValues("socialMedia") || []),
-                              ];
-                              updated[index].name = e.target.value;
-                              form.setValue("socialMedia", updated, { shouldDirty: true });
-                            }}
-                            disabled={isSaving}
-                          />
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Platform Name
+                            </Label>
+                            <Input
+                              placeholder="e.g., Facebook"
+                              value={social.name}
+                              onChange={(e) => {
+                                const updated = [
+                                  ...(form.getValues("socialMedia") || []),
+                                ];
+                                updated[index].name = e.target.value;
+                                form.setValue("socialMedia", updated, { shouldDirty: true });
+                              }}
+                              disabled={isSaving}
+                            />
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">
-                            Profile URL
-                          </Label>
-                          <Input
-                            placeholder="https://facebook.com/yourprofile"
-                            type="url"
+                        <div className="w-full md:w-1/2">
+                          <ClickableImageUpload
+                            label="Profile Image"
                             value={social.linkUrl}
-                            onChange={(e) => {
+                            onChange={(base64) => {
                               const updated = [
                                 ...(form.getValues("socialMedia") || []),
                               ];
-                              updated[index].linkUrl = e.target.value;
+                              updated[index].linkUrl = base64;
                               form.setValue("socialMedia", updated, { shouldDirty: true });
                             }}
                             disabled={isSaving}
+                            aspectRatio="square"
+                            height="h-32"
+                            placeholder="Upload profile image"
+                            maxSize={5}
                           />
                         </div>
                       </div>
