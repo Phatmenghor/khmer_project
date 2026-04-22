@@ -5,6 +5,7 @@ import com.emenu.features.main.dto.response.FavoriteRemoveAllDto;
 import com.emenu.features.main.dto.response.FavoriteToggleDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.service.ProductFavoriteService;
+import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @RestController
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class ProductFavoriteController {
 
     private final ProductFavoriteService favoriteService;
+    private final ProductConditionalService productConditionalService;
 
     /**
      * Toggle favorite status for a product
@@ -54,10 +57,30 @@ public class ProductFavoriteController {
             @Valid @RequestBody ProductFilterDto filter) {
 
         long startTime = System.currentTimeMillis();
-        log.info("POST /api/v1/product-favorites/my-favorites - Get user favorites - Page: {}, Size: {}, Business: {}",
-            filter.getPageNo(), filter.getPageSize(), filter.getBusinessId());
+        log.info("POST /api/v1/product-favorites/my-favorites - Get user favorites - Page: {}, Size: {}, Business: {}, CategoryId: {}, BrandId: {}",
+            filter.getPageNo(), filter.getPageSize(), filter.getBusinessId(), filter.getCategoryId(), filter.getBrandId());
 
         try {
+            UUID businessId = filter.getBusinessId();
+
+            if (businessId != null && filter.getCategoryId() != null && !productConditionalService.businessUsesCategories(businessId)) {
+                log.info("Business {} does not use categories - returning empty favorites list", businessId);
+                PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
+                emptyResponse.setContent(new ArrayList<>());
+                emptyResponse.setTotalElements(0L);
+                emptyResponse.setTotalPages(0);
+                return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", emptyResponse));
+            }
+
+            if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
+                log.info("Business {} does not use brands - returning empty favorites list", businessId);
+                PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
+                emptyResponse.setContent(new ArrayList<>());
+                emptyResponse.setTotalElements(0L);
+                emptyResponse.setTotalPages(0);
+                return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
+            }
+
             PaginationResponse<ProductListDto> favorites = favoriteService.getUserFavorites(filter);
             long duration = System.currentTimeMillis() - startTime;
 
