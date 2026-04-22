@@ -32,4 +32,9 @@ public class BusinessSettingResponse extends BaseAuditResponse {
 
     // Business Hours
     private List<BusinessHoursResponse> businessHours;
+
+    // Feature Visibility Flags
+    private Boolean useCategories;
+    private Boolean useSubcategories;
+    private Boolean useBrands;
 }
