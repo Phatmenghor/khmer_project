@@ -38,6 +38,9 @@ public class ProductUpdateDto {
     @Valid
     private List<ProductSizeUpdateDto> sizes;
 
+    @Valid
+    private List<ProductCustomizationUpdateDto> customizations;
+
     private ProductStatus status;
 
     private StockStatus stockStatus;

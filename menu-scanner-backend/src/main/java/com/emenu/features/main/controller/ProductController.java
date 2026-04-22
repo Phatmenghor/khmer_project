@@ -176,10 +176,11 @@ public class ProductController {
             @Valid @RequestBody ProductCreateDto request) {
 
         long startTime = System.currentTimeMillis();
-        log.info("POST /api/v1/products - Create product request - Name: '{}', Price: {}, HasSizes: {}, HasImages: {}",
+        log.info("POST /api/v1/products - Create product request - Name: '{}', Price: {}, HasSizes: {}, HasImages: {}, HasCustomizations: {}",
             request.getName(), request.getPrice(),
             request.getSizes() != null && !request.getSizes().isEmpty(),
-            request.getImages() != null && !request.getImages().isEmpty());
+            request.getImages() != null && !request.getImages().isEmpty(),
+            request.getCustomizations() != null && !request.getCustomizations().isEmpty());
 
         try {
             ProductDetailDto product = productService.createProduct(request);
@@ -203,10 +204,11 @@ public class ProductController {
             @Valid @RequestBody ProductUpdateDto request) {
 
         long startTime = System.currentTimeMillis();
-        log.info("PUT /api/v1/products/{} - Update product request - Name: '{}', Status: {}, HasImages: {}, HasSizes: {}",
+        log.info("PUT /api/v1/products/{} - Update product request - Name: '{}', Status: {}, HasImages: {}, HasSizes: {}, HasCustomizations: {}",
             id, request.getName(), request.getStatus(),
             request.getImages() != null && !request.getImages().isEmpty(),
-            request.getSizes() != null && !request.getSizes().isEmpty());
+            request.getSizes() != null && !request.getSizes().isEmpty(),
+            request.getCustomizations() != null && !request.getCustomizations().isEmpty());
 
         try {
             ProductDetailDto product = productService.updateProduct(id, request);

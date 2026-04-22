@@ -44,6 +44,9 @@ public class ProductCreateDto {
     
     @Valid
     private List<ProductSizeCreateDto> sizes;
-    
+
+    @Valid
+    private List<ProductCustomizationCreateDto> customizations;
+
     private ProductStatus status = ProductStatus.ACTIVE;
 }
