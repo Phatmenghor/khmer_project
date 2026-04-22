@@ -3,6 +3,7 @@ package com.emenu.features.main.controller;
 import com.emenu.features.main.dto.filter.SubcategoryFilterRequest;
 import com.emenu.features.main.dto.request.SubcategoryCreateRequest;
 import com.emenu.features.main.dto.response.SubcategoryResponse;
+import com.emenu.features.main.dto.update.SubcategoryUpdateRequest;
 import com.emenu.features.main.service.SubcategoryService;
 import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.security.SecurityUtils;
@@ -97,7 +98,7 @@ public class SubcategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SubcategoryResponse>> updateSubcategory(
             @PathVariable UUID id,
-            @Valid @RequestBody SubcategoryCreateRequest request) {
+            @Valid @RequestBody SubcategoryUpdateRequest request) {
         log.info("Updating subcategory: {}", id);
         SubcategoryResponse subcategory = subcategoryService.updateSubcategory(id, request);
         return ResponseEntity.ok(ApiResponse.success("Subcategory updated successfully", subcategory));
