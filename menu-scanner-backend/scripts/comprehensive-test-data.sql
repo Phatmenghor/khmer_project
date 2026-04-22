@@ -303,12 +303,11 @@ INSERT INTO order_counters (id, business_id, counter_date, counter_value) VALUES
 -- 6. BANNERS (18 items)
 -- ============================================================================
 
-INSERT INTO banners (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, image_url, link_url, status)
+INSERT INTO banners (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, image_url, status)
 SELECT
     gen_random_uuid(), 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL,
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
-    'https://example.com/promotion-' || LPAD(i::text, 2, '0'),
     CASE WHEN (i % 4) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END
 FROM generate_series(1, 18) AS t(i);
 
