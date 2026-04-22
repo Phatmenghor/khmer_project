@@ -657,24 +657,24 @@ export default function BusinessSettingsPage() {
                               disabled={isSaving}
                             />
                           </div>
-                        </div>
-                        <div className="w-full md:w-1/2">
-                          <ClickableImageUpload
-                            label="Profile Image"
-                            value={social.linkUrl}
-                            onChange={(base64) => {
-                              const updated = [
-                                ...(form.getValues("socialMedia") || []),
-                              ];
-                              updated[index].linkUrl = base64;
-                              form.setValue("socialMedia", updated, { shouldDirty: true });
-                            }}
-                            disabled={isSaving}
-                            aspectRatio="square"
-                            height="h-32"
-                            placeholder="Upload profile image"
-                            maxSize={5}
-                          />
+                          <div>
+                            <ClickableImageUpload
+                              label="Profile Image"
+                              value={social.linkUrl}
+                              onChange={(base64) => {
+                                const updated = [
+                                  ...(form.getValues("socialMedia") || []),
+                                ];
+                                updated[index].linkUrl = base64;
+                                form.setValue("socialMedia", updated, { shouldDirty: true });
+                              }}
+                              disabled={isSaving}
+                              aspectRatio="square"
+                              height="h-32"
+                              placeholder="Upload profile image"
+                              maxSize={5}
+                            />
+                          </div>
                         </div>
                       </div>
                       {!isSaving && (
