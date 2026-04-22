@@ -10,6 +10,7 @@ import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.response.BulkPromotionResultDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
 import com.emenu.features.main.service.ProductService;
+import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
@@ -31,6 +32,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductConditionalService productConditionalService;
     private final SecurityUtils securityUtils;
 
     @PostMapping("/all")
@@ -42,6 +44,28 @@ public class ProductController {
                 filter.getPageNo(), filter.getPageSize(), filter.getBusinessId(), filter.getCategoryId(), filter.getBrandId());
 
         try {
+            UUID businessId = filter.getBusinessId();
+
+            // Check category filter - return empty if categories not enabled
+            if (businessId != null && filter.getCategoryId() != null && !productConditionalService.businessUsesCategories(businessId)) {
+                log.info("Business {} does not use categories - returning empty product list", businessId);
+                PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
+                emptyResponse.setContent(new java.util.ArrayList<>());
+                emptyResponse.setTotalElements(0L);
+                emptyResponse.setTotalPages(0);
+                return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", emptyResponse));
+            }
+
+            // Check brand filter - return empty if brands not enabled
+            if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
+                log.info("Business {} does not use brands - returning empty product list", businessId);
+                PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
+                emptyResponse.setContent(new java.util.ArrayList<>());
+                emptyResponse.setTotalElements(0L);
+                emptyResponse.setTotalPages(0);
+                return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
+            }
+
             PaginationResponse<ProductListDto> products = productService.getAllProducts(filter);
             long duration = System.currentTimeMillis() - startTime;
             log.info("GET /api/v1/products/all succeeded in {}ms - Retrieved {} products, Total: {}",
