@@ -289,9 +289,37 @@ INSERT INTO businesses (id, version, created_at, updated_at, created_by, updated
 -- 5. BUSINESS SETTINGS
 -- ============================================================================
 
-INSERT INTO business_settings (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, business_name, logo_business_url, tax_percentage, primary_color, enable_stock) VALUES
-('550cad56-cafd-4aba-baef-c4dcd53940d2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Phatmenghor Business', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 10.0, '#57823D', 'ENABLED'),
-('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'Test Coffee Cafe', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 5.0, '#57823D', 'ENABLED');
+INSERT INTO business_settings (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_id, business_name, logo_business_url, tax_percentage, primary_color, enable_stock, contact_address, contact_phone, contact_email) VALUES
+('550cad56-cafd-4aba-baef-c4dcd53940d2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d0', 'Phatmenghor Business', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 10.0, '#57823D', 'ENABLED', 'No. 123 Sihanouk Boulevard, Phnom Penh, Cambodia', '+855 23 999 9999', 'info@phatmenghor.com'),
+('550cad56-cafd-4aba-baef-c4dcd53940d3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d1', 'Test Coffee Cafe', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 5.0, '#57823D', 'ENABLED', 'No. 456 Pub Street, Siem Reap, Cambodia', '+855 63 888 8888', 'contact@coffeecafe.com');
+
+-- ============================================================================
+-- BUSINESS HOURS (6 records - 3 per business)
+-- ============================================================================
+
+INSERT INTO business_hours (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_setting_id, day_of_week, opening_time, closing_time, is_closed) VALUES
+-- Phatmenghor Business hours
+('550cad56-cafd-4aba-baef-c4dcd53940e0', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'MONDAY', '09:00', '22:00', false),
+('550cad56-cafd-4aba-baef-c4dcd53940e1', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'TUESDAY', '09:00', '22:00', false),
+('550cad56-cafd-4aba-baef-c4dcd53940e2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'WEDNESDAY', '09:00', '22:00', false),
+-- Coffee Cafe hours
+('550cad56-cafd-4aba-baef-c4dcd53940e3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'MONDAY', '07:00', '20:00', false),
+('550cad56-cafd-4aba-baef-c4dcd53940e4', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'TUESDAY', '07:00', '20:00', false),
+('550cad56-cafd-4aba-baef-c4dcd53940e5', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'WEDNESDAY', '07:00', '20:00', false);
+
+-- ============================================================================
+-- SOCIAL MEDIA ACCOUNTS (6 records - 3 per business)
+-- ============================================================================
+
+INSERT INTO social_media (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_setting_id, platform, link_url) VALUES
+-- Phatmenghor Business social media
+('550cad56-cafd-4aba-baef-c4dcd53940f0', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'FACEBOOK', 'https://facebook.com/phatmenghor'),
+('550cad56-cafd-4aba-baef-c4dcd53940f1', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'INSTAGRAM', 'https://instagram.com/phatmenghor_official'),
+('550cad56-cafd-4aba-baef-c4dcd53940f2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'TELEGRAM', 'https://t.me/phatmenghor'),
+-- Coffee Cafe social media
+('550cad56-cafd-4aba-baef-c4dcd53940f3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'FACEBOOK', 'https://facebook.com/coffeecafe'),
+('550cad56-cafd-4aba-baef-c4dcd53940f4', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'INSTAGRAM', 'https://instagram.com/coffeecafe_siemreap'),
+('550cad56-cafd-4aba-baef-c4dcd53940f5', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'TELEGRAM', 'https://t.me/coffeecafesiemreap');
 
 -- Initialize order counters for businesses (per-business sequences with migration V3)
 -- Must be after businesses table is populated due to foreign key constraint
