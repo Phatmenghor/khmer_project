@@ -3,7 +3,7 @@
 import { useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePublicBrandsState } from "@/redux/features/main/store/state/public-brands-state";
-import { Store, Loader2, CheckCircle2 } from "lucide-react";
+import { Store, Loader2 } from "lucide-react";
 import { BrandCard } from "@/components/shared/card/brand-card";
 import { BrandCardSkeleton } from "@/components/shared/skeletons/brand-card-skeleton";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
@@ -116,9 +116,6 @@ export default function BrandsPage() {
 
             {!hasMore && !isLoadingMore && brands.length > 0 && (
               <div className="flex flex-col items-center justify-center mt-8 py-8">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                  <CheckCircle2 className="h-8 w-8 text-primary" />
-                </div>
                 <p className="text-center text-sm text-muted-foreground">
                   Showing all {totalBrands} brands
                 </p>
