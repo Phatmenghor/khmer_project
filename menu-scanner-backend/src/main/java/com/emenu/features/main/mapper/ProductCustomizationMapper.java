@@ -15,11 +15,9 @@ public class ProductCustomizationMapper {
 
         ProductCustomizationDto dto = new ProductCustomizationDto();
         dto.setId(customization.getId());
-        dto.setProductCustomizationGroupId(customization.getProductCustomizationGroupId());
+        dto.setProductId(customization.getProductId());
         dto.setName(customization.getName());
-        dto.setDescription(customization.getDescription());
         dto.setPriceAdjustment(customization.getPriceAdjustment());
-        dto.setSortOrder(customization.getSortOrder());
         dto.setStatus(customization.getStatus());
 
         return dto;
@@ -31,11 +29,9 @@ public class ProductCustomizationMapper {
         }
 
         ProductCustomization customization = new ProductCustomization();
-        customization.setProductCustomizationGroupId(dto.getProductCustomizationGroupId());
+        customization.setProductId(dto.getProductId());
         customization.setName(dto.getName());
-        customization.setDescription(dto.getDescription());
         customization.setPriceAdjustment(dto.getPriceAdjustment());
-        customization.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
         customization.setStatus(dto.getStatus() != null ? dto.getStatus() : "ACTIVE");
 
         return customization;
@@ -47,9 +43,7 @@ public class ProductCustomizationMapper {
         }
 
         customization.setName(dto.getName());
-        customization.setDescription(dto.getDescription());
         customization.setPriceAdjustment(dto.getPriceAdjustment());
-        customization.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : customization.getSortOrder());
         customization.setStatus(dto.getStatus() != null ? dto.getStatus() : customization.getStatus());
     }
 }

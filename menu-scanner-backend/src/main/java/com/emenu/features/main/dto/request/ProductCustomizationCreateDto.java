@@ -14,17 +14,14 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProductCustomizationCreateDto {
 
-    @NotNull(message = "Product customization group ID is required")
-    private UUID productCustomizationGroupId;
+    @NotNull(message = "Product ID is required")
+    private UUID productId;
 
-    @NotBlank(message = "Customization name is required")
+    @NotBlank(message = "Add-on name is required")
     private String name;
 
-    private String description;
-
+    @NotNull(message = "Price adjustment is required")
     private BigDecimal priceAdjustment;
-
-    private Integer sortOrder = 0;
 
     private String status = "ACTIVE";
 }

@@ -18,24 +18,18 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProductCustomization extends BaseUUIDEntity {
 
-    @Column(name = "product_customization_group_id", nullable = false)
-    private UUID productCustomizationGroupId;
+    @Column(name = "product_id", nullable = false)
+    private UUID productId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_customization_group_id", insertable = false, updatable = false)
-    private ProductCustomizationGroup customizationGroup;
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Product product;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
-
     @Column(name = "price_adjustment", precision = 10, scale = 2)
     private BigDecimal priceAdjustment;
-
-    @Column(name = "sort_order", nullable = false)
-    private Integer sortOrder = 0;
 
     @Column(name = "status", nullable = false)
     private String status = "ACTIVE";

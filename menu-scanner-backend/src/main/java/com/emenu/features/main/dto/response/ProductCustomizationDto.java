@@ -14,15 +14,11 @@ public class ProductCustomizationDto {
 
     private UUID id;
 
-    private UUID productCustomizationGroupId;
+    private UUID productId;
 
     private String name;
 
-    private String description;
-
     private BigDecimal priceAdjustment;
-
-    private Integer sortOrder;
 
     private String status;
 }

@@ -10,11 +10,11 @@ import java.util.UUID;
 @Repository
 public interface ProductCustomizationRepository extends JpaRepository<ProductCustomization, UUID> {
 
-    List<ProductCustomization> findByProductCustomizationGroupIdAndStatus(UUID groupId, String status);
+    List<ProductCustomization> findByProductIdAndStatus(UUID productId, String status);
 
-    List<ProductCustomization> findByProductCustomizationGroupId(UUID groupId);
+    List<ProductCustomization> findByProductId(UUID productId);
 
-    List<ProductCustomization> findByProductCustomizationGroupIdOrderBySortOrder(UUID groupId);
+    List<ProductCustomization> findByProductIdOrderByPriceAdjustment(UUID productId);
 
-    boolean existsByProductCustomizationGroupIdAndName(UUID groupId, String name);
+    boolean existsByProductIdAndName(UUID productId, String name);
 }
