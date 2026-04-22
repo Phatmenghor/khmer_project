@@ -4,7 +4,7 @@ import com.emenu.features.main.dto.request.ProductCustomizationCreateDto;
 import com.emenu.features.main.dto.request.ProductCustomizationGroupCreateDto;
 import com.emenu.features.main.dto.response.ProductCustomizationDto;
 import com.emenu.features.main.dto.response.ProductCustomizationGroupDto;
-import com.emenu.security.SecurityUtils;
+import com.emenu.features.main.service.ProductCustomizationService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.UUID;
 @Slf4j
 public class ProductCustomizationController {
 
-    private final SecurityUtils securityUtils;
+    private final ProductCustomizationService customizationService;
 
     /**
      * Create customization group for product
@@ -30,12 +30,22 @@ public class ProductCustomizationController {
     @PostMapping("/groups")
     public ResponseEntity<ApiResponse<ProductCustomizationGroupDto>> createCustomizationGroup(
             @Valid @RequestBody ProductCustomizationGroupCreateDto request) {
+        long startTime = System.currentTimeMillis();
         log.info("Creating product customization group - Product: {}, Name: {}",
             request.getProductId(), request.getName());
 
-        // TODO: Implement service layer
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Customization group created successfully", null));
+        try {
+            ProductCustomizationGroupDto group = customizationService.createCustomizationGroup(request);
+            long duration = System.currentTimeMillis() - startTime;
+
+            log.info("Customization group created successfully in {}ms - ID: {}", duration, group.getId());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Customization group created successfully", group));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Failed to create customization group after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -44,10 +54,20 @@ public class ProductCustomizationController {
     @GetMapping("/groups/product/{productId}")
     public ResponseEntity<ApiResponse<List<ProductCustomizationGroupDto>>> getProductCustomizationGroups(
             @PathVariable UUID productId) {
+        long startTime = System.currentTimeMillis();
         log.info("Getting customization groups for product: {}", productId);
 
-        // TODO: Implement service layer
-        return ResponseEntity.ok(ApiResponse.success("Customization groups retrieved successfully", null));
+        try {
+            List<ProductCustomizationGroupDto> groups = customizationService.getProductCustomizationGroups(productId);
+            long duration = System.currentTimeMillis() - startTime;
+
+            log.info("Retrieved {} customization groups in {}ms", groups.size(), duration);
+            return ResponseEntity.ok(ApiResponse.success("Customization groups retrieved successfully", groups));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Failed to get customization groups after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -58,8 +78,14 @@ public class ProductCustomizationController {
             @PathVariable UUID groupId) {
         log.info("Getting customization group: {}", groupId);
 
-        // TODO: Implement service layer
-        return ResponseEntity.ok(ApiResponse.success("Customization group retrieved successfully", null));
+        try {
+            ProductCustomizationGroupDto group = customizationService.getCustomizationGroupById(groupId);
+            log.info("Customization group retrieved successfully - ID: {}", groupId);
+            return ResponseEntity.ok(ApiResponse.success("Customization group retrieved successfully", group));
+        } catch (Exception e) {
+            log.error("Failed to get customization group - Error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -69,10 +95,20 @@ public class ProductCustomizationController {
     public ResponseEntity<ApiResponse<ProductCustomizationGroupDto>> updateCustomizationGroup(
             @PathVariable UUID groupId,
             @Valid @RequestBody ProductCustomizationGroupCreateDto request) {
+        long startTime = System.currentTimeMillis();
         log.info("Updating customization group: {}", groupId);
 
-        // TODO: Implement service layer
-        return ResponseEntity.ok(ApiResponse.success("Customization group updated successfully", null));
+        try {
+            ProductCustomizationGroupDto group = customizationService.updateCustomizationGroup(groupId, request);
+            long duration = System.currentTimeMillis() - startTime;
+
+            log.info("Customization group updated successfully in {}ms - ID: {}", duration, groupId);
+            return ResponseEntity.ok(ApiResponse.success("Customization group updated successfully", group));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Failed to update customization group after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -83,8 +119,14 @@ public class ProductCustomizationController {
             @PathVariable UUID groupId) {
         log.info("Deleting customization group: {}", groupId);
 
-        // TODO: Implement service layer
-        return ResponseEntity.ok(ApiResponse.success("Customization group deleted successfully", null));
+        try {
+            customizationService.deleteCustomizationGroup(groupId);
+            log.info("Customization group deleted successfully - ID: {}", groupId);
+            return ResponseEntity.ok(ApiResponse.success("Customization group deleted successfully", null));
+        } catch (Exception e) {
+            log.error("Failed to delete customization group - Error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -93,12 +135,22 @@ public class ProductCustomizationController {
     @PostMapping
     public ResponseEntity<ApiResponse<ProductCustomizationDto>> createCustomization(
             @Valid @RequestBody ProductCustomizationCreateDto request) {
+        long startTime = System.currentTimeMillis();
         log.info("Creating product customization - Group: {}, Name: {}, PriceAdjustment: {}",
             request.getProductCustomizationGroupId(), request.getName(), request.getPriceAdjustment());
 
-        // TODO: Implement service layer
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Customization created successfully", null));
+        try {
+            ProductCustomizationDto customization = customizationService.createCustomization(request);
+            long duration = System.currentTimeMillis() - startTime;
+
+            log.info("Customization created successfully in {}ms - ID: {}", duration, customization.getId());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Customization created successfully", customization));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Failed to create customization after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -109,8 +161,14 @@ public class ProductCustomizationController {
             @PathVariable UUID customizationId) {
         log.info("Getting customization: {}", customizationId);
 
-        // TODO: Implement service layer
-        return ResponseEntity.ok(ApiResponse.success("Customization retrieved successfully", null));
+        try {
+            ProductCustomizationDto customization = customizationService.getCustomizationById(customizationId);
+            log.info("Customization retrieved successfully - ID: {}", customizationId);
+            return ResponseEntity.ok(ApiResponse.success("Customization retrieved successfully", customization));
+        } catch (Exception e) {
+            log.error("Failed to get customization - Error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -120,11 +178,21 @@ public class ProductCustomizationController {
     public ResponseEntity<ApiResponse<ProductCustomizationDto>> updateCustomization(
             @PathVariable UUID customizationId,
             @Valid @RequestBody ProductCustomizationCreateDto request) {
+        long startTime = System.currentTimeMillis();
         log.info("Updating customization: {} - PriceAdjustment: {}",
             customizationId, request.getPriceAdjustment());
 
-        // TODO: Implement service layer
-        return ResponseEntity.ok(ApiResponse.success("Customization updated successfully", null));
+        try {
+            ProductCustomizationDto customization = customizationService.updateCustomization(customizationId, request);
+            long duration = System.currentTimeMillis() - startTime;
+
+            log.info("Customization updated successfully in {}ms - ID: {}", duration, customizationId);
+            return ResponseEntity.ok(ApiResponse.success("Customization updated successfully", customization));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Failed to update customization after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -135,7 +203,13 @@ public class ProductCustomizationController {
             @PathVariable UUID customizationId) {
         log.info("Deleting customization: {}", customizationId);
 
-        // TODO: Implement service layer
-        return ResponseEntity.ok(ApiResponse.success("Customization deleted successfully", null));
+        try {
+            customizationService.deleteCustomization(customizationId);
+            log.info("Customization deleted successfully - ID: {}", customizationId);
+            return ResponseEntity.ok(ApiResponse.success("Customization deleted successfully", null));
+        } catch (Exception e) {
+            log.error("Failed to delete customization - Error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 }
