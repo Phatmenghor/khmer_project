@@ -297,29 +297,29 @@ INSERT INTO business_settings (id, version, created_at, updated_at, created_by, 
 -- BUSINESS HOURS (6 records - 3 per business)
 -- ============================================================================
 
-INSERT INTO business_hours (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_setting_id, day_of_week, opening_time, closing_time, is_closed) VALUES
+INSERT INTO business_hours (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_setting_id, day, opening_time, closing_time) VALUES
 -- Phatmenghor Business hours
-('550cad56-cafd-4aba-baef-c4dcd53940e0', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'MONDAY', '09:00', '22:00', false),
-('550cad56-cafd-4aba-baef-c4dcd53940e1', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'TUESDAY', '09:00', '22:00', false),
-('550cad56-cafd-4aba-baef-c4dcd53940e2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'WEDNESDAY', '09:00', '22:00', false),
+('550cad56-cafd-4aba-baef-c4dcd53940e0', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'MONDAY', '09:00', '22:00'),
+('550cad56-cafd-4aba-baef-c4dcd53940e1', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'TUESDAY', '09:00', '22:00'),
+('550cad56-cafd-4aba-baef-c4dcd53940e2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'WEDNESDAY', '09:00', '22:00'),
 -- Coffee Cafe hours
-('550cad56-cafd-4aba-baef-c4dcd53940e3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'MONDAY', '07:00', '20:00', false),
-('550cad56-cafd-4aba-baef-c4dcd53940e4', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'TUESDAY', '07:00', '20:00', false),
-('550cad56-cafd-4aba-baef-c4dcd53940e5', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'WEDNESDAY', '07:00', '20:00', false);
+('550cad56-cafd-4aba-baef-c4dcd53940e3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'MONDAY', '07:00', '20:00'),
+('550cad56-cafd-4aba-baef-c4dcd53940e4', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'TUESDAY', '07:00', '20:00'),
+('550cad56-cafd-4aba-baef-c4dcd53940e5', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'WEDNESDAY', '07:00', '20:00');
 
 -- ============================================================================
 -- SOCIAL MEDIA ACCOUNTS (6 records - 3 per business)
 -- ============================================================================
 
-INSERT INTO social_media (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_setting_id, platform, link_url) VALUES
+INSERT INTO social_media (id, version, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, business_setting_id, name, link_url) VALUES
 -- Phatmenghor Business social media
-('550cad56-cafd-4aba-baef-c4dcd53940f0', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'FACEBOOK', 'https://facebook.com/phatmenghor'),
-('550cad56-cafd-4aba-baef-c4dcd53940f1', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'INSTAGRAM', 'https://instagram.com/phatmenghor_official'),
-('550cad56-cafd-4aba-baef-c4dcd53940f2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'TELEGRAM', 'https://t.me/phatmenghor'),
+('550cad56-cafd-4aba-baef-c4dcd53940f0', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'Facebook', 'https://facebook.com/phatmenghor'),
+('550cad56-cafd-4aba-baef-c4dcd53940f1', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'Instagram', 'https://instagram.com/phatmenghor_official'),
+('550cad56-cafd-4aba-baef-c4dcd53940f2', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d2', 'Telegram', 'https://t.me/phatmenghor'),
 -- Coffee Cafe social media
-('550cad56-cafd-4aba-baef-c4dcd53940f3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'FACEBOOK', 'https://facebook.com/coffeecafe'),
-('550cad56-cafd-4aba-baef-c4dcd53940f4', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'INSTAGRAM', 'https://instagram.com/coffeecafe_siemreap'),
-('550cad56-cafd-4aba-baef-c4dcd53940f5', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'TELEGRAM', 'https://t.me/coffeecafesiemreap');
+('550cad56-cafd-4aba-baef-c4dcd53940f3', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'Facebook', 'https://facebook.com/coffeecafe'),
+('550cad56-cafd-4aba-baef-c4dcd53940f4', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'Instagram', 'https://instagram.com/coffeecafe_siemreap'),
+('550cad56-cafd-4aba-baef-c4dcd53940f5', 0, NOW(), NOW(), 'system', 'system', false, NULL, NULL, '550cad56-cafd-4aba-baef-c4dcd53940d3', 'Telegram', 'https://t.me/coffeecafesiemreap');
 
 -- Initialize order counters for businesses (per-business sequences with migration V3)
 -- Must be after businesses table is populated due to foreign key constraint
