@@ -8,14 +8,14 @@
 -- ============================================================================
 -- 1. CREATE BUSINESS
 -- ============================================================================
-INSERT INTO businesses (id, name, phone, email, address, is_active, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '550e8400-e29b-41d4-a716-446655440000',
   'Mega Store',
   '+855-12-345-678',
   'megastore@example.com',
   'Phnom Penh, Cambodia',
-  true, false, NOW(), NOW(), 'admin', 'admin'
+  'ACTIVE', true, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
 -- ============================================================================
