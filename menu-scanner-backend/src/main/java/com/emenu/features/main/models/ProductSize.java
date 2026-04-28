@@ -2,6 +2,7 @@ package com.emenu.features.main.models;
 
 import com.emenu.enums.product.PromotionType;
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,9 +44,11 @@ public class ProductSize extends BaseUUIDEntity {
     private BigDecimal promotionValue;
 
     @Column(name = "promotion_from_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promotionFromDate;
 
     @Column(name = "promotion_to_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promotionToDate;
 
     @Column(name = "minimum_stock_level", nullable = false, columnDefinition = "integer default 0")
