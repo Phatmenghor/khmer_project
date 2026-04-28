@@ -77,7 +77,7 @@ INSERT INTO users (id, user_identifier, password, user_type, account_status, sta
 VALUES (
   '660e8400-e29b-41d4-a716-446655440001',
   'phatmenghor20@gmail.com',
-  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -89,7 +89,7 @@ INSERT INTO users (id, user_identifier, password, user_type, account_status, sta
 VALUES (
   '660e8400-e29b-41d4-a716-446655440002',
   'phatmenghor21@gmail.com',
-  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -101,7 +101,7 @@ INSERT INTO users (id, user_identifier, password, user_type, account_status, sta
 SELECT
   gen_random_uuid(),
   'admin' || i || '@megastore.com',
-  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -114,7 +114,7 @@ INSERT INTO users (id, user_identifier, password, user_type, account_status, sta
 SELECT
   gen_random_uuid(),
   'manager' || i || '@megastore.com',
-  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -127,7 +127,7 @@ INSERT INTO users (id, user_identifier, password, user_type, account_status, sta
 SELECT
   gen_random_uuid(),
   'staff' || i || '@megastore.com',
-  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -140,7 +140,7 @@ INSERT INTO users (id, user_identifier, password, user_type, account_status, sta
 SELECT
   gen_random_uuid(),
   'admin' || i || '@fashionhub.com',
-  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -153,7 +153,7 @@ INSERT INTO users (id, user_identifier, password, user_type, account_status, sta
 SELECT
   gen_random_uuid(),
   'staff' || i || '@fashionhub.com',
-  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -194,14 +194,13 @@ INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_numb
 SELECT
   gen_random_uuid(),
   u.id,
-  'admin' || i || '@megastore.com',
-  'Admin',
-  i::text,
-  '+855-' || (10000000 + i * 1000000)::text,
+  u.user_identifier,
+  'Admin ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
+  'Mega Store',
+  '+855-' || LPAD((10000000 + CAST(SUBSTRING(u.user_identifier, 6, 1) AS INTEGER) * 1000000)::text, 10, '0'),
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-CROSS JOIN generate_series(1, 5) AS t(i)
-WHERE u.user_identifier = 'admin' || i || '@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+WHERE u.user_identifier LIKE 'admin%@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
 -- Profiles for Manager Users (Mega Store)
@@ -209,14 +208,13 @@ INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_numb
 SELECT
   gen_random_uuid(),
   u.id,
-  'manager' || i || '@megastore.com',
-  'Manager',
-  i::text,
-  '+855-' || (20000000 + i * 1000000)::text,
+  u.user_identifier,
+  'Manager ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
+  'Mega Store',
+  '+855-' || LPAD((20000000 + CAST(SUBSTRING(u.user_identifier, 8, 2) AS INTEGER) * 1000000)::text, 10, '0'),
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-CROSS JOIN generate_series(1, 15) AS t(i)
-WHERE u.user_identifier = 'manager' || i || '@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+WHERE u.user_identifier LIKE 'manager%@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
 -- Profiles for Staff Users (Mega Store)
@@ -224,14 +222,13 @@ INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_numb
 SELECT
   gen_random_uuid(),
   u.id,
-  'staff' || i || '@megastore.com',
-  'Staff',
-  i::text,
-  '+855-' || (30000000 + i * 1000000)::text,
+  u.user_identifier,
+  'Staff ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
+  'Mega Store',
+  '+855-' || LPAD((30000000 + CAST(SUBSTRING(u.user_identifier, 6, 2) AS INTEGER) * 1000000)::text, 10, '0'),
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-CROSS JOIN generate_series(1, 80) AS t(i)
-WHERE u.user_identifier = 'staff' || i || '@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+WHERE u.user_identifier LIKE 'staff%@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
 -- Profiles for Admin Users (Fashion Hub)
@@ -239,14 +236,13 @@ INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_numb
 SELECT
   gen_random_uuid(),
   u.id,
-  'admin' || i || '@fashionhub.com',
-  'Admin FH',
-  i::text,
-  '+855-' || (40000000 + i * 1000000)::text,
+  u.user_identifier,
+  'Admin FH ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
+  'Fashion Hub',
+  '+855-' || LPAD((40000000 + CAST(SUBSTRING(u.user_identifier, 6, 1) AS INTEGER) * 1000000)::text, 10, '0'),
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-CROSS JOIN generate_series(1, 3) AS t(i)
-WHERE u.user_identifier = 'admin' || i || '@fashionhub.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+WHERE u.user_identifier LIKE 'admin%@fashionhub.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
 -- Profiles for Staff Users (Fashion Hub)
