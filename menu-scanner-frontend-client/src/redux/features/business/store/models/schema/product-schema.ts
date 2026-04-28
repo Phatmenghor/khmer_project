@@ -13,6 +13,19 @@ export const imageSchema = z.object({
 });
 
 /**
+ * Customization Schema
+ */
+export const customizationSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Customization name is required"),
+  priceAdjustment: z
+    .number()
+    .min(0, "Price adjustment must be zero or positive")
+    .optional(),
+  status: z.string().optional().default("ACTIVE"),
+});
+
+/**
  * Size Schema with Promotion Validation
  */
 export const sizeSchema = z
@@ -99,6 +112,7 @@ const baseProductSchema = z.object({
 
   images: z.array(imageSchema).optional().default([]),
   sizes: z.array(sizeSchema).optional().default([]),
+  customizations: z.array(customizationSchema).optional().default([]),
   status: z.string().min(1, "Status is required"),
 });
 
@@ -265,6 +279,12 @@ export type ProductFormData = {
     promotionFromDate?: string;
     promotionToDate?: string;
   }>;
+  customizations?: Array<{
+    id?: string;
+    name: string;
+    priceAdjustment?: number;
+    status?: string;
+  }>;
   status: string;
 };
 
@@ -272,3 +292,4 @@ export type CreateProductData = z.infer<typeof createProductSchema>;
 export type UpdateProductData = z.infer<typeof updateProductSchema>;
 export type ImageData = z.infer<typeof imageSchema>;
 export type SizeData = z.infer<typeof sizeSchema>;
+export type CustomizationData = z.infer<typeof customizationSchema>;

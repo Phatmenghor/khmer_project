@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -108,12 +108,13 @@ export default function ProductModal({
       promotionToDate: "",
       images: [],
       sizes: [],
+      customizations: [],
       status: ProductStatus.ACTIVE,
     },
     mode: "onChange",
   });
 
-  // Field arrays for images and sizes
+  // Field arrays for images, sizes, and customizations
   const {
     fields: imageFields,
     append: appendImage,
@@ -130,6 +131,15 @@ export default function ProductModal({
   } = useFieldArray({
     control,
     name: "sizes",
+  });
+
+  const {
+    fields: customizationFields,
+    append: appendCustomization,
+    remove: removeCustomization,
+  } = useFieldArray({
+    control,
+    name: "customizations",
   });
 
   const productName = watch("name");
@@ -271,6 +281,7 @@ export default function ProductModal({
             promotionToDate: data.promotionToDate || "",
             images: data.images || [],
             sizes: data.sizes || [],
+            customizations: data.customizations || [],
             status: data.status || ProductStatus.ACTIVE,
           });
         }
@@ -302,6 +313,7 @@ export default function ProductModal({
         promotionToDate: "",
         images: [],
         sizes: [],
+        customizations: [],
         status: ProductStatus.ACTIVE,
       });
     }
@@ -396,6 +408,14 @@ export default function ProductModal({
         ),
       }));
 
+      // Clean customizations data
+      const cleanedCustomizations = (data.customizations || []).map((customization) => ({
+        id: customization.id,
+        name: customization.name,
+        priceAdjustment: customization.priceAdjustment || 0,
+        status: customization.status || "ACTIVE",
+      }));
+
       // Prepare base payload
       const basePayload = {
         name: data.name,
@@ -407,6 +427,7 @@ export default function ProductModal({
         mainImageUrl: finalMainImageUrl,
         images: validImages.length > 0 ? validImages : undefined,
         sizes: cleanedSizes.length > 0 ? cleanedSizes : undefined,
+        customizations: cleanedCustomizations.length > 0 ? cleanedCustomizations : undefined,
         status: data.status,
       };
 
@@ -998,6 +1019,117 @@ export default function ProductModal({
                             </div>
                           );
                         })}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Product Customizations */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Product Customizations</CardTitle>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          appendCustomization({
+                            name: "",
+                            priceAdjustment: 0,
+                            status: "ACTIVE",
+                          })
+                        }
+                        disabled={isProcessing}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Customization
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {customizationFields.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-sm text-muted-foreground">
+                          No customizations defined
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {customizationFields.map((field, index) => (
+                          <div
+                            key={field.id}
+                            className="border rounded-lg p-4 space-y-4"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className="font-semibold text-foreground">
+                                Customization {index + 1}
+                              </h4>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeCustomization(index)}
+                                disabled={isProcessing}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                              <div>
+                                <TextField
+                                  control={control}
+                                  name={`customizations.${index}.name`}
+                                  label="Customization Name"
+                                  placeholder="e.g., Extra cheese, Add sauce"
+                                  required
+                                  disabled={isProcessing}
+                                  error={
+                                    errors.customizations?.[index]?.name as any
+                                  }
+                                />
+                              </div>
+
+                              <div>
+                                <TextField
+                                  control={control}
+                                  name={`customizations.${index}.priceAdjustment`}
+                                  label="Price Adjustment"
+                                  type="number"
+                                  placeholder="Enter price adjustment"
+                                  disabled={isProcessing}
+                                  error={
+                                    errors.customizations?.[index]
+                                      ?.priceAdjustment as any
+                                  }
+                                  valueAsNumber={true}
+                                  min={0}
+                                  step="0.01"
+                                  allowZero={true}
+                                />
+                              </div>
+
+                              <div>
+                                <SelectField
+                                  control={control}
+                                  name={`customizations.${index}.status`}
+                                  label="Status"
+                                  placeholder="Select status"
+                                  options={[
+                                    { value: "ACTIVE", label: "Active" },
+                                    { value: "INACTIVE", label: "Inactive" },
+                                  ]}
+                                  disabled={isProcessing}
+                                  error={
+                                    errors.customizations?.[index]?.status as any
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </CardContent>

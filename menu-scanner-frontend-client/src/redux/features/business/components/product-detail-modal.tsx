@@ -362,6 +362,55 @@ export function ProductDetailModal({
               </CardContent>
             </Card>
 
+            {/* Product Customizations */}
+            {productData.customizations &&
+              productData.customizations.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Product Customizations</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {productData.customizations.map((customization) => (
+                        <div
+                          key={customization.id}
+                          className="border rounded-lg p-4 space-y-3"
+                        >
+                          <div className="flex justify-between items-start">
+                            <h4 className="font-semibold text-foreground">
+                              {customization.name}
+                            </h4>
+                            <Badge
+                              variant={
+                                customization.status === "ACTIVE"
+                                  ? "default"
+                                  : "secondary"
+                              }
+                            >
+                              {customization.status || "---"}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                            <DisplayField
+                              label="Price Adjustment"
+                              value={formatCurrency(
+                                customization.priceAdjustment || 0,
+                              )}
+                            />
+                            {customization.createdAt && (
+                              <DisplayField
+                                label="Created At"
+                                value={dateTimeFormat(customization.createdAt)}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
             {/* Engagement Statistics */}
             <Card>
               <CardHeader>
