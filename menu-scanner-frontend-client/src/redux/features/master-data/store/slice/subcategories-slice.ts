@@ -11,12 +11,13 @@ import {
   updateSubcategory,
   deleteSubcategory,
   fetchSubcategoryDetail,
+  toggleSubcategoryStatus,
 } from "../thunks/subcategories-thunks";
 
 const initialState: SubcategoriesManagementState = {
   data: null,
   selectedSubcategories: null,
-  isLoading: false,
+  isLoading: true,
   error: null,
   filters: {
     search: "",
@@ -36,15 +37,53 @@ const subcategoriesSlice = createSlice({
   name: "subcategories",
   initialState,
   reducers: {
+    setSearchFilter: (state, action: PayloadAction<string>) => {
+      state.filters.search = action.payload;
+      state.filters.pageNo = 1;
+    },
+
+    setPageNo: (state, action: PayloadAction<number>) => {
+      state.filters.pageNo = action.payload;
+    },
+
+    setStatusFilter: (state, action: PayloadAction<string>) => {
+      state.filters.status = action.payload;
+      state.filters.pageNo = 1;
+    },
+
+    setCategoryIdFilter: (state, action: PayloadAction<string>) => {
+      state.filters.categoryId = action.payload;
+      state.filters.pageNo = 1;
+    },
+
     setSubcategoriesFilters: (state, action) => {
       state.filters = { ...state.filters, ...action.payload };
     },
+
+    clearError: (state) => {
+      state.error = null;
+    },
+
+    clearSelectedSubcategories: (state) => {
+      state.selectedSubcategories = null;
+    },
+
+    resetFilters: (state) => {
+      state.filters = initialState.filters;
+    },
+
+    resetState: () => {
+      return initialState;
+    },
+
     resetSubcategoriesFilters: (state) => {
       state.filters = initialState.filters;
     },
+
     setSubcategoriesError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
+
     clearSubcategoriesError: (state) => {
       state.error = null;
     },
@@ -125,10 +164,32 @@ const subcategoriesSlice = createSlice({
       state.operations.isDeleting = false;
       state.error = action.payload as string;
     });
+
+    // Toggle Subcategory Status
+    builder.addCase(toggleSubcategoryStatus.pending, (state) => {
+      state.operations.isUpdating = true;
+      state.error = null;
+    });
+    builder.addCase(toggleSubcategoryStatus.fulfilled, (state) => {
+      state.operations.isUpdating = false;
+      state.error = null;
+    });
+    builder.addCase(toggleSubcategoryStatus.rejected, (state, action) => {
+      state.operations.isUpdating = false;
+      state.error = action.payload as string;
+    });
   },
 });
 
 export const {
+  setSearchFilter,
+  setPageNo,
+  setStatusFilter,
+  setCategoryIdFilter,
+  clearError,
+  clearSelectedSubcategories,
+  resetFilters,
+  resetState,
   setSubcategoriesFilters,
   resetSubcategoriesFilters,
   setSubcategoriesError,

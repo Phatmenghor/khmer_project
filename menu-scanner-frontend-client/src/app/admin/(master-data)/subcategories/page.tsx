@@ -15,8 +15,10 @@ import { STATUS_FILTER } from "@/constants/status/filter-status";
 import { useSubcategoriesState } from "@/redux/features/master-data/store/state/subcategories-state";
 import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import {
-  setSubcategoriesFilters,
-  clearSubcategoriesError,
+  setPageNo,
+  setSearchFilter,
+  setStatusFilter,
+  resetState,
 } from "@/redux/features/master-data/store/slice/subcategories-slice";
 import {
   deleteSubcategory,
@@ -33,9 +35,10 @@ import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-se
 import { useAppSelector } from "@/redux/store";
 
 export default function SubcategoriesPage() {
-  useAdminCleanup(() => clearSubcategoriesError());
+  useAdminCleanup(resetState);
 
   const {
+    subcategoriesState,
     subcategoriesContent,
     isLoading,
     filters,
@@ -66,7 +69,7 @@ export default function SubcategoriesPage() {
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.SUBCATEGORIES,
-    syncPageToRedux: (page) => dispatch(setSubcategoriesFilters({ pageNo: page })),
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
   useEffect(() => {
@@ -147,21 +150,21 @@ export default function SubcategoriesPage() {
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSubcategoriesFilters({ search: e.target.value, pageNo: 1 }));
+    dispatch(setSearchFilter(e.target.value));
   };
 
   const handleStatusChange = (status: Status) => {
-    dispatch(setSubcategoriesFilters({ status, pageNo: 1 }));
+    dispatch(setStatusFilter(status));
   };
 
   const handlePageChangeWrapper = (page: number) => {
-    dispatch(setSubcategoriesFilters({ pageNo: page }));
+    dispatch(setPageNo(page));
     handlePageChange(page);
   };
 
   const handlePageSizeChange = (size: number) => {
     dispatch(setGlobalPageSize(size));
-    dispatch(setSubcategoriesFilters({ pageNo: 1 }));
+    dispatch(setPageNo(1));
   };
 
   const handleDelete = async () => {
@@ -178,8 +181,15 @@ export default function SubcategoriesPage() {
 
       if (subcategoriesContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
-        dispatch(setSubcategoriesFilters({ pageNo: newPage }));
-        updateUrlWithPage(newPage);
+        dispatch(setPageNo(newPage));
+      } else {
+        dispatch(fetchAllSubcategories({
+          search: filters.search,
+          pageNo: filters.pageNo,
+          pageSize: globalPageSize,
+          status: filters.status == Status.ALL ? undefined : filters.status,
+          categoryId: filters.categoryId || undefined,
+        }));
       }
     } catch (error: any) {
       showToast.error(error || "Failed to delete subcategory");
@@ -209,44 +219,43 @@ export default function SubcategoriesPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
-        <CardHeaderSection
-          title="Subcategories Information"
-          searchValue={filters.search}
-          searchPlaceholder="Search subcategories..."
-          buttonTooltip="Create a new subcategory"
-          buttonIcon={<Plus className="w-3 h-3" />}
-          buttonText="New"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreateSubcategory}
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <CustomSelect
-              options={STATUS_FILTER}
-              value={filters.status}
-              placeholder="All Status"
-              onValueChange={(value) => handleStatusChange(value as Status)}
-              label="Subcategory Status"
-            />
-          </div>
-        </CardHeaderSection>
+    <div className="space-y-6">
+      <CardHeaderSection
+        title="Subcategories Management"
+        description="Manage your subcategories here"
+        showActions={true}
+        actionLabel="Add Subcategory"
+        actionIcon={Plus}
+        onAction={handleCreateSubcategory}
+      >
+        <div className="flex gap-4 items-end w-full">
+          <input
+            type="text"
+            placeholder="Search subcategories..."
+            value={filters.search}
+            onChange={handleSearchChange}
+            className="flex-1 px-3 py-2 border border-border rounded-md text-sm"
+          />
 
-        <DataTableWithPagination
-          data={subcategoriesContent}
-          columns={columns}
-          loading={isLoading}
-          emptyMessage="No Subcategories found"
-          getRowKey={(subcategory) => subcategory.id}
-          currentPage={pagination.currentPage}
-          totalElements={pagination.totalElements}
-          totalPages={pagination.totalPages}
-          onPageChange={handlePageChangeWrapper}
-          pageSize={globalPageSize}
-          onPageSizeChange={handlePageSizeChange}
-          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
-        />
-      </div>
+          <CustomSelect
+            value={filters.status}
+            onChange={(value) => handleStatusChange(value as Status)}
+            options={STATUS_FILTER}
+            placeholder="Filter by status"
+            className="w-48"
+          />
+        </div>
+      </CardHeaderSection>
+
+      <DataTableWithPagination
+        columns={columns}
+        data={subcategoriesContent}
+        isLoading={isLoading}
+        pagination={pagination}
+        onPageChange={handlePageChangeWrapper}
+        onPageSizeChange={handlePageSizeChange}
+        defaultPageSize={globalPageSize}
+      />
 
       <SubcategoriesModal
         isOpen={modalState.isOpen}
@@ -256,21 +265,19 @@ export default function SubcategoriesPage() {
       />
 
       <SubcategoriesDetailModal
-        subcategory={detailModalState.subcategory}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
+        subcategory={detailModalState.subcategory}
       />
 
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}
-        onDelete={handleDelete}
+        onConfirm={handleDelete}
         title="Delete Subcategory"
-        description={`Are you sure you want to delete this subcategory ${
-          deleteState.subcategory?.name || ""
-        }?`}
-        itemName={deleteState.subcategory?.name || ""}
-        isSubmitting={operations.isDeleting}
+        description="Are you sure you want to delete this subcategory?"
+        itemName={deleteState.subcategory?.name}
+        isDangerous={true}
       />
     </div>
   );
