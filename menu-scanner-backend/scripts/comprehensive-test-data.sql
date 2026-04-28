@@ -379,8 +379,8 @@ SELECT
   NOW(), NOW(), 'admin', 'admin',
   CASE WHEN (i % 10) < 6 THEN NULL ELSE CASE WHEN (i % 2) = 0 THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END END,
   CASE WHEN (i % 10) < 6 THEN NULL ELSE CASE WHEN (i % 2) = 0 THEN (10 + (i % 40))::numeric ELSE (5 + (i % 20))::numeric END END,
-  CASE WHEN (i % 10) < 6 THEN NULL ELSE NOW() END,
-  CASE WHEN (i % 10) < 6 THEN NULL ELSE (NOW() + INTERVAL '1 month' * (6 + (i % 19))) END
+  CASE WHEN (i % 10) < 6 THEN NULL ELSE DATE_TRUNC('day', NOW() + INTERVAL '1 day' * (FLOOR((i * 7919) % 365))) END,
+  CASE WHEN (i % 10) < 6 THEN NULL ELSE DATE_TRUNC('day', (NOW() + INTERVAL '1 day' * (FLOOR((i * 7919) % 365))) + INTERVAL '1 month' * (6 + (i % 19))) END
 FROM generate_series(1, 10000) AS t(i);
 
 -- ============================================================================
@@ -404,8 +404,8 @@ SELECT
   (p.price + (size_num * 2))::numeric,
   CASE WHEN (size_num % 3 = 0) THEN CASE WHEN (size_num % 2 = 0) THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
   CASE WHEN (size_num % 3 = 0) THEN CASE WHEN (size_num % 2 = 0) THEN (15 + (size_num % 20))::numeric ELSE (3 + (size_num % 10))::numeric END ELSE NULL END,
-  CASE WHEN (size_num % 3 = 0) THEN NOW() ELSE NULL END,
-  CASE WHEN (size_num % 3 = 0) THEN (NOW() + INTERVAL '1 month' * (6 + (size_num % 19))) ELSE NULL END,
+  CASE WHEN (size_num % 3 = 0) THEN DATE_TRUNC('day', NOW() + INTERVAL '1 day' * (FLOOR((size_num * 13337) % 365))) ELSE NULL END,
+  CASE WHEN (size_num % 3 = 0) THEN DATE_TRUNC('day', (NOW() + INTERVAL '1 day' * (FLOOR((size_num * 13337) % 365))) + INTERVAL '1 month' * (6 + (size_num % 19))) ELSE NULL END,
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
