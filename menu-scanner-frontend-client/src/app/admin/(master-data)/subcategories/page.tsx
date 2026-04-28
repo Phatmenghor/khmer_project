@@ -6,6 +6,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
+import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -14,6 +15,7 @@ import { usePagination } from "@/redux/store/use-pagination";
 import { STATUS_FILTER } from "@/constants/status/filter-status";
 import { useSubcategoriesState } from "@/redux/features/master-data/store/state/subcategories-state";
 import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
+import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
 import {
   setPageNo,
   setSearchFilter,
@@ -26,7 +28,6 @@ import {
   toggleSubcategoryStatus,
   fetchAllSubcategories,
 } from "@/redux/features/master-data/store/thunks/subcategories-thunks";
-import { fetchAllCategoriesService } from "@/redux/features/master-data/store/thunks/categories-thunks";
 import { subcategoriesTableColumns } from "@/redux/features/master-data/table/subcategories-table";
 import SubcategoriesModal from "@/redux/features/master-data/components/subcategories-modal";
 import { SubcategoriesDetailModal } from "@/redux/features/master-data/components/subcategories-detail-modal";
@@ -34,7 +35,6 @@ import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { selectCategoriesContent } from "@/redux/features/master-data/store/selectors/categories-selector";
 import { useAppSelector } from "@/redux/store";
 
 export default function SubcategoriesPage() {
@@ -51,7 +51,8 @@ export default function SubcategoriesPage() {
   } = useSubcategoriesState();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const categoriesContent = useAppSelector(selectCategoriesContent);
+
+  const [selectedCategory, setSelectedCategory] = useState<CategoriesResponseModel | null>(null);
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -78,22 +79,12 @@ export default function SubcategoriesPage() {
 
   useEffect(() => {
     dispatch(
-      fetchAllCategoriesService({
-        search: "",
-        pageNo: 1,
-        pageSize: 1000,
-      }),
-    );
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(
       fetchAllSubcategories({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
         status: filters.status == Status.ALL ? undefined : filters.status,
-        categoryId: filters.categoryId || undefined,
+        categoryId: selectedCategory?.id || undefined,
       }),
     );
   }, [
@@ -101,7 +92,7 @@ export default function SubcategoriesPage() {
     debouncedSearch,
     filters.status,
     filters.pageNo,
-    filters.categoryId,
+    selectedCategory?.id,
     globalPageSize,
   ]);
 
@@ -169,10 +160,6 @@ export default function SubcategoriesPage() {
 
   const handleStatusChange = (status: Status) => {
     dispatch(setStatusFilter(status));
-  };
-
-  const handleCategoryChange = (categoryId: string) => {
-    dispatch(setCategoryIdFilter(categoryId));
   };
 
   const handlePageChangeWrapper = (page: number) => {
@@ -250,22 +237,15 @@ export default function SubcategoriesPage() {
           openModal={handleCreateSubcategory}
         >
           <div className="flex flex-wrap items-center gap-2">
-            <CustomSelect
-              options={
-                categoriesContent && categoriesContent.length > 0
-                  ? [
-                      { label: "All Categories", value: "" },
-                      ...categoriesContent.map((cat) => ({
-                        label: cat.name,
-                        value: cat.id,
-                      })),
-                    ]
-                  : [{ label: "All Categories", value: "" }]
-              }
-              value={filters.categoryId}
-              placeholder="All Categories"
-              onValueChange={handleCategoryChange}
+            <ComboboxSelectCategories
+              dataSelect={selectedCategory}
+              onChangeSelected={(category) => {
+                setSelectedCategory(category);
+                dispatch(setPageNo(1));
+              }}
+              placeholder="Select a category..."
               label="Category Filter"
+              showAllOption={true}
             />
 
             <CustomSelect
