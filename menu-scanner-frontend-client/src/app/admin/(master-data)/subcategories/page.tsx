@@ -18,6 +18,7 @@ import {
   setPageNo,
   setSearchFilter,
   setStatusFilter,
+  setCategoryIdFilter,
   resetState,
 } from "@/redux/features/master-data/store/slice/subcategories-slice";
 import {
@@ -25,6 +26,7 @@ import {
   toggleSubcategoryStatus,
   fetchAllSubcategories,
 } from "@/redux/features/master-data/store/thunks/subcategories-thunks";
+import { fetchAllCategoriesService } from "@/redux/features/master-data/store/thunks/categories-thunks";
 import { subcategoriesTableColumns } from "@/redux/features/master-data/table/subcategories-table";
 import SubcategoriesModal from "@/redux/features/master-data/components/subcategories-modal";
 import { SubcategoriesDetailModal } from "@/redux/features/master-data/components/subcategories-detail-modal";
@@ -32,6 +34,7 @@ import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { selectCategoriesContent } from "@/redux/features/master-data/store/selectors/categories-selector";
 import { useAppSelector } from "@/redux/store";
 
 export default function SubcategoriesPage() {
@@ -48,6 +51,7 @@ export default function SubcategoriesPage() {
   } = useSubcategoriesState();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const categoriesContent = useAppSelector(selectCategoriesContent);
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -71,6 +75,16 @@ export default function SubcategoriesPage() {
     baseRoute: ROUTES.ADMIN.SUBCATEGORIES,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
+
+  useEffect(() => {
+    dispatch(
+      fetchAllCategoriesService({
+        search: "",
+        pageNo: 1,
+        pageSize: 1000,
+      }),
+    );
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(
@@ -157,6 +171,10 @@ export default function SubcategoriesPage() {
     dispatch(setStatusFilter(status));
   };
 
+  const handleCategoryChange = (categoryId: string) => {
+    dispatch(setCategoryIdFilter(categoryId));
+  };
+
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
     handlePageChange(page);
@@ -232,6 +250,24 @@ export default function SubcategoriesPage() {
           openModal={handleCreateSubcategory}
         >
           <div className="flex flex-wrap items-center gap-2">
+            <CustomSelect
+              options={
+                categoriesContent && categoriesContent.length > 0
+                  ? [
+                      { label: "All Categories", value: "" },
+                      ...categoriesContent.map((cat) => ({
+                        label: cat.name,
+                        value: cat.id,
+                      })),
+                    ]
+                  : [{ label: "All Categories", value: "" }]
+              }
+              value={filters.categoryId}
+              placeholder="All Categories"
+              onValueChange={handleCategoryChange}
+              label="Category Filter"
+            />
+
             <CustomSelect
               options={STATUS_FILTER}
               value={filters.status}
