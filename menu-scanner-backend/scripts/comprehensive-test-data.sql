@@ -263,7 +263,7 @@ SELECT
   u.user_identifier,
   'Admin ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
   'Mega Store',
-  '+855-' || LPAD((10000000 + (ABS(HASHTEXT(u.id)::bigint) % 9000000))::text, 10, '0'),
+  '+855-' || LPAD((10000000 + (ABS(HASHTEXT(u.user_identifier)::bigint) % 9000000))::text, 10, '0'),
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
 WHERE u.user_identifier LIKE 'admin%@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
@@ -277,7 +277,7 @@ SELECT
   u.user_identifier,
   'Manager ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
   'Mega Store',
-  '+855-' || LPAD((20000000 + (ABS(HASHTEXT(u.id)::bigint) % 9000000))::text, 10, '0'),
+  '+855-' || LPAD((20000000 + (ABS(HASHTEXT(u.user_identifier)::bigint) % 9000000))::text, 10, '0'),
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
 WHERE u.user_identifier LIKE 'manager%@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
@@ -291,7 +291,7 @@ SELECT
   u.user_identifier,
   'Staff ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
   'Mega Store',
-  '+855-' || LPAD((30000000 + (ABS(HASHTEXT(u.id)::bigint) % 9000000))::text, 10, '0'),
+  '+855-' || LPAD((30000000 + (ABS(HASHTEXT(u.user_identifier)::bigint) % 9000000))::text, 10, '0'),
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
 WHERE u.user_identifier LIKE 'staff%@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
@@ -305,7 +305,7 @@ SELECT
   u.user_identifier,
   'Admin FH ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
   'Fashion Hub',
-  '+855-' || LPAD((40000000 + (ABS(HASHTEXT(u.id)::bigint) % 9000000))::text, 10, '0'),
+  '+855-' || LPAD((40000000 + (ABS(HASHTEXT(u.user_identifier)::bigint) % 9000000))::text, 10, '0'),
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
 WHERE u.user_identifier LIKE 'admin%@fashionhub.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
