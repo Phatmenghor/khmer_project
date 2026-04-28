@@ -160,7 +160,7 @@ SELECT
   '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
   'Delivery Option ' || i,
   'Delivery option ' || i || ' - Standard delivery with ' || (i * 30) || ' minute estimate',
-  'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=300&fit=crop&delivery-' || i,
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   (5000 + (i * 500))::numeric(10,2),
   'ACTIVE',
   0, false, NOW(), NOW(), 'admin', 'admin'
