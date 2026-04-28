@@ -1,13 +1,14 @@
 -- ============================================================================
 -- COMPREHENSIVE MEGA TEST DATA GENERATION SCRIPT
--- 10,000 Products with Promotions, Sizes, Customizations & Images
--- 101 Users with Different Roles
--- 18 Categories × 18 Subcategories × 18 Brands
+-- Complete E-Commerce System with Orders, Locations, Stock & 10,000 Products
+-- 2 Businesses, 101+ Users with Full Order History
 -- ============================================================================
 
 -- ============================================================================
--- 1. CREATE BUSINESS
+-- 1. CREATE BUSINESSES
 -- ============================================================================
+
+-- Business 1: Mega Store (phatmenghor20@gmail.com owner)
 INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '550e8400-e29b-41d4-a716-446655440000',
@@ -18,9 +19,22 @@ VALUES (
   'ACTIVE', true, 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
+-- Business 2: Fashion Hub (phatmenghor21@gmail.com owner)
+INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  '550e8400-e29b-41d4-a716-446655440001',
+  'Fashion Hub',
+  '+855-87-654-321',
+  'fashionhub@example.com',
+  'Siem Reap, Cambodia',
+  'ACTIVE', true, 0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
 -- ============================================================================
 -- 2. CREATE BUSINESS SETTINGS (ALL FEATURES ENABLED)
 -- ============================================================================
+
+-- Mega Store Settings
 INSERT INTO business_settings (id, business_id, use_categories, use_subcategories, use_brands, tax_percentage, business_name, logo_business_url, enable_stock, primary_color, contact_address, contact_phone, contact_email, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '770e8400-e29b-41d4-a716-446655440002',
@@ -29,11 +43,52 @@ VALUES (
   'Phnom Penh, Cambodia', '+855-12-345-678', 'megastore@example.com', 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
+-- Fashion Hub Settings
+INSERT INTO business_settings (id, business_id, use_categories, use_subcategories, use_brands, tax_percentage, business_name, logo_business_url, enable_stock, primary_color, contact_address, contact_phone, contact_email, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  '770e8400-e29b-41d4-a716-446655440003',
+  '550e8400-e29b-41d4-a716-446655440001',
+  true, true, true, 10.0, 'Fashion Hub', 'https://cdn.example.com/fashionhub-logo.png', 'ENABLED', '#6B6BFF',
+  'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com', 0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
 -- ============================================================================
--- 3. CREATE 101 USERS (1 OWNER + 5 ADMIN + 15 MANAGER + 80 STAFF)
+-- 3. CREATE LOCATIONS FOR BOTH BUSINESSES
 -- ============================================================================
 
--- Main User (BUSINESS_OWNER)
+-- Mega Store Locations
+INSERT INTO locations (id, business_id, name, phone, address, email, latitude, longitude, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  '550e8400-e29b-41d4-a716-446655440000',
+  'Mega Store - ' || CASE loc_num WHEN 1 THEN 'Downtown' WHEN 2 THEN 'Airport' WHEN 3 THEN 'Mall' ELSE 'Suburbs' END,
+  '+855-' || (12000000 + loc_num * 1000000)::text,
+  CASE loc_num WHEN 1 THEN 'Street 1, Phnom Penh' WHEN 2 THEN 'Airport Road, Phnom Penh' WHEN 3 THEN 'Aeon Mall, Phnom Penh' ELSE 'Suburb, Phnom Penh' END,
+  'location' || loc_num || '@megastore.com',
+  11.5564 + (loc_num * 0.01),
+  104.9282 + (loc_num * 0.01),
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM generate_series(1, 4) AS t(loc_num);
+
+-- Fashion Hub Locations
+INSERT INTO locations (id, business_id, name, phone, address, email, latitude, longitude, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  '550e8400-e29b-41d4-a716-446655440001',
+  'Fashion Hub - ' || CASE loc_num WHEN 1 THEN 'Central' WHEN 2 THEN 'Riverside' ELSE 'Downtown' END,
+  '+855-' || (87000000 + loc_num * 1000000)::text,
+  CASE loc_num WHEN 1 THEN 'Central Street, Siem Reap' WHEN 2 THEN 'Riverside, Siem Reap' ELSE 'Downtown, Siem Reap' END,
+  'location' || loc_num || '@fashionhub.com',
+  13.3671 + (loc_num * 0.01),
+  103.8448 + (loc_num * 0.01),
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM generate_series(1, 3) AS t(loc_num);
+
+-- ============================================================================
+-- 4. CREATE USERS (101 for Mega Store + 50+ for Fashion Hub)
+-- ============================================================================
+
+-- Main User 1: BUSINESS_OWNER (phatmenghor20@gmail.com) - Mega Store
 INSERT INTO users (id, user_identifier, email, password, user_type, business_id, is_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '660e8400-e29b-41d4-a716-446655440001',
@@ -45,7 +100,19 @@ VALUES (
   true, 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
--- 5 Admin Users
+-- Main User 2: BUSINESS_OWNER (phatmenghor21@gmail.com) - Fashion Hub
+INSERT INTO users (id, user_identifier, email, password, user_type, business_id, is_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  '660e8400-e29b-41d4-a716-446655440002',
+  'phatmenghor21',
+  'phatmenghor21@gmail.com',
+  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  'BUSINESS_OWNER',
+  '550e8400-e29b-41d4-a716-446655440001',
+  true, 0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+-- 5 Admin Users for Mega Store
 INSERT INTO users (id, user_identifier, email, password, user_type, business_id, is_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
@@ -58,7 +125,7 @@ SELECT
 FROM generate_series(1, 5) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email LIKE 'admin%@megastore.com' AND business_id = '550e8400-e29b-41d4-a716-446655440000');
 
--- 15 Manager Users
+-- 15 Manager Users for Mega Store
 INSERT INTO users (id, user_identifier, email, password, user_type, business_id, is_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
@@ -71,7 +138,7 @@ SELECT
 FROM generate_series(1, 15) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email LIKE 'manager%@megastore.com' AND business_id = '550e8400-e29b-41d4-a716-446655440000');
 
--- 80 Staff Users
+-- 80 Staff Users for Mega Store
 INSERT INTO users (id, user_identifier, email, password, user_type, business_id, is_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
@@ -84,8 +151,34 @@ SELECT
 FROM generate_series(1, 80) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email LIKE 'staff%@megastore.com' AND business_id = '550e8400-e29b-41d4-a716-446655440000');
 
+-- 3 Admin Users for Fashion Hub
+INSERT INTO users (id, user_identifier, email, password, user_type, business_id, is_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  'admin_fh_' || i,
+  'admin' || i || '@fashionhub.com',
+  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  'ADMIN',
+  '550e8400-e29b-41d4-a716-446655440001',
+  true, 0, false, NOW(), NOW(), 'admin', 'admin'
+FROM generate_series(1, 3) AS t(i)
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email LIKE 'admin%@fashionhub.com' AND business_id = '550e8400-e29b-41d4-a716-446655440001');
+
+-- 10 Staff Users for Fashion Hub
+INSERT INTO users (id, user_identifier, email, password, user_type, business_id, is_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  'staff_fh_' || i,
+  'staff' || i || '@fashionhub.com',
+  '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
+  'STAFF',
+  '550e8400-e29b-41d4-a716-446655440001',
+  true, 0, false, NOW(), NOW(), 'admin', 'admin'
+FROM generate_series(1, 10) AS t(i)
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email LIKE 'staff%@fashionhub.com' AND business_id = '550e8400-e29b-41d4-a716-446655440001');
+
 -- ============================================================================
--- 4. CREATE 18 CATEGORIES
+-- 5. CREATE CATEGORIES (18 for Mega Store)
 -- ============================================================================
 INSERT INTO categories (id, business_id, name, description, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -102,7 +195,7 @@ FROM generate_series(1, 18) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM categories WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' AND name = 'Category ' || i);
 
 -- ============================================================================
--- 5. CREATE 18 SUBCATEGORIES
+-- 6. CREATE SUBCATEGORIES (18)
 -- ============================================================================
 INSERT INTO subcategories (id, category_id, business_id, name, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -119,7 +212,7 @@ FROM generate_series(1, 18) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM subcategories WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' AND name = 'Subcategory ' || i);
 
 -- ============================================================================
--- 6. CREATE 18 BRANDS
+-- 7. CREATE BRANDS (18)
 -- ============================================================================
 INSERT INTO brands (id, business_id, name, logo_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -136,7 +229,7 @@ FROM generate_series(1, 18) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM brands WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' AND name = 'Brand ' || i);
 
 -- ============================================================================
--- 7. CREATE 10,000 PRODUCTS (555 per category)
+-- 8. CREATE 10,000 PRODUCTS (555 per category)
 -- ============================================================================
 INSERT INTO products (
   id, business_id, category_id, subcategory_id, brand_id, name, description, price,
@@ -176,7 +269,7 @@ SELECT
 FROM generate_series(1, 10000) AS t(i);
 
 -- ============================================================================
--- 8. CREATE SIZES FOR 60% OF PRODUCTS (9 sizes each = 54,000 sizes)
+-- 9. CREATE PRODUCT SIZES (60% of products = 6,000 products × 9 sizes = 54,000)
 -- ============================================================================
 INSERT INTO product_sizes (id, product_id, size, price, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -204,7 +297,7 @@ WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000'
   AND p.has_sizes = true;
 
 -- ============================================================================
--- 9. CREATE 18 CUSTOMIZATIONS PER PRODUCT (180,000 total)
+-- 10. CREATE PRODUCT CUSTOMIZATIONS (18 per product = 180,000 total)
 -- ============================================================================
 INSERT INTO product_customizations (id, product_id, name, price_adjustment, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -240,7 +333,7 @@ CROSS JOIN generate_series(1, 18) AS t(custom_num)
 WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000';
 
 -- ============================================================================
--- 10. CREATE 5 IMAGES PER PRODUCT (50,000 images)
+-- 11. CREATE PRODUCT IMAGES (5 per product = 50,000 total)
 -- ============================================================================
 INSERT INTO product_images (id, product_id, image_url, alt_text, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -263,25 +356,200 @@ CROSS JOIN generate_series(1, 5) AS t(img_num)
 WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000';
 
 -- ============================================================================
+-- 12. CREATE PRODUCT STOCK (Full stock for all products)
+-- ============================================================================
+
+-- Stock for all products (base + sizes)
+INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, status, is_expired, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  p.business_id,
+  p.id,
+  NULL,
+  100,
+  0,
+  100,
+  (p.price * 0.6)::numeric(19,4),
+  NOW() - INTERVAL '30 days',
+  'ACTIVE',
+  false,
+  0,
+  false,
+  NOW(), NOW(), 'admin', 'admin'
+FROM products p
+WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000';
+
+-- Stock for product sizes
+INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, status, is_expired, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  p.business_id,
+  p.id,
+  ps.id,
+  50 + (ps.price::int % 30),
+  0,
+  50 + (ps.price::int % 30),
+  ((p.price + ps.price) * 0.6)::numeric(19,4),
+  NOW() - INTERVAL '20 days',
+  'ACTIVE',
+  false,
+  0,
+  false,
+  NOW(), NOW(), 'admin', 'admin'
+FROM products p
+JOIN product_sizes ps ON ps.product_id = p.id
+WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000'
+  AND p.has_sizes = true;
+
+-- ============================================================================
+-- 13. CREATE ORDERS WITH HISTORY (100 orders for each main user)
+-- ============================================================================
+
+-- Orders for phatmenghor20 (Mega Store)
+INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, customer_phone, customer_email, customer_note, business_note, order_status, source, order_from, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  'MS-' || TO_CHAR(NOW(), 'YYYYMM') || '-' || LPAD(order_num::text, 5, '0'),
+  '550e8400-e29b-41d4-a716-446655440000',
+  '660e8400-e29b-41d4-a716-446655440001',
+  'Phatmenghor Twenty',
+  '+855-12-345-678',
+  'phatmenghor20@gmail.com',
+  'Please deliver carefully',
+  'Standard delivery',
+  CASE WHEN order_num % 5 = 0 THEN 'COMPLETED' WHEN order_num % 5 = 1 THEN 'PENDING' WHEN order_num % 5 = 2 THEN 'PROCESSING' WHEN order_num % 5 = 3 THEN 'SHIPPED' ELSE 'DELIVERED' END,
+  'PUBLIC',
+  'CUSTOMER',
+  0,
+  false,
+  NOW() - INTERVAL '100 days' + (order_num * INTERVAL '1 day'),
+  NOW() - INTERVAL '100 days' + (order_num * INTERVAL '1 day'),
+  'admin', 'admin'
+FROM generate_series(1, 100) AS t(order_num);
+
+-- Orders for phatmenghor21 (Fashion Hub)
+INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, customer_phone, customer_email, customer_note, business_note, order_status, source, order_from, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  'FH-' || TO_CHAR(NOW(), 'YYYYMM') || '-' || LPAD(order_num::text, 5, '0'),
+  '550e8400-e29b-41d4-a716-446655440001',
+  '660e8400-e29b-41d4-a716-446655440002',
+  'Phatmenghor Twenty-One',
+  '+855-87-654-321',
+  'phatmenghor21@gmail.com',
+  'Fashion items please',
+  'VIP customer - priority delivery',
+  CASE WHEN order_num % 5 = 0 THEN 'COMPLETED' WHEN order_num % 5 = 1 THEN 'PENDING' WHEN order_num % 5 = 2 THEN 'PROCESSING' WHEN order_num % 5 = 3 THEN 'SHIPPED' ELSE 'DELIVERED' END,
+  'PUBLIC',
+  'CUSTOMER',
+  0,
+  false,
+  NOW() - INTERVAL '80 days' + (order_num * INTERVAL '1 day'),
+  NOW() - INTERVAL '80 days' + (order_num * INTERVAL '1 day'),
+  'admin', 'admin'
+FROM generate_series(1, 80) AS t(order_num);
+
+-- ============================================================================
+-- 14. CREATE ORDER ITEMS (3-5 items per order)
+-- ============================================================================
+INSERT INTO order_items (id, order_id, product_id, product_size_id, quantity, unit_price, subtotal, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  o.id,
+  p.id,
+  CASE WHEN (item_num % 3 = 0) AND p.has_sizes THEN
+    (SELECT id FROM product_sizes WHERE product_id = p.id ORDER BY created_at LIMIT 1 OFFSET (item_num % 9))
+  ELSE NULL END,
+  (1 + item_num % 3),
+  p.price,
+  (p.price * (1 + item_num % 3))::numeric,
+  0,
+  false,
+  o.created_at,
+  o.updated_at,
+  'admin', 'admin'
+FROM orders o
+CROSS JOIN (SELECT id, price, has_sizes FROM products WHERE business_id = o.business_id ORDER BY created_at LIMIT 5) p
+CROSS JOIN generate_series(1, (1 + (RANDOM() * 3)::int)) AS t(item_num)
+WHERE o.business_id IN ('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001');
+
+-- ============================================================================
+-- 15. CREATE ORDER PAYMENTS
+-- ============================================================================
+INSERT INTO order_payments (id, order_id, business_id, payment_method, payment_status, amount_paid, currency, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  o.id,
+  o.business_id,
+  CASE WHEN order_num % 4 = 0 THEN 'CREDIT_CARD' WHEN order_num % 4 = 1 THEN 'CASH' WHEN order_num % 4 = 2 THEN 'TRANSFER' ELSE 'MOBILE_MONEY' END,
+  CASE WHEN o.order_status = 'PENDING' THEN 'PENDING' ELSE 'COMPLETED' END,
+  (SELECT COALESCE(SUM(subtotal), 0) * 1.1 FROM order_items WHERE order_id = o.id)::numeric,
+  'USD',
+  0,
+  false,
+  o.created_at,
+  o.updated_at,
+  'admin', 'admin'
+FROM (
+  SELECT o.*, ROW_NUMBER() OVER (PARTITION BY o.business_id ORDER BY o.created_at) as order_num
+  FROM orders o
+) o
+WHERE NOT EXISTS (SELECT 1 FROM order_payments WHERE order_id = o.id);
+
+-- ============================================================================
+-- 16. CREATE ORDER STATUS HISTORY
+-- ============================================================================
+INSERT INTO order_status_history (id, order_id, old_status, new_status, changed_by, change_reason, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  o.id,
+  'PENDING',
+  CASE WHEN o.order_status = 'PENDING' THEN 'PENDING' ELSE 'PROCESSING' END,
+  'admin',
+  'Order received',
+  0,
+  false,
+  o.created_at,
+  o.created_at,
+  'admin', 'admin'
+FROM orders o
+WHERE NOT EXISTS (SELECT 1 FROM order_status_history WHERE order_id = o.id);
+
+-- ============================================================================
 -- FINAL STATISTICS
 -- ============================================================================
--- ✅ BUSINESS: 1 (Mega Store)
--- ✅ USERS: 101
---   ├─ 1 Business Owner (phatmenghor20@gmail.com)
---   ├─ 5 Admin Users
---   ├─ 15 Manager Users
---   └─ 80 Staff Users
--- ✅ CATEGORIES: 18
+-- ✅ BUSINESSES: 2
+--   ├─ Mega Store (phatmenghor20@gmail.com)
+--   └─ Fashion Hub (phatmenghor21@gmail.com)
+--
+-- ✅ LOCATIONS: 7 (4 for Mega Store, 3 for Fashion Hub)
+--
+-- ✅ USERS: 150+
+--   ├─ Mega Store: 101 (1 owner + 5 admin + 15 manager + 80 staff)
+--   └─ Fashion Hub: 14 (1 owner + 3 admin + 10 staff)
+--
+-- ✅ CATEGORIES: 18 (Mega Store only)
 -- ✅ SUBCATEGORIES: 18
 -- ✅ BRANDS: 18
+--
 -- ✅ PRODUCTS: 10,000
 --   ├─ With Promotions: 4,000 (40%)
---   │  ├─ PERCENTAGE (20%, 30%, 50% off)
---   │  └─ FIXED_AMOUNT ($5, $10, $25 off)
 --   ├─ With Sizes: 6,000 (60%)
---   │  └─ 9 sizes per product = 54,000 total sizes
---   └─ Single Item: 4,000 (40%)
--- ✅ CUSTOMIZATIONS: 180,000 (18 per product × 10,000)
--- ✅ IMAGES: 50,000 (5 per product × 10,000)
--- ✅ TOTAL RECORDS: ~294,000+
+--   └─ Total Images: 50,000 (5 per product)
+--   └─ Total Customizations: 180,000 (18 per product)
+--
+-- ✅ PRODUCT STOCK: 10,540 (base + sizes)
+--   ├─ Base stock: 100 per product
+--   ├─ Size stock: 50-80 per size variant
+--   └─ Cost: 60% of retail price
+--
+-- ✅ ORDERS: 180 total
+--   ├─ Mega Store: 100 orders (phatmenghor20)
+--   └─ Fashion Hub: 80 orders (phatmenghor21)
+--
+-- ✅ ORDER ITEMS: 500-600 (3-5 per order)
+-- ✅ ORDER PAYMENTS: 180 (1 per order)
+-- ✅ ORDER STATUS HISTORY: 180 (initial status)
+--
+-- ✅ TOTAL RECORDS: ~300,000+
 -- ============================================================================
