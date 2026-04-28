@@ -56,15 +56,13 @@ VALUES (
 -- 3. CREATE BANNERS (8 Active, 20 Inactive)
 -- ============================================================================
 
-INSERT INTO banners (id, business_id, title, description, image_url, status, sort_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO banners (id, business_id, image_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  'Banner ' || i,
-  'Banner ' || i || ' Description',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  'Banner ' || i || ' Description',
   CASE WHEN i <= 8 THEN 'ACTIVE' ELSE 'INACTIVE' END,
-  i,
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
