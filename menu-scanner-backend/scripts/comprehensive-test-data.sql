@@ -513,7 +513,7 @@ WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000'
 -- ============================================================================
 
 -- Orders for phatmenghor20 (Mega Store)
-INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, customer_phone, customer_email, customer_note, business_note, order_status, source, order_from, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, customer_phone, customer_email, customer_note, business_note, order_status, source, order_from, subtotal, total_amount, payment_method, payment_status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   'MS-' || TO_CHAR(NOW(), 'YYYYMM') || '-' || LPAD(order_num::text, 5, '0'),
@@ -527,6 +527,10 @@ SELECT
   CASE WHEN order_num % 5 = 0 THEN 'COMPLETED' WHEN order_num % 5 = 1 THEN 'PENDING' WHEN order_num % 5 = 2 THEN 'PROCESSING' WHEN order_num % 5 = 3 THEN 'SHIPPED' ELSE 'DELIVERED' END,
   'PUBLIC',
   'CUSTOMER',
+  (100 + order_num * 10)::numeric(10,2),
+  (100 + order_num * 10 + 20)::numeric(10,2),
+  'CASH',
+  CASE WHEN order_num % 5 = 0 THEN 'PAID' ELSE 'UNPAID' END,
   0,
   false,
   NOW() - INTERVAL '100 days' + (order_num * INTERVAL '1 day'),
@@ -535,7 +539,7 @@ SELECT
 FROM generate_series(1, 100) AS t(order_num);
 
 -- Orders for phatmenghor21 (Fashion Hub)
-INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, customer_phone, customer_email, customer_note, business_note, order_status, source, order_from, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, customer_phone, customer_email, customer_note, business_note, order_status, source, order_from, subtotal, total_amount, payment_method, payment_status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   'FH-' || TO_CHAR(NOW(), 'YYYYMM') || '-' || LPAD(order_num::text, 5, '0'),
@@ -549,6 +553,10 @@ SELECT
   CASE WHEN order_num % 5 = 0 THEN 'COMPLETED' WHEN order_num % 5 = 1 THEN 'PENDING' WHEN order_num % 5 = 2 THEN 'PROCESSING' WHEN order_num % 5 = 3 THEN 'SHIPPED' ELSE 'DELIVERED' END,
   'PUBLIC',
   'CUSTOMER',
+  (150 + order_num * 15)::numeric(10,2),
+  (150 + order_num * 15 + 30)::numeric(10,2),
+  'CASH',
+  CASE WHEN order_num % 5 = 0 THEN 'PAID' ELSE 'UNPAID' END,
   0,
   false,
   NOW() - INTERVAL '80 days' + (order_num * INTERVAL '1 day'),
