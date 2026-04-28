@@ -19,6 +19,4 @@ public class ProductCustomizationDto {
     private String name;
 
     private BigDecimal priceAdjustment;
-
-    private String status;
 }

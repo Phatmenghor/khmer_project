@@ -3,7 +3,6 @@ export interface ProductCustomizationDto {
   productId: string;
   name: string;
   priceAdjustment: number;
-  status: string;
   createdAt?: string;
   updatedAt?: string;
 }

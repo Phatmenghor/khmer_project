@@ -22,7 +22,6 @@ export const customizationSchema = z.object({
     .number()
     .min(0, "Price adjustment must be zero or positive")
     .optional(),
-  status: z.string().optional().default("ACTIVE"),
 });
 
 /**
@@ -283,7 +282,6 @@ export type ProductFormData = {
     id?: string;
     name: string;
     priceAdjustment?: number;
-    status?: string;
   }>;
   status: string;
 };

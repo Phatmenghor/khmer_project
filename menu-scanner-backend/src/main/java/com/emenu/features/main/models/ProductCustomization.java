@@ -31,9 +31,6 @@ public class ProductCustomization extends BaseUUIDEntity {
     @Column(name = "price_adjustment", precision = 10, scale = 2)
     private BigDecimal priceAdjustment;
 
-    @Column(name = "status", nullable = false)
-    private String status = "ACTIVE";
-
     public BigDecimal getPriceAdjustmentOrZero() {
         return priceAdjustment != null ? priceAdjustment : BigDecimal.ZERO;
     }

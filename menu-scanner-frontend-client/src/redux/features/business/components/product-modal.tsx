@@ -413,7 +413,6 @@ export default function ProductModal({
         id: customization.id,
         name: customization.name,
         priceAdjustment: customization.priceAdjustment || 0,
-        status: customization.status || "ACTIVE",
       }));
 
       // Prepare base payload
@@ -1037,7 +1036,6 @@ export default function ProductModal({
                           appendCustomization({
                             name: "",
                             priceAdjustment: 0,
-                            status: "ACTIVE",
                           })
                         }
                         disabled={isProcessing}
@@ -1077,7 +1075,7 @@ export default function ProductModal({
                               </Button>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
                               <div>
                                 <TextField
                                   control={control}
@@ -1108,23 +1106,6 @@ export default function ProductModal({
                                   min={0}
                                   step="0.01"
                                   allowZero={true}
-                                />
-                              </div>
-
-                              <div>
-                                <SelectField
-                                  control={control}
-                                  name={`customizations.${index}.status`}
-                                  label="Status"
-                                  placeholder="Select status"
-                                  options={[
-                                    { value: "ACTIVE", label: "Active" },
-                                    { value: "INACTIVE", label: "Inactive" },
-                                  ]}
-                                  disabled={isProcessing}
-                                  error={
-                                    errors.customizations?.[index]?.status as any
-                                  }
                                 />
                               </div>
                             </div>

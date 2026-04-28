@@ -376,20 +376,9 @@ export function ProductDetailModal({
                           key={customization.id}
                           className="border rounded-lg p-4 space-y-3"
                         >
-                          <div className="flex justify-between items-start">
-                            <h4 className="font-semibold text-foreground">
-                              {customization.name}
-                            </h4>
-                            <Badge
-                              variant={
-                                customization.status === "ACTIVE"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                            >
-                              {customization.status || "---"}
-                            </Badge>
-                          </div>
+                          <h4 className="font-semibold text-foreground">
+                            {customization.name}
+                          </h4>
                           <div className="space-y-3 text-sm">
                             <DisplayField
                               label="Price Adjustment"
