@@ -116,6 +116,25 @@ public class Product extends BaseUUIDEntity {
     @Column(name = "business_name", length = 255)
     private String businessName;
 
+    @Column(name = "display_price", precision = 10, scale = 2)
+    private BigDecimal displayPrice;
+
+    @Column(name = "display_origin_price", precision = 10, scale = 2)
+    private BigDecimal displayOriginPrice;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "display_promotion_type")
+    private PromotionType displayPromotionType;
+
+    @Column(name = "display_promotion_value", precision = 10, scale = 2)
+    private BigDecimal displayPromotionValue;
+
+    @Column(name = "display_promotion_from_date")
+    private LocalDateTime displayPromotionFromDate;
+
+    @Column(name = "display_promotion_to_date")
+    private LocalDateTime displayPromotionToDate;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @OrderBy("createdAt DESC")
     private List<ProductImage> images = new ArrayList<>();
