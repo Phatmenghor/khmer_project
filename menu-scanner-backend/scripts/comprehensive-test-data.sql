@@ -72,26 +72,8 @@ FROM generate_series(1, 28) AS t(i);
 -- 3.5. CREATE ROLES
 -- ============================================================================
 
--- Platform Roles (created by DataInitializationService, but include here for consistency)
-INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
-  gen_random_uuid(),
-  'PLATFORM_OWNER',
-  'Platform Owner - Full system access',
-  NULL,
-  'PLATFORM_USER',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT DO NOTHING;
-
-INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
-  gen_random_uuid(),
-  'CUSTOMER',
-  'Customer Role',
-  NULL,
-  'CUSTOMER',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT DO NOTHING;
+-- NOTE: PLATFORM_OWNER and CUSTOMER roles are created by DataInitializationService
+-- Only business-specific roles are created here to avoid duplication
 
 -- Business-level Roles for Mega Store
 INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
