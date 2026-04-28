@@ -69,6 +69,72 @@ SELECT
 FROM generate_series(1, 28) AS t(i);
 
 -- ============================================================================
+-- 3.5. CREATE ROLES
+-- ============================================================================
+
+-- Platform Roles (created by DataInitializationService, but include here for consistency)
+INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'PLATFORM_OWNER',
+  'Platform Owner - Full system access',
+  NULL,
+  'PLATFORM_USER',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'CUSTOMER',
+  'Customer Role',
+  NULL,
+  'CUSTOMER',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+-- Business-level Roles for Mega Store
+INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'BUSINESS_OWNER',
+  'Business Owner - Full business access',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
+  'BUSINESS_USER',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'BUSINESS_ADMIN',
+  'Business Admin - Administrative access',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
+  'BUSINESS_USER',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'BUSINESS_MANAGER',
+  'Business Manager - Management access',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
+  'BUSINESS_USER',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'BUSINESS_EMPLOYEE',
+  'Business Employee - Limited access',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
+  'BUSINESS_USER',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+-- ============================================================================
 -- 4. CREATE USERS (101+ for Mega Store)
 -- ============================================================================
 
@@ -305,6 +371,66 @@ SELECT
   false,
   NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 2) AS t(addr_num);
+
+-- ============================================================================
+-- 6.5. ASSIGN USER ROLES
+-- ============================================================================
+
+-- Assign BUSINESS_OWNER role to main business users
+INSERT INTO user_roles (user_id, role_id)
+SELECT
+  u.id,
+  r.id
+FROM users u
+CROSS JOIN roles r
+WHERE u.user_identifier IN ('phatmenghor20@gmail.com', 'phatmenghor21@gmail.com')
+  AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND r.name = 'BUSINESS_OWNER'
+  AND r.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = u.id AND role_id = r.id)
+ON CONFLICT DO NOTHING;
+
+-- Assign BUSINESS_ADMIN role to admin users
+INSERT INTO user_roles (user_id, role_id)
+SELECT
+  u.id,
+  r.id
+FROM users u
+CROSS JOIN roles r
+WHERE u.user_identifier LIKE 'admin%@megastore.com'
+  AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND r.name = 'BUSINESS_ADMIN'
+  AND r.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = u.id AND role_id = r.id)
+ON CONFLICT DO NOTHING;
+
+-- Assign BUSINESS_MANAGER role to manager users
+INSERT INTO user_roles (user_id, role_id)
+SELECT
+  u.id,
+  r.id
+FROM users u
+CROSS JOIN roles r
+WHERE u.user_identifier LIKE 'manager%@megastore.com'
+  AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND r.name = 'BUSINESS_MANAGER'
+  AND r.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = u.id AND role_id = r.id)
+ON CONFLICT DO NOTHING;
+
+-- Assign BUSINESS_EMPLOYEE role to staff users
+INSERT INTO user_roles (user_id, role_id)
+SELECT
+  u.id,
+  r.id
+FROM users u
+CROSS JOIN roles r
+WHERE u.user_identifier LIKE 'staff%@megastore.com'
+  AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND r.name = 'BUSINESS_EMPLOYEE'
+  AND r.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = u.id AND role_id = r.id)
+ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 7. CREATE CATEGORIES (18 for Mega Store)
