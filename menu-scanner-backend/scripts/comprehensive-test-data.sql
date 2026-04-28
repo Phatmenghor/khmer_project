@@ -490,15 +490,16 @@ WHERE o.business_id IN ('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-4
 -- ============================================================================
 -- 15. CREATE ORDER PAYMENTS
 -- ============================================================================
-INSERT INTO order_payments (id, order_id, business_id, payment_method, payment_status, amount_paid, currency, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO order_payments (id, order_id, business_id, payment_reference, subtotal, total_amount, payment_method, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   o.id,
   o.business_id,
+  'PAY-' || TO_CHAR(NOW(), 'YYYYMM') || '-' || LPAD(order_num::text, 6, '0'),
+  COALESCE((SELECT SUM(subtotal) FROM order_items WHERE order_id = o.id), 0)::numeric(10,2),
+  (COALESCE((SELECT SUM(subtotal) FROM order_items WHERE order_id = o.id), 0) * 1.1)::numeric(10,2),
   CASE WHEN order_num % 4 = 0 THEN 'CREDIT_CARD' WHEN order_num % 4 = 1 THEN 'CASH' WHEN order_num % 4 = 2 THEN 'TRANSFER' ELSE 'MOBILE_MONEY' END,
   CASE WHEN o.order_status = 'PENDING' THEN 'PENDING' ELSE 'COMPLETED' END,
-  (SELECT COALESCE(SUM(subtotal), 0) * 1.1 FROM order_items WHERE order_id = o.id)::numeric,
-  'USD',
   0,
   false,
   o.created_at,
@@ -513,14 +514,14 @@ WHERE NOT EXISTS (SELECT 1 FROM order_payments WHERE order_id = o.id);
 -- ============================================================================
 -- 16. CREATE ORDER STATUS HISTORY
 -- ============================================================================
-INSERT INTO order_status_history (id, order_id, old_status, new_status, changed_by, change_reason, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO order_status_history (id, order_id, order_status, note, changed_by_user_id, changed_by_name, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   o.id,
-  'PENDING',
-  CASE WHEN o.order_status = 'PENDING' THEN 'PENDING' ELSE 'PROCESSING' END,
-  'admin',
-  'Order received',
+  o.order_status,
+  'Order status recorded',
+  '660e8400-e29b-41d4-a716-446655440001',
+  'System Admin',
   0,
   false,
   o.created_at,
