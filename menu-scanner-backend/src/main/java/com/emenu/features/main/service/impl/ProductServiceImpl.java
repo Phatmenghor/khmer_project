@@ -283,14 +283,15 @@ public class ProductServiceImpl implements ProductService {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
-        // Batch initialize sizes to avoid lazy-loading (prevents Hibernate pagination warning)
-        productPage.getContent().forEach(p -> Hibernate.initialize(p.getSizes()));
+        // Batch initialize sizes, images, and customizations to avoid lazy-loading
+        productPage.getContent().forEach(p -> {
+            Hibernate.initialize(p.getSizes());
+            Hibernate.initialize(p.getImages());
+            Hibernate.initialize(p.getCustomizations());
+        });
 
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
-
-        // Clear images to prevent lazy-loading (not needed for admin listing)
-        productPage.getContent().forEach(p -> p.setImages(new ArrayList<>()));
 
         // Use detail DTOs - mapper uses denormalized fields, not relationships
         List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
@@ -334,11 +335,12 @@ public class ProductServiceImpl implements ProductService {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
-        // Batch initialize sizes to avoid lazy-loading (prevents Hibernate pagination warning)
-        productPage.getContent().forEach(p -> Hibernate.initialize(p.getSizes()));
-
-        // Clear images to avoid lazy-loading overhead (images not needed in listing)
-        productPage.getContent().forEach(p -> p.setImages(new ArrayList<>()));
+        // Batch initialize sizes, images, and customizations to avoid lazy-loading
+        productPage.getContent().forEach(p -> {
+            Hibernate.initialize(p.getSizes());
+            Hibernate.initialize(p.getImages());
+            Hibernate.initialize(p.getCustomizations());
+        });
 
         // Recalculate display fields from current sizes
         productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
@@ -436,9 +438,12 @@ public class ProductServiceImpl implements ProductService {
                 log.debug("Business access validated for user: {}", currentUser.get().getUserIdentifier());
             }
 
-            // Initialize images for detail view (avoids MultipleBagFetchException by loading separately)
+            // Initialize images and customizations for detail view (avoids MultipleBagFetchException by loading separately)
             Hibernate.initialize(product.getImages());
             log.debug("Product images initialized - Count: {}", product.getImages().size());
+
+            Hibernate.initialize(product.getCustomizations());
+            log.debug("Product customizations initialized - Count: {}", product.getCustomizations().size());
 
             // Recalculate display fields from current sizes (fixes stale DB values)
             product.syncDisplayFieldsFromSizes();
@@ -479,9 +484,12 @@ public class ProductServiceImpl implements ProductService {
             productRepository.incrementViewCount(id);
             log.debug("View count incremented for product - ID: {}", id);
 
-            // Initialize images for detail view (avoids MultipleBagFetchException by loading separately)
+            // Initialize images and customizations for detail view (avoids MultipleBagFetchException by loading separately)
             Hibernate.initialize(product.getImages());
             log.debug("Product images initialized - Count: {}", product.getImages().size());
+
+            Hibernate.initialize(product.getCustomizations());
+            log.debug("Product customizations initialized - Count: {}", product.getCustomizations().size());
 
             // Recalculate display fields from current sizes (fixes stale DB values)
             product.syncDisplayFieldsFromSizes();
