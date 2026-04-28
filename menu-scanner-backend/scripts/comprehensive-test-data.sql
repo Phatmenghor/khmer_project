@@ -567,7 +567,7 @@ FROM generate_series(1, 80) AS t(order_num);
 -- ============================================================================
 -- 14. CREATE ORDER ITEMS (3-5 items per order)
 -- ============================================================================
-INSERT INTO order_items (id, order_id, product_id, product_size_id, product_name, product_image_url, size_name, sku, barcode, quantity, unit_price, final_price, current_price, has_promotion, promotion_type, promotion_value, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO order_items (id, order_id, product_id, product_size_id, product_name, product_image_url, size_name, sku, barcode, quantity, unit_price, final_price, current_price, total_price, has_promotion, promotion_type, promotion_value, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   o.id,
@@ -582,10 +582,11 @@ SELECT
   ELSE NULL END,
   p.sku,
   p.barcode,
-  (1 + item_num % 3),
+  (1 + item_num % 3)::int,
   p.price,
   (p.price * (1 + item_num % 3))::numeric,
   p.price,
+  (p.price * (1 + item_num % 3))::numeric,
   p.has_active_promotion,
   p.promotion_type,
   p.promotion_value,
