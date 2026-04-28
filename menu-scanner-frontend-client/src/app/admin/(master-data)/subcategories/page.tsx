@@ -219,43 +219,44 @@ export default function SubcategoriesPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <CardHeaderSection
-        title="Subcategories Management"
-        description="Manage your subcategories here"
-        showActions={true}
-        actionLabel="Add Subcategory"
-        actionIcon={Plus}
-        onAction={handleCreateSubcategory}
-      >
-        <div className="flex gap-4 items-end w-full">
-          <input
-            type="text"
-            placeholder="Search subcategories..."
-            value={filters.search}
-            onChange={handleSearchChange}
-            className="flex-1 px-3 py-2 border border-border rounded-md text-sm"
-          />
+    <div className="flex flex-1 flex-col gap-4 px-2">
+      <div className="space-y-4">
+        <CardHeaderSection
+          title="Subcategories Information"
+          searchValue={filters.search}
+          searchPlaceholder="Search subcategories..."
+          buttonTooltip="Create a new subcategory"
+          buttonIcon={<Plus className="w-3 h-3" />}
+          buttonText="New"
+          onSearchChange={handleSearchChange}
+          openModal={handleCreateSubcategory}
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <CustomSelect
+              options={STATUS_FILTER}
+              value={filters.status}
+              placeholder="All Status"
+              onValueChange={(value) => handleStatusChange(value as Status)}
+              label="Subcategory Status"
+            />
+          </div>
+        </CardHeaderSection>
 
-          <CustomSelect
-            value={filters.status}
-            onChange={(value) => handleStatusChange(value as Status)}
-            options={STATUS_FILTER}
-            placeholder="Filter by status"
-            className="w-48"
-          />
-        </div>
-      </CardHeaderSection>
-
-      <DataTableWithPagination
-        columns={columns}
-        data={subcategoriesContent}
-        isLoading={isLoading}
-        pagination={pagination}
-        onPageChange={handlePageChangeWrapper}
-        onPageSizeChange={handlePageSizeChange}
-        defaultPageSize={globalPageSize}
-      />
+        <DataTableWithPagination
+          data={subcategoriesContent}
+          columns={columns}
+          loading={isLoading}
+          emptyMessage="No Subcategories found"
+          getRowKey={(subcategory) => subcategory.id}
+          currentPage={pagination.currentPage}
+          totalElements={pagination.totalElements}
+          totalPages={pagination.totalPages}
+          onPageChange={handlePageChangeWrapper}
+          pageSize={globalPageSize}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
+        />
+      </div>
 
       <SubcategoriesModal
         isOpen={modalState.isOpen}
@@ -265,19 +266,21 @@ export default function SubcategoriesPage() {
       />
 
       <SubcategoriesDetailModal
+        subcategory={detailModalState.subcategory}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
-        subcategory={detailModalState.subcategory}
       />
 
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}
-        onConfirm={handleDelete}
+        onDelete={handleDelete}
         title="Delete Subcategory"
-        description="Are you sure you want to delete this subcategory?"
-        itemName={deleteState.subcategory?.name}
-        isDangerous={true}
+        description={`Are you sure you want to delete this subcategory ${
+          deleteState.subcategory?.name || ""
+        }?`}
+        itemName={deleteState.subcategory?.name || ""}
+        isSubmitting={operations.isDeleting}
       />
     </div>
   );
