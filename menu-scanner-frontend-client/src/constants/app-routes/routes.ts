@@ -28,6 +28,7 @@ export const ROUTES = {
     BRAND: "/admin/brand",
     BANNER: "/admin/banner",
     CATEGORIES: "/admin/categories",
+    SUBCATEGORIES: "/admin/subcategories",
     EXCHANGE_RATE: "/admin/exchange-rate",
     DELIVERY_OPTIONS: "/admin/delivery-options",
     PAYMENT_OPTIONS: "/admin/payment-options",
@@ -107,6 +108,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Categories",
         href: ROUTES.ADMIN.CATEGORIES,
+      },
+      {
+        title: "Subcategories",
+        href: ROUTES.ADMIN.SUBCATEGORIES,
       },
       {
         title: "Brand",
