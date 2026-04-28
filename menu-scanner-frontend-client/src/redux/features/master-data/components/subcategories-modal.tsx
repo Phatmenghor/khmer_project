@@ -4,10 +4,15 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ModalMode } from "@/constants/status/status";
-import { CustomModal } from "@/components/shared/modal/custom-modal";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { showToast } from "@/components/shared/common/show-toast";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { FormBody } from "@/components/shared/form-field/form-body";
+import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { CancelButton } from "@/components/shared/form-field/cancel-button";
+import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { SubcategoriesResponseModel } from "../store/models/response/subcategories-response";
 import { createSubcategoriesSchema, CreateSubcategoriesData } from "../store/models/schema/subcategories-schema";
 import { createSubcategory, updateSubcategory } from "../store/thunks/subcategories-thunks";
@@ -29,6 +34,7 @@ export default function SubcategoriesModal({
 }: SubcategoriesModalProps) {
   const dispatch = useAppDispatch();
   const operations = useAppSelector(selectOperations);
+  const isSubmitting = operations.isCreating || operations.isUpdating;
 
   const form = useForm<CreateSubcategoriesData>({
     resolver: zodResolver(createSubcategoriesSchema),
@@ -70,84 +76,119 @@ export default function SubcategoriesModal({
         })).unwrap();
         showToast.success("Subcategory updated successfully");
       }
+      form.reset();
       onClose();
     } catch (error: any) {
       showToast.error(error || "Failed to save subcategory");
     }
   };
 
+  const handleClose = () => {
+    form.reset();
+    onClose();
+  };
+
+  const isCreate = mode === ModalMode.CREATE_MODE;
+
   return (
-    <CustomModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={mode === ModalMode.CREATE_MODE ? "Create Subcategory" : "Edit Subcategory"}
-      description={mode === ModalMode.CREATE_MODE ? "Add a new subcategory" : "Edit subcategory details"}
-      onSubmit={form.handleSubmit(onSubmit)}
-      submitButtonText="Save"
-      isSubmitting={operations.isCreating || operations.isUpdating}
-    >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="categoryId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category ID</FormLabel>
-                <FormControl>
-                  <Input placeholder="Category ID" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 flex flex-col">
+        <FormHeader
+          title={isCreate ? "Create Subcategory" : "Edit Subcategory"}
+          description={isCreate ? "Add a new subcategory" : "Edit subcategory details"}
+          showAvatar={false}
+          isCreate={isCreate}
+        />
 
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Subcategory Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter subcategory name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col flex-1 overflow-hidden"
+          >
+            <FormBody>
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category ID</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Category ID" {...field} disabled={isSubmitting} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <FormField
-            control={form.control}
-            name="imageUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Image URL</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter image URL" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subcategory Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter subcategory name" {...field} disabled={isSubmitting} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <FormControl>
-                  <Input as="select" {...field}>
-                    <option value="ACTIVE">Active</option>
-                    <option value="INACTIVE">Inactive</option>
-                  </Input>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </form>
-      </Form>
-    </CustomModal>
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter image URL" {...field} disabled={isSubmitting} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          disabled={isSubmitting}
+                          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="ACTIVE">Active</option>
+                          <option value="INACTIVE">Inactive</option>
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </FormBody>
+
+            <FormFooter
+              isSubmitting={isSubmitting}
+              isDirty={form.formState.isDirty}
+              isCreate={isCreate}
+            >
+              <CancelButton onClick={handleClose} disabled={isSubmitting} />
+              <SubmitButton
+                isSubmitting={isSubmitting}
+                isDirty={form.formState.isDirty}
+                isCreate={isCreate}
+                createText="Create"
+                updateText="Update"
+              />
+            </FormFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
