@@ -146,6 +146,10 @@ public class Product extends BaseUUIDEntity {
     @OrderBy("price ASC")
     private List<ProductSize> sizes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OrderBy("name ASC")
+    private List<ProductCustomization> customizations = new ArrayList<>();
+
     public void syncDisplayFieldsFromSizes() {
         List<ProductSize> activeSizes = (sizes == null) ? List.of() : sizes.stream()
                 .filter(size -> size != null && !size.getIsDeleted())
@@ -287,6 +291,13 @@ public class Product extends BaseUUIDEntity {
             this.sizes = new ArrayList<>();
         }
         return this.sizes;
+    }
+
+    public List<ProductCustomization> getCustomizations() {
+        if (this.customizations == null) {
+            this.customizations = new ArrayList<>();
+        }
+        return this.customizations;
     }
 
     public boolean isActive() {
