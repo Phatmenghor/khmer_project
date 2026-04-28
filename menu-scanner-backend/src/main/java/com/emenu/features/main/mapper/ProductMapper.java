@@ -83,7 +83,12 @@ public interface ProductMapper {
         return dt != null ? dt.truncatedTo(ChronoUnit.DAYS) : null;
     }
 
-    @Mapping(source = "displayPromotionType", target = "displayPromotionType", qualifiedByName = "promotionTypeToString")
+    @Mapping(target = "displayPrice", expression = "java(product.getDisplayPrice())")
+    @Mapping(target = "displayOriginPrice", expression = "java(product.getDisplayOriginPrice())")
+    @Mapping(target = "displayPromotionType", expression = "java(promotionTypeToString(product.getDisplayPromotionType()))")
+    @Mapping(target = "displayPromotionValue", expression = "java(product.getDisplayPromotionValue())")
+    @Mapping(target = "displayPromotionFromDate", expression = "java(product.getDisplayPromotionFromDate())")
+    @Mapping(target = "displayPromotionToDate", expression = "java(product.getDisplayPromotionToDate())")
     @Mapping(target = "hasActivePromotion", expression = "java(product.isPromotionActive())")
     @Mapping(target = "isFavorited", constant = "false")
     ProductListDto toListDto(Product product);
@@ -94,7 +99,12 @@ public interface ProductMapper {
     @Mapping(source = "categoryName", target = "categoryName")
     @Mapping(source = "brandName", target = "brandName")
     @Mapping(source = "promotionType", target = "promotionType", qualifiedByName = "promotionTypeToString")
-    @Mapping(source = "displayPromotionType", target = "displayPromotionType", qualifiedByName = "promotionTypeToString")
+    @Mapping(target = "displayPrice", expression = "java(product.getDisplayPrice())")
+    @Mapping(target = "displayOriginPrice", expression = "java(product.getDisplayOriginPrice())")
+    @Mapping(target = "displayPromotionType", expression = "java(promotionTypeToString(product.getDisplayPromotionType()))")
+    @Mapping(target = "displayPromotionValue", expression = "java(product.getDisplayPromotionValue())")
+    @Mapping(target = "displayPromotionFromDate", expression = "java(product.getDisplayPromotionFromDate())")
+    @Mapping(target = "displayPromotionToDate", expression = "java(product.getDisplayPromotionToDate())")
     @Mapping(target = "hasPromotion", expression = "java(product.isPromotionActive())")
     @Mapping(target = "isFavorited", constant = "false")
     @Mapping(target = "images", source = "images")

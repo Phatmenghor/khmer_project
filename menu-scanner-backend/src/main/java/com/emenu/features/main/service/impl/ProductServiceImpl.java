@@ -126,7 +126,6 @@ public class ProductServiceImpl implements ProductService {
         productPage.getContent().forEach(p -> Hibernate.initialize(p.getSizes()));
 
         // Recalculate display fields from current sizes
-        productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
         List<ProductListDto> dtoList = productMapper.toListDtos(productPage.getContent());
 
@@ -199,7 +198,6 @@ public class ProductServiceImpl implements ProductService {
         log.info("Products fetched from database - Total count: {}", products.size());
 
         // Recalculate display fields from current sizes
-        products.forEach(Product::syncDisplayFieldsFromSizes);
 
         List<ProductListDto> dtoList = productMapper.toListDtos(products);
 
@@ -291,7 +289,6 @@ public class ProductServiceImpl implements ProductService {
         });
 
         // Recalculate display fields from current sizes
-        productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
         // Use detail DTOs - mapper uses denormalized fields, not relationships
         List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
@@ -343,7 +340,6 @@ public class ProductServiceImpl implements ProductService {
         });
 
         // Recalculate display fields from current sizes
-        productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
         List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
 
@@ -401,7 +397,6 @@ public class ProductServiceImpl implements ProductService {
         productPage.getContent().forEach(p -> p.setImages(new ArrayList<>()));
 
         // Recalculate display fields from current sizes
-        productPage.getContent().forEach(Product::syncDisplayFieldsFromSizes);
 
         // All filters (including hasSize and stockStatuses) are now applied at database level
         List<ProductDetailDto> dtoList = productMapper.toDetailDtos(productPage.getContent());
@@ -446,7 +441,6 @@ public class ProductServiceImpl implements ProductService {
             log.debug("Product customizations initialized - Count: {}", product.getCustomizations().size());
 
             // Recalculate display fields from current sizes (fixes stale DB values)
-            product.syncDisplayFieldsFromSizes();
 
             ProductDetailDto dto = productMapper.toDetailDto(product);
             enrichTotalStockForDetail(dto, product.getId());
@@ -492,7 +486,6 @@ public class ProductServiceImpl implements ProductService {
             log.debug("Product customizations initialized - Count: {}", product.getCustomizations().size());
 
             // Recalculate display fields from current sizes (fixes stale DB values)
-            product.syncDisplayFieldsFromSizes();
 
             ProductDetailDto dto = productMapper.toDetailDto(product);
             enrichTotalStockForDetail(dto, product.getId());
@@ -787,10 +780,8 @@ public class ProductServiceImpl implements ProductService {
                         appliedSizes, clearedSizes, product.getId());
 
                     // Sync display fields from sizes
-                    product.syncDisplayFieldsFromSizes();
                 } else {
                     // Initialize display fields for product without sizes
-                    product.initializeDisplayFields();
                     log.debug("Display fields initialized for product without sizes: {}", product.getId());
                 }
 
@@ -844,7 +835,6 @@ public class ProductServiceImpl implements ProductService {
 
             Product product = productMapper.toEntity(request);
             productMapper.setBusinessFields(product, currentUser.getBusinessId());
-            product.initializeDisplayFields();
             syncDenormalizedNames(product);
             log.debug("Product entity mapped and initialized: {}", product.getName());
 
@@ -860,7 +850,6 @@ public class ProductServiceImpl implements ProductService {
 
                 List<ProductSize> sizes = productSizeRepository.findByProductId(savedProduct.getId());
                 savedProduct.setSizes(sizes);
-                savedProduct.syncDisplayFieldsFromSizes();
                 savedProduct = productRepository.save(savedProduct);
                 log.debug("Product with {} sizes saved successfully", sizes.size());
             }
@@ -901,7 +890,6 @@ public class ProductServiceImpl implements ProductService {
             }
 
             if (!product.getHasSizes()) {
-                product.initializeDisplayFields();
                 log.debug("Display fields initialized for product without sizes");
             }
 
@@ -920,7 +908,6 @@ public class ProductServiceImpl implements ProductService {
             if (sizesChanged) {
                 List<ProductSize> sizes = productSizeRepository.findByProductId(updatedProduct.getId());
                 updatedProduct.setSizes(sizes);
-                updatedProduct.syncDisplayFieldsFromSizes();
                 updatedProduct = productRepository.save(updatedProduct);
                 log.debug("Product with {} sizes saved after size changes", sizes.size());
             }
