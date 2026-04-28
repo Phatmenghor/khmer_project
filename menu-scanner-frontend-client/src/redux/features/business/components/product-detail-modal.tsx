@@ -370,7 +370,7 @@ export function ProductDetailModal({
                     <CardTitle>Product Customizations</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {productData.customizations.map((customization) => (
                         <div
                           key={customization.id}
@@ -390,7 +390,7 @@ export function ProductDetailModal({
                               {customization.status || "---"}
                             </Badge>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                          <div className="space-y-3 text-sm">
                             <DisplayField
                               label="Price Adjustment"
                               value={formatCurrency(

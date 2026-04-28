@@ -1055,7 +1055,7 @@ export default function ProductModal({
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {customizationFields.map((field, index) => (
                           <div
                             key={field.id}
@@ -1077,7 +1077,7 @@ export default function ProductModal({
                               </Button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                            <div className="space-y-4">
                               <div>
                                 <TextField
                                   control={control}
