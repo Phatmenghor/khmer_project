@@ -597,7 +597,7 @@ SELECT
   o.updated_at,
   'admin', 'admin'
 FROM orders o
-CROSS JOIN LATERAL (SELECT id, name, price, sku, barcode, has_sizes, main_image_url, promotion_type, promotion_value FROM products WHERE business_id = o.business_id ORDER BY created_at LIMIT 5) p
+CROSS JOIN LATERAL (SELECT id, name, price, sku, barcode, has_sizes, main_image_url, promotion_type, promotion_value, promotion_from_date, promotion_to_date FROM products WHERE business_id = o.business_id ORDER BY created_at LIMIT 5) p
 CROSS JOIN generate_series(1, (1 + (RANDOM() * 3)::int)) AS t(item_num)
 WHERE o.business_id IN ('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001');
 
