@@ -362,7 +362,7 @@ SELECT
   (SELECT id FROM brands WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' ORDER BY created_at LIMIT 1 OFFSET (i-1) / 555 % 18),
   'Product ' || i,
   'High quality product ' || i || ' with premium features and excellent durability',
-  (10 + (i % 200))::numeric,
+  CASE WHEN (i % 10) < 6 THEN NULL ELSE (10 + (i % 200))::numeric END,
   'https://cdn.example.com/product-' || i || '.jpg',
   '1000000000' || LPAD(i::text, 7, '0'),
   'SKU-' || LPAD(i::text, 7, '0'),
