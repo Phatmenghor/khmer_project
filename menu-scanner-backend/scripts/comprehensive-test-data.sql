@@ -178,7 +178,17 @@ INSERT INTO product_sizes (id, product_id, size, price, status, is_deleted, crea
 SELECT
   gen_random_uuid(),
   p.id,
-  ARRAY['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'][size_num + 1],
+  CASE size_num
+    WHEN 0 THEN 'XS'
+    WHEN 1 THEN 'S'
+    WHEN 2 THEN 'M'
+    WHEN 3 THEN 'L'
+    WHEN 4 THEN 'XL'
+    WHEN 5 THEN 'XXL'
+    WHEN 6 THEN '3XL'
+    WHEN 7 THEN '4XL'
+    WHEN 8 THEN '5XL'
+  END,
   (size_num * 2)::numeric,
   'ACTIVE',
   false,
@@ -195,7 +205,26 @@ INSERT INTO product_customizations (id, product_id, name, price_adjustment, stat
 SELECT
   gen_random_uuid(),
   p.id,
-  'Customization ' || custom_num || ' - ' || ARRAY['Color', 'Size', 'Material', 'Engraving', 'Packaging', 'Warranty', 'Delivery', 'Installation', 'Training', 'Support', 'Upgrade', 'Premium', 'Express', 'Special', 'Deluxe', 'Luxury', 'Elite', 'Ultimate'][custom_num],
+  'Customization ' || custom_num || ' - ' || CASE custom_num
+    WHEN 1 THEN 'Color'
+    WHEN 2 THEN 'Size'
+    WHEN 3 THEN 'Material'
+    WHEN 4 THEN 'Engraving'
+    WHEN 5 THEN 'Packaging'
+    WHEN 6 THEN 'Warranty'
+    WHEN 7 THEN 'Delivery'
+    WHEN 8 THEN 'Installation'
+    WHEN 9 THEN 'Training'
+    WHEN 10 THEN 'Support'
+    WHEN 11 THEN 'Upgrade'
+    WHEN 12 THEN 'Premium'
+    WHEN 13 THEN 'Express'
+    WHEN 14 THEN 'Special'
+    WHEN 15 THEN 'Deluxe'
+    WHEN 16 THEN 'Luxury'
+    WHEN 17 THEN 'Elite'
+    WHEN 18 THEN 'Ultimate'
+  END,
   (0.50 + custom_num * 0.50)::numeric,
   'ACTIVE',
   false,
@@ -212,7 +241,13 @@ SELECT
   gen_random_uuid(),
   p.id,
   'https://cdn.example.com/product-' || SUBSTRING(p.id::text, 1, 8) || '-image-' || img_num || '.jpg',
-  'Product image ' || img_num || ' - ' || ARRAY['Front view', 'Back view', 'Side view', 'Detail view', 'Package view'][img_num],
+  'Product image ' || img_num || ' - ' || CASE img_num
+    WHEN 1 THEN 'Front view'
+    WHEN 2 THEN 'Back view'
+    WHEN 3 THEN 'Side view'
+    WHEN 4 THEN 'Detail view'
+    WHEN 5 THEN 'Package view'
+  END,
   img_num,
   false,
   NOW(), NOW(), 'admin', 'admin'
