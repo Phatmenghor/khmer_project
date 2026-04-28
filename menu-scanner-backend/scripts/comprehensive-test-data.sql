@@ -567,7 +567,7 @@ FROM generate_series(1, 80) AS t(order_num);
 -- ============================================================================
 -- 14. CREATE ORDER ITEMS (3-5 items per order)
 -- ============================================================================
-INSERT INTO order_items (id, order_id, product_id, product_size_id, quantity, unit_price, subtotal, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO order_items (id, order_id, product_id, product_size_id, quantity, unit_price, final_price, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   o.id,
@@ -597,9 +597,9 @@ SELECT
   o.id,
   o.business_id,
   'PAY-' || TO_CHAR(NOW(), 'YYYYMM') || '-' || LPAD(order_num::text, 6, '0'),
-  COALESCE((SELECT SUM(subtotal) FROM order_items WHERE order_id = o.id), 0)::numeric(10,2),
-  (COALESCE((SELECT SUM(subtotal) FROM order_items WHERE order_id = o.id), 0) * 1.1)::numeric(10,2),
-  CASE WHEN order_num % 4 = 0 THEN 'CREDIT_CARD' WHEN order_num % 4 = 1 THEN 'CASH' WHEN order_num % 4 = 2 THEN 'TRANSFER' ELSE 'MOBILE_MONEY' END,
+  COALESCE((SELECT SUM(oi.unit_price * oi.quantity) FROM order_items oi WHERE oi.order_id = o.id), 0)::numeric(10,2),
+  COALESCE((SELECT SUM(oi.final_price * oi.quantity) FROM order_items oi WHERE oi.order_id = o.id), 0)::numeric(10,2),
+  'CASH',
   CASE WHEN o.order_status = 'PENDING' THEN 'PENDING' ELSE 'COMPLETED' END,
   0,
   false,
