@@ -352,8 +352,7 @@ INSERT INTO products (
   main_image_url, barcode, sku, status, stock_status, has_sizes,
   view_count, favorite_count, category_name, brand_name, business_name, version, is_deleted,
   created_at, updated_at, created_by, updated_by, promotion_type, promotion_value,
-  promotion_from_date, promotion_to_date, display_price, display_origin_price,
-  display_promotion_type, display_promotion_value, display_promotion_from_date, display_promotion_to_date
+  promotion_from_date, promotion_to_date
 )
 SELECT
   gen_random_uuid(),
@@ -378,12 +377,6 @@ SELECT
   0,
   false,
   NOW(), NOW(), 'admin', 'admin',
-  CASE WHEN (i % 10) < 4 THEN CASE WHEN (i % 2) = 0 THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
-  CASE WHEN (i % 10) < 4 THEN CASE WHEN (i % 2) = 0 THEN (10 + (i % 40))::numeric ELSE (5 + (i % 20))::numeric END ELSE NULL END,
-  CASE WHEN (i % 10) < 4 THEN NOW() ELSE NULL END,
-  CASE WHEN (i % 10) < 4 THEN (NOW() + INTERVAL '30 days') ELSE NULL END,
-  CASE WHEN (i % 10) < 6 THEN (2)::numeric ELSE (10 + (i % 200))::numeric END,
-  CASE WHEN (i % 10) < 6 THEN (2)::numeric ELSE (10 + (i % 200))::numeric END,
   CASE WHEN (i % 10) < 4 THEN CASE WHEN (i % 2) = 0 THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
   CASE WHEN (i % 10) < 4 THEN CASE WHEN (i % 2) = 0 THEN (10 + (i % 40))::numeric ELSE (5 + (i % 20))::numeric END ELSE NULL END,
   CASE WHEN (i % 10) < 4 THEN NOW() ELSE NULL END,

@@ -105,8 +105,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
            "AND (:needsPromotion IS NULL OR (p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
            "AND (:needsNoPromotion IS NULL OR (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
-           "AND (:minPrice IS NULL OR p.displayPrice >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR p.displayPrice <= :maxPrice) " +
+           "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
            "AND (:hasSizes IS NULL OR p.hasSizes = :hasSizes) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -141,8 +141,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
            "AND (:needsPromotion IS NULL OR (p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
            "AND (:needsNoPromotion IS NULL OR (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
-           "AND (:minPrice IS NULL OR p.displayPrice >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR p.displayPrice <= :maxPrice) " +
+           "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
            "AND (:hasSizes IS NULL OR p.hasSizes = :hasSizes) " +
            "AND (:stockStatuses IS NULL OR p.stockStatus IN :stockStatuses) " +
            "AND (:search IS NULL OR :search = '' OR " +
@@ -181,8 +181,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
            "AND (:needsPromotion IS NULL OR (p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
            "AND (:needsNoPromotion IS NULL OR (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
-           "AND (:minPrice IS NULL OR p.displayPrice >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR p.displayPrice <= :maxPrice) " +
+           "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
