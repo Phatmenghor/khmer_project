@@ -135,6 +135,69 @@ VALUES (
 ) ON CONFLICT DO NOTHING;
 
 -- ============================================================================
+-- 3.6. CREATE EXCHANGE RATES
+-- ============================================================================
+
+INSERT INTO exchange_rates (id, currency_code, currency_name, exchange_rate, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'USD',
+  'US Dollar',
+  4100.00::numeric(10,2),
+  'ACTIVE',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO exchange_rates (id, currency_code, currency_name, exchange_rate, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'EUR',
+  'Euro',
+  4500.00::numeric(10,2),
+  'ACTIVE',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO exchange_rates (id, currency_code, currency_name, exchange_rate, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'GBP',
+  'British Pound',
+  5200.00::numeric(10,2),
+  'ACTIVE',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- 3.7. CREATE DELIVERY OPTIONS (16)
+-- ============================================================================
+
+INSERT INTO delivery_options (id, name, description, delivery_time, cost, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  'Delivery Option ' || i,
+  'Delivery option ' || i || ' description',
+  (i * 30)::text || ' minutes',
+  (5000 + (i * 500))::numeric(10,2),
+  'ACTIVE',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM generate_series(1, 16) AS t(i);
+
+-- ============================================================================
+-- 3.8. CREATE PAYMENT OPTIONS (CASH ONLY)
+-- ============================================================================
+
+INSERT INTO payment_options (id, name, description, payment_method_type, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  gen_random_uuid(),
+  'CASH',
+  'Cash Payment',
+  'CASH',
+  'ACTIVE',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
+
+-- ============================================================================
 -- 4. CREATE USERS (101+ for Mega Store)
 -- ============================================================================
 
