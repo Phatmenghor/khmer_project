@@ -11,7 +11,7 @@
 -- Business 1: Mega Store (phatmenghor20@gmail.com owner)
 INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
-  '550e8400-e29b-41d4-a716-446655440000',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   'Mega Store',
   '+855-12-345-678',
   'megastore@example.com',
@@ -22,7 +22,7 @@ VALUES (
 -- Business 2: Fashion Hub (phatmenghor21@gmail.com owner)
 INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
-  '550e8400-e29b-41d4-a716-446655440001',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   'Fashion Hub',
   '+855-87-654-321',
   'fashionhub@example.com',
@@ -38,7 +38,7 @@ VALUES (
 INSERT INTO business_settings (id, business_id, use_categories, use_subcategories, use_brands, tax_percentage, business_name, logo_business_url, enable_stock, primary_color, contact_address, contact_phone, contact_email, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '770e8400-e29b-41d4-a716-446655440002',
-  '550e8400-e29b-41d4-a716-446655440000',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   true, true, true, 10.0, 'Mega Store', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'ENABLED', '#FF6B6B',
   'Phnom Penh, Cambodia', '+855-12-345-678', 'megastore@example.com', 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
@@ -47,13 +47,31 @@ VALUES (
 INSERT INTO business_settings (id, business_id, use_categories, use_subcategories, use_brands, tax_percentage, business_name, logo_business_url, enable_stock, primary_color, contact_address, contact_phone, contact_email, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '770e8400-e29b-41d4-a716-446655440003',
-  '550e8400-e29b-41d4-a716-446655440001',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   true, true, true, 10.0, 'Fashion Hub', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'ENABLED', '#6B6BFF',
   'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com', 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- 3. CREATE USERS (101 for Mega Store + 50+ for Fashion Hub)
+-- 3. CREATE BANNERS (8 Active, 20 Inactive)
+-- ============================================================================
+
+INSERT INTO banners (id, business_id, title, description, image_url, status, sort_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
+  'Banner ' || i,
+  'Banner ' || i || ' Description',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  CASE WHEN i <= 8 THEN 'ACTIVE' ELSE 'INACTIVE' END,
+  i,
+  0,
+  false,
+  NOW(), NOW(), 'admin', 'admin'
+FROM generate_series(1, 28) AS t(i);
+
+-- ============================================================================
+-- 4. CREATE USERS (101+ for Mega Store)
 -- ============================================================================
 
 -- Main User 1: BUSINESS_USER with Business Owner role (phatmenghor20@gmail.com) - Mega Store
@@ -64,7 +82,7 @@ VALUES (
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
-  '550e8400-e29b-41d4-a716-446655440000',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
@@ -76,7 +94,7 @@ VALUES (
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
-  '550e8400-e29b-41d4-a716-446655440001',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
@@ -88,10 +106,10 @@ SELECT
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
-  '550e8400-e29b-41d4-a716-446655440000',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 5) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'admin' || i || '@megastore.com' AND business_id = '550e8400-e29b-41d4-a716-446655440000');
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'admin' || i || '@megastore.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
 -- 15 Manager Users for Mega Store
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -101,10 +119,10 @@ SELECT
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
-  '550e8400-e29b-41d4-a716-446655440000',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 15) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'manager' || i || '@megastore.com' AND business_id = '550e8400-e29b-41d4-a716-446655440000');
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'manager' || i || '@megastore.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
 -- 80 Staff Users for Mega Store
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -114,10 +132,10 @@ SELECT
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
-  '550e8400-e29b-41d4-a716-446655440000',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 80) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'staff' || i || '@megastore.com' AND business_id = '550e8400-e29b-41d4-a716-446655440000');
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'staff' || i || '@megastore.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
 -- 3 Admin Users for Fashion Hub
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -127,10 +145,10 @@ SELECT
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
-  '550e8400-e29b-41d4-a716-446655440001',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 3) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'admin' || i || '@fashionhub.com' AND business_id = '550e8400-e29b-41d4-a716-446655440001');
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'admin' || i || '@fashionhub.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
 -- 10 Staff Users for Fashion Hub
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -140,10 +158,10 @@ SELECT
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
   'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
-  '550e8400-e29b-41d4-a716-446655440001',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 10) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'staff' || i || '@fashionhub.com' AND business_id = '550e8400-e29b-41d4-a716-446655440001');
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'staff' || i || '@fashionhub.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
 -- ============================================================================
 -- 3b. CREATE USER PROFILES (with emails)
@@ -185,7 +203,7 @@ SELECT
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
 CROSS JOIN generate_series(1, 5) AS t(i)
-WHERE u.user_identifier = 'admin' || i || '@megastore.com' AND u.business_id = '550e8400-e29b-41d4-a716-446655440000'
+WHERE u.user_identifier = 'admin' || i || '@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
 -- Profiles for Manager Users (Mega Store)
@@ -200,7 +218,7 @@ SELECT
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
 CROSS JOIN generate_series(1, 15) AS t(i)
-WHERE u.user_identifier = 'manager' || i || '@megastore.com' AND u.business_id = '550e8400-e29b-41d4-a716-446655440000'
+WHERE u.user_identifier = 'manager' || i || '@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
 -- Profiles for Staff Users (Mega Store)
@@ -215,7 +233,7 @@ SELECT
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
 CROSS JOIN generate_series(1, 80) AS t(i)
-WHERE u.user_identifier = 'staff' || i || '@megastore.com' AND u.business_id = '550e8400-e29b-41d4-a716-446655440000'
+WHERE u.user_identifier = 'staff' || i || '@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
 -- Profiles for Admin Users (Fashion Hub)
@@ -230,7 +248,7 @@ SELECT
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
 CROSS JOIN generate_series(1, 3) AS t(i)
-WHERE u.user_identifier = 'admin' || i || '@fashionhub.com' AND u.business_id = '550e8400-e29b-41d4-a716-446655440001'
+WHERE u.user_identifier = 'admin' || i || '@fashionhub.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
 -- Profiles for Staff Users (Fashion Hub)
@@ -245,7 +263,7 @@ SELECT
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
 CROSS JOIN generate_series(1, 10) AS t(i)
-WHERE u.user_identifier = 'staff' || i || '@fashionhub.com' AND u.business_id = '550e8400-e29b-41d4-a716-446655440001'
+WHERE u.user_identifier = 'staff' || i || '@fashionhub.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
 -- ============================================================================
@@ -295,12 +313,12 @@ SELECT
 FROM generate_series(1, 2) AS t(addr_num);
 
 -- ============================================================================
--- 5. CREATE CATEGORIES (18 for Mega Store)
+-- 7. CREATE CATEGORIES (18 for Mega Store)
 -- ============================================================================
 INSERT INTO categories (id, business_id, name, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
-  '550e8400-e29b-41d4-a716-446655440000',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   'Category ' || i,
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ACTIVE',
@@ -308,16 +326,16 @@ SELECT
   false,
   NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 18) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM categories WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' AND name = 'Category ' || i);
+WHERE NOT EXISTS (SELECT 1 FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' AND name = 'Category ' || i);
 
 -- ============================================================================
--- 6. CREATE SUBCATEGORIES (18)
+-- 8. CREATE SUBCATEGORIES (18)
 -- ============================================================================
 INSERT INTO subcategories (id, category_id, business_id, name, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
-  (SELECT id FROM categories WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' ORDER BY created_at LIMIT 1 OFFSET (i-1) % 18),
-  '550e8400-e29b-41d4-a716-446655440000',
+  (SELECT id FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i-1) % 18),
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   'Subcategory ' || i,
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ACTIVE',
@@ -325,15 +343,15 @@ SELECT
   false,
   NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 18) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM subcategories WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' AND name = 'Subcategory ' || i);
+WHERE NOT EXISTS (SELECT 1 FROM subcategories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' AND name = 'Subcategory ' || i);
 
 -- ============================================================================
--- 7. CREATE BRANDS (18)
+-- 9. CREATE BRANDS (18)
 -- ============================================================================
 INSERT INTO brands (id, business_id, name, image_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
-  '550e8400-e29b-41d4-a716-446655440000',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   'Brand ' || i,
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'Brand ' || i || ' - Premium quality products',
@@ -342,7 +360,7 @@ SELECT
   false,
   NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 18) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM brands WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' AND name = 'Brand ' || i);
+WHERE NOT EXISTS (SELECT 1 FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' AND name = 'Brand ' || i);
 
 -- ============================================================================
 -- 8. CREATE 10,000 PRODUCTS (555 per category)
@@ -356,10 +374,10 @@ INSERT INTO products (
 )
 SELECT
   gen_random_uuid(),
-  '550e8400-e29b-41d4-a716-446655440000',
-  (SELECT id FROM categories WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' ORDER BY created_at LIMIT 1 OFFSET (i-1) / 555),
-  (SELECT id FROM subcategories WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' ORDER BY created_at LIMIT 1 OFFSET (i-1) % 18),
-  (SELECT id FROM brands WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' ORDER BY created_at LIMIT 1 OFFSET (i-1) / 555 % 18),
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
+  (SELECT id FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i-1) / 555),
+  (SELECT id FROM subcategories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i-1) % 18),
+  (SELECT id FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i-1) / 555 % 18),
   'Product ' || i,
   'High quality product ' || i || ' with premium features and excellent durability',
   CASE WHEN (i % 10) < 6 THEN NULL ELSE (10 + (i % 200))::numeric END,
@@ -411,7 +429,7 @@ SELECT
   NOW(), NOW(), 'admin', 'admin'
 FROM products p
 CROSS JOIN generate_series(0, 8) AS t(size_num)
-WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000'
+WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND p.has_sizes = true;
 
 -- ============================================================================
@@ -448,7 +466,7 @@ SELECT
   NOW(), NOW(), 'admin', 'admin'
 FROM products p
 CROSS JOIN generate_series(1, 18) AS t(custom_num)
-WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000';
+WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 
 -- ============================================================================
 -- 11. CREATE PRODUCT IMAGES (5 per product = 50,000 total)
@@ -463,7 +481,7 @@ SELECT
   NOW(), NOW(), 'admin', 'admin'
 FROM products p
 CROSS JOIN generate_series(1, 5) AS t(img_num)
-WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000';
+WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 
 -- ============================================================================
 -- 12. CREATE PRODUCT STOCK (Full stock for all products)
@@ -487,7 +505,7 @@ SELECT
   false,
   NOW(), NOW(), 'admin', 'admin'
 FROM products p
-WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000';
+WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 
 -- Stock for product sizes
 INSERT INTO product_stock (id, business_id, product_id, product_size_id, quantity_on_hand, quantity_reserved, quantity_available, price_in, date_in, status, is_expired, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -508,7 +526,7 @@ SELECT
   NOW(), NOW(), 'admin', 'admin'
 FROM products p
 JOIN product_sizes ps ON ps.product_id = p.id
-WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000'
+WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND p.has_sizes = true;
 
 -- ============================================================================
@@ -520,7 +538,7 @@ INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, c
 SELECT
   gen_random_uuid(),
   'MS-' || TO_CHAR(NOW(), 'YYYYMM') || '-' || LPAD(order_num::text, 5, '0'),
-  '550e8400-e29b-41d4-a716-446655440000',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   '660e8400-e29b-41d4-a716-446655440001',
   'Phatmenghor Twenty',
   '+855-12-345-678',
@@ -546,7 +564,7 @@ INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, c
 SELECT
   gen_random_uuid(),
   'FH-' || TO_CHAR(NOW(), 'YYYYMM') || '-' || LPAD(order_num::text, 5, '0'),
-  '550e8400-e29b-41d4-a716-446655440001',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0',
   '660e8400-e29b-41d4-a716-446655440002',
   'Phatmenghor Twenty-One',
   '+855-87-654-321',
@@ -603,7 +621,7 @@ SELECT
 FROM orders o
 CROSS JOIN LATERAL (SELECT id, name, price, sku, barcode, has_sizes, main_image_url, promotion_type, promotion_value, promotion_from_date, promotion_to_date FROM products WHERE business_id = o.business_id ORDER BY created_at LIMIT 5) p
 CROSS JOIN generate_series(1, (1 + (RANDOM() * 3)::int)) AS t(item_num)
-WHERE o.business_id IN ('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001');
+WHERE o.business_id IN ('550cad56-cafd-4aba-baef-c4dcd53940d0', '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
 -- ============================================================================
 -- 15. CREATE ORDER PAYMENTS
@@ -732,12 +750,12 @@ FROM products p
 LEFT JOIN product_sizes ps ON p.id = ps.product_id
 LEFT JOIN product_customizations pc ON p.id = pc.product_id
 LEFT JOIN product_images pi ON p.id = pi.product_id
-WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000';
+WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 
 -- Check Orders for phatmenghor20
 SELECT '=== ORDERS FOR phatmenghor20 ===' as info;
-SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550e8400-e29b-41d4-a716-446655440000';
+SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 
 -- Check Orders for phatmenghor21
 SELECT '=== ORDERS FOR phatmenghor21 ===' as info;
-SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550e8400-e29b-41d4-a716-446655440001';
+SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
