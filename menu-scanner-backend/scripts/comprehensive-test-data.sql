@@ -297,12 +297,11 @@ FROM generate_series(1, 2) AS t(addr_num);
 -- ============================================================================
 -- 5. CREATE CATEGORIES (18 for Mega Store)
 -- ============================================================================
-INSERT INTO categories (id, business_id, name, description, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO categories (id, business_id, name, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   '550e8400-e29b-41d4-a716-446655440000',
   'Category ' || i,
-  'Category ' || i || ' - Complete collection of products',
   'https://cdn.example.com/category-' || i || '.jpg',
   'ACTIVE',
   0,
@@ -331,7 +330,7 @@ WHERE NOT EXISTS (SELECT 1 FROM subcategories WHERE business_id = '550e8400-e29b
 -- ============================================================================
 -- 7. CREATE BRANDS (18)
 -- ============================================================================
-INSERT INTO brands (id, business_id, name, logo_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO brands (id, business_id, name, image_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   '550e8400-e29b-41d4-a716-446655440000',
