@@ -402,10 +402,10 @@ SELECT
     WHEN 8 THEN '5XL'
   END,
   (p.price + (size_num * 2))::numeric,
-  CASE WHEN (((p.id::text::bigint % 10) < 4) AND size_num % 3 = 0) THEN CASE WHEN (((p.id::text::bigint % 10) < 2)) THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
-  CASE WHEN (((p.id::text::bigint % 10) < 4) AND size_num % 3 = 0) THEN CASE WHEN (((p.id::text::bigint % 10) < 2)) THEN (15 + (size_num % 20))::numeric ELSE (3 + (size_num % 10))::numeric END ELSE NULL END,
-  CASE WHEN (((p.id::text::bigint % 10) < 4) AND size_num % 3 = 0) THEN NOW() ELSE NULL END,
-  CASE WHEN (((p.id::text::bigint % 10) < 4) AND size_num % 3 = 0) THEN (NOW() + INTERVAL '30 days') ELSE NULL END,
+  CASE WHEN (size_num % 3 = 0) THEN CASE WHEN (size_num % 2 = 0) THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
+  CASE WHEN (size_num % 3 = 0) THEN CASE WHEN (size_num % 2 = 0) THEN (15 + (size_num % 20))::numeric ELSE (3 + (size_num % 10))::numeric END ELSE NULL END,
+  CASE WHEN (size_num % 3 = 0) THEN NOW() ELSE NULL END,
+  CASE WHEN (size_num % 3 = 0) THEN (NOW() + INTERVAL '30 days') ELSE NULL END,
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
