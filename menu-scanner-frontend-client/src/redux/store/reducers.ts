@@ -11,6 +11,7 @@ import sessionReducer from "../features/sessions/store/slice/session-slice";
 import bannerReducer from "../features/master-data/store/slice/banner-slice";
 import brandReducer from "../features/master-data/store/slice/brand-slice";
 import categoriesReducer from "../features/master-data/store/slice/categories-slice";
+import subcategoriesReducer from "../features/master-data/store/slice/subcategories-slice";
 import exchangeRateReducer from "../features/master-data/store/slice/exchange-rate-slice";
 import deliveryOptionsReducer from "../features/master-data/store/slice/delivery-options-slice";
 import paymentOptionsReducer from "../features/master-data/store/slice/payment-options-slice";
@@ -60,6 +61,7 @@ export const reducers = {
   banner: bannerReducer,
   brand: brandReducer,
   categories: categoriesReducer,
+  subcategories: subcategoriesReducer,
   exchangeRate: exchangeRateReducer,
   deliveryOptions: deliveryOptionsReducer,
   paymentOptions: paymentOptionsReducer,

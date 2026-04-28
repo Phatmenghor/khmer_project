@@ -36,4 +36,8 @@ export interface BusinessSettingsResponse {
   contactEmail?: string;
   // Business Hours
   businessHours?: BusinessHours[];
+  // Feature Flags
+  useCategories?: boolean;
+  useSubcategories?: boolean;
+  useBrands?: boolean;
 }

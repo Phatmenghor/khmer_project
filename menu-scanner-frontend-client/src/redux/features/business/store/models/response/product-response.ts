@@ -1,4 +1,5 @@
 import { BasePagination } from "@/utils/common/pagination";
+import { ProductCustomizationDto } from "./product-customization-response";
 
 export interface AllProductResponseModel extends BasePagination {
   content: ProductDetailResponseModel[];
@@ -47,6 +48,7 @@ export interface ProductDetailResponseModel {
   quantityOnHand: number;
   images: ProductImage[];
   sizes: ProductSize[];
+  customizations: ProductCustomizationDto[];
   isSelected?: boolean; // Frontend state for bulk operations (default: false)
 }
 

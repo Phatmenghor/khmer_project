@@ -29,6 +29,10 @@ export const businessSettingsSchema = z.object({
       closingTime: z.string(),
     })
   ).optional(),
+  // Feature Flags
+  useCategories: z.boolean().optional(),
+  useSubcategories: z.boolean().optional(),
+  useBrands: z.boolean().optional(),
 });
 
 export type BusinessSettingsFormData = z.infer<typeof businessSettingsSchema>;
