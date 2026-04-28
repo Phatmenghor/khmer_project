@@ -22,6 +22,4 @@ public class ProductCustomizationCreateDto {
 
     @NotNull(message = "Price adjustment is required")
     private BigDecimal priceAdjustment;
-
-    private String status = "ACTIVE";
 }

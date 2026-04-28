@@ -1065,7 +1065,6 @@ public class ProductServiceImpl implements ProductService {
             customization.setProductId(product.getId());
             customization.setName(dto.getName());
             customization.setPriceAdjustment(dto.getPriceAdjustment());
-            customization.setStatus(dto.getStatus() != null ? dto.getStatus() : "ACTIVE");
             customizations.add(customization);
         }
         productCustomizationRepository.saveAll(customizations);
@@ -1102,9 +1101,6 @@ public class ProductServiceImpl implements ProductService {
                     .ifPresent(existingCustomization -> {
                         existingCustomization.setName(updateDto.getName());
                         existingCustomization.setPriceAdjustment(updateDto.getPriceAdjustment());
-                        if (updateDto.getStatus() != null) {
-                            existingCustomization.setStatus(updateDto.getStatus());
-                        }
                         productCustomizationRepository.save(existingCustomization);
                     });
         }
@@ -1117,7 +1113,6 @@ public class ProductServiceImpl implements ProductService {
                     custom.setProductId(product.getId());
                     custom.setName(dto.getName());
                     custom.setPriceAdjustment(dto.getPriceAdjustment());
-                    custom.setStatus(dto.getStatus() != null ? dto.getStatus() : "ACTIVE");
                     return custom;
                 })
                 .toList();

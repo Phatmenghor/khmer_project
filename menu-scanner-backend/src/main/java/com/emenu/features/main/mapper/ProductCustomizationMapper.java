@@ -22,7 +22,6 @@ public class ProductCustomizationMapper {
         dto.setProductId(customization.getProductId());
         dto.setName(customization.getName());
         dto.setPriceAdjustment(customization.getPriceAdjustment());
-        dto.setStatus(customization.getStatus());
 
         return dto;
     }
@@ -36,7 +35,6 @@ public class ProductCustomizationMapper {
         customization.setProductId(dto.getProductId());
         customization.setName(dto.getName());
         customization.setPriceAdjustment(dto.getPriceAdjustment());
-        customization.setStatus(dto.getStatus() != null ? dto.getStatus() : "ACTIVE");
 
         return customization;
     }
@@ -48,7 +46,6 @@ public class ProductCustomizationMapper {
 
         customization.setName(dto.getName());
         customization.setPriceAdjustment(dto.getPriceAdjustment());
-        customization.setStatus(dto.getStatus() != null ? dto.getStatus() : customization.getStatus());
     }
 
     public List<ProductCustomization> toEntitiesForCreate(List<ProductCustomizationUpdateDto> dtos) {
@@ -62,7 +59,6 @@ public class ProductCustomizationMapper {
                     ProductCustomization customization = new ProductCustomization();
                     customization.setName(dto.getName());
                     customization.setPriceAdjustment(dto.getPriceAdjustment());
-                    customization.setStatus(dto.getStatus() != null ? dto.getStatus() : "ACTIVE");
                     return customization;
                 })
                 .toList();
