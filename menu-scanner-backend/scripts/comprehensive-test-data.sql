@@ -56,25 +56,25 @@ VALUES (
 -- 3. CREATE USERS (101 for Mega Store + 50+ for Fashion Hub)
 -- ============================================================================
 
--- Main User 1: BUSINESS_OWNER (phatmenghor20@gmail.com) - Mega Store
+-- Main User 1: BUSINESS_USER with Business Owner role (phatmenghor20@gmail.com) - Mega Store
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '660e8400-e29b-41d4-a716-446655440001',
   'phatmenghor20',
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'BUSINESS_OWNER',
+  'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550e8400-e29b-41d4-a716-446655440000',
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
--- Main User 2: BUSINESS_OWNER (phatmenghor21@gmail.com) - Fashion Hub
+-- Main User 2: BUSINESS_USER with Business Owner role (phatmenghor21@gmail.com) - Fashion Hub
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '660e8400-e29b-41d4-a716-446655440002',
   'phatmenghor21',
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'BUSINESS_OWNER',
+  'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550e8400-e29b-41d4-a716-446655440001',
   0, false, NOW(), NOW(), 'admin', 'admin'
@@ -86,7 +86,7 @@ SELECT
   gen_random_uuid(),
   'admin_' || i,
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'ADMIN',
+  'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550e8400-e29b-41d4-a716-446655440000',
   0, false, NOW(), NOW(), 'admin', 'admin'
@@ -99,7 +99,7 @@ SELECT
   gen_random_uuid(),
   'manager_' || i,
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'MANAGER',
+  'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550e8400-e29b-41d4-a716-446655440000',
   0, false, NOW(), NOW(), 'admin', 'admin'
@@ -112,7 +112,7 @@ SELECT
   gen_random_uuid(),
   'staff_' || i,
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'STAFF',
+  'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550e8400-e29b-41d4-a716-446655440000',
   0, false, NOW(), NOW(), 'admin', 'admin'
@@ -125,7 +125,7 @@ SELECT
   gen_random_uuid(),
   'admin_fh_' || i,
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'ADMIN',
+  'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550e8400-e29b-41d4-a716-446655440001',
   0, false, NOW(), NOW(), 'admin', 'admin'
@@ -138,7 +138,7 @@ SELECT
   gen_random_uuid(),
   'staff_fh_' || i,
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'STAFF',
+  'BUSINESS_USER',
   'ACTIVE', 'ACTIVE',
   '550e8400-e29b-41d4-a716-446655440001',
   0, false, NOW(), NOW(), 'admin', 'admin'
