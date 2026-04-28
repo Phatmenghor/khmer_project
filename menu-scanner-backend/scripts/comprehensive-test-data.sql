@@ -586,10 +586,10 @@ SELECT
   p.sku,
   p.barcode,
   (1 + item_num % 3)::int,
-  p.price,
-  (p.price * (1 + item_num % 3))::numeric,
-  p.price,
-  (p.price * (1 + item_num % 3))::numeric,
+  COALESCE(p.price, 50),
+  (COALESCE(p.price, 50) * (1 + item_num % 3))::numeric,
+  COALESCE(p.price, 50),
+  (COALESCE(p.price, 50) * (1 + item_num % 3))::numeric,
   (CASE WHEN p.promotion_type IS NOT NULL AND p.promotion_value IS NOT NULL
          AND NOW()::date >= COALESCE(p.promotion_from_date::date, NOW()::date)
          AND NOW()::date <= COALESCE(p.promotion_to_date::date, NOW()::date) THEN true ELSE false END),
