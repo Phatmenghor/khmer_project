@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Status } from "@/constants/status/status";
 import {
   AllSubcategoriesResponseModel,
   SubcategoriesResponseModel,
@@ -20,7 +21,7 @@ const initialState: SubcategoriesManagementState = {
   filters: {
     search: "",
     pageNo: 1,
-    status: "",
+    status: Status.ALL,
     categoryId: "",
   },
   operations: {
