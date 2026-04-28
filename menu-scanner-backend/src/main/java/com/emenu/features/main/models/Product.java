@@ -289,4 +289,15 @@ public class Product extends BaseUUIDEntity {
     public boolean isAvailable() {
         return ProductStatus.ACTIVE.equals(status) || ProductStatus.OUT_OF_STOCK.equals(status);
     }
+
+    @PrePersist
+    @PreUpdate
+    public void truncatePromotionDates() {
+        if (promotionFromDate != null) {
+            promotionFromDate = promotionFromDate.truncatedTo(ChronoUnit.DAYS);
+        }
+        if (promotionToDate != null) {
+            promotionToDate = promotionToDate.truncatedTo(ChronoUnit.DAYS);
+        }
+    }
 }

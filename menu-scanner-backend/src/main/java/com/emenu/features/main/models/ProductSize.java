@@ -132,4 +132,15 @@ public class ProductSize extends BaseUUIDEntity {
             this.productId = null;
         }
     }
+
+    @PrePersist
+    @PreUpdate
+    public void truncatePromotionDates() {
+        if (promotionFromDate != null) {
+            promotionFromDate = promotionFromDate.truncatedTo(ChronoUnit.DAYS);
+        }
+        if (promotionToDate != null) {
+            promotionToDate = promotionToDate.truncatedTo(ChronoUnit.DAYS);
+        }
+    }
 }
