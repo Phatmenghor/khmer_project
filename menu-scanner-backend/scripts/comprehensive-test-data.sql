@@ -567,7 +567,7 @@ FROM generate_series(1, 80) AS t(order_num);
 -- ============================================================================
 -- 14. CREATE ORDER ITEMS (3-5 items per order)
 -- ============================================================================
-INSERT INTO order_items (id, order_id, product_id, product_size_id, quantity, unit_price, final_price, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO order_items (id, order_id, product_id, product_size_id, product_name, product_image_url, size_name, sku, barcode, quantity, unit_price, final_price, current_price, has_promotion, promotion_type, promotion_value, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   o.id,
@@ -575,16 +575,27 @@ SELECT
   CASE WHEN (item_num % 3 = 0) AND p.has_sizes THEN
     (SELECT id FROM product_sizes WHERE product_id = p.id ORDER BY created_at LIMIT 1 OFFSET (item_num % 9))
   ELSE NULL END,
+  p.name,
+  p.main_image_url,
+  CASE WHEN (item_num % 3 = 0) AND p.has_sizes THEN
+    (SELECT name FROM product_sizes WHERE product_id = p.id ORDER BY created_at LIMIT 1 OFFSET (item_num % 9))
+  ELSE NULL END,
+  p.sku,
+  p.barcode,
   (1 + item_num % 3),
   p.price,
   (p.price * (1 + item_num % 3))::numeric,
+  p.price,
+  p.has_active_promotion,
+  p.promotion_type,
+  p.promotion_value,
   0,
   false,
   o.created_at,
   o.updated_at,
   'admin', 'admin'
 FROM orders o
-CROSS JOIN LATERAL (SELECT id, price, has_sizes FROM products WHERE business_id = o.business_id ORDER BY created_at LIMIT 5) p
+CROSS JOIN LATERAL (SELECT id, name, price, sku, barcode, has_sizes, main_image_url, has_active_promotion, promotion_type, promotion_value FROM products WHERE business_id = o.business_id ORDER BY created_at LIMIT 5) p
 CROSS JOIN generate_series(1, (1 + (RANDOM() * 3)::int)) AS t(item_num)
 WHERE o.business_id IN ('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001');
 
