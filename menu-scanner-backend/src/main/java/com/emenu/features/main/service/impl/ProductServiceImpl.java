@@ -7,6 +7,7 @@ import com.emenu.features.main.dto.filter.ProductFilterDto;
 import com.emenu.features.main.dto.request.ProductCreateDto;
 import com.emenu.features.main.dto.request.ProductImageCreateDto;
 import com.emenu.features.main.dto.request.ProductSizeCreateDto;
+import com.emenu.features.main.dto.request.ProductCustomizationCreateDto;
 import com.emenu.features.main.dto.request.BulkPromotionCreateDto;
 import com.emenu.features.main.dto.request.ResetSelectedPromotionsDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
@@ -14,18 +15,22 @@ import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.response.BulkPromotionResultDto;
 import com.emenu.features.main.dto.update.ProductImageUpdateDto;
 import com.emenu.features.main.dto.update.ProductSizeUpdateDto;
+import com.emenu.features.main.dto.update.ProductCustomizationUpdateDto;
 import com.emenu.features.main.dto.update.ProductUpdateDto;
 import com.emenu.features.main.mapper.ProductImageMapper;
 import com.emenu.features.main.mapper.ProductMapper;
 import com.emenu.features.main.mapper.ProductSizeMapper;
+import com.emenu.features.main.mapper.ProductCustomizationMapper;
 import com.emenu.features.main.models.Product;
 import com.emenu.features.main.models.ProductImage;
 import com.emenu.features.main.models.ProductSize;
+import com.emenu.features.main.models.ProductCustomization;
 import com.emenu.features.main.repository.CategoryRepository;
 import com.emenu.features.main.repository.BrandRepository;
 import com.emenu.features.main.repository.ProductImageRepository;
 import com.emenu.features.main.repository.ProductRepository;
 import com.emenu.features.main.repository.ProductSizeRepository;
+import com.emenu.features.main.repository.ProductCustomizationRepository;
 import com.emenu.features.main.service.ProductService;
 import com.emenu.features.main.models.Category;
 import com.emenu.features.main.models.Brand;
@@ -57,11 +62,13 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductSizeRepository productSizeRepository;
+    private final ProductCustomizationRepository productCustomizationRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final ProductMapper productMapper;
     private final ProductImageMapper productImageMapper;
     private final ProductSizeMapper productSizeMapper;
+    private final ProductCustomizationMapper productCustomizationMapper;
     private final PaginationMapper paginationMapper;
     private final SecurityUtils securityUtils;
     private final ProductUtils productUtils;
@@ -850,6 +857,9 @@ public class ProductServiceImpl implements ProductService {
                 log.debug("Product with {} sizes saved successfully", sizes.size());
             }
 
+            handleProductCustomizationsOnCreate(savedProduct, request.getCustomizations());
+            log.debug("Product customizations handled: {} customizations", request.getCustomizations() != null ? request.getCustomizations().size() : 0);
+
             long duration = System.currentTimeMillis() - startTime;
             log.info("Product creation completed successfully in {}ms: {}", duration, savedProduct.getId());
             return getProductById(savedProduct.getId());
@@ -906,6 +916,9 @@ public class ProductServiceImpl implements ProductService {
                 updatedProduct = productRepository.save(updatedProduct);
                 log.debug("Product with {} sizes saved after size changes", sizes.size());
             }
+
+            updateProductCustomizations(updatedProduct, request.getCustomizations());
+            log.debug("Product customizations updated: {} customizations", request.getCustomizations() != null ? request.getCustomizations().size() : 0);
 
             long duration = System.currentTimeMillis() - startTime;
             log.info("Product updated successfully in {}ms: ID={}", duration, id);
@@ -1046,6 +1059,79 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return changed;
+    }
+
+    private void handleProductCustomizationsOnCreate(Product product, List<ProductCustomizationCreateDto> customizationDtos) {
+        if (customizationDtos == null || customizationDtos.isEmpty()) return;
+
+        List<ProductCustomization> customizations = new ArrayList<>();
+        for (ProductCustomizationCreateDto dto : customizationDtos) {
+            ProductCustomization customization = new ProductCustomization();
+            customization.setProductId(product.getId());
+            customization.setName(dto.getName());
+            customization.setPriceAdjustment(dto.getPriceAdjustment());
+            customization.setStatus(dto.getStatus() != null ? dto.getStatus() : "ACTIVE");
+            customizations.add(customization);
+        }
+        productCustomizationRepository.saveAll(customizations);
+        log.debug("Created {} new customizations for product {}", customizations.size(), product.getId());
+    }
+
+    private void updateProductCustomizations(Product product, List<ProductCustomizationUpdateDto> customizationDtos) {
+        if (customizationDtos == null || customizationDtos.isEmpty()) return;
+
+        List<ProductCustomization> existingCustomizations = productCustomizationRepository.findByProductId(product.getId());
+
+        // Delete customizations not in the request
+        List<UUID> idsToKeep = customizationDtos.stream()
+                .filter(dto -> dto.getId() != null)
+                .map(ProductCustomizationUpdateDto::getId)
+                .toList();
+
+        existingCustomizations.stream()
+                .filter(customization -> !idsToKeep.contains(customization.getId()))
+                .forEach(customization -> {
+                    customization.softDelete();
+                    productCustomizationRepository.save(customization);
+                });
+
+        // Update existing customizations
+        List<ProductCustomizationUpdateDto> toUpdate = customizationDtos.stream()
+                .filter(dto -> dto.getId() != null)
+                .toList();
+
+        for (ProductCustomizationUpdateDto updateDto : toUpdate) {
+            existingCustomizations.stream()
+                    .filter(custom -> custom.getId().equals(updateDto.getId()))
+                    .findFirst()
+                    .ifPresent(existingCustomization -> {
+                        existingCustomization.setName(updateDto.getName());
+                        existingCustomization.setPriceAdjustment(updateDto.getPriceAdjustment());
+                        if (updateDto.getStatus() != null) {
+                            existingCustomization.setStatus(updateDto.getStatus());
+                        }
+                        productCustomizationRepository.save(existingCustomization);
+                    });
+        }
+
+        // Create new customizations
+        List<ProductCustomization> newCustomizations = customizationDtos.stream()
+                .filter(dto -> dto.getId() == null)
+                .map(dto -> {
+                    ProductCustomization custom = new ProductCustomization();
+                    custom.setProductId(product.getId());
+                    custom.setName(dto.getName());
+                    custom.setPriceAdjustment(dto.getPriceAdjustment());
+                    custom.setStatus(dto.getStatus() != null ? dto.getStatus() : "ACTIVE");
+                    return custom;
+                })
+                .toList();
+
+        if (!newCustomizations.isEmpty()) {
+            productCustomizationRepository.saveAll(newCustomizations);
+        }
+
+        log.debug("Updated product customizations: {} deleted/updated, {} created", idsToKeep.size(), newCustomizations.size());
     }
 
     private void validateUserBusinessAssociation(User user) {
