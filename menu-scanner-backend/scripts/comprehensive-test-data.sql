@@ -40,7 +40,7 @@ VALUES (
   'phatmenghor20',
   'phatmenghor20@gmail.com',
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'BUSINESS_USER',
+  'BUSINESS_OWNER',
   '550e8400-e29b-41d4-a716-446655440000',
   true, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
@@ -52,7 +52,7 @@ SELECT
   'admin_' || i,
   'admin' || i || '@megastore.com',
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'BUSINESS_USER',
+  'ADMIN',
   '550e8400-e29b-41d4-a716-446655440000',
   true, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 5) AS t(i)
@@ -65,7 +65,7 @@ SELECT
   'manager_' || i,
   'manager' || i || '@megastore.com',
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'BUSINESS_USER',
+  'MANAGER',
   '550e8400-e29b-41d4-a716-446655440000',
   true, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 15) AS t(i)
@@ -78,7 +78,7 @@ SELECT
   'staff_' || i,
   'staff' || i || '@megastore.com',
   '$2a$10$VIIvBQp8EySmNrY3Zs.aAeZmOSjkY2LkYmF1F.V1RjWlBGxHN1pAm',
-  'BUSINESS_USER',
+  'STAFF',
   '550e8400-e29b-41d4-a716-446655440000',
   true, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 80) AS t(i)
