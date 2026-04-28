@@ -401,7 +401,7 @@ SELECT
     WHEN 7 THEN '4XL'
     WHEN 8 THEN '5XL'
   END,
-  (p.price + (size_num * 2))::numeric,
+  (COALESCE(p.price, 50)::numeric + (size_num * 2))::numeric,
   CASE WHEN (size_num % 3 = 0) THEN CASE WHEN (size_num % 2 = 0) THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
   CASE WHEN (size_num % 3 = 0) THEN CASE WHEN (size_num % 2 = 0) THEN (15 + (size_num % 20))::numeric ELSE (3 + (size_num % 10))::numeric END ELSE NULL END,
   CASE WHEN (size_num % 3 = 0) THEN DATE_TRUNC('day', NOW() + INTERVAL '1 day' * (FLOOR((size_num * 13337) % 365))) ELSE NULL END,
