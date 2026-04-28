@@ -619,7 +619,7 @@ SELECT
   o.updated_at,
   'admin', 'admin'
 FROM (
-  SELECT o.*, ROW_NUMBER() OVER (PARTITION BY o.business_id ORDER BY o.created_at) as order_num
+  SELECT o.*, ROW_NUMBER() OVER (ORDER BY o.created_at, o.id) as order_num
   FROM orders o
 ) o
 WHERE NOT EXISTS (SELECT 1 FROM order_payments WHERE order_id = o.id);
