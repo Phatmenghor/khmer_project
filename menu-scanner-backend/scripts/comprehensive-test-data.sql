@@ -387,7 +387,7 @@ FROM generate_series(1, 10000) AS t(i);
 -- ============================================================================
 -- 9. CREATE PRODUCT SIZES (60% of products = 6,000 products × 9 sizes = 54,000)
 -- ============================================================================
-INSERT INTO product_sizes (id, product_id, size, price, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO product_sizes (id, product_id, name, price, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   p.id,
@@ -403,7 +403,6 @@ SELECT
     WHEN 8 THEN '5XL'
   END,
   (size_num * 2)::numeric,
-  'ACTIVE',
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
@@ -451,19 +450,11 @@ WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000';
 -- ============================================================================
 -- 11. CREATE PRODUCT IMAGES (5 per product = 50,000 total)
 -- ============================================================================
-INSERT INTO product_images (id, product_id, image_url, alt_text, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO product_images (id, product_id, image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   p.id,
   'https://cdn.example.com/product-' || SUBSTRING(p.id::text, 1, 8) || '-image-' || img_num || '.jpg',
-  'Product image ' || img_num || ' - ' || CASE img_num
-    WHEN 1 THEN 'Front view'
-    WHEN 2 THEN 'Back view'
-    WHEN 3 THEN 'Side view'
-    WHEN 4 THEN 'Detail view'
-    WHEN 5 THEN 'Package view'
-  END,
-  img_num,
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
