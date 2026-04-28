@@ -1,6 +1,6 @@
 -- ============================================================================
 -- COMPREHENSIVE MEGA TEST DATA GENERATION SCRIPT
--- Complete E-Commerce System with Orders, Locations, Stock & 10,000 Products
+-- Complete E-Commerce System with Orders, Stock & 10,000 Products
 -- 2 Businesses, 101+ Users with Full Order History
 -- ============================================================================
 
@@ -53,39 +53,7 @@ VALUES (
 ) ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- 3. CREATE LOCATIONS FOR BOTH BUSINESSES
--- ============================================================================
-
--- Mega Store Locations
-INSERT INTO locations (id, business_id, name, phone, address, email, latitude, longitude, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  '550e8400-e29b-41d4-a716-446655440000',
-  'Mega Store - ' || CASE loc_num WHEN 1 THEN 'Downtown' WHEN 2 THEN 'Airport' WHEN 3 THEN 'Mall' ELSE 'Suburbs' END,
-  '+855-' || (12000000 + loc_num * 1000000)::text,
-  CASE loc_num WHEN 1 THEN 'Street 1, Phnom Penh' WHEN 2 THEN 'Airport Road, Phnom Penh' WHEN 3 THEN 'Aeon Mall, Phnom Penh' ELSE 'Suburb, Phnom Penh' END,
-  'location' || loc_num || '@megastore.com',
-  11.5564 + (loc_num * 0.01),
-  104.9282 + (loc_num * 0.01),
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 4) AS t(loc_num);
-
--- Fashion Hub Locations
-INSERT INTO locations (id, business_id, name, phone, address, email, latitude, longitude, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  '550e8400-e29b-41d4-a716-446655440001',
-  'Fashion Hub - ' || CASE loc_num WHEN 1 THEN 'Central' WHEN 2 THEN 'Riverside' ELSE 'Downtown' END,
-  '+855-' || (87000000 + loc_num * 1000000)::text,
-  CASE loc_num WHEN 1 THEN 'Central Street, Siem Reap' WHEN 2 THEN 'Riverside, Siem Reap' ELSE 'Downtown, Siem Reap' END,
-  'location' || loc_num || '@fashionhub.com',
-  13.3671 + (loc_num * 0.01),
-  103.8448 + (loc_num * 0.01),
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 3) AS t(loc_num);
-
--- ============================================================================
--- 4. CREATE USERS (101 for Mega Store + 50+ for Fashion Hub)
+-- 3. CREATE USERS (101 for Mega Store + 50+ for Fashion Hub)
 -- ============================================================================
 
 -- Main User 1: BUSINESS_OWNER (phatmenghor20@gmail.com) - Mega Store
@@ -176,6 +144,52 @@ SELECT
   true, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 10) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email LIKE 'staff%@fashionhub.com' AND business_id = '550e8400-e29b-41d4-a716-446655440001');
+
+-- ============================================================================
+-- 4. CREATE CUSTOMER ADDRESSES (for main users)
+-- ============================================================================
+
+-- Addresses for phatmenghor20
+INSERT INTO customer_addresses (id, user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  '660e8400-e29b-41d4-a716-446655440001',
+  'Phum Svay Dangkum',
+  'Sangkat Svay Dangkum',
+  'Krong Siem Reap',
+  'Siem Reap',
+  'Cambodia',
+  'Street ' || (63 + addr_num),
+  'House ' || (10 + addr_num),
+  CASE WHEN addr_num = 1 THEN 'Primary residence' ELSE 'Secondary address' END,
+  13.3671::numeric(10,6) + (addr_num * 0.001)::numeric(10,6),
+  103.8448::numeric(10,6) + (addr_num * 0.001)::numeric(10,6),
+  (addr_num = 1),
+  0,
+  false,
+  NOW(), NOW(), 'admin', 'admin'
+FROM generate_series(1, 3) AS t(addr_num);
+
+-- Addresses for phatmenghor21
+INSERT INTO customer_addresses (id, user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  '660e8400-e29b-41d4-a716-446655440002',
+  'Phum Kandal',
+  'Sangkat Kandal',
+  'Krong Siem Reap',
+  'Siem Reap',
+  'Cambodia',
+  'Street ' || (271 + addr_num),
+  'House ' || (20 + addr_num),
+  CASE WHEN addr_num = 1 THEN 'Main office' ELSE 'Alternate location' END,
+  13.4000::numeric(10,6) + (addr_num * 0.002)::numeric(10,6),
+  103.8700::numeric(10,6) + (addr_num * 0.002)::numeric(10,6),
+  (addr_num = 1),
+  0,
+  false,
+  NOW(), NOW(), 'admin', 'admin'
+FROM generate_series(1, 2) AS t(addr_num);
 
 -- ============================================================================
 -- 5. CREATE CATEGORIES (18 for Mega Store)
@@ -522,7 +536,7 @@ WHERE NOT EXISTS (SELECT 1 FROM order_status_history WHERE order_id = o.id);
 --   ├─ Mega Store (phatmenghor20@gmail.com)
 --   └─ Fashion Hub (phatmenghor21@gmail.com)
 --
--- ✅ LOCATIONS: 7 (4 for Mega Store, 3 for Fashion Hub)
+-- ✅ CUSTOMER ADDRESSES: 5 (3 for phatmenghor20, 2 for phatmenghor21)
 --
 -- ✅ USERS: 150+
 --   ├─ Mega Store: 101 (1 owner + 5 admin + 15 manager + 80 staff)
