@@ -681,3 +681,58 @@ WHERE NOT EXISTS (SELECT 1 FROM order_status_history WHERE order_id = o.id);
 --
 -- ✅ TOTAL RECORDS: ~300,000+
 -- ============================================================================
+
+-- ============================================================================
+-- VERIFICATION QUERIES - Check if data was inserted successfully
+-- ============================================================================
+
+-- Check Main Users
+SELECT '=== MAIN USERS ===' as info;
+SELECT u.id, u.user_identifier, up.email, b.name as business_name
+FROM users u
+LEFT JOIN user_profiles up ON u.id = up.user_id
+LEFT JOIN businesses b ON u.business_id = b.id
+WHERE u.user_identifier IN ('phatmenghor20', 'phatmenghor21')
+ORDER BY u.user_identifier;
+
+-- Check Businesses
+SELECT '=== BUSINESSES ===' as info;
+SELECT id, name, status, is_subscription_active FROM businesses ORDER BY created_at;
+
+-- Check Data Counts
+SELECT '=== DATA COUNTS ===' as info;
+SELECT
+  (SELECT COUNT(*) FROM users) as total_users,
+  (SELECT COUNT(*) FROM categories) as categories,
+  (SELECT COUNT(*) FROM subcategories) as subcategories,
+  (SELECT COUNT(*) FROM brands) as brands,
+  (SELECT COUNT(*) FROM products) as products,
+  (SELECT COUNT(*) FROM product_sizes) as product_sizes,
+  (SELECT COUNT(*) FROM product_customizations) as product_customizations,
+  (SELECT COUNT(*) FROM product_images) as product_images,
+  (SELECT COUNT(*) FROM orders) as orders,
+  (SELECT COUNT(*) FROM order_items) as order_items,
+  (SELECT COUNT(*) FROM order_payments) as order_payments,
+  (SELECT COUNT(*) FROM customer_addresses) as customer_addresses,
+  (SELECT COUNT(*) FROM product_stock) as product_stock;
+
+-- Check Mega Store Data
+SELECT '=== MEGA STORE DATA ===' as info;
+SELECT
+  COUNT(DISTINCT p.id) as products,
+  COUNT(DISTINCT ps.id) as sizes,
+  COUNT(DISTINCT pc.id) as customizations,
+  COUNT(DISTINCT pi.id) as images
+FROM products p
+LEFT JOIN product_sizes ps ON p.id = ps.product_id
+LEFT JOIN product_customizations pc ON p.id = pc.product_id
+LEFT JOIN product_images pi ON p.id = pi.product_id
+WHERE p.business_id = '550e8400-e29b-41d4-a716-446655440000';
+
+-- Check Orders for phatmenghor20
+SELECT '=== ORDERS FOR phatmenghor20 ===' as info;
+SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550e8400-e29b-41d4-a716-446655440000';
+
+-- Check Orders for phatmenghor21
+SELECT '=== ORDERS FOR phatmenghor21 ===' as info;
+SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550e8400-e29b-41d4-a716-446655440001';
