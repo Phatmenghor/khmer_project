@@ -84,6 +84,7 @@ public interface ProductMapper {
     }
 
     @Mapping(source = "displayPromotionType", target = "displayPromotionType", qualifiedByName = "promotionTypeToString")
+    @Mapping(target = "hasActivePromotion", expression = "java(product.isPromotionActive())")
     @Mapping(target = "isFavorited", constant = "false")
     ProductListDto toListDto(Product product);
 
@@ -94,7 +95,7 @@ public interface ProductMapper {
     @Mapping(source = "brandName", target = "brandName")
     @Mapping(source = "promotionType", target = "promotionType", qualifiedByName = "promotionTypeToString")
     @Mapping(source = "displayPromotionType", target = "displayPromotionType", qualifiedByName = "promotionTypeToString")
-    @Mapping(target = "hasPromotion", source = "hasActivePromotion")
+    @Mapping(target = "hasPromotion", expression = "java(product.isPromotionActive())")
     @Mapping(target = "isFavorited", constant = "false")
     @Mapping(target = "images", source = "images")
     @Mapping(target = "sizes", source = "sizes")

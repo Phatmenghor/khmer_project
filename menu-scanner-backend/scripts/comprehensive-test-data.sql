@@ -349,7 +349,7 @@ WHERE NOT EXISTS (SELECT 1 FROM brands WHERE business_id = '550e8400-e29b-41d4-a
 -- ============================================================================
 INSERT INTO products (
   id, business_id, category_id, subcategory_id, brand_id, name, description, price,
-  main_image_url, barcode, sku, status, stock_status, has_sizes, has_active_promotion,
+  main_image_url, barcode, sku, status, stock_status, has_sizes,
   view_count, favorite_count, category_name, brand_name, business_name, version, is_deleted,
   created_at, updated_at, created_by, updated_by, promotion_type, promotion_value,
   promotion_from_date, promotion_to_date
@@ -369,7 +369,6 @@ SELECT
   'ACTIVE',
   'ENABLED',
   (i % 10) < 6,
-  (i % 10) < 4,
   (i % 100),
   (i % 50),
   'Category ' || ((i - 1) / 555 + 1),
@@ -587,7 +586,9 @@ SELECT
   (p.price * (1 + item_num % 3))::numeric,
   p.price,
   (p.price * (1 + item_num % 3))::numeric,
-  p.has_active_promotion,
+  (CASE WHEN p.promotion_type IS NOT NULL AND p.promotion_value IS NOT NULL
+         AND NOW()::date >= COALESCE(p.promotion_from_date::date, NOW()::date)
+         AND NOW()::date <= COALESCE(p.promotion_to_date::date, NOW()::date) THEN true ELSE false END),
   p.promotion_type,
   p.promotion_value,
   0,
@@ -596,7 +597,7 @@ SELECT
   o.updated_at,
   'admin', 'admin'
 FROM orders o
-CROSS JOIN LATERAL (SELECT id, name, price, sku, barcode, has_sizes, main_image_url, has_active_promotion, promotion_type, promotion_value FROM products WHERE business_id = o.business_id ORDER BY created_at LIMIT 5) p
+CROSS JOIN LATERAL (SELECT id, name, price, sku, barcode, has_sizes, main_image_url, promotion_type, promotion_value FROM products WHERE business_id = o.business_id ORDER BY created_at LIMIT 5) p
 CROSS JOIN generate_series(1, (1 + (RANDOM() * 3)::int)) AS t(item_num)
 WHERE o.business_id IN ('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001');
 

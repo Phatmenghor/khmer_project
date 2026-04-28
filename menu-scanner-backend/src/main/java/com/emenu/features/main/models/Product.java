@@ -108,9 +108,6 @@ public class Product extends BaseUUIDEntity {
     @Column(name = "stock_status", nullable = false)
     private StockStatus stockStatus = StockStatus.ENABLED;
 
-    @Column(name = "has_active_promotion", nullable = false)
-    private Boolean hasActivePromotion = false;
-
     @Column(name = "view_count", nullable = false)
     private Long viewCount = 0L;
 
