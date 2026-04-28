@@ -135,20 +135,23 @@ VALUES (
 ) ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- 3.6. CREATE EXCHANGE RATES
+-- 3.6. CREATE BUSINESS EXCHANGE RATES (18 for Mega Store)
 -- ============================================================================
 
-INSERT INTO exchange_rates (id, usd_to_khr_rate, is_active, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
+INSERT INTO business_exchange_rates (id, business_id, usd_to_khr_rate, usd_to_cny_rate, usd_to_vnd_rate, status, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
   gen_random_uuid(),
-  4100.00,
-  true,
-  'USD to KHR exchange rate',
+  '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
+  (4000 + (i * 5))::double precision,
+  (6.5 + (i * 0.01))::double precision,
+  (23000 + (i * 50))::double precision,
+  'ACTIVE',
+  'Exchange rate option ' || i || ' for currency conversion',
   0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT DO NOTHING;
+FROM generate_series(1, 18) AS t(i);
 
 -- ============================================================================
--- 3.7. CREATE DELIVERY OPTIONS (16 for Mega Store)
+-- 3.7. CREATE DELIVERY OPTIONS (16 for Mega Store with images)
 -- ============================================================================
 
 INSERT INTO delivery_options (id, business_id, name, description, image_url, price, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -157,7 +160,7 @@ SELECT
   '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
   'Delivery Option ' || i,
   'Delivery option ' || i || ' - Standard delivery with ' || (i * 30) || ' minute estimate',
-  NULL,
+  'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=300&fit=crop&delivery-' || i,
   (5000 + (i * 500))::numeric(10,2),
   'ACTIVE',
   0, false, NOW(), NOW(), 'admin', 'admin'
