@@ -386,7 +386,7 @@ FROM generate_series(1, 10000) AS t(i);
 -- ============================================================================
 -- 9. CREATE PRODUCT SIZES (60% of products = 6,000 products × 9 sizes = 54,000)
 -- ============================================================================
-INSERT INTO product_sizes (id, product_id, name, price, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO product_sizes (id, product_id, name, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   p.id,
@@ -402,6 +402,10 @@ SELECT
     WHEN 8 THEN '5XL'
   END,
   (p.price + (size_num * 2))::numeric,
+  CASE WHEN (((p.id::text::bigint % 10) < 4) AND size_num % 3 = 0) THEN CASE WHEN (((p.id::text::bigint % 10) < 2)) THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
+  CASE WHEN (((p.id::text::bigint % 10) < 4) AND size_num % 3 = 0) THEN CASE WHEN (((p.id::text::bigint % 10) < 2)) THEN (15 + (size_num % 20))::numeric ELSE (3 + (size_num % 10))::numeric END ELSE NULL END,
+  CASE WHEN (((p.id::text::bigint % 10) < 4) AND size_num % 3 = 0) THEN NOW() ELSE NULL END,
+  CASE WHEN (((p.id::text::bigint % 10) < 4) AND size_num % 3 = 0) THEN (NOW() + INTERVAL '30 days') ELSE NULL END,
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
