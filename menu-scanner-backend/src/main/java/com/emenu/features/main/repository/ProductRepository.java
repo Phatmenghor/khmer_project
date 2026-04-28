@@ -105,8 +105,18 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
            "AND (:needsPromotion IS NULL OR (p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
            "AND (:needsNoPromotion IS NULL OR (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
-           "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
+           "AND (:minPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) <= :maxPrice) " +
            "AND (:hasSizes IS NULL OR p.hasSizes = :hasSizes) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -141,8 +151,18 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
            "AND (:needsPromotion IS NULL OR (p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
            "AND (:needsNoPromotion IS NULL OR (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
-           "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
+           "AND (:minPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) <= :maxPrice) " +
            "AND (:hasSizes IS NULL OR p.hasSizes = :hasSizes) " +
            "AND (:stockStatuses IS NULL OR p.stockStatus IN :stockStatuses) " +
            "AND (:search IS NULL OR :search = '' OR " +
@@ -181,8 +201,18 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
            "AND (:needsPromotion IS NULL OR (p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
            "AND (:needsNoPromotion IS NULL OR (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) " +
-           "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
+           "AND (:minPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) <= :maxPrice) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
