@@ -7,7 +7,7 @@
 # ============================================================
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:e_menu_platform}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:1111}/${DB_NAME:e_menu_platform}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:Hour1819}
     driver-class-name: org.postgresql.Driver
