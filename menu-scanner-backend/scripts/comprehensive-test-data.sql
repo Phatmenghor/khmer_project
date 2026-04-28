@@ -39,7 +39,7 @@ INSERT INTO business_settings (id, business_id, use_categories, use_subcategorie
 VALUES (
   '770e8400-e29b-41d4-a716-446655440002',
   '550e8400-e29b-41d4-a716-446655440000',
-  true, true, true, 10.0, 'Mega Store', 'https://cdn.example.com/megastore-logo.png', 'ENABLED', '#FF6B6B',
+  true, true, true, 10.0, 'Mega Store', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'ENABLED', '#FF6B6B',
   'Phnom Penh, Cambodia', '+855-12-345-678', 'megastore@example.com', 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
@@ -48,7 +48,7 @@ INSERT INTO business_settings (id, business_id, use_categories, use_subcategorie
 VALUES (
   '770e8400-e29b-41d4-a716-446655440003',
   '550e8400-e29b-41d4-a716-446655440001',
-  true, true, true, 10.0, 'Fashion Hub', 'https://cdn.example.com/fashionhub-logo.png', 'ENABLED', '#6B6BFF',
+  true, true, true, 10.0, 'Fashion Hub', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'ENABLED', '#6B6BFF',
   'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com', 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
@@ -302,7 +302,7 @@ SELECT
   gen_random_uuid(),
   '550e8400-e29b-41d4-a716-446655440000',
   'Category ' || i,
-  'https://cdn.example.com/category-' || i || '.jpg',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ACTIVE',
   0,
   false,
@@ -319,7 +319,7 @@ SELECT
   (SELECT id FROM categories WHERE business_id = '550e8400-e29b-41d4-a716-446655440000' ORDER BY created_at LIMIT 1 OFFSET (i-1) % 18),
   '550e8400-e29b-41d4-a716-446655440000',
   'Subcategory ' || i,
-  'https://cdn.example.com/subcat-' || i || '.jpg',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ACTIVE',
   0,
   false,
@@ -335,7 +335,7 @@ SELECT
   gen_random_uuid(),
   '550e8400-e29b-41d4-a716-446655440000',
   'Brand ' || i,
-  'https://cdn.example.com/brand-' || i || '-logo.png',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'Brand ' || i || ' - Premium quality products',
   'ACTIVE',
   0,
@@ -363,7 +363,7 @@ SELECT
   'Product ' || i,
   'High quality product ' || i || ' with premium features and excellent durability',
   CASE WHEN (i % 10) < 6 THEN NULL ELSE (10 + (i % 200))::numeric END,
-  'https://cdn.example.com/product-' || i || '.jpg',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   '1000000000' || LPAD(i::text, 7, '0'),
   'SKU-' || LPAD(i::text, 7, '0'),
   'ACTIVE',
@@ -457,7 +457,7 @@ INSERT INTO product_images (id, product_id, image_url, version, is_deleted, crea
 SELECT
   gen_random_uuid(),
   p.id,
-  'https://cdn.example.com/product-' || SUBSTRING(p.id::text, 1, 8) || '-image-' || img_num || '.jpg',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
