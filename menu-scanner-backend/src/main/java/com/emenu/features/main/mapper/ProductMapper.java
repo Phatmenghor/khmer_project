@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring",
-uses = {ProductImageMapper.class, ProductSizeMapper.class, PaginationMapper.class},
+uses = {ProductImageMapper.class, ProductSizeMapper.class, ProductCustomizationMapper.class, PaginationMapper.class},
 unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProductMapper {
 
@@ -98,6 +98,7 @@ public interface ProductMapper {
     @Mapping(target = "isFavorited", constant = "false")
     @Mapping(target = "images", source = "images")
     @Mapping(target = "sizes", source = "sizes")
+    @Mapping(target = "customizations", source = "customizations")
     ProductDetailDto toDetailDto(Product product);
 
     List<ProductDetailDto> toDetailDtos(List<Product> products);

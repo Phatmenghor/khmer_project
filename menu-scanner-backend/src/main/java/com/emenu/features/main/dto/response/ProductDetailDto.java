@@ -62,4 +62,5 @@ public class ProductDetailDto extends BaseAuditResponse {
 
     private List<ProductImageDto> images;
     private List<ProductSizeDto> sizes;
+    private List<ProductCustomizationDto> customizations;
 }
