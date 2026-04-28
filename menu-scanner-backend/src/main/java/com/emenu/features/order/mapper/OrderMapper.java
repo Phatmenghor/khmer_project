@@ -101,7 +101,7 @@ public interface OrderMapper {
         LocalDateTime promotionFromDate = null;
         LocalDateTime promotionToDate = null;
 
-        if (cartItem.getProduct() != null && cartItem.getProduct().getHasActivePromotion()) {
+        if (cartItem.getProduct() != null && cartItem.getProduct().isPromotionActive()) {
             promotionType = cartItem.getProduct().getPromotionType() != null ?
                     cartItem.getProduct().getPromotionType().toString() : null;
             promotionValue = cartItem.getProduct().getPromotionValue();

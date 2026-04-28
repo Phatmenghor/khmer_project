@@ -155,9 +155,8 @@ public class Product extends BaseUUIDEntity {
         if (activeSizes.isEmpty()) {
             // No active sizes - use product's own fields
             this.hasSizes = false;
-            this.hasActivePromotion = isPromotionActive();
             this.displayOriginPrice = this.price;
-            if (this.hasActivePromotion) {
+            if (isPromotionActive()) {
                 this.displayPrice = getFinalPrice();
                 this.displayPromotionType = this.promotionType;
                 this.displayPromotionValue = this.promotionValue;
@@ -174,9 +173,6 @@ public class Product extends BaseUUIDEntity {
             // Has active sizes - use size fields
             this.hasSizes = true;
 
-            // hasActivePromotion = true if ANY size has an active promotion
-            this.hasActivePromotion = activeSizes.stream().anyMatch(ProductSize::isPromotionActive);
-
             // Pick display size: cheapest promoted size first, otherwise cheapest overall
             ProductSize displaySize = activeSizes.stream()
                     .filter(ProductSize::isPromotionActive)
@@ -187,7 +183,7 @@ public class Product extends BaseUUIDEntity {
 
             if (displaySize != null) {
                 this.displayOriginPrice = displaySize.getPrice();
-                if (this.hasActivePromotion) {
+                if (displaySize.isPromotionActive()) {
                     this.displayPromotionType = displaySize.getPromotionType();
                     this.displayPromotionValue = displaySize.getPromotionValue();
                     this.displayPromotionFromDate = displaySize.getPromotionFromDate();
@@ -206,9 +202,8 @@ public class Product extends BaseUUIDEntity {
 
     public void initializeDisplayFields() {
         this.hasSizes = false;
-        this.hasActivePromotion = isPromotionActive();
         this.displayOriginPrice = this.price;
-        if (this.hasActivePromotion) {
+        if (isPromotionActive()) {
             this.displayPrice = getFinalPrice();
             this.displayPromotionType = this.promotionType;
             this.displayPromotionValue = this.promotionValue;
