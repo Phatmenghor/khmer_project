@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { CustomButton } from "../button/custom-button";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
-import { RootState } from "@/redux/store";
+import { selectPOSProductQuantity } from "@/redux/features/business/store/selectors/pos-cart-selectors";
 
 interface POSProductCardProps {
   product: ProductDetailResponseModel;
@@ -21,13 +21,12 @@ function POSProductCardComponent({
   onAddClick,
   onQuantityChange,
 }: POSProductCardProps) {
-  // Get quantity from Redux cart state (only this product's quantity)
-  // This ensures card only re-renders when THIS product's quantity changes
-  const quantity = useSelector((state: RootState) => {
-    return state.posPage.cartItems
-      .filter((item) => item.productId === product.id)
-      .reduce((sum, item) => sum + item.quantity, 0);
-  });
+  // Get quantity from Redux using memoized selector (only this product's quantity)
+  // This ensures card only re-renders when THIS product's quantity changes,
+  // not when other products change. Matches optimization pattern of public ProductCard.
+  const quantity = useSelector((state) =>
+    selectPOSProductQuantity(state, product.id)
+  );
   const handleIncrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
