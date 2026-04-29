@@ -332,47 +332,9 @@ export function SizePickerModal({
             </div>
           )}
 
-          {/* Customizations Selection */}
-          {product?.customizations && product.customizations.length > 0 && (
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <h4 className="font-semibold text-sm">Customizations</h4>
-                {selectedCustomizations.size > 0 && (
-                  <Badge variant="default" className="text-xs">
-                    {selectedCustomizations.size} selected
-                  </Badge>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {product.customizations.map((customization) => {
-                  const isSelected = selectedCustomizations.has(customization.id);
-                  return (
-                    <button
-                      key={customization.id}
-                      onClick={() => toggleCustomization(customization.id)}
-                      className={cn(
-                        "relative border-2 rounded-lg px-3 py-2 transition-all cursor-pointer hover:border-blue-500",
-                        isSelected
-                          ? "border-blue-500 bg-blue-50 ring-2 ring-blue-300/20"
-                          : "border-border",
-                      )}
-                    >
-                      <div className="font-semibold text-xs">{customization.name}</div>
-                      {isSelected && (
-                        <div className="absolute -top-1.5 -right-1.5 bg-blue-500 text-white rounded-full p-0.5">
-                          <Check className="h-2.5 w-2.5" />
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           {/* Quantity Selector + Clear Button */}
-          <div className="mb-4">
-            <h4 className="font-semibold mb-2 text-sm">Quantity</h4>
+          <div className="mb-4 p-3 bg-muted/30 rounded-lg border">
+            <h4 className="font-semibold mb-3 text-sm">Quantity</h4>
             <div className="flex items-center gap-2">
               <QuantitySelector
                 value={currentQuantity}
@@ -394,6 +356,54 @@ export function SizePickerModal({
               )}
             </div>
           </div>
+
+          {/* Customizations Selection */}
+          {product?.customizations && product.customizations.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <h4 className="font-semibold text-sm">Add-ons</h4>
+                {selectedCustomizations.size > 0 && (
+                  <Badge variant="secondary" className="text-xs">
+                    {selectedCustomizations.size} selected
+                  </Badge>
+                )}
+              </div>
+              <div className="space-y-2">
+                {product.customizations.map((customization) => {
+                  const isSelected = selectedCustomizations.has(customization.id);
+                  const priceAdjustment = customization.priceAdjustment || 0;
+                  return (
+                    <button
+                      key={customization.id}
+                      onClick={() => toggleCustomization(customization.id)}
+                      className={cn(
+                        "w-full flex items-center justify-between border-2 rounded-lg px-3 py-2.5 transition-all cursor-pointer text-left",
+                        isSelected
+                          ? "border-blue-500 bg-blue-50/50"
+                          : "border-border hover:border-blue-300 hover:bg-muted/30"
+                      )}
+                    >
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm text-foreground">
+                          {customization.name}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 ml-2">
+                        <span className="text-sm font-semibold text-primary">
+                          +{formatCurrency(priceAdjustment)}
+                        </span>
+                        {isSelected && (
+                          <div className="bg-blue-500 text-white rounded-full p-0.5 flex-shrink-0">
+                            <Check className="h-3 w-3" />
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Total */}
           <div className="bg-muted/30 rounded-lg p-4 border space-y-2">
