@@ -19,6 +19,13 @@ interface POSCartItemProps {
   hasPromotion?: boolean;
   promotionType?: string | null;
   promotionValue?: number | null;
+  // Customizations/Add-ons
+  customizations?: Array<{
+    id: string;
+    productCustomizationId: string;
+    name: string;
+    priceAdjustment: number;
+  }>;
   // Audit trail fields
   originalPrice?: number;
   hadChangeFromPOS?: boolean;
@@ -39,6 +46,7 @@ export function POSCartItem({
   hasPromotion,
   promotionType,
   promotionValue,
+  customizations,
   originalPrice,
   hadChangeFromPOS,
   auditChangeType,
@@ -92,6 +100,24 @@ export function POSCartItem({
               <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full inline-block border border-primary/30 whitespace-nowrap">
                 {sizeName}
               </span>
+            </div>
+          )}
+
+          {/* Customizations/Add-ons */}
+          {customizations && customizations.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {customizations.map((custom) => (
+                <span
+                  key={custom.id}
+                  className="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-200 whitespace-nowrap"
+                  title={custom.name}
+                >
+                  {custom.name}
+                  {custom.priceAdjustment > 0 && (
+                    <span className="ml-1 text-green-600">+{formatCurrency(custom.priceAdjustment)}</span>
+                  )}
+                </span>
+              ))}
             </div>
           )}
 
