@@ -50,8 +50,8 @@ export function SizePickerModal({
   // Track which sizes have been modified (differ from original)
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
 
-  // Check if there are any unsaved changes
-  const hasUnsavedChanges = modifiedSizes.size > 0;
+  // Check if there are any unsaved changes (includes quantity changes or customization selection)
+  const hasUnsavedChanges = modifiedSizes.size > 0 || selectedCustomizations.size > 0;
 
   // Get original quantity for a size (like current cart quantity)
   const getQuantityForSize = useCallback(
