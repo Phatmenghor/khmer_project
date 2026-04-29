@@ -584,9 +584,22 @@ export default function PosPage() {
     // Order: before/after pricing + discount metadata
     const payload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
+      customerName: customerName || "Walk-in Customer",
+      customerPhone: "",
+      customerEmail: "",
 
-      // Address - use ID for backend to fetch full details
-      addressId: "",  // TODO: Implement address selection modal for POS
+      // Full delivery address details for POS
+      deliveryAddress: {
+        village: "",
+        commune: "",
+        district: "",
+        province: "",
+        streetNumber: "",
+        houseNumber: "",
+        note: customerNote || "POS Order",
+        latitude: null,
+        longitude: null,
+      },
 
       // Full delivery option details (same as public checkout)
       deliveryOption: {
