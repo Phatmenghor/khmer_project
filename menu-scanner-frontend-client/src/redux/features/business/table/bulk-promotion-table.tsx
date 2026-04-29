@@ -154,8 +154,8 @@ export const bulkPromotionTableColumns = ({
     {
       key: "pricing",
       label: "Price",
-      minWidth: "150px",
-      maxWidth: "250px",
+      minWidth: "100px",
+      maxWidth: "200px",
       className: "px-4",
       render: (product) => {
         return (
@@ -170,13 +170,6 @@ export const bulkPromotionTableColumns = ({
                   ${Number(product.displayOriginPrice).toFixed(2)}
                 </div>
               )}
-            {product.hasPromotion && product.displayPromotionType && (
-              <div className="text-xs font-semibold text-red-600">
-                {product.displayPromotionType === "PERCENTAGE"
-                  ? `-${product.displayPromotionValue}%`
-                  : `-$${Number(product.displayPromotionValue || 0).toFixed(2)}`}
-              </div>
-            )}
           </div>
         );
       },
