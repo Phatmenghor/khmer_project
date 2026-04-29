@@ -205,7 +205,7 @@ export function SizePickerModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full sm:max-w-[480px] p-0 overflow-hidden">
+      <DialogContent className="w-full sm:max-w-[520px] p-0 overflow-hidden">
         {/* Header */}
         <DialogHeader className="p-4 pb-0">
           <DialogTitle className="text-lg font-bold">
@@ -225,10 +225,10 @@ export function SizePickerModal({
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm line-clamp-2 mb-1">
+              <h3 className="font-semibold text-sm line-clamp-2 mb-2">
                 {product?.name}
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-lg font-bold text-primary">
                   {formatCurrency(displayPrice)}
                 </span>
@@ -237,22 +237,22 @@ export function SizePickerModal({
                     {formatCurrency(originalPrice)}
                   </span>
                 )}
+                {hasDiscount && (
+                  <Badge variant="destructive" className="text-xs">
+                    {selectedSize?.hasPromotion
+                      ? `-${Math.round(
+                          ((selectedSize.price - selectedSize.finalPrice) /
+                            selectedSize.price) *
+                          100
+                        )}%`
+                      : product?.displayPromotionType === "PERCENTAGE"
+                      ? `-${product?.displayPromotionValue}%`
+                      : `-${formatCurrency(
+                          product?.displayPromotionValue || 0
+                        )}`}
+                  </Badge>
+                )}
               </div>
-              {hasDiscount && (
-                <Badge variant="destructive" className="text-xs mt-1">
-                  {selectedSize?.hasPromotion
-                    ? `-${Math.round(
-                        ((selectedSize.price - selectedSize.finalPrice) /
-                          selectedSize.price) *
-                        100
-                      )}%`
-                    : product?.displayPromotionType === "PERCENTAGE"
-                    ? `-${product?.displayPromotionValue}%`
-                    : `-${formatCurrency(
-                        product?.displayPromotionValue || 0
-                      )}`}
-                </Badge>
-              )}
             </div>
           </div>
 
