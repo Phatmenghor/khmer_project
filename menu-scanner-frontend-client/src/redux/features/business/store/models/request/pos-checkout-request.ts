@@ -3,7 +3,7 @@
  * Simplified request DTOs without audit trail snapshots
  */
 
-// Item in the cart — simplified without before/after
+// Item in the cart — matches API specification
 export interface POSCheckoutItemRequest {
   productId: string;
   productSizeId?: string | null;
@@ -15,16 +15,10 @@ export interface POSCheckoutItemRequest {
   sizeName?: string | null;
   status?: string;
 
-  // Customizations/Add-ons - full details for backend persistence
-  customizations?: Array<{
-    id: string;
-    productCustomizationId: string;
-    name: string;
-    priceAdjustment: number;
-  }>;
+  // Customizations - only IDs as per API spec
   customizationIds?: string[];
 
-  // Pricing - final price only
+  // Pricing
   finalPrice?: number;
   totalPrice?: number;
 
@@ -40,7 +34,7 @@ export interface DeliveryOptionRequest {
   price: number;
 }
 
-// Cart summary — simplified
+// Cart summary — matches API specification
 export interface CartSummary {
   businessId: string;
   businessName?: string;
@@ -48,7 +42,6 @@ export interface CartSummary {
   totalItems: number;
   totalQuantity: number;
   subtotal: number;
-  customizationTotal: number;
   finalTotal: number;
 }
 
@@ -64,20 +57,11 @@ export interface POSCheckoutAddressRequest {
   longitude?: number;
 }
 
-// Order-level pricing — complete breakdown
+// Order-level pricing — matches API specification
 export interface PricingInfo {
-  // Base pricing
-  subtotal: number;
-  customizationTotal: number;
   deliveryFee: number;
-  // Tax breakdown - for proper tax tracking and audit trail
-  taxPercentage: number;
-  taxAmount: number;
-  // Optional: order-level discount (applied after tax)
+  subtotal: number;
   discountAmount: number;
-  discountType?: "fixed" | "percentage" | null;
-  discountReason?: string | null;
-  // Final total
   finalTotal: number;
 }
 
@@ -110,18 +94,10 @@ export interface POSCheckoutRequest {
 export interface POSCheckoutResponse {
   id: string;
   orderNumber: string;
-  // Pricing breakdown
   subtotal: number;
-  customizationTotal?: number;
-  deliveryFee: number;
-  // Tax fields - must be present in response
-  taxPercentage: number;
-  taxAmount: number;
-  // Discount
   discountAmount: number;
-  // Final total
+  deliveryFee: number;
   totalAmount: number;
-  // Order metadata
   orderStatus: string;
   source: string;
   paymentMethod: string;
