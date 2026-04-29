@@ -1046,14 +1046,9 @@ export default function PosPage() {
                       productName={item.productName}
                       productImageUrl={item.productImageUrl}
                       sizeName={item.sizeName}
-                      currentPrice={item.after.currentPrice}
-                      finalPrice={item.after.finalPrice}
+                      currentPrice={item.currentPrice}
+                      finalPrice={item.finalPrice}
                       quantity={item.quantity}
-                      hasPromotion={item.after.hasActivePromotion}
-                      promotionType={item.after.promotionType}
-                      promotionValue={item.after.promotionValue}
-                      originalPrice={item.before.finalPrice}
-                      hadChangeFromPOS={item.hadChangeFromPOS}
                       onQuantityChange={(delta) => updateQuantity(item.id, delta)}
                       onRemove={() => removeItem(item.id)}
                       onEdit={() => handleEditPriceItem(item)}
