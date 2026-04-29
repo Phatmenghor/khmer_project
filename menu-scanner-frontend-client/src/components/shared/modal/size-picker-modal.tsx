@@ -527,16 +527,18 @@ export function SizePickerModal({
                 </span>
               </div>
             )}
-            {currentQuantity > 1 && customizationTotal > 0 && (
+            {(currentQuantity > 1 || customizationTotal > 0) && (
               <>
                 <div className="flex justify-between items-center text-muted-foreground text-xs pt-1">
                   <span>Base subtotal ({currentQuantity}×)</span>
                   <span>{formatCurrency(displayPrice * currentQuantity)}</span>
                 </div>
-                <div className="flex justify-between items-center text-green-600 text-xs">
-                  <span>Add-ons subtotal ({currentQuantity}×)</span>
-                  <span>+{formatCurrency(customizationTotal * currentQuantity)}</span>
-                </div>
+                {customizationTotal > 0 && (
+                  <div className="flex justify-between items-center text-green-600 text-xs">
+                    <span>Add-ons subtotal ({currentQuantity}×)</span>
+                    <span>+{formatCurrency(customizationTotal * currentQuantity)}</span>
+                  </div>
+                )}
               </>
             )}
             <div className="flex justify-between items-center border-t pt-2">
