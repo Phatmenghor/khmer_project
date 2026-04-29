@@ -193,6 +193,14 @@ const posPageSlice = createSlice({
     },
     loadPersistedCart: (state, action: PayloadAction<PosPageCartItem[]>) => {
       state.cartItems = action.payload;
+      // Restore last selected customizations from loaded cart items
+      const customsByProduct: Record<string, string[]> = {};
+      action.payload.forEach((item) => {
+        if (item.customizations && item.customizations.length > 0) {
+          customsByProduct[item.productId] = item.customizations.map(c => c.productCustomizationId);
+        }
+      });
+      state.lastSelectedCustomizations = customsByProduct;
     },
 
     // ─── Reset ───
