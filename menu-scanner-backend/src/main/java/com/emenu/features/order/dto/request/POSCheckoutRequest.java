@@ -93,6 +93,7 @@ public class POSCheckoutRequest {
         private Integer totalQuantity;
         private BigDecimal subtotalBeforeDiscount;  // Sum of all original prices
         private BigDecimal subtotal;                // After product-level discounts
+        private BigDecimal customizationTotal;      // Total cost of all add-ons/customizations
         private BigDecimal totalDiscount;           // Total discount from promotions
         private BigDecimal finalTotal;              // After order-level discount applied
     }
@@ -102,8 +103,21 @@ public class POSCheckoutRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PricingInfo {
-        private BigDecimal deliveryFee;
+        // Base pricing
         private BigDecimal subtotal;
+        private BigDecimal customizationTotal;      // Total add-ons cost
+        private BigDecimal deliveryFee;
+
+        // Tax breakdown - for audit trail and financial reporting
+        private BigDecimal taxPercentage;           // Tax rate (e.g., 10 for 10%)
+        private BigDecimal taxAmount;               // Calculated tax amount
+
+        // Order-level discount
+        private BigDecimal discountAmount;          // Amount discounted
+        private String discountType;                // "fixed" or "percentage"
+        private String discountReason;              // Why discount was applied
+
+        // Final total
         private BigDecimal finalTotal;
     }
 

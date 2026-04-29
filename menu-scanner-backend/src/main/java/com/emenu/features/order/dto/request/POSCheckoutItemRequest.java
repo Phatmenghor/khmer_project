@@ -40,11 +40,24 @@ public class POSCheckoutItemRequest {
     private String sku;
     private String barcode;
 
-    // Customizations/Add-ons
-    private List<UUID> customizationIds;
+    // Customizations/Add-ons - full details for audit trail
+    private List<CustomizationDetail> customizations;  // Full details (id, name, price adjustment)
+    private List<UUID> customizationIds;               // IDs for quick lookup
 
     // Simplified Pricing
     private BigDecimal finalPrice;         // Price after promotions
     private BigDecimal totalPrice;         // quantity * finalPrice
+
+    // ─── Customization Detail Nested Class ───
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CustomizationDetail {
+        private UUID id;
+        private UUID productCustomizationId;
+        private String name;
+        private BigDecimal priceAdjustment;
+    }
 
 }
