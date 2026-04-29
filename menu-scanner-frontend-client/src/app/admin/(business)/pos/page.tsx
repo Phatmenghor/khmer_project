@@ -1167,7 +1167,7 @@ export default function PosPage() {
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground flex items-center gap-1">
-                    Tax<span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
+                    Tax<span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">{cartSummary.taxPercentage}%</span>
                   </span>
                   <span className="font-medium">{formatCurrency(cartSummary.taxAmount)}</span>
                 </div>
