@@ -429,11 +429,12 @@ export function SizePickerModal({
                       key={customization.id}
                       onClick={() => toggleCustomization(customization.id)}
                       className={cn(
-                        "w-full flex items-center justify-between border-2 rounded-lg px-3 py-2.5 transition-all cursor-pointer text-left",
+                        "w-full flex items-center justify-between rounded-lg px-3 py-2.5 transition-all cursor-pointer text-left",
                         isSelected
-                          ? "border-blue-500 bg-blue-50/50"
-                          : "border-border hover:border-blue-300 hover:bg-muted/30"
+                          ? "bg-blue-50/50"
+                          : "border-2 border-border hover:border-blue-300 hover:bg-muted/30"
                       )}
+                      style={isSelected ? { borderWidth: "0.5px", borderColor: "rgb(59, 130, 246)" } : {}}
                     >
                       <div className="flex-1">
                         <div className="font-semibold text-sm text-foreground">
