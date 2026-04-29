@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/redux/features/business/store/models/response/product-response";
 import { appImages } from "@/constants/app-resource/icons/app-images";
+import { showToast } from "@/components/shared/common/show-toast";
 
 interface SizePickerModalProps {
   product: ProductDetailResponseModel | null;
@@ -27,6 +28,8 @@ interface SizePickerModalProps {
   isEditing?: boolean;
   // Initial quantities for each size (e.g., when editing existing cart item)
   initialQuantities?: Map<string, number>;
+  // Initial customizations for editing existing cart item
+  initialCustomizations?: string[];
 }
 
 export function SizePickerModal({
@@ -36,6 +39,7 @@ export function SizePickerModal({
   onSizeSelect,
   isEditing = false,
   initialQuantities,
+  initialCustomizations,
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -98,7 +102,10 @@ export function SizePickerModal({
       setSelectedSize(product.sizes[0]);
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
-      setSelectedCustomizations(new Set());
+
+      // Initialize customizations from prop if editing, otherwise empty
+      const initialCustomSet = new Set(initialCustomizations || []);
+      setSelectedCustomizations(initialCustomSet);
 
       // Initialize original quantities from prop or default to 0
       const origQties = new Map<string, number>();
@@ -120,7 +127,7 @@ export function SizePickerModal({
       setOriginalQuantities(new Map());
       setSelectedCustomizations(new Set());
     }
-  }, [open, product?.id, product?.sizes, initialQuantities]);
+  }, [open, product?.id, product?.sizes, initialQuantities, initialCustomizations]);
 
   // Handle quantity change - update pending and track if modified
   const handleQuantityChange = useCallback(
@@ -191,6 +198,28 @@ export function SizePickerModal({
     if (!product || !hasUnsavedChanges) return;
 
     const customizationIds = Array.from(selectedCustomizations);
+
+    // Check if any size has quantity > 0
+    let hasValidQuantity = false;
+    for (const sizeId of modifiedSizes) {
+      const qty = getDisplayQuantity(sizeId);
+      if (qty > 0) {
+        hasValidQuantity = true;
+        break;
+      }
+    }
+
+    // If customizations are selected but no quantity, show error
+    if (customizationIds.length > 0 && !hasValidQuantity) {
+      showToast.error("Please set quantity greater than 0 before adding customizations");
+      return;
+    }
+
+    // If no valid quantity and no customizations, show error
+    if (!hasValidQuantity) {
+      showToast.error("Please set quantity greater than 0");
+      return;
+    }
 
     // Loop through ALL modified sizes and add each one to cart
     for (const sizeId of modifiedSizes) {

@@ -1212,9 +1212,10 @@ export default function PosPage() {
       </div>
 
       {/* ─── Modals ─── */}
-      {/* Calculate initial quantities when opening modal - show current cart quantities */}
+      {/* Calculate initial quantities and customizations when opening modal */}
       {(() => {
         const initialQties = new Map<string, number>();
+        let initialCustomIds: string[] = [];
         if (sizePickerProduct && cartItems.length > 0) {
           // Get all cart items for this product and build a map of size -> quantity
           cartItems
@@ -1222,6 +1223,10 @@ export default function PosPage() {
             .forEach((item) => {
               const sizeId = item.productSizeId || "no_size";
               initialQties.set(sizeId, item.quantity);
+              // If this is the item being edited, get its customizations
+              if (editingCartItemId && item.id === editingCartItemId && item.customizations) {
+                initialCustomIds = item.customizations.map((c) => c.productCustomizationId);
+              }
             });
         }
         return (
@@ -1241,6 +1246,7 @@ export default function PosPage() {
             }}
             isEditing={!!editingCartItemId}
             initialQuantities={initialQties}
+            initialCustomizations={initialCustomIds}
           />
         );
       })()}
