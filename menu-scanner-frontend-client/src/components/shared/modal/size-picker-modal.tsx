@@ -39,6 +39,7 @@ export function SizePickerModal({
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [selectedCustomizations, setSelectedCustomizations] = useState<Set<string>>(new Set());
 
   // Track pending quantities for each size: key = sizeId, value = quantity
   const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
@@ -78,12 +79,26 @@ export function SizePickerModal({
     ? getDisplayQuantity(selectedSize.id)
     : 0;
 
+  // Toggle customization selection
+  const toggleCustomization = useCallback((customizationId: string) => {
+    setSelectedCustomizations((prev) => {
+      const next = new Set(prev);
+      if (next.has(customizationId)) {
+        next.delete(customizationId);
+      } else {
+        next.add(customizationId);
+      }
+      return next;
+    });
+  }, []);
+
   // Initialize when modal opens
   useEffect(() => {
     if (open && product?.sizes && product.sizes.length > 0) {
       setSelectedSize(product.sizes[0]);
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
+      setSelectedCustomizations(new Set());
 
       // Initialize original quantities from prop or default to 0
       const origQties = new Map<string, number>();
@@ -103,6 +118,7 @@ export function SizePickerModal({
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
       setOriginalQuantities(new Map());
+      setSelectedCustomizations(new Set());
     }
   }, [open, product?.id, product?.sizes, initialQuantities]);
 
@@ -316,17 +332,40 @@ export function SizePickerModal({
             </div>
           )}
 
-          {/* Customizations Alert */}
+          {/* Customizations Selection */}
           {product?.customizations && product.customizations.length > 0 && (
-            <div className="mb-4 p-3 bg-blue-50/50 border border-blue-200 rounded-lg">
-              <div className="flex items-start gap-2">
-                <div className="text-blue-600 font-semibold text-sm mt-0.5">ℹ️</div>
-                <div>
-                  <p className="text-xs font-medium text-blue-900">Customizations Available</p>
-                  <p className="text-xs text-blue-700 mt-0.5">
-                    This product has {product.customizations.length} customization option{product.customizations.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-semibold text-sm">Customizations</h4>
+                {selectedCustomizations.size > 0 && (
+                  <Badge variant="default" className="text-xs">
+                    {selectedCustomizations.size} selected
+                  </Badge>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {product.customizations.map((customization) => {
+                  const isSelected = selectedCustomizations.has(customization.id);
+                  return (
+                    <button
+                      key={customization.id}
+                      onClick={() => toggleCustomization(customization.id)}
+                      className={cn(
+                        "relative border-2 rounded-lg px-3 py-2 transition-all cursor-pointer hover:border-blue-500",
+                        isSelected
+                          ? "border-blue-500 bg-blue-50 ring-2 ring-blue-300/20"
+                          : "border-border",
+                      )}
+                    >
+                      <div className="font-semibold text-xs">{customization.name}</div>
+                      {isSelected && (
+                        <div className="absolute -top-1.5 -right-1.5 bg-blue-500 text-white rounded-full p-0.5">
+                          <Check className="h-2.5 w-2.5" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
