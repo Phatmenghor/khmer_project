@@ -6,7 +6,6 @@ import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.order.dto.request.DeliveryAddressRequest;
 import com.emenu.features.order.dto.request.DeliveryOptionRequest;
 import com.emenu.features.order.dto.request.OrderItemUpdateRequest;
-import com.emenu.features.order.dto.response.OrderPricingSnapshot;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -65,20 +64,10 @@ public class OrderUpdateRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PricingInfo {
-        // Snapshot BEFORE any modifications
-        private OrderPricingSnapshot before;
-
-        // Was order modified?
-        private Boolean hadOrderLevelChangeFromPOS;
-
-        // Snapshot AFTER modifications
-        private OrderPricingSnapshot after;
-
-        // Type of order-level discount (PERCENTAGE or FIXED_AMOUNT)
-        private String discountType;
-
-        // Reason for order-level change
-        private String orderLevelChangeReason;
+        private BigDecimal deliveryFee;
+        private BigDecimal subtotal;
+        private BigDecimal discountAmount;
+        private BigDecimal finalTotal;
     }
 
     @Data

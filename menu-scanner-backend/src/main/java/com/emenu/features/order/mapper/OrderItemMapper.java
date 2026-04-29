@@ -1,30 +1,22 @@
 package com.emenu.features.order.mapper;
 
-import com.emenu.features.order.dto.response.OrderItemPricingSnapshot;
 import com.emenu.features.order.dto.response.OrderItemResponse;
 import com.emenu.features.order.models.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface OrderItemMapper {
 
     @Mapping(target = "product", expression = "java(mapProductInfo(orderItem))")
-    @Mapping(target = "before", expression = "java(deserializeBeforeSnapshot(orderItem))")
-    @Mapping(target = "hadChangeFromPOS", expression = "java(orderItem.getHadChangeFromPOS() != null ? orderItem.getHadChangeFromPOS() : false)")
-    @Mapping(target = "after", expression = "java(orderItem.getHadChangeFromPOS() != null && orderItem.getHadChangeFromPOS() ? deserializeAfterSnapshot(orderItem) : null)")
-    @Mapping(source = "changeReason", target = "reason")
     OrderItemResponse toResponse(OrderItem orderItem);
 
     List<OrderItemResponse> toResponseList(List<OrderItem> orderItems);
 
     default OrderItemResponse.OrderItemProductInfo mapProductInfo(OrderItem orderItem) {
-
         if (orderItem.getProduct() == null) {
             return null;
         }
@@ -41,85 +33,5 @@ public interface OrderItemMapper {
             info.setStatus(orderItem.getProduct().getStatus().toString());
         }
         return info;
-    }
-
-    default OrderItemPricingSnapshot deserializeBeforeSnapshot(OrderItem orderItem) {
-        // Load from pricing snapshot entity if available
-        if (orderItem.getPricingSnapshot() != null && orderItem.getPricingSnapshot().getBeforeCurrentPrice() != null) {
-            var snapshot = orderItem.getPricingSnapshot();
-            return OrderItemPricingSnapshot.builder()
-                    .currentPrice(snapshot.getBeforeCurrentPrice())
-                    .finalPrice(snapshot.getBeforeFinalPrice())
-                    .hasActivePromotion(snapshot.getBeforeHasActivePromotion())
-                    .quantity(orderItem.getQuantity())
-                    .discountAmount(snapshot.getBeforeDiscountAmount())
-                    .totalPrice(snapshot.getBeforeTotalPrice())
-                    .promotionType(snapshot.getBeforePromotionType())
-                    .promotionValue(snapshot.getBeforePromotionValue())
-                    .build();
-        }
-        // Fall back to building from current pricing if no before data
-        return buildDefaultBeforeSnapshot(orderItem);
-    }
-
-    default OrderItemPricingSnapshot deserializeAfterSnapshot(OrderItem orderItem) {
-        // Load from pricing snapshot entity if available
-        if (orderItem.getPricingSnapshot() != null && orderItem.getPricingSnapshot().getAfterCurrentPrice() != null) {
-            var snapshot = orderItem.getPricingSnapshot();
-            return OrderItemPricingSnapshot.builder()
-                    .currentPrice(snapshot.getAfterCurrentPrice())
-                    .finalPrice(snapshot.getAfterFinalPrice())
-                    .hasActivePromotion(snapshot.getAfterHasActivePromotion())
-                    .quantity(orderItem.getQuantity())
-                    .discountAmount(snapshot.getAfterDiscountAmount())
-                    .totalPrice(snapshot.getAfterTotalPrice())
-                    .promotionType(snapshot.getAfterPromotionType())
-                    .promotionValue(snapshot.getAfterPromotionValue())
-                    .build();
-        }
-        // Fall back to building from current pricing if no after data
-        return buildDefaultAfterSnapshot(orderItem);
-    }
-
-    default OrderItemPricingSnapshot buildDefaultBeforeSnapshot(OrderItem orderItem) {
-        // Build before snapshot from current pricing
-        // For orders without explicit audit trail, use current prices as before state
-        OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
-        snapshot.setCurrentPrice(orderItem.getCurrentPrice() != null ? orderItem.getCurrentPrice() : BigDecimal.ZERO);
-        snapshot.setFinalPrice(orderItem.getCurrentPrice() != null ? orderItem.getCurrentPrice() : BigDecimal.ZERO);
-        snapshot.setHasActivePromotion(orderItem.getHasPromotion() != null ? orderItem.getHasPromotion() : false);
-        snapshot.setQuantity(orderItem.getQuantity() != null ? orderItem.getQuantity() : 0);
-        snapshot.setDiscountAmount(BigDecimal.ZERO);
-        snapshot.setTotalPrice(calculateTotalBeforeDiscount(orderItem));
-        snapshot.setPromotionType(orderItem.getPromotionType());
-        snapshot.setPromotionValue(orderItem.getPromotionValue());
-        return snapshot;
-    }
-
-    default OrderItemPricingSnapshot buildDefaultAfterSnapshot(OrderItem orderItem) {
-        // Build after snapshot with final pricing
-        OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
-        snapshot.setCurrentPrice(orderItem.getCurrentPrice() != null ? orderItem.getCurrentPrice() : BigDecimal.ZERO);
-        snapshot.setFinalPrice(orderItem.getFinalPrice() != null ? orderItem.getFinalPrice() : orderItem.getUnitPrice());
-        snapshot.setHasActivePromotion(orderItem.getHasPromotion() != null ? orderItem.getHasPromotion() : false);
-        snapshot.setQuantity(orderItem.getQuantity() != null ? orderItem.getQuantity() : 0);
-        snapshot.setDiscountAmount(calculateDiscountAmount(orderItem));
-        snapshot.setTotalPrice(orderItem.getTotalPrice() != null ? orderItem.getTotalPrice() : BigDecimal.ZERO);
-        snapshot.setPromotionType(orderItem.getPromotionType());
-        snapshot.setPromotionValue(orderItem.getPromotionValue());
-        return snapshot;
-    }
-
-    default BigDecimal calculateTotalBeforeDiscount(OrderItem orderItem) {
-        if (orderItem.getCurrentPrice() == null || orderItem.getQuantity() == null) {
-            return BigDecimal.ZERO;
-        }
-        return orderItem.getCurrentPrice().multiply(new BigDecimal(orderItem.getQuantity()));
-    }
-
-    default BigDecimal calculateDiscountAmount(OrderItem orderItem) {
-        BigDecimal totalBeforeDiscount = calculateTotalBeforeDiscount(orderItem);
-        BigDecimal totalAfterDiscount = orderItem.getTotalPrice() != null ? orderItem.getTotalPrice() : BigDecimal.ZERO;
-        return totalBeforeDiscount.subtract(totalAfterDiscount);
     }
 }

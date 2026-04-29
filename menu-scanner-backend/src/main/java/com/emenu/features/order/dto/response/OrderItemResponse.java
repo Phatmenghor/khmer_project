@@ -1,8 +1,8 @@
 package com.emenu.features.order.dto.response;
 
-import jakarta.validation.Valid;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -12,20 +12,10 @@ public class OrderItemResponse {
     // Product info grouped for easy identification
     private OrderItemProductInfo product;
 
-    // ===== AUDIT TRAIL: Before/After snapshots =====
-    // Snapshot BEFORE any POS modifications (original product price)
-    @Valid
-    private OrderItemPricingSnapshot before;
-
-    // Was the item modified from POS? (price override, promotion change, quantity change, etc.)
-    private Boolean hadChangeFromPOS;
-
-    // Snapshot AFTER POS modifications
-    @Valid
-    private OrderItemPricingSnapshot after;
-
-    // Reason for the change (if any)
-    private String reason;
+    // Pricing
+    private Integer quantity;
+    private BigDecimal finalPrice;
+    private BigDecimal totalPrice;
 
     @Data
     public static class OrderItemProductInfo {

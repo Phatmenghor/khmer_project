@@ -42,7 +42,7 @@ public class OrderController {
 
         long duration = System.currentTimeMillis() - startTime;
         log.info("✅ [ORDER CREATED] Order #{} in {} ms | Total: {}",
-                order.getOrderNumber(), duration, order.getPricing().getAfter().getFinalTotal());
+                order.getOrderNumber(), duration, order.getPricing().getFinalTotal());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Order created successfully", order));
@@ -146,7 +146,7 @@ public class OrderController {
 
         long duration = System.currentTimeMillis() - startTime;
         log.info("✅ [ORDER RETRIEVED] Order #{} in {} ms | Status: {} | Total: {}",
-                order.getOrderNumber(), duration, order.getOrderStatus(), order.getPricing().getAfter() != null ? order.getPricing().getAfter().getFinalTotal() : order.getPricing().getBefore().getFinalTotal());
+                order.getOrderNumber(), duration, order.getOrderStatus(), order.getPricing().getFinalTotal());
 
         return ResponseEntity.ok(ApiResponse.success("Order retrieved successfully", order));
     }
@@ -167,7 +167,7 @@ public class OrderController {
 
         long duration = System.currentTimeMillis() - startTime;
         log.info("✅ [ORDER UPDATED] Order #{} in {} ms | NewStatus: {} | Total: {}",
-                order.getOrderNumber(), duration, order.getOrderStatus(), order.getPricing().getAfter() != null ? order.getPricing().getAfter().getFinalTotal() : order.getPricing().getBefore().getFinalTotal());
+                order.getOrderNumber(), duration, order.getOrderStatus(), order.getPricing().getFinalTotal());
 
         return ResponseEntity.ok(ApiResponse.success("Order updated successfully", order));
     }

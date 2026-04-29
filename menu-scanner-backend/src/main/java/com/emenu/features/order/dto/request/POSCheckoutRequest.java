@@ -1,6 +1,5 @@
 package com.emenu.features.order.dto.request;
 
-import com.emenu.features.order.dto.response.OrderPricingSnapshot;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -103,20 +102,9 @@ public class POSCheckoutRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PricingInfo {
-        // Snapshot BEFORE any order-level modifications
-        private OrderPricingSnapshot before;
-
-        // Was order total modified?
-        private Boolean hadOrderLevelChangeFromPOS;
-
-        // Snapshot AFTER order-level modifications
-        private OrderPricingSnapshot after;
-
-        // Type of order-level discount (PERCENTAGE or FIXED_AMOUNT)
-        private String discountType;
-
-        // Reason for order-level change
-        private String orderLevelChangeReason;
+        private BigDecimal deliveryFee;
+        private BigDecimal subtotal;
+        private BigDecimal finalTotal;
     }
 
     @Data

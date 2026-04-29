@@ -28,15 +28,12 @@ import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderItem;
 import com.emenu.features.order.models.OrderDeliveryAddress;
 import com.emenu.features.order.models.OrderDeliveryOption;
-import com.emenu.features.order.models.OrderItemPricingSnapshot;
-import com.emenu.features.order.dto.response.OrderPricingSnapshot;
 import com.emenu.features.order.repository.OrderPaymentRepository;
 import com.emenu.features.order.repository.CartRepository;
 import com.emenu.features.order.repository.OrderRepository;
 import com.emenu.features.order.repository.OrderStatusHistoryRepository;
 import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
 import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
-import com.emenu.features.order.repository.OrderItemPricingSnapshotRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
 import com.emenu.features.location.repository.LocationRepository;
 import com.emenu.features.order.service.OrderService;
@@ -75,7 +72,6 @@ public class OrderServiceImpl implements OrderService {
     private final LocationRepository locationRepository;
     private final OrderDeliveryAddressRepository orderDeliveryAddressRepository;
     private final OrderDeliveryOptionRepository orderDeliveryOptionRepository;
-    private final OrderItemPricingSnapshotRepository orderItemPricingSnapshotRepository;
     private final OrderMapper orderMapper;
     private final OrderPaymentMapper paymentMapper;
     private final SecurityUtils securityUtils;
@@ -172,8 +168,7 @@ public class OrderServiceImpl implements OrderService {
             OrderResponse response = getOrderById(savedOrder.getId());
             log.info("🎉 [CHECKOUT COMPLETE] Order #{} - Total: {}, Items: {}",
                 response.getOrderNumber(),
-                response.getPricing() != null && response.getPricing().getAfter() != null ?
-                    response.getPricing().getAfter().getFinalTotal() : "N/A",
+                response.getPricing() != null ? response.getPricing().getFinalTotal() : "N/A",
                 response.getItems().size());
             return response;
         } catch (Exception e) {
@@ -418,26 +413,21 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // Full update fields (from pricing info if available)
-        if (request.getPricing() != null && request.getPricing().getAfter() != null) {
-            OrderPricingSnapshot after = request.getPricing().getAfter();
-            if (after.getDiscountAmount() != null) {
-                order.setDiscountAmount(after.getDiscountAmount());
+        if (request.getPricing() != null) {
+            if (request.getPricing().getDiscountAmount() != null) {
+                order.setDiscountAmount(request.getPricing().getDiscountAmount());
             }
-            if (after.getTaxAmount() != null) {
-                order.setTaxAmount(after.getTaxAmount());
+            if (request.getPricing().getFinalTotal() != null) {
+                order.setTotalAmount(request.getPricing().getFinalTotal());
             }
-            if (after.getDeliveryFee() != null && request.getDeliveryOption() == null) {
+            if (request.getPricing().getDeliveryFee() != null && request.getDeliveryOption() == null) {
                 // Only update delivery fee directly if delivery option is not provided
-                order.setDeliveryFee(after.getDeliveryFee());
+                order.setDeliveryFee(request.getPricing().getDeliveryFee());
             }
         }
 
         // Recalculate total amount if any pricing fields are updated or items changed
-        if (request.getItems() != null ||
-            (request.getPricing() != null && request.getPricing().getAfter() != null &&
-             (request.getPricing().getAfter().getDiscountAmount() != null ||
-              request.getPricing().getAfter().getTaxAmount() != null ||
-              (request.getPricing().getAfter().getDeliveryFee() != null && request.getDeliveryOption() == null)))) {
+        if (request.getItems() != null || request.getPricing() != null) {
             BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
             BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
             BigDecimal delivery = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
@@ -598,22 +588,16 @@ public class OrderServiceImpl implements OrderService {
 
         // Store order-level pricing audit trail if provided
         if (pricingInfo != null) {
-            // Always set hadOrderLevelChangeFromPOS (true/false, never null)
-            order.setHadOrderLevelChangeFromPOS(pricingInfo.getHadOrderLevelChangeFromPOS() != null && pricingInfo.getHadOrderLevelChangeFromPOS());
-
-            // Store the discount type (PERCENTAGE or FIXED_AMOUNT)
-            if (pricingInfo.getDiscountType() != null && !pricingInfo.getDiscountType().isEmpty()) {
-                order.setDiscountType(pricingInfo.getDiscountType());
+            // Extract pricing fields from simplified structure
+            if (pricingInfo.getSubtotal() != null) {
+                order.setSubtotal(pricingInfo.getSubtotal());
             }
-
-            // Store the reason for order-level changes
-            if (pricingInfo.getOrderLevelChangeReason() != null && !pricingInfo.getOrderLevelChangeReason().isEmpty()) {
-                order.setOrderLevelChangeReason(pricingInfo.getOrderLevelChangeReason());
-            } else if (!order.getHadOrderLevelChangeFromPOS()) {
-                // Set default reason if no change occurred
-                order.setOrderLevelChangeReason("No order-level changes from POS");
+            if (pricingInfo.getDeliveryFee() != null) {
+                order.setDeliveryFee(pricingInfo.getDeliveryFee());
             }
-            // Note: Pricing snapshots are reconstructed from order fields (subtotal, discount, delivery, tax, total) when needed
+            if (pricingInfo.getFinalTotal() != null) {
+                order.setTotalAmount(pricingInfo.getFinalTotal());
+            }
         }
 
         log.info("💾 [SAVING ORDER] Order ID: {}, Items: {}, Total: {} (Subtotal: {}, Discount: {}, Delivery: {}, Tax: {})",

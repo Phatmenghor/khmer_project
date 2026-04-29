@@ -104,10 +104,6 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "change_reason", columnDefinition = "TEXT")
     private String changeReason;
 
-    // ===== Pricing Snapshot (Before/After) =====
-    @OneToOne(mappedBy = "orderItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private OrderItemPricingSnapshot pricingSnapshot;
-
     // Business Methods
     public void calculateTotalPrice() {
         this.totalPrice = this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
