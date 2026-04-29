@@ -133,6 +133,7 @@ const posPageSlice = createSlice({
     },
     clearCartItems: (state) => {
       state.cartItems = [];
+      state.lastSelectedCustomizations = {};
     },
     setCartPricing: (state, action: PayloadAction<OrderPricingWithAuditTrail | null>) => {
       state.cartPricing = action.payload;
