@@ -429,29 +429,22 @@ export default function PosPage() {
   const cartSummary = useMemo(() => {
     let totalItems = cartItems.length;
     let totalQuantity = 0;
-    let subtotalBeforeDiscount = 0;
     let subtotal = 0;
     let discountAmount = 0;
     cartItems.forEach((item) => {
       totalQuantity += item.quantity;
-      const beforeDiscount = item.after.currentPrice * item.quantity;
-      const afterDiscount = item.after.finalPrice * item.quantity;
-      subtotalBeforeDiscount += beforeDiscount;
-      subtotal += afterDiscount;
-      discountAmount += beforeDiscount - afterDiscount;
+      const itemSubtotal = item.finalPrice * item.quantity;
+      subtotal += itemSubtotal;
     });
     const deliveryFee = selectedDeliveryOption?.price || 0;
-    const taxRate = 0;
-    const taxAmount = (subtotal + deliveryFee) * taxRate;
+    const taxAmount = 0;
     const finalTotal = Math.max(0, subtotal + deliveryFee + taxAmount);
     return {
       totalItems,
       totalQuantity,
-      subtotalBeforeDiscount,
       subtotal,
       discountAmount,
       deliveryFee,
-      taxRate,
       taxAmount,
       finalTotal,
     };
