@@ -152,34 +152,6 @@ export const bulkPromotionTableColumns = ({
     },
 
     {
-      key: "sku",
-      label: "SKU",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      className: "px-4",
-      render: (product) => (
-        <span className="text-xs text-muted-foreground font-mono">
-          {product?.sku || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "barcode",
-      label: "Barcode",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      className: "px-4",
-      render: (product) => (
-        <span className="text-xs text-muted-foreground font-mono">
-          {product?.barcode || "---"}
-        </span>
-      ),
-    },
-
-    {
       key: "pricing",
       label: "Price",
       minWidth: "150px",
@@ -265,6 +237,34 @@ export const bulkPromotionTableColumns = ({
           </div>
         );
       },
+    },
+
+    {
+      key: "sku",
+      label: "SKU",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      className: "px-4",
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.sku || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "barcode",
+      label: "Barcode",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      className: "px-4",
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.barcode || "---"}
+        </span>
+      ),
     },
   ];
 };
