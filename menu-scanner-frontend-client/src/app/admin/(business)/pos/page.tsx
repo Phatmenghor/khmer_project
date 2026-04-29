@@ -233,9 +233,12 @@ export default function PosPage() {
 
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
+      const nextPage = productPage + 1;
+      // IMPORTANT: Update productPage BEFORE fetching so reducer knows to append, not replace
+      dispatch(setProductPage(nextPage));
       dispatch(
         fetchPOSPageProductsService({
-          page: productPage + 1,
+          page: nextPage,
           search: debouncedSearch,
           subcategoryId: selectedSubcategory?.id,
           categoryId: selectedCategory?.id,
