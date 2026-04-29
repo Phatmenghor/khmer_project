@@ -239,7 +239,7 @@ export const bulkPromotionTableColumns = ({
 
                   {/* Size Promotion Status Badge */}
                   {hasPromotion && (
-                    <span className="bg-green-100/70 text-green-700 text-xs h-fit px-1 py-0.5 rounded inline-block font-semibold">
+                    <span className="bg-red-100/70 text-red-700 text-xs h-fit px-1 py-0.5 rounded inline-block font-semibold">
                       {size.promotionType === "PERCENTAGE"
                         ? `${size.promotionValue}%`
                         : `$${size.promotionValue}`}
