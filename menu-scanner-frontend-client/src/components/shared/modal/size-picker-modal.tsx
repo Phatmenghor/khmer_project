@@ -180,7 +180,7 @@ export function SizePickerModal({
     [selectedSize, getQuantityForSize],
   );
 
-  // Clear size - set quantity to 0
+  // Clear size - set quantity to 0 and clear customizations
   const handleClearSize = useCallback(() => {
     if (!selectedSize) return;
 
@@ -191,6 +191,13 @@ export function SizePickerModal({
     setPendingQuantities((prev) => {
       const next = new Map(prev);
       next.set(sizeId, 0);
+      return next;
+    });
+
+    // Clear customizations for this size
+    setCustomizationsBySize((prev) => {
+      const next = new Map(prev);
+      next.delete(sizeId);
       return next;
     });
 
