@@ -43,7 +43,9 @@ export function SizePickerModal({
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [selectedCustomizations, setSelectedCustomizations] = useState<Set<string>>(new Set());
+
+  // Track customizations per size: key = sizeId, value = Set of customization IDs
+  const [customizationsBySize, setCustomizationsBySize] = useState<Map<string, Set<string>>>(new Map());
 
   // Track pending quantities for each size: key = sizeId, value = quantity
   const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
@@ -55,7 +57,7 @@ export function SizePickerModal({
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
 
   // Check if there are any unsaved changes (includes quantity changes or customization selection)
-  const hasUnsavedChanges = modifiedSizes.size > 0 || selectedCustomizations.size > 0;
+  const hasUnsavedChanges = modifiedSizes.size > 0 || (selectedSize && (customizationsBySize.get(selectedSize.id)?.size ?? 0) > 0);
 
   // Get original quantity for a size (like current cart quantity)
   const getQuantityForSize = useCallback(
@@ -83,18 +85,29 @@ export function SizePickerModal({
     ? getDisplayQuantity(selectedSize.id)
     : 0;
 
-  // Toggle customization selection
+  // Toggle customization selection for selected size
   const toggleCustomization = useCallback((customizationId: string) => {
-    setSelectedCustomizations((prev) => {
-      const next = new Set(prev);
-      if (next.has(customizationId)) {
-        next.delete(customizationId);
+    if (!selectedSize) return;
+
+    setCustomizationsBySize((prev) => {
+      const next = new Map(prev);
+      const sizeCustoms = next.get(selectedSize.id) ?? new Set();
+      const newSizeCustoms = new Set(sizeCustoms);
+
+      if (newSizeCustoms.has(customizationId)) {
+        newSizeCustoms.delete(customizationId);
       } else {
-        next.add(customizationId);
+        newSizeCustoms.add(customizationId);
+      }
+
+      if (newSizeCustoms.size > 0) {
+        next.set(selectedSize.id, newSizeCustoms);
+      } else {
+        next.delete(selectedSize.id);
       }
       return next;
     });
-  }, []);
+  }, [selectedSize]);
 
   // Initialize when modal opens
   useEffect(() => {
@@ -103,9 +116,13 @@ export function SizePickerModal({
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
 
-      // Initialize customizations from prop if editing, otherwise empty
-      const initialCustomSet = new Set(initialCustomizations || []);
-      setSelectedCustomizations(initialCustomSet);
+      // Initialize customizations per size from prop if editing, otherwise empty
+      const customsBySize = new Map<string, Set<string>>();
+      if (initialCustomizations && initialCustomizations.length > 0) {
+        // When editing, customizations apply to first size
+        customsBySize.set(product.sizes[0].id, new Set(initialCustomizations));
+      }
+      setCustomizationsBySize(customsBySize);
 
       // Initialize original quantities from prop or default to 0
       const origQties = new Map<string, number>();
@@ -125,7 +142,7 @@ export function SizePickerModal({
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
       setOriginalQuantities(new Map());
-      setSelectedCustomizations(new Set());
+      setCustomizationsBySize(new Map());
     }
   }, [open, product?.id, product?.sizes, initialQuantities, initialCustomizations]);
 
@@ -197,8 +214,6 @@ export function SizePickerModal({
   const handleSelectSize = useCallback(() => {
     if (!product || !hasUnsavedChanges) return;
 
-    const customizationIds = Array.from(selectedCustomizations);
-
     // Check if any modified size has quantity > 0
     // OR if only customizations are added to an existing size (without quantity change)
     let hasValidQuantity = false;
@@ -211,7 +226,8 @@ export function SizePickerModal({
     }
 
     // If only customizations changed (no quantity changes) but selected size has existing quantity
-    if (!hasValidQuantity && customizationIds.length > 0 && selectedSize) {
+    const selectedSizeCustomizations = selectedSize ? (customizationsBySize.get(selectedSize.id) ?? new Set()) : new Set();
+    if (!hasValidQuantity && selectedSizeCustomizations.size > 0 && selectedSize) {
       const currentQty = getDisplayQuantity(selectedSize.id);
       if (currentQty > 0) {
         hasValidQuantity = true;
@@ -219,7 +235,7 @@ export function SizePickerModal({
     }
 
     // If customizations are selected but no quantity, show error
-    if (customizationIds.length > 0 && !hasValidQuantity) {
+    if (selectedSizeCustomizations.size > 0 && !hasValidQuantity) {
       showToast.error("Please set quantity greater than 0 before adding customizations");
       return;
     }
@@ -237,14 +253,14 @@ export function SizePickerModal({
 
       // Only add if quantity > 0
       if (size && qty > 0) {
-        // Only apply customizations to the currently selected size
-        const sizeCustomizations = sizeId === selectedSize?.id ? customizationIds : [];
+        // Get customizations for this specific size
+        const sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
         onSizeSelect(product, size, qty, sizeCustomizations);
       }
     }
 
     onOpenChange(false);
-  }, [product, modifiedSizes, selectedSize, getDisplayQuantity, onSizeSelect, onOpenChange, selectedCustomizations]);
+  }, [product, modifiedSizes, selectedSize, customizationsBySize, getDisplayQuantity, onSizeSelect, onOpenChange]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
@@ -256,8 +272,9 @@ export function SizePickerModal({
 
   const displayPrice = selectedSize?.finalPrice || product?.displayPrice || 0;
 
-  // Calculate total customization price from selected customizations
-  const customizationTotal = Array.from(selectedCustomizations).reduce((sum, customId) => {
+  // Calculate total customization price from customizations for selected size only
+  const selectedSizeCustoms = selectedSize ? (customizationsBySize.get(selectedSize.id) ?? new Set()) : new Set();
+  const customizationTotal = Array.from(selectedSizeCustoms).reduce((sum, customId) => {
     const custom = product?.customizations?.find((c) => c.id === customId);
     return sum + (custom?.priceAdjustment || 0);
   }, 0);
@@ -414,15 +431,15 @@ export function SizePickerModal({
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-3">
                 <h4 className="font-semibold text-sm">Add-ons</h4>
-                {selectedCustomizations.size > 0 && (
+                {selectedSizeCustoms.size > 0 && (
                   <Badge variant="secondary" className="text-xs">
-                    {selectedCustomizations.size} selected
+                    {selectedSizeCustoms.size} selected
                   </Badge>
                 )}
               </div>
               <div className="space-y-2">
                 {product.customizations.map((customization) => {
-                  const isSelected = selectedCustomizations.has(customization.id);
+                  const isSelected = selectedSizeCustoms.has(customization.id);
                   const priceAdjustment = customization.priceAdjustment || 0;
                   return (
                     <button
