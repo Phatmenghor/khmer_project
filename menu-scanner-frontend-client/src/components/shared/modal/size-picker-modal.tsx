@@ -258,9 +258,16 @@ export function SizePickerModal({
 
           {/* Size Selection */}
           {activeSizes.length > 0 && (
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2 text-sm">Choose Size</h4>
-              <div className="flex flex-wrap gap-2">
+            <div className="mb-5">
+              <div className="flex items-center gap-2 mb-3">
+                <h4 className="font-semibold text-sm">Choose Size</h4>
+                {modifiedSizes.size > 0 && (
+                  <Badge variant="default" className="text-xs">
+                    {modifiedSizes.size} selected
+                  </Badge>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
                 {activeSizes.map((size) => {
                   const isActive = selectedSize?.id === size.id;
                   const sizeDisplayQty = getDisplayQuantity(size.id);
@@ -272,33 +279,35 @@ export function SizePickerModal({
                       key={size.id}
                       onClick={() => setSelectedSize(size)}
                       className={cn(
-                        "relative border-2 rounded-lg px-3 py-2 transition-all cursor-pointer hover:border-primary",
+                        "relative border-2 rounded-lg px-3 py-2.5 transition-all cursor-pointer text-center group",
                         isActive
-                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                          : "border-border",
-                        isModified && "ring-2 ring-amber-400/50"
+                          ? "border-primary bg-primary/10 shadow-md"
+                          : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50",
+                        isModified && "ring-2 ring-green-400/50"
                       )}
                     >
-                      <div className="font-semibold text-xs">{size.name}</div>
-                      <div className="text-primary font-bold text-sm">
+                      <div className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors">
+                        {size.name}
+                      </div>
+                      <div className="text-primary font-bold text-sm mt-1">
                         {formatCurrency(size.finalPrice)}
                       </div>
                       {size.hasPromotion && (
-                        <div className="text-xs text-muted-foreground line-through">
+                        <div className="text-xs text-muted-foreground line-through mt-0.5">
                           {formatCurrency(size.price)}
                         </div>
                       )}
                       {isActive && (
-                        <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
-                          <Check className="h-2.5 w-2.5" />
+                        <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full p-1 shadow-sm">
+                          <Check className="h-3 w-3" />
                         </div>
                       )}
                       {/* Quantity badge on size button */}
                       {sizeDisplayQty > 0 && (
                         <div
                           className={cn(
-                            "absolute -top-1.5 -left-1.5 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold",
-                            isModified ? "bg-amber-500" : "bg-green-500"
+                            "absolute -top-2 -left-2 text-white rounded-full min-w-[20px] h-[20px] flex items-center justify-center text-xs font-bold shadow-sm",
+                            isModified ? "bg-green-500" : "bg-green-600"
                           )}
                         >
                           {sizeDisplayQty}
@@ -307,6 +316,21 @@ export function SizePickerModal({
                     </button>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {/* Customizations Alert */}
+          {product?.customizations && product.customizations.length > 0 && (
+            <div className="mb-4 p-3 bg-blue-50/50 border border-blue-200 rounded-lg">
+              <div className="flex items-start gap-2">
+                <div className="text-blue-600 font-semibold text-sm mt-0.5">ℹ️</div>
+                <div>
+                  <p className="text-xs font-medium text-blue-900">Customizations Available</p>
+                  <p className="text-xs text-blue-700 mt-0.5">
+                    This product has {product.customizations.length} customization option{product.customizations.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
               </div>
             </div>
           )}
