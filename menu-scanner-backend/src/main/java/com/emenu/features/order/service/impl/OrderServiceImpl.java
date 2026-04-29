@@ -711,17 +711,12 @@ public class OrderServiceImpl implements OrderService {
                 order.setCustomerEmail(request.getCustomerEmail());
             }
 
+            if (request.getCustomerAddress() != null) {
+                order.setCustomerAddress(request.getCustomerAddress());
+            }
+
             log.debug("💾 [STEP 3/6] Saving order...");
             Order savedOrder = orderRepository.save(order);
-
-            // Create delivery address snapshot - fetch address by ID
-            if (request.getAddressId() != null) {
-                OrderDeliveryAddress deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
-                if (deliveryAddress != null) {
-                    orderDeliveryAddressRepository.save(deliveryAddress);
-                    log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for POS order: {}", savedOrder.getId());
-                }
-            }
 
             // Create delivery option snapshot
             if (request.getDeliveryOption() != null) {

@@ -74,6 +74,9 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "customer_email")
     private String customerEmail;
 
+    @Column(name = "customer_address", columnDefinition = "TEXT")
+    private String customerAddress;
+
     @Column(name = "customer_note", columnDefinition = "TEXT")
     private String customerNote;
 
