@@ -61,6 +61,7 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { useLocalStorageSync } from "@/hooks/useLocalStorageSync";
 import { useFilterURLSync } from "@/hooks/useFilterURLSync";
+import { useBusinessSettings } from "@/hooks/use-business-settings";
 
 // ─── Redux Imports ───
 import { usePOSPageState } from "@/redux/features/business/store/state/pos-page-state";
@@ -119,6 +120,9 @@ import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos
 export default function PosPage() {
   const router = useRouter();
   const dispatch = useAppDispatch() as AppDispatch;
+
+  // ─── Business Settings (for tax percentage) ───
+  const { businessSettings, fetchBusinessSettings } = useBusinessSettings();
 
   // ─── Redux State ───
   const {
@@ -206,12 +210,16 @@ export default function PosPage() {
     return () => window.removeEventListener("resize", applyResponsiveZoom);
   }, []);
 
-  // ─── Initialize Categories and Brands on Mount ───
+  // ─── Initialize Categories, Brands, and Business Settings on Mount ───
   useEffect(() => {
     dispatch(fetchPOSPageCategoriesService());
     dispatch(fetchPOSPageSubcategoriesService());
     dispatch(fetchPOSPageBrandsService());
-  }, [dispatch]);
+    // Fetch business settings to get tax percentage
+    fetchBusinessSettings().catch((err) => {
+      console.warn("Failed to fetch business settings:", err);
+    });
+  }, [dispatch, fetchBusinessSettings]);
 
   // ─── Fetch Products when filters/search change ───
   useEffect(() => {
@@ -464,7 +472,7 @@ export default function PosPage() {
 
   const clearCart = () => dispatch(clearCartItems());
 
-  // ─── Cart Calculations ───
+  // ─── Cart Calculations with Tax ───
   const cartSummary = useMemo(() => {
     let totalItems = cartItems.length;
     let totalQuantity = 0;
@@ -482,7 +490,9 @@ export default function PosPage() {
       }
     });
     const deliveryFee = selectedDeliveryOption?.price || 0;
-    const taxAmount = 0;
+    // Calculate tax from business settings (taxPercentage is 0-100, convert to decimal)
+    const taxPercentage = businessSettings?.taxPercentage || 0;
+    const taxAmount = subtotal * (taxPercentage / 100);
     const finalTotal = Math.max(0, subtotal + deliveryFee + taxAmount);
     return {
       totalItems,
@@ -492,9 +502,10 @@ export default function PosPage() {
       discountAmount,
       deliveryFee,
       taxAmount,
+      taxPercentage,
       finalTotal,
     };
-  }, [cartItems, selectedDeliveryOption]);
+  }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage]);
 
   // ─── Product Click Handler ───
   const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
@@ -612,10 +623,12 @@ export default function PosPage() {
         finalTotal: cartSummary.finalTotal,
       },
 
-      // Simplified pricing
+      // Pricing with tax calculation
       pricing: {
         deliveryFee: selectedDeliveryOption?.price || 0,
         subtotal: cartSummary.subtotal,
+        taxPercentage: cartSummary.taxPercentage,
+        taxAmount: cartSummary.taxAmount,
         finalTotal: cartSummary.finalTotal,
       },
 
