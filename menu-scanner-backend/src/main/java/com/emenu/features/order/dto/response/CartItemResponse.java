@@ -3,9 +3,7 @@ package com.emenu.features.order.dto.response;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -34,24 +32,6 @@ public class CartItemResponse {
     // Customizations (add-ons)
     private List<CartItemCustomizationResponse> customizations;
 
-    // Detailed pricing breakdown (standardized across cart/checkout/order)
-    private BigDecimal totalBeforeDiscount;    // currentPrice * quantity
-    private BigDecimal discountAmount;         // totalBeforeDiscount - totalPrice (discount for this item)
-    private BigDecimal totalPrice;             // finalPrice * quantity (final total after discount)
-
-    // Promotion details (for display)
-    private String promotionType;              // PERCENTAGE or FIXED_AMOUNT
-    private BigDecimal promotionValue;
-    private LocalDateTime promotionFromDate;
-    private LocalDateTime promotionToDate;
-
-    // ===== AUDIT TRAIL: Before/After snapshots for POS orders =====
-    // Snapshot BEFORE any POS modifications (original product price)
-    private OrderItemPricingSnapshot before;
-
-    // Was the item modified from POS?
-    private Boolean hadChangeFromPOS;
-
-    // Snapshot AFTER POS modifications
-    private OrderItemPricingSnapshot after;
+    // Pricing
+    private BigDecimal totalPrice;             // finalPrice * quantity
 }

@@ -1,11 +1,9 @@
 /**
  * POS Checkout Request Models
- * Matches backend POSCheckoutRequest and nested DTOs exactly.
+ * Simplified request DTOs without audit trail snapshots
  */
 
-import { ItemPricingSnapshot, OrderPricingSnapshot } from "../type/pos-page-type";
-
-// Item in the cart — matches backend POSCheckoutItemRequest
+// Item in the cart — simplified without before/after
 export interface POSCheckoutItemRequest {
   productId: string;
   productSizeId?: string | null;
@@ -20,26 +18,13 @@ export interface POSCheckoutItemRequest {
   // Customizations/Add-ons
   customizationIds?: string[];
 
-  // Snapshot BEFORE any POS modifications (original product pricing)
-  before: ItemPricingSnapshot;
-
-  // Was item modified by POS operator?
-  hadChangeFromPOS: boolean;
-
-  // Snapshot AFTER POS modifications (current/final pricing)
-  after: ItemPricingSnapshot;
-
-  // Flat pricing fields (used by backend as fallback / legacy support)
-  originalPrice?: number;
-  currentPrice?: number;
+  // Pricing - final price only
   finalPrice?: number;
-  hasActivePromotion?: boolean;
-  overridePrice?: number;
-  promotionType?: string | null;
-  promotionValue?: number | null;
-  totalBeforeDiscount?: number;
-  discountAmount?: number;
   totalPrice?: number;
+
+  // SKU and barcode
+  sku?: string;
+  barcode?: string;
 }
 
 export interface DeliveryOptionRequest {
@@ -49,16 +34,14 @@ export interface DeliveryOptionRequest {
   price: number;
 }
 
-// Cart summary — matches backend POSCheckoutRequest.CartSummary
+// Cart summary — simplified
 export interface CartSummary {
   businessId: string;
   businessName?: string;
   items: POSCheckoutItemRequest[];
   totalItems: number;
   totalQuantity: number;
-  subtotalBeforeDiscount: number;
   subtotal: number;
-  discountAmount: number;
   finalTotal: number;
 }
 
@@ -74,12 +57,11 @@ export interface POSCheckoutAddressRequest {
   longitude?: number;
 }
 
-// Order-level pricing audit trail — matches backend POSCheckoutRequest.PricingInfo
+// Order-level pricing — simplified
 export interface PricingInfo {
-  before: OrderPricingSnapshot;
-  hadOrderLevelChangeFromPOS: boolean;
-  after: OrderPricingSnapshot;
-  orderLevelChangeReason?: string;
+  deliveryFee: number;
+  subtotal: number;
+  finalTotal: number;
 }
 
 export interface PaymentInfo {

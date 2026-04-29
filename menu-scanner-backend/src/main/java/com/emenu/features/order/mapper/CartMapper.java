@@ -47,41 +47,6 @@ public interface CartMapper {
         }
     }
 
-    @AfterMapping
-    default void setPromotionDetails(@MappingTarget CartItemResponse response, CartItem cartItem) {
-        if (cartItem.getProductSize() != null && cartItem.getProductSize().isPromotionActive()) {
-            response.setPromotionType(cartItem.getProductSize().getPromotionType() != null ?
-                    cartItem.getProductSize().getPromotionType().name() : null);
-            response.setPromotionValue(cartItem.getProductSize().getPromotionValue());
-            response.setPromotionFromDate(cartItem.getProductSize().getPromotionFromDate());
-            response.setPromotionToDate(cartItem.getProductSize().getPromotionToDate());
-        } else if (cartItem.getProduct() != null && cartItem.getProduct().isPromotionActive()) {
-            response.setPromotionType(cartItem.getProduct().getPromotionType() != null ?
-                    cartItem.getProduct().getPromotionType().name() : null);
-            response.setPromotionValue(cartItem.getProduct().getPromotionValue());
-            response.setPromotionFromDate(cartItem.getProduct().getPromotionFromDate());
-            response.setPromotionToDate(cartItem.getProduct().getPromotionToDate());
-        }
-    }
-
-    /**
-     * Calculate detailed pricing breakdown for standardized format across cart/checkout/order
-     */
-    @AfterMapping
-    default void calculatePricingBreakdown(@MappingTarget CartItemResponse response, CartItem cartItem) {
-        if (response.getCurrentPrice() != null && response.getQuantity() != null) {
-            // totalBeforeDiscount: currentPrice * quantity
-            BigDecimal totalBeforeDiscount = response.getCurrentPrice()
-                    .multiply(new BigDecimal(response.getQuantity()));
-            response.setTotalBeforeDiscount(totalBeforeDiscount);
-
-            // discountAmount: totalBeforeDiscount - totalPrice
-            if (response.getTotalPrice() != null) {
-                BigDecimal discountAmount = totalBeforeDiscount.subtract(response.getTotalPrice());
-                response.setDiscountAmount(discountAmount);
-            }
-        }
-    }
 
     @AfterMapping
     default void setCustomizations(@MappingTarget CartItemResponse response, CartItem cartItem) {

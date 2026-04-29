@@ -1,7 +1,5 @@
 package com.emenu.features.order.dto.request;
 
-import com.emenu.features.order.dto.response.OrderItemPricingSnapshot;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -45,35 +43,8 @@ public class POSCheckoutItemRequest {
     // Customizations/Add-ons
     private List<UUID> customizationIds;
 
-    // ===== AUDIT TRAIL: Before/After snapshots =====
-    // Snapshot BEFORE any POS modifications
-    @Valid
-    private OrderItemPricingSnapshot before;
-
-    // Was the item modified?
-    private Boolean hadChangeFromPOS;
-
-    // Snapshot AFTER POS modifications
-    @Valid
-    private OrderItemPricingSnapshot after;
-
-    // ===== DEPRECATED - Kept for backward compatibility =====
-    // Price history for audit trail
-    private BigDecimal originalPrice;      // Product original price
-    private BigDecimal currentPrice;       // After admin override (if any)
-    private BigDecimal finalPrice;         // After promotions
-    private Boolean hasActivePromotion;    // Has promotion applied
-
-    // Admin override price (optional - if not provided, use product price)
-    private BigDecimal overridePrice;
-
-    // Promotion override (optional)
-    private String promotionType;         // PERCENTAGE or FIXED_AMOUNT
-    private BigDecimal promotionValue;    // The discount amount or percentage
-
-    // Totals for each item
-    private BigDecimal totalBeforeDiscount; // quantity * originalPrice
-    private BigDecimal discountAmount;     // quantity * (originalPrice - finalPrice)
+    // Simplified Pricing
+    private BigDecimal finalPrice;         // Price after promotions
     private BigDecimal totalPrice;         // quantity * finalPrice
 
 }

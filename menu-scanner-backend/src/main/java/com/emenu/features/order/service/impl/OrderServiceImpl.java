@@ -560,11 +560,9 @@ public class OrderServiceImpl implements OrderService {
             Product product = productRepository.findById(item.getProductId())
                     .orElseThrow(() -> new NotFoundException("Product not found: " + item.getProductId()));
 
-            // Use after snapshot for final pricing if available (new audit trail structure)
-            BigDecimal finalPrice = item.getAfter() != null ? item.getAfter().getFinalPrice() : item.getFinalPrice();
-
-            log.debug("📦 [ITEM {}] Product: {} (ID: {}), Qty: {}, Price: {}, HasChangeFromPOS: {}",
-                itemCount, item.getProductName(), item.getProductId(), item.getQuantity(), finalPrice, item.getHadChangeFromPOS());
+            BigDecimal finalPrice = item.getFinalPrice();
+            log.debug("📦 [ITEM {}] Product: {} (ID: {}), Qty: {}, Price: {}",
+                itemCount, item.getProductName(), item.getProductId(), item.getQuantity(), finalPrice);
 
             OrderItemCreateHelper helper = OrderItemCreateHelper.builder()
                     .orderId(orderId)
@@ -573,16 +571,9 @@ public class OrderServiceImpl implements OrderService {
                     .productName(item.getProductName())
                     .productImageUrl(item.getProductImageUrl())
                     .sizeName(item.getSizeName())
-                    // Use before snapshot for current price if available
-                    .currentPrice(item.getBefore() != null ? item.getBefore().getCurrentPrice() : item.getCurrentPrice())
                     .finalPrice(finalPrice)
                     .unitPrice(finalPrice)
-                    .hasPromotion(item.getAfter() != null ? item.getAfter().getHasActivePromotion() : item.getHasActivePromotion())
-                    .promotionType(item.getAfter() != null && item.getAfter().getPromotionType() != null ?
-                            item.getAfter().getPromotionType() : item.getPromotionType())
-                    .promotionValue(item.getAfter() != null ? item.getAfter().getPromotionValue() : item.getPromotionValue())
                     .quantity(item.getQuantity())
-                    // Set SKU and barcode from product master data (primary source)
                     .sku(product.getSku())
                     .barcode(product.getBarcode())
                     .build();
@@ -591,42 +582,9 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
                     finalPrice.multiply(new BigDecimal(item.getQuantity())));
 
-            // Store audit trail - always set hadChangeFromPOS (true/false, never null)
-            orderItem.setHadChangeFromPOS(item.getHadChangeFromPOS() != null && item.getHadChangeFromPOS());
-
             orderItem.setOrder(order);
             order.getItems().add(orderItem);
 
-            // Save the order item first to get its ID for creating the pricing snapshot
-            orderRepository.save(order);
-
-            // Create pricing snapshot with before/after snapshots
-            OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
-            snapshot.setOrderItemId(orderItem.getId());
-
-            // Store before snapshot fields
-            if (item.getBefore() != null) {
-                snapshot.setBeforeCurrentPrice(item.getBefore().getCurrentPrice());
-                snapshot.setBeforeFinalPrice(item.getBefore().getFinalPrice());
-                snapshot.setBeforeHasActivePromotion(item.getBefore().getHasActivePromotion());
-                snapshot.setBeforeDiscountAmount(item.getBefore().getDiscountAmount());
-                snapshot.setBeforeTotalPrice(item.getBefore().getTotalPrice());
-                snapshot.setBeforePromotionType(item.getBefore().getPromotionType());
-                snapshot.setBeforePromotionValue(item.getBefore().getPromotionValue());
-            }
-
-            // Store after snapshot fields
-            if (item.getAfter() != null && item.getHadChangeFromPOS() != null && item.getHadChangeFromPOS()) {
-                snapshot.setAfterCurrentPrice(item.getAfter().getCurrentPrice());
-                snapshot.setAfterFinalPrice(item.getAfter().getFinalPrice());
-                snapshot.setAfterHasActivePromotion(item.getAfter().getHasActivePromotion());
-                snapshot.setAfterDiscountAmount(item.getAfter().getDiscountAmount());
-                snapshot.setAfterTotalPrice(item.getAfter().getTotalPrice());
-                snapshot.setAfterPromotionType(item.getAfter().getPromotionType());
-                snapshot.setAfterPromotionValue(item.getAfter().getPromotionValue());
-            }
-
-            orderItemPricingSnapshotRepository.save(snapshot);
             log.debug("✅ [ITEM ADDED] Item {} added to order, total items now: {}", itemCount, order.getItems().size());
         }
 
@@ -816,75 +774,26 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setBarcode(product.getBarcode() != null ? product.getBarcode() : itemRequest.getBarcode());
 
                 orderItem.setQuantity(itemRequest.getQuantity());
-                orderItem.setHadChangeFromPOS(false); // No POS changes in regular POS checkout
 
-                // Determine current price
-                BigDecimal currentPrice = itemRequest.getOverridePrice() != null ?
-                    itemRequest.getOverridePrice() : product.getPrice();
-                orderItem.setCurrentPrice(currentPrice);
-                orderItem.setUnitPrice(currentPrice);
-
-                // Apply promotion if specified
-                BigDecimal finalPrice = currentPrice;
-                Boolean hasPromotion = false;
-                String promotionType = null;
-                BigDecimal promotionValue = null;
-                LocalDateTime promotionFromDate = null;
-                LocalDateTime promotionToDate = null;
-
-                if (itemRequest.getPromotionType() != null && itemRequest.getPromotionValue() != null) {
-                    if ("PERCENTAGE".equals(itemRequest.getPromotionType())) {
-                        BigDecimal discountPercent = itemRequest.getPromotionValue().divide(BigDecimal.valueOf(100));
-                        finalPrice = currentPrice.multiply(BigDecimal.ONE.subtract(discountPercent));
-                    } else if ("FIXED_AMOUNT".equals(itemRequest.getPromotionType())) {
-                        finalPrice = currentPrice.subtract(itemRequest.getPromotionValue());
-                    }
-                    hasPromotion = true;
-                    promotionType = itemRequest.getPromotionType();
-                    promotionValue = itemRequest.getPromotionValue();
-                    // Promotion dates not available in POSCheckoutItemRequest
-                    promotionFromDate = null;
-                    promotionToDate = null;
-                }
-
-                orderItem.setHasPromotion(hasPromotion);
-                orderItem.setPromotionType(promotionType);
-                orderItem.setPromotionValue(promotionValue);
-                orderItem.setPromotionFromDate(promotionFromDate);
-                orderItem.setPromotionToDate(promotionToDate);
+                // Use final price from request
+                BigDecimal finalPrice = itemRequest.getFinalPrice() != null ?
+                    itemRequest.getFinalPrice() : product.getPrice();
+                orderItem.setUnitPrice(finalPrice);
                 orderItem.setFinalPrice(finalPrice);
-                orderItem.calculateTotalPrice();
+
+                // Set total price
+                BigDecimal totalPrice = itemRequest.getTotalPrice() != null ?
+                    itemRequest.getTotalPrice() : finalPrice.multiply(new BigDecimal(itemRequest.getQuantity()));
+                orderItem.setTotalPrice(totalPrice);
 
                 savedOrder.getItems().add(orderItem);
                 createdItems.add(orderItem);
 
-                subtotal = subtotal.add(currentPrice.multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
-                totalDiscount = totalDiscount.add(currentPrice.subtract(finalPrice).multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
+                subtotal = subtotal.add(totalPrice);
             }
 
             // Save order with items
             orderRepository.save(savedOrder);
-
-            // Create pricing snapshots for each item
-            for (OrderItem item : createdItems) {
-                OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
-                snapshot.setOrderItemId(item.getId());
-                // Store current pricing as before snapshot (no previous state in POS)
-                snapshot.setBeforeCurrentPrice(item.getCurrentPrice());
-                snapshot.setBeforeFinalPrice(item.getFinalPrice());
-                snapshot.setBeforeHasActivePromotion(item.getHasPromotion());
-                snapshot.setBeforePromotionType(item.getPromotionType());
-                snapshot.setBeforePromotionValue(item.getPromotionValue());
-                snapshot.setBeforePromotionFromDate(item.getPromotionFromDate());
-                snapshot.setBeforePromotionToDate(item.getPromotionToDate());
-
-                BigDecimal discountAmount = item.getCurrentPrice().subtract(item.getFinalPrice()).multiply(BigDecimal.valueOf(item.getQuantity()));
-                snapshot.setBeforeDiscountAmount(discountAmount);
-                snapshot.setBeforeTotalPrice(item.getTotalPrice());
-
-                orderItemPricingSnapshotRepository.save(snapshot);
-                log.debug("✅ [PRICING SNAPSHOT] Created for POS item: {}", item.getId());
-            }
 
             // Update order totals
             log.debug("💰 [STEP 5/6] Calculating totals...");
