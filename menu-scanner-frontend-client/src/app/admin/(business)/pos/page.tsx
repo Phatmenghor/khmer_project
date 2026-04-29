@@ -275,6 +275,18 @@ export default function PosPage() {
     });
   }, []);
 
+
+  // ─── Scroll Products to Top ───
+  const scrollProductsToTop = useCallback(() => {
+    const viewport = productGridRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLElement;
+    if (!viewport) return;
+    viewport.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   // ─── Configure Category Scroll Styling ───
   useEffect(() => {
     const categoryContainer = categoryScrollRef.current;
@@ -665,7 +677,7 @@ export default function PosPage() {
       {/* ─── Main Content ─── */}
       <div className="flex max-md:flex-col md:flex-row flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden relative">
           {/* Search & Brand Filter Bar */}
           <div className="flex flex-wrap items-end gap-2 max-md:gap-1 max-md:p-2 md:p-3 border-b bg-muted/20 shrink-0">
             <div className="relative flex-1 max-md:min-w-[140px] md:min-w-[200px]">
@@ -1000,6 +1012,17 @@ export default function PosPage() {
               </div>
             )}
           </ScrollArea>
+          
+          {/* Scroll to Top Button */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute bottom-4 right-4 h-10 w-10 rounded-full shadow-lg hover:bg-primary hover:text-primary-foreground transition-all"
+            onClick={scrollProductsToTop}
+            title="Scroll to top"
+          >
+            <ChevronRight className="h-5 w-5 transform -rotate-90" />
+          </Button>
         </div>
 
         {/* ─── Cart Panel ─── */}
