@@ -478,41 +478,18 @@ export default function PosPage() {
   const handleSaveItemChanges = useCallback((editData: any) => {
     if (!editingItemForPrice) return;
 
-    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.after.currentPrice;
+    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.currentPrice;
     const newQuantity = parseInt(editData.newQuantity) || editingItemForPrice.quantity;
-    const promoType: string | null = editData.newPromotion.type || null;
-    const promoValue: number | null = editData.newPromotion.value ? parseFloat(editData.newPromotion.value) : null;
 
     let finalPrice = newPrice;
-    if (promoType === "PERCENTAGE" && promoValue) {
-      finalPrice = newPrice * (1 - promoValue / 100);
-    } else if (promoType === "FIXED" && promoValue) {
-      finalPrice = Math.max(0, newPrice - promoValue);
-    }
-
-    const hadChange =
-      newPrice !== editingItemForPrice.before.currentPrice ||
-      finalPrice !== editingItemForPrice.before.finalPrice ||
-      newQuantity !== editingItemForPrice.before.quantity ||
-      !!promoType !== editingItemForPrice.before.hasActivePromotion;
+    // Note: Promotional calculations removed as we simplified pricing model
 
     const updatedItem: PosPageCartItem = {
       ...editingItemForPrice,
       quantity: newQuantity,
-      hadChangeFromPOS: hadChange,
-      after: {
-        currentPrice: newPrice,
-        finalPrice,
-        hasActivePromotion: !!promoType,
-        quantity: newQuantity,
-        totalBeforeDiscount: newPrice * newQuantity,
-        discountAmount: (newPrice - finalPrice) * newQuantity,
-        totalPrice: finalPrice * newQuantity,
-        promotionType: promoType,
-        promotionValue: promoValue,
-        promotionFromDate: editingItemForPrice.after.promotionFromDate,
-        promotionToDate: editingItemForPrice.after.promotionToDate,
-      },
+      currentPrice: newPrice,
+      finalPrice,
+      totalPrice: finalPrice * newQuantity,
     };
 
     dispatch(updateCartItem(updatedItem));
@@ -1268,11 +1245,8 @@ export default function PosPage() {
             productName: editingItemForPrice.productName,
             productImageUrl: editingItemForPrice.productImageUrl,
             sizeName: editingItemForPrice.sizeName,
-            currentPrice: editingItemForPrice.after.currentPrice,
+            currentPrice: editingItemForPrice.currentPrice,
             quantity: editingItemForPrice.quantity,
-            hasActivePromotion: editingItemForPrice.after.hasActivePromotion,
-            promotionType: editingItemForPrice.after.promotionType,
-            promotionValue: editingItemForPrice.after.promotionValue,
           } : null
         }
         onSave={handleSaveItemChanges}
