@@ -96,6 +96,8 @@ import {
   setIsSubmitting,
   setSizePickerProduct,
   setEditingCartItemId,
+  storeProductCustomizations,
+  clearProductCustomizations,
   setSuccessOrder,
   setShowOrderDetailsModal,
   setBrandOpen,
@@ -144,6 +146,7 @@ export default function PosPage() {
     isSubmitting,
     sizePickerProduct,
     editingCartItemId,
+    lastSelectedCustomizations,
     successOrder,
     showOrderDetailsModal,
     brandOpen,
@@ -393,6 +396,14 @@ export default function PosPage() {
         } else {
           dispatch(addCartItem(newItem));
         }
+      }
+
+      // Store customizations for this product so they're available if modal opens again
+      if (customizations.length > 0) {
+        dispatch(storeProductCustomizations({
+          productId: product.id,
+          customizationIds: customizations.map(c => c.productCustomizationId),
+        }));
       }
 
       if (!showCart && window.innerWidth < 1024) {
@@ -1228,6 +1239,14 @@ export default function PosPage() {
                 initialCustomIds = item.customizations.map((c) => c.productCustomizationId);
               }
             });
+        }
+
+        // If not editing and no customizations found, use last stored customizations for this product
+        if (!editingCartItemId && initialCustomIds.length === 0 && sizePickerProduct) {
+          const storedCustomIds = lastSelectedCustomizations?.get(sizePickerProduct.id);
+          if (storedCustomIds) {
+            initialCustomIds = storedCustomIds;
+          }
         }
         return (
           <SizePickerModal
