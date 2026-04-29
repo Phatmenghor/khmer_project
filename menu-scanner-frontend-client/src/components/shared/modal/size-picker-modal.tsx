@@ -205,7 +205,7 @@ export function SizePickerModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full sm:max-w-[520px] p-0 overflow-hidden">
+      <DialogContent className="w-full p-0 overflow-hidden">
         {/* Header */}
         <DialogHeader className="p-4 pb-0">
           <DialogTitle className="text-lg font-bold">
