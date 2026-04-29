@@ -947,50 +947,47 @@ export default function BulkPromotionPage() {
         </div>
 
         {/* Right Column - Promotion Settings */}
-        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-gradient-to-b from-background via-background to-primary/5">
+        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-background">
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-4 sm:px-5 md:px-4 lg:px-5 py-6 sm:py-8 md:py-6 lg:py-8 space-y-6 sm:space-y-8 md:space-y-6 lg:space-y-8">
+            <div className="px-4 sm:px-5 md:px-4 lg:px-5 py-6 sm:py-8 md:py-6 lg:py-8 space-y-5 sm:space-y-6 md:space-y-5 lg:space-y-6">
               {/* Header Section */}
-              <div className="space-y-1">
+              <div className="space-y-2 border-b border-border pb-4">
                 <h2 className="text-lg sm:text-xl font-bold text-foreground">
                   Promotion Setup
                 </h2>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  Configure discount details below
+                  Configure discount details for selected products
                 </p>
               </div>
 
               {/* Selected Count Card */}
-              <div className="rounded-lg p-5 bg-gradient-to-r from-primary/15 to-green-500/15 border border-primary/25 shadow-sm">
-                <div className="space-y-3">
+              <div className="rounded-lg p-4 bg-primary/5 border border-primary/20 hover:border-primary/40 transition-colors">
+                <div className="space-y-4">
                   <p className="text-xs font-bold uppercase tracking-wider text-primary/70">
-                    Selection Status
+                    Selection Summary
                   </p>
 
-                  {/* Stats Row */}
-                  <div className="flex items-center gap-6 sm:gap-8">
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 gap-4">
                     {/* Products Count */}
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-5xl sm:text-6xl font-black text-primary">
+                    <div className="space-y-1">
+                      <p className="text-3xl sm:text-4xl font-bold text-primary">
                         {selectedIds.length}
                       </p>
-                      <p className="text-xs sm:text-sm font-semibold text-foreground/60">
+                      <p className="text-xs font-medium text-foreground/70">
                         {selectedIds.length === 1 ? "Product" : "Products"}
                       </p>
                     </div>
 
-                    {/* Divider */}
-                    <div className="h-12 w-px bg-primary/20" />
-
                     {/* Sizes Count */}
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-3xl sm:text-4xl font-black text-green-600">
+                    <div className="space-y-1">
+                      <p className="text-3xl sm:text-4xl font-bold text-green-600">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
                           0,
                         )}
                       </p>
-                      <p className="text-xs sm:text-sm font-semibold text-foreground/60">
+                      <p className="text-xs font-medium text-foreground/70">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
                           0,
@@ -1003,14 +1000,15 @@ export default function BulkPromotionPage() {
                 </div>
               </div>
 
-              {/* Form Sections - Grouped */}
-              <div className="space-y-6 sm:space-y-7 md:space-y-6 lg:space-y-7">
-                {/* Discount Section */}
-                <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
-                  <h3 className="text-sm font-bold text-foreground uppercase tracking-wider px-1">
+              {/* Form Sections - Grouped with Card Style */}
+              <div className="space-y-4">
+                {/* Discount Section Card */}
+                <div className="rounded-lg border border-border/60 p-4 space-y-3 bg-muted/30 hover:bg-muted/50 transition-colors">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                     Discount Settings
                   </h3>
-                  <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
+                  <div className="space-y-3">
                     <CustomSelect
                       placeholder="Choose discount type..."
                       label="Discount Type"
@@ -1026,7 +1024,7 @@ export default function BulkPromotionPage() {
                       required
                     />
                     {form.formState.errors.promotionType && (
-                      <p className="text-xs text-destructive font-medium px-1">
+                      <p className="text-xs text-destructive font-medium">
                         {form.formState.errors.promotionType.message}
                       </p>
                     )}
@@ -1047,9 +1045,13 @@ export default function BulkPromotionPage() {
                   </div>
                 </div>
 
-                {/* Duration Section */}
-                <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
-                  <div className="space-y-3 sm:space-y-4 md:space-y-3 lg:space-y-4">
+                {/* Duration Section Card */}
+                <div className="rounded-lg border border-border/60 p-4 space-y-3 bg-muted/30 hover:bg-muted/50 transition-colors">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-600" />
+                    Duration
+                  </h3>
+                  <div className="space-y-3">
                     <DateTimePickerField
                       control={form.control}
                       className="h-10"
@@ -1073,26 +1075,28 @@ export default function BulkPromotionPage() {
                 </div>
               </div>
 
-              {/* Action Buttons - Modern Style */}
-              <div className="flex gap-3 sm:gap-4 md:gap-3 lg:gap-4 pt-2 sm:pt-4 md:pt-2 lg:pt-4">
-                <CancelButton
-                  onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
-                  disabled={isSubmitting}
-                  variant="outline"
-                  className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold rounded-lg border-2 hover:bg-muted/50"
-                  text="Cancel"
-                />
-                <SubmitButton
-                  isSubmitting={isSubmitting}
-                  isDirty={selectedIds.length > 0}
-                  isCreate={true}
-                  createText="Apply Promotion"
-                  submittingCreateText="Applying..."
-                  disabled={!isFormValid}
-                  onClick={handleApplyClick}
-                  variant="default"
-                  className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg disabled:opacity-50"
-                />
+              {/* Action Buttons - Modern Style with Border */}
+              <div className="border-t border-border pt-5">
+                <div className="flex gap-3 sm:gap-4 md:gap-3 lg:gap-4">
+                  <CancelButton
+                    onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
+                    disabled={isSubmitting}
+                    variant="outline"
+                    className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                    text="Cancel"
+                  />
+                  <SubmitButton
+                    isSubmitting={isSubmitting}
+                    isDirty={selectedIds.length > 0}
+                    isCreate={true}
+                    createText="Apply Promotion"
+                    submittingCreateText="Applying..."
+                    disabled={!isFormValid}
+                    onClick={handleApplyClick}
+                    variant="default"
+                    className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                  />
+                </div>
               </div>
             </div>
           </div>
