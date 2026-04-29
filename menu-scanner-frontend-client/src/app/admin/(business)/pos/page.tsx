@@ -587,19 +587,7 @@ export default function PosPage() {
       customerName: customerName || "Walk-in Customer",
       customerPhone: "",
       customerEmail: "",
-
-      // Full delivery address details for POS
-      deliveryAddress: {
-        village: "",
-        commune: "",
-        district: "",
-        province: "",
-        streetNumber: "",
-        houseNumber: "",
-        note: customerNote || "POS Order",
-        latitude: null,
-        longitude: null,
-      },
+      customerAddress: "",  // POS address entry
 
       // Full delivery option details (same as public checkout)
       deliveryOption: {

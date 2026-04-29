@@ -50,18 +50,6 @@ export interface CartSummary {
   finalTotal: number;
 }
 
-export interface POSCheckoutAddressRequest {
-  village: string;
-  commune: string;
-  district: string;
-  province: string;
-  streetNumber?: string;
-  houseNumber?: string;
-  note?: string;
-  latitude?: number;
-  longitude?: number;
-}
-
 // Order-level pricing — complete breakdown
 export interface PricingInfo {
   // Base pricing
@@ -90,8 +78,9 @@ export interface POSCheckoutRequest {
   customerId?: string;
   customerName?: string;
   customerPhone?: string;
+  customerEmail?: string;
+  customerAddress?: string;
 
-  deliveryAddress: POSCheckoutAddressRequest;
   deliveryOption: DeliveryOptionRequest;
   cart: CartSummary;
 

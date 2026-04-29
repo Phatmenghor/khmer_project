@@ -36,10 +36,7 @@ public class POSCheckoutRequest {
     private String customerName;
     private String customerPhone;
     private String customerEmail;
-
-    // Delivery address - full address object for POS (not just ID)
-    @Valid
-    private DeliveryAddressInfo deliveryAddress;
+    private String customerAddress;  // Full address as string
 
     // Delivery option (full object with price, not just ID)
     @Valid
@@ -65,22 +62,6 @@ public class POSCheckoutRequest {
     private String businessNote; // Includes discount reason and audit info
 
     // ─── Nested Classes ───
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class DeliveryAddressInfo {
-        private String village;
-        private String commune;
-        private String district;
-        private String province;
-        private String streetNumber;
-        private String houseNumber;
-        private String note;
-        private Double latitude;
-        private Double longitude;
-    }
-
     @Data
     @Builder
     @NoArgsConstructor
