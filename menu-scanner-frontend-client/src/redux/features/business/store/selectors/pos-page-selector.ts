@@ -22,12 +22,18 @@ export const selectProductsError = (state: RootState) =>
 export const selectSearchTerm = (state: RootState) => state.posPage.searchTerm;
 export const selectSelectedCategory = (state: RootState) =>
   state.posPage.selectedCategory;
+export const selectSelectedSubcategory = (state: RootState) =>
+  state.posPage.selectedSubcategory;
 export const selectSelectedBrand = (state: RootState) =>
   state.posPage.selectedBrand;
 export const selectCategories = (state: RootState) => state.posPage.categories;
+export const selectSubcategories = (state: RootState) =>
+  state.posPage.subcategories;
 export const selectBrands = (state: RootState) => state.posPage.brands;
 export const selectCategoriesLoading = (state: RootState) =>
   state.posPage.categoriesLoading;
+export const selectSubcategoriesLoading = (state: RootState) =>
+  state.posPage.subcategoriesLoading;
 export const selectBrandsLoading = (state: RootState) =>
   state.posPage.brandsLoading;
 export const selectProductPage = (state: RootState) =>
@@ -58,6 +64,8 @@ export const selectShowOrderDetailsModal = (state: RootState) =>
 
 // ─── UI ───
 export const selectBrandOpen = (state: RootState) => state.posPage.brandOpen;
+export const selectSubcategoryOpen = (state: RootState) =>
+  state.posPage.subcategoryOpen;
 export const selectPromotionFilter = (state: RootState) =>
   state.posPage.promotionFilter;
 export const selectPromotionOpen = (state: RootState) =>
