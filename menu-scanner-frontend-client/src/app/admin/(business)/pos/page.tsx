@@ -1075,7 +1075,7 @@ export default function PosPage() {
                   <span className="text-muted-foreground">
                     Subtotal ({cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"})
                   </span>
-                  <span className="font-medium">{formatCurrency(cartSummary.subtotalBeforeDiscount)}</span>
+                  <span className="font-medium">{formatCurrency(cartSummary.subtotal)}</span>
                 </div>
                 {cartSummary.discountAmount > 0 && (
                   <div className="flex justify-between text-xs">
