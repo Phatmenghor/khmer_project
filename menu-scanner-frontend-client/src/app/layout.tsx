@@ -46,6 +46,7 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         {/* Apply theme colors synchronously via style tag to prevent color flash */}
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
