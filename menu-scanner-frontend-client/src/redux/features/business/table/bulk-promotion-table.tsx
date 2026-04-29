@@ -180,18 +180,32 @@ export const bulkPromotionTableColumns = ({
     },
 
     {
-      key: "promotionStatus",
-      label: "Promotion",
-      minWidth: "10px",
-      maxWidth: "120px",
+      key: "pricing",
+      label: "Price",
+      minWidth: "150px",
+      maxWidth: "250px",
       className: "px-4",
       render: (product) => {
-        if (!product.hasPromotion) {
-          return <span className="text-sm text-muted-foreground">No Promotion</span>;
-        }
-
         return (
-          <span className="text-sm font-medium text-red-600">Active</span>
+          <div className="space-y-1">
+            <span className="text-xs font-semibold text-foreground">
+              ${Number(product.displayPrice || 0).toFixed(2)}
+            </span>
+            {product.displayOriginPrice &&
+              product.displayPrice <
+                Number(product.displayOriginPrice || 0) && (
+                <div className="text-xs text-muted-foreground line-through">
+                  ${Number(product.displayOriginPrice).toFixed(2)}
+                </div>
+              )}
+            {product.hasPromotion && product.displayPromotionType && (
+              <div className="text-xs font-semibold text-red-600">
+                {product.displayPromotionType === "PERCENTAGE"
+                  ? `-${product.displayPromotionValue}%`
+                  : `-$${Number(product.displayPromotionValue || 0).toFixed(2)}`}
+              </div>
+            )}
+          </div>
         );
       },
     },
@@ -248,41 +262,6 @@ export const bulkPromotionTableColumns = ({
                 </label>
               );
             })}
-          </div>
-        );
-      },
-    },
-    {
-      key: "pricing",
-      label: "Price",
-      minWidth: "150px",
-      maxWidth: "250px",
-      className: "px-4",
-      render: (product) => {
-        // Only show for products WITHOUT sizes
-        if (product.hasSizes) {
-          return <span className="text-xs text-muted-foreground">---</span>;
-        }
-
-        return (
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-foreground">
-              ${Number(product.displayPrice || 0).toFixed(2)}
-            </span>
-            {product.displayOriginPrice &&
-              product.displayPrice <
-                Number(product.displayOriginPrice || 0) && (
-                <div className="text-xs text-muted-foreground line-through">
-                  ${Number(product.displayOriginPrice).toFixed(2)}
-                </div>
-              )}
-            {product.hasPromotion && product.displayPromotionType && (
-              <div className="text-xs font-semibold text-red-600">
-                {product.displayPromotionType === "PERCENTAGE"
-                  ? `-${product.displayPromotionValue}%`
-                  : `-$${Number(product.displayPromotionValue || 0).toFixed(2)}`}
-              </div>
-            )}
           </div>
         );
       },
