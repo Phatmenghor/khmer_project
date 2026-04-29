@@ -8,11 +8,15 @@ import com.emenu.features.order.dto.response.CartSummaryResponse;
 import com.emenu.features.order.mapper.CartMapper;
 import com.emenu.features.order.models.Cart;
 import com.emenu.features.order.models.CartItem;
+import com.emenu.features.order.models.CartItemCustomization;
+import com.emenu.features.order.repository.CartItemCustomizationRepository;
 import com.emenu.features.order.repository.CartItemRepository;
 import com.emenu.features.order.repository.CartRepository;
 import com.emenu.features.order.service.CartService;
 import com.emenu.features.main.models.Product;
+import com.emenu.features.main.models.ProductCustomization;
 import com.emenu.features.main.models.ProductSize;
+import com.emenu.features.main.repository.ProductCustomizationRepository;
 import com.emenu.features.main.repository.ProductRepository;
 import com.emenu.features.main.repository.ProductSizeRepository;
 import com.emenu.security.SecurityUtils;
@@ -36,8 +40,10 @@ public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final CartItemCustomizationRepository cartItemCustomizationRepository;
     private final ProductRepository productRepository;
     private final ProductSizeRepository productSizeRepository;
+    private final ProductCustomizationRepository productCustomizationRepository;
     private final CartMapper cartMapper;
     private final SecurityUtils securityUtils;
 
@@ -72,6 +78,7 @@ public class CartServiceImpl implements CartService {
                 log.info("Removed cart item: {} for user: {}", item.getId(), userId);
             } else {
                 item.setQuantity(request.getQuantity());
+                updateCartItemCustomizations(item, request.getCustomizationIds());
                 cartItemRepository.save(item);
                 log.info("Updated cart item quantity to: {} for user: {}", request.getQuantity(), userId);
             }
@@ -83,7 +90,8 @@ public class CartServiceImpl implements CartService {
                         request.getProductSizeId(),
                         request.getQuantity()
                 );
-                cartItemRepository.save(newItem);
+                CartItem savedItem = cartItemRepository.save(newItem);
+                updateCartItemCustomizations(savedItem, request.getCustomizationIds());
                 log.info("Added new item to cart with quantity: {} for user: {}", request.getQuantity(), userId);
             }
         }
@@ -316,6 +324,40 @@ public class CartServiceImpl implements CartService {
         } catch (Exception e) {
             log.error("Error checking cart item availability for item {}: {}", cartItem.getId(), e.getMessage());
             return false;
+        }
+    }
+
+    private void updateCartItemCustomizations(CartItem cartItem, List<UUID> customizationIds) {
+        if (customizationIds == null || customizationIds.isEmpty()) {
+            cartItemCustomizationRepository.deleteByCartItemId(cartItem.getId());
+            cartItem.getCustomizations().clear();
+            return;
+        }
+
+        // Remove old customizations not in the new list
+        cartItem.getCustomizations().removeIf(existing ->
+                !customizationIds.contains(existing.getProductCustomizationId()));
+
+        // Add new customizations
+        java.util.Set<UUID> existingIds = new java.util.HashSet<>();
+        for (CartItemCustomization custom : cartItem.getCustomizations()) {
+            existingIds.add(custom.getProductCustomizationId());
+        }
+
+        for (UUID customizationId : customizationIds) {
+            if (!existingIds.contains(customizationId)) {
+                ProductCustomization productCustom = productCustomizationRepository.findById(customizationId)
+                        .orElseThrow(() -> new NotFoundException("Customization not found: " + customizationId));
+
+                CartItemCustomization cartItemCustom = new CartItemCustomization(
+                        cartItem.getId(),
+                        customizationId,
+                        productCustom.getName(),
+                        productCustom.getPriceAdjustment()
+                );
+                cartItem.getCustomizations().add(cartItemCustom);
+                cartItemCustomizationRepository.save(cartItemCustom);
+            }
         }
     }
 }

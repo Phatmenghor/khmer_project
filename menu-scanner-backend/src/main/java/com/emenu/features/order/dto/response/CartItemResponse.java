@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,6 +30,9 @@ public class CartItemResponse {
     private Boolean hasActivePromotion;        // Whether has active promotion
 
     private Integer quantity;
+
+    // Customizations (add-ons)
+    private List<CartItemCustomizationResponse> customizations;
 
     // Detailed pricing breakdown (standardized across cart/checkout/order)
     private BigDecimal totalBeforeDiscount;    // currentPrice * quantity

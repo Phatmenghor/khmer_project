@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -40,6 +41,9 @@ public class POSCheckoutItemRequest {
     // SKU and barcode (optional - from request, fallback if not in product master data)
     private String sku;
     private String barcode;
+
+    // Customizations/Add-ons
+    private List<UUID> customizationIds;
 
     // ===== AUDIT TRAIL: Before/After snapshots =====
     // Snapshot BEFORE any POS modifications

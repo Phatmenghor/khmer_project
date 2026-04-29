@@ -329,7 +329,7 @@ export default function PosPage() {
 
   // ─── Cart Logic ───
   const addToCart = useCallback(
-    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string, quantity: number = 1) => {
+    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string, quantity: number = 1, customizationIds?: string[]) => {
       const cartId = size ? `${product.id}-${size.id}` : product.id;
       const currentPrice = size
         ? size.price
@@ -358,6 +358,18 @@ export default function PosPage() {
         promotionToDate,
       };
 
+      const customizations = customizationIds && customizationIds.length > 0
+        ? customizationIds.map((customId) => {
+            const custom = product.customizations?.find((c) => c.id === customId);
+            return {
+              id: customId,
+              productCustomizationId: customId,
+              name: custom?.name || "",
+              priceAdjustment: custom?.priceAdjustment || 0,
+            };
+          })
+        : [];
+
       const newItem: PosPageCartItem = {
         id: cartId,
         productId: product.id,
@@ -368,6 +380,7 @@ export default function PosPage() {
         quantity,
         sku: product.sku || "",
         barcode: product.barcode || "",
+        customizations,
         before: snapshot,
         hadChangeFromPOS: false,
         after: snapshot,
@@ -595,6 +608,7 @@ export default function PosPage() {
           productSizeId: item.productSizeId || null,
           sizeName: item.sizeName || null,
           quantity: item.quantity,
+          customizationIds: item.customizations?.map((c) => c.id) || [],
           before: item.before,
           hadChangeFromPOS: item.hadChangeFromPOS,
           after: item.after,
@@ -1302,8 +1316,8 @@ export default function PosPage() {
                 dispatch(setEditingCartItemId(null));
               }
             }}
-            onSizeSelect={(product, size, qty) => {
-              addToCart(product, size, editingCartItemId || undefined, qty || 1);
+            onSizeSelect={(product, size, qty, customizationIds) => {
+              addToCart(product, size, editingCartItemId || undefined, qty || 1, customizationIds);
               dispatch(setSizePickerProduct(null));
               dispatch(setEditingCartItemId(null));
             }}

@@ -23,7 +23,7 @@ interface SizePickerModalProps {
   product: ProductDetailResponseModel | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSizeSelect: (product: ProductDetailResponseModel, size?: ProductSize, quantity?: number) => void;
+  onSizeSelect: (product: ProductDetailResponseModel, size?: ProductSize, quantity?: number, customizationIds?: string[]) => void;
   isEditing?: boolean;
   // Initial quantities for each size (e.g., when editing existing cart item)
   initialQuantities?: Map<string, number>;
@@ -190,6 +190,8 @@ export function SizePickerModal({
   const handleSelectSize = useCallback(() => {
     if (!product || !hasUnsavedChanges) return;
 
+    const customizationIds = Array.from(selectedCustomizations);
+
     // Loop through ALL modified sizes and add each one to cart
     for (const sizeId of modifiedSizes) {
       const size = product.sizes?.find((s) => s.id === sizeId);
@@ -197,12 +199,12 @@ export function SizePickerModal({
 
       // Only add if quantity > 0
       if (size && qty > 0) {
-        onSizeSelect(product, size, qty);
+        onSizeSelect(product, size, qty, customizationIds);
       }
     }
 
     onOpenChange(false);
-  }, [product, modifiedSizes, getDisplayQuantity, onSizeSelect, onOpenChange]);
+  }, [product, modifiedSizes, getDisplayQuantity, onSizeSelect, onOpenChange, selectedCustomizations]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);

@@ -1,11 +1,13 @@
 package com.emenu.features.order.mapper;
 
 import com.emenu.features.order.dto.helper.CartCreateHelper;
+import com.emenu.features.order.dto.response.CartItemCustomizationResponse;
 import com.emenu.features.order.dto.response.CartItemResponse;
 import com.emenu.features.order.dto.response.CartResponse;
 import com.emenu.features.order.dto.response.CartSummaryResponse;
 import com.emenu.features.order.models.Cart;
 import com.emenu.features.order.models.CartItem;
+import com.emenu.features.order.models.CartItemCustomization;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.*;
@@ -78,6 +80,22 @@ public interface CartMapper {
                 BigDecimal discountAmount = totalBeforeDiscount.subtract(response.getTotalPrice());
                 response.setDiscountAmount(discountAmount);
             }
+        }
+    }
+
+    @AfterMapping
+    default void setCustomizations(@MappingTarget CartItemResponse response, CartItem cartItem) {
+        if (cartItem.getCustomizations() != null && !cartItem.getCustomizations().isEmpty()) {
+            response.setCustomizations(
+                    cartItem.getCustomizations().stream()
+                            .map(custom -> new CartItemCustomizationResponse(
+                                    custom.getId(),
+                                    custom.getProductCustomizationId(),
+                                    custom.getName(),
+                                    custom.getPriceAdjustment()
+                            ))
+                            .toList()
+            );
         }
     }
 

@@ -47,6 +47,14 @@ export interface ItemAuditTrailMetadata {
   changedAt?: string;
 }
 
+// ─── Cart Item Customization ───
+export interface PosPageCartItemCustomization {
+  id: string;
+  productCustomizationId: string;
+  name: string;
+  priceAdjustment: number;
+}
+
 // ─── Cart Item with Audit Trail ───
 export interface PosPageCartItem {
   id: string;
@@ -62,6 +70,9 @@ export interface PosPageCartItem {
   // SKU and barcode for store tracking
   sku?: string;
   barcode?: string;
+
+  // Customizations/Add-ons selected for this item
+  customizations?: PosPageCartItemCustomization[];
 
   // ===== AUDIT TRAIL =====
   // Before: Original pricing from product (immutable once set)

@@ -17,6 +17,9 @@ export interface POSCheckoutItemRequest {
   sizeName?: string | null;
   status?: string;
 
+  // Customizations/Add-ons
+  customizationIds?: string[];
+
   // Snapshot BEFORE any POS modifications (original product pricing)
   before: ItemPricingSnapshot;
 
