@@ -94,32 +94,19 @@ export function POSCartItem({
             )}
           </div>
 
-          {/* Size Badge */}
-          {sizeName && (
-            <div className="mb-2">
-              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full inline-block border border-primary/30 whitespace-nowrap">
+          {/* Size & Customizations on same line */}
+          <div className="mb-2 flex items-center gap-2">
+            {sizeName && (
+              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
                 {sizeName}
               </span>
-            </div>
-          )}
-
-          {/* Customizations/Add-ons */}
-          {customizations && customizations.length > 0 && (
-            <div className="mb-2 flex flex-wrap gap-1.5">
-              {customizations.map((custom) => (
-                <span
-                  key={custom.id}
-                  className="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-200 whitespace-nowrap"
-                  title={custom.name}
-                >
-                  {custom.name}
-                  {custom.priceAdjustment > 0 && (
-                    <span className="ml-1 text-green-600">+{formatCurrency(custom.priceAdjustment)}</span>
-                  )}
-                </span>
-              ))}
-            </div>
-          )}
+            )}
+            {customizations && customizations.length > 0 && (
+              <span className="text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-full border border-green-200 whitespace-nowrap">
+                Add-ons ×{customizations.length}
+              </span>
+            )}
+          </div>
 
           {/* Price & Quantity Controls */}
           <div className="flex items-center justify-between gap-3">
