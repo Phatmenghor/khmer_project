@@ -91,6 +91,7 @@ const baseProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().min(1, "Description is required"),
   categoryId: z.string().min(1, "Category is required"),
+  subcategoryId: z.string().optional(),
   brandId: z.string().optional(),
   sku: z.string().optional(),
   barcode: z.string().optional(),
@@ -254,6 +255,7 @@ export type ProductFormData = {
   name: string;
   description: string;
   categoryId: string;
+  subcategoryId?: string;
   brandId?: string;
   sku?: string;
   barcode?: string;

@@ -37,9 +37,11 @@ import {
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
+import { ComboboxSelectSubcategories } from "@/components/shared/combobox/combobox_select_subcategories";
 import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import {
   createProductSchema,
   ProductFormData,
@@ -80,6 +82,8 @@ export default function ProductModal({
   );
   const [selectedCategory, setSelectedCategory] =
     useState<CategoriesResponseModel | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] =
+    useState<SubcategoriesResponseModel | null>(null);
 
   const {
     control,
@@ -97,6 +101,7 @@ export default function ProductModal({
       name: "",
       description: "",
       categoryId: "",
+      subcategoryId: "",
       brandId: "",
       sku: "",
       barcode: "",
@@ -265,11 +270,19 @@ export default function ProductModal({
             } as CategoriesResponseModel);
           }
 
+          if (data.subcategoryId) {
+            setSelectedSubcategory({
+              id: data.subcategoryId,
+              name: data.subcategoryName,
+            } as SubcategoriesResponseModel);
+          }
+
           reset({
             id: data.id,
             name: data.name || "",
             description: data.description || "",
             categoryId: data.categoryId || "",
+            subcategoryId: data.subcategoryId || "",
             brandId: data.brandId || "",
             sku: data.sku || "",
             barcode: data.barcode || "",
@@ -298,10 +311,12 @@ export default function ProductModal({
     if (isOpen && isCreate) {
       setSelectedBrand(null);
       setSelectedCategory(null);
+      setSelectedSubcategory(null);
       reset({
         name: "",
         description: "",
         categoryId: "",
+        subcategoryId: "",
         brandId: "",
         sku: "",
         barcode: "",
@@ -420,6 +435,7 @@ export default function ProductModal({
         name: data.name,
         description: data.description,
         categoryId: data.categoryId,
+        subcategoryId: data.subcategoryId || undefined,
         brandId: data.brandId || undefined,
         sku: data.sku || undefined,
         barcode: data.barcode || undefined,
@@ -478,6 +494,7 @@ export default function ProductModal({
     setIsProcessingImages(false);
     setSelectedBrand(null);
     setSelectedCategory(null);
+    setSelectedSubcategory(null);
     dispatch(clearError());
     dispatch(clearSelectedProduct());
     onClose();
@@ -556,6 +573,23 @@ export default function ProductModal({
                           required
                           disabled={isProcessing}
                           error={errors.categoryId?.message}
+                          showAllOption={false}
+                        />
+                      </div>
+
+                      <div>
+                        <ComboboxSelectSubcategories
+                          dataSelect={selectedSubcategory}
+                          onChangeSelected={(subcategory) => {
+                            setSelectedSubcategory(subcategory);
+                            setValue("subcategoryId", subcategory?.id || "", {
+                              shouldDirty: true,
+                            });
+                          }}
+                          label="Subcategory (Optional)"
+                          placeholder="Select subcategory"
+                          disabled={isProcessing}
+                          error={errors.subcategoryId?.message}
                           showAllOption={false}
                         />
                       </div>
