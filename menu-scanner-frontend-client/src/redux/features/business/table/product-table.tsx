@@ -203,78 +203,37 @@ export const productTableColumns = ({
     },
 
     {
-      key: "categoryName",
-      label: "Category",
-      minWidth: "10px",
-      maxWidth: "150px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.categoryName || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "brandName",
-      label: "Brand",
-      minWidth: "10px",
-      maxWidth: "150px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.brandName || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "displayPrice",
+      key: "pricing",
       label: "Price",
-      minWidth: "10px",
-      maxWidth: "100px",
-      truncate: true,
+      minWidth: "150px",
+      maxWidth: "250px",
       render: (product) => (
-        <span className="text-xs font-semibold text-foreground">
-          ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
-        </span>
-      ),
-    },
-
-    {
-      key: "hasPromotion",
-      label: "Promotion",
-      minWidth: "10px",
-      maxWidth: "100px",
-      truncate: true,
-      render: (product) => (
-        <div className="flex items-center gap-1">
-          {product?.hasPromotion ? (
-            <span className="gap-1 bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-semibold inline-block">
-              Active
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Display:</span>
+            <span className="text-xs font-semibold text-foreground">
+              ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
             </span>
-          ) : (
-            <span className="gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded text-xs font-semibold inline-block">
-              Regular
-            </span>
+          </div>
+          {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Original:</span>
+              <span className="text-xs text-muted-foreground line-through">
+                ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
+              </span>
+            </div>
+          )}
+          {product?.hasPromotion && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Discount:</span>
+              <span className="text-xs font-semibold text-red-600">
+                {product.displayPromotionType === "PERCENTAGE"
+                  ? `-${product.displayPromotionValue}%`
+                  : `-$${product.displayPromotionValue}`}
+              </span>
+            </div>
           )}
         </div>
-      ),
-    },
-
-    {
-      key: "displayOriginPrice",
-      label: "Original Price",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground line-through">
-          $
-          {parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(
-            2,
-          )}
-        </span>
       ),
     },
 
