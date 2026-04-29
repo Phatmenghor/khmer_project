@@ -53,8 +53,7 @@ public class POSCheckoutItemRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CustomizationDetail {
-        private UUID id;
-        private UUID productCustomizationId;
+        private UUID productCustomizationId;  // Only one ID, no duplicate
         private String name;
         private BigDecimal priceAdjustment;
     }

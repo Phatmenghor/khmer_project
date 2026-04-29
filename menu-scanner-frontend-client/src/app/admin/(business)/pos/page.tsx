@@ -369,7 +369,6 @@ export default function PosPage() {
         ? customizationIds.map((customId) => {
             const custom = product.customizations?.find((c) => c.id === customId);
             return {
-              id: customId,
               productCustomizationId: customId,
               name: custom?.name || "",
               priceAdjustment: custom?.priceAdjustment || 0,

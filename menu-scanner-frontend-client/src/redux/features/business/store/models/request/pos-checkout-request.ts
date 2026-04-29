@@ -15,9 +15,8 @@ export interface POSCheckoutItemRequest {
   sizeName?: string | null;
   status?: string;
 
-  // Customizations/Add-ons - full details only (no duplicate IDs)
+  // Customizations/Add-ons - full details (only productCustomizationId, no duplicate)
   customizations?: Array<{
-    id: string;
     productCustomizationId: string;
     name: string;
     priceAdjustment: number;
