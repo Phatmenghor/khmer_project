@@ -15,7 +15,13 @@ export interface POSCheckoutItemRequest {
   sizeName?: string | null;
   status?: string;
 
-  // Customizations/Add-ons
+  // Customizations/Add-ons - full details for backend persistence
+  customizations?: Array<{
+    id: string;
+    productCustomizationId: string;
+    name: string;
+    priceAdjustment: number;
+  }>;
   customizationIds?: string[];
 
   // Pricing - final price only
@@ -61,6 +67,8 @@ export interface POSCheckoutAddressRequest {
 export interface PricingInfo {
   deliveryFee: number;
   subtotal: number;
+  taxPercentage: number;
+  taxAmount: number;
   finalTotal: number;
 }
 
