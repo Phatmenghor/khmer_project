@@ -250,6 +250,24 @@ export default function PosPage() {
     isLoading: productsLoading,
   });
 
+  // ─── Track Scroll Position ───
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+
+  useEffect(() => {
+    const viewport = productGridRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLElement;
+    if (!viewport) return;
+
+    const handleScroll = () => {
+      // Show button if scrolled down more than 200px
+      setShowScrollToTop(viewport.scrollTop > 200);
+    };
+
+    viewport.addEventListener("scroll", handleScroll);
+    return () => viewport.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // ─── Keyboard shortcuts ───
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1014,15 +1032,17 @@ export default function PosPage() {
           </ScrollArea>
           
           {/* Scroll to Top Button */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute bottom-4 right-4 h-10 w-10 rounded-full shadow-lg hover:bg-primary hover:text-primary-foreground transition-all"
-            onClick={scrollProductsToTop}
-            title="Scroll to top"
-          >
-            <ChevronRight className="h-5 w-5 transform -rotate-90" />
-          </Button>
+          {showScrollToTop && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute bottom-4 right-4 h-10 w-10 rounded-full shadow-lg hover:bg-primary hover:text-primary-foreground transition-all duration-200 animate-fade-in"
+              onClick={scrollProductsToTop}
+              title="Scroll to top"
+            >
+              <ChevronRight className="h-5 w-5 transform -rotate-90" />
+            </Button>
+          )}
         </div>
 
         {/* ─── Cart Panel ─── */}
