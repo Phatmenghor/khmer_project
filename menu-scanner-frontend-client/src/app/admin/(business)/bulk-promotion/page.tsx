@@ -58,7 +58,6 @@ import {
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { bulkPromotionTableColumns } from "@/redux/features/business/table/bulk-promotion-table";
 import {
-  PRODUCT_STATUS_FILTER,
   PRODUCT_SIZE_FILTER,
 } from "@/constants/status/filter-status";
 
@@ -885,7 +884,7 @@ export default function BulkPromotionPage() {
             </div>
 
             {/* Filters Row - Responsive Grid */}
-            <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
               {/* Category Filter */}
               <div className="min-w-0">
                 <ComboboxSelectCategories
@@ -913,21 +912,6 @@ export default function BulkPromotionPage() {
                   onChangeSelected={handleBrandChange}
                   placeholder="All Brand"
                   showAllOption={true}
-                />
-              </div>
-
-              {/* Product Status Filter */}
-              <div className="min-w-0">
-                <CustomSelect
-                  options={PRODUCT_STATUS_FILTER}
-                  value={filters.status}
-                  placeholder="All Status"
-                  onValueChange={(value) =>
-                    handleProductStatusChange(value as ProductStatus)
-                  }
-                  className="w-full"
-                  label="Product Status"
-                  size="md"
                 />
               </div>
 
