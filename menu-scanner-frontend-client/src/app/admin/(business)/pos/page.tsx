@@ -334,7 +334,7 @@ export default function PosPage() {
       const currentPrice = size
         ? size.price
         : parseFloat(String(product.displayOriginPrice || product.price || 0));
-      const finalPrice = size
+      let finalPrice = size
         ? size.finalPrice || size.price
         : product.displayPrice || parseFloat(String(product.price || 0));
 
@@ -349,6 +349,12 @@ export default function PosPage() {
             };
           })
         : [];
+
+      // Calculate total customization price adjustment
+      const customizationTotal = customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0);
+
+      // Include customization prices in final price
+      finalPrice = finalPrice + customizationTotal;
 
       const newItem: PosPageCartItem = {
         id: cartId,
@@ -406,6 +412,7 @@ export default function PosPage() {
       if (newQuantity === 0) {
         dispatch(removeCartItem(cartId));
       } else {
+        // Note: finalPrice already includes customization prices
         dispatch(updateCartItem({
           ...item,
           quantity: newQuantity,
