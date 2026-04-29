@@ -40,9 +40,8 @@ public class POSCheckoutItemRequest {
     private String sku;
     private String barcode;
 
-    // Customizations/Add-ons - full details for audit trail
-    private List<CustomizationDetail> customizations;  // Full details (id, name, price adjustment)
-    private List<UUID> customizationIds;               // IDs for quick lookup
+    // Customizations/Add-ons - full details (only one field, not duplicate)
+    private List<CustomizationDetail> customizations;  // Full details: id, productCustomizationId, name, priceAdjustment
 
     // Simplified Pricing
     private BigDecimal finalPrice;         // Price after promotions

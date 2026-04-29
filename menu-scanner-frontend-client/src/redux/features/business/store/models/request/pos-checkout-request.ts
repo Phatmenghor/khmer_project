@@ -15,14 +15,13 @@ export interface POSCheckoutItemRequest {
   sizeName?: string | null;
   status?: string;
 
-  // Customizations/Add-ons - full details for backend persistence
+  // Customizations/Add-ons - full details only (no duplicate IDs)
   customizations?: Array<{
     id: string;
     productCustomizationId: string;
     name: string;
     priceAdjustment: number;
   }>;
-  customizationIds?: string[];
 
   // Pricing - final price only
   finalPrice?: number;

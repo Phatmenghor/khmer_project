@@ -109,8 +109,8 @@ public class POSCheckoutRequest {
         private BigDecimal deliveryFee;
 
         // Tax breakdown - for audit trail and financial reporting
-        private BigDecimal taxPercentage;           // Tax rate (e.g., 10 for 10%)
-        private BigDecimal taxAmount;               // Calculated tax amount
+        private BigDecimal taxPercentage;           // Tax rate from business settings (e.g., 10 for 10%)
+        private BigDecimal taxAmount;               // Calculated tax amount (subtotal * taxPercentage / 100)
 
         // Order-level discount
         private BigDecimal discountAmount;          // Amount discounted
@@ -118,7 +118,7 @@ public class POSCheckoutRequest {
         private String discountReason;              // Why discount was applied
 
         // Final total
-        private BigDecimal finalTotal;
+        private BigDecimal finalTotal;              // subtotal + customizationTotal + deliveryFee + taxAmount - discountAmount
     }
 
     @Data

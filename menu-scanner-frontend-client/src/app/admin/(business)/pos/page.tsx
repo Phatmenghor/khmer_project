@@ -608,9 +608,8 @@ export default function PosPage() {
           productSizeId: item.productSizeId || null,
           sizeName: item.sizeName || null,
           quantity: item.quantity,
-          // Send full customization details (ID, name, price adjustment)
+          // Send full customization details (only customizations, not duplicate IDs)
           customizations: item.customizations || [],
-          customizationIds: item.customizations?.map((c) => c.id) || [],
           finalPrice: item.finalPrice,
           totalPrice: item.totalPrice,
           // SKU and barcode for store tracking
