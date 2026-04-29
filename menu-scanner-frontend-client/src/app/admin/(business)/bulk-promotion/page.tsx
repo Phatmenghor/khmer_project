@@ -965,33 +965,36 @@ export default function BulkPromotionPage() {
               </div>
 
               {/* Selected Count Card */}
-              <div className="rounded-lg p-4 bg-primary/5 border border-primary/20 hover:border-primary/40 transition-colors">
-                <div className="space-y-4">
+              <div className="rounded-lg p-5 bg-gradient-to-r from-primary/15 to-green-500/15 border border-primary/25 shadow-sm">
+                <div className="space-y-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-primary/70">
-                    Selection Summary
+                    Selection Status
                   </p>
 
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Stats Row */}
+                  <div className="flex items-center gap-6 sm:gap-8">
                     {/* Products Count */}
-                    <div className="space-y-1">
-                      <p className="text-3xl sm:text-4xl font-bold text-primary">
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-5xl sm:text-6xl font-black text-primary">
                         {selectedIds.length}
                       </p>
-                      <p className="text-xs font-medium text-foreground/70">
+                      <p className="text-xs sm:text-sm font-semibold text-foreground/60">
                         {selectedIds.length === 1 ? "Product" : "Products"}
                       </p>
                     </div>
 
+                    {/* Divider */}
+                    <div className="h-12 w-px bg-primary/20" />
+
                     {/* Sizes Count */}
-                    <div className="space-y-1">
-                      <p className="text-3xl sm:text-4xl font-bold text-green-600">
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-3xl sm:text-4xl font-black text-green-600">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
                           0,
                         )}
                       </p>
-                      <p className="text-xs font-medium text-foreground/70">
+                      <p className="text-xs sm:text-sm font-semibold text-foreground/60">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
                           0,
