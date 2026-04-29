@@ -36,6 +36,8 @@ export interface ProductDetailResponseModel {
   businessName: string;
   categoryId: string;
   categoryName: string;
+  subcategoryId: string;
+  subcategoryName: string;
   brandId: string;
   brandName: string;
   barcode: string;

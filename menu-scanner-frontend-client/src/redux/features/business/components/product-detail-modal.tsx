@@ -131,6 +131,10 @@ export function ProductDetailModal({
                     value={productData.categoryName || "---"}
                   />
                   <DisplayField
+                    label="Subcategory"
+                    value={productData.subcategoryName || "---"}
+                  />
+                  <DisplayField
                     label="Brand"
                     value={productData.brandName || "---"}
                   />

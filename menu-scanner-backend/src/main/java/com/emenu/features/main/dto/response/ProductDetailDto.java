@@ -57,6 +57,9 @@ public class ProductDetailDto extends BaseAuditResponse {
     private UUID categoryId;
     private String categoryName;
 
+    private UUID subcategoryId;
+    private String subcategoryName;
+
     private UUID brandId;
     private String brandName;
 
