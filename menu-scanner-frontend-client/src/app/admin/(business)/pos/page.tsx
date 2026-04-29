@@ -597,7 +597,7 @@ export default function PosPage() {
         price: selectedDeliveryOption.price || 0,
       },
 
-      // Cart — match API specification
+      // Cart — items with full customization details
       cart: {
         businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
         businessName: products[0]?.businessName || "",
@@ -608,23 +608,36 @@ export default function PosPage() {
           productSizeId: item.productSizeId || null,
           sizeName: item.sizeName || null,
           quantity: item.quantity,
+          // Send full customization details (ID, name, price adjustment)
+          customizations: item.customizations || [],
           customizationIds: item.customizations?.map((c) => c.id) || [],
           finalPrice: item.finalPrice,
           totalPrice: item.totalPrice,
+          // SKU and barcode for store tracking
           sku: item.sku || "",
           barcode: item.barcode || "",
         })),
         totalItems: cartSummary.totalItems,
         totalQuantity: cartSummary.totalQuantity,
         subtotal: cartSummary.subtotal,
+        customizationTotal: cartSummary.customizationTotal,
         finalTotal: cartSummary.finalTotal,
       },
 
-      // Pricing — match API specification
+      // Pricing with complete breakdown including tax
       pricing: {
-        deliveryFee: selectedDeliveryOption?.price || 0,
+        // Base pricing
         subtotal: cartSummary.subtotal,
+        customizationTotal: cartSummary.customizationTotal,
+        deliveryFee: selectedDeliveryOption?.price || 0,
+        // Tax breakdown
+        taxPercentage: cartSummary.taxPercentage,
+        taxAmount: cartSummary.taxAmount,
+        // Optional: order-level discount
         discountAmount: orderDiscount?.discountAmount || 0,
+        discountType: orderDiscount?.type || null,
+        discountReason: orderDiscount?.reason || null,
+        // Final total after all adjustments
         finalTotal: cartSummary.finalTotal,
       },
 
@@ -640,11 +653,14 @@ export default function PosPage() {
       orderStatus: OrderStatus.PENDING,
     };
 
-    // Debug: Log checkout request
+    // Debug: Log complete payload being sent
     console.log("📤 Sending POS Checkout Request:", {
       pricing: payload.pricing,
-      cartItems: payload.cart.items.length,
-      subtotal: payload.cart.subtotal,
+      cart: {
+        items: payload.cart.items.length,
+        subtotal: payload.cart.subtotal,
+        customizationTotal: payload.cart.customizationTotal,
+      },
     });
 
     dispatch(setIsSubmitting(true));
