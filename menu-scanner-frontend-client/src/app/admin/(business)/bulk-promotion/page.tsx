@@ -59,7 +59,14 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { bulkPromotionTableColumns } from "@/redux/features/business/table/bulk-promotion-table";
 import {
   PRODUCT_STATUS_FILTER,
+  PRODUCT_SIZE_FILTER,
 } from "@/constants/status/filter-status";
+
+const PROMOTION_FILTER_OPTIONS = [
+  { value: "ALL", label: "All Products" },
+  { value: "HAS_PROMOTION", label: "Has Promotion" },
+  { value: "NO_PROMOTION", label: "No Promotion" },
+];
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { ComboboxSelectSubcategories } from "@/components/shared/combobox/combobox_select_subcategories";
@@ -878,7 +885,7 @@ export default function BulkPromotionPage() {
             </div>
 
             {/* Filters Row - Responsive Grid */}
-            <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {/* Category Filter */}
               <div className="min-w-0">
                 <ComboboxSelectCategories
@@ -920,6 +927,19 @@ export default function BulkPromotionPage() {
                   }
                   className="w-full"
                   label="Product Status"
+                  size="md"
+                />
+              </div>
+
+              {/* Promotion Status Filter */}
+              <div className="min-w-0">
+                <CustomSelect
+                  options={PROMOTION_FILTER_OPTIONS}
+                  value={hasPromotionFilter}
+                  placeholder="All Products"
+                  onValueChange={handlePromotionFilterChange}
+                  className="w-full"
+                  label="Promotion Status"
                   size="md"
                 />
               </div>
