@@ -172,18 +172,4 @@ function POSProductCardComponent({
   );
 }
 
-export const POSProductCard = memo(
-  POSProductCardComponent,
-  (prevProps, nextProps) => {
-    return (
-      prevProps.product.id === nextProps.product.id &&
-      prevProps.product.displayPrice === nextProps.product.displayPrice &&
-      prevProps.product.mainImageUrl === nextProps.product.mainImageUrl &&
-      prevProps.product.hasActivePromotion === nextProps.product.hasActivePromotion &&
-      prevProps.product.displayPromotionValue === nextProps.product.displayPromotionValue &&
-      prevProps.product.displayPromotionType === nextProps.product.displayPromotionType &&
-      prevProps.product.hasSizes === nextProps.product.hasSizes &&
-      prevProps.quantity === nextProps.quantity
-    );
-  }
-);
+export const POSProductCard = memo(POSProductCardComponent);
