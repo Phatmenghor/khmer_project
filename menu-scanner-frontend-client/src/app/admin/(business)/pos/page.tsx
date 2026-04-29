@@ -122,7 +122,7 @@ export default function PosPage() {
   const dispatch = useAppDispatch() as AppDispatch;
 
   // ─── Business Settings (for tax percentage) ───
-  const { businessSettings, fetchBusinessSettings } = useBusinessSettings();
+  const { businessSettings, isLoading: isLoadingSettings, error: settingsError, fetchBusinessSettings } = useBusinessSettings();
 
   // ─── Redux State ───
   const {
@@ -220,6 +220,17 @@ export default function PosPage() {
       console.warn("Failed to fetch business settings:", err);
     });
   }, [dispatch]); // Only run on mount, not on fetchBusinessSettings changes
+
+  // ─── Debug: Log business settings when loaded ───
+  useEffect(() => {
+    if (businessSettings) {
+      console.log("✅ Business Settings Loaded:", businessSettings);
+      console.log("Tax Percentage:", businessSettings.taxPercentage);
+    }
+    if (settingsError) {
+      console.error("❌ Settings Error:", settingsError);
+    }
+  }, [businessSettings, settingsError]);
 
   // ─── Fetch Products when filters/search change ───
   useEffect(() => {
