@@ -653,6 +653,16 @@ export default function PosPage() {
       orderStatus: OrderStatus.PENDING,
     };
 
+    // Debug: Log complete payload being sent
+    console.log("📤 Sending POS Checkout Request:", {
+      pricing: payload.pricing,
+      cart: {
+        items: payload.cart.items.length,
+        subtotal: payload.cart.subtotal,
+        customizationTotal: payload.cart.customizationTotal,
+      },
+    });
+
     dispatch(setIsSubmitting(true));
     try {
       const result = await dispatch(createPOSCheckoutOrderService(payload) as any);

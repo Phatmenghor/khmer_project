@@ -51,6 +51,30 @@ export interface UpdateBusinessSettingsRequest {
 const API_BASE_URL = "/api/v1/business-settings";
 
 /**
+ * Fetch current business settings (Authenticated)
+ * Gets complete business settings including tax percentage
+ * GET /api/v1/business-settings/current
+ *
+ * Used for:
+ * - Loading business settings in admin (POS)
+ * - Getting tax percentage, colors, logo, all config
+ * - Requires authentication
+ *
+ * @returns Complete business settings response
+ */
+export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse> => {
+  try {
+    const response = await axiosClientWithAuth.get<{ data: BusinessSettingsResponse }>(
+      `/api/v1/business-settings/current`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching current business settings:", error);
+    throw error;
+  }
+};
+
+/**
  * Fetch business settings by business ID (Public - No Auth Required)
  * Fetches business theme colors, logo, and business name
  * GET /api/v1/public/business-settings/{businessId}
