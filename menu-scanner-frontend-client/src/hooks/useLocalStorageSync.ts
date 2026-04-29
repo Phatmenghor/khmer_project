@@ -6,7 +6,7 @@
 
 import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { setCartItems } from "@/redux/features/business/store/slice/pos-page-slice";
+import { loadPersistedCart } from "@/redux/features/business/store/slice/pos-page-slice";
 import { selectCartItems } from "@/redux/features/business/store/selectors/pos-page-selector";
 import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
 
@@ -95,7 +95,7 @@ export function useLocalStorageSync(
           );
 
           if (isValid) {
-            dispatch(setCartItems(parsedCart));
+            dispatch(loadPersistedCart(parsedCart));
             console.log(
               `✅ Loaded ${parsedCart.length} items from localStorage (${storageKey})`
             );
