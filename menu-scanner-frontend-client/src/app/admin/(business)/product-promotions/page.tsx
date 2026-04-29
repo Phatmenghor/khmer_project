@@ -37,7 +37,9 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
+import { ComboboxSelectSubcategories } from "@/components/shared/combobox/combobox_select_subcategories";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -102,6 +104,8 @@ export default function ProductPromotionPage() {
   const [sortDirection, setSortDirection] = useState("DESC");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
+  const [selectedSubcategories, setSelectedSubcategories] =
+    useState<SubcategoriesResponseModel | null>(null);
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -159,6 +163,7 @@ export default function ProductPromotionPage() {
           filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
+        subcategoryId: selectedSubcategories?.id,
         hasSize,
         sortBy,
         sortDirection,
@@ -172,6 +177,7 @@ export default function ProductPromotionPage() {
     globalPageSize,
     selectedBrand,
     selectedCategories,
+    selectedSubcategories,
     sizeFilter,
     sortBy,
     sortDirection,
@@ -376,6 +382,12 @@ export default function ProductPromotionPage() {
     setSelectedCategories(categories);
   };
 
+  const handleSubcategoriesChange = (
+    subcategories: SubcategoriesResponseModel | null,
+  ) => {
+    setSelectedSubcategories(subcategories);
+  };
+
   const handleSizeFilterChange = (value: string) => {
     setSizeFilter(value);
   };
@@ -426,6 +438,15 @@ export default function ProductPromotionPage() {
         showAllOption: true,
       },
       {
+        id: "subcategory",
+        type: "combobox-subcategories",
+        label: "Subcategory",
+        placeholder: "All Subcategories",
+        value: selectedSubcategories,
+        onChange: handleSubcategoriesChange,
+        showAllOption: true,
+      },
+      {
         id: "size",
         type: "select",
         label: "Product Size",
@@ -453,7 +474,7 @@ export default function ProductPromotionPage() {
         options: SORT_DIRECTION_OPTIONS,
       },
     ],
-  }), [filters.search, filters.status, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection]);
+  }), [filters.search, filters.status, selectedBrand, selectedCategories, selectedSubcategories, sizeFilter, sortBy, sortDirection]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">

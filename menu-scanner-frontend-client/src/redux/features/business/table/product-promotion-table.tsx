@@ -212,57 +212,37 @@ export const productPromotionTableColumns = ({
     },
 
     {
-      key: "categoryName",
-      label: "Category",
-      minWidth: "10px",
-      maxWidth: "150px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.categoryName || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "brandName",
-      label: "Brand",
-      minWidth: "10px",
-      maxWidth: "150px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.brandName || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "displayPrice",
+      key: "pricing",
       label: "Price",
-      minWidth: "10px",
-      maxWidth: "100px",
-      truncate: true,
+      minWidth: "150px",
+      maxWidth: "250px",
       render: (product) => (
-        <span className="text-xs font-semibold text-foreground">
-          ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
-        </span>
-      ),
-    },
-
-    {
-      key: "displayOriginPrice",
-      label: "Original Price",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground line-through">
-          $
-          {parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(
-            2,
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Display:</span>
+            <span className="text-xs font-semibold text-foreground">
+              ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
+            </span>
+          </div>
+          {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Original:</span>
+              <span className="text-xs text-muted-foreground line-through">
+                ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
+              </span>
+            </div>
           )}
-        </span>
+          {product?.hasPromotion && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Discount:</span>
+              <span className="text-xs font-semibold text-red-600">
+                {product.displayPromotionType === "PERCENTAGE"
+                  ? `-${product.displayPromotionValue}%`
+                  : `-$${product.displayPromotionValue}`}
+              </span>
+            </div>
+          )}
+        </div>
       ),
     },
 
@@ -275,37 +255,8 @@ export const productPromotionTableColumns = ({
     },
 
     {
-      key: "displayPromotionValue",
-      label: "Promo Value",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => {
-        const value = product?.displayPromotionValue;
-        const type = product?.displayPromotionType;
-
-        let displayValue = "---";
-        if (value) {
-          if (type === "PERCENTAGE") {
-            displayValue = `${value}%`;
-          } else if (type === "FIXED_AMOUNT") {
-            displayValue = `$${parseFloat(value.toString()).toFixed(2)}`;
-          } else {
-            displayValue = value.toString();
-          }
-        }
-
-        return (
-          <span className="text-xs font-semibold text-red-600">
-            {displayValue}
-          </span>
-        );
-      },
-    },
-
-    {
       key: "displayPromotionFromDate",
-      label: "From Date",
+      label: "Promo From",
       minWidth: "10px",
       maxWidth: "150px",
       truncate: true,
@@ -318,7 +269,7 @@ export const productPromotionTableColumns = ({
 
     {
       key: "displayPromotionToDate",
-      label: "To Date",
+      label: "Promo To",
       minWidth: "10px",
       maxWidth: "150px",
       truncate: true,

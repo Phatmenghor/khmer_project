@@ -31,6 +31,7 @@ import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -94,6 +95,8 @@ export default function ProductPage() {
   const [sortDirection, setSortDirection] = useState("DESC");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
+  const [selectedSubcategories, setSelectedSubcategories] =
+    useState<SubcategoriesResponseModel | null>(null);
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -139,6 +142,7 @@ export default function ProductPage() {
           filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
+        subcategoryId: selectedSubcategories?.id,
         hasSize,
         sortBy,
         sortDirection,
@@ -152,6 +156,7 @@ export default function ProductPage() {
     globalPageSize,
     selectedBrand,
     selectedCategories,
+    selectedSubcategories,
     sizeFilter,
     sortBy,
     sortDirection,
@@ -342,6 +347,12 @@ export default function ProductPage() {
     setSelectedCategories(categories);
   };
 
+  const handleSubcategoriesChange = (
+    subcategories: SubcategoriesResponseModel | null,
+  ) => {
+    setSelectedSubcategories(subcategories);
+  };
+
   const handleSortByChange = (value: string) => {
     setSortBy(value);
   };
@@ -376,6 +387,15 @@ export default function ProductPage() {
         placeholder: "All Categories",
         value: selectedCategories,
         onChange: handleCategoriesChange,
+        showAllOption: true,
+      },
+      {
+        id: "subcategory",
+        type: "combobox-subcategories",
+        label: "Subcategory",
+        placeholder: "All Subcategories",
+        value: selectedSubcategories,
+        onChange: handleSubcategoriesChange,
         showAllOption: true,
       },
       {
@@ -414,7 +434,7 @@ export default function ProductPage() {
         options: SORT_DIRECTION_OPTIONS,
       }
     ],
-  }), [filters.search, filters.status, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection]);
+  }), [filters.search, filters.status, selectedBrand, selectedCategories, selectedSubcategories, sizeFilter, sortBy, sortDirection]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">

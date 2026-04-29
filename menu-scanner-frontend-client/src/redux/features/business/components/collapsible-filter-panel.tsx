@@ -5,6 +5,7 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
+import { ComboboxSelectSubcategories } from "@/components/shared/combobox/combobox_select_subcategories";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { Plus, ChevronDown, Search } from "lucide-react";
 import { FilterConfig, FilterPanelConfig } from "./filter-types";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { Badge } from "@/components/ui/badge";
 
 interface CollapsibleFilterPanelProps {
@@ -95,6 +97,20 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             dataSelect={filter.value as CategoriesResponseModel | null}
             onChangeSelected={filter.onChange}
             placeholder={filter.placeholder || "All Categories"}
+            showAllOption={(filter as any).showAllOption !== false}
+            label={filter.label}
+            disabled={filter.disabled}
+            size="lg"
+          />
+        );
+
+      case "combobox-subcategories":
+        return (
+          <ComboboxSelectSubcategories
+            key={filter.id}
+            dataSelect={filter.value as SubcategoriesResponseModel | null}
+            onChangeSelected={filter.onChange}
+            placeholder={filter.placeholder || "All Subcategories"}
             showAllOption={(filter as any).showAllOption !== false}
             label={filter.label}
             disabled={filter.disabled}
