@@ -425,26 +425,35 @@ export function SizePickerModal({
 
           {/* Total */}
           <div className="bg-muted/30 rounded-lg p-4 border space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground text-sm">Base price</span>
-              <span className="font-semibold">
-                {formatCurrency(displayPrice)}
-              </span>
-            </div>
-            {customizationTotal > 0 && (
-              <div className="flex justify-between items-center text-green-600">
-                <span className="text-muted-foreground text-sm">Add-ons</span>
+            {customizationTotal > 0 ? (
+              <>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground text-sm">Base price</span>
+                  <span className="font-semibold">
+                    {formatCurrency(displayPrice)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-green-600">
+                  <span className="text-muted-foreground text-sm">Add-ons</span>
+                  <span className="font-semibold">
+                    +{formatCurrency(customizationTotal)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-t pt-2">
+                  <span className="text-muted-foreground text-sm">Price per item</span>
+                  <span className="font-semibold">
+                    {formatCurrency(priceWithCustomizations)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground text-sm">Price per item</span>
                 <span className="font-semibold">
-                  +{formatCurrency(customizationTotal)}
+                  {formatCurrency(displayPrice)}
                 </span>
               </div>
             )}
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground text-sm">Price per item</span>
-              <span className="font-semibold">
-                {formatCurrency(priceWithCustomizations)}
-              </span>
-            </div>
             {hasDiscount && originalPrice && (
               <div className="flex justify-between items-center text-destructive">
                 <span className="text-muted-foreground text-sm">Original price</span>
