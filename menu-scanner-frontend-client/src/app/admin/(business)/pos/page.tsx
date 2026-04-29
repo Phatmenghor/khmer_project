@@ -620,15 +620,24 @@ export default function PosPage() {
         totalItems: cartSummary.totalItems,
         totalQuantity: cartSummary.totalQuantity,
         subtotal: cartSummary.subtotal,
+        customizationTotal: cartSummary.customizationTotal,
         finalTotal: cartSummary.finalTotal,
       },
 
-      // Pricing with tax calculation
+      // Pricing with complete breakdown including tax
       pricing: {
-        deliveryFee: selectedDeliveryOption?.price || 0,
+        // Base pricing
         subtotal: cartSummary.subtotal,
+        customizationTotal: cartSummary.customizationTotal,
+        deliveryFee: selectedDeliveryOption?.price || 0,
+        // Tax breakdown
         taxPercentage: cartSummary.taxPercentage,
         taxAmount: cartSummary.taxAmount,
+        // Optional: order-level discount
+        discountAmount: orderDiscount?.discountAmount || 0,
+        discountType: orderDiscount?.type || null,
+        discountReason: orderDiscount?.reason || null,
+        // Final total after all adjustments
         finalTotal: cartSummary.finalTotal,
       },
 

@@ -48,6 +48,7 @@ export interface CartSummary {
   totalItems: number;
   totalQuantity: number;
   subtotal: number;
+  customizationTotal: number;
   finalTotal: number;
 }
 
@@ -63,12 +64,20 @@ export interface POSCheckoutAddressRequest {
   longitude?: number;
 }
 
-// Order-level pricing — simplified
+// Order-level pricing — complete breakdown
 export interface PricingInfo {
-  deliveryFee: number;
+  // Base pricing
   subtotal: number;
+  customizationTotal: number;
+  deliveryFee: number;
+  // Tax breakdown - for proper tax tracking and audit trail
   taxPercentage: number;
   taxAmount: number;
+  // Optional: order-level discount (applied after tax)
+  discountAmount: number;
+  discountType?: "fixed" | "percentage" | null;
+  discountReason?: string | null;
+  // Final total
   finalTotal: number;
 }
 
@@ -101,11 +110,18 @@ export interface POSCheckoutRequest {
 export interface POSCheckoutResponse {
   id: string;
   orderNumber: string;
+  // Pricing breakdown
   subtotal: number;
-  discountAmount: number;
+  customizationTotal?: number;
   deliveryFee: number;
+  // Tax fields - must be present in response
+  taxPercentage: number;
   taxAmount: number;
+  // Discount
+  discountAmount: number;
+  // Final total
   totalAmount: number;
+  // Order metadata
   orderStatus: string;
   source: string;
   paymentMethod: string;
