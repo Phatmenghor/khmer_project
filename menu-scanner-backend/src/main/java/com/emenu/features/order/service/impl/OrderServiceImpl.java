@@ -45,6 +45,7 @@ import com.emenu.shared.generate.OrderNumberGenerator;
 import com.emenu.shared.generate.PaymentReferenceGenerator;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -80,6 +81,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentReferenceGenerator paymentReferenceGenerator;
     private final PaginationMapper paginationMapper;
     private final StockServiceImpl stockService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
@@ -733,6 +735,7 @@ public class OrderServiceImpl implements OrderService {
             // Create order items and calculate totals
             log.debug("📦 [STEP 4/6] Creating order items ({} items)...", request.getCart().getItems().size());
             BigDecimal subtotal = BigDecimal.ZERO;
+            BigDecimal customizationTotalForOrder = BigDecimal.ZERO;
             BigDecimal totalDiscount = BigDecimal.ZERO;
             List<OrderItem> createdItems = new java.util.ArrayList<>();
 
@@ -765,6 +768,37 @@ public class OrderServiceImpl implements OrderService {
                     itemRequest.getTotalPrice() : finalPrice.multiply(new BigDecimal(itemRequest.getQuantity()));
                 orderItem.setTotalPrice(totalPrice);
 
+                // Process customizations for this item
+                if (itemRequest.getCustomizations() != null && !itemRequest.getCustomizations().isEmpty()) {
+                    try {
+                        String customizationsJson = objectMapper.writeValueAsString(itemRequest.getCustomizations());
+                        orderItem.setCustomizations(customizationsJson);
+
+                        // Extract customization IDs as JSON array
+                        List<String> customizationIds = itemRequest.getCustomizations().stream()
+                            .map(c -> c.getProductCustomizationId().toString())
+                            .toList();
+                        String customizationIdsJson = objectMapper.writeValueAsString(customizationIds);
+                        orderItem.setCustomizationIds(customizationIdsJson);
+
+                        // Calculate customization total for this item
+                        BigDecimal itemCustomizationTotal = itemRequest.getCustomizations().stream()
+                            .map(POSCheckoutItemRequest.CustomizationDetail::getPriceAdjustment)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add)
+                            .multiply(new BigDecimal(itemRequest.getQuantity()));
+                        orderItem.setCustomizationTotal(itemCustomizationTotal);
+                        customizationTotalForOrder = customizationTotalForOrder.add(itemCustomizationTotal);
+
+                        log.debug("✅ [CUSTOMIZATIONS] Item {} has {} customizations, total: {}",
+                            itemRequest.getProductId(), itemRequest.getCustomizations().size(), itemCustomizationTotal);
+                    } catch (Exception e) {
+                        log.warn("Failed to serialize customizations for item {}: {}", itemRequest.getProductId(), e.getMessage());
+                        orderItem.setCustomizationTotal(BigDecimal.ZERO);
+                    }
+                } else {
+                    orderItem.setCustomizationTotal(BigDecimal.ZERO);
+                }
+
                 savedOrder.getItems().add(orderItem);
                 createdItems.add(orderItem);
 
@@ -776,17 +810,38 @@ public class OrderServiceImpl implements OrderService {
 
             // Update order totals
             log.debug("💰 [STEP 5/6] Calculating totals...");
-            // Get discount from cart or use calculated item-level discount
-            BigDecimal discountAmount = request.getCart().getTotalDiscount() != null ?
-                request.getCart().getTotalDiscount() : totalDiscount;
-            BigDecimal taxAmount = BigDecimal.ZERO; // Tax not used in POS, reserved for future
-            BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
 
-            savedOrder.setSubtotal(subtotal);
-            savedOrder.setDiscountAmount(discountAmount);
-            savedOrder.setTaxAmount(taxAmount);
-            savedOrder.setDeliveryFee(deliveryFee);
-            savedOrder.setTotalAmount(subtotal.subtract(discountAmount).add(taxAmount).add(deliveryFee));
+            // Use pricing data from request
+            BigDecimal orderSubtotal = request.getPricing().getSubtotal() != null ?
+                request.getPricing().getSubtotal() : subtotal;
+            BigDecimal orderCustomizationTotal = request.getPricing().getCustomizationTotal() != null ?
+                request.getPricing().getCustomizationTotal() : customizationTotalForOrder;
+            BigDecimal orderDeliveryFee = request.getPricing().getDeliveryFee() != null ?
+                request.getPricing().getDeliveryFee() : order.getDeliveryFee();
+            BigDecimal orderTaxPercentage = request.getPricing().getTaxPercentage() != null ?
+                request.getPricing().getTaxPercentage() : BigDecimal.ZERO;
+            BigDecimal orderTaxAmount = request.getPricing().getTaxAmount() != null ?
+                request.getPricing().getTaxAmount() : BigDecimal.ZERO;
+            BigDecimal orderDiscountAmount = request.getPricing().getDiscountAmount() != null ?
+                request.getPricing().getDiscountAmount() : BigDecimal.ZERO;
+            String orderDiscountType = request.getPricing().getDiscountType();
+            String orderDiscountReason = request.getPricing().getDiscountReason();
+            BigDecimal orderFinalTotal = request.getPricing().getFinalTotal() != null ?
+                request.getPricing().getFinalTotal() : BigDecimal.ZERO;
+
+            savedOrder.setSubtotal(orderSubtotal);
+            savedOrder.setCustomizationTotal(orderCustomizationTotal);
+            savedOrder.setDiscountAmount(orderDiscountAmount);
+            savedOrder.setDiscountType(orderDiscountType);
+            savedOrder.setDiscountReason(orderDiscountReason);
+            savedOrder.setTaxPercentage(orderTaxPercentage);
+            savedOrder.setTaxAmount(orderTaxAmount);
+            savedOrder.setDeliveryFee(orderDeliveryFee);
+            savedOrder.setTotalAmount(orderFinalTotal);
+
+            log.debug("💰 [PRICING BREAKDOWN] Subtotal: {}, Customization: {}, Delivery: {}, Tax: {} ({}%), Discount: {} ({}), Final: {}",
+                orderSubtotal, orderCustomizationTotal, orderDeliveryFee, orderTaxAmount, orderTaxPercentage,
+                orderDiscountAmount, orderDiscountType, orderFinalTotal);
 
             Order updatedOrder = orderRepository.save(savedOrder);
 
@@ -799,12 +854,14 @@ public class OrderServiceImpl implements OrderService {
             payment.setStatus(PaymentStatus.PAID);
             payment.setPaymentReference(paymentReferenceGenerator.generateUniqueReference());
             payment.setSubtotal(updatedOrder.getSubtotal());
+            payment.setCustomizationTotal(updatedOrder.getCustomizationTotal());
             payment.setDiscountAmount(updatedOrder.getDiscountAmount());
             payment.setDeliveryFee(updatedOrder.getDeliveryFee());
             payment.setTaxAmount(updatedOrder.getTaxAmount());
             payment.setTotalAmount(updatedOrder.getTotalAmount());
             payment.setCustomerPaymentMethod("Cash");
             paymentRepository.save(payment);
+            log.debug("✅ [PAYMENT RECORD] Created for order {} with amount: {}", updatedOrder.getOrderNumber(), updatedOrder.getTotalAmount());
 
             // Create initial status history
             log.debug("📋 [STEP 6/6] Creating status history...");
