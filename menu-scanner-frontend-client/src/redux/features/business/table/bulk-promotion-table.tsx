@@ -207,7 +207,7 @@ export const bulkPromotionTableColumns = ({
         }
 
         return (
-          <div className="flex flex-row gap-1.5 items-center flex-nowrap overflow-hidden">
+          <div className="flex flex-row gap-1.5 items-center flex-nowrap overflow-x-auto pb-2">
             {product.sizes.map((size) => {
               const isSelected =
                 selectedSizes.get(product.id)?.has(size.id) || false;
@@ -253,10 +253,10 @@ export const bulkPromotionTableColumns = ({
       },
     },
     {
-      key: "displayPrice",
-      label: "Display Price",
-      minWidth: "100px",
-      maxWidth: "150px",
+      key: "pricing",
+      label: "Price",
+      minWidth: "150px",
+      maxWidth: "250px",
       className: "px-4",
       render: (product) => {
         // Only show for products WITHOUT sizes
@@ -265,43 +265,25 @@ export const bulkPromotionTableColumns = ({
         }
 
         return (
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-semibold text-foreground">
+          <div className="space-y-1">
+            <span className="text-xs font-semibold text-foreground">
               ${Number(product.displayPrice || 0).toFixed(2)}
             </span>
             {product.displayOriginPrice &&
               product.displayPrice <
                 Number(product.displayOriginPrice || 0) && (
-                <span className="text-xs text-muted-foreground line-through">
+                <div className="text-xs text-muted-foreground line-through">
                   ${Number(product.displayOriginPrice).toFixed(2)}
-                </span>
+                </div>
               )}
+            {product.hasPromotion && product.displayPromotionType && (
+              <div className="text-xs font-semibold text-red-600">
+                {product.displayPromotionType === "PERCENTAGE"
+                  ? `-${product.displayPromotionValue}%`
+                  : `-$${Number(product.displayPromotionValue || 0).toFixed(2)}`}
+              </div>
+            )}
           </div>
-        );
-      },
-    },
-    {
-      key: "discount",
-      label: "Discount",
-      minWidth: "100px",
-      maxWidth: "150px",
-      className: "px-4",
-      render: (product) => {
-        // Only show for products WITHOUT sizes
-        if (product.hasSizes) {
-          return <span className="text-xs text-muted-foreground">---</span>;
-        }
-
-        if (!product.hasPromotion || !product.displayPromotionType) {
-          return <span className="text-xs text-muted-foreground">---</span>;
-        }
-
-        return (
-          <span className="bg-green-100/70 text-green-700 text-xs h-fit px-2 py-0.5 rounded inline-block font-semibold">
-            {product.displayPromotionType === "PERCENTAGE"
-              ? `${product.displayPromotionValue}%`
-              : `$${Number(product.displayPromotionValue || 0).toFixed(2)}`}
-          </span>
         );
       },
     },
