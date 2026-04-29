@@ -61,7 +61,6 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { useLocalStorageSync } from "@/hooks/useLocalStorageSync";
 import { useFilterURLSync } from "@/hooks/useFilterURLSync";
-import { useBusinessSettings } from "@/hooks/use-business-settings";
 
 // ─── Redux Imports ───
 import { usePOSPageState } from "@/redux/features/business/store/state/pos-page-state";
@@ -113,16 +112,19 @@ import {
   fetchPOSPageProductsService,
   createPOSCheckoutOrderService,
 } from "@/redux/features/business/store/thunks/pos-page-thunks";
-import { AppDispatch } from "@/redux/store";
+import { AppDispatch, RootState } from "@/redux/store";
 import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
+import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thunks/business-settings-thunks";
+import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { useSelector } from "react-redux";
 
 
 export default function PosPage() {
   const router = useRouter();
   const dispatch = useAppDispatch() as AppDispatch;
 
-  // ─── Business Settings (for tax percentage) ───
-  const { businessSettings, isLoading: isLoadingSettings, error: settingsError, fetchBusinessSettings } = useBusinessSettings();
+  // ─── Business Settings from Redux (for tax percentage, colors, etc) ───
+  const businessSettings = useSelector((state: RootState) => selectBusinessSettings(state));
 
   // ─── Redux State ───
   const {
@@ -215,22 +217,9 @@ export default function PosPage() {
     dispatch(fetchPOSPageCategoriesService());
     dispatch(fetchPOSPageSubcategoriesService());
     dispatch(fetchPOSPageBrandsService());
-    // Fetch business settings to get tax percentage
-    fetchBusinessSettings().catch((err) => {
-      console.warn("Failed to fetch business settings:", err);
-    });
-  }, [dispatch]); // Only run on mount, not on fetchBusinessSettings changes
-
-  // ─── Debug: Log business settings when loaded ───
-  useEffect(() => {
-    if (businessSettings) {
-      console.log("✅ Business Settings Loaded:", businessSettings);
-      console.log("Tax Percentage:", businessSettings.taxPercentage);
-    }
-    if (settingsError) {
-      console.error("❌ Settings Error:", settingsError);
-    }
-  }, [businessSettings, settingsError]);
+    // Fetch business settings from Redux (includes tax percentage, colors, etc)
+    dispatch(fetchBusinessSettingsThunk());
+  }, [dispatch]);
 
   // ─── Fetch Products when filters/search change ───
   useEffect(() => {
