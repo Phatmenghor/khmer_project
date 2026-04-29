@@ -10,6 +10,7 @@ const selectPOSCartItems = (state: RootState) => state.posPage.cartItems;
  * of product cards during pagination or other updates.
  *
  * Factory selector pattern allows efficient per-product lookups.
+ * Includes defensive checks for whitespace and undefined IDs.
  */
 export const selectPOSProductQuantity = createSelector(
   [
@@ -17,9 +18,25 @@ export const selectPOSProductQuantity = createSelector(
     (_state: RootState, productId: string) => productId,
   ],
   (items, productId: string) => {
+    // Defensive: ensure productId is valid
+    if (!productId || typeof productId !== 'string') {
+      return 0;
+    }
+
+    const normalizedId = productId.trim();
+    if (!normalizedId) {
+      return 0;
+    }
+
+    // Find all cart items matching this product and sum quantities
     return items
-      .filter((item) => item.productId === productId)
-      .reduce((sum, item) => sum + item.quantity, 0);
+      .filter((item) => {
+        // Defensive: ensure item has productId
+        if (!item?.productId) return false;
+        // Normalize both IDs for comparison (trim whitespace)
+        return item.productId.trim() === normalizedId;
+      })
+      .reduce((sum, item) => sum + (item.quantity || 0), 0);
   }
 );
 

@@ -21,11 +21,14 @@ function POSProductCardComponent({
   onAddClick,
   onQuantityChange,
 }: POSProductCardProps) {
-  // Get quantity from Redux using memoized selector (only this product's quantity)
-  // This ensures card only re-renders when THIS product's quantity changes,
-  // not when other products change. Matches optimization pattern of public ProductCard.
+  // Safely get product ID - must have valid ID to lookup quantity
+  const productId = product?.id;
+
+  // Get quantity from Redux using memoized selector
+  // This ensures card only re-renders when THIS product's quantity changes.
+  // Returns 0 if productId is missing (should not happen but safe fallback).
   const quantity = useSelector((state) =>
-    selectPOSProductQuantity(state, product.id)
+    selectPOSProductQuantity(state, productId || "")
   );
   const handleIncrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
