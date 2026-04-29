@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { ClientProviders } from "@/context/client-provider";
 import { getMessages } from "next-intl/server";
 import localFont from "next/font/local";
@@ -45,8 +46,9 @@ export default async function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         {/* Apply theme colors synchronously via style tag to prevent color flash */}
-        <script
-          suppressHydrationWarning
+        <Script
+          id="theme-initializer"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
