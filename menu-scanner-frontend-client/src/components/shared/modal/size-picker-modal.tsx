@@ -253,8 +253,14 @@ export function SizePickerModal({
       return;
     }
 
-    // Loop through ALL modified sizes and add each one to cart
-    for (const sizeId of modifiedSizes) {
+    // Collect all sizes that need to be saved: either quantity was modified OR customizations were added
+    const sizesToUpdate = new Set(modifiedSizes);
+    customizationsBySize.forEach((_, sizeId) => {
+      sizesToUpdate.add(sizeId);
+    });
+
+    // Loop through ALL sizes with changes (quantity or customizations) and add each one to cart
+    for (const sizeId of sizesToUpdate) {
       const size = product.sizes?.find((s) => s.id === sizeId);
       const qty = getDisplayQuantity(sizeId);
 
