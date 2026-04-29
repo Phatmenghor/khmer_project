@@ -47,13 +47,16 @@ function POSProductCardComponent({
     onQuantityChange(product.id, -1);
   }, [product, onAddClick, onQuantityChange]);
 
+  const isOutOfStock = product.status === "OUT_OF_STOCK";
+
   return (
     <div
       onClick={() => onAddClick(product)}
       className={cn(
-        "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer",
+        "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover:scale-[1.02]",
         quantity > 0 && "ring-1 ring-primary/30 border-primary/50",
-        product.hasActivePromotion && "ring-1 ring-amber-500/20"
+        product.hasActivePromotion && "ring-1 ring-amber-500/20",
+        isOutOfStock && "opacity-60"
       )}
     >
       {/* Image Container */}
@@ -62,12 +65,19 @@ function POSProductCardComponent({
           <img
             src={product.mainImageUrl}
             alt={product.name}
-            className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
             loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
             <Package className="w-8 h-8 opacity-30" />
+          </div>
+        )}
+
+        {/* Out of Stock Overlay */}
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center pointer-events-none">
+            <Badge variant="secondary" className="text-xs font-semibold px-3 py-1">Out of Stock</Badge>
           </div>
         )}
 
@@ -100,7 +110,7 @@ function POSProductCardComponent({
         )}
       </div>
 
-      {/* Content - Same as ProductCard */}
+      {/* Content */}
       <div className="p-3 flex flex-col flex-1">
         {/* Product Name */}
         <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
@@ -124,7 +134,7 @@ function POSProductCardComponent({
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-colors"
                 onClick={handleDecrement}
               >
                 <Minus className="h-3 w-3" />
@@ -135,7 +145,7 @@ function POSProductCardComponent({
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors"
                 onClick={handleIncrement}
               >
                 <Plus className="h-3 w-3" />
@@ -149,6 +159,7 @@ function POSProductCardComponent({
                 e.stopPropagation();
                 onAddClick(product);
               }}
+              disabled={isOutOfStock}
               size="sm"
             >
               <ShoppingCart className="h-3.5 w-3.5" />
