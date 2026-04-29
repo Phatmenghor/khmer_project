@@ -5,12 +5,15 @@ import { Check, Package, X, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { QuantitySelector } from "@/components/shared/input/quantity-selector";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { FormBody } from "@/components/shared/form-field/form-body";
+import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { CancelButton } from "@/components/shared/form-field/cancel-button";
+import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/redux/features/business/store/models/response/product-response";
@@ -205,15 +208,17 @@ export function SizePickerModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full sm:max-w-[480px] p-0 overflow-hidden max-h-[90vh] flex flex-col">
+      <DialogContent className="w-full sm:max-w-[500px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Header */}
-        <DialogHeader className="p-4 pb-0 flex-shrink-0">
-          <DialogTitle className="text-lg font-bold">
-            {isEditing ? "Edit Size" : "Choose Size"}
-          </DialogTitle>
-        </DialogHeader>
+        <FormHeader
+          title={isEditing ? "Edit Size" : "Choose Size"}
+          description={product?.name}
+          isCreate={isEditing === false}
+          showAvatar={false}
+        />
 
-        <div className="p-4 pt-2 flex-1 overflow-y-auto">
+        {/* Body */}
+        <FormBody contentClassName="space-y-4">
           {/* Product Info */}
           <div className="flex gap-4 mb-4">
             <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
@@ -352,33 +357,48 @@ export function SizePickerModal({
           </div>
 
           {/* Total */}
-          <div className="flex justify-between items-center py-3 border-t mb-4">
-            <span className="text-muted-foreground">Total</span>
-            <span className="text-xl font-bold text-primary">
-              {formatCurrency(displayPrice * currentQuantity)}
-            </span>
+          <div className="bg-muted/30 rounded-lg p-4 border space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground text-sm">Price per item</span>
+              <span className="font-semibold">
+                {formatCurrency(displayPrice)}
+              </span>
+            </div>
+            {hasDiscount && originalPrice && (
+              <div className="flex justify-between items-center text-destructive">
+                <span className="text-muted-foreground text-sm">Original price</span>
+                <span className="text-sm line-through">
+                  {formatCurrency(originalPrice)}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between items-center border-t pt-2">
+              <span className="text-muted-foreground font-semibold text-sm">Total</span>
+              <span className="text-lg font-bold text-primary">
+                {formatCurrency(displayPrice * currentQuantity)}
+              </span>
+            </div>
           </div>
+        </FormBody>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <CustomButton
-              variant="outline"
-              className="flex-1"
-              onClick={handleClose}
-            >
-              <X className="h-4 w-4 mr-1.5" />
-              Cancel
-            </CustomButton>
-            <CustomButton
-              className="flex-1"
-              onClick={handleSelectSize}
-              disabled={!hasUnsavedChanges}
-            >
-              <Package className="h-4 w-4 mr-1.5" />
-              Add to Cart
-            </CustomButton>
-          </div>
-        </div>
+        {/* Footer */}
+        <FormFooter
+          isSubmitting={false}
+          isDirty={hasUnsavedChanges}
+          isCreate={!isEditing}
+          createMessage="Adding..."
+          updateMessage="Saving..."
+          noChangesMessage="No changes made"
+        >
+          <CancelButton onClick={handleClose} />
+          <SubmitButton
+            onClick={handleSelectSize}
+            isLoading={false}
+            disabled={!hasUnsavedChanges}
+            text={isEditing ? "Save Changes" : "Add to Cart"}
+            loadingText={isEditing ? "Saving..." : "Adding..."}
+          />
+        </FormFooter>
       </DialogContent>
     </Dialog>
   );
