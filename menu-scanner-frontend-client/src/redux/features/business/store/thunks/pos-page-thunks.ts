@@ -6,6 +6,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosClientWithAuth } from "@/utils/axios";
 import { ProductDetailResponseModel } from "../models/response/product-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { POSCheckoutRequest, POSCheckoutResponse } from "../models/request/pos-checkout-request";
 
@@ -13,6 +14,7 @@ interface FetchProductsParams {
   page: number;
   search?: string;
   categoryId?: string;
+  subcategoryId?: string;
   brandId?: string;
   hasPromotion?: boolean;
   reset?: boolean;
@@ -40,6 +42,27 @@ export const fetchPOSPageCategoriesService = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to load categories"
+      );
+    }
+  }
+);
+
+// ─── Fetch Subcategories ───
+export const fetchPOSPageSubcategoriesService = createAsyncThunk(
+  "posPage/fetchSubcategories",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosClientWithAuth.post<{
+        data: { content: SubcategoriesResponseModel[] };
+      }>("/api/v1/subcategories/my-business/all", {
+        pageNo: 1,
+        pageSize: 100,
+        status: "ACTIVE",
+      });
+      return response.data.data.content || [];
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to load subcategories"
       );
     }
   }
@@ -76,6 +99,7 @@ export const fetchPOSPageProductsService = createAsyncThunk(
       }>("/api/v1/products/admin/pos/all", {
         search: params.search || undefined,
         categoryId: params.categoryId || undefined,
+        subcategoryId: params.subcategoryId || undefined,
         brandId: params.brandId || undefined,
         hasPromotion: params.hasPromotion,
         pageNo: params.page,
