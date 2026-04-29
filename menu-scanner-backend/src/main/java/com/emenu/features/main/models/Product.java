@@ -232,6 +232,12 @@ public class Product extends BaseUUIDEntity {
     }
 
     public boolean isPromotionActive() {
+        // For products with sizes, check if any size has an active promotion
+        if (Boolean.TRUE.equals(hasSizes) && sizes != null && !sizes.isEmpty()) {
+            return sizes.stream().anyMatch(ProductSize::isPromotionActive);
+        }
+
+        // For products without sizes, check product-level promotion
         if (promotionValue == null || promotionType == null) {
             return false;
         }
