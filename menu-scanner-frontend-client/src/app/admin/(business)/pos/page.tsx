@@ -920,9 +920,9 @@ export default function PosPage() {
                 Array.from({ length: 12 }).map((_, i) => (
                   <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
-              {products.map((product, index) => (
+              {products.map((product) => (
                 <POSProductCard
-                  key={`${product.id}-${index}`}
+                  key={product.id}
                   product={product}
                   quantity={getProductCartQuantity(product.id)}
                   onAddClick={handleProductClick}
