@@ -1243,8 +1243,8 @@ export default function PosPage() {
 
         // If not editing and no customizations found, use last stored customizations for this product
         if (!editingCartItemId && initialCustomIds.length === 0 && sizePickerProduct) {
-          const storedCustomIds = lastSelectedCustomizations?.get(sizePickerProduct.id);
-          if (storedCustomIds) {
+          const storedCustomIds = lastSelectedCustomizations?.[sizePickerProduct.id];
+          if (storedCustomIds && storedCustomIds.length > 0) {
             initialCustomIds = storedCustomIds;
           }
         }

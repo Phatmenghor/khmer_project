@@ -44,7 +44,7 @@ const initialState: POSPageState = {
   isSubmitting: false,
   sizePickerProduct: null,
   editingCartItemId: null,
-  lastSelectedCustomizations: new Map(),
+  lastSelectedCustomizations: {},
   successOrder: null,
   showOrderDetailsModal: false,
   brandOpen: false,
@@ -157,10 +157,10 @@ const posPageSlice = createSlice({
       state.editingCartItemId = action.payload;
     },
     storeProductCustomizations: (state, action: PayloadAction<{ productId: string; customizationIds: string[] }>) => {
-      state.lastSelectedCustomizations.set(action.payload.productId, action.payload.customizationIds);
+      state.lastSelectedCustomizations[action.payload.productId] = action.payload.customizationIds;
     },
     clearProductCustomizations: (state, action: PayloadAction<string>) => {
-      state.lastSelectedCustomizations.delete(action.payload);
+      delete state.lastSelectedCustomizations[action.payload];
     },
     setSuccessOrder: (state, action: PayloadAction<{ orderNumber: string; total: number } | null>) => {
       state.successOrder = action.payload;

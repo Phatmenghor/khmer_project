@@ -86,7 +86,7 @@ export interface POSPageState {
   // Modals
   sizePickerProduct: ProductDetailResponseModel | null;
   editingCartItemId: string | null;
-  lastSelectedCustomizations: Map<string, string[]>; // productId -> customizationIds
+  lastSelectedCustomizations: Record<string, string[]>; // productId -> customizationIds
   successOrder: { orderNumber: string; total: number } | null;
   showOrderDetailsModal: boolean;
 
