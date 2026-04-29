@@ -219,7 +219,7 @@ export default function PosPage() {
     fetchBusinessSettings().catch((err) => {
       console.warn("Failed to fetch business settings:", err);
     });
-  }, [dispatch, fetchBusinessSettings]);
+  }, [dispatch]); // Only run on mount, not on fetchBusinessSettings changes
 
   // ─── Fetch Products when filters/search change ───
   useEffect(() => {
