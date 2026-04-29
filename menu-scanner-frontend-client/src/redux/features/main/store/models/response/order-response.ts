@@ -1,6 +1,5 @@
 /**
- * Order Response Types
- * Complete type definitions matching backend OrderResponse
+ * Order Response Types - Simplified without audit trail snapshots
  */
 
 import { OrderStatus } from '@/enums/order-status.enum';
@@ -43,26 +42,13 @@ export interface OrderDeliveryOptionDto {
   price: number;
 }
 
-// Pricing snapshot at a point in time (before or after modifications)
-export interface OrderPricingSnapshot {
+export interface OrderPricingInfo {
   totalItems: number;
-  subtotalBeforeDiscount: number;
   subtotal: number;
   discountAmount: number;
-  hasActivePromotion: boolean;
-  promotionType: string | null;
-  promotionValue: number | null;
   deliveryFee: number;
   taxAmount: number;
   finalTotal: number;
-}
-
-// Nested pricing with before/after audit trail — matches backend OrderPricingInfo
-export interface OrderPricingInfo {
-  before: OrderPricingSnapshot;
-  hadOrderLevelChangeFromPOS: boolean;
-  after: OrderPricingSnapshot | null;
-  reason: string;
 }
 
 export interface OrderPaymentInfo {
@@ -79,26 +65,12 @@ export interface OrderItemProductInfo {
   status: "ACTIVE" | "INACTIVE";
 }
 
-// Pricing snapshot for a single item at a point in time
-export interface OrderItemPricingSnapshot {
-  currentPrice: number;
-  finalPrice: number;
-  quantity: number;
-  discountAmount: number;
-  totalPrice: number;
-  hasActivePromotion: boolean;
-  promotionType: string | null;
-  promotionValue: number | null;
-}
-
-// Item with before/after audit trail — matches backend OrderItemResponse
 export interface OrderItemResponse {
   id: string;
   product: OrderItemProductInfo;
-  before: OrderItemPricingSnapshot;
-  hadChangeFromPOS: boolean;
-  after: OrderItemPricingSnapshot | null;
-  reason: string | null;
+  quantity: number;
+  finalPrice: number;
+  totalPrice: number;
 }
 
 export interface OrderResponse {

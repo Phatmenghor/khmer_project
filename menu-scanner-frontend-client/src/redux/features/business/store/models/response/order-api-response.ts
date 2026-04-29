@@ -1,19 +1,6 @@
 /**
- * Order API Response Models - Matches Backend DTOs exactly
- * Includes before/after audit trail for complete history
+ * Order API Response Models - Simplified without audit trail snapshots
  */
-
-// Item-level pricing snapshot (before or after POS modification)
-export interface OrderItemPricingSnapshotApi {
-  currentPrice: number;
-  finalPrice: number;
-  quantity: number;
-  discountAmount: number;
-  totalPrice: number;
-  hasActivePromotion: boolean;
-  promotionType: string | null;
-  promotionValue: number | null;
-}
 
 export interface OrderItemApiResponse {
   id: string;
@@ -26,39 +13,19 @@ export interface OrderItemApiResponse {
     status: string;
   };
 
-  // Snapshot BEFORE any POS modifications
-  before: OrderItemPricingSnapshotApi;
-
-  // Was item modified from POS?
-  hadChangeFromPOS: boolean;
-
-  // Snapshot AFTER POS modifications (null if no change)
-  after: OrderItemPricingSnapshotApi | null;
-
-  // Reason for the change (if any)
-  reason: string | null;
+  quantity: number;
+  finalPrice: number;
+  totalPrice: number;
 }
 
-// Order-level pricing snapshot (before or after order-level discount)
-export interface OrderPricingSnapshotApi {
+// Pricing summary
+export interface OrderPricingApiResponse {
   totalItems: number;
-  subtotalBeforeDiscount: number;
   subtotal: number;
   discountAmount: number;
-  hasActivePromotion: boolean;
-  promotionType: string | null;
-  promotionValue: number | null;
   deliveryFee: number;
   taxAmount: number;
   finalTotal: number;
-}
-
-// Pricing with before/after audit trail — matches backend OrderPricingInfo
-export interface OrderPricingApiResponse {
-  before: OrderPricingSnapshotApi;
-  hadOrderLevelChangeFromPOS: boolean;
-  after: OrderPricingSnapshotApi | null;
-  reason: string;
 }
 
 export interface OrderApiResponse {
