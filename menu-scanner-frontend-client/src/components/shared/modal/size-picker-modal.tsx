@@ -237,7 +237,9 @@ export function SizePickerModal({
 
       // Only add if quantity > 0
       if (size && qty > 0) {
-        onSizeSelect(product, size, qty, customizationIds);
+        // Only apply customizations to the currently selected size
+        const sizeCustomizations = sizeId === selectedSize?.id ? customizationIds : [];
+        onSizeSelect(product, size, qty, sizeCustomizations);
       }
     }
 
