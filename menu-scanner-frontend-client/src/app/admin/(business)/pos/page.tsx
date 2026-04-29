@@ -422,6 +422,7 @@ export default function PosPage() {
       const newQuantity = Math.max(0, item.quantity + delta);
       if (newQuantity === 0) {
         dispatch(removeCartItem(cartId));
+        dispatch(clearProductCustomizations(item.productId));
       } else {
         // Note: finalPrice already includes customization prices
         dispatch(updateCartItem({
@@ -436,9 +437,13 @@ export default function PosPage() {
 
   const removeItem = useCallback(
     (cartId: string) => {
-      dispatch(removeCartItem(cartId));
+      const item = cartItems.find((i) => i.id === cartId);
+      if (item) {
+        dispatch(removeCartItem(cartId));
+        dispatch(clearProductCustomizations(item.productId));
+      }
     },
-    [dispatch]
+    [cartItems, dispatch]
   );
 
   const clearCart = () => dispatch(clearCartItems());
