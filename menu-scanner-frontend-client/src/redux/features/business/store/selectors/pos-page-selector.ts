@@ -57,6 +57,8 @@ export const selectSizePickerProduct = (state: RootState) =>
   state.posPage.sizePickerProduct;
 export const selectEditingCartItemId = (state: RootState) =>
   state.posPage.editingCartItemId;
+export const selectLastSelectedCustomizations = (state: RootState) =>
+  state.posPage.lastSelectedCustomizations;
 export const selectSuccessOrder = (state: RootState) =>
   state.posPage.successOrder;
 export const selectShowOrderDetailsModal = (state: RootState) =>

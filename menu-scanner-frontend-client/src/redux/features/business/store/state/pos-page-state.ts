@@ -29,6 +29,7 @@ import {
   selectIsSubmitting,
   selectSizePickerProduct,
   selectEditingCartItemId,
+  selectLastSelectedCustomizations,
   selectSuccessOrder,
   selectShowOrderDetailsModal,
   selectBrandOpen,
@@ -65,6 +66,7 @@ export const usePOSPageState = () => {
   const isSubmitting = useAppSelector(selectIsSubmitting);
   const sizePickerProduct = useAppSelector(selectSizePickerProduct);
   const editingCartItemId = useAppSelector(selectEditingCartItemId);
+  const lastSelectedCustomizations = useAppSelector(selectLastSelectedCustomizations);
   const successOrder = useAppSelector(selectSuccessOrder);
   const showOrderDetailsModal = useAppSelector(selectShowOrderDetailsModal);
   const brandOpen = useAppSelector(selectBrandOpen);
@@ -99,6 +101,7 @@ export const usePOSPageState = () => {
     isSubmitting,
     sizePickerProduct,
     editingCartItemId,
+    lastSelectedCustomizations,
     successOrder,
     showOrderDetailsModal,
     brandOpen,
