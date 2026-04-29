@@ -187,11 +187,11 @@ export const bulkPromotionTableColumns = ({
       className: "px-4",
       render: (product) => {
         if (!product.hasPromotion) {
-          return <span className="text-sm text-foreground">No Promotion</span>;
+          return <span className="text-sm text-muted-foreground">No Promotion</span>;
         }
 
         return (
-          <span className="text-sm font-medium text-green-600">Active</span>
+          <span className="text-sm font-medium text-red-600">Active</span>
         );
       },
     },
