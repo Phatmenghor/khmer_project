@@ -199,13 +199,22 @@ export function SizePickerModal({
 
     const customizationIds = Array.from(selectedCustomizations);
 
-    // Check if any size has quantity > 0
+    // Check if any modified size has quantity > 0
+    // OR if only customizations are added to an existing size (without quantity change)
     let hasValidQuantity = false;
     for (const sizeId of modifiedSizes) {
       const qty = getDisplayQuantity(sizeId);
       if (qty > 0) {
         hasValidQuantity = true;
         break;
+      }
+    }
+
+    // If only customizations changed (no quantity changes) but selected size has existing quantity
+    if (!hasValidQuantity && customizationIds.length > 0 && selectedSize) {
+      const currentQty = getDisplayQuantity(selectedSize.id);
+      if (currentQty > 0) {
+        hasValidQuantity = true;
       }
     }
 
@@ -233,7 +242,7 @@ export function SizePickerModal({
     }
 
     onOpenChange(false);
-  }, [product, modifiedSizes, getDisplayQuantity, onSizeSelect, onOpenChange, selectedCustomizations]);
+  }, [product, modifiedSizes, selectedSize, getDisplayQuantity, onSizeSelect, onOpenChange, selectedCustomizations]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
