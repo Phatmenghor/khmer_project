@@ -231,6 +231,19 @@ export default function PosPage() {
     );
   }, [debouncedSearch, selectedCategory, selectedBrand, selectedSubcategory, promotionFilter, dispatch]);
 
+  // Calculate skeleton count dynamically based on screen width (matches grid columns)
+  const getSkeletonCount = useCallback(() => {
+    if (typeof window === "undefined") return 6;
+    const width = window.innerWidth;
+    if (width < 640) return 2;      // sm: 2 cols
+    if (width < 768) return 3;      // md: 3 cols
+    if (width < 1024) return 4;     // lg: 4 cols
+    if (width < 1280) return 5;     // xl: 5 cols
+    return 6;                        // 2xl: 6 cols
+  }, []);
+
+  const skeletonCount = useMemo(() => getSkeletonCount(), [getSkeletonCount]);
+
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
       const nextPage = productPage + 1;
@@ -921,7 +934,7 @@ export default function PosPage() {
             >
               {productsLoading && products.length === 0 &&
                 Array.from({ length: 12 }).map((_, i) => (
-                  <ProductCardSkeleton key={`skeleton-${i}`} />
+                  <ProductCardSkeleton key={`skeleton-initial-${i}`} />
                 ))}
               {products.map((product) => (
                 <POSProductCard
@@ -931,10 +944,20 @@ export default function PosPage() {
                   onQuantityChange={updateQuantity}
                 />
               ))}
-              {productsLoading && products.length > 0 &&
-                Array.from({ length: 15 }).map((_, i) => (
-                  <ProductCardSkeleton key={`skeleton-${i}`} />
+              {/* ALWAYS show skeleton loaders when hasMoreProducts is true - matches home page pattern */}
+              {hasMoreProducts &&
+                Array.from({ length: skeletonCount }).map((_, i) => (
+                  <ProductCardSkeleton key={`skeleton-pagination-${i}`} />
                 ))}
+              {/* ALWAYS show loading message when hasMoreProducts is true */}
+              {hasMoreProducts && (
+                <div className="col-span-full flex flex-col items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Loading more products...
+                  </p>
+                </div>
+              )}
             </div>
             {hasMoreProducts && !productsLoading && (
               <div ref={observerTarget} className="h-1" />
