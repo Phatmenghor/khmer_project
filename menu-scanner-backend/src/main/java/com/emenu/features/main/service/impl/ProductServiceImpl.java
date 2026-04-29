@@ -102,6 +102,7 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> productPage = productRepository.findAllWithFilters(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
+                filter.getSubcategoryId(),
                 filter.getBrandId(),
                 (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
                 Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
@@ -266,6 +267,7 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> productPage = productRepository.findAllWithFiltersOptimized(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
+                filter.getSubcategoryId(),
                 filter.getBrandId(),
                 (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
                 Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
@@ -316,6 +318,7 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> productPage = productRepository.findAllWithFilters(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
+                filter.getSubcategoryId(),
                 filter.getBrandId(),
                 (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
                 Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
@@ -373,6 +376,7 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> productPage = productRepository.findAllWithFilters(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
+                filter.getSubcategoryId(),
                 filter.getBrandId(),
                 (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
                 Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,

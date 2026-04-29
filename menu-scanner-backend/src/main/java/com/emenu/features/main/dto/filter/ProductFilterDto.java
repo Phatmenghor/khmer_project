@@ -15,6 +15,7 @@ import java.util.UUID;
 public class ProductFilterDto extends BaseFilterRequest {
     private UUID businessId;
     private UUID categoryId;
+    private UUID subcategoryId;
     private UUID brandId;
     private List<ProductStatus> statuses;
     private Boolean hasPromotion;
