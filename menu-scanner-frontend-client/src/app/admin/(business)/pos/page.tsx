@@ -437,11 +437,17 @@ export default function PosPage() {
     let totalItems = cartItems.length;
     let totalQuantity = 0;
     let subtotal = 0;
+    let customizationTotal = 0;
     let discountAmount = 0;
     cartItems.forEach((item) => {
       totalQuantity += item.quantity;
       const itemSubtotal = item.finalPrice * item.quantity;
       subtotal += itemSubtotal;
+      // Calculate customization total for each item
+      if (item.customizations && item.customizations.length > 0) {
+        const itemCustomizationTotal = item.customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0);
+        customizationTotal += itemCustomizationTotal * item.quantity;
+      }
     });
     const deliveryFee = selectedDeliveryOption?.price || 0;
     const taxAmount = 0;
@@ -450,6 +456,7 @@ export default function PosPage() {
       totalItems,
       totalQuantity,
       subtotal,
+      customizationTotal,
       discountAmount,
       deliveryFee,
       taxAmount,
@@ -1084,6 +1091,12 @@ export default function PosPage() {
                   </span>
                   <span className="font-medium">{formatCurrency(cartSummary.subtotal)}</span>
                 </div>
+                {cartSummary.customizationTotal > 0 && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-green-600 font-medium">Add-ons</span>
+                    <span className="text-green-600 font-semibold">+{formatCurrency(cartSummary.customizationTotal)}</span>
+                  </div>
+                )}
                 {cartSummary.discountAmount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-red-500 font-medium">Discount</span>
