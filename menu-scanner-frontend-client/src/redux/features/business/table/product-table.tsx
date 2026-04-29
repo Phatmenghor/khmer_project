@@ -182,28 +182,19 @@ export const productTableColumns = ({
       maxWidth: "250px",
       render: (product) => (
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Display:</span>
-            <span className="text-xs font-semibold text-foreground">
-              ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
-            </span>
-          </div>
+          <span className="text-xs font-semibold text-foreground">
+            ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
+          </span>
           {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Original:</span>
-              <span className="text-xs text-muted-foreground line-through">
-                ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
-              </span>
+            <div className="text-xs text-muted-foreground line-through">
+              ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
             </div>
           )}
           {product?.hasPromotion && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Discount:</span>
-              <span className="text-xs font-semibold text-red-600">
-                {product.displayPromotionType === "PERCENTAGE"
-                  ? `-${product.displayPromotionValue}%`
-                  : `-$${product.displayPromotionValue}`}
-              </span>
+            <div className="text-xs font-semibold text-red-600">
+              {product.displayPromotionType === "PERCENTAGE"
+                ? `-${product.displayPromotionValue}%`
+                : `-$${product.displayPromotionValue}`}
             </div>
           )}
         </div>
