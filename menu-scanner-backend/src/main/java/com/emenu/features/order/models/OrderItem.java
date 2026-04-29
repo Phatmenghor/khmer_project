@@ -91,6 +91,18 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice; // finalPrice * quantity
 
+    // Customizations/Add-ons snapshot - stored as JSON for flexibility
+    @Column(name = "customizations", columnDefinition = "JSON")
+    private String customizations; // JSON array: [{id, productCustomizationId, name, priceAdjustment}]
+
+    // Customization IDs for quick lookup
+    @Column(name = "customization_ids", columnDefinition = "JSON")
+    private String customizationIds; // JSON array of UUIDs
+
+    // Total customization cost for this item
+    @Column(name = "customization_total", precision = 10, scale = 2)
+    private BigDecimal customizationTotal = BigDecimal.ZERO;
+
     // Customer instructions for this specific item
     @Column(name = "special_instructions", columnDefinition = "TEXT")
     private String specialInstructions;

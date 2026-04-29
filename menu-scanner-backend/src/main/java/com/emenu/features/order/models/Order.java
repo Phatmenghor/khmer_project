@@ -93,17 +93,26 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;           // Items total before discounts
 
+    @Column(name = "customization_total", precision = 10, scale = 2)
+    private BigDecimal customizationTotal = BigDecimal.ZERO; // Total cost of add-ons/customizations
+
     @Column(name = "discount_amount", precision = 10, scale = 2)
     private BigDecimal discountAmount = BigDecimal.ZERO; // Total discount applied
 
     @Column(name = "discount_type", length = 20)
     private String discountType; // PERCENTAGE or FIXED_AMOUNT (null if no discount)
 
+    @Column(name = "discount_reason", columnDefinition = "TEXT")
+    private String discountReason; // Why discount was applied (audit trail)
+
     @Column(name = "delivery_fee", precision = 10, scale = 2)
     private BigDecimal deliveryFee = BigDecimal.ZERO;
 
+    @Column(name = "tax_percentage", precision = 5, scale = 2)
+    private BigDecimal taxPercentage = BigDecimal.ZERO; // Tax rate (e.g., 10.00 for 10%)
+
     @Column(name = "tax_amount", precision = 10, scale = 2)
-    private BigDecimal taxAmount = BigDecimal.ZERO;      // Tax (reserved for future use)
+    private BigDecimal taxAmount = BigDecimal.ZERO;     // Calculated tax amount
 
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;        // Final = subtotal - discount + delivery + tax
