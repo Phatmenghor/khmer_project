@@ -1036,7 +1036,7 @@ export default function PosPage() {
             <Button
               variant="outline"
               size="icon"
-              className="absolute bottom-4 right-4 h-10 w-10 rounded-full shadow-lg hover:bg-primary hover:text-primary-foreground transition-all duration-200 animate-fade-in"
+              className="absolute bottom-4 right-4 h-10 w-10 rounded-full border-2 border-primary shadow-lg bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-200 animate-fade-in"
               onClick={scrollProductsToTop}
               title="Scroll to top"
             >
