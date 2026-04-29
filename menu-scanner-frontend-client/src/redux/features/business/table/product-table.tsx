@@ -4,12 +4,13 @@ import { Edit, Eye, Trash, Package, RotateCcw, Zap, Check } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
-import { CustomSelect } from "@/components/shared/common/custom-select";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   AllProductResponseModel,
   ProductDetailResponseModel,
@@ -100,34 +101,6 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   );
 }
 
-/**
- * StatusSelect - CustomSelect component for status updates
- */
-function StatusSelect({
-  value,
-  onStatusChange,
-  productId,
-}: {
-  value: string;
-  onStatusChange?: (productId: string, status: string) => void;
-  productId: string;
-}) {
-  const statusOptions = [
-    { value: "ACTIVE", label: "Active" },
-    { value: "INACTIVE", label: "Inactive" },
-    { value: "OUT_OF_STOCK", label: "Out Of Stock" },
-  ];
-
-  return (
-    <CustomSelect
-      options={statusOptions}
-      value={value}
-      onValueChange={(newStatus) => onStatusChange?.(productId, newStatus)}
-      placeholder="Select status"
-      size="sm"
-    />
-  );
-}
 
 export const productTableColumns = ({
   data,
@@ -251,11 +224,18 @@ export const productTableColumns = ({
       minWidth: "150px",
       maxWidth: "350px",
       render: (product) => (
-        <StatusSelect
-          value={product?.status || "ACTIVE"}
-          onStatusChange={handleStatusChange}
-          productId={product?.id || ""}
-        />
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={product?.status === "ACTIVE"}
+            onCheckedChange={() => {
+              const newStatus = product?.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+              handleStatusChange?.(product?.id || "", newStatus);
+            }}
+          />
+          <span className="text-xs text-muted-foreground">
+            {product?.status ? formatEnumValue(product.status) : "---"}
+          </span>
+        </div>
       ),
     },
 

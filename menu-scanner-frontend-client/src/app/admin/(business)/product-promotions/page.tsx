@@ -20,6 +20,7 @@ import {
   resetProductPromotionService,
   resetAllPromotionsService,
   resetBulkPromotionsService,
+  updateProductService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import {
   selectProductStatus,
@@ -29,6 +30,7 @@ import {
   resetProductPromotionOptimistic,
   resetAllPromotionsOptimistic,
   resetTablePromotionsOptimistic,
+  updateProductOptimistic,
 } from "@/redux/features/business/store/slice/product-slice";
 import { useRouter } from "next/navigation";
 import ProductModal from "@/redux/features/business/components/product-modal";
@@ -217,6 +219,28 @@ export default function ProductPromotionPage() {
     });
   };
 
+  const handleStatusChange = (productId: string, status: string) => {
+    // Optimistic update - update local state immediately for instant UI feedback
+    dispatch(
+      updateProductOptimistic({
+        id: productId,
+        status,
+      })
+    );
+
+    // Call API in background without blocking UI
+    dispatch(
+      updateProductService({
+        productId,
+        productData: { status },
+      })
+    ).then(() => {
+      showToast.success(`Product status updated to ${status}`);
+    }).catch((error: any) => {
+      showToast.error(error?.message || "Failed to update product status");
+    });
+  };
+
   const handleResetAllPromotions = () => {
     setResetAllState({ isOpen: true });
   };
@@ -270,6 +294,7 @@ export default function ProductPromotionPage() {
       handleProductViewDetail,
       handleDeleteProduct,
       handleResetPromotion,
+      handleStatusChange,
     }),
     [],
   );

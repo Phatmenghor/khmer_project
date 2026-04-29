@@ -5,11 +5,13 @@ import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBusinessColors } from "@/hooks/use-business-colors";
 import { cn } from "@/lib/utils";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   Select,
   SelectContent,
@@ -27,6 +29,7 @@ interface ProductTableHandlers {
   handleProductViewDetail: (brand: ProductDetailResponseModel) => void;
   handleDeleteProduct: (brand: ProductDetailResponseModel) => void;
   handleResetPromotion?: (brand: ProductDetailResponseModel) => void;
+  handleStatusChange?: (productId: string, status: string) => void;
 }
 
 interface ProductPromotionTableOptions {
@@ -109,35 +112,6 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   );
 }
 
-/**
- * StatusDisplay - Display product status with consistent styling
- */
-function StatusDisplay({ value }: { value: string }) {
-  const statusOptions = [
-    { value: "ACTIVE", label: "Active" },
-    { value: "INACTIVE", label: "Inactive" },
-    { value: "OUT_OF_STOCK", label: "Out Of Stock" },
-  ];
-
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "Active";
-      case "INACTIVE":
-        return "Inactive";
-      case "OUT_OF_STOCK":
-        return "Out Of Stock";
-      default:
-        return status;
-    }
-  };
-
-  return (
-    <div className="w-36 h-8 px-3 py-2 rounded-md bg-gray-100 text-gray-700 text-xs flex items-center">
-      {getStatusDisplay(value)}
-    </div>
-  );
-}
 
 export const productPromotionTableColumns = ({
   data,
@@ -148,6 +122,7 @@ export const productPromotionTableColumns = ({
     handleProductViewDetail,
     handleDeleteProduct,
     handleResetPromotion,
+    handleStatusChange,
   } = handlers;
 
   return [
@@ -286,7 +261,18 @@ export const productPromotionTableColumns = ({
       minWidth: "150px",
       maxWidth: "350px",
       render: (product) => (
-        <StatusDisplay value={product?.status || "ACTIVE"} />
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={product?.status === "ACTIVE"}
+            onCheckedChange={() => {
+              const newStatus = product?.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+              handleStatusChange?.(product?.id || "", newStatus);
+            }}
+          />
+          <span className="text-xs text-muted-foreground">
+            {product?.status ? formatEnumValue(product.status) : "---"}
+          </span>
+        </div>
       ),
     },
 
