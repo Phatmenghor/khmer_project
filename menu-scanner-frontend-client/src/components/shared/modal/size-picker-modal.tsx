@@ -192,12 +192,6 @@ export function SizePickerModal({
 
     const customizationIds = Array.from(selectedCustomizations);
 
-    // Alert if customizations are selected but no size is chosen
-    if (customizationIds.length > 0 && (!selectedSize || modifiedSizes.size === 0)) {
-      alert("Please select a size before adding customizations");
-      return;
-    }
-
     // Loop through ALL modified sizes and add each one to cart
     for (const sizeId of modifiedSizes) {
       const size = product.sizes?.find((s) => s.id === sizeId);
@@ -210,7 +204,7 @@ export function SizePickerModal({
     }
 
     onOpenChange(false);
-  }, [product, modifiedSizes, getDisplayQuantity, onSizeSelect, onOpenChange, selectedCustomizations, selectedSize]);
+  }, [product, modifiedSizes, getDisplayQuantity, onSizeSelect, onOpenChange, selectedCustomizations]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
