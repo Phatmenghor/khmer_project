@@ -924,7 +924,6 @@ export default function PosPage() {
                 <POSProductCard
                   key={product.id}
                   product={product}
-                  quantity={getProductCartQuantity(product.id)}
                   onAddClick={handleProductClick}
                   onQuantityChange={updateQuantity}
                 />

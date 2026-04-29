@@ -1,26 +1,33 @@
 "use client";
 
 import { memo, useCallback } from "react";
+import { useSelector } from "react-redux";
 import { Heart, ShoppingCart, Plus, Minus, Ruler, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { CustomButton } from "../button/custom-button";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
+import { RootState } from "@/redux/store";
 
 interface POSProductCardProps {
   product: ProductDetailResponseModel;
-  quantity: number;
   onAddClick: (product: ProductDetailResponseModel) => void;
   onQuantityChange: (productId: string, delta: number) => void;
 }
 
 function POSProductCardComponent({
   product,
-  quantity,
   onAddClick,
   onQuantityChange,
 }: POSProductCardProps) {
+  // Get quantity from Redux cart state (only this product's quantity)
+  // This ensures card only re-renders when THIS product's quantity changes
+  const quantity = useSelector((state: RootState) => {
+    return state.posPage.cartItems
+      .filter((item) => item.productId === product.id)
+      .reduce((sum, item) => sum + item.quantity, 0);
+  });
   const handleIncrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
