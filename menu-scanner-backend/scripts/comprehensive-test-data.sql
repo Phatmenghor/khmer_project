@@ -22,7 +22,7 @@ VALUES (
 -- Business 2: Fashion Hub (phatmenghor21@gmail.com owner)
 INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
+  '660cad56-cafd-4aba-baef-c4dcd53940d0',
   'Fashion Hub',
   '+855-87-654-321',
   'fashionhub@example.com',
@@ -47,7 +47,7 @@ VALUES (
 INSERT INTO business_settings (id, business_id, use_categories, use_subcategories, use_brands, tax_percentage, business_name, logo_business_url, enable_stock, primary_color, contact_address, contact_phone, contact_email, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '770e8400-e29b-41d4-a716-446655440003',
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
+  '660cad56-cafd-4aba-baef-c4dcd53940d0',
   true, true, true, 10.0, 'Fashion Hub', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'ENABLED', '#6B6BFF',
   'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com', 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
@@ -726,7 +726,7 @@ FROM (
     ((500 + order_num * 75) + (50 + order_num * 8) + CASE WHEN order_num <= 15 THEN 5.00 ELSE 0.00 END - ((500 + order_num * 75) * 0.08) + (((500 + order_num * 75) + (50 + order_num * 8)) * 0.10))::numeric(10,2) as total_amount,
     'CASH' as payment_method,
     CASE WHEN order_num % 2 = 0 THEN 'PAID' ELSE 'UNPAID' END as payment_status,
-    NOW() - INTERVAL '1 day' * (31 - order_num) as created_at
+    NOW() - INTERVAL '1 day' * (365 - (order_num * 12) % 365) as created_at
   FROM generate_series(1, 30) AS t(order_num)
 ) orders_data;
 
@@ -752,7 +752,7 @@ SELECT
   'Delivery: Ring doorbell twice. Building #' || (ROW_NUMBER() OVER (ORDER BY o.id)) || ' Floor ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 5) + 1),
   0, false, o.created_at, o.created_at, 'admin', 'admin'
 FROM orders o
-WHERE o.created_at >= NOW() - INTERVAL '31 days'
+WHERE o.created_at >= NOW() - INTERVAL '365 days'
 AND NOT EXISTS (SELECT 1 FROM order_delivery_addresses WHERE order_id = o.id);
 
 -- ============================================================================
@@ -770,7 +770,7 @@ SELECT
   CASE WHEN o.order_from = 'CUSTOMER' THEN 5.00::numeric(10,2) ELSE 0.00::numeric(10,2) END,
   0, false, o.created_at, o.created_at, 'admin', 'admin'
 FROM orders o
-WHERE o.created_at >= NOW() - INTERVAL '31 days'
+WHERE o.created_at >= NOW() - INTERVAL '365 days'
 AND NOT EXISTS (SELECT 1 FROM order_delivery_options WHERE order_id = o.id);
 
 -- ============================================================================
@@ -837,13 +837,8 @@ CROSS JOIN LATERAL (
   ORDER BY created_at
   LIMIT 7
 ) p
-CROSS JOIN (
-  SELECT ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id) as item_row
-  FROM products p2
-  WHERE p2.business_id = o.business_id
-  LIMIT 8
-) items(item_row)
-WHERE o.created_at >= NOW() - INTERVAL '31 days'
+CROSS JOIN generate_series(1, 8) AS item(item_row)
+WHERE o.created_at >= NOW() - INTERVAL '365 days'
 AND NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = o.id);
 
 -- ============================================================================
@@ -890,7 +885,7 @@ CROSS JOIN (
   SELECT ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY idx) as status_seq
   FROM generate_series(1, 10) idx
 ) sh(status_seq)
-WHERE o.created_at >= NOW() - INTERVAL '31 days'
+WHERE o.created_at >= NOW() - INTERVAL '365 days'
 AND sh.status_seq >= 1 AND sh.status_seq <= 5 + (CAST(substring(o.id::text, 1, 2) AS integer) % 5)
 AND NOT EXISTS (
   SELECT 1 FROM order_status_history WHERE order_id = o.id AND order_status = 'PENDING'
