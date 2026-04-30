@@ -102,24 +102,24 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
            "LEFT JOIN order_delivery_addresses da ON o.id = da.order_id " +
            "LEFT JOIN order_delivery_options do ON o.id = do.order_id " +
            "WHERE o.is_deleted = false " +
-           "AND (:businessId::uuid IS NULL OR o.business_id = :businessId::uuid) " +
+           "AND (CAST(:businessId AS uuid) IS NULL OR o.business_id = CAST(:businessId AS uuid)) " +
            "AND (:orderStatus IS NULL OR o.order_status = :orderStatus) " +
            "AND (:paymentMethod IS NULL OR o.payment_method = :paymentMethod) " +
            "AND (:paymentStatus IS NULL OR o.payment_status = :paymentStatus) " +
-           "AND (:startDate::timestamp IS NULL OR o.created_at >= :startDate::timestamp) " +
-           "AND (:endDate::timestamp IS NULL OR o.created_at <= :endDate::timestamp) " +
+           "AND (CAST(:startDate AS timestamp) IS NULL OR o.created_at >= CAST(:startDate AS timestamp)) " +
+           "AND (CAST(:endDate AS timestamp) IS NULL OR o.created_at <= CAST(:endDate AS timestamp)) " +
            "ORDER BY o.created_at DESC",
            nativeQuery = true,
            countQuery = "SELECT COUNT(DISTINCT o.id) FROM orders o " +
                    "WHERE o.is_deleted = false " +
-                   "AND (:businessId::uuid IS NULL OR o.business_id = :businessId::uuid) " +
+                   "AND (CAST(:businessId AS uuid) IS NULL OR o.business_id = CAST(:businessId AS uuid)) " +
                    "AND (:orderStatus IS NULL OR o.order_status = :orderStatus) " +
                    "AND (:paymentMethod IS NULL OR o.payment_method = :paymentMethod) " +
                    "AND (:paymentStatus IS NULL OR o.payment_status = :paymentStatus) " +
-                   "AND (:startDate::timestamp IS NULL OR o.created_at >= :startDate::timestamp) " +
-                   "AND (:endDate::timestamp IS NULL OR o.created_at <= :endDate::timestamp)")
+                   "AND (CAST(:startDate AS timestamp) IS NULL OR o.created_at >= CAST(:startDate AS timestamp)) " +
+                   "AND (CAST(:endDate AS timestamp) IS NULL OR o.created_at <= CAST(:endDate AS timestamp))")
     Page<Order> findAllWithFilters(
-            @Param("businessId") UUID businessId,
+            @Param("businessId") String businessId,
             @Param("orderStatus") String orderStatus,
             @Param("paymentMethod") String paymentMethod,
             @Param("paymentStatus") String paymentStatus,
