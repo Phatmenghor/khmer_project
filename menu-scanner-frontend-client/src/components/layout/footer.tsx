@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
@@ -8,47 +7,20 @@ import { PageContainer } from "../shared/common/page-container";
 import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 
 export function Footer() {
-  const [cachedSettings, setCachedSettings] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Cache is guaranteed to be ready by InitializationLoader
+  // Load synchronously from localStorage (no state, no re-renders)
+  const cached = businessSettingsStorage.getCached();
+  const cachedSettings = cached?.data || null;
 
-  // Load from localStorage on mount and watch for updates
-  useEffect(() => {
-    // Load initial cache
-    try {
-      const cached = businessSettingsStorage.getCached();
-      setCachedSettings(cached?.data || null);
-    } catch {
-      setCachedSettings(null);
-    }
-    setIsLoading(false);
-
-    // Watch for cache updates (every 500ms)
-    const interval = setInterval(() => {
-      try {
-        const cached = businessSettingsStorage.getCached();
-        setCachedSettings(cached?.data || null);
-      } catch {
-        setCachedSettings(null);
-      }
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Use cached settings or empty state (no default colors to avoid flash)
-  const businessName = cachedSettings?.businessName || "";
-  const logoUrl = cachedSettings?.logoBusinessUrl || "";
+  // Use cached settings (guaranteed to have primaryColor at this point)
+  const businessName = cachedSettings?.businessName || "Menu Scanner";
+  const logoUrl = cachedSettings?.logoBusinessUrl;
   const contactAddress = cachedSettings?.contactAddress || "";
   const contactPhone = cachedSettings?.contactPhone || "";
   const contactEmail = cachedSettings?.contactEmail || "";
   const businessHours = cachedSettings?.businessHours || [];
   const socialMedia = cachedSettings?.socialMedia || [];
-  const primaryColor = cachedSettings?.primaryColor || "";
-
-  // Don't render if no settings cached (wait for load)
-  if (!primaryColor) {
-    return null;
-  }
+  const primaryColor = cachedSettings?.primaryColor || "#3b82f6";
 
   return (
     <footer className="text-white" style={{ backgroundColor: primaryColor }}>
