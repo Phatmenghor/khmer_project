@@ -334,7 +334,7 @@ export function OrderDetailModal({
                       </div>
 
                       {/* Item Pricing */}
-                      <div className="flex flex-wrap gap-4 text-xs items-start border-t pt-3 mt-3">
+                      <div className="flex justify-between items-start text-xs w-full border-t pt-3 mt-3">
                         {/* Qty with Promotion */}
                         <div className="flex items-start gap-1">
                           <div>
