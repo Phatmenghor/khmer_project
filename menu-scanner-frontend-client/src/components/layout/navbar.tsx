@@ -61,6 +61,7 @@ const navigationLinks = [
 ];
 
 export function Navbar() {
+  const [isMounted, setIsMounted] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -72,6 +73,11 @@ export function Navbar() {
   const pathname = usePathname();
   const dispatch = useDispatch();
 
+  // Only render cached data after client hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const { isAuthenticated, profile, fullName, email, profileImage } =
     useAuthState();
   const { totalItems: cartItemCount } = useCartState();
@@ -79,7 +85,7 @@ export function Navbar() {
   const { logout: handleLogout } = useLogout();
 
   // Get all business settings from cache (instant, no Redux delay)
-  const cachedSettings = businessSettingsStorage.getCached();
+  const cachedSettings = isMounted ? businessSettingsStorage.getCached() : null;
   const businessName = cachedSettings?.data?.businessName || "Menu Scanner";
   const businessLogoUrl = cachedSettings?.data?.logoBusinessUrl || null;
   const primaryColor = cachedSettings?.data?.primaryColor || "#3b82f6";

@@ -21,13 +21,19 @@ interface SidebarProps {
 }
 
 export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
   const { profile, isProfileLoading, dispatch } = useAuthState();
 
+  // Only render cached data after client hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Get all business settings from cache (instant, no Redux delay)
-  const cachedSettings = businessSettingsStorage.getCached();
+  const cachedSettings = isMounted ? businessSettingsStorage.getCached() : null;
   const businessName = cachedSettings?.data?.businessName || "Dashboard";
   const logoUrl = cachedSettings?.data?.logoBusinessUrl || null;
   const primaryColor = cachedSettings?.data?.primaryColor || "#3b82f6";
