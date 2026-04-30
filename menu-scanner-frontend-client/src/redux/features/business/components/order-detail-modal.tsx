@@ -102,105 +102,199 @@ export function OrderDetailModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Order Progress Tracker */}
+            {/* Order Progress Tracker - Modern Design */}
             {orderData.statusHistory && orderData.statusHistory.length > 0 && (
-              <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold text-foreground">📊 Order Progress</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {/* Progress Timeline */}
-                  <div className="space-y-4">
-                    {/* Visual Timeline */}
-                    <div className="relative">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-center flex-1">
-                          <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700 shadow-2xl">
+                {/* Background Decorative Elements */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+                  <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+                </div>
+
+                <div className="relative z-10 p-6 sm:p-8">
+                  {/* Header */}
+                  <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1.5 h-1.5 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
+                      <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Order Status</h3>
+                    </div>
+                    <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                      {getOrderStatusLabel(orderData.orderStatus)}
+                    </h2>
+                  </div>
+
+                  {/* Progress Bar with Stages */}
+                  <div className="mb-8">
+                    {/* Stage Indicators */}
+                    <div className="flex items-stretch gap-3 sm:gap-4">
+                      {/* Stage 1: Received */}
+                      <div className="flex-1 relative">
+                        <div className="flex flex-col h-full">
+                          <div className={`flex-1 flex items-center justify-center rounded-xl border-2 transition-all duration-500 ${
                             ['PENDING', 'CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
-                              ? 'bg-green-500 text-white'
-                              : 'bg-gray-300 text-white'
+                              ? 'bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border-emerald-500 shadow-lg shadow-emerald-500/20'
+                              : 'bg-slate-700/50 border-slate-600'
                           }`}>
-                            ✓
+                            <div className="text-center">
+                              <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 font-bold text-lg transition-all duration-500 ${
+                                ['PENDING', 'CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
+                                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/50'
+                                  : 'bg-slate-600 text-slate-400'
+                              }`}>
+                                📦
+                              </div>
+                              <p className={`text-xs font-semibold transition-colors duration-500 ${
+                                ['PENDING', 'CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
+                                  ? 'text-emerald-400'
+                                  : 'text-slate-500'
+                              }`}>Received</p>
+                            </div>
                           </div>
-                          <p className="text-xs font-semibold mt-2 text-foreground">Received</p>
                         </div>
+                      </div>
 
-                        {/* Connector Line */}
-                        <div className={`flex-1 h-1 mx-2 ${
+                      {/* Connector 1 */}
+                      <div className="flex items-center flex-shrink-0">
+                        <div className={`w-full h-1 transition-all duration-500 rounded-full ${
                           ['CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
-                            ? 'bg-green-500'
-                            : 'bg-gray-300'
+                            ? 'bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg shadow-blue-500/30'
+                            : 'bg-slate-700'
                         }`}></div>
+                      </div>
 
-                        <div className="text-center flex-1">
-                          <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
+                      {/* Stage 2: Processing */}
+                      <div className="flex-1 relative">
+                        <div className="flex flex-col h-full">
+                          <div className={`flex-1 flex items-center justify-center rounded-xl border-2 transition-all duration-500 ${
                             ['CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
-                              ? 'bg-green-500 text-white'
+                              ? 'bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500 shadow-lg shadow-blue-500/20'
                               : orderData.orderStatus === 'PENDING'
-                              ? 'bg-yellow-500 text-white'
-                              : 'bg-red-500 text-white'
+                              ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-amber-500 shadow-lg shadow-amber-500/20'
+                              : 'bg-slate-700/50 border-slate-600'
                           }`}>
-                            {['CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus) ? '✓' :
-                             orderData.orderStatus === 'PENDING' ? '⏳' : '✕'}
+                            <div className="text-center">
+                              <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 font-bold text-lg transition-all duration-500 ${
+                                ['CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
+                                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/50'
+                                  : orderData.orderStatus === 'PENDING'
+                                  ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/50'
+                                  : 'bg-slate-600 text-slate-400'
+                              }`}>
+                                ⚙️
+                              </div>
+                              <p className={`text-xs font-semibold transition-colors duration-500 ${
+                                ['CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
+                                  ? 'text-blue-400'
+                                  : orderData.orderStatus === 'PENDING'
+                                  ? 'text-amber-400'
+                                  : 'text-slate-500'
+                              }`}>Processing</p>
+                            </div>
                           </div>
-                          <p className="text-xs font-semibold mt-2 text-foreground">Processing</p>
                         </div>
+                      </div>
 
-                        {/* Connector Line */}
-                        <div className={`flex-1 h-1 mx-2 ${
+                      {/* Connector 2 */}
+                      <div className="flex items-center flex-shrink-0">
+                        <div className={`w-full h-1 transition-all duration-500 rounded-full ${
                           orderData.orderStatus === 'COMPLETED'
-                            ? 'bg-green-500'
-                            : 'bg-gray-300'
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg shadow-purple-500/30'
+                            : orderData.orderStatus === 'CANCELLED'
+                            ? 'bg-gradient-to-r from-slate-700 to-red-500 shadow-lg shadow-red-500/20'
+                            : 'bg-slate-700'
                         }`}></div>
+                      </div>
 
-                        <div className="text-center flex-1">
-                          <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
+                      {/* Stage 3: Completed */}
+                      <div className="flex-1 relative">
+                        <div className="flex flex-col h-full">
+                          <div className={`flex-1 flex items-center justify-center rounded-xl border-2 transition-all duration-500 ${
                             orderData.orderStatus === 'COMPLETED'
-                              ? 'bg-green-500 text-white'
+                              ? 'bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500 shadow-lg shadow-purple-500/20'
                               : orderData.orderStatus === 'CANCELLED'
-                              ? 'bg-red-500 text-white'
-                              : 'bg-gray-300 text-white'
+                              ? 'bg-gradient-to-br from-red-500/20 to-red-600/20 border-red-500 shadow-lg shadow-red-500/20'
+                              : 'bg-slate-700/50 border-slate-600'
                           }`}>
-                            {orderData.orderStatus === 'COMPLETED' ? '✓' :
-                             orderData.orderStatus === 'CANCELLED' ? '✕' : '○'}
+                            <div className="text-center">
+                              <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 font-bold text-lg transition-all duration-500 ${
+                                orderData.orderStatus === 'COMPLETED'
+                                  ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/50'
+                                  : orderData.orderStatus === 'CANCELLED'
+                                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/50'
+                                  : 'bg-slate-600 text-slate-400'
+                              }`}>
+                                {orderData.orderStatus === 'COMPLETED' ? '✓' : orderData.orderStatus === 'CANCELLED' ? '✕' : '●'}
+                              </div>
+                              <p className={`text-xs font-semibold transition-colors duration-500 ${
+                                orderData.orderStatus === 'COMPLETED'
+                                  ? 'text-purple-400'
+                                  : orderData.orderStatus === 'CANCELLED'
+                                  ? 'text-red-400'
+                                  : 'text-slate-500'
+                              }`}>Completed</p>
+                            </div>
                           </div>
-                          <p className="text-xs font-semibold mt-2 text-foreground">Completed</p>
-                        </div>
-                      </div>
-
-                      {/* Current Status Badge */}
-                      <div className="mt-4 p-3 bg-white border border-blue-200 rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Current Status</p>
-                            <p className="text-sm font-bold text-foreground mt-1">{getOrderStatusLabel(orderData.orderStatus)}</p>
-                          </div>
-                          <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            orderData.orderStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                            orderData.orderStatus === 'CONFIRMED' ? 'bg-blue-100 text-blue-700' :
-                            orderData.orderStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
-                          }`}>
-                            {orderData.orderStatus}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Status History Summary */}
-                      <div className="mt-3 p-3 bg-white border border-blue-100 rounded-lg">
-                        <p className="text-xs text-muted-foreground font-medium mb-2">Status Changes: <span className="font-bold text-foreground">{orderData.statusHistory.length}</span></p>
-                        <div className="flex flex-wrap gap-2">
-                          {orderData.statusHistory.map((history, idx) => (
-                            <span key={history.id} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 border border-blue-200 text-blue-700">
-                              {idx + 1}. {getOrderStatusLabel(history.orderStatus)}
-                            </span>
-                          ))}
                         </div>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+
+                  {/* Status Details Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    {/* Progress Percentage */}
+                    <div className="bg-slate-700/50 border border-slate-600 rounded-xl p-4 backdrop-blur">
+                      <p className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-2">Progress</p>
+                      <div className="flex items-end gap-2">
+                        <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                          {orderData.orderStatus === 'COMPLETED' ? '100' :
+                           orderData.orderStatus === 'CONFIRMED' ? '66' :
+                           orderData.orderStatus === 'CANCELLED' ? '0' : '33'}%
+                        </span>
+                        <span className="text-xs text-slate-400 mb-1">Complete</span>
+                      </div>
+                    </div>
+
+                    {/* Total Changes */}
+                    <div className="bg-slate-700/50 border border-slate-600 rounded-xl p-4 backdrop-blur">
+                      <p className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-2">Status Updates</p>
+                      <div className="flex items-end gap-2">
+                        <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                          {orderData.statusHistory.length}
+                        </span>
+                        <span className="text-xs text-slate-400 mb-1">Total Changes</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timeline of Changes */}
+                  <div className="bg-slate-700/30 border border-slate-600 rounded-xl p-4 backdrop-blur">
+                    <p className="text-sm font-semibold text-slate-200 mb-4">Status Timeline</p>
+                    <div className="space-y-2">
+                      {orderData.statusHistory.map((history, idx) => (
+                        <div key={history.id} className="flex items-start gap-3 group">
+                          <div className="flex-shrink-0">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white text-xs font-bold">
+                              {idx + 1}
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+                              <p className="text-sm font-medium text-slate-200">{getOrderStatusLabel(history.orderStatus)}</p>
+                              <p className="text-xs text-slate-400">{dateTimeFormat(history.createdAt)}</p>
+                            </div>
+                            {history.note && (
+                              <p className="text-xs text-slate-400 italic mt-1 line-clamp-2">"{history.note}"</p>
+                            )}
+                            {history.changedByName && (
+                              <p className="text-xs text-slate-500 mt-1">By: <span className="text-slate-300 font-medium">{history.changedByName}</span></p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Order & Pricing Information */}
