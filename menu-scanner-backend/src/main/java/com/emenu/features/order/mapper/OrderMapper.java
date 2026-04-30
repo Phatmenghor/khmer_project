@@ -245,7 +245,7 @@ public interface OrderMapper {
     }
 
     /**
-     * Map pricing details to nested pricing info object with before/after snapshots
+     * Map pricing details to nested pricing info object with complete breakdown
      */
     default OrderPricingInfo mapPricingInfo(Order order) {
         if (order == null) {
@@ -255,9 +255,13 @@ public interface OrderMapper {
         return OrderPricingInfo.builder()
                 .totalItems(calculateTotalItems(order))
                 .subtotal(order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO)
-                .discountAmount(order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO)
+                .customizationTotal(order.getCustomizationTotal() != null ? order.getCustomizationTotal() : BigDecimal.ZERO)
                 .deliveryFee(order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO)
+                .taxPercentage(order.getTaxPercentage() != null ? order.getTaxPercentage() : BigDecimal.ZERO)
                 .taxAmount(order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO)
+                .discountAmount(order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO)
+                .discountType(order.getDiscountType())
+                .discountReason(order.getDiscountReason())
                 .finalTotal(order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO)
                 .build();
     }

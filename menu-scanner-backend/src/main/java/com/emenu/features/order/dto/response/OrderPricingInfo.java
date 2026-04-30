@@ -14,9 +14,13 @@ import java.math.BigDecimal;
 public class OrderPricingInfo {
     private Integer totalItems;
     private BigDecimal subtotal;
-    private BigDecimal discountAmount;
+    private BigDecimal customizationTotal;      // Total cost of customizations/add-ons
     private BigDecimal deliveryFee;
-    private BigDecimal taxAmount;
-    private BigDecimal finalTotal;
+    private BigDecimal taxPercentage;           // Tax rate applied
+    private BigDecimal taxAmount;               // Calculated tax amount
+    private BigDecimal discountAmount;          // Discount applied
+    private String discountType;                // "fixed" or "percentage"
+    private String discountReason;              // Why discount was applied
+    private BigDecimal finalTotal;              // Final amount after all calculations
 }
 
