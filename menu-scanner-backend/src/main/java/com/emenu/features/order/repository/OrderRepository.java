@@ -1,6 +1,8 @@
 package com.emenu.features.order.repository;
 
 import com.emenu.enums.order.OrderStatus;
+import com.emenu.enums.payment.PaymentMethod;
+import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderStatusHistory;
 import org.springframework.data.domain.Page;
@@ -10,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -96,34 +99,20 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
      * Uses JOIN FETCH to prevent N+1 query problem
      * NOTE: statusHistory is loaded separately to avoid MultipleBagFetchException
      */
-    @Query(value = "SELECT DISTINCT o.* FROM orders o " +
-           "LEFT JOIN businesses b ON b.id = o.business_id " +
-           "LEFT JOIN users c ON c.id = o.customer_id " +
-           "LEFT JOIN order_delivery_addresses da ON o.id = da.order_id " +
-           "LEFT JOIN order_delivery_options dopt ON o.id = dopt.order_id " +
-           "WHERE o.is_deleted = false " +
-           "AND (CAST(:businessId AS uuid) IS NULL OR o.business_id = CAST(:businessId AS uuid)) " +
-           "AND (:orderStatus IS NULL OR o.order_status = :orderStatus) " +
-           "AND (:paymentMethod IS NULL OR o.payment_method = :paymentMethod) " +
-           "AND (:paymentStatus IS NULL OR o.payment_status = :paymentStatus) " +
-           "AND (CAST(:startDate AS timestamp) IS NULL OR o.created_at >= CAST(:startDate AS timestamp)) " +
-           "AND (CAST(:endDate AS timestamp) IS NULL OR o.created_at <= CAST(:endDate AS timestamp)) " +
-           "ORDER BY o.created_at DESC",
-           nativeQuery = true,
-           countQuery = "SELECT COUNT(DISTINCT o.id) FROM orders o " +
-                   "WHERE o.is_deleted = false " +
-                   "AND (CAST(:businessId AS uuid) IS NULL OR o.business_id = CAST(:businessId AS uuid)) " +
-                   "AND (:orderStatus IS NULL OR o.order_status = :orderStatus) " +
-                   "AND (:paymentMethod IS NULL OR o.payment_method = :paymentMethod) " +
-                   "AND (:paymentStatus IS NULL OR o.payment_status = :paymentStatus) " +
-                   "AND (CAST(:startDate AS timestamp) IS NULL OR o.created_at >= CAST(:startDate AS timestamp)) " +
-                   "AND (CAST(:endDate AS timestamp) IS NULL OR o.created_at <= CAST(:endDate AS timestamp))")
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "WHERE o.isDeleted = false " +
+           "AND (:businessId IS NULL OR o.businessId = :businessId) " +
+           "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
+           "AND (:paymentMethod IS NULL OR o.paymentMethod = :paymentMethod) " +
+           "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) " +
+           "AND (:startDate IS NULL OR o.createdAt >= :startDate) " +
+           "AND (:endDate IS NULL OR o.createdAt <= :endDate)")
     Page<Order> findAllWithFilters(
-            @Param("businessId") String businessId,
-            @Param("orderStatus") String orderStatus,
-            @Param("paymentMethod") String paymentMethod,
-            @Param("paymentStatus") String paymentStatus,
-            @Param("startDate") String startDate,
-            @Param("endDate") String endDate,
+            @Param("businessId") UUID businessId,
+            @Param("orderStatus") OrderStatus orderStatus,
+            @Param("paymentMethod") PaymentMethod paymentMethod,
+            @Param("paymentStatus") PaymentStatus paymentStatus,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
             Pageable pageable);
 }
