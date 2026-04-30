@@ -583,7 +583,7 @@ WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
 -- ============================================================================
 -- 10. CREATE PRODUCT CUSTOMIZATIONS (18 per product = 180,000 total)
 -- ============================================================================
-INSERT INTO product_customizations (id, product_id, name, price_adjustment, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO product_customizations (id, product_id, name, price_adjustment, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   p.id,
@@ -608,7 +608,6 @@ SELECT
     WHEN 18 THEN 'Ultimate'
   END,
   (0.50 + custom_num * 0.50)::numeric,
-  'ACTIVE',
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
