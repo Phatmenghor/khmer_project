@@ -344,7 +344,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
 
         if (token) {
           config.headers["Authorization"] = `Bearer ${token}`;
-        } else {
+        } else if (isDevelopment) {
           logger.warn(
             "No authentication token for protected route",
             undefined,
