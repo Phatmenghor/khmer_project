@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
 import { useBusinessSettingsCache } from "@/hooks/use-business-settings-cache";
-import { useAppSelector } from "@/redux/store";
-import { selectCurrentBusinessId } from "@/redux/features/auth/store/selectors/auth-selectors";
 
 /**
  * Initializes business settings cache on app startup
@@ -11,11 +8,24 @@ import { selectCurrentBusinessId } from "@/redux/features/auth/store/selectors/a
  * Runs silently in background
  */
 export function BusinessSettingsInitializer() {
-  const businessId = useAppSelector(selectCurrentBusinessId);
+  // Get business ID from localStorage or use default
+  const getBusinessIdFromStorage = () => {
+    if (typeof window === "undefined") return "550cad56-cafd-4aba-baef-c4dcd53940d0";
+    try {
+      const cached = localStorage.getItem("business_settings_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        return parsed.data?.businessId || "550cad56-cafd-4aba-baef-c4dcd53940d0";
+      }
+    } catch {
+      // Fall back to default
+    }
+    return "550cad56-cafd-4aba-baef-c4dcd53940d0";
+  };
 
   // Initialize cache immediately on mount
   useBusinessSettingsCache({
-    businessId: businessId || "550cad56-cafd-4aba-baef-c4dcd53940d0",
+    businessId: getBusinessIdFromStorage(),
     onSettingsUpdate: (newSettings) => {
       // Silently update in background
       // Footer will re-render automatically when cache updates
