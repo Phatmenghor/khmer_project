@@ -31,6 +31,7 @@ import com.emenu.features.order.models.OrderDeliveryOption;
 import com.emenu.features.order.repository.OrderPaymentRepository;
 import com.emenu.features.order.repository.CartRepository;
 import com.emenu.features.order.repository.OrderRepository;
+import com.emenu.features.order.repository.OrderSpecification;
 import com.emenu.features.order.repository.OrderStatusHistoryRepository;
 import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
 import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
@@ -278,15 +279,15 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        Page<Order> page = orderRepository.findAllWithFilters(
+        var spec = OrderSpecification.buildFilterSpecification(
                 filter.getBusinessId(),
                 filter.getOrderStatus(),
                 filter.getPaymentMethod(),
                 filter.getPaymentStatus(),
                 startDate,
-                endDate,
-                pageable
+                endDate
         );
+        Page<Order> page = orderRepository.findAll(spec, pageable);
         long queryDuration = System.currentTimeMillis() - queryStartTime;
         log.info("✅ [DB QUERY COMPLETE] Retrieved {} orders (query took {} ms) | Total: {} | Pages: {}",
                 page.getNumberOfElements(), queryDuration, page.getTotalElements(), page.getTotalPages());

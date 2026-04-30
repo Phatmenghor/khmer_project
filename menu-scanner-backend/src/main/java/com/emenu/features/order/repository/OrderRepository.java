@@ -8,6 +8,7 @@ import com.emenu.features.order.models.OrderStatusHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,7 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, UUID> {
+public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecificationExecutor<Order> {
 
     /**
      * Finds a non-deleted order by ID with items, products, sizes, business, customer, and delivery snapshots eagerly fetched
@@ -87,32 +88,4 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
            "ORDER BY o.createdAt DESC")
     Page<Order> findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(@Param("customerId") UUID customerId, Pageable pageable);
 
-    /**
-     * Find all non-deleted orders with optional filters and eager loading of related entities
-     * Supports filtering by:
-     * - businessId (required for business users, optional for admin)
-     * - orderStatus
-     * - paymentMethod
-     * - paymentStatus
-     * - date range (startDate to endDate)
-     *
-     * Uses JOIN FETCH to prevent N+1 query problem
-     * NOTE: statusHistory is loaded separately to avoid MultipleBagFetchException
-     */
-    @Query("SELECT DISTINCT o FROM Order o " +
-           "WHERE o.isDeleted = false " +
-           "AND (:businessId IS NULL OR o.businessId = :businessId) " +
-           "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
-           "AND (:paymentMethod IS NULL OR o.paymentMethod = :paymentMethod) " +
-           "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) " +
-           "AND (:startDate IS NULL OR o.createdAt >= :startDate) " +
-           "AND (:endDate IS NULL OR o.createdAt <= :endDate)")
-    Page<Order> findAllWithFilters(
-            @Param("businessId") UUID businessId,
-            @Param("orderStatus") OrderStatus orderStatus,
-            @Param("paymentMethod") PaymentMethod paymentMethod,
-            @Param("paymentStatus") PaymentStatus paymentStatus,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
-            Pageable pageable);
 }
