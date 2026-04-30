@@ -320,10 +320,6 @@ export function OrderDetailModal({
                       }
                     />
                     <DisplayField
-                      label="Order Status"
-                      value={getOrderStatusLabel(orderData.orderStatus)}
-                    />
-                    <DisplayField
                       label="Created At"
                       value={dateTimeFormat(orderData.createdAt)}
                     />
