@@ -886,7 +886,7 @@ CROSS JOIN LATERAL (
   FROM generate_series(1, 10) idx
 ) sh(status_seq)
 WHERE o.created_at >= NOW() - INTERVAL '365 days'
-AND sh.status_seq >= 1 AND sh.status_seq <= 5 + (CAST(substring(o.id::text, 1, 2) AS integer) % 5)
+AND sh.status_seq >= 1 AND sh.status_seq <= 5 + (ABS(hashtext(o.id::text)) % 5)
 AND NOT EXISTS (
   SELECT 1 FROM order_status_history WHERE order_id = o.id AND order_status = 'PENDING'
 );
