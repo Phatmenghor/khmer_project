@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
 import { PageContainer } from "../shared/common/page-container";
 import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 import { useInitialization } from "@/context/initialization-provider";
@@ -10,8 +11,9 @@ import { Skeleton } from "@/components/shared/loaders/skeleton-loader";
 
 export function Footer() {
   const { colorsReady } = useInitialization();
+  const [mounted, setMounted] = useState(false);
 
-  // Cache is guaranteed to be ready by InitializationLoader
+  // Cache is loaded synchronously from localStorage
   // Load synchronously from localStorage (no state, no re-renders)
   const cached = businessSettingsStorage.getCached();
   const cachedSettings = cached?.data || null;
@@ -25,6 +27,11 @@ export function Footer() {
   const businessHours = cachedSettings?.businessHours || [];
   const socialMedia = cachedSettings?.socialMedia || [];
   const primaryColor = cachedSettings?.primaryColor || "#3b82f6";
+
+  // Ensure hydration is complete before rendering to avoid mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <footer className="text-white" style={{ backgroundColor: colorsReady ? primaryColor : "#9ca3af" }}>
@@ -79,77 +86,99 @@ export function Footer() {
           {/* Section 2: Contact Information */}
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Contact Info</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex gap-3">
-                <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                <p className="text-white">
-                  {contactAddress}
-                </p>
+            {mounted ? (
+              <div className="space-y-3 text-sm">
+                <div className="flex gap-3">
+                  <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                  <p className="text-white">
+                    {contactAddress}
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Phone className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                  <p className="text-white">
+                    {contactPhone}
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <a
+                    href={`mailto:${contactEmail}`}
+                    className="text-white hover:text-white/80 transition-colors flex gap-3"
+                  >
+                    <span className="text-white/80 text-xs">✉</span>
+                    <span>{contactEmail}</span>
+                  </a>
+                </div>
               </div>
-              <div className="flex gap-3">
-                <Phone className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                <p className="text-white">
-                  {contactPhone}
-                </p>
+            ) : (
+              <div className="space-y-3">
+                <Skeleton width={200} height={16} className="bg-white/30" />
+                <Skeleton width={200} height={16} className="bg-white/30" />
+                <Skeleton width={200} height={16} className="bg-white/30" />
               </div>
-              <div className="flex gap-3">
-                <a
-                  href={`mailto:${contactEmail}`}
-                  className="text-white hover:text-white/80 transition-colors flex gap-3"
-                >
-                  <span className="text-white/80 text-xs">✉</span>
-                  <span>{contactEmail}</span>
-                </a>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Section 3: Business Hours */}
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Business Hours</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex gap-3">
-                <Clock className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                <div className="text-white">
-                  {businessHours && businessHours.length > 0 ? (
-                    businessHours.map((hours: any, index: number) => (
-                      <p key={index} className="font-medium">
-                        {typeof hours.day === 'string' ? formatDay(hours.day) : hours.day}:{" "}
-                        {hours.openingTime && hours.closingTime ? (
-                          `${hours.openingTime} - ${hours.closingTime}`
-                        ) : (
-                          <span className="text-white/60">Closed</span>
-                        )}
-                      </p>
-                    ))
-                  ) : (
-                    <p className="text-white/60">Contact for hours</p>
-                  )}
+            {mounted ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex gap-3">
+                  <Clock className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                  <div className="text-white">
+                    {businessHours && businessHours.length > 0 ? (
+                      businessHours.map((hours: any, index: number) => (
+                        <p key={index} className="font-medium">
+                          {typeof hours.day === 'string' ? formatDay(hours.day) : hours.day}:{" "}
+                          {hours.openingTime && hours.closingTime ? (
+                            `${hours.openingTime} - ${hours.closingTime}`
+                          ) : (
+                            <span className="text-white/60">Closed</span>
+                          )}
+                        </p>
+                      ))
+                    ) : (
+                      <p className="text-white/60">Contact for hours</p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-2">
+                <Skeleton width={200} height={16} className="bg-white/30" />
+                <Skeleton width={200} height={16} className="bg-white/30" />
+              </div>
+            )}
           </div>
 
           {/* Section 4: Follow Us */}
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Follow Us</h3>
-            <div className="space-y-2 text-sm">
-              {socialMedia && socialMedia.length > 0 ? (
-                socialMedia.map((social: any) => (
-                  <a
-                    key={social.name}
-                    href={social.linkUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-white hover:text-white/80 transition-colors"
-                  >
-                    {social.name}
-                  </a>
-                ))
-              ) : (
-                <p className="text-white/60 text-sm">Follow us on social media</p>
-              )}
-            </div>
+            {mounted ? (
+              <div className="space-y-2 text-sm">
+                {socialMedia && socialMedia.length > 0 ? (
+                  socialMedia.map((social: any) => (
+                    <a
+                      key={social.name}
+                      href={social.linkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-white hover:text-white/80 transition-colors"
+                    >
+                      {social.name}
+                    </a>
+                  ))
+                ) : (
+                  <p className="text-white/60 text-sm">Follow us on social media</p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Skeleton width={150} height={16} className="bg-white/30" />
+                <Skeleton width={150} height={16} className="bg-white/30" />
+              </div>
+            )}
           </div>
         </div>
 
