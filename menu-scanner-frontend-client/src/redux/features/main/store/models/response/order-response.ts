@@ -45,9 +45,13 @@ export interface OrderDeliveryOptionDto {
 export interface OrderPricingInfo {
   totalItems: number;
   subtotal: number;
-  discountAmount: number;
+  customizationTotal: number;
   deliveryFee: number;
+  taxPercentage: number;
   taxAmount: number;
+  discountAmount: number;
+  discountType?: string;
+  discountReason?: string;
   finalTotal: number;
 }
 
@@ -63,6 +67,14 @@ export interface OrderItemProductInfo {
   sizeId: string | null;
   sizeName: string;
   status: "ACTIVE" | "INACTIVE";
+  sku?: string;
+  barcode?: string;
+}
+
+export interface CustomizationDetail {
+  productCustomizationId: string;
+  name: string;
+  priceAdjustment: number;
 }
 
 export interface OrderItemResponse {
@@ -71,6 +83,8 @@ export interface OrderItemResponse {
   quantity: number;
   finalPrice: number;
   totalPrice: number;
+  customizations?: CustomizationDetail[];
+  customizationTotal?: number;
 }
 
 export interface OrderResponse {
