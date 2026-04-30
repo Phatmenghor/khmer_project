@@ -77,19 +77,29 @@ export default function OrdersAdminPage() {
   });
 
   useEffect(() => {
-    dispatch(
-      fetchAllOrderAdminService({
-        search: debouncedSearch,
-        pageNo: filters.pageNo,
-        pageSize: globalPageSize,
-        orderStatus:
-          filters.orderStatus === "ALL" ? undefined : filters.orderStatus,
-        paymentStatus:
-          filters.paymentStatus === "ALL" ? undefined : filters.paymentStatus,
-        startDate: filters.startDate,
-        endDate: filters.endDate,
-      })
-    );
+    const requestParams: any = {
+      search: debouncedSearch,
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize,
+    };
+
+    if (filters.orderStatus && filters.orderStatus !== "ALL") {
+      requestParams.orderStatus = filters.orderStatus;
+    }
+
+    if (filters.paymentStatus && filters.paymentStatus !== "ALL") {
+      requestParams.paymentStatus = filters.paymentStatus;
+    }
+
+    if (filters.startDate) {
+      requestParams.startDate = filters.startDate;
+    }
+
+    if (filters.endDate) {
+      requestParams.endDate = filters.endDate;
+    }
+
+    dispatch(fetchAllOrderAdminService(requestParams));
   }, [
     dispatch,
     debouncedSearch,
@@ -226,18 +236,24 @@ export default function OrdersAdminPage() {
             label="Payment Status"
           />
           <div className="flex gap-2">
-            <CustomDateTimePicker
-              value={filters.startDate}
-              onChange={handleStartDateChange}
-              placeholder="Start date"
-              mode="date"
-            />
-            <CustomDateTimePicker
-              value={filters.endDate}
-              onChange={handleEndDateChange}
-              placeholder="End date"
-              mode="date"
-            />
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground mb-1 block">From Date</label>
+              <CustomDateTimePicker
+                value={filters.startDate || ""}
+                onChange={handleStartDateChange}
+                placeholder="Select start date"
+                mode="date"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground mb-1 block">To Date</label>
+              <CustomDateTimePicker
+                value={filters.endDate || ""}
+                onChange={handleEndDateChange}
+                placeholder="Select end date"
+                mode="date"
+              />
+            </div>
           </div>
         </CardHeaderSection>
 
