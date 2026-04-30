@@ -262,11 +262,11 @@ public class OrderServiceImpl implements OrderService {
         long queryStartTime = System.currentTimeMillis();
         Page<Order> page = orderRepository.findAllWithFilters(
                 filter.getBusinessId(),
-                filter.getOrderStatus(),
-                filter.getPaymentMethod(),
-                filter.getPaymentStatus(),
-                filter.getStartDate(),
-                filter.getEndDate(),
+                filter.getOrderStatus() != null ? filter.getOrderStatus().name() : null,
+                filter.getPaymentMethod() != null ? filter.getPaymentMethod().name() : null,
+                filter.getPaymentStatus() != null ? filter.getPaymentStatus().name() : null,
+                filter.getStartDate() != null ? filter.getStartDate().toString() : null,
+                filter.getEndDate() != null ? filter.getEndDate().toString() : null,
                 pageable
         );
         long queryDuration = System.currentTimeMillis() - queryStartTime;

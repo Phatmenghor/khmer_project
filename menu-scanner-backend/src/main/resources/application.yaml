@@ -12,14 +12,6 @@ spring:
   profiles:
     active: prod # ← change to "local" or "dev" as needed
 
-  # Jackson - Date/Time format configuration
-  jackson:
-    default-property-inclusion: non_null
-    serialization:
-      write-dates-as-timestamps: false
-    time-zone: UTC
-    date-format: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-
   # JPA  – common settings (ddl-auto overridden per profile)
   jpa:
     open-in-view: false

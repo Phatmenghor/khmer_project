@@ -96,25 +96,34 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
      * Uses JOIN FETCH to prevent N+1 query problem
      * NOTE: statusHistory is loaded separately to avoid MultipleBagFetchException
      */
-    @Query("SELECT DISTINCT o FROM Order o " +
-           "LEFT JOIN FETCH o.business b " +
-           "LEFT JOIN FETCH o.customer c " +
-           "LEFT JOIN FETCH o.deliveryAddress " +
-           "LEFT JOIN FETCH o.deliveryOption " +
-           "WHERE o.isDeleted = false " +
-           "AND (:businessId IS NULL OR o.businessId = :businessId) " +
-           "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
-           "AND (:paymentMethod IS NULL OR o.paymentMethod = :paymentMethod) " +
-           "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) " +
-           "AND (:startDate IS NULL OR o.createdAt >= :startDate) " +
-           "AND (:endDate IS NULL OR o.createdAt <= :endDate) " +
-           "ORDER BY o.createdAt DESC")
+    @Query(value = "SELECT DISTINCT o.* FROM orders o " +
+           "LEFT JOIN businesses b ON b.id = o.business_id " +
+           "LEFT JOIN users c ON c.id = o.customer_id " +
+           "LEFT JOIN order_delivery_addresses da ON o.id = da.order_id " +
+           "LEFT JOIN order_delivery_options do ON o.id = do.order_id " +
+           "WHERE o.is_deleted = false " +
+           "AND (:businessId::uuid IS NULL OR o.business_id = :businessId::uuid) " +
+           "AND (:orderStatus IS NULL OR o.order_status = :orderStatus) " +
+           "AND (:paymentMethod IS NULL OR o.payment_method = :paymentMethod) " +
+           "AND (:paymentStatus IS NULL OR o.payment_status = :paymentStatus) " +
+           "AND (:startDate::timestamp IS NULL OR o.created_at >= :startDate::timestamp) " +
+           "AND (:endDate::timestamp IS NULL OR o.created_at <= :endDate::timestamp) " +
+           "ORDER BY o.created_at DESC",
+           nativeQuery = true,
+           countQuery = "SELECT COUNT(DISTINCT o.id) FROM orders o " +
+                   "WHERE o.is_deleted = false " +
+                   "AND (:businessId::uuid IS NULL OR o.business_id = :businessId::uuid) " +
+                   "AND (:orderStatus IS NULL OR o.order_status = :orderStatus) " +
+                   "AND (:paymentMethod IS NULL OR o.payment_method = :paymentMethod) " +
+                   "AND (:paymentStatus IS NULL OR o.payment_status = :paymentStatus) " +
+                   "AND (:startDate::timestamp IS NULL OR o.created_at >= :startDate::timestamp) " +
+                   "AND (:endDate::timestamp IS NULL OR o.created_at <= :endDate::timestamp)")
     Page<Order> findAllWithFilters(
             @Param("businessId") UUID businessId,
-            @Param("orderStatus") OrderStatus orderStatus,
-            @Param("paymentMethod") com.emenu.enums.payment.PaymentMethod paymentMethod,
-            @Param("paymentStatus") com.emenu.enums.payment.PaymentStatus paymentStatus,
-            @Param("startDate") java.time.LocalDateTime startDate,
-            @Param("endDate") java.time.LocalDateTime endDate,
+            @Param("orderStatus") String orderStatus,
+            @Param("paymentMethod") String paymentMethod,
+            @Param("paymentStatus") String paymentStatus,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
             Pageable pageable);
 }
