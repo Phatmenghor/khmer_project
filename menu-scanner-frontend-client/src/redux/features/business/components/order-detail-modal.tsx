@@ -293,6 +293,7 @@ export function OrderDetailModal({
                 <CardContent className="space-y-4 pt-4">
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                     <h4 className="text-xs font-bold text-green-700 uppercase tracking-wider mb-4">Items List</h4>
+                    <div className="space-y-4">
                   {orderData.items.map((item, idx) => (
                     <div
                       key={item.id}
@@ -397,6 +398,7 @@ export function OrderDetailModal({
                       )}
                     </div>
                   ))}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
