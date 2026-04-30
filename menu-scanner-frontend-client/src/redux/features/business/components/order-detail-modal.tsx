@@ -297,7 +297,11 @@ export function OrderDetailModal({
                   {orderData.items.map((item, idx) => (
                     <div
                       key={item.id}
-                      className="p-4 border rounded-lg bg-gray-50 border-gray-200"
+                      className={`p-4 border rounded-lg ${
+                        item.hasPromotion
+                          ? "bg-orange-50 border-orange-300"
+                          : "bg-gray-50 border-gray-200"
+                      }`}
                     >
                       {/* Product Image and Header */}
                       <div className="mb-3">
@@ -314,9 +318,16 @@ export function OrderDetailModal({
                           )}
                           {/* Product Name and Details */}
                           <div className="flex-1">
-                            <h4 className="font-semibold text-sm mb-1">
-                              #{idx + 1} - {item.product?.name || "Unknown"}
-                            </h4>
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <h4 className="font-semibold text-sm">
+                                #{idx + 1} - {item.product?.name || "Unknown"}
+                              </h4>
+                              {item.hasPromotion && (
+                                <span className="inline-flex items-center gap-1 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                                  🔥 {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
+                                </span>
+                              )}
+                            </div>
                             {/* Size, SKU, and Barcode */}
                             <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                               {item.product?.sizeName && (
@@ -334,53 +345,51 @@ export function OrderDetailModal({
                       </div>
 
                       {/* Item Pricing */}
-                      <div className="flex justify-between items-start text-xs w-full border-t pt-3 mt-3">
-                        {/* Qty with Promotion */}
-                        <div className="flex items-start gap-1">
-                          <div>
-                            <span className="text-muted-foreground">Qty:</span>
-                            <p className="font-medium">{item.quantity}</p>
-                          </div>
-                          {item.hasPromotion && (
-                            <div className="text-right ml-2">
-                              <p className="font-bold text-orange-600">
-                                {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
-                              </p>
-                              <p className="text-orange-600 font-semibold">
-                                -{formatCurrency((item.currentPrice || 0) - (item.finalPrice || 0))}
-                              </p>
-                            </div>
-                          )}
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-xs border-t pt-3 mt-3">
+                        {/* Qty */}
+                        <div className="space-y-1">
+                          <span className="text-muted-foreground text-xs font-medium">Qty:</span>
+                          <p className="font-bold text-lg">{item.quantity}</p>
                         </div>
 
                         {/* Original Price */}
                         {item.hasPromotion && item.currentPrice && (
-                          <div>
-                            <span className="text-muted-foreground">Original Price:</span>
-                            <p className="font-medium line-through text-orange-500">{formatCurrency(item.currentPrice)}</p>
+                          <div className="space-y-1">
+                            <span className="text-muted-foreground text-xs font-medium">Original Price:</span>
+                            <p className="font-medium line-through text-orange-500 text-sm">{formatCurrency(item.currentPrice)}</p>
                           </div>
                         )}
 
                         {/* Unit Price */}
-                        <div>
-                          <span className="text-muted-foreground">Unit Price:</span>
-                          <p className="font-medium">{formatCurrency(item.finalPrice)}</p>
+                        <div className="space-y-1">
+                          <span className="text-muted-foreground text-xs font-medium">Unit Price:</span>
+                          <p className="font-bold text-sm">{formatCurrency(item.finalPrice)}</p>
                         </div>
 
                         {/* Item Total */}
-                        <div>
-                          <span className="text-muted-foreground">Item Total:</span>
-                          <p className="font-bold text-green-600">{formatCurrency(item.totalPrice)}</p>
+                        <div className="space-y-1">
+                          <span className="text-muted-foreground text-xs font-medium">Item Total:</span>
+                          <p className="font-bold text-green-600 text-sm">{formatCurrency(item.totalPrice)}</p>
                         </div>
 
                         {/* Add-ons */}
                         {(item.customizationTotal ?? 0) > 0 && (
-                          <div>
-                            <span className="text-muted-foreground">Add-ons:</span>
-                            <p className="font-medium text-blue-600">+{formatCurrency(item.customizationTotal)}</p>
+                          <div className="space-y-1">
+                            <span className="text-muted-foreground text-xs font-medium">Add-ons:</span>
+                            <p className="font-bold text-blue-600 text-sm">+{formatCurrency(item.customizationTotal)}</p>
                           </div>
                         )}
                       </div>
+
+                      {/* Discount Info */}
+                      {item.hasPromotion && (
+                        <div className="mt-3 p-2 bg-orange-100 border border-orange-300 rounded-lg">
+                          <p className="text-xs text-orange-700 font-semibold">
+                            Discount: {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
+                            <span className="ml-2 text-orange-600">-{formatCurrency((item.currentPrice || 0) - (item.finalPrice || 0))}</span>
+                          </p>
+                        </div>
+                      )}
 
                       {/* Customizations if any */}
                       {item.customizations && item.customizations.length > 0 && (
