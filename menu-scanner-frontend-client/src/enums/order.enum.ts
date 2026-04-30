@@ -18,12 +18,8 @@ export enum OrderFromEnum {
 export enum OrderStatusEnum {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
-  PREPARING = 'PREPARING',
-  READY = 'READY',
-  DELIVERING = 'DELIVERING',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
-  FAILED = 'FAILED',
 }
 
 /**
@@ -93,12 +89,8 @@ export enum OSTypeEnum {
 export const OrderStatusLabels: Record<OrderStatusEnum, string> = {
   [OrderStatusEnum.PENDING]: 'Pending',
   [OrderStatusEnum.CONFIRMED]: 'Confirmed',
-  [OrderStatusEnum.PREPARING]: 'Preparing',
-  [OrderStatusEnum.READY]: 'Ready',
-  [OrderStatusEnum.DELIVERING]: 'Delivering',
   [OrderStatusEnum.COMPLETED]: 'Completed',
   [OrderStatusEnum.CANCELLED]: 'Cancelled',
-  [OrderStatusEnum.FAILED]: 'Failed',
 };
 
 /**
@@ -107,12 +99,8 @@ export const OrderStatusLabels: Record<OrderStatusEnum, string> = {
 export const OrderStatusColors: Record<OrderStatusEnum, string> = {
   [OrderStatusEnum.PENDING]: 'yellow',
   [OrderStatusEnum.CONFIRMED]: 'blue',
-  [OrderStatusEnum.PREPARING]: 'orange',
-  [OrderStatusEnum.READY]: 'purple',
-  [OrderStatusEnum.DELIVERING]: 'cyan',
   [OrderStatusEnum.COMPLETED]: 'green',
   [OrderStatusEnum.CANCELLED]: 'red',
-  [OrderStatusEnum.FAILED]: 'red',
 };
 
 /**

@@ -114,14 +114,14 @@ public class OrderDataGenerator {
     private static List<Map<String, Object>> generateStatusHistory() {
         List<Map<String, Object>> history = new ArrayList<>();
 
-        String[] statuses = {"PENDING", "CONFIRMED", "PREPARING", "READY", "DELIVERING", "COMPLETED"};
+        String[] statuses = {"PENDING", "CONFIRMED", "COMPLETED"};
         LocalDateTime currentTime = LocalDateTime.now();
 
         for (int i = 0; i < statuses.length; i++) {
             Map<String, Object> status = new LinkedHashMap<>();
             status.put("status", statuses[i]);
-            status.put("changedAt", currentTime.minusMinutes(60 - (i * 10)));
-            status.put("changedBy", i < 2 ? "system" : "staff-user");
+            status.put("changedAt", currentTime.minusMinutes(60 - (i * 30)));
+            status.put("changedBy", i < 1 ? "system" : "staff-user");
             status.put("note", "Status updated to " + statuses[i]);
             history.add(status);
         }
