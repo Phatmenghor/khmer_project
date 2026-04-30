@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import Link from "next/link";
@@ -72,17 +72,6 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   // This is used to determine if we show Add to Cart or +/- buttons
   const isInCart = totalQuantity > 0;
 
-  // DEBUG: Log cart state changes (optional - can remove in production)
-  useEffect(() => {
-    if (quantity > 0) {
-      console.log(`%c## CART QUANTITY (${product.name})`, "background:#28a745;color:white;padding:5px;border-radius:3px;font-weight:bold", {
-        productId: product.id,
-        quantity: quantity,
-        totalQuantity: totalQuantity,
-        timestamp: Date.now(),
-      });
-    }
-  }, [quantity, product.id, product.name, totalQuantity]);
 
   const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.NoImage);
 
@@ -149,13 +138,6 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
 
     // Dispatch optimistic update FIRST for instant UI feedback
     // This updates Redux immediately while API call happens in background
-    console.log("%c## OPTIMISTIC UPDATE (ADD TO CART)", "background:#17a2b8;color:white;padding:5px;border-radius:3px;font-weight:bold", {
-      productId: product.id,
-      quantity: 1,
-      timestamp: timestamp,
-      time: new Date().toLocaleTimeString()
-    });
-
     cartDispatch(
       addLocalCartItem({
         productId: product.id,
@@ -178,13 +160,6 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     // Queue API call with debounce (500ms delay)
     // If user clicks +/- in next 500ms, debounce resets
     // After delay, exactly 1 API call fires with latest quantity
-    console.log("%c## DEBOUNCE QUEUED", "background:#ff9800;color:white;padding:5px;border-radius:3px;font-weight:bold", {
-      key: key,
-      quantity: newQty,
-      delayMs: 500,
-      time: new Date().toLocaleTimeString()
-    });
-
     debouncedUpdate(key, product.id, null, newQty, timestamp);
   };
 
