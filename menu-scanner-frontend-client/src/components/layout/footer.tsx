@@ -1,33 +1,30 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
 import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 import { useInitialization } from "@/context/initialization-provider";
-import { Skeleton } from "@/components/shared/loaders/skeleton-loader";
 
 export function Footer() {
   const { colorsReady } = useInitialization();
 
-  // Cache is loaded synchronously from localStorage
-  // Load synchronously from localStorage (no state, no re-renders)
+  // Load from cache if available
   const cached = businessSettingsStorage.getCached();
   const cachedSettings = cached?.data || null;
 
-  // Use cached settings (guaranteed to have primaryColor at this point)
-  const businessName = cachedSettings?.businessName || "Menu Scanner";
-  const logoUrl = cachedSettings?.logoBusinessUrl;
-  const contactAddress = cachedSettings?.contactAddress || "";
-  const contactPhone = cachedSettings?.contactPhone || "";
-  const contactEmail = cachedSettings?.contactEmail || "";
+  // Use defaults that work on both server and client to prevent hydration mismatch
+  const businessName = "Menu Scanner";
+  const logoUrl = cachedSettings?.logoBusinessUrl || null;
+  const primaryColor = cachedSettings?.primaryColor || "#3b82f6";
+  const contactAddress = cachedSettings?.contactAddress || "Phnom Penh, Cambodia";
+  const contactPhone = cachedSettings?.contactPhone || "+855 10 123 456";
+  const contactEmail = cachedSettings?.contactEmail || "info@menuscanner.com";
   const businessHours = cachedSettings?.businessHours || [];
   const socialMedia = cachedSettings?.socialMedia || [];
-  const primaryColor = cachedSettings?.primaryColor || "#3b82f6";
 
   return (
-    <footer className="text-white" style={{ backgroundColor: colorsReady ? primaryColor : "#9ca3af" }}>
+    <footer className="text-white" style={{ backgroundColor: colorsReady ? primaryColor : "#3b82f6" }}>
       <PageContainer>
         {/* Main Footer Content */}
         <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -67,11 +64,11 @@ export function Footer() {
               </>
             ) : (
               <>
-                <div className="flex items-center gap-2 w-fit">
-                  <Skeleton circle width={40} height={40} className="bg-white/30" />
-                  <Skeleton width={100} height={24} className="bg-white/30" />
+                <div className="w-10 h-10 rounded-lg bg-white/20 animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-4 bg-white/20 rounded animate-pulse" />
+                  <div className="h-4 bg-white/20 rounded w-3/4 animate-pulse" />
                 </div>
-                <Skeleton width={200} height={60} count={2} className="bg-white/30" />
               </>
             )}
           </div>
@@ -80,36 +77,27 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Contact Info</h3>
             <div className="space-y-3 text-sm">
-              {contactAddress && (
-                <div className="flex gap-3">
-                  <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                  <p className="text-white">
-                    {contactAddress}
-                  </p>
-                </div>
-              )}
-              {contactPhone && (
-                <div className="flex gap-3">
-                  <Phone className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                  <p className="text-white">
-                    {contactPhone}
-                  </p>
-                </div>
-              )}
-              {contactEmail && (
-                <div className="flex gap-3">
-                  <a
-                    href={`mailto:${contactEmail}`}
-                    className="text-white hover:text-white/80 transition-colors flex gap-3"
-                  >
-                    <span className="text-white/80 text-xs">✉</span>
-                    <span>{contactEmail}</span>
-                  </a>
-                </div>
-              )}
-              {!contactAddress && !contactPhone && !contactEmail && (
-                <p className="text-white/60 text-sm">Contact us for more information</p>
-              )}
+              <div className="flex gap-3">
+                <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                <p className="text-white">
+                  {contactAddress}
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Phone className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                <p className="text-white">
+                  {contactPhone}
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <a
+                  href={`mailto:${contactEmail}`}
+                  className="text-white hover:text-white/80 transition-colors flex gap-3"
+                >
+                  <span className="text-white/80 text-xs">✉</span>
+                  <span>{contactEmail}</span>
+                </a>
+              </div>
             </div>
           </div>
 
@@ -117,11 +105,11 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Business Hours</h3>
             <div className="space-y-2 text-sm">
-              <div className="flex gap-3">
-                <Clock className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                <div className="text-white">
-                  {businessHours && businessHours.length > 0 ? (
-                    businessHours.map((hours: any, index: number) => (
+              {businessHours && businessHours.length > 0 ? (
+                <div className="flex gap-3">
+                  <Clock className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                  <div className="text-white">
+                    {businessHours.map((hours: any, index: number) => (
                       <p key={index} className="font-medium">
                         {typeof hours.day === 'string' ? formatDay(hours.day) : hours.day}:{" "}
                         {hours.openingTime && hours.closingTime ? (
@@ -130,12 +118,21 @@ export function Footer() {
                           <span className="text-white/60">Closed</span>
                         )}
                       </p>
-                    ))
-                  ) : (
-                    <p className="text-white/60">Contact for hours</p>
-                  )}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex gap-2 text-white text-sm">
+                    <Clock className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <span>Mon - Fri: 9:00 AM - 10:00 PM</span>
+                  </div>
+                  <div className="flex gap-2 text-white text-sm">
+                    <span className="w-5" />
+                    <span>Sat - Sun: 10:00 AM - 11:00 PM</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -156,7 +153,17 @@ export function Footer() {
                   </a>
                 ))
               ) : (
-                <p className="text-white/60 text-sm">Follow us on social media</p>
+                <>
+                  <a href="#" className="block text-white hover:text-white/80 transition-colors">
+                    Facebook
+                  </a>
+                  <a href="#" className="block text-white hover:text-white/80 transition-colors">
+                    Instagram
+                  </a>
+                  <a href="#" className="block text-white hover:text-white/80 transition-colors">
+                    Twitter
+                  </a>
+                </>
               )}
             </div>
           </div>
@@ -166,37 +173,14 @@ export function Footer() {
         <div className="border-t border-white/20 my-8"></div>
 
         {/* Footer Bottom */}
-        <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white text-sm">
-            © 2026 Menu Scanner E-Commerce. All rights reserved.
-          </p>
-          <div className="flex gap-6">
-            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
-              Terms
-            </a>
-            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
-              Support
-            </a>
-          </div>
+        <div className="pb-8 text-center text-white text-sm text-white/60">
+          <p>&copy; {new Date().getFullYear()} {businessName}. All rights reserved.</p>
         </div>
       </PageContainer>
     </footer>
   );
 }
 
-// Helper function to format day names from API
 function formatDay(day: string): string {
-  const days: Record<string, string> = {
-    MONDAY: "Monday",
-    TUESDAY: "Tuesday",
-    WEDNESDAY: "Wednesday",
-    THURSDAY: "Thursday",
-    FRIDAY: "Friday",
-    SATURDAY: "Saturday",
-    SUNDAY: "Sunday",
-  };
-  return days[day] || day;
+  return day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
 }
