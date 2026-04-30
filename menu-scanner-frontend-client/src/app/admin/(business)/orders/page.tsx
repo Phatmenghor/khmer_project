@@ -91,11 +91,11 @@ export default function OrdersAdminPage() {
       requestParams.paymentStatus = filters.paymentStatus;
     }
 
-    if (filters.startDate) {
+    if (filters.startDate && filters.startDate.trim()) {
       requestParams.startDate = filters.startDate;
     }
 
-    if (filters.endDate) {
+    if (filters.endDate && filters.endDate.trim()) {
       requestParams.endDate = filters.endDate;
     }
 
@@ -196,11 +196,11 @@ export default function OrdersAdminPage() {
   };
 
   const handleStartDateChange = (dateString: string) => {
-    dispatch(setStartDateFilter(dateString || undefined));
+    dispatch(setStartDateFilter(dateString && dateString.trim() ? dateString : undefined));
   };
 
   const handleEndDateChange = (dateString: string) => {
-    dispatch(setEndDateFilter(dateString || undefined));
+    dispatch(setEndDateFilter(dateString && dateString.trim() ? dateString : undefined));
   };
 
   return (
