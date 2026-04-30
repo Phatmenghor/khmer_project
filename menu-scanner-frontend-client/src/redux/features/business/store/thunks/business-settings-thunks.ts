@@ -1,33 +1,35 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
-  fetchCurrentBusinessSettings,
   fetchBusinessSettingsByBusinessId,
   updateCurrentBusinessSettings,
   type BusinessSettingsResponse,
   type UpdateBusinessSettingsRequest,
 } from "../services/business-settings-service";
+import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 import { AppDefault } from "@/constants/app-resource/default/default";
 
 /**
- * Async thunk to fetch current business settings
- * Fetches complete business settings including tax percentage
- * Uses authenticated endpoint: /api/v1/business-settings/current
- * Returns null if user not authenticated (uses cached settings instead)
+ * Async thunk to fetch business settings by ID
+ * Uses public endpoint: /api/v1/business-settings/business/{businessId}
+ * No authentication required
+ * Fetches from cache's businessId for instant verification
  */
 export const fetchBusinessSettingsThunk = createAsyncThunk(
   "businessSettings/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      // Try authenticated endpoint first (includes tax percentage)
-      const settings = await fetchCurrentBusinessSettings();
-      // If not authenticated (401), return null - we'll use cached settings
-      if (!settings) {
-        return null;
-      }
+      // Get business ID from cache
+      const cached = businessSettingsStorage.getCached();
+      const businessId = cached?.data?.businessId || "550cad56-cafd-4aba-baef-c4dcd53940d0";
+
+      // Use public endpoint (no auth required)
+      const settings = await fetchBusinessSettingsByBusinessId(businessId);
       return settings;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to fetch business settings";
-      return rejectWithValue(errorMessage);
+      // Silent fail - use cached settings
+      // Log only for debugging, not as error
+      console.log("ℹ️ Using cached business settings (API verification)");
+      return null;
     }
   }
 );
