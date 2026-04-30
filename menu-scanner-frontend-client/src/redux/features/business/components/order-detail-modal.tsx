@@ -522,40 +522,35 @@ export function OrderDetailModal({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-4">
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                    <h4 className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-4">Status Timeline</h4>
-                    <div className="space-y-3">
-                      {orderData.statusHistory.map((history, idx) => (
-                        <div
-                          key={history.id}
-                          className="border border-purple-150 rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs font-bold">
-                                {idx + 1}
-                              </span>
-                              <span className="font-semibold text-sm text-foreground">
-                                {getOrderStatusLabel(history.orderStatus)}
-                              </span>
-                            </div>
-                            <span className="text-xs text-muted-foreground font-medium">
-                              {dateTimeFormat(history.createdAt)}
+                  <div className="space-y-3">
+                    {orderData.statusHistory.map((history, idx) => (
+                      <div
+                        key={history.id}
+                        className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 hover:border-slate-300"
+                      >
+                        {/* Status Badge and Timestamp */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white text-xs font-bold">
+                              {idx + 1}
+                            </span>
+                            <span className="text-sm font-semibold text-foreground">
+                              {history.statusName || getOrderStatusLabel(history.orderStatus)}
                             </span>
                           </div>
-                          {history.note && (
-                            <p className="text-xs text-muted-foreground italic border-l-2 border-purple-300 pl-2 ml-8 mb-2">
-                              "{history.note}"
-                            </p>
-                          )}
-                          {history.changedByName && (
-                            <p className="text-xs text-muted-foreground ml-8">
-                              <span className="font-medium">By:</span> <span className="font-medium text-foreground">{history.changedByName}</span>
-                            </p>
-                          )}
+                          <span className="text-xs text-muted-foreground font-medium">
+                            {dateTimeFormat(history.changedAt || history.createdAt)}
+                          </span>
                         </div>
-                      ))}
-                    </div>
+
+                        {/* Note */}
+                        {history.note && (
+                          <p className="text-sm text-slate-600 border-l-3 border-blue-500 pl-3 mb-0">
+                            {history.note}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
