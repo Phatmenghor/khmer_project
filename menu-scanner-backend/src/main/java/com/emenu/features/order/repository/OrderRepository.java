@@ -106,8 +106,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
            "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
            "AND (:paymentMethod IS NULL OR o.paymentMethod = :paymentMethod) " +
            "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) " +
-           "AND (CAST(:startDate AS timestamp) IS NULL OR o.createdAt >= CAST(:startDate AS timestamp)) " +
-           "AND (CAST(:endDate AS timestamp) IS NULL OR o.createdAt <= CAST(:endDate AS timestamp)) " +
+           "AND (:startDate IS NULL OR o.createdAt >= :startDate) " +
+           "AND (:endDate IS NULL OR o.createdAt <= :endDate) " +
            "ORDER BY o.createdAt DESC")
     Page<Order> findAllWithFilters(
             @Param("businessId") UUID businessId,
