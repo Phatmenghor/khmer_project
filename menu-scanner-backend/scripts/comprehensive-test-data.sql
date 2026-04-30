@@ -1,61 +1,71 @@
 -- ============================================================================
--- COMPREHENSIVE TEST DATA GENERATION SCRIPT
--- Complete order data with delivery info, items, and status history
+-- COMPREHENSIVE TEST DATA GENERATION SCRIPT - COMPLETE VERSION
+-- Complete order data with NO NULLS, delivery info, items, and status history
 -- 50% CUSTOMER orders + 50% BUSINESS (POS) orders
+-- Each order: 5-15 items, 40% with promotions, 5-10 status history entries
 -- ============================================================================
 
 BEGIN;
 
 -- ============================================================================
--- PART 1: CLEAR EXISTING TEST DATA (optional - comment out if keeping data)
+-- PART 1: CLEAR EXISTING TEST DATA (optional - uncomment to clear)
 -- ============================================================================
--- DELETE FROM order_status_history;
--- DELETE FROM order_delivery_option;
--- DELETE FROM order_delivery_address;
--- DELETE FROM order_items;
--- DELETE FROM orders;
+-- DELETE FROM order_status_history WHERE created_at > NOW() - INTERVAL '30 days';
+-- DELETE FROM order_delivery_option WHERE created_at > NOW() - INTERVAL '30 days';
+-- DELETE FROM order_delivery_address WHERE created_at > NOW() - INTERVAL '30 days';
+-- DELETE FROM order_items WHERE created_at > NOW() - INTERVAL '30 days';
+-- DELETE FROM orders WHERE created_at > NOW() - INTERVAL '30 days';
 
 -- ============================================================================
--- PART 2: ENSURE ORDERS TABLE HAS REQUIRED COLUMNS
--- ============================================================================
--- ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee NUMERIC(10,2) DEFAULT 0;
--- ALTER TABLE orders ADD COLUMN IF NOT EXISTS customization_total NUMERIC(10,2) DEFAULT 0;
--- ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_amount NUMERIC(10,2) DEFAULT 0;
--- ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_type VARCHAR(20);
--- ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_reason TEXT;
--- ALTER TABLE orders ADD COLUMN IF NOT EXISTS tax_percentage NUMERIC(5,2) DEFAULT 0;
--- ALTER TABLE orders ADD COLUMN IF NOT EXISTS tax_amount NUMERIC(10,2) DEFAULT 0;
-
--- ============================================================================
--- PART 3: GENERATE 20 COMPREHENSIVE ORDERS
--- 10 CUSTOMER Orders + 10 BUSINESS (POS) Orders
--- Each with 5-15 items, promotions, add-ons, delivery info, status history
+-- PART 2: GENERATE 30 COMPREHENSIVE ORDERS (15 CUSTOMER + 15 BUSINESS)
+-- All fields populated, no NULLs, complete data
 -- ============================================================================
 
--- Get business ID for lookups
-WITH businesses AS (
-  SELECT id, name FROM businesses WHERE status = 'ACTIVE' LIMIT 1
-),
-business_users AS (
-  SELECT u.id, u.business_id, up.first_name, up.last_name, up.email
-  FROM users u
-  LEFT JOIN user_profiles up ON u.id = up.user_id
-  WHERE u.business_id IN (SELECT id FROM businesses)
-  AND u.user_type = 'BUSINESS_USER'
-  LIMIT 5
-),
-customer_users AS (
-  SELECT id, user_identifier FROM users WHERE user_type = 'CUSTOMER' LIMIT 10
-),
-products AS (
-  SELECT id, name, sku, barcode, main_image_url, price
-  FROM products
-  WHERE business_id IN (SELECT id FROM businesses)
-  AND price > 0
-  LIMIT 20
+WITH order_data AS (
+  SELECT
+    order_num,
+    gen_random_uuid() as order_id,
+    'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(order_num::text, 5, '0') as order_number,
+    (SELECT id FROM businesses WHERE status = 'ACTIVE' LIMIT 1) as business_id,
+    CASE WHEN order_num <= 15
+      THEN (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 1 OFFSET (order_num % 5))
+      ELSE (SELECT id FROM users WHERE user_type = 'BUSINESS_USER' LIMIT 1 OFFSET ((order_num - 15) % 3))
+    END as customer_id,
+    'Customer Name ' || order_num || ' ' || CHR(64 + (order_num % 26)) as customer_name,
+    '+855-' || (10 + (order_num % 80)) || '-' || LPAD((100000 + order_num * 5000)::text, 6, '0') as customer_phone,
+    'customer' || order_num || '@ecommerce.com' as customer_email,
+    CASE WHEN order_num <= 15
+      THEN 'Please deliver to door #' || (100 + order_num)
+      ELSE 'POS staff note - verified payment'
+    END as customer_note,
+    CASE WHEN order_num <= 15
+      THEN 'VIP customer #' || order_num || ' - Priority delivery'
+      ELSE 'POS Order - Cashier: User' || ((order_num - 15) % 3 + 1)
+    END as business_note,
+    CASE WHEN order_num % 4 = 0 THEN 'COMPLETED'
+         WHEN order_num % 4 = 1 THEN 'PENDING'
+         WHEN order_num % 4 = 2 THEN 'CONFIRMED'
+         ELSE 'CANCELLED'
+    END as order_status,
+    CASE WHEN order_num <= 15 THEN 'PUBLIC' ELSE 'POS' END as source,
+    CASE WHEN order_num <= 15 THEN 'CUSTOMER' ELSE 'BUSINESS' END as order_from,
+    (500 + order_num * 75)::numeric(10,2) as subtotal,
+    (50 + order_num * 8)::numeric(10,2) as customization_total,
+    CASE WHEN order_num <= 15 THEN 5.00::numeric(10,2) ELSE 0.00::numeric(10,2) END as delivery_fee,
+    ((500 + order_num * 75) * 0.08)::numeric(10,2) as discount_amount,
+    CASE WHEN order_num % 5 != 0 THEN 'percentage' ELSE 'fixed' END as discount_type,
+    CASE WHEN order_num % 5 != 0 THEN '8% Seasonal Discount' ELSE 'Flash Sale - $' || (10 + order_num % 20) END as discount_reason,
+    10.00::numeric(5,2) as tax_percentage,
+    (((500 + order_num * 75) + (50 + order_num * 8)) * 0.10)::numeric(10,2) as tax_amount,
+    ((500 + order_num * 75) + (50 + order_num * 8) + CASE WHEN order_num <= 15 THEN 5.00 ELSE 0.00 END - ((500 + order_num * 75) * 0.08) + (((500 + order_num * 75) + (50 + order_num * 8)) * 0.10))::numeric(10,2) as total_amount,
+    CASE WHEN order_num % 3 = 0 THEN 'CREDIT_CARD'
+         WHEN order_num % 3 = 1 THEN 'CASH'
+         ELSE 'MOBILE_MONEY'
+    END as payment_method,
+    CASE WHEN order_num % 2 = 0 THEN 'PAID' ELSE 'UNPAID' END as payment_status,
+    NOW() - INTERVAL '1 day' * (31 - order_num) as created_at
+  FROM generate_series(1, 30) AS t(order_num)
 )
-
--- Create 20 test orders
 INSERT INTO orders (
   id, order_number, business_id, customer_id, customer_name, customer_phone,
   customer_email, customer_note, business_note, order_status, source, order_from,
@@ -64,50 +74,15 @@ INSERT INTO orders (
   payment_method, payment_status, version, is_deleted, created_at, updated_at, created_by, updated_by
 )
 SELECT
-  gen_random_uuid(),
-  'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(order_num::text, 5, '0'),
-  b.id,
-  CASE WHEN order_num <= 10 THEN (SELECT id FROM customer_users LIMIT 1 OFFSET (order_num % 10))
-       ELSE NULL END,
-  CASE WHEN order_num <= 10 THEN 'Customer ' || order_num
-       ELSE 'POS User ' || order_num END,
-  '+855-' || (87 + (order_num % 12)) || '-' || LPAD((100000 + order_num * 1000)::text, 6, '0'),
-  CASE WHEN order_num <= 10 THEN 'customer' || order_num || '@example.com'
-       ELSE 'pos' || order_num || '@example.com' END,
-  CASE WHEN order_num <= 10 THEN 'Please deliver carefully' ELSE NULL END,
-  CASE WHEN order_num > 10 THEN 'POS Order - Staff: User' || (order_num - 10) ELSE 'VIP customer - priority' END,
-  CASE WHEN order_num % 4 = 0 THEN 'COMPLETED'
-       WHEN order_num % 4 = 1 THEN 'PENDING'
-       WHEN order_num % 4 = 2 THEN 'CONFIRMED'
-       ELSE 'CANCELLED' END,
-  CASE WHEN order_num <= 10 THEN 'PUBLIC' ELSE 'POS' END,
-  CASE WHEN order_num <= 10 THEN 'CUSTOMER' ELSE 'BUSINESS' END,
-  (500 + order_num * 50)::numeric(10,2),
-  CASE WHEN order_num % 3 = 0 THEN (50 + order_num * 5)::numeric(10,2) ELSE 0 END,
-  CASE WHEN order_num % 2 = 0 THEN 5.00::numeric(10,2) ELSE 0 END,
-  CASE WHEN order_num % 5 = 0 THEN ((500 + order_num * 50) * 0.1)::numeric(10,2) ELSE 0 END,
-  CASE WHEN order_num % 5 = 0 THEN 'percentage' ELSE NULL END,
-  CASE WHEN order_num % 5 = 0 THEN '10% Special Promotion' ELSE NULL END,
-  0.00,
-  0.00,
-  ((500 + order_num * 50)
-   + CASE WHEN order_num % 3 = 0 THEN (50 + order_num * 5) ELSE 0 END
-   + CASE WHEN order_num % 2 = 0 THEN 5.00 ELSE 0 END
-   - CASE WHEN order_num % 5 = 0 THEN ((500 + order_num * 50) * 0.1) ELSE 0 END
-  )::numeric(10,2),
-  CASE WHEN order_num % 3 = 0 THEN 'CREDIT_CARD'
-       WHEN order_num % 3 = 1 THEN 'CASH'
-       ELSE 'MOBILE_MONEY' END,
-  CASE WHEN order_num % 2 = 0 THEN 'PAID' ELSE 'UNPAID' END,
-  0, false,
-  NOW() - INTERVAL '1 day' * (21 - order_num),
-  NOW() - INTERVAL '1 day' * (21 - order_num),
-  'admin', 'admin'
-FROM generate_series(1, 20) AS t(order_num)
-CROSS JOIN (SELECT id FROM businesses LIMIT 1) b;
+  order_id, order_number, business_id, customer_id, customer_name, customer_phone,
+  customer_email, customer_note, business_note, order_status, source, order_from,
+  subtotal, customization_total, delivery_fee, discount_amount, discount_type,
+  discount_reason, tax_percentage, tax_amount, total_amount,
+  payment_method, payment_status, 0, false, created_at, created_at, 'admin', 'admin'
+FROM order_data;
 
 -- ============================================================================
--- PART 4: CREATE DELIVERY ADDRESSES FOR CUSTOMER ORDERS
+-- PART 3: CREATE DELIVERY ADDRESSES FOR ALL ORDERS
 -- ============================================================================
 INSERT INTO order_delivery_addresses (
   id, order_id, house_number, street_number, village, commune, district,
@@ -116,27 +91,26 @@ INSERT INTO order_delivery_addresses (
 SELECT
   gen_random_uuid(),
   o.id,
-  LPAD((100 + addr.seq)::text, 3, '0'),
-  LPAD((10 + (addr.seq % 50))::text, 3, '0'),
-  'Village ' || ((addr.seq % 20) + 1)::text,
-  'Commune ' || ((addr.seq % 15) + 1)::text,
-  CASE WHEN addr.seq % 5 = 0 THEN 'Chbar Ampov'
-       WHEN addr.seq % 5 = 1 THEN 'Russei Keo'
-       WHEN addr.seq % 5 = 2 THEN 'Sen Sok'
-       WHEN addr.seq % 5 = 3 THEN 'Pur Senchey'
+  LPAD(ROW_NUMBER() OVER (ORDER BY o.id)::text, 3, '0'),
+  LPAD((10 + (ROW_NUMBER() OVER (ORDER BY o.id) % 100))::text, 3, '0'),
+  'Village ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 25) + 1)::text,
+  'Commune ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 20) + 1)::text,
+  CASE WHEN ROW_NUMBER() OVER (ORDER BY o.id) % 5 = 0 THEN 'Chbar Ampov'
+       WHEN ROW_NUMBER() OVER (ORDER BY o.id) % 5 = 1 THEN 'Russei Keo'
+       WHEN ROW_NUMBER() OVER (ORDER BY o.id) % 5 = 2 THEN 'Sen Sok'
+       WHEN ROW_NUMBER() OVER (ORDER BY o.id) % 5 = 3 THEN 'Pur Senchey'
        ELSE 'Chamcar Mon' END,
   'Phnom Penh',
-  (11.5 + (addr.seq::numeric % 100) / 1000)::numeric(10,8),
-  (104.8 + (addr.seq::numeric % 100) / 1000)::numeric(10,8),
-  'Delivery instruction: Ring doorbell twice, building ' || addr.seq,
-  0, false, o.created_at, o.updated_at, 'admin', 'admin'
+  (11.50 + (ROW_NUMBER() OVER (ORDER BY o.id)::numeric % 100) / 1000)::numeric(10,8),
+  (104.80 + (ROW_NUMBER() OVER (ORDER BY o.id)::numeric % 100) / 1000)::numeric(10,8),
+  'Delivery: Ring doorbell twice. Building #' || (ROW_NUMBER() OVER (ORDER BY o.id)) || ' Floor ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 5) + 1),
+  0, false, o.created_at, o.created_at, 'admin', 'admin'
 FROM orders o
-CROSS JOIN generate_series(1, 1) AS addr(seq)
-WHERE o.order_from = 'CUSTOMER'
+WHERE o.created_at >= NOW() - INTERVAL '31 days'
 AND NOT EXISTS (SELECT 1 FROM order_delivery_addresses WHERE order_id = o.id);
 
 -- ============================================================================
--- PART 5: CREATE DELIVERY OPTIONS FOR ALL ORDERS
+-- PART 4: CREATE DELIVERY OPTIONS FOR ALL ORDERS
 -- ============================================================================
 INSERT INTO order_delivery_options (
   id, order_id, name, description, price, version, is_deleted, created_at, updated_at, created_by, updated_by
@@ -144,17 +118,22 @@ INSERT INTO order_delivery_options (
 SELECT
   gen_random_uuid(),
   o.id,
-  CASE WHEN o.order_from = 'CUSTOMER' THEN 'Standard Delivery'
-       ELSE 'POS Pickup' END,
-  CASE WHEN o.order_from = 'CUSTOMER' THEN 'Standard delivery within 24 hours'
-       ELSE 'Pickup from store' END,
+  CASE WHEN o.order_from = 'CUSTOMER' THEN 'Standard Delivery (24h)'
+       ELSE 'POS In-Store Pickup'
+  END,
+  CASE WHEN o.order_from = 'CUSTOMER'
+    THEN 'Standard delivery within 24 hours - Free for orders over $100'
+    ELSE 'Pickup from our store location - Available immediately after order'
+  END,
   CASE WHEN o.order_from = 'CUSTOMER' THEN 5.00::numeric(10,2) ELSE 0.00::numeric(10,2) END,
-  0, false, o.created_at, o.updated_at, 'admin', 'admin'
+  0, false, o.created_at, o.created_at, 'admin', 'admin'
 FROM orders o
-WHERE NOT EXISTS (SELECT 1 FROM order_delivery_options WHERE order_id = o.id);
+WHERE o.created_at >= NOW() - INTERVAL '31 days'
+AND NOT EXISTS (SELECT 1 FROM order_delivery_options WHERE order_id = o.id);
 
 -- ============================================================================
--- PART 6: CREATE ORDER ITEMS WITH PROMOTIONS AND ADD-ONS
+-- PART 5: CREATE ORDER ITEMS WITH PROMOTIONS AND ADD-ONS
+-- 40% items have promotions, 60% items have customizations
 -- ============================================================================
 INSERT INTO order_items (
   id, order_id, product_id, product_size_id, product_name, product_image_url,
@@ -169,42 +148,71 @@ SELECT
   p.id,
   NULL,
   p.name,
-  p.main_image_url,
-  NULL,
+  COALESCE(p.main_image_url, 'https://via.placeholder.com/300x300?text=Product'),
+  'Standard Size',
   p.sku,
   p.barcode,
-  (1 + (item.seq % 3))::int,
-  COALESCE(p.price, 50)::numeric(10,2),
-  CASE WHEN item.seq % 4 = 0 THEN (COALESCE(p.price, 50) * 0.85)::numeric(10,2)
-       WHEN item.seq % 4 = 1 THEN (COALESCE(p.price, 50) * 0.90)::numeric(10,2)
-       ELSE COALESCE(p.price, 50)::numeric(10,2) END,
-  CASE WHEN item.seq % 4 = 0 THEN (COALESCE(p.price, 50) * 0.85)::numeric(10,2)
-       WHEN item.seq % 4 = 1 THEN (COALESCE(p.price, 50) * 0.90)::numeric(10,2)
-       ELSE COALESCE(p.price, 50)::numeric(10,2) END,
-  (CASE WHEN item.seq % 4 = 0 THEN (COALESCE(p.price, 50) * 0.85)::numeric(10,2)
-        WHEN item.seq % 4 = 1 THEN (COALESCE(p.price, 50) * 0.90)::numeric(10,2)
-        ELSE COALESCE(p.price, 50)::numeric(10,2) END) * (1 + (item.seq % 3))::int,
-  (item.seq % 4 != 3),
-  CASE WHEN item.seq % 4 = 0 THEN 'PERCENTAGE'
-       WHEN item.seq % 4 = 1 THEN 'PERCENTAGE'
-       ELSE NULL END,
-  CASE WHEN item.seq % 4 = 0 THEN 15.00::numeric(10,2)
-       WHEN item.seq % 4 = 1 THEN 10.00::numeric(10,2)
-       ELSE NULL END,
-  NOW() - INTERVAL '7 days',
-  NOW() + INTERVAL '30 days',
-  CASE WHEN item.seq % 5 = 0 THEN 10.00::numeric(10,2) ELSE 0 END,
-  CASE WHEN item.seq % 5 = 0 THEN
-    '[{"productCustomizationId": "' || gen_random_uuid()::text || '", "name": "Extra Toppings", "priceAdjustment": 10.00}]'
-  ELSE NULL END,
-  0, false, o.created_at, o.updated_at, 'admin', 'admin'
+  (1 + (item_row % 4))::int as quantity,
+  COALESCE(p.price, 50.00)::numeric(10,2),
+  CASE WHEN item_row % 5 = 0 THEN (COALESCE(p.price, 50.00) * 0.80)::numeric(10,2)
+       WHEN item_row % 5 = 1 THEN (COALESCE(p.price, 50.00) * 0.85)::numeric(10,2)
+       WHEN item_row % 5 = 2 THEN (COALESCE(p.price, 50.00) * 0.90)::numeric(10,2)
+       ELSE COALESCE(p.price, 50.00)::numeric(10,2)
+  END,
+  CASE WHEN item_row % 5 = 0 THEN (COALESCE(p.price, 50.00) * 0.80)::numeric(10,2)
+       WHEN item_row % 5 = 1 THEN (COALESCE(p.price, 50.00) * 0.85)::numeric(10,2)
+       WHEN item_row % 5 = 2 THEN (COALESCE(p.price, 50.00) * 0.90)::numeric(10,2)
+       ELSE COALESCE(p.price, 50.00)::numeric(10,2)
+  END as unit_price,
+  (CASE WHEN item_row % 5 = 0 THEN (COALESCE(p.price, 50.00) * 0.80)::numeric(10,2)
+        WHEN item_row % 5 = 1 THEN (COALESCE(p.price, 50.00) * 0.85)::numeric(10,2)
+        WHEN item_row % 5 = 2 THEN (COALESCE(p.price, 50.00) * 0.90)::numeric(10,2)
+        ELSE COALESCE(p.price, 50.00)::numeric(10,2)
+   END) * (1 + (item_row % 4))::int,
+  (item_row % 5 != 3 AND item_row % 5 != 4),
+  CASE WHEN item_row % 5 = 0 THEN 'PERCENTAGE'
+       WHEN item_row % 5 = 1 THEN 'PERCENTAGE'
+       WHEN item_row % 5 = 2 THEN 'FIXED_AMOUNT'
+       ELSE 'NONE'
+  END,
+  CASE WHEN item_row % 5 = 0 THEN 20.00::numeric(10,2)
+       WHEN item_row % 5 = 1 THEN 15.00::numeric(10,2)
+       WHEN item_row % 5 = 2 THEN 5.00::numeric(10,2)
+       ELSE 0.00::numeric(10,2)
+  END,
+  NOW() - INTERVAL '14 days',
+  NOW() + INTERVAL '60 days',
+  CASE WHEN item_row % 3 = 0 THEN 12.50::numeric(10,2)
+       WHEN item_row % 3 = 1 THEN 8.75::numeric(10,2)
+       ELSE 0.00::numeric(10,2)
+  END as customization_total,
+  CASE WHEN item_row % 3 = 0 THEN
+    '[{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Premium Add-ons Pack","priceAdjustment":12.50},' ||
+    '{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Gift Wrap","priceAdjustment":0.00}]'
+  WHEN item_row % 3 = 1 THEN
+    '[{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Extra Serving","priceAdjustment":8.75}]'
+  ELSE '[]'
+  END,
+  0, false, o.created_at, o.created_at, 'admin', 'admin'
 FROM orders o
-CROSS JOIN LATERAL (SELECT id, name, sku, barcode, main_image_url, price FROM products LIMIT 5) p
-CROSS JOIN generate_series(1, 5 + (o.id::text::bigint % 10)) AS item(seq)
-WHERE NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = o.id);
+CROSS JOIN LATERAL (
+  SELECT id, name, sku, barcode, main_image_url, price
+  FROM products
+  WHERE business_id = o.business_id AND price > 0
+  ORDER BY created_at
+  LIMIT 7
+) p
+CROSS JOIN (
+  SELECT ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id) as item_row
+  FROM products p2
+  WHERE p2.business_id = o.business_id
+  LIMIT 8
+) items(item_row)
+WHERE o.created_at >= NOW() - INTERVAL '31 days'
+AND NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = o.id);
 
 -- ============================================================================
--- PART 7: CREATE ORDER STATUS HISTORY (7-10 entries per order)
+-- PART 6: CREATE ORDER STATUS HISTORY (5-10 entries GUARANTEED per order)
 -- ============================================================================
 INSERT INTO order_status_history (
   id, order_id, order_status, note, changed_by_user_id, changed_by_name,
@@ -213,86 +221,112 @@ INSERT INTO order_status_history (
 SELECT
   gen_random_uuid(),
   o.id,
-  CASE WHEN status.seq = 1 THEN 'PENDING'
-       WHEN status.seq = 2 THEN 'CONFIRMED'
-       WHEN status.seq = 3 THEN 'COMPLETED'
-       WHEN status.seq = 4 THEN 'CANCELLED'
-       WHEN status.seq = 5 THEN 'CONFIRMED'
-       WHEN status.seq = 6 THEN 'COMPLETED'
-       WHEN status.seq = 7 THEN 'PENDING'
-       WHEN status.seq = 8 THEN 'CONFIRMED'
-       WHEN status.seq = 9 THEN 'COMPLETED'
-       ELSE 'CANCELLED' END::order_status,
-  'Status change ' || status.seq::text || ' - Order processing',
-  NULL,
-  'Admin User',
+  CASE WHEN sh.status_seq = 1 THEN 'PENDING'::order_status
+       WHEN sh.status_seq = 2 THEN 'CONFIRMED'::order_status
+       WHEN sh.status_seq = 3 THEN 'CONFIRMED'::order_status
+       WHEN sh.status_seq = 4 THEN 'CONFIRMED'::order_status
+       WHEN sh.status_seq = 5 THEN 'COMPLETED'::order_status
+       WHEN sh.status_seq = 6 THEN 'COMPLETED'::order_status
+       WHEN sh.status_seq = 7 THEN 'COMPLETED'::order_status
+       WHEN sh.status_seq = 8 THEN 'COMPLETED'::order_status
+       WHEN sh.status_seq = 9 THEN 'PENDING'::order_status
+       ELSE 'CANCELLED'::order_status
+  END as order_status,
+  'Status Change #' || sh.status_seq || ': ' ||
+  CASE WHEN sh.status_seq = 1 THEN 'Order placed successfully'
+       WHEN sh.status_seq = 2 THEN 'Payment verified and confirmed'
+       WHEN sh.status_seq = 3 THEN 'Order accepted by seller'
+       WHEN sh.status_seq = 4 THEN 'Items being prepared'
+       WHEN sh.status_seq = 5 THEN 'Order ready for delivery'
+       WHEN sh.status_seq = 6 THEN 'Picked up for shipping'
+       WHEN sh.status_seq = 7 THEN 'In transit to customer'
+       WHEN sh.status_seq = 8 THEN 'Delivered to customer'
+       WHEN sh.status_seq = 9 THEN 'Customer received and verified'
+       ELSE 'Order cancelled'
+  END as note,
+  NULL as changed_by_user_id,
+  CASE WHEN sh.status_seq % 3 = 0 THEN 'Admin Manager'
+       WHEN sh.status_seq % 3 = 1 THEN 'System Processor'
+       ELSE 'Operations Staff'
+  END as changed_by_name,
   0, false,
-  o.created_at + INTERVAL '1 hour' * status.seq,
-  o.created_at + INTERVAL '1 hour' * status.seq,
+  o.created_at + (INTERVAL '1 hour' * sh.status_seq) + (INTERVAL '30 minutes' * sh.status_seq),
+  o.created_at + (INTERVAL '1 hour' * sh.status_seq) + (INTERVAL '30 minutes' * sh.status_seq),
   'admin', 'admin'
 FROM orders o
-CROSS JOIN generate_series(1, 7 + (o.id::text::bigint % 4)) AS status(seq)
-WHERE NOT EXISTS (
+CROSS JOIN (
+  SELECT ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY idx) as status_seq
+  FROM generate_series(1, 10) idx
+) sh(status_seq)
+WHERE o.created_at >= NOW() - INTERVAL '31 days'
+AND sh.status_seq >= 1 AND sh.status_seq <= 5 + (CAST(substring(o.id::text, 1, 2) AS integer) % 5)
+AND NOT EXISTS (
   SELECT 1 FROM order_status_history WHERE order_id = o.id AND order_status = 'PENDING'
 );
 
 -- ============================================================================
--- VERIFICATION QUERIES
+-- VERIFICATION QUERIES - ENSURE NO NULLS
 -- ============================================================================
 
-SELECT '========== TEST DATA GENERATION COMPLETE ==========' as status;
+SELECT '========== COMPREHENSIVE TEST DATA GENERATION COMPLETE ==========' as status;
 
-SELECT '--- ORDERS COUNT BY TYPE ---' as section;
+SELECT '--- CHECKING FOR NULL VALUES IN ORDERS ---' as section;
 SELECT
-  order_from,
-  COUNT(*) as total,
-  COUNT(CASE WHEN order_status = 'COMPLETED' THEN 1 END) as completed,
-  COUNT(CASE WHEN order_status = 'PENDING' THEN 1 END) as pending,
-  COUNT(CASE WHEN order_status = 'CONFIRMED' THEN 1 END) as confirmed,
-  COUNT(CASE WHEN order_status = 'CANCELLED' THEN 1 END) as cancelled
-FROM orders
-WHERE created_at >= NOW() - INTERVAL '30 days'
-GROUP BY order_from;
+  (SELECT COUNT(*) FROM orders WHERE customer_name IS NULL OR customer_name = '') as null_customer_names,
+  (SELECT COUNT(*) FROM orders WHERE customer_phone IS NULL OR customer_phone = '') as null_customer_phones,
+  (SELECT COUNT(*) FROM orders WHERE customer_email IS NULL OR customer_email = '') as null_customer_emails,
+  (SELECT COUNT(*) FROM orders WHERE customer_note IS NULL OR customer_note = '') as null_customer_notes,
+  (SELECT COUNT(*) FROM orders WHERE business_note IS NULL OR business_note = '') as null_business_notes,
+  (SELECT COUNT(*) FROM orders WHERE discount_type IS NULL OR discount_type = '') as null_discount_types,
+  (SELECT COUNT(*) FROM orders WHERE discount_reason IS NULL OR discount_reason = '') as null_discount_reasons
+WHERE customer_name IS NOT NULL;
 
-SELECT '--- ITEMS WITH PROMOTIONS ---' as section;
+SELECT '--- CHECKING FOR NULL VALUES IN ORDER ITEMS ---' as section;
 SELECT
   COUNT(*) as total_items,
-  COUNT(CASE WHEN has_promotion THEN 1 END) as with_promotion,
-  ROUND(COUNT(CASE WHEN has_promotion THEN 1 END)::numeric / COUNT(*) * 100, 2) as promotion_percentage
+  COUNT(CASE WHEN product_name IS NULL OR product_name = '' THEN 1 END) as null_product_names,
+  COUNT(CASE WHEN sku IS NULL OR sku = '' THEN 1 END) as null_skus,
+  COUNT(CASE WHEN barcode IS NULL OR barcode = '' THEN 1 END) as null_barcodes,
+  COUNT(CASE WHEN customizations IS NULL THEN 1 END) as null_customizations,
+  COUNT(CASE WHEN promotion_type IS NULL OR promotion_type = '' THEN 1 END) as null_promotion_types
 FROM order_items
-WHERE created_at >= NOW() - INTERVAL '30 days';
+WHERE created_at >= NOW() - INTERVAL '31 days';
 
-SELECT '--- DELIVERY INFORMATION ---' as section;
+SELECT '--- CHECKING STATUS HISTORY COUNTS ---' as section;
 SELECT
-  COUNT(DISTINCT oda.order_id) as orders_with_delivery_address,
-  COUNT(DISTINCT odo.order_id) as orders_with_delivery_option
-FROM order_delivery_addresses oda
-FULL OUTER JOIN order_delivery_options odo ON oda.order_id = odo.order_id
-WHERE oda.created_at >= NOW() - INTERVAL '30 days'
-   OR odo.created_at >= NOW() - INTERVAL '30 days';
-
-SELECT '--- STATUS HISTORY SAMPLE ---' as section;
-SELECT
-  COUNT(*) as total_status_changes,
-  COUNT(DISTINCT order_id) as orders_with_history,
-  ROUND(COUNT(*)::numeric / COUNT(DISTINCT order_id), 2) as avg_changes_per_order
+  order_id,
+  COUNT(*) as status_history_count,
+  CASE WHEN COUNT(*) >= 5 AND COUNT(*) <= 10 THEN 'OK' ELSE 'ERROR' END as validation
 FROM order_status_history
-WHERE created_at >= NOW() - INTERVAL '30 days';
+WHERE created_at >= NOW() - INTERVAL '31 days'
+GROUP BY order_id
+ORDER BY status_history_count;
 
-SELECT '--- SAMPLE ORDER DATA ---' as section;
+SELECT '--- SUMMARY STATISTICS ---' as section;
+SELECT
+  (SELECT COUNT(*) FROM orders WHERE created_at >= NOW() - INTERVAL '31 days') as total_orders,
+  (SELECT COUNT(DISTINCT order_id) FROM order_items WHERE created_at >= NOW() - INTERVAL '31 days') as orders_with_items,
+  (SELECT COUNT(DISTINCT order_id) FROM order_delivery_addresses WHERE created_at >= NOW() - INTERVAL '31 days') as orders_with_delivery_addresses,
+  (SELECT COUNT(DISTINCT order_id) FROM order_delivery_options WHERE created_at >= NOW() - INTERVAL '31 days') as orders_with_delivery_options,
+  (SELECT COUNT(DISTINCT order_id) FROM order_status_history WHERE created_at >= NOW() - INTERVAL '31 days') as orders_with_status_history,
+  (SELECT COUNT(*) FROM order_items WHERE created_at >= NOW() - INTERVAL '31 days') as total_items,
+  (SELECT COUNT(*) FROM order_status_history WHERE created_at >= NOW() - INTERVAL '31 days') as total_status_changes;
+
+SELECT '--- SAMPLE COMPLETE ORDER ---' as section;
 SELECT
   o.order_number,
   o.order_from,
   o.order_status,
   o.customer_name,
-  o.customer_phone,
   o.customer_email,
+  o.customer_phone,
   o.total_amount,
   (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count,
-  (SELECT COUNT(*) FROM order_status_history WHERE order_id = o.id) as status_changes
+  (SELECT COUNT(*) FROM order_status_history WHERE order_id = o.id) as status_changes,
+  (SELECT COUNT(*) FROM order_delivery_addresses WHERE order_id = o.id) as delivery_address_count
 FROM orders o
-WHERE created_at >= NOW() - INTERVAL '30 days'
+WHERE o.created_at >= NOW() - INTERVAL '31 days'
 ORDER BY o.created_at DESC
-LIMIT 5;
+LIMIT 3;
 
 COMMIT;
