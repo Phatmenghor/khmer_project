@@ -808,15 +808,15 @@ SELECT
   CASE WHEN item_row % 5 = 0 THEN 'PERCENTAGE'
        WHEN item_row % 5 = 1 THEN 'PERCENTAGE'
        WHEN item_row % 5 = 2 THEN 'FIXED_AMOUNT'
-       ELSE 'NONE'
+       ELSE NULL
   END,
   CASE WHEN item_row % 5 = 0 THEN 20.00::numeric(10,2)
        WHEN item_row % 5 = 1 THEN 15.00::numeric(10,2)
        WHEN item_row % 5 = 2 THEN 5.00::numeric(10,2)
-       ELSE 0.00::numeric(10,2)
+       ELSE NULL
   END,
-  NOW() - INTERVAL '14 days',
-  NOW() + INTERVAL '60 days',
+  CASE WHEN item_row % 5 < 3 THEN NOW() - INTERVAL '14 days' ELSE NULL END,
+  CASE WHEN item_row % 5 < 3 THEN NOW() + INTERVAL '60 days' ELSE NULL END,
   CASE WHEN item_row % 3 = 0 THEN 12.50::numeric(10,2)
        WHEN item_row % 3 = 1 THEN 8.75::numeric(10,2)
        ELSE 0.00::numeric(10,2)
