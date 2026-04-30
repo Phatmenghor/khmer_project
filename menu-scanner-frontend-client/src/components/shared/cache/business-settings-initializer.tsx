@@ -4,8 +4,8 @@ import { useBusinessSettingsCache } from "@/hooks/use-business-settings-cache";
 
 /**
  * Initializes business settings cache on app startup
+ * Only runs if user is authenticated (has access token)
  * Ensures cache is populated before Footer renders (no color flash)
- * Runs silently in background
  */
 export function BusinessSettingsInitializer() {
   // Get business ID from localStorage or use default
@@ -23,7 +23,23 @@ export function BusinessSettingsInitializer() {
     return "550cad56-cafd-4aba-baef-c4dcd53940d0";
   };
 
-  // Initialize cache immediately on mount
+  // Check if user is authenticated (has token)
+  const hasToken = () => {
+    if (typeof window === "undefined") return false;
+    try {
+      const token = localStorage.getItem("accessToken");
+      return !!token;
+    } catch {
+      return false;
+    }
+  };
+
+  // Only initialize cache if user is authenticated
+  if (!hasToken()) {
+    return null;
+  }
+
+  // Initialize cache immediately on mount (only for authenticated users)
   useBusinessSettingsCache({
     businessId: getBusinessIdFromStorage(),
     onSettingsUpdate: (newSettings) => {
@@ -33,6 +49,5 @@ export function BusinessSettingsInitializer() {
     },
   });
 
-  // This component doesn't render anything
   return null;
 }

@@ -52,8 +52,13 @@ export const useBusinessSettingsCache = ({
             } else {
               console.log("✓ No changes - cache still valid");
             }
-          } catch (error) {
-            console.error("⚠️ Background API verification failed:", error);
+          } catch (error: any) {
+            // Silently ignore 401 errors (not authenticated yet)
+            if (error?.response?.status === 401) {
+              console.log("ℹ️ User not authenticated yet, using cached settings");
+            } else {
+              console.error("⚠️ Background API verification failed:", error);
+            }
             // Keep using cached settings on error
           } finally {
             apiCallInProgressRef.current = false;
