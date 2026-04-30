@@ -744,8 +744,16 @@ export default function ProductDetailPage() {
                   i === lightboxIndex ? "ring-2 ring-white scale-110" : "opacity-40 hover:opacity-80"
                 )}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)} alt={`${i + 1}`} className="w-full h-full object-cover" />
+                <Image
+                  src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
+                  alt={`${i + 1}`}
+                  width={56}
+                  height={56}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = appImages.NoImage;
+                  }}
+                />
               </button>
             ))}
           </div>

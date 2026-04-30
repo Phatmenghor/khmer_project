@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -106,9 +107,18 @@ export default function ResetPasswordModal({
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden relative">
                     {profileImageUrl ? (
-                      <img src={profileImageUrl} alt={userName} className="w-full h-full object-cover" />
+                      <Image
+                        src={profileImageUrl}
+                        alt={userName}
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = "/assets/image/no-image.png";
+                        }}
+                      />
                     ) : (
                       <span className="text-sm font-semibold text-primary">
                         {userName?.charAt(0)?.toUpperCase() || "U"}

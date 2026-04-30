@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, {
   useEffect,
   useCallback,
@@ -161,7 +162,15 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
         {images.map((img, idx) => (
           <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border bg-muted cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setLightbox(img.imageUrl)}>
-            <img src={img.imageUrl} alt={`Location ${idx + 1}`} className="w-full h-full object-cover" />
+            <Image
+              src={img.imageUrl}
+              alt={`Location ${idx + 1}`}
+              fill
+              className="object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+              }}
+            />
             {!disabled && (
               <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(idx); }} className="absolute top-0.5 right-0.5 rounded-full bg-destructive/90 text-white p-0.5 hover:bg-destructive transition-colors">
                 <X className="h-3 w-3" />
