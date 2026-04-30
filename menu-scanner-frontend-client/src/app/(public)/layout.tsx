@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
-import { Footer } from "@/components/layout/footer";
+import { FooterLazy as Footer } from "@/components/layout/footer-lazy";
 import { Navbar } from "@/components/layout/navbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
