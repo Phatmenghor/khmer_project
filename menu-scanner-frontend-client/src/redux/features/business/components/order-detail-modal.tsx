@@ -297,9 +297,7 @@ export function OrderDetailModal({
                   {orderData.items.map((item, idx) => (
                     <div
                       key={item.id}
-                      className={`p-4 border rounded-lg bg-gray-50 ${
-                        item.hasPromotion ? "border-red-400 border-2" : "border-gray-200"
-                      }`}
+                      className="p-4 border rounded-lg bg-gray-50 border-gray-200"
                     >
                       {/* Product Image and Header */}
                       <div className="mb-3">
@@ -316,9 +314,16 @@ export function OrderDetailModal({
                           )}
                           {/* Product Name and Details */}
                           <div className="flex-1">
-                            <h4 className="font-semibold text-sm">
-                              #{idx + 1} - {item.product?.name || "Unknown"}
-                            </h4>
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <h4 className="font-semibold text-sm">
+                                #{idx + 1} - {item.product?.name || "Unknown"}
+                              </h4>
+                              {item.hasPromotion && (
+                                <span className="inline-flex items-center gap-1 bg-transparent border border-red-500 text-red-600 px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                                  🔥 {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
+                                </span>
+                              )}
+                            </div>
                             {/* Size, SKU, and Barcode */}
                             <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                               {item.product?.sizeName && (
