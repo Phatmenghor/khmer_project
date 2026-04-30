@@ -19,7 +19,16 @@ public abstract class OrderItemMapper {
 
     @Mapping(target = "product", expression = "java(mapProductInfo(orderItem))")
     @Mapping(target = "customizations", expression = "java(mapCustomizations(orderItem))")
+    @Mapping(target = "quantity", source = "quantity")
+    @Mapping(target = "currentPrice", source = "currentPrice")
+    @Mapping(target = "finalPrice", source = "finalPrice")
+    @Mapping(target = "totalPrice", source = "totalPrice")
     @Mapping(target = "customizationTotal", source = "customizationTotal")
+    @Mapping(target = "hasPromotion", source = "hasPromotion")
+    @Mapping(target = "promotionType", source = "promotionType")
+    @Mapping(target = "promotionValue", source = "promotionValue")
+    @Mapping(target = "promotionFromDate", source = "promotionFromDate")
+    @Mapping(target = "promotionToDate", source = "promotionToDate")
     public abstract OrderItemResponse toResponse(OrderItem orderItem);
 
     public abstract List<OrderItemResponse> toResponseList(List<OrderItem> orderItems);
