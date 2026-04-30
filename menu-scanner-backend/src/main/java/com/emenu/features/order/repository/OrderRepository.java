@@ -100,7 +100,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
            "LEFT JOIN businesses b ON b.id = o.business_id " +
            "LEFT JOIN users c ON c.id = o.customer_id " +
            "LEFT JOIN order_delivery_addresses da ON o.id = da.order_id " +
-           "LEFT JOIN order_delivery_options do ON o.id = do.order_id " +
+           "LEFT JOIN order_delivery_options dopt ON o.id = dopt.order_id " +
            "WHERE o.is_deleted = false " +
            "AND (CAST(:businessId AS uuid) IS NULL OR o.business_id = CAST(:businessId AS uuid)) " +
            "AND (:orderStatus IS NULL OR o.order_status = :orderStatus) " +
