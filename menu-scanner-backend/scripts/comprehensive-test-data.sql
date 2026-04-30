@@ -8,7 +8,31 @@
 BEGIN;
 
 -- ============================================================================
--- PART 1: CLEAR EXISTING TEST DATA (optional - uncomment to clear)
+-- PART 1: ENSURE BUSINESSES EXIST AND GET THE FIRST ONE
+-- ============================================================================
+
+-- Get or create a business
+DO $$
+DECLARE
+  business_count INT;
+BEGIN
+  SELECT COUNT(*) INTO business_count FROM businesses WHERE status = 'ACTIVE';
+
+  IF business_count = 0 THEN
+    INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
+      'Test Business',
+      '+855-12-345-678',
+      'test@example.com',
+      'Phnom Penh, Cambodia',
+      'ACTIVE', true, 0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+  END IF;
+END $$;
+
+-- ============================================================================
+-- PART 2: CLEAR EXISTING TEST DATA (optional - uncomment to clear)
 -- ============================================================================
 -- DELETE FROM order_status_history WHERE created_at > NOW() - INTERVAL '30 days';
 -- DELETE FROM order_delivery_option WHERE created_at > NOW() - INTERVAL '30 days';
@@ -17,19 +41,22 @@ BEGIN;
 -- DELETE FROM orders WHERE created_at > NOW() - INTERVAL '30 days';
 
 -- ============================================================================
--- PART 2: GENERATE 30 COMPREHENSIVE ORDERS (15 CUSTOMER + 15 BUSINESS)
+-- PART 3: GET BUSINESS ID AND GENERATE 30 COMPREHENSIVE ORDERS
 -- All fields populated, no NULLs, complete data
 -- ============================================================================
 
-WITH order_data AS (
+WITH business_id_cte AS (
+  SELECT id FROM businesses WHERE status = 'ACTIVE' LIMIT 1
+),
+order_data AS (
   SELECT
     order_num,
     gen_random_uuid() as order_id,
     'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(order_num::text, 5, '0') as order_number,
-    (SELECT id FROM businesses WHERE status = 'ACTIVE' LIMIT 1) as business_id,
+    (SELECT id FROM business_id_cte) as business_id,
     CASE WHEN order_num <= 15
-      THEN (SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 1 OFFSET (order_num % 5))
-      ELSE (SELECT id FROM users WHERE user_type = 'BUSINESS_USER' LIMIT 1 OFFSET ((order_num - 15) % 3))
+      THEN COALESCE((SELECT id FROM users WHERE user_type = 'CUSTOMER' LIMIT 1 OFFSET (order_num % 5)), gen_random_uuid())
+      ELSE COALESCE((SELECT id FROM users WHERE user_type = 'BUSINESS_USER' LIMIT 1 OFFSET ((order_num - 15) % 3)), gen_random_uuid())
     END as customer_id,
     'Customer Name ' || order_num || ' ' || CHR(64 + (order_num % 26)) as customer_name,
     '+855-' || (10 + (order_num % 80)) || '-' || LPAD((100000 + order_num * 5000)::text, 6, '0') as customer_phone,
@@ -79,10 +106,11 @@ SELECT
   subtotal, customization_total, delivery_fee, discount_amount, discount_type,
   discount_reason, tax_percentage, tax_amount, total_amount,
   payment_method, payment_status, 0, false, created_at, created_at, 'admin', 'admin'
-FROM order_data;
+FROM order_data
+WHERE business_id IS NOT NULL;
 
 -- ============================================================================
--- PART 3: CREATE DELIVERY ADDRESSES FOR ALL ORDERS
+-- PART 4: CREATE DELIVERY ADDRESSES FOR ALL ORDERS
 -- ============================================================================
 INSERT INTO order_delivery_addresses (
   id, order_id, house_number, street_number, village, commune, district,
@@ -110,7 +138,7 @@ WHERE o.created_at >= NOW() - INTERVAL '31 days'
 AND NOT EXISTS (SELECT 1 FROM order_delivery_addresses WHERE order_id = o.id);
 
 -- ============================================================================
--- PART 4: CREATE DELIVERY OPTIONS FOR ALL ORDERS
+-- PART 5: CREATE DELIVERY OPTIONS FOR ALL ORDERS
 -- ============================================================================
 INSERT INTO order_delivery_options (
   id, order_id, name, description, price, version, is_deleted, created_at, updated_at, created_by, updated_by
@@ -132,7 +160,7 @@ WHERE o.created_at >= NOW() - INTERVAL '31 days'
 AND NOT EXISTS (SELECT 1 FROM order_delivery_options WHERE order_id = o.id);
 
 -- ============================================================================
--- PART 5: CREATE ORDER ITEMS WITH PROMOTIONS AND ADD-ONS
+-- PART 6: CREATE ORDER ITEMS WITH PROMOTIONS AND ADD-ONS
 -- 40% items have promotions, 60% items have customizations
 -- ============================================================================
 INSERT INTO order_items (
@@ -145,13 +173,13 @@ INSERT INTO order_items (
 SELECT
   gen_random_uuid(),
   o.id,
-  p.id,
+  COALESCE(p.id, gen_random_uuid()),
   NULL,
-  p.name,
+  COALESCE(p.name, 'Product ' || ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id)),
   COALESCE(p.main_image_url, 'https://via.placeholder.com/300x300?text=Product'),
   'Standard Size',
-  p.sku,
-  p.barcode,
+  COALESCE(p.sku, 'SKU-' || LPAD(ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id)::text, 5, '0')),
+  COALESCE(p.barcode, '10000000000000' || LPAD(ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id)::text, 3, '0')),
   (1 + (item_row % 4))::int as quantity,
   COALESCE(p.price, 50.00)::numeric(10,2),
   CASE WHEN item_row % 5 = 0 THEN (COALESCE(p.price, 50.00) * 0.80)::numeric(10,2)
@@ -212,7 +240,7 @@ WHERE o.created_at >= NOW() - INTERVAL '31 days'
 AND NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = o.id);
 
 -- ============================================================================
--- PART 6: CREATE ORDER STATUS HISTORY (5-10 entries GUARANTEED per order)
+-- PART 7: CREATE ORDER STATUS HISTORY (5-10 entries GUARANTEED per order)
 -- ============================================================================
 INSERT INTO order_status_history (
   id, order_id, order_status, note, changed_by_user_id, changed_by_name,
@@ -272,14 +300,14 @@ SELECT '========== COMPREHENSIVE TEST DATA GENERATION COMPLETE ==========' as st
 
 SELECT '--- CHECKING FOR NULL VALUES IN ORDERS ---' as section;
 SELECT
+  (SELECT COUNT(*) FROM orders WHERE business_id IS NULL) as null_business_ids,
   (SELECT COUNT(*) FROM orders WHERE customer_name IS NULL OR customer_name = '') as null_customer_names,
   (SELECT COUNT(*) FROM orders WHERE customer_phone IS NULL OR customer_phone = '') as null_customer_phones,
   (SELECT COUNT(*) FROM orders WHERE customer_email IS NULL OR customer_email = '') as null_customer_emails,
   (SELECT COUNT(*) FROM orders WHERE customer_note IS NULL OR customer_note = '') as null_customer_notes,
   (SELECT COUNT(*) FROM orders WHERE business_note IS NULL OR business_note = '') as null_business_notes,
   (SELECT COUNT(*) FROM orders WHERE discount_type IS NULL OR discount_type = '') as null_discount_types,
-  (SELECT COUNT(*) FROM orders WHERE discount_reason IS NULL OR discount_reason = '') as null_discount_reasons
-WHERE customer_name IS NOT NULL;
+  (SELECT COUNT(*) FROM orders WHERE discount_reason IS NULL OR discount_reason = '') as null_discount_reasons;
 
 SELECT '--- CHECKING FOR NULL VALUES IN ORDER ITEMS ---' as section;
 SELECT
@@ -312,7 +340,7 @@ SELECT
   (SELECT COUNT(*) FROM order_items WHERE created_at >= NOW() - INTERVAL '31 days') as total_items,
   (SELECT COUNT(*) FROM order_status_history WHERE created_at >= NOW() - INTERVAL '31 days') as total_status_changes;
 
-SELECT '--- SAMPLE COMPLETE ORDER ---' as section;
+SELECT '--- SAMPLE COMPLETE ORDERS ---' as section;
 SELECT
   o.order_number,
   o.order_from,
@@ -327,6 +355,6 @@ SELECT
 FROM orders o
 WHERE o.created_at >= NOW() - INTERVAL '31 days'
 ORDER BY o.created_at DESC
-LIMIT 3;
+LIMIT 5;
 
 COMMIT;
