@@ -26,7 +26,7 @@ import { orderAdminTableColumns } from "@/redux/features/business/table/order-ad
 import { OrderDetailModal } from "@/redux/features/business/components/order-detail-modal";
 import { OrderUpdateModal } from "@/redux/features/business/components/order-update-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { CustomDatePicker } from "@/components/shared/common/custom-date-picker";
+import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -185,20 +185,12 @@ export default function OrdersAdminPage() {
     dispatch(setPaymentStatusFilter(value));
   };
 
-  const handleStartDateChange = (date: Date | undefined) => {
-    if (date) {
-      dispatch(setStartDateFilter(date.toISOString()));
-    } else {
-      dispatch(setStartDateFilter(undefined));
-    }
+  const handleStartDateChange = (dateString: string) => {
+    dispatch(setStartDateFilter(dateString || undefined));
   };
 
-  const handleEndDateChange = (date: Date | undefined) => {
-    if (date) {
-      dispatch(setEndDateFilter(date.toISOString()));
-    } else {
-      dispatch(setEndDateFilter(undefined));
-    }
+  const handleEndDateChange = (dateString: string) => {
+    dispatch(setEndDateFilter(dateString || undefined));
   };
 
   return (
@@ -234,17 +226,17 @@ export default function OrdersAdminPage() {
             label="Payment Status"
           />
           <div className="flex gap-2">
-            <CustomDatePicker
-              label="From Date"
-              value={filters.startDate ? new Date(filters.startDate) : undefined}
+            <CustomDateTimePicker
+              value={filters.startDate}
               onChange={handleStartDateChange}
               placeholder="Start date"
+              mode="date"
             />
-            <CustomDatePicker
-              label="To Date"
-              value={filters.endDate ? new Date(filters.endDate) : undefined}
+            <CustomDateTimePicker
+              value={filters.endDate}
               onChange={handleEndDateChange}
               placeholder="End date"
+              mode="date"
             />
           </div>
         </CardHeaderSection>
