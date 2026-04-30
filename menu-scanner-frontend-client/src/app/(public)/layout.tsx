@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
-import { FooterLazy as Footer } from "@/components/layout/footer-lazy";
 import { Navbar } from "@/components/layout/navbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
@@ -55,11 +54,6 @@ export default function PublicLayout({
       <main className="flex-1 pb-16 sm:pb-0">
         <Suspense>{children}</Suspense>
       </main>
-
-      {/* Footer — hidden on mobile (replaced by bottom nav) */}
-      <div className="hidden sm:block">
-        <Footer />
-      </div>
 
       {/* Native-style bottom tab bar — mobile only */}
       <BottomNav />
