@@ -77,7 +77,7 @@ export default function PendingOrdersAdminPage() {
     if (!filters.orderStatus || filters.orderStatus === "ALL") {
       dispatch(setOrderStatusFilter("PENDING"));
     }
-  }, []);
+  }, [dispatch, filters.orderStatus]);
 
   useEffect(() => {
     const requestParams: any = {

@@ -4,37 +4,24 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
-import { useAppSelector } from "@/redux/store";
-import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
-
-// Default constants for fallback
-const DEFAULT_CONTACT_ADDRESS = "123 Street Name, Phnom Penh, Cambodia";
-const DEFAULT_CONTACT_PHONE = "+855 12 345 678";
-const DEFAULT_CONTACT_EMAIL = "support@menuscanner.com";
-const DEFAULT_BUSINESS_HOURS = [
-  { day: "Mon - Fri", openingTime: "09:00", closingTime: "22:00" },
-  { day: "Sat", openingTime: "10:00", closingTime: "23:00" },
-  { day: "Sun", openingTime: "10:00", closingTime: "21:00" },
-];
-
-// Social media links - these are hardcoded but could be moved to Redux
-const SOCIAL_LINKS = [
-  { name: "Facebook", url: "https://facebook.com" },
-  { name: "Instagram", url: "https://instagram.com" },
-  { name: "Telegram", url: "https://telegram.me" },
-];
+import { getBusinessSettingsSync } from "@/hooks/use-business-settings-cache";
 
 export function Footer() {
-  const businessSettings = useAppSelector(selectBusinessSettings);
+  // Load from cache instantly (~1ms) instead of waiting for Redux
+  const settings = getBusinessSettingsSync();
 
-  // Use Redux data or fallback to defaults
-  const contactAddress = businessSettings?.contactAddress || DEFAULT_CONTACT_ADDRESS;
-  const contactPhone = businessSettings?.contactPhone || DEFAULT_CONTACT_PHONE;
-  const contactEmail = businessSettings?.contactEmail || DEFAULT_CONTACT_EMAIL;
-  const businessHours = businessSettings?.businessHours || DEFAULT_BUSINESS_HOURS;
+  // Use cached settings or fallback to defaults
+  const businessName = settings.businessName || "Menu Scanner";
+  const logoUrl = settings.logoBusinessUrl;
+  const contactAddress = settings.contactAddress || "123 Street Name, Phnom Penh, Cambodia";
+  const contactPhone = settings.contactPhone || "+855 12 345 678";
+  const contactEmail = settings.contactEmail || "support@menuscanner.com";
+  const businessHours = settings.businessHours || [];
+  const socialMedia = settings.socialMedia || [];
+  const primaryColor = settings.primaryColor || "#3b82f6";
 
   return (
-    <footer className="bg-primary/90 text-white">
+    <footer className="text-white" style={{ backgroundColor: primaryColor }}>
       <PageContainer>
         {/* Main Footer Content */}
         <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -42,16 +29,27 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2 w-fit">
               <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
-                <Image
-                  src="/assets/favicon.ico"
-                  alt="Menu Scanner"
-                  width={24}
-                  height={24}
-                  className="rounded object-contain"
-                />
+                {logoUrl ? (
+                  <Image
+                    src={logoUrl}
+                    alt={businessName}
+                    width={24}
+                    height={24}
+                    className="rounded object-contain"
+                    priority
+                  />
+                ) : (
+                  <Image
+                    src="/assets/favicon.ico"
+                    alt={businessName}
+                    width={24}
+                    height={24}
+                    className="rounded object-contain"
+                  />
+                )}
               </div>
               <span className="font-bold text-lg text-white">
-                Menu Scanner
+                {businessName}
               </span>
             </div>
             <p className="text-white text-sm leading-relaxed">
@@ -95,11 +93,20 @@ export function Footer() {
               <div className="flex gap-3">
                 <Clock className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
                 <div className="text-white">
-                  {businessHours.map((hours, index) => (
-                    <p key={index} className="font-medium">
-                      {hours.day}: {hours.openingTime} - {hours.closingTime}
-                    </p>
-                  ))}
+                  {businessHours && businessHours.length > 0 ? (
+                    businessHours.map((hours: any, index: number) => (
+                      <p key={index} className="font-medium">
+                        {typeof hours.day === 'string' ? formatDay(hours.day) : hours.day}:{" "}
+                        {hours.openingTime && hours.closingTime ? (
+                          `${hours.openingTime} - ${hours.closingTime}`
+                        ) : (
+                          <span className="text-white/60">Closed</span>
+                        )}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="text-white/60">Contact for hours</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -109,17 +116,21 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Follow Us</h3>
             <div className="space-y-2 text-sm">
-              {SOCIAL_LINKS.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-white hover:text-white/80 transition-colors"
-                >
-                  {social.name}
-                </a>
-              ))}
+              {socialMedia && socialMedia.length > 0 ? (
+                socialMedia.map((social: any) => (
+                  <a
+                    key={social.name}
+                    href={social.linkUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-white hover:text-white/80 transition-colors"
+                  >
+                    {social.name}
+                  </a>
+                ))
+              ) : (
+                <p className="text-white/60 text-sm">Follow us on social media</p>
+              )}
             </div>
           </div>
         </div>
@@ -147,4 +158,18 @@ export function Footer() {
       </PageContainer>
     </footer>
   );
+}
+
+// Helper function to format day names from API
+function formatDay(day: string): string {
+  const days: Record<string, string> = {
+    MONDAY: "Monday",
+    TUESDAY: "Tuesday",
+    WEDNESDAY: "Wednesday",
+    THURSDAY: "Thursday",
+    FRIDAY: "Friday",
+    SATURDAY: "Saturday",
+    SUNDAY: "Sunday",
+  };
+  return days[day] || day;
 }
