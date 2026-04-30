@@ -12,6 +12,7 @@ import { AppDefault } from "@/constants/app-resource/default/default";
  * Async thunk to fetch current business settings
  * Fetches complete business settings including tax percentage
  * Uses authenticated endpoint: /api/v1/business-settings/current
+ * Returns null if user not authenticated (uses cached settings instead)
  */
 export const fetchBusinessSettingsThunk = createAsyncThunk(
   "businessSettings/fetch",
@@ -19,6 +20,10 @@ export const fetchBusinessSettingsThunk = createAsyncThunk(
     try {
       // Try authenticated endpoint first (includes tax percentage)
       const settings = await fetchCurrentBusinessSettings();
+      // If not authenticated (401), return null - we'll use cached settings
+      if (!settings) {
+        return null;
+      }
       return settings;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to fetch business settings";

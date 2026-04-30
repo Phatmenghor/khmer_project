@@ -60,15 +60,22 @@ const API_BASE_URL = "/api/v1/business-settings";
  * - Getting tax percentage, colors, logo, all config
  * - Requires authentication
  *
- * @returns Complete business settings response
+ * @returns Complete business settings response or null if not authenticated
  */
-export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse> => {
+export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse | null> => {
   try {
     const response = await axiosClientWithAuth.get<{ data: BusinessSettingsResponse }>(
       `/api/v1/business-settings/current`
     );
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
+    // Silently return null for 401 (not authenticated yet)
+    if (error?.response?.status === 401) {
+      console.log("ℹ️ User not authenticated - using cached business settings");
+      return null;
+    }
+
+    // Log and throw other errors
     console.error("Error fetching current business settings:", error);
     throw error;
   }
