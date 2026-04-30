@@ -340,6 +340,12 @@ export function OrderDetailModal({
                           <span className="text-muted-foreground">Qty:</span>
                           <p className="font-medium">{item.quantity}</p>
                         </div>
+                        {item.hasPromotion && item.currentPrice && (
+                          <div>
+                            <span className="text-muted-foreground">Original Price:</span>
+                            <p className="font-medium line-through text-orange-500">{formatCurrency(item.currentPrice)}</p>
+                          </div>
+                        )}
                         <div>
                           <span className="text-muted-foreground">Unit Price:</span>
                           <p className="font-medium">{formatCurrency(item.finalPrice)}</p>
@@ -355,6 +361,35 @@ export function OrderDetailModal({
                           </div>
                         )}
                       </div>
+
+                      {/* Promotion Badge */}
+                      {item.hasPromotion && (
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
+                          <h5 className="text-xs font-bold text-orange-700 uppercase mb-2">🎉 Promotion Applied</h5>
+                          <div className="space-y-1 text-xs">
+                            <div className="flex justify-between">
+                              <span className="text-orange-600">Discount Type:</span>
+                              <span className="font-medium text-foreground">
+                                {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-orange-600">Discount Amount:</span>
+                              <span className="font-bold text-orange-600">
+                                -{formatCurrency((item.currentPrice || 0) - (item.finalPrice || 0))}
+                              </span>
+                            </div>
+                            {item.promotionFromDate && item.promotionToDate && (
+                              <div className="flex justify-between">
+                                <span className="text-orange-600">Valid:</span>
+                                <span className="font-medium text-foreground text-xs">
+                                  {dateTimeFormat(item.promotionFromDate)} to {dateTimeFormat(item.promotionToDate)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Customizations if any */}
                       {item.customizations && item.customizations.length > 0 && (
@@ -486,48 +521,52 @@ export function OrderDetailModal({
                     📈 Status History ({orderData.statusHistory.length})
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {orderData.statusHistory.map((history, idx) => (
-                    <div
-                      key={history.id}
-                      className="text-sm border border-border rounded-lg p-3"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-muted-foreground">
-                            Step {idx + 1}
-                          </span>
-                          <span className="font-semibold text-sm text-foreground">
-                            {history.statusName}
-                          </span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {dateTimeFormat(history.changedAt)}
-                        </span>
-                      </div>
-                      {history.note && (
-                        <p className="text-xs text-muted-foreground mb-2 ml-1">
-                          {history.note}
-                        </p>
-                      )}
-                      {history.changedBy && (
-                        <div className="text-xs ml-1">
-                          <p className="text-muted-foreground">
-                            Changed by:{" "}
-                            <span className="font-medium text-foreground">
-                              {history.changedBy.fullName ||
-                                `${history.changedBy.firstName} ${history.changedBy.lastName}`}
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {orderData.statusHistory.map((history, idx) => (
+                      <div
+                        key={history.id}
+                        className="text-sm border border-border rounded-lg p-4 bg-white hover:shadow-sm transition-shadow"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                              {idx + 1}
                             </span>
-                          </p>
-                          {history.changedBy.phoneNumber && (
-                            <p className="text-muted-foreground">
-                              {history.changedBy.phoneNumber}
+                            <span className="font-semibold text-sm text-foreground">
+                              {history.statusName}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="text-xs text-muted-foreground">
+                            <span className="font-medium">Changed:</span> {dateTimeFormat(history.changedAt)}
+                          </div>
+                          {history.note && (
+                            <p className="text-xs text-muted-foreground italic border-l-2 border-blue-300 pl-2">
+                              "{history.note}"
                             </p>
                           )}
+                          {history.changedBy && (
+                            <div className="text-xs border-t pt-2 mt-2">
+                              <p className="text-muted-foreground">
+                                By:{" "}
+                                <span className="font-medium text-foreground">
+                                  {history.changedBy.fullName ||
+                                    `${history.changedBy.firstName} ${history.changedBy.lastName}`}
+                                </span>
+                              </p>
+                              {history.changedBy.phoneNumber && (
+                                <p className="text-muted-foreground">
+                                  {history.changedBy.phoneNumber}
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             )}

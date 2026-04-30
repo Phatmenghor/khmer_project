@@ -3,6 +3,7 @@ package com.emenu.features.order.dto.response;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,8 +16,16 @@ public class OrderItemResponse {
 
     // Pricing
     private Integer quantity;
-    private BigDecimal finalPrice;
+    private BigDecimal currentPrice;        // Base price before promotion
+    private BigDecimal finalPrice;          // Price after promotion discount
     private BigDecimal totalPrice;
+
+    // Promotion details snapshot
+    private Boolean hasPromotion;
+    private String promotionType;           // PERCENTAGE or FIXED_AMOUNT
+    private BigDecimal promotionValue;
+    private LocalDateTime promotionFromDate;
+    private LocalDateTime promotionToDate;
 
     // Customizations
     private List<CustomizationDetail> customizations;  // Full customization details
