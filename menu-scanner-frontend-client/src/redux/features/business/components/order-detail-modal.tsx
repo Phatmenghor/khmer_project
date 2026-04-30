@@ -102,6 +102,107 @@ export function OrderDetailModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
+            {/* Order Progress Tracker */}
+            {orderData.statusHistory && orderData.statusHistory.length > 0 && (
+              <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-bold text-foreground">📊 Order Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Progress Timeline */}
+                  <div className="space-y-4">
+                    {/* Visual Timeline */}
+                    <div className="relative">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="text-center flex-1">
+                          <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
+                            ['PENDING', 'CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-300 text-white'
+                          }`}>
+                            ✓
+                          </div>
+                          <p className="text-xs font-semibold mt-2 text-foreground">Received</p>
+                        </div>
+
+                        {/* Connector Line */}
+                        <div className={`flex-1 h-1 mx-2 ${
+                          ['CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
+                            ? 'bg-green-500'
+                            : 'bg-gray-300'
+                        }`}></div>
+
+                        <div className="text-center flex-1">
+                          <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
+                            ['CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus)
+                              ? 'bg-green-500 text-white'
+                              : orderData.orderStatus === 'PENDING'
+                              ? 'bg-yellow-500 text-white'
+                              : 'bg-red-500 text-white'
+                          }`}>
+                            {['CONFIRMED', 'COMPLETED'].includes(orderData.orderStatus) ? '✓' :
+                             orderData.orderStatus === 'PENDING' ? '⏳' : '✕'}
+                          </div>
+                          <p className="text-xs font-semibold mt-2 text-foreground">Processing</p>
+                        </div>
+
+                        {/* Connector Line */}
+                        <div className={`flex-1 h-1 mx-2 ${
+                          orderData.orderStatus === 'COMPLETED'
+                            ? 'bg-green-500'
+                            : 'bg-gray-300'
+                        }`}></div>
+
+                        <div className="text-center flex-1">
+                          <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
+                            orderData.orderStatus === 'COMPLETED'
+                              ? 'bg-green-500 text-white'
+                              : orderData.orderStatus === 'CANCELLED'
+                              ? 'bg-red-500 text-white'
+                              : 'bg-gray-300 text-white'
+                          }`}>
+                            {orderData.orderStatus === 'COMPLETED' ? '✓' :
+                             orderData.orderStatus === 'CANCELLED' ? '✕' : '○'}
+                          </div>
+                          <p className="text-xs font-semibold mt-2 text-foreground">Completed</p>
+                        </div>
+                      </div>
+
+                      {/* Current Status Badge */}
+                      <div className="mt-4 p-3 bg-white border border-blue-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Current Status</p>
+                            <p className="text-sm font-bold text-foreground mt-1">{getOrderStatusLabel(orderData.orderStatus)}</p>
+                          </div>
+                          <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            orderData.orderStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' :
+                            orderData.orderStatus === 'CONFIRMED' ? 'bg-blue-100 text-blue-700' :
+                            orderData.orderStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {orderData.orderStatus}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Status History Summary */}
+                      <div className="mt-3 p-3 bg-white border border-blue-100 rounded-lg">
+                        <p className="text-xs text-muted-foreground font-medium mb-2">Status Changes: <span className="font-bold text-foreground">{orderData.statusHistory.length}</span></p>
+                        <div className="flex flex-wrap gap-2">
+                          {orderData.statusHistory.map((history, idx) => (
+                            <span key={history.id} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 border border-blue-200 text-blue-700">
+                              {idx + 1}. {getOrderStatusLabel(history.orderStatus)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Order & Pricing Information */}
             <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
               <CardHeader className="pb-4 border-b">
