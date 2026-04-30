@@ -63,12 +63,8 @@ export const ORDER_STATUS_ADMIN_FILTER = [
   { value: "ALL", label: "All Status" },
   { value: "PENDING", label: "Pending" },
   { value: "CONFIRMED", label: "Confirmed" },
-  { value: "PREPARING", label: "Preparing" },
-  { value: "READY", label: "Ready" },
-  { value: "IN_TRANSIT", label: "In Transit" },
   { value: "COMPLETED", label: "Completed" },
   { value: "CANCELLED", label: "Cancelled" },
-  { value: "FAILED", label: "Failed" },
 ];
 
 export const PAYMENT_STATUS_ADMIN_FILTER = [

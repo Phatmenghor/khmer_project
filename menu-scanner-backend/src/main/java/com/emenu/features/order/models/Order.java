@@ -162,10 +162,6 @@ public class Order extends BaseUUIDEntity {
         this.orderStatus = OrderStatus.CANCELLED;
     }
 
-    public void failOrder() {
-        this.orderStatus = OrderStatus.FAILED;
-    }
-
     public void confirm() {
         this.confirmedAt = LocalDateTime.now();
     }

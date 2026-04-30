@@ -216,8 +216,6 @@ public interface OrderMapper {
                         .id(history.getId())
                         .statusName(history.getOrderStatus() != null ?
                                 history.getOrderStatus().getDisplayName() : null)
-                        .statusDescription(history.getOrderStatus() != null ?
-                                history.getOrderStatus().getDescription() : null)
                         .note(history.getNote())
                         .changedBy(mapStatusHistoryUserInfo(history))
                         .changedAt(history.getCreatedAt())
