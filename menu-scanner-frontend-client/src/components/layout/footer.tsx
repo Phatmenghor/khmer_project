@@ -9,22 +9,26 @@ import { useInitialization } from "@/context/initialization-provider";
 export function Footer() {
   const { colorsReady } = useInitialization();
 
-  // Load from cache if available
+  // Load from cache - only show actual cached values, no hardcoded defaults
   const cached = businessSettingsStorage.getCached();
   const cachedSettings = cached?.data || null;
 
-  // Use defaults that work on both server and client to prevent hydration mismatch
-  const businessName = "Menu Scanner";
+  // Use only cached values to prevent hydration mismatch
+  const businessName = cachedSettings?.businessName || "Menu Scanner";
   const logoUrl = cachedSettings?.logoBusinessUrl || null;
   const primaryColor = cachedSettings?.primaryColor || "#3b82f6";
-  const contactAddress = cachedSettings?.contactAddress || "Phnom Penh, Cambodia";
-  const contactPhone = cachedSettings?.contactPhone || "+855 10 123 456";
-  const contactEmail = cachedSettings?.contactEmail || "info@menuscanner.com";
+  const contactAddress = cachedSettings?.contactAddress;
+  const contactPhone = cachedSettings?.contactPhone;
+  const contactEmail = cachedSettings?.contactEmail;
   const businessHours = cachedSettings?.businessHours || [];
   const socialMedia = cachedSettings?.socialMedia || [];
 
   return (
-    <footer className="text-white" style={{ backgroundColor: colorsReady ? primaryColor : "#3b82f6" }}>
+    <footer
+      className="text-white"
+      style={{ backgroundColor: colorsReady ? primaryColor : "#3b82f6" }}
+      suppressHydrationWarning
+    >
       <PageContainer>
         {/* Main Footer Content */}
         <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -77,27 +81,36 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Contact Info</h3>
             <div className="space-y-3 text-sm">
-              <div className="flex gap-3">
-                <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                <p className="text-white">
-                  {contactAddress}
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <Phone className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                <p className="text-white">
-                  {contactPhone}
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <a
-                  href={`mailto:${contactEmail}`}
-                  className="text-white hover:text-white/80 transition-colors flex gap-3"
-                >
-                  <span className="text-white/80 text-xs">✉</span>
-                  <span>{contactEmail}</span>
-                </a>
-              </div>
+              {contactAddress && (
+                <div className="flex gap-3">
+                  <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                  <p className="text-white">
+                    {contactAddress}
+                  </p>
+                </div>
+              )}
+              {contactPhone && (
+                <div className="flex gap-3">
+                  <Phone className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                  <p className="text-white">
+                    {contactPhone}
+                  </p>
+                </div>
+              )}
+              {contactEmail && (
+                <div className="flex gap-3">
+                  <a
+                    href={`mailto:${contactEmail}`}
+                    className="text-white hover:text-white/80 transition-colors flex gap-3"
+                  >
+                    <span className="text-white/80 text-xs">✉</span>
+                    <span>{contactEmail}</span>
+                  </a>
+                </div>
+              )}
+              {!contactAddress && !contactPhone && !contactEmail && (
+                <p className="text-white/60 text-sm">Contact information available after loading</p>
+              )}
             </div>
           </div>
 
@@ -122,16 +135,7 @@ export function Footer() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <div className="flex gap-2 text-white text-sm">
-                    <Clock className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                    <span>Mon - Fri: 9:00 AM - 10:00 PM</span>
-                  </div>
-                  <div className="flex gap-2 text-white text-sm">
-                    <span className="w-5" />
-                    <span>Sat - Sun: 10:00 AM - 11:00 PM</span>
-                  </div>
-                </div>
+                <p className="text-white/60 text-sm">Hours available after loading</p>
               )}
             </div>
           </div>
@@ -153,17 +157,7 @@ export function Footer() {
                   </a>
                 ))
               ) : (
-                <>
-                  <a href="#" className="block text-white hover:text-white/80 transition-colors">
-                    Facebook
-                  </a>
-                  <a href="#" className="block text-white hover:text-white/80 transition-colors">
-                    Instagram
-                  </a>
-                  <a href="#" className="block text-white hover:text-white/80 transition-colors">
-                    Twitter
-                  </a>
-                </>
+                <p className="text-white/60 text-sm">Follow us on social media</p>
               )}
             </div>
           </div>
