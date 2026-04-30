@@ -36,6 +36,7 @@ export const ROUTES = {
     PRODUCTS_PROMOTION: "/admin/product-promotions",
     BULK_PROMOTION_CREATION: "/admin/bulk-promotion",
     ORDERS: "/admin/orders",
+    ORDERS_PENDING: "/admin/orders/pending",
     POS: "/admin/pos",
     BUSINESS_SETTINGS: "/admin/manage-business-settings",
   },
@@ -150,6 +151,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Orders",
         href: ROUTES.ADMIN.ORDERS,
+      },
+      {
+        title: "Pending Orders",
+        href: ROUTES.ADMIN.ORDERS_PENDING,
       },
     ],
   },
