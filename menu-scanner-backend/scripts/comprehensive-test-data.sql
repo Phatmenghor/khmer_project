@@ -748,7 +748,7 @@ SELECT
        ELSE 'Chamcar Mon' END,
   'Phnom Penh',
   (11.50 + (ROW_NUMBER() OVER (ORDER BY o.id)::numeric % 100) / 1000)::numeric(10,8),
-  (104.80 + (ROW_NUMBER() OVER (ORDER BY o.id)::numeric % 100) / 1000)::numeric(10,8),
+  (104.80 + (ROW_NUMBER() OVER (ORDER BY o.id)::numeric % 100) / 1000)::numeric(11,8),
   'Delivery: Ring doorbell twice. Building #' || (ROW_NUMBER() OVER (ORDER BY o.id)) || ' Floor ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 5) + 1),
   0, false, o.created_at, o.created_at, 'admin', 'admin'
 FROM orders o
