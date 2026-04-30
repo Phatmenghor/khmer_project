@@ -898,6 +898,18 @@ AND NOT EXISTS (
 --   ├─ Mega Store (phatmenghor20@gmail.com)
 --   └─ Fashion Hub (phatmenghor21@gmail.com)
 --
+-- ✅ BUSINESS SETTINGS: 2 (with full configuration)
+--   ├─ Mega Store (6 social media, 7 business hours)
+--   └─ Fashion Hub (5 social media, 7 business hours)
+--
+-- ✅ SOCIAL MEDIA LINKS: 11 total
+--   ├─ Mega Store: 6 (Facebook, Instagram, TikTok, Twitter, YouTube, LinkedIn)
+--   └─ Fashion Hub: 5 (Facebook, Instagram, TikTok, Pinterest, Telegram)
+--
+-- ✅ BUSINESS HOURS: 14 total (7 days per business)
+--   ├─ Mega Store: Open Mon-Sun (8-20, Fri-Sat extended)
+--   └─ Fashion Hub: Open Mon-Sat, Closed Sunday
+--
 -- ✅ CUSTOMER ADDRESSES: 5 (3 for phatmenghor20, 2 for phatmenghor21)
 --
 -- ✅ USERS: 150+
@@ -929,6 +941,59 @@ AND NOT EXISTS (
 --
 -- ✅ TOTAL RECORDS: ~300,000+
 -- ============================================================================
+
+-- ============================================================================
+-- 2.5. CREATE SOCIAL MEDIA LINKS (5+ for each business setting)
+-- ============================================================================
+
+-- Social Media for Mega Store
+INSERT INTO social_media (id, business_setting_id, name, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'Facebook', 'https://facebook.com/megastore', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'Instagram', 'https://instagram.com/megastore', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'TikTok', 'https://tiktok.com/@megastore', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'Twitter', 'https://twitter.com/megastore', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'YouTube', 'https://youtube.com/@megastore', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'LinkedIn', 'https://linkedin.com/company/megastore', 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- Social Media for Fashion Hub
+INSERT INTO social_media (id, business_setting_id, name, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'Facebook', 'https://facebook.com/fashionhub', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'Instagram', 'https://instagram.com/fashionhub', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'TikTok', 'https://tiktok.com/@fashionhub', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'Pinterest', 'https://pinterest.com/fashionhub', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'Telegram', 'https://t.me/fashionhub', 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- 2.6. CREATE BUSINESS HOURS (7 days per business setting)
+-- ============================================================================
+
+-- Business Hours for Mega Store (Open Mon-Sun)
+INSERT INTO business_hours (id, business_setting_id, day, opening_time, closing_time, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'MONDAY', '08:00', '20:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'TUESDAY', '08:00', '20:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'WEDNESDAY', '08:00', '20:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'THURSDAY', '08:00', '20:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'FRIDAY', '08:00', '21:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'SATURDAY', '09:00', '21:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440002', 'SUNDAY', '10:00', '18:00', 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- Business Hours for Fashion Hub (Closed Sundays)
+INSERT INTO business_hours (id, business_setting_id, day, opening_time, closing_time, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'MONDAY', '09:00', '19:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'TUESDAY', '09:00', '19:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'WEDNESDAY', '09:00', '19:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'THURSDAY', '09:00', '19:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'FRIDAY', '09:00', '20:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'SATURDAY', '10:00', '20:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '770e8400-e29b-41d4-a716-446655440003', 'SUNDAY', NULL, NULL, 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- VERIFICATION QUERIES - Check if data was inserted successfully
@@ -984,3 +1049,50 @@ SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550cad56-cafd-4
 -- Check Orders for phatmenghor21
 SELECT '=== ORDERS FOR phatmenghor21 ===' as info;
 SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
+
+-- Check Business Settings with Social Media
+SELECT '=== BUSINESS SETTINGS ===' as info;
+SELECT
+  bs.id,
+  bs.business_id,
+  bs.business_name,
+  bs.primary_color,
+  bs.contact_phone,
+  bs.contact_email,
+  COUNT(DISTINCT sm.id) as social_media_count,
+  COUNT(DISTINCT bh.id) as business_hours_count
+FROM business_settings bs
+LEFT JOIN social_media sm ON bs.id = sm.business_setting_id
+LEFT JOIN business_hours bh ON bs.id = bh.business_setting_id
+GROUP BY bs.id, bs.business_id, bs.business_name, bs.primary_color, bs.contact_phone, bs.contact_email
+ORDER BY bs.business_name;
+
+-- Check Social Media Links
+SELECT '=== SOCIAL MEDIA LINKS ===' as info;
+SELECT
+  bs.business_name,
+  sm.name as platform,
+  sm.link_url
+FROM social_media sm
+JOIN business_settings bs ON sm.business_setting_id = bs.id
+ORDER BY bs.business_name, sm.name;
+
+-- Check Business Hours
+SELECT '=== BUSINESS HOURS ===' as info;
+SELECT
+  bs.business_name,
+  bh.day,
+  COALESCE(bh.opening_time, 'CLOSED') as opening_time,
+  COALESCE(bh.closing_time, 'CLOSED') as closing_time
+FROM business_hours bh
+JOIN business_settings bs ON bh.business_setting_id = bs.id
+ORDER BY bs.business_name,
+  CASE bh.day
+    WHEN 'MONDAY' THEN 1
+    WHEN 'TUESDAY' THEN 2
+    WHEN 'WEDNESDAY' THEN 3
+    WHEN 'THURSDAY' THEN 4
+    WHEN 'FRIDAY' THEN 5
+    WHEN 'SATURDAY' THEN 6
+    WHEN 'SUNDAY' THEN 7
+  END;
