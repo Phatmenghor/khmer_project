@@ -297,11 +297,7 @@ export function OrderDetailModal({
                   {orderData.items.map((item, idx) => (
                     <div
                       key={item.id}
-                      className={`p-4 border rounded-lg ${
-                        item.hasPromotion
-                          ? "bg-orange-50 border-orange-300"
-                          : "bg-gray-50 border-gray-200"
-                      }`}
+                      className="p-4 border rounded-lg bg-gray-50 border-gray-200"
                     >
                       {/* Product Image and Header */}
                       <div className="mb-3">
@@ -345,7 +341,7 @@ export function OrderDetailModal({
                       </div>
 
                       {/* Item Pricing */}
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-xs border-t pt-3 mt-3">
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-xs border-t pt-3 mt-3">
                         {/* Qty */}
                         <div className="space-y-1">
                           <span className="text-muted-foreground text-xs font-medium">Qty:</span>
@@ -357,6 +353,14 @@ export function OrderDetailModal({
                           <div className="space-y-1">
                             <span className="text-muted-foreground text-xs font-medium">Original Price:</span>
                             <p className="font-medium line-through text-orange-500 text-sm">{formatCurrency(item.currentPrice)}</p>
+                          </div>
+                        )}
+
+                        {/* Discount Amount */}
+                        {item.hasPromotion && (
+                          <div className="space-y-1">
+                            <span className="text-muted-foreground text-xs font-medium">Discount:</span>
+                            <p className="font-bold text-red-600 text-sm">-{formatCurrency((item.currentPrice || 0) - (item.finalPrice || 0))}</p>
                           </div>
                         )}
 
@@ -380,16 +384,6 @@ export function OrderDetailModal({
                           </div>
                         )}
                       </div>
-
-                      {/* Discount Info */}
-                      {item.hasPromotion && (
-                        <div className="mt-3 p-2 bg-orange-100 border border-orange-300 rounded-lg">
-                          <p className="text-xs text-orange-700 font-semibold">
-                            Discount: {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
-                            <span className="ml-2 text-orange-600">-{formatCurrency((item.currentPrice || 0) - (item.finalPrice || 0))}</span>
-                          </p>
-                        </div>
-                      )}
 
                       {/* Customizations if any */}
                       {item.customizations && item.customizations.length > 0 && (
