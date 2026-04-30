@@ -20,6 +20,7 @@ import {
   selectBusinessLogo,
 } from "@/redux/features/business/store/selectors/business-settings-selector";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
+import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -36,6 +37,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   const businessSettings = useAppSelector(selectBusinessSettings);
   const businessName = useAppSelector(selectBusinessName);
   const logoUrl = useAppSelector(selectBusinessLogo);
+
+  // Get primary color from cache
+  const cachedSettings = businessSettingsStorage.getCached();
+  const primaryColor = cachedSettings?.data?.primaryColor || "#3b82f6";
 
   // Debug logging to verify Redux state
   useEffect(() => {
@@ -222,7 +227,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               className="relative flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
             >
               <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 overflow-hidden"
+                  style={{ backgroundColor: primaryColor }}
+                >
                   <img
                     key={logoUrl}
                     src={logoUrl || "/assets/image/no-image.png"}
@@ -238,7 +246,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                 <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
+                <span
+                  className="font-bold text-sm leading-tight tracking-tight"
+                  style={{ color: primaryColor }}
+                >
                   {businessName}
                 </span>
                 <span className="text-muted-foreground text-xs font-medium tracking-wide">

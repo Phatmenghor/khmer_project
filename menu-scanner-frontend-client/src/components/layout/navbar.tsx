@@ -40,6 +40,7 @@ import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
 import { clearProducts } from "@/redux/features/main/store/slice/public-product-slice";
 import { selectBusinessName, selectBusinessLogo } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useLogout } from "@/redux/store/use-logout";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -79,6 +80,10 @@ export function Navbar() {
 
   const businessName = useSelector(selectBusinessName);
   const businessLogoUrl = useSelector(selectBusinessLogo);
+
+  // Get business settings from cache for primary color
+  const cachedSettings = businessSettingsStorage.getCached();
+  const primaryColor = cachedSettings?.data?.primaryColor || "#3b82f6";
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);
@@ -341,7 +346,10 @@ export function Navbar() {
             /* ── Mobile: compact top bar ── */
             <div className="sm:hidden flex items-center justify-between w-full h-14 gap-2">
               <button onClick={handleNavigateToHome} className="flex items-center gap-2 shrink-0">
-                <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm overflow-hidden">
+                <div
+                  className="relative w-8 h-8 rounded-lg flex items-center justify-center shadow-sm overflow-hidden"
+                  style={{ backgroundColor: primaryColor }}
+                >
                   {businessLogoUrl ? (
                     <img
                       src={businessLogoUrl}
@@ -430,7 +438,10 @@ export function Navbar() {
           <div className="hidden sm:flex h-full w-full items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               <button onClick={handleNavigateToHome} className="flex items-center gap-2 group">
-                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
+                <div
+                  className="relative w-10 h-10 rounded-xl flex items-center justify-center shadow-lg overflow-hidden"
+                  style={{ backgroundColor: primaryColor }}
+                >
                   {businessLogoUrl ? (
                     <img
                       src={businessLogoUrl}
@@ -452,7 +463,10 @@ export function Navbar() {
                   )}
                 </div>
                 <div className="hidden md:flex flex-col">
-                  <span className="text-foreground font-bold text-sm leading-tight">
+                  <span
+                    className="font-bold text-sm leading-tight"
+                    style={{ color: primaryColor }}
+                  >
                     {businessName}
                   </span>
                   <span className="text-muted-foreground text-xs font-medium">
