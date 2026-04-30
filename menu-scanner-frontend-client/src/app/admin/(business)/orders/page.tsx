@@ -51,13 +51,37 @@ export default function OrdersAdminPage() {
     operations,
     pagination,
     dispatch,
-    debouncedSearch,
-    filters.pageNo,
-    filters.orderStatus,
-    filters.paymentStatus,
-    filters.startDate,
-    filters.endDate,
-    globalPageSize,
+  } = useOrderAdminState();
+
+  const [detailModalState, setDetailModalState] = useState({
+    isOpen: false,
+    orderId: "",
+  });
+
+  const [updateModalState, setUpdateModalState] = useState({
+    isOpen: false,
+    orderId: "",
+  });
+
+  const [deleteState, setDeleteState] = useState({
+    isOpen: false,
+    order: null as OrderResponse | null,
+  });
+
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, 400);
+
+  const { updateUrlWithPage, handlePageChange } = usePagination({
+    baseRoute: ROUTES.ADMIN.ORDERS,
+    syncPageToRedux: (page) => dispatch(setPageNo(page)),
+  });
+
+  useEffect(() => {
+    dispatch(
+      fetchAllOrderAdminService({
+        search: debouncedSearch,
+        pageNo: filters.pageNo,
+        pageSize: globalPageSize,
         orderStatus:
           filters.orderStatus === "ALL" ? undefined : filters.orderStatus,
         paymentStatus:
@@ -158,39 +182,7 @@ export default function OrdersAdminPage() {
   };
 
   const handlePaymentStatusChange = (value: string) => {
-
-  const handleStartDateChange = (date: Date | undefined) => {
-    if (date) {
-      dispatch(setStartDateFilter(date.toISOString()));
-    } else {
-      dispatch(setStartDateFilter(undefined));
-    }
-  };
-
-  const handleEndDateChange = (date: Date | undefined) => {
-    if (date) {
-      dispatch(setEndDateFilter(date.toISOString()));
-    } else {
-      dispatch(setEndDateFilter(undefined));
-    }
-  };
     dispatch(setPaymentStatusFilter(value));
-
-  const handleStartDateChange = (date: Date | undefined) => {
-    if (date) {
-      dispatch(setStartDateFilter(date.toISOString()));
-    } else {
-      dispatch(setStartDateFilter(undefined));
-    }
-  };
-
-  const handleEndDateChange = (date: Date | undefined) => {
-    if (date) {
-      dispatch(setEndDateFilter(date.toISOString()));
-    } else {
-      dispatch(setEndDateFilter(undefined));
-    }
-  };
   };
 
   const handleStartDateChange = (date: Date | undefined) => {
