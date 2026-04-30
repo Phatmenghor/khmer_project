@@ -5,8 +5,12 @@ import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
 import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
+import { useInitialization } from "@/context/initialization-provider";
+import { Skeleton } from "@/components/shared/loaders/skeleton-loader";
 
 export function Footer() {
+  const { colorsReady } = useInitialization();
+
   // Cache is guaranteed to be ready by InitializationLoader
   // Load synchronously from localStorage (no state, no re-renders)
   const cached = businessSettingsStorage.getCached();
@@ -23,41 +27,53 @@ export function Footer() {
   const primaryColor = cachedSettings?.primaryColor || "#3b82f6";
 
   return (
-    <footer className="text-white" style={{ backgroundColor: primaryColor }}>
+    <footer className="text-white" style={{ backgroundColor: colorsReady ? primaryColor : "#9ca3af" }}>
       <PageContainer>
         {/* Main Footer Content */}
         <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Section 1: Logo & Description */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 w-fit">
-              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
-                {logoUrl ? (
-                  <Image
-                    src={logoUrl}
-                    alt={businessName}
-                    width={24}
-                    height={24}
-                    className="rounded object-contain"
-                    priority
-                  />
-                ) : (
-                  <Image
-                    src="/assets/favicon.ico"
-                    alt={businessName}
-                    width={24}
-                    height={24}
-                    className="rounded object-contain"
-                  />
-                )}
-              </div>
-              <span className="font-bold text-lg text-white">
-                {businessName}
-              </span>
-            </div>
-            <p className="text-white text-sm leading-relaxed">
-              Discover and explore menus from your favorite restaurants. Browse,
-              compare, and order with ease.
-            </p>
+            {colorsReady ? (
+              <>
+                <div className="flex items-center gap-2 w-fit">
+                  <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                    {logoUrl ? (
+                      <Image
+                        src={logoUrl}
+                        alt={businessName}
+                        width={24}
+                        height={24}
+                        className="rounded object-contain"
+                        priority
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/favicon.ico"
+                        alt={businessName}
+                        width={24}
+                        height={24}
+                        className="rounded object-contain"
+                      />
+                    )}
+                  </div>
+                  <span className="font-bold text-lg text-white">
+                    {businessName}
+                  </span>
+                </div>
+                <p className="text-white text-sm leading-relaxed">
+                  Discover and explore menus from your favorite restaurants. Browse,
+                  compare, and order with ease.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 w-fit">
+                  <Skeleton circle width={40} height={40} className="bg-white/30" />
+                  <Skeleton width={100} height={24} className="bg-white/30" />
+                </div>
+                <Skeleton width={200} height={60} count={2} className="bg-white/30" />
+              </>
+            )}
           </div>
 
           {/* Section 2: Contact Information */}
