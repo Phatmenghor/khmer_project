@@ -405,7 +405,6 @@ export function OrderDetailModal({
                       )}
                     </div>
                   ))}
-                    </div>
                   </div>
                 </CardContent>
               </Card>
