@@ -36,7 +36,6 @@ export const ROUTES = {
     PRODUCTS_PROMOTION: "/admin/product-promotions",
     BULK_PROMOTION_CREATION: "/admin/bulk-promotion",
     ORDERS: "/admin/orders",
-    ORDERS_CREATE: "/admin/orders/create",
     POS: "/admin/pos",
     BUSINESS_SETTINGS: "/admin/manage-business-settings",
   },

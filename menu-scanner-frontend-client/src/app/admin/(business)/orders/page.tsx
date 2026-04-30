@@ -192,7 +192,7 @@ export default function OrdersAdminPage() {
           onSearchChange={handleSearchChange}
           buttonText="New Order"
           buttonIcon={<Plus className="h-4 w-4" />}
-          buttonHref={ROUTES.ADMIN.ORDERS_CREATE}
+          buttonHref={ROUTES.ADMIN.POS}
           buttonTooltip="Create a new POS order"
         >
           <CustomSelect
