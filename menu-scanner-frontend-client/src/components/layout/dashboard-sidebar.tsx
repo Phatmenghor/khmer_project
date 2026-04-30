@@ -13,13 +13,6 @@ import { UserAvatarCard } from "../shared/avator/user-avatar-card";
 import { useIsMobile } from "@/redux/store/use-mobile";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { getProfileService } from "@/redux/features/auth/store/thunks/auth-thunks";
-import { useAppSelector } from "@/redux/store";
-import {
-  selectBusinessSettings,
-  selectBusinessName,
-  selectBusinessLogo,
-} from "@/redux/features/business/store/selectors/business-settings-selector";
-import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 
 interface SidebarProps {
@@ -33,25 +26,12 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
   const { profile, isProfileLoading, dispatch } = useAuthState();
 
-  // Get business settings from Redux (loaded by useBusinessTheme)
-  const businessSettings = useAppSelector(selectBusinessSettings);
-  const businessName = useAppSelector(selectBusinessName);
-  const logoUrl = useAppSelector(selectBusinessLogo);
-
-  // Get primary color from cache
+  // Get all business settings from cache (instant, no Redux delay)
   const cachedSettings = businessSettingsStorage.getCached();
+  const businessName = cachedSettings?.data?.businessName || "Dashboard";
+  const logoUrl = cachedSettings?.data?.logoBusinessUrl || null;
   const primaryColor = cachedSettings?.data?.primaryColor || "#3b82f6";
 
-  // Debug logging to verify Redux state
-  useEffect(() => {
-    console.log("## [SIDEBAR] Redux businessSettings state:", {
-      hasData: !!businessSettings,
-      businessName: businessSettings?.businessName || "MISSING",
-      logoUrl: businessSettings?.logoBusinessUrl || "MISSING",
-      logoFromSelector: logoUrl || "NULL",
-      allData: businessSettings,
-    });
-  }, [businessSettings, businessName, logoUrl]);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,

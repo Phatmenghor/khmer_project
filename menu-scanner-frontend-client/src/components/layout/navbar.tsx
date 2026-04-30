@@ -17,7 +17,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   Search,
   ShoppingCart,
@@ -39,7 +39,6 @@ import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
 import { clearProducts } from "@/redux/features/main/store/slice/public-product-slice";
-import { selectBusinessName, selectBusinessLogo } from "@/redux/features/business/store/selectors/business-settings-selector";
 import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useLogout } from "@/redux/store/use-logout";
@@ -78,11 +77,10 @@ export function Navbar() {
   const { totalItems: favoriteItemCount } = useFavoriteState();
   const { logout: handleLogout } = useLogout();
 
-  const businessName = useSelector(selectBusinessName);
-  const businessLogoUrl = useSelector(selectBusinessLogo);
-
-  // Get business settings from cache for primary color
+  // Get all business settings from cache (instant, no Redux delay)
   const cachedSettings = businessSettingsStorage.getCached();
+  const businessName = cachedSettings?.data?.businessName || "Menu Scanner";
+  const businessLogoUrl = cachedSettings?.data?.logoBusinessUrl || null;
   const primaryColor = cachedSettings?.data?.primaryColor || "#3b82f6";
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
