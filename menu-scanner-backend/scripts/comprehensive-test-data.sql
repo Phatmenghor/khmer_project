@@ -85,10 +85,7 @@ order_data AS (
     10.00::numeric(5,2) as tax_percentage,
     (((500 + order_num * 75) + (50 + order_num * 8)) * 0.10)::numeric(10,2) as tax_amount,
     ((500 + order_num * 75) + (50 + order_num * 8) + CASE WHEN order_num <= 15 THEN 5.00 ELSE 0.00 END - ((500 + order_num * 75) * 0.08) + (((500 + order_num * 75) + (50 + order_num * 8)) * 0.10))::numeric(10,2) as total_amount,
-    CASE WHEN order_num % 3 = 0 THEN 'CREDIT_CARD'
-         WHEN order_num % 3 = 1 THEN 'CASH'
-         ELSE 'MOBILE_MONEY'
-    END as payment_method,
+    'CASH' as payment_method,
     CASE WHEN order_num % 2 = 0 THEN 'PAID' ELSE 'UNPAID' END as payment_status,
     NOW() - INTERVAL '1 day' * (31 - order_num) as created_at
   FROM generate_series(1, 30) AS t(order_num)
