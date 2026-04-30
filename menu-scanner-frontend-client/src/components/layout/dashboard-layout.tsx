@@ -4,7 +4,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { DashboardSidebarLazy as DashboardSidebar } from "@/components/layout/dashboard-sidebar-lazy";
+import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { TopBar } from "./topbar";
 import { AdminFooter } from "./admin-footer";
 import { useIsMobile } from "@/redux/store/use-mobile";

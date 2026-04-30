@@ -205,11 +205,13 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             <Link
               href="/"
               className="relative flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
+              suppressHydrationWarning
             >
               <div className="relative">
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 overflow-hidden"
                   style={{ backgroundColor: primaryColor }}
+                  suppressHydrationWarning
                 >
                   <img
                     key={logoUrl}

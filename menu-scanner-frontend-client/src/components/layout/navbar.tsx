@@ -344,10 +344,11 @@ export function Navbar() {
           ) : (
             /* ── Mobile: compact top bar ── */
             <div className="sm:hidden flex items-center justify-between w-full h-14 gap-2">
-              <button onClick={handleNavigateToHome} className="flex items-center gap-2 shrink-0">
+              <button onClick={handleNavigateToHome} className="flex items-center gap-2 shrink-0" suppressHydrationWarning>
                 <div
                   className="relative w-8 h-8 rounded-lg flex items-center justify-center shadow-sm overflow-hidden"
                   style={{ backgroundColor: primaryColor }}
+                  suppressHydrationWarning
                 >
                   {businessLogoUrl ? (
                     <img
