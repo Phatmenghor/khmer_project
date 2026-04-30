@@ -881,8 +881,8 @@ SELECT
   o.created_at + (INTERVAL '1 hour' * sh.status_seq) + (INTERVAL '30 minutes' * sh.status_seq),
   'admin', 'admin'
 FROM orders o
-CROSS JOIN (
-  SELECT ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY idx) as status_seq
+CROSS JOIN LATERAL (
+  SELECT ROW_NUMBER() OVER (ORDER BY idx) as status_seq
   FROM generate_series(1, 10) idx
 ) sh(status_seq)
 WHERE o.created_at >= NOW() - INTERVAL '365 days'
