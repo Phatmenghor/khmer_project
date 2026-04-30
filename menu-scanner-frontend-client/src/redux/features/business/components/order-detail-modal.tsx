@@ -333,61 +333,53 @@ export function OrderDetailModal({
                       </div>
 
                       {/* Item Pricing */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3 pl-2 border-l-2 border-gray-300">
-                        <div>
-                          <span className="text-muted-foreground">Qty:</span>
-                          <p className="font-medium">{item.quantity}</p>
-                        </div>
-                        {item.hasPromotion && item.currentPrice && (
+                      <div className="space-y-2">
+                        {/* Qty and Promotion Row */}
+                        <div className="flex items-start justify-between gap-2 text-xs">
                           <div>
+                            <span className="text-muted-foreground">Qty:</span>
+                            <p className="font-medium">{item.quantity}</p>
+                          </div>
+                          {item.hasPromotion && (
+                            <div className="text-right">
+                              <p className="font-bold text-orange-600">
+                                {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
+                              </p>
+                              <p className="text-orange-600 font-semibold">
+                                -{formatCurrency((item.currentPrice || 0) - (item.finalPrice || 0))}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Original Price Row */}
+                        {item.hasPromotion && item.currentPrice && (
+                          <div className="flex justify-between text-xs">
                             <span className="text-muted-foreground">Original Price:</span>
                             <p className="font-medium line-through text-orange-500">{formatCurrency(item.currentPrice)}</p>
                           </div>
                         )}
-                        <div>
+
+                        {/* Unit Price Row */}
+                        <div className="flex justify-between text-xs">
                           <span className="text-muted-foreground">Unit Price:</span>
                           <p className="font-medium">{formatCurrency(item.finalPrice)}</p>
                         </div>
-                        <div>
+
+                        {/* Item Total Row */}
+                        <div className="flex justify-between text-xs">
                           <span className="text-muted-foreground">Item Total:</span>
                           <p className="font-bold text-green-600">{formatCurrency(item.totalPrice)}</p>
                         </div>
+
+                        {/* Add-ons Row */}
                         {(item.customizationTotal ?? 0) > 0 && (
-                          <div>
+                          <div className="flex justify-between text-xs">
                             <span className="text-muted-foreground">Add-ons:</span>
                             <p className="font-medium text-blue-600">+{formatCurrency(item.customizationTotal)}</p>
                           </div>
                         )}
                       </div>
-
-                      {/* Promotion Badge */}
-                      {item.hasPromotion && (
-                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
-                          <h5 className="text-xs font-bold text-orange-700 uppercase mb-2">🎉 Promotion Applied</h5>
-                          <div className="space-y-1 text-xs">
-                            <div className="flex justify-between">
-                              <span className="text-orange-600">Discount Type:</span>
-                              <span className="font-medium text-foreground">
-                                {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-orange-600">Discount Amount:</span>
-                              <span className="font-bold text-orange-600">
-                                -{formatCurrency((item.currentPrice || 0) - (item.finalPrice || 0))}
-                              </span>
-                            </div>
-                            {item.promotionFromDate && item.promotionToDate && (
-                              <div className="flex justify-between">
-                                <span className="text-orange-600">Valid:</span>
-                                <span className="font-medium text-foreground text-xs">
-                                  {dateTimeFormat(item.promotionFromDate)} to {dateTimeFormat(item.promotionToDate)}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
 
                       {/* Customizations if any */}
                       {item.customizations && item.customizations.length > 0 && (
