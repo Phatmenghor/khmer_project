@@ -260,13 +260,31 @@ public class OrderServiceImpl implements OrderService {
             log.debug("📅 [DATE RANGE FILTER] From: {}, To: {}", filter.getStartDate(), filter.getEndDate());
         }
         long queryStartTime = System.currentTimeMillis();
+        LocalDateTime startDate = null;
+        if (filter.getStartDate() != null && !filter.getStartDate().isBlank()) {
+            try {
+                startDate = LocalDateTime.parse(filter.getStartDate());
+            } catch (Exception e) {
+                log.warn("Invalid start date format: {}", filter.getStartDate());
+            }
+        }
+
+        LocalDateTime endDate = null;
+        if (filter.getEndDate() != null && !filter.getEndDate().isBlank()) {
+            try {
+                endDate = LocalDateTime.parse(filter.getEndDate());
+            } catch (Exception e) {
+                log.warn("Invalid end date format: {}", filter.getEndDate());
+            }
+        }
+
         Page<Order> page = orderRepository.findAllWithFilters(
                 filter.getBusinessId(),
                 filter.getOrderStatus(),
                 filter.getPaymentMethod(),
                 filter.getPaymentStatus(),
-                filter.getStartDate(),
-                filter.getEndDate(),
+                startDate,
+                endDate,
                 pageable
         );
         long queryDuration = System.currentTimeMillis() - queryStartTime;
