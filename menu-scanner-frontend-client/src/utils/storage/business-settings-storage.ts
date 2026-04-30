@@ -81,10 +81,10 @@ export const businessSettingsStorage = {
     }
   },
 
-  // Check if cache is valid (not too old)
-  isCacheValid: (maxAgeMs: number = 3600000): boolean => {
+  // Check cache age (for monitoring, not for validation)
+  getCacheAge: (): number => {
     const timestamp = businessSettingsStorage.getCacheTimestamp();
-    if (!timestamp) return false;
-    return Date.now() - timestamp < maxAgeMs;
+    if (!timestamp) return -1;
+    return Date.now() - timestamp;
   },
 };
