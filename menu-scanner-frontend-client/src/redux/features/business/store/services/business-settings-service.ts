@@ -77,7 +77,7 @@ export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsRe
 /**
  * Fetch business settings by business ID (Public - No Auth Required)
  * Fetches business theme colors, logo, and business name
- * GET /api/v1/public/business-settings/{businessId}
+ * GET /api/v1/business-settings/business/{businessId}
  *
  * Used for:
  * - Loading business theme on app startup
@@ -92,13 +92,36 @@ export const fetchBusinessSettingsByBusinessId = async (
 ): Promise<BusinessSettingsResponse> => {
   try {
     const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
-      `/api/v1/public/business-settings/${businessId}`
+      `/api/v1/business-settings/business/${businessId}`
     );
     return response.data.data;
   } catch (error) {
     console.error(`Error fetching business settings for ${businessId}:`, error);
     throw error;
   }
+};
+
+/**
+ * Generate hash of settings for change detection
+ * Compares critical fields to detect if settings have changed
+ */
+export const generateBusinessSettingsHash = (settings: BusinessSettingsResponse): string => {
+  const hashString = JSON.stringify({
+    id: settings.id,
+    primaryColor: settings.primaryColor,
+    logoBusinessUrl: settings.logoBusinessUrl,
+    businessName: settings.businessName,
+    taxPercentage: settings.taxPercentage,
+    updatedAt: settings.updatedAt,
+  });
+
+  let hash = 0;
+  for (let i = 0; i < hashString.length; i++) {
+    const char = hashString.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
 };
 
 /**
