@@ -692,7 +692,7 @@ FROM (
   SELECT
     gen_random_uuid() as order_id,
     'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(order_num::text, 5, '0') as order_number,
-    '550cad56-cafd-4aba-baef-c4dcd53940d0' as business_id,
+    '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid as business_id,
     CASE WHEN order_num <= 15
       THEN '660e8400-e29b-41d4-a716-446655440001'::uuid
       ELSE '660e8400-e29b-41d4-a716-446655440002'::uuid
