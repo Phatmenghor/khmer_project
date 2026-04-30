@@ -822,11 +822,11 @@ SELECT
        ELSE 0.00::numeric(10,2)
   END,
   CASE WHEN item_row % 3 = 0 THEN
-    '[{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Premium Add-ons Pack","priceAdjustment":12.50},' ||
-    '{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Gift Wrap","priceAdjustment":0.00}]'
+    ('[{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Premium Add-ons Pack","priceAdjustment":12.50},' ||
+    '{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Gift Wrap","priceAdjustment":0.00}]')::json
   WHEN item_row % 3 = 1 THEN
-    '[{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Extra Serving","priceAdjustment":8.75}]'
-  ELSE '[]'
+    ('[{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Extra Serving","priceAdjustment":8.75}]')::json
+  ELSE '[]'::json
   END,
   0, false, o.created_at, o.created_at, 'admin', 'admin'
 FROM orders o
