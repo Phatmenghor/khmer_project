@@ -24,7 +24,7 @@ import {
   addLocalCartItem,
   updateLocalCartItem,
 } from "@/redux/features/main/store/slice/cart-slice";
-import { SizeSelectionModal } from "../modal/size-selection-modal";
+import { SizeSelectionModalLazy as SizeSelectionModal } from "../modal/lazy-modals";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { getProductQuantity } from "@/utils/common/quantity-utils";
 import {

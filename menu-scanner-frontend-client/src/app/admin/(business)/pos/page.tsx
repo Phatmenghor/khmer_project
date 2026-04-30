@@ -44,7 +44,7 @@ import { POSOrderSuccessModal } from "@/components/pos-custom/pos-order-success-
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { POSProductCard } from "@/components/shared/card/pos-product-card";
-import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
+import { SizePickerModalLazy as SizePickerModal } from "@/components/shared/modal/lazy-modals";
 import { POSEditCartItemModal } from "@/components/pos-custom/pos-edit-cart-item-modal";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useAppDispatch } from "@/redux/store";
