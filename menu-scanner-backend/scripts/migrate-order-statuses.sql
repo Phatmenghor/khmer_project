@@ -38,7 +38,25 @@ UPDATE orders SET order_status = 'PENDING'
 WHERE order_status NOT IN ('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED')
 AND order_status IS NOT NULL;
 
+-- Also migrate order_status_history table
+UPDATE order_status_history SET status = 'CONFIRMED'
+WHERE status IN ('PREPARING', 'READY', 'IN_TRANSIT', 'DELIVERING')
+AND status IS NOT NULL;
+
+UPDATE order_status_history SET status = 'CANCELLED'
+WHERE status = 'FAILED'
+AND status IS NOT NULL;
+
+UPDATE order_status_history SET status = 'PENDING'
+WHERE status = 'PENDING_POS_CONFIRMATION'
+AND status IS NOT NULL;
+
+UPDATE order_status_history SET status = 'PENDING'
+WHERE status NOT IN ('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED')
+AND status IS NOT NULL;
+
 -- Verify migration results
 SELECT order_status, COUNT(*) as count FROM orders GROUP BY order_status ORDER BY count DESC;
+SELECT status, COUNT(*) as count FROM order_status_history GROUP BY status ORDER BY count DESC;
 
 COMMIT;
