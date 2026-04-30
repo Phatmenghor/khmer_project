@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
-import { Navbar } from "@/components/layout/navbar";
+import { NavbarLazy as Navbar } from "@/components/layout/navbar-lazy";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
