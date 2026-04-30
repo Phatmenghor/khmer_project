@@ -848,16 +848,16 @@ INSERT INTO order_status_history (id, order_id, order_status, note, changed_by_u
 SELECT
   gen_random_uuid(),
   o.id,
-  CASE WHEN sh.status_seq = 1 THEN 'PENDING'::order_status
-       WHEN sh.status_seq = 2 THEN 'CONFIRMED'::order_status
-       WHEN sh.status_seq = 3 THEN 'CONFIRMED'::order_status
-       WHEN sh.status_seq = 4 THEN 'CONFIRMED'::order_status
-       WHEN sh.status_seq = 5 THEN 'COMPLETED'::order_status
-       WHEN sh.status_seq = 6 THEN 'COMPLETED'::order_status
-       WHEN sh.status_seq = 7 THEN 'COMPLETED'::order_status
-       WHEN sh.status_seq = 8 THEN 'COMPLETED'::order_status
-       WHEN sh.status_seq = 9 THEN 'PENDING'::order_status
-       ELSE 'CANCELLED'::order_status
+  CASE WHEN sh.status_seq = 1 THEN 'PENDING'
+       WHEN sh.status_seq = 2 THEN 'CONFIRMED'
+       WHEN sh.status_seq = 3 THEN 'CONFIRMED'
+       WHEN sh.status_seq = 4 THEN 'CONFIRMED'
+       WHEN sh.status_seq = 5 THEN 'COMPLETED'
+       WHEN sh.status_seq = 6 THEN 'COMPLETED'
+       WHEN sh.status_seq = 7 THEN 'COMPLETED'
+       WHEN sh.status_seq = 8 THEN 'COMPLETED'
+       WHEN sh.status_seq = 9 THEN 'PENDING'
+       ELSE 'CANCELLED'
   END,
   'Status Change #' || sh.status_seq || ': ' ||
   CASE WHEN sh.status_seq = 1 THEN 'Order placed successfully'
