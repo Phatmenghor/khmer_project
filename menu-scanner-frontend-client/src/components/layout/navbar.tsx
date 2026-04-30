@@ -18,6 +18,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useDispatch } from "react-redux";
+import { useInitialization } from "@/context/initialization-provider";
 import {
   Search,
   ShoppingCart,
@@ -35,6 +36,7 @@ import { Input } from "@/components/ui/input";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "../shared/button/custom-button";
+import { Skeleton } from "@/components/shared/loaders/skeleton-loader";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
@@ -70,6 +72,7 @@ export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useDispatch();
+  const { colorsReady } = useInitialization();
 
   const { isAuthenticated, profile, fullName, email, profileImage } =
     useAuthState();
@@ -344,33 +347,41 @@ export function Navbar() {
             /* ── Mobile: compact top bar ── */
             <div className="sm:hidden flex items-center justify-between w-full h-14 gap-2">
               <button onClick={handleNavigateToHome} className="flex items-center gap-2 shrink-0">
-                <div
-                  className="relative w-8 h-8 rounded-lg flex items-center justify-center shadow-sm overflow-hidden"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  {businessLogoUrl ? (
-                    <img
-                      src={businessLogoUrl}
-                      alt={businessName}
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src = "/assets/no-image.png";
-                      }}
-                    />
-                  ) : (
-                    <Image
-                      src="/assets/favicon.ico"
-                      alt="Logo"
-                      width={20}
-                      height={20}
-                      className="rounded object-contain"
-                      priority
-                    />
-                  )}
-                </div>
-                <span className="font-bold text-sm text-foreground">
-                  {businessName}
-                </span>
+                {colorsReady ? (
+                  <div
+                    className="relative w-8 h-8 rounded-lg flex items-center justify-center shadow-sm overflow-hidden"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    {businessLogoUrl ? (
+                      <img
+                        src={businessLogoUrl}
+                        alt={businessName}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          e.currentTarget.src = "/assets/no-image.png";
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/favicon.ico"
+                        alt="Logo"
+                        width={20}
+                        height={20}
+                        className="rounded object-contain"
+                        priority
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <Skeleton circle width={32} height={32} />
+                )}
+                {colorsReady ? (
+                  <span className="font-bold text-sm text-foreground">
+                    {businessName}
+                  </span>
+                ) : (
+                  <Skeleton width={100} height={16} />
+                )}
               </button>
 
               <div className="flex items-center gap-0.5">
@@ -436,40 +447,53 @@ export function Navbar() {
           <div className="hidden sm:flex h-full w-full items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               <button onClick={handleNavigateToHome} className="flex items-center gap-2 group">
-                <div
-                  className="relative w-10 h-10 rounded-xl flex items-center justify-center shadow-lg overflow-hidden"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  {businessLogoUrl ? (
-                    <img
-                      src={businessLogoUrl}
-                      alt={businessName}
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src = "/assets/no-image.png";
-                      }}
-                    />
-                  ) : (
-                    <Image
-                      src="/assets/favicon.ico"
-                      alt="Logo"
-                      width={24}
-                      height={24}
-                      className="rounded object-contain"
-                      priority
-                    />
-                  )}
-                </div>
-                <div className="hidden md:flex flex-col">
-                  <span
-                    className="font-bold text-sm leading-tight"
-                    style={{ color: primaryColor }}
+                {colorsReady ? (
+                  <div
+                    className="relative w-10 h-10 rounded-xl flex items-center justify-center shadow-lg overflow-hidden"
+                    style={{ backgroundColor: primaryColor }}
                   >
-                    {businessName}
-                  </span>
-                  <span className="text-muted-foreground text-xs font-medium">
-                    Shop Online
-                  </span>
+                    {businessLogoUrl ? (
+                      <img
+                        src={businessLogoUrl}
+                        alt={businessName}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          e.currentTarget.src = "/assets/no-image.png";
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/favicon.ico"
+                        alt="Logo"
+                        width={24}
+                        height={24}
+                        className="rounded object-contain"
+                        priority
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <Skeleton circle width={40} height={40} />
+                )}
+                <div className="hidden md:flex flex-col">
+                  {colorsReady ? (
+                    <>
+                      <span
+                        className="font-bold text-sm leading-tight"
+                        style={{ color: primaryColor }}
+                      >
+                        {businessName}
+                      </span>
+                      <span className="text-muted-foreground text-xs font-medium">
+                        Shop Online
+                      </span>
+                    </>
+                  ) : (
+                    <div className="space-y-1">
+                      <Skeleton width={80} height={16} />
+                      <Skeleton width={60} height={12} />
+                    </div>
+                  )}
                 </div>
               </button>
 

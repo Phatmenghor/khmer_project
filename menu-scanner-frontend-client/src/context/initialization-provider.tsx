@@ -5,59 +5,47 @@ import { businessSettingsStorage } from "@/utils/storage/business-settings-stora
 
 interface InitializationContextType {
   isInitialized: boolean;
-  isLoading: boolean;
+  colorsReady: boolean;
 }
 
 const InitializationContext = createContext<InitializationContextType>({
-  isInitialized: false,
-  isLoading: true,
+  isInitialized: true,
+  colorsReady: false,
 });
 
 export function InitializationProvider({ children }: { children: ReactNode }) {
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized] = useState(true);
+  const [colorsReady, setColorsReady] = useState(false);
 
   useEffect(() => {
-    // Check if business settings are cached and valid
-    const initializeFromCache = () => {
+    // Initialize immediately (non-blocking)
+    // Then load colors asynchronously in background
+    const checkCachedColors = async () => {
       try {
         const cached = businessSettingsStorage.getCached();
-
-        // If we have cached settings with a primary color, we're ready to render
         if (cached?.data?.primaryColor) {
-          setIsInitialized(true);
-          setIsLoading(false);
+          setColorsReady(true);
           return;
         }
 
-        // If no cache or no primary color, wait a bit for the initializer to populate it
-        // Give it 500ms to load from storage
-        setTimeout(() => {
-          try {
-            const rechecked = businessSettingsStorage.getCached();
-            if (rechecked?.data?.primaryColor) {
-              setIsInitialized(true);
-            } else {
-              // No cache yet, render with defaults (fallback)
-              setIsInitialized(true);
-            }
-          } catch {
-            setIsInitialized(true);
-          }
-          setIsLoading(false);
-        }, 500);
+        // Colors will be loaded by BusinessSettingsInitializer in background
+        // Check again after a short delay
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const rechecked = businessSettingsStorage.getCached();
+        if (rechecked?.data?.primaryColor) {
+          setColorsReady(true);
+        }
       } catch {
-        // On error, still initialize
-        setIsInitialized(true);
-        setIsLoading(false);
+        // Fallback to ready even if error
+        setColorsReady(true);
       }
     };
 
-    initializeFromCache();
+    checkCachedColors();
   }, []);
 
   return (
-    <InitializationContext.Provider value={{ isInitialized, isLoading }}>
+    <InitializationContext.Provider value={{ isInitialized, colorsReady }}>
       {children}
     </InitializationContext.Provider>
   );
