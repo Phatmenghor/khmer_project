@@ -290,7 +290,9 @@ export function OrderDetailModal({
                     🛒 Order Items ({orderData.items.length})
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-4 pt-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <h4 className="text-xs font-bold text-green-700 uppercase tracking-wider mb-4">Items List</h4>
                   {orderData.items.map((item, idx) => (
                     <div
                       key={item.id}
@@ -403,6 +405,8 @@ export function OrderDetailModal({
                       )}
                     </div>
                   ))}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -417,7 +421,7 @@ export function OrderDetailModal({
                 <CardContent className="space-y-4 pt-4">
                   {/* Delivery Details */}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <h4 className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-3">📫 Address & Delivery</h4>
+                    <h4 className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-3">Address & Delivery</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <DisplayField
                         label="Full Address"
@@ -512,50 +516,46 @@ export function OrderDetailModal({
             {/* Status History */}
             {orderData.statusHistory && orderData.statusHistory.length > 0 && (
               <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
-                <CardHeader className="pb-4">
+                <CardHeader className="pb-4 border-b">
                   <CardTitle className="text-lg font-bold text-foreground">
                     📈 Status History ({orderData.statusHistory.length})
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {orderData.statusHistory.map((history, idx) => (
-                      <div
-                        key={history.id}
-                        className="text-sm border border-border rounded-lg p-4 bg-white hover:shadow-sm transition-shadow"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                              {idx + 1}
+                <CardContent className="space-y-4 pt-4">
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <h4 className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-4">Status Timeline</h4>
+                    <div className="space-y-3">
+                      {orderData.statusHistory.map((history, idx) => (
+                        <div
+                          key={history.id}
+                          className="border border-purple-150 rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs font-bold">
+                                {idx + 1}
+                              </span>
+                              <span className="font-semibold text-sm text-foreground">
+                                {getOrderStatusLabel(history.orderStatus)}
+                              </span>
+                            </div>
+                            <span className="text-xs text-muted-foreground font-medium">
+                              {dateTimeFormat(history.createdAt)}
                             </span>
-                            <span className="font-semibold text-sm text-foreground">
-                              {getOrderStatusLabel(history.orderStatus)}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="text-xs text-muted-foreground">
-                            <span className="font-medium">Changed:</span> {dateTimeFormat(history.createdAt)}
                           </div>
                           {history.note && (
-                            <p className="text-xs text-muted-foreground italic border-l-2 border-blue-300 pl-2">
+                            <p className="text-xs text-muted-foreground italic border-l-2 border-purple-300 pl-2 ml-8 mb-2">
                               "{history.note}"
                             </p>
                           )}
                           {history.changedByName && (
-                            <div className="text-xs border-t pt-2 mt-2">
-                              <p className="text-muted-foreground">
-                                By:{" "}
-                                <span className="font-medium text-foreground">
-                                  {history.changedByName}
-                                </span>
-                              </p>
-                            </div>
+                            <p className="text-xs text-muted-foreground ml-8">
+                              <span className="font-medium">By:</span> <span className="font-medium text-foreground">{history.changedByName}</span>
+                            </p>
                           )}
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -566,49 +566,52 @@ export function OrderDetailModal({
               <CardHeader className="pb-4 border-b">
                 <CardTitle className="text-lg font-bold text-foreground">⚙️ System Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-4">
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <DisplayField
-                    label="Order ID"
-                    value={
-                      <span className="text-xs font-mono break-all">
-                        {orderData.id}
-                      </span>
-                    }
-                  />
-                  <DisplayField
-                    label="Business ID"
-                    value={
-                      <span className="text-xs font-mono break-all">
-                        {orderData.businessId}
-                      </span>
-                    }
-                  />
-                  {orderData.customerId && (
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Metadata</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
-                      label="Customer ID"
+                      label="Order ID"
                       value={
                         <span className="text-xs font-mono break-all">
-                          {orderData.customerId}
+                          {orderData.id}
                         </span>
                       }
                     />
-                  )}
-                  <DisplayField
-                    label="Created By"
-                    value={orderData.createdBy || "---"}
-                  />
-                  <DisplayField
-                    label="Updated By"
-                    value={orderData.updatedBy || "---"}
-                  />
-                  {orderData.businessNote && (
                     <DisplayField
-                      label="Business Note"
-                      value={orderData.businessNote}
+                      label="Business ID"
+                      value={
+                        <span className="text-xs font-mono break-all">
+                          {orderData.businessId}
+                        </span>
+                      }
                     />
-                  )}
+                    {orderData.customerId && (
+                      <DisplayField
+                        label="Customer ID"
+                        value={
+                          <span className="text-xs font-mono break-all">
+                            {orderData.customerId}
+                          </span>
+                        }
+                      />
+                    )}
+                    <DisplayField
+                      label="Created By"
+                      value={orderData.createdBy || "---"}
+                    />
+                    <DisplayField
+                      label="Updated By"
+                      value={orderData.updatedBy || "---"}
+                    />
+                    {orderData.businessNote && (
+                      <div className="md:col-span-2">
+                        <DisplayField
+                          label="Business Note"
+                          value={orderData.businessNote}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
