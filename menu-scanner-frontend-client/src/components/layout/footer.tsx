@@ -1,24 +1,54 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
-import { getBusinessSettingsSync } from "@/hooks/use-business-settings-cache";
+import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 
 export function Footer() {
-  // Load from cache instantly (~1ms) instead of waiting for Redux
-  const settings = getBusinessSettingsSync();
+  const [cachedSettings, setCachedSettings] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Use cached settings or fallback to defaults
-  const businessName = settings.businessName || "Menu Scanner";
-  const logoUrl = settings.logoBusinessUrl;
-  const contactAddress = settings.contactAddress || "123 Street Name, Phnom Penh, Cambodia";
-  const contactPhone = settings.contactPhone || "+855 12 345 678";
-  const contactEmail = settings.contactEmail || "support@menuscanner.com";
-  const businessHours = settings.businessHours || [];
-  const socialMedia = settings.socialMedia || [];
-  const primaryColor = settings.primaryColor || "#3b82f6";
+  // Load from localStorage on mount and watch for updates
+  useEffect(() => {
+    // Load initial cache
+    try {
+      const cached = businessSettingsStorage.getCached();
+      setCachedSettings(cached?.data || null);
+    } catch {
+      setCachedSettings(null);
+    }
+    setIsLoading(false);
+
+    // Watch for cache updates (every 500ms)
+    const interval = setInterval(() => {
+      try {
+        const cached = businessSettingsStorage.getCached();
+        setCachedSettings(cached?.data || null);
+      } catch {
+        setCachedSettings(null);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Use cached settings or empty state (no default colors to avoid flash)
+  const businessName = cachedSettings?.businessName || "";
+  const logoUrl = cachedSettings?.logoBusinessUrl || "";
+  const contactAddress = cachedSettings?.contactAddress || "";
+  const contactPhone = cachedSettings?.contactPhone || "";
+  const contactEmail = cachedSettings?.contactEmail || "";
+  const businessHours = cachedSettings?.businessHours || [];
+  const socialMedia = cachedSettings?.socialMedia || [];
+  const primaryColor = cachedSettings?.primaryColor || "";
+
+  // Don't render if no settings cached (wait for load)
+  if (!primaryColor) {
+    return null;
+  }
 
   return (
     <footer className="text-white" style={{ backgroundColor: primaryColor }}>

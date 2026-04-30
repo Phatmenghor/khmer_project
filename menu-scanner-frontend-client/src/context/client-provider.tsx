@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import store from "../redux/store";
 import { ToastContainer } from "react-toastify";
 import { useBusinessTheme } from "@/hooks/use-business-theme";
+import { BusinessSettingsInitializer } from "@/components/shared/cache/business-settings-initializer";
 
 interface ClientProvidersProps {
   children: ReactNode;
@@ -24,6 +25,7 @@ export function ClientProviders({ children }: ClientProvidersProps) {
   const content = (
     <Provider store={store}>
       <ThemeInitializer />
+      <BusinessSettingsInitializer />
       {children}
       <Toaster />
       <ToastContainer
