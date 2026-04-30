@@ -8,22 +8,46 @@ export interface OrderItemApiResponse {
     id: string;
     name: string;
     imageUrl: string;
+    sku: string;
+    barcode: string;
     sizeId: string | null;
-    sizeName: string | null;
+    sizeName: string;
     status: string;
   };
 
   quantity: number;
-  finalPrice: number;
+  currentPrice: number;  // Base price before promotion
+  finalPrice: number;    // Price after discount
   totalPrice: number;
+
+  // Promotion details snapshot
+  hasPromotion: boolean;
+  promotionType?: 'PERCENTAGE' | 'FIXED_AMOUNT';  // Only present if hasPromotion=true
+  promotionValue?: number;                         // Only present if hasPromotion=true
+  promotionFromDate?: string;                      // Only present if hasPromotion=true
+  promotionToDate?: string;                        // Only present if hasPromotion=true
+
+  // Customizations
+  customizations: CustomizationDetail[];
+  customizationTotal: number;
+}
+
+export interface CustomizationDetail {
+  productCustomizationId: string;
+  name: string;
+  priceAdjustment: number;
 }
 
 // Pricing summary
 export interface OrderPricingApiResponse {
   totalItems: number;
   subtotal: number;
-  discountAmount: number;
+  customizationTotal: number;
   deliveryFee: number;
+  discountAmount: number;
+  discountType?: string;
+  discountReason?: string;
+  taxPercentage: number;
   taxAmount: number;
   finalTotal: number;
 }
@@ -32,11 +56,13 @@ export interface OrderApiResponse {
   id: string;
   orderNumber: string;
   orderStatus: string;
+  orderFrom: 'CUSTOMER' | 'BUSINESS';
 
   // Customer info
   customerId: string | null;
   customerName: string | null;
   customerPhone: string | null;
+  customerEmail: string | null;
 
   // Business info
   businessId: string;
@@ -58,7 +84,7 @@ export interface OrderApiResponse {
     name: string;
     description?: string;
     imageUrl?: string;
-    price?: number;
+    price: number;
   };
 
   // Notes
@@ -73,22 +99,16 @@ export interface OrderApiResponse {
     paymentStatus: string;
   };
 
-  statusHistory: {
-    id: string;
-    statusName: string;
-    statusDescription: string | null;
-    note: string | null;
-    changedBy: {
-      userId: string;
-      firstName: string;
-      lastName: string;
-      phoneNumber?: string;
-      businessId?: string;
-      fullName?: string;
-    } | null;
-    changedAt: string;
-  }[];
+  statusHistory: OrderStatusHistoryItem[];
 
   createdAt: string;
   updatedAt: string;
+}
+
+export interface OrderStatusHistoryItem {
+  id: string;
+  orderStatus: string;
+  note: string;
+  changedByName: string;
+  createdAt: string;
 }

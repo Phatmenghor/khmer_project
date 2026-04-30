@@ -534,33 +534,27 @@ export function OrderDetailModal({
                               {idx + 1}
                             </span>
                             <span className="font-semibold text-sm text-foreground">
-                              {history.statusName}
+                              {getOrderStatusLabel(history.orderStatus)}
                             </span>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <div className="text-xs text-muted-foreground">
-                            <span className="font-medium">Changed:</span> {dateTimeFormat(history.changedAt)}
+                            <span className="font-medium">Changed:</span> {dateTimeFormat(history.createdAt)}
                           </div>
                           {history.note && (
                             <p className="text-xs text-muted-foreground italic border-l-2 border-blue-300 pl-2">
                               "{history.note}"
                             </p>
                           )}
-                          {history.changedBy && (
+                          {history.changedByName && (
                             <div className="text-xs border-t pt-2 mt-2">
                               <p className="text-muted-foreground">
                                 By:{" "}
                                 <span className="font-medium text-foreground">
-                                  {history.changedBy.fullName ||
-                                    `${history.changedBy.firstName} ${history.changedBy.lastName}`}
+                                  {history.changedByName}
                                 </span>
                               </p>
-                              {history.changedBy.phoneNumber && (
-                                <p className="text-muted-foreground">
-                                  {history.changedBy.phoneNumber}
-                                </p>
-                              )}
                             </div>
                           )}
                         </div>
