@@ -7,8 +7,6 @@ import { businessSettingsStorage } from "@/utils/storage/business-settings-stora
 import { useInitialization } from "@/context/initialization-provider";
 
 export function Footer() {
-  const { colorsReady } = useInitialization();
-
   // Load from cache - only show actual cached values, no hardcoded defaults
   const cached = businessSettingsStorage.getCached();
   const cachedSettings = cached?.data || null;
@@ -26,7 +24,7 @@ export function Footer() {
   return (
     <footer
       className="text-white"
-      style={{ backgroundColor: colorsReady ? primaryColor : "#3b82f6" }}
+      style={{ backgroundColor: primaryColor }}
       suppressHydrationWarning
     >
       <PageContainer>
@@ -34,47 +32,35 @@ export function Footer() {
         <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Section 1: Logo & Description */}
           <div className="space-y-4">
-            {colorsReady ? (
-              <>
-                <div className="flex items-center gap-2 w-fit">
-                  <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
-                    {logoUrl ? (
-                      <Image
-                        src={logoUrl}
-                        alt={businessName}
-                        width={24}
-                        height={24}
-                        className="rounded object-contain"
-                        priority
-                      />
-                    ) : (
-                      <Image
-                        src="/assets/favicon.ico"
-                        alt={businessName}
-                        width={24}
-                        height={24}
-                        className="rounded object-contain"
-                      />
-                    )}
-                  </div>
-                  <span className="font-bold text-lg text-white">
-                    {businessName}
-                  </span>
-                </div>
-                <p className="text-white text-sm leading-relaxed">
-                  Discover and explore menus from your favorite restaurants. Browse,
-                  compare, and order with ease.
-                </p>
-              </>
-            ) : (
-              <>
-                <div className="w-10 h-10 rounded-lg bg-white/20 animate-pulse" />
-                <div className="space-y-2">
-                  <div className="h-4 bg-white/20 rounded animate-pulse" />
-                  <div className="h-4 bg-white/20 rounded w-3/4 animate-pulse" />
-                </div>
-              </>
-            )}
+            <div className="flex items-center gap-2 w-fit">
+              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                {logoUrl ? (
+                  <Image
+                    src={logoUrl}
+                    alt={businessName}
+                    width={24}
+                    height={24}
+                    className="rounded object-contain"
+                    priority
+                  />
+                ) : (
+                  <Image
+                    src="/assets/favicon.ico"
+                    alt={businessName}
+                    width={24}
+                    height={24}
+                    className="rounded object-contain"
+                  />
+                )}
+              </div>
+              <span className="font-bold text-lg text-white">
+                {businessName}
+              </span>
+            </div>
+            <p className="text-white text-sm leading-relaxed">
+              Discover and explore menus from your favorite restaurants. Browse,
+              compare, and order with ease.
+            </p>
           </div>
 
           {/* Section 2: Contact Information */}
