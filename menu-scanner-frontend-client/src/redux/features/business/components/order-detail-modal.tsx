@@ -334,15 +334,15 @@ export function OrderDetailModal({
                       </div>
 
                       {/* Item Pricing */}
-                      <div className="space-y-2">
-                        {/* Qty and Promotion Row */}
-                        <div className="flex items-start justify-between gap-2 text-xs">
+                      <div className="flex flex-wrap gap-4 text-xs items-start border-t pt-3 mt-3">
+                        {/* Qty with Promotion */}
+                        <div className="flex items-start gap-1">
                           <div>
                             <span className="text-muted-foreground">Qty:</span>
                             <p className="font-medium">{item.quantity}</p>
                           </div>
                           {item.hasPromotion && (
-                            <div className="text-right">
+                            <div className="text-right ml-2">
                               <p className="font-bold text-orange-600">
                                 {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
                               </p>
@@ -353,29 +353,29 @@ export function OrderDetailModal({
                           )}
                         </div>
 
-                        {/* Original Price Row */}
+                        {/* Original Price */}
                         {item.hasPromotion && item.currentPrice && (
-                          <div className="flex justify-between text-xs">
+                          <div>
                             <span className="text-muted-foreground">Original Price:</span>
                             <p className="font-medium line-through text-orange-500">{formatCurrency(item.currentPrice)}</p>
                           </div>
                         )}
 
-                        {/* Unit Price Row */}
-                        <div className="flex justify-between text-xs">
+                        {/* Unit Price */}
+                        <div>
                           <span className="text-muted-foreground">Unit Price:</span>
                           <p className="font-medium">{formatCurrency(item.finalPrice)}</p>
                         </div>
 
-                        {/* Item Total Row */}
-                        <div className="flex justify-between text-xs">
+                        {/* Item Total */}
+                        <div>
                           <span className="text-muted-foreground">Item Total:</span>
                           <p className="font-bold text-green-600">{formatCurrency(item.totalPrice)}</p>
                         </div>
 
-                        {/* Add-ons Row */}
+                        {/* Add-ons */}
                         {(item.customizationTotal ?? 0) > 0 && (
-                          <div className="flex justify-between text-xs">
+                          <div>
                             <span className="text-muted-foreground">Add-ons:</span>
                             <p className="font-medium text-blue-600">+{formatCurrency(item.customizationTotal)}</p>
                           </div>
