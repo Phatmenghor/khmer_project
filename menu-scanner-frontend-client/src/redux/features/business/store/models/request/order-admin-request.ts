@@ -5,6 +5,8 @@ export interface AllOrderAdminRequest extends BaseGetAllRequest {
   orderStatus?: string;
   paymentMethod?: string;
   paymentStatus?: string;
+  startDate?: string; // ISO 8601 format
+  endDate?: string;   // ISO 8601 format
 }
 
 export interface UpdateOrderRequest {

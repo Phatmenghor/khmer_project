@@ -91,6 +91,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
      * - orderStatus
      * - paymentMethod
      * - paymentStatus
+     * - date range (startDate to endDate)
      *
      * Uses JOIN FETCH to prevent N+1 query problem
      * NOTE: statusHistory is loaded separately to avoid MultipleBagFetchException
@@ -105,11 +106,15 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
            "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
            "AND (:paymentMethod IS NULL OR o.paymentMethod = :paymentMethod) " +
            "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) " +
+           "AND (:startDate IS NULL OR o.createdAt >= :startDate) " +
+           "AND (:endDate IS NULL OR o.createdAt <= :endDate) " +
            "ORDER BY o.createdAt DESC")
     Page<Order> findAllWithFilters(
             @Param("businessId") UUID businessId,
             @Param("orderStatus") OrderStatus orderStatus,
             @Param("paymentMethod") com.emenu.enums.payment.PaymentMethod paymentMethod,
             @Param("paymentStatus") com.emenu.enums.payment.PaymentStatus paymentStatus,
+            @Param("startDate") java.time.LocalDateTime startDate,
+            @Param("endDate") java.time.LocalDateTime endDate,
             Pageable pageable);
 }

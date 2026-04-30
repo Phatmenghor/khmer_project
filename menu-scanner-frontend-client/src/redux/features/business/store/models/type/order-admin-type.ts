@@ -6,6 +6,8 @@ export interface OrderAdminFilters {
   pageNo: number;
   orderStatus?: string;
   paymentStatus?: string;
+  startDate?: string; // ISO 8601 format
+  endDate?: string;   // ISO 8601 format
 }
 
 export interface OrderAdminOperations {

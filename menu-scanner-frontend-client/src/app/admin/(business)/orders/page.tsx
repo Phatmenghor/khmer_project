@@ -18,12 +18,15 @@ import {
   setSearchFilter,
   setOrderStatusFilter,
   setPaymentStatusFilter,
+  setStartDateFilter,
+  setEndDateFilter,
   resetState,
 } from "@/redux/features/business/store/slice/order-admin-slice";
 import { orderAdminTableColumns } from "@/redux/features/business/table/order-admin-table";
 import { OrderDetailModal } from "@/redux/features/business/components/order-detail-modal";
 import { OrderUpdateModal } from "@/redux/features/business/components/order-update-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
+import { CustomDatePicker } from "@/components/shared/common/custom-date-picker";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -48,41 +51,19 @@ export default function OrdersAdminPage() {
     operations,
     pagination,
     dispatch,
-  } = useOrderAdminState();
-
-  const [detailModalState, setDetailModalState] = useState({
-    isOpen: false,
-    orderId: "",
-  });
-
-  const [updateModalState, setUpdateModalState] = useState({
-    isOpen: false,
-    orderId: "",
-  });
-
-  const [deleteState, setDeleteState] = useState({
-    isOpen: false,
-    order: null as OrderResponse | null,
-  });
-
-  const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, 400);
-
-  const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.ORDERS,
-    syncPageToRedux: (page) => dispatch(setPageNo(page)),
-  });
-
-  useEffect(() => {
-    dispatch(
-      fetchAllOrderAdminService({
-        search: debouncedSearch,
-        pageNo: filters.pageNo,
-        pageSize: globalPageSize,
+    debouncedSearch,
+    filters.pageNo,
+    filters.orderStatus,
+    filters.paymentStatus,
+    filters.startDate,
+    filters.endDate,
+    globalPageSize,
         orderStatus:
           filters.orderStatus === "ALL" ? undefined : filters.orderStatus,
         paymentStatus:
           filters.paymentStatus === "ALL" ? undefined : filters.paymentStatus,
+        startDate: filters.startDate,
+        endDate: filters.endDate,
       })
     );
   }, [
@@ -91,6 +72,8 @@ export default function OrdersAdminPage() {
     filters.pageNo,
     filters.orderStatus,
     filters.paymentStatus,
+    filters.startDate,
+    filters.endDate,
     globalPageSize,
   ]);
 
@@ -175,7 +158,55 @@ export default function OrdersAdminPage() {
   };
 
   const handlePaymentStatusChange = (value: string) => {
+
+  const handleStartDateChange = (date: Date | undefined) => {
+    if (date) {
+      dispatch(setStartDateFilter(date.toISOString()));
+    } else {
+      dispatch(setStartDateFilter(undefined));
+    }
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    if (date) {
+      dispatch(setEndDateFilter(date.toISOString()));
+    } else {
+      dispatch(setEndDateFilter(undefined));
+    }
+  };
     dispatch(setPaymentStatusFilter(value));
+
+  const handleStartDateChange = (date: Date | undefined) => {
+    if (date) {
+      dispatch(setStartDateFilter(date.toISOString()));
+    } else {
+      dispatch(setStartDateFilter(undefined));
+    }
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    if (date) {
+      dispatch(setEndDateFilter(date.toISOString()));
+    } else {
+      dispatch(setEndDateFilter(undefined));
+    }
+  };
+  };
+
+  const handleStartDateChange = (date: Date | undefined) => {
+    if (date) {
+      dispatch(setStartDateFilter(date.toISOString()));
+    } else {
+      dispatch(setStartDateFilter(undefined));
+    }
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    if (date) {
+      dispatch(setEndDateFilter(date.toISOString()));
+    } else {
+      dispatch(setEndDateFilter(undefined));
+    }
   };
 
   return (
@@ -210,6 +241,20 @@ export default function OrdersAdminPage() {
             onValueChange={handlePaymentStatusChange}
             label="Payment Status"
           />
+          <div className="flex gap-2">
+            <CustomDatePicker
+              label="From Date"
+              value={filters.startDate ? new Date(filters.startDate) : undefined}
+              onChange={handleStartDateChange}
+              placeholder="Start date"
+            />
+            <CustomDatePicker
+              label="To Date"
+              value={filters.endDate ? new Date(filters.endDate) : undefined}
+              onChange={handleEndDateChange}
+              placeholder="End date"
+            />
+          </div>
         </CardHeaderSection>
 
         <DataTableWithPagination

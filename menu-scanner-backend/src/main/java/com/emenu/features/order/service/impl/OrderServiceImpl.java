@@ -254,14 +254,19 @@ public class OrderServiceImpl implements OrderService {
         log.debug("📑 [PAGINATION] PageNo: {}, PageSize: {}, SortBy: {}, Direction: {}",
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
 
-        // Apply filters: businessId, orderStatus, paymentMethod, paymentStatus
+        // Apply filters: businessId, orderStatus, paymentMethod, paymentStatus, date range
         log.debug("🗄️  [DB QUERY START] Executing filtered query with eager loading...");
+        if (filter.getStartDate() != null || filter.getEndDate() != null) {
+            log.debug("📅 [DATE RANGE FILTER] From: {}, To: {}", filter.getStartDate(), filter.getEndDate());
+        }
         long queryStartTime = System.currentTimeMillis();
         Page<Order> page = orderRepository.findAllWithFilters(
                 filter.getBusinessId(),
                 filter.getOrderStatus(),
                 filter.getPaymentMethod(),
                 filter.getPaymentStatus(),
+                filter.getStartDate(),
+                filter.getEndDate(),
                 pageable
         );
         long queryDuration = System.currentTimeMillis() - queryStartTime;
