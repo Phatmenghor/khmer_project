@@ -1,6 +1,6 @@
 package com.emenu.features.auth.dto.request;
 
-import com.emenu.features.auth.dto.response.SocialMediaResponse;
+import com.emenu.features.auth.dto.request.SocialMediaRequest;
 import com.emenu.features.auth.dto.request.BusinessHoursRequest;
 import com.emenu.features.auth.enums.StockStatus;
 import jakarta.validation.constraints.DecimalMax;
@@ -31,7 +31,7 @@ public class BusinessSettingCreateRequest {
 
     private StockStatus enableStock;
 
-    private List<SocialMediaResponse> socialMedia;
+    private List<SocialMediaRequest> socialMedia;
 
     private String primaryColor;
 

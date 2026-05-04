@@ -7,7 +7,7 @@ import com.emenu.features.auth.dto.update.BusinessSettingUpdateRequest;
 import com.emenu.features.auth.models.BusinessSetting;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = SocialMediaMapper.class)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = { SocialMediaMapper.class, BusinessHoursMapper.class })
 public interface BusinessSettingMapper {
 
     @Mapping(target = "businessName", source = "businessName")

@@ -1,4 +1,4 @@
-package com.emenu.features.auth.dto.response;
+package com.emenu.features.auth.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,14 +7,14 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 /**
- * Social Media Response DTO
- * Represents a social media account linked to business
+ * Social Media Request DTO
+ * Used for creating and updating social media links
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class SocialMediaResponse {
-    private UUID id;                    // Unique identifier for social media item
+@AllArgsConstructor
+public class SocialMediaRequest {
+    private UUID id;                    // Optional for updates, null for new items
     private String name;                // e.g., "Facebook", "Instagram"
     private String imageUrl;            // Icon/logo URL (optional, fallback to default)
     private String linkUrl;             // Link to the social media profile
