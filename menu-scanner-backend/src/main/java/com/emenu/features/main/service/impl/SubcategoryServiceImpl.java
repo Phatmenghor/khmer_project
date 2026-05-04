@@ -178,6 +178,8 @@ public class SubcategoryServiceImpl implements SubcategoryService {
                 PaginationUtils.createSort("categoryId", "ASC")
         );
 
+        log.info("Found {} subcategories for business: {}", subcategories.size(), businessId);
+
         Map<UUID, CategoryWithSubcategoriesResponse> groupedByCategory = new LinkedHashMap<>();
 
         for (Subcategory subcategory : subcategories) {
@@ -207,6 +209,7 @@ public class SubcategoryServiceImpl implements SubcategoryService {
             group.getSubcategories().add(subcategoryMapper.toResponse(subcategory));
         }
 
+        log.info("Grouped into {} categories for business: {}", groupedByCategory.size(), businessId);
         return new java.util.ArrayList<>(groupedByCategory.values());
     }
 
