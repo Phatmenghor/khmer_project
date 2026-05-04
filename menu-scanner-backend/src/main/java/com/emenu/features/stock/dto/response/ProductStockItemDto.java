@@ -45,9 +45,7 @@ public class ProductStockItemDto {
     private BigDecimal displayPrice;               // NEW: Final price after discount
     private String displayPromotionType;           // NEW: PERCENTAGE or FIXED_AMOUNT
     private BigDecimal displayPromotionValue;      // NEW: Discount value
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime displayPromotionFromDate; // NEW: Promotion start date
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime displayPromotionToDate;   // NEW: Promotion end date
     private Boolean hasPromotion;                  // NEW: Is on promotion flag
 
@@ -68,9 +66,7 @@ public class ProductStockItemDto {
     private String mainImageUrl;                   // NEW: Main product image
 
     // ========== METADATA ==========
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
 }

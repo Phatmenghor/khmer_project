@@ -78,11 +78,9 @@ public class Product extends BaseUUIDEntity {
     private BigDecimal promotionValue;
 
     @Column(name = "promotion_from_date")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promotionFromDate;
 
     @Column(name = "promotion_to_date")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promotionToDate;
 
     @Column(name = "has_sizes", nullable = false)
