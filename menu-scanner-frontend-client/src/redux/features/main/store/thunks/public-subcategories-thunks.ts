@@ -30,7 +30,7 @@ export const fetchPublicSubcategories = createAsyncThunk<
         }
       }
     );
-    return response.data.data;
+    return response.data.data.items;
   } catch (error: any) {
     return rejectWithValue(
       error.response?.data?.message || "Failed to fetch subcategories"

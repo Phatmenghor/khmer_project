@@ -3,6 +3,7 @@ package com.emenu.features.main.controller;
 import com.emenu.features.main.dto.filter.SubcategoryAllFilterRequest;
 import com.emenu.features.main.dto.filter.SubcategoryFilterRequest;
 import com.emenu.features.main.dto.response.CategoryWithSubcategoriesResponse;
+import com.emenu.features.main.dto.response.SubcategoryGroupResponse;
 import com.emenu.features.main.dto.response.SubcategoryResponse;
 import com.emenu.features.main.service.SubcategoryService;
 import com.emenu.features.main.service.ProductConditionalService;
@@ -72,18 +73,19 @@ public class PublicSubcategoryController {
      * Get all subcategories grouped by category - respects business settings (useSubcategories flag)
      */
     @GetMapping("/by-category")
-    public ResponseEntity<ApiResponse<List<CategoryWithSubcategoriesResponse>>> getSubcategoriesByCategory(
+    public ResponseEntity<ApiResponse<SubcategoryGroupResponse>> getSubcategoriesByCategory(
             @RequestParam UUID businessId,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String search) {
         log.info("Getting subcategories grouped by category for business - BusinessId: {}", businessId);
 
         if (!productConditionalService.businessUsesSubcategories(businessId)) {
-            log.info("Business {} does not use subcategories - returning empty list", businessId);
-            return ResponseEntity.ok(ApiResponse.success("Subcategories are not enabled for this business", Collections.emptyList()));
+            log.info("Business {} does not use subcategories - returning empty response", businessId);
+            return ResponseEntity.ok(ApiResponse.success("Subcategories are not enabled for this business", new SubcategoryGroupResponse(Collections.emptyList())));
         }
 
         List<CategoryWithSubcategoriesResponse> result = subcategoryService.getSubcategoriesGroupedByCategory(businessId, status, search);
-        return ResponseEntity.ok(ApiResponse.success("Subcategories retrieved successfully", result));
+        SubcategoryGroupResponse response = new SubcategoryGroupResponse(result);
+        return ResponseEntity.ok(ApiResponse.success("Subcategories retrieved successfully", response));
     }
 }
