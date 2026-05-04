@@ -25,7 +25,9 @@ interface SizePickerModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSizeSelect: (product: ProductDetailResponseModel, size?: ProductSize, quantity?: number, customizationIds?: string[]) => void;
+  onQuantityRealTimeUpdate?: (product: ProductDetailResponseModel, size?: ProductSize, quantity: number, customizationIds?: string[], editingId?: string) => void;
   isEditing?: boolean;
+  editingId?: string;
   // Initial quantities for each size (e.g., when editing existing cart item)
   initialQuantities?: Map<string, number>;
   // Initial customizations for editing existing cart item
@@ -37,7 +39,9 @@ export function SizePickerModal({
   open,
   onOpenChange,
   onSizeSelect,
+  onQuantityRealTimeUpdate,
   isEditing = false,
+  editingId,
   initialQuantities,
   initialCustomizations,
 }: SizePickerModalProps) {
@@ -184,7 +188,7 @@ export function SizePickerModal({
   // Handle quantity change - update pending and track if modified
   const handleQuantityChange = useCallback(
     (newQuantity: number) => {
-      if (!selectedSize) return;
+      if (!selectedSize || !product) return;
 
       const sizeId = selectedSize.id;
       const originalQty = getQuantityForSize(sizeId);
@@ -211,8 +215,21 @@ export function SizePickerModal({
 
       // Update current quantity display
       setQuantity(newQuantity);
+
+      // Real-time update to cart as quantity changes
+      if (onQuantityRealTimeUpdate && newQuantity > 0) {
+        const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
+        const customizationIds = Array.from(selectedSizeCustoms);
+
+        // If this is a no-size product, pass undefined for size
+        if (sizeId === "__no_size__") {
+          onQuantityRealTimeUpdate(product, undefined, newQuantity, customizationIds, editingId);
+        } else {
+          onQuantityRealTimeUpdate(product, selectedSize, newQuantity, customizationIds, editingId);
+        }
+      }
     },
-    [selectedSize, getQuantityForSize],
+    [selectedSize, product, getQuantityForSize, customizationsBySize, onQuantityRealTimeUpdate, editingId],
   );
 
   // Clear size - set quantity to 0 and clear customizations

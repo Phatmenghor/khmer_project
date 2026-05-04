@@ -406,26 +406,25 @@ export default function PosPage() {
       };
 
       if (editingId) {
+        // Edit mode: replace existing item quantity
         const existingItem = cartItems.find((item) => item.id === editingId);
         if (existingItem) {
           dispatch(updateCartItem({
             ...newItem,
-            quantity: existingItem.quantity,
-            totalPrice: finalPrice * existingItem.quantity,
+            quantity: quantity,  // Use NEW quantity, not old
+            totalPrice: finalPrice * quantity,
           }));
         }
+      } else if (cartItems.some((item) => item.id === cartId)) {
+        // Same product/size/customizations exists: REPLACE quantity (not merge)
+        dispatch(updateCartItem({
+          ...newItem,
+          quantity: quantity,  // REPLACE, not merge
+          totalPrice: finalPrice * quantity,
+        }));
       } else {
-        const existing = cartItems.find((item) => item.id === cartId);
-        if (existing) {
-          const qty = existing.quantity + quantity;
-          dispatch(updateCartItem({
-            ...newItem,
-            quantity: qty,
-            totalPrice: finalPrice * qty,
-          }));
-        } else {
-          dispatch(addCartItem(newItem));
-        }
+        // New item: add to cart
+        dispatch(addCartItem(newItem));
       }
 
       // Store customizations for this product so they're available if modal opens again
@@ -1342,7 +1341,12 @@ export default function PosPage() {
               dispatch(setSizePickerProduct(null));
               dispatch(setEditingCartItemId(null));
             }}
+            onQuantityRealTimeUpdate={(product, size, qty, customizationIds, edtId) => {
+              // Real-time update as quantity changes in modal
+              addToCart(product, size, edtId, qty, customizationIds);
+            }}
             isEditing={!!editingCartItemId}
+            editingId={editingCartItemId || undefined}
             initialQuantities={initialQties}
             initialCustomizations={initialCustomIds}
           />
