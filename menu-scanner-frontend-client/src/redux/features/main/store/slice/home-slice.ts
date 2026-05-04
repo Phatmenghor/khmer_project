@@ -1,8 +1,6 @@
 /**
  * home-slice.ts
- * Redux store for home page data and pagination
- * Handles: banners, categories, promotions, featured products, brands
- * Features: infinite scroll pagination, scroll position restoration, section loading states
+ * Simplified - only store scroll for home page
  */
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -19,21 +17,18 @@ import {
   fetchHomeBrands,
 } from "../thunks/home-thunks";
 
-/** State for individual sections (loading, loaded, error) */
 interface SectionState {
   loading: boolean;
   loaded: boolean;
   error: string | null;
 }
 
-/** Pagination info for paginated sections (featured products) */
 interface PaginationState {
   currentPage: number;
   hasMore: boolean;
   totalPages: number;
 }
 
-/** Complete home page Redux state */
 interface HomePageState {
   // Data
   banners: BannerResponseModel[];
@@ -42,7 +37,7 @@ interface HomePageState {
   featuredProducts: ProductDetailResponseModel[];
   brands: BrandResponseModel[];
 
-  // Section loading/error states
+  // Section states
   sections: {
     banners: SectionState;
     categories: SectionState;
@@ -51,30 +46,23 @@ interface HomePageState {
     brands: SectionState;
   };
 
-  // Pagination for featured products (infinite scroll)
+  // Pagination for featured products
   featuredPagination: PaginationState;
 
-  // Page metadata
+  // Page state
   initialLoadComplete: boolean;
   lastFetchTimestamp: number | null;
+
+  // Simple scroll position - just one number
   scrollY: number;
 }
 
-/** Default section state - loading: false, loaded: false, error: null */
 const initialSectionState: SectionState = {
   loading: false,
   loaded: false,
   error: null,
 };
 
-/** Default pagination state - page 1, has more data */
-const initialPaginationState: PaginationState = {
-  currentPage: 1,
-  hasMore: true,
-  totalPages: 1,
-};
-
-/** Initial home page state */
 const initialState: HomePageState = {
   banners: [],
   categories: [],
@@ -88,10 +76,14 @@ const initialState: HomePageState = {
     featuredProducts: { ...initialSectionState },
     brands: { ...initialSectionState },
   },
-  featuredPagination: { ...initialPaginationState },
+  featuredPagination: {
+    currentPage: 1,
+    hasMore: true,
+    totalPages: 1,
+  },
   initialLoadComplete: false,
   lastFetchTimestamp: null,
-  scrollY: 0,
+  scrollY: 0, // Simple!
 };
 
 const homeSlice = createSlice({
@@ -119,7 +111,6 @@ const homeSlice = createSlice({
     },
 
     forceRefresh: (state) => {
-      // Reset all data and states for full page refresh
       state.banners = [];
       state.categories = [];
       state.promotionProducts = [];
@@ -132,76 +123,121 @@ const homeSlice = createSlice({
         featuredProducts: { ...initialSectionState },
         brands: { ...initialSectionState },
       };
-      state.featuredPagination = { ...initialPaginationState };
+      state.featuredPagination = {
+        currentPage: 1,
+        hasMore: true,
+        totalPages: 1,
+      };
       state.initialLoadComplete = false;
       state.lastFetchTimestamp = null;
-      state.scrollY = 0;
+      state.scrollY = 0; // Reset scroll too
     },
 
     resetHomeState: () => initialState,
   },
 
   extraReducers: (builder) => {
-    // Helper: Handle standard section loading (pending/rejected)
-    const addSectionPending = (action: any, sectionKey: keyof HomePageState["sections"]) => {
-      builder.addCase(action.pending, (state) => {
-        state.sections[sectionKey].loading = true;
-        state.sections[sectionKey].error = null;
-      });
-      builder.addCase(action.rejected, (state, { payload }) => {
-        state.sections[sectionKey].loading = false;
-        state.sections[sectionKey].error = payload as string;
-      });
-    };
-
     // Banners
-    addSectionPending(fetchHomeBanners, "banners");
-    builder.addCase(fetchHomeBanners.fulfilled, (state, action) => {
-      state.banners = action.payload || [];
-      state.sections.banners.loading = false;
-      state.sections.banners.loaded = true;
-    });
+    builder
+      .addCase(fetchHomeBanners.pending, (state) => {
+        state.sections.banners.loading = true;
+        state.sections.banners.error = null;
+      })
+      .addCase(fetchHomeBanners.fulfilled, (state, action) => {
+        state.banners = action.payload || [];
+        state.sections.banners.loading = false;
+        state.sections.banners.loaded = true;
+      })
+      .addCase(fetchHomeBanners.rejected, (state, action) => {
+        state.sections.banners.loading = false;
+        state.sections.banners.error = action.payload as string;
+      });
 
     // Categories
-    addSectionPending(fetchHomeCategories, "categories");
-    builder.addCase(fetchHomeCategories.fulfilled, (state, action) => {
-      state.categories = action.payload.content || [];
-      state.sections.categories.loading = false;
-      state.sections.categories.loaded = true;
-    });
+    builder
+      .addCase(fetchHomeCategories.pending, (state) => {
+        state.sections.categories.loading = true;
+        state.sections.categories.error = null;
+      })
+      .addCase(fetchHomeCategories.fulfilled, (state, action) => {
+        state.categories = action.payload.content || [];
+        state.sections.categories.loading = false;
+        state.sections.categories.loaded = true;
+      })
+      .addCase(fetchHomeCategories.rejected, (state, action) => {
+        state.sections.categories.loading = false;
+        state.sections.categories.error = action.payload as string;
+      });
 
     // Promotion Products
-    addSectionPending(fetchHomePromotionProducts, "promotionProducts");
-    builder.addCase(fetchHomePromotionProducts.fulfilled, (state, action) => {
-      state.promotionProducts = action.payload.content || [];
-      state.sections.promotionProducts.loading = false;
-      state.sections.promotionProducts.loaded = true;
-    });
+    builder
+      .addCase(fetchHomePromotionProducts.pending, (state) => {
+        state.sections.promotionProducts.loading = true;
+        state.sections.promotionProducts.error = null;
+      })
+      .addCase(fetchHomePromotionProducts.fulfilled, (state, action) => {
+        state.promotionProducts = action.payload.content || [];
+        state.sections.promotionProducts.loading = false;
+        state.sections.promotionProducts.loaded = true;
+      })
+      .addCase(fetchHomePromotionProducts.rejected, (state, action) => {
+        state.sections.promotionProducts.loading = false;
+        state.sections.promotionProducts.error = action.payload as string;
+      });
 
-    // Featured Products (Paginated with infinite scroll)
-    addSectionPending(fetchHomeFeaturedProducts, "featuredProducts");
-    builder.addCase(fetchHomeFeaturedProducts.fulfilled, (state, action) => {
-      const newProducts = action.payload.content || [];
+    // Featured Products (Paginated)
+    builder
+      .addCase(fetchHomeFeaturedProducts.pending, (state) => {
+        state.sections.featuredProducts.loading = true;
+        state.sections.featuredProducts.error = null;
+      })
+      .addCase(fetchHomeFeaturedProducts.fulfilled, (state, action) => {
+        const newProducts = action.payload.content || [];
+        const pageSize = action.payload.pageSize || 20;
 
-      // Append new products to existing (Facebook-style infinite scroll)
-      // Backend handles pagination, no deduplication needed
-      state.featuredProducts = [...state.featuredProducts, ...newProducts];
+        // Memory optimization: Keep only last 3 pages of data (like YouTube)
+        const MAX_PAGES_IN_MEMORY = 3;
+        const maxItems = MAX_PAGES_IN_MEMORY * pageSize;
 
-      // Update pagination info
-      state.featuredPagination.currentPage = action.payload.pageNo || 1;
-      state.featuredPagination.totalPages = action.payload.totalPages || 1;
-      state.featuredPagination.hasMore = !action.payload.last;
-      state.sections.featuredProducts.loading = false;
-      state.sections.featuredProducts.loaded = true;
-    });
+        // Append new products with deduplication
+        const existingIds = new Set(state.featuredProducts.map(p => p.id));
+        const uniqueNewProducts = newProducts.filter(p => !existingIds.has(p.id));
+        const updatedProducts = [...state.featuredProducts, ...uniqueNewProducts];
+
+        // If we exceed the limit, remove oldest items
+        if (updatedProducts.length > maxItems) {
+          const itemsToRemove = updatedProducts.length - maxItems;
+          state.featuredProducts = updatedProducts.slice(itemsToRemove);
+        } else {
+          state.featuredProducts = updatedProducts;
+        }
+
+        state.featuredPagination.currentPage = action.payload.pageNo || 1;
+        state.featuredPagination.totalPages = action.payload.totalPages || 1;
+        state.featuredPagination.hasMore = !action.payload.last;
+        state.sections.featuredProducts.loading = false;
+        state.sections.featuredProducts.loaded = true;
+      })
+      .addCase(fetchHomeFeaturedProducts.rejected, (state, action) => {
+        state.sections.featuredProducts.loading = false;
+        state.sections.featuredProducts.error = action.payload as string;
+      });
 
     // Brands
-    addSectionPending(fetchHomeBrands, "brands");
-    builder.addCase(fetchHomeBrands.fulfilled, (state, action) => {
-      state.brands = action.payload.content || [];
-      state.sections.brands.loading = false;
-      state.sections.brands.loaded = true;
-    });
+    builder
+      .addCase(fetchHomeBrands.pending, (state) => {
+        state.sections.brands.loading = true;
+        state.sections.brands.error = null;
+      })
+      .addCase(fetchHomeBrands.fulfilled, (state, action) => {
+        state.brands = action.payload.content || [];
+        state.sections.brands.loading = false;
+        state.sections.brands.loaded = true;
+      })
+      .addCase(fetchHomeBrands.rejected, (state, action) => {
+        state.sections.brands.loading = false;
+        state.sections.brands.error = action.payload as string;
+      });
   },
 });
 

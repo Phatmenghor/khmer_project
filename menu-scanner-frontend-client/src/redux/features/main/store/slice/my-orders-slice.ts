@@ -89,8 +89,17 @@ const myOrdersSlice = createSlice({
         const pageNo = action.payload.pageNo || 1;
         const pageSize = action.payload.pageSize || 15;
 
-        // Pagination behavior: replace orders on every page (not infinite scroll)
-        state.orders = newOrders;
+        // For infinite scroll: append on page > 1, replace on page 1
+        // Backend handles all sorting - no frontend sorting
+        if (pageNo === 1) {
+          // First page: replace all orders
+          state.orders = newOrders;
+        } else {
+          // Load more: append new orders, deduplicating by ID
+          const existingIds = new Set(state.orders.map((o) => o.id));
+          const uniqueNew = newOrders.filter((o) => !existingIds.has(o.id));
+          state.orders = [...state.orders, ...uniqueNew];
+        }
 
         state.loading.list = false;
         state.pagination = {
