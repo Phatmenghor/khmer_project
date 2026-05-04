@@ -111,31 +111,59 @@ export function SizePickerModal({
 
   // Initialize when modal opens
   useEffect(() => {
-    if (open && product?.sizes && product.sizes.length > 0) {
-      setSelectedSize(product.sizes[0]);
-      setPendingQuantities(new Map());
-      setModifiedSizes(new Set());
+    if (open && product) {
+      const hasSizes = product.sizes && product.sizes.length > 0;
+      const hasCustomizations = product.customizations && product.customizations.length > 0;
 
-      // Initialize customizations per size from prop if editing, otherwise empty
-      const customsBySize = new Map<string, Set<string>>();
-      if (initialCustomizations && initialCustomizations.length > 0) {
-        // When editing, customizations apply to first size
-        customsBySize.set(product.sizes[0].id, new Set(initialCustomizations));
+      if (hasSizes) {
+        // Product has sizes - use normal flow
+        setSelectedSize(product.sizes![0]);
+        setPendingQuantities(new Map());
+        setModifiedSizes(new Set());
+
+        // Initialize customizations per size from prop if editing, otherwise empty
+        const customsBySize = new Map<string, Set<string>>();
+        if (initialCustomizations && initialCustomizations.length > 0) {
+          // When editing, customizations apply to first size
+          customsBySize.set(product.sizes![0].id, new Set(initialCustomizations));
+        }
+        setCustomizationsBySize(customsBySize);
+
+        // Initialize original quantities from prop or default to 0
+        const origQties = new Map<string, number>();
+        product.sizes!.forEach((size) => {
+          // Use initialQuantities if provided (when editing existing item)
+          const initialQty = initialQuantities?.get(size.id) ?? 0;
+          origQties.set(size.id, initialQty);
+        });
+        setOriginalQuantities(origQties);
+
+        // Set initial quantity to first size's existing quantity
+        const firstSizeQty = initialQuantities?.get(product.sizes![0].id) ?? 0;
+        setQuantity(firstSizeQty);
+      } else if (hasCustomizations) {
+        // No sizes but has customizations - use "__no_size__" as a placeholder
+        const noSizeId = "__no_size__";
+        setSelectedSize({ id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as ProductSize);
+        setPendingQuantities(new Map());
+        setModifiedSizes(new Set([noSizeId]));
+
+        // Initialize customizations
+        const customsBySize = new Map<string, Set<string>>();
+        if (initialCustomizations && initialCustomizations.length > 0) {
+          customsBySize.set(noSizeId, new Set(initialCustomizations));
+        }
+        setCustomizationsBySize(customsBySize);
+
+        // Initialize quantities
+        const origQties = new Map<string, number>();
+        const initialQty = initialQuantities?.get(noSizeId) ?? 0;
+        origQties.set(noSizeId, initialQty);
+        setOriginalQuantities(origQties);
+
+        // Set initial quantity
+        setQuantity(Math.max(1, initialQty));
       }
-      setCustomizationsBySize(customsBySize);
-
-      // Initialize original quantities from prop or default to 0
-      const origQties = new Map<string, number>();
-      product.sizes.forEach((size) => {
-        // Use initialQuantities if provided (when editing existing item)
-        const initialQty = initialQuantities?.get(size.id) ?? 0;
-        origQties.set(size.id, initialQty);
-      });
-      setOriginalQuantities(origQties);
-
-      // Set initial quantity to first size's existing quantity
-      const firstSizeQty = initialQuantities?.get(product.sizes[0].id) ?? 0;
-      setQuantity(firstSizeQty);
     } else if (!open) {
       setSelectedSize(null);
       setQuantity(1);
@@ -144,7 +172,7 @@ export function SizePickerModal({
       setOriginalQuantities(new Map());
       setCustomizationsBySize(new Map());
     }
-  }, [open, product?.id, product?.sizes, initialQuantities, initialCustomizations]);
+  }, [open, product?.id, product?.sizes, product?.customizations, initialQuantities, initialCustomizations, product?.price, product?.displayPrice]);
 
   // Handle quantity change - update pending and track if modified
   const handleQuantityChange = useCallback(
@@ -261,14 +289,22 @@ export function SizePickerModal({
 
     // Loop through ALL sizes with changes (quantity or customizations) and add each one to cart
     for (const sizeId of sizesToUpdate) {
-      const size = product.sizes?.find((s) => s.id === sizeId);
       const qty = getDisplayQuantity(sizeId);
 
       // Only add if quantity > 0
-      if (size && qty > 0) {
+      if (qty > 0) {
         // Get customizations for this specific size
         const sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
-        onSizeSelect(product, size, qty, sizeCustomizations);
+
+        // If this is a no-size product, pass undefined for size
+        if (sizeId === "__no_size__") {
+          onSizeSelect(product, undefined, qty, sizeCustomizations);
+        } else {
+          const size = product.sizes?.find((s) => s.id === sizeId);
+          if (size) {
+            onSizeSelect(product, size, qty, sizeCustomizations);
+          }
+        }
       }
     }
 
@@ -281,7 +317,9 @@ export function SizePickerModal({
 
   if (!product) return null;
 
-  const activeSizes = product?.sizes?.filter((s) => s.id) || [];
+  const hasSizes = product?.sizes && product.sizes.length > 0;
+  const hasCustomizations = product?.customizations && product.customizations.length > 0;
+  const activeSizes = hasSizes ? product.sizes!.filter((s) => s.id) : [];
 
   const displayPrice = selectedSize?.finalPrice || product?.displayPrice || 0;
 
@@ -309,7 +347,15 @@ export function SizePickerModal({
       <DialogContent className="w-full sm:max-w-[500px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Header */}
         <FormHeader
-          title={isEditing ? "Edit Size" : "Choose Size"}
+          title={
+            isEditing
+              ? hasSizes
+                ? "Edit Size"
+                : "Customize Product"
+              : hasSizes
+              ? "Choose Size"
+              : "Customize & Select Quantity"
+          }
           description={product?.name}
           isCreate={isEditing === false}
           showAvatar={false}
