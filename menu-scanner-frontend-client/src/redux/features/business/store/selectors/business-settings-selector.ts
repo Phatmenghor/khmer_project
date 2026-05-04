@@ -4,13 +4,17 @@ export const selectBusinessSettings = (state: RootState) => state.businessSettin
 export const selectBusinessSettingsLoading = (state: RootState) => state.businessSettings.isLoading;
 export const selectBusinessSettingsError = (state: RootState) => state.businessSettings.error;
 
+// No defaults - return from data only
+// Will be blank until cache/API loads data
+// Same pattern as primary color (blank until set)
 export const selectBusinessName = (state: RootState) =>
-  state.businessSettings.data?.businessName || "Emenu Scanner";
+  state.businessSettings.data?.businessName;
 
 export const selectBusinessLogo = (state: RootState) =>
-  state.businessSettings.data?.logoBusinessUrl || null;
+  state.businessSettings.data?.logoBusinessUrl;
 
 export const selectBusinessColors = (state: RootState) => ({
-  // Use business primary color or fallback to default
-  primary: state.businessSettings.data?.primaryColor || "#57823D",      // Green
+  // No default fallback - blank until cache/API loads
+  // Will be applied by sync script from localStorage or API
+  primary: state.businessSettings.data?.primaryColor,
 });
