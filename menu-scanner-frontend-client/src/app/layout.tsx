@@ -107,6 +107,67 @@ export default async function RootLayout({
                     taxPercentage: cachedColors.taxPercentage,
                   };
 
+                  // Update page metadata with business data
+                  if (cachedColors.businessName) {
+                    document.title = cachedColors.businessName;
+
+                    // Update og:title
+                    let ogTitle = document.querySelector('meta[property="og:title"]');
+                    if (!ogTitle) {
+                      ogTitle = document.createElement('meta');
+                      ogTitle.setAttribute('property', 'og:title');
+                      document.head.appendChild(ogTitle);
+                    }
+                    ogTitle.setAttribute('content', cachedColors.businessName);
+
+                    // Update twitter:title
+                    let twitterTitle = document.querySelector('meta[name="twitter:title"]');
+                    if (!twitterTitle) {
+                      twitterTitle = document.createElement('meta');
+                      twitterTitle.setAttribute('name', 'twitter:title');
+                      document.head.appendChild(twitterTitle);
+                    }
+                    twitterTitle.setAttribute('content', cachedColors.businessName);
+                  }
+
+                  // Update og:description and twitter:description
+                  const description = cachedColors.businessName ? cachedColors.businessName + ' - Online Menu and Ordering' : 'Online Menu and Ordering';
+
+                  let ogDesc = document.querySelector('meta[property="og:description"]');
+                  if (!ogDesc) {
+                    ogDesc = document.createElement('meta');
+                    ogDesc.setAttribute('property', 'og:description');
+                    document.head.appendChild(ogDesc);
+                  }
+                  ogDesc.setAttribute('content', description);
+
+                  let twitterDesc = document.querySelector('meta[name="twitter:description"]');
+                  if (!twitterDesc) {
+                    twitterDesc = document.createElement('meta');
+                    twitterDesc.setAttribute('name', 'twitter:description');
+                    document.head.appendChild(twitterDesc);
+                  }
+                  twitterDesc.setAttribute('content', description);
+
+                  // Update og:image and twitter:image with logo URL
+                  if (cachedColors.logoBusinessUrl) {
+                    let ogImage = document.querySelector('meta[property="og:image"]');
+                    if (!ogImage) {
+                      ogImage = document.createElement('meta');
+                      ogImage.setAttribute('property', 'og:image');
+                      document.head.appendChild(ogImage);
+                    }
+                    ogImage.setAttribute('content', cachedColors.logoBusinessUrl);
+
+                    let twitterImage = document.querySelector('meta[name="twitter:image"]');
+                    if (!twitterImage) {
+                      twitterImage = document.createElement('meta');
+                      twitterImage.setAttribute('name', 'twitter:image');
+                      document.head.appendChild(twitterImage);
+                    }
+                    twitterImage.setAttribute('content', cachedColors.logoBusinessUrl);
+                  }
+
                   // Convert hex to HSL
                   function hexToHsl(hex) {
                     if (!hex) return '';
