@@ -6,6 +6,13 @@ export interface SocialMedia {
   linkUrl: string;
 }
 
+export interface BusinessHours {
+  day: string;
+  openTime: string;
+  closeTime: string;
+  isClosed: boolean;
+}
+
 export interface BusinessSettings {
   id: string;
   createdAt: string;
@@ -16,15 +23,31 @@ export interface BusinessSettings {
   businessName: string;
   taxPercentage: number | null;
   logoBusinessUrl: string;
+  primaryColor: string;
   enableStock: "ENABLED" | "DISABLED";
+  contactAddress: string;
+  contactPhone: string;
+  contactEmail: string;
   socialMedia: SocialMedia[];
+  businessHours: BusinessHours[];
+  useCategories: boolean;
+  useSubcategories: boolean;
+  useBrands: boolean;
 }
 
 export interface UpdateBusinessSettingsPayload {
   taxPercentage?: number | null;
   logoBusinessUrl?: string;
+  primaryColor?: string;
   enableStock?: "ENABLED" | "DISABLED";
+  contactAddress?: string;
+  contactPhone?: string;
+  contactEmail?: string;
   socialMedia?: SocialMedia[];
+  businessHours?: BusinessHours[];
+  useCategories?: boolean;
+  useSubcategories?: boolean;
+  useBrands?: boolean;
 }
 
 /**

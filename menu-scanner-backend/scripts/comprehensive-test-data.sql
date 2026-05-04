@@ -31,25 +31,178 @@ VALUES (
 ) ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- 2. CREATE BUSINESS SETTINGS (ALL FEATURES ENABLED)
+-- 2. CREATE BUSINESS SETTINGS (ALL FEATURES ENABLED WITH SOCIAL & HOURS)
 -- ============================================================================
 
--- Mega Store Settings
-INSERT INTO business_settings (id, business_id, use_categories, use_subcategories, use_brands, tax_percentage, business_name, logo_business_url, enable_stock, primary_color, contact_address, contact_phone, contact_email, version, is_deleted, created_at, updated_at, created_by, updated_by)
+-- Mega Store Settings (with populated social media and business hours)
+INSERT INTO business_settings (
+  id, business_id, use_categories, use_subcategories, use_brands, tax_percentage,
+  business_name, logo_business_url, enable_stock, primary_color, contact_address,
+  contact_phone, contact_email, social_media, business_hours, version, is_deleted,
+  created_at, updated_at, created_by, updated_by
+)
 VALUES (
   '770e8400-e29b-41d4-a716-446655440002',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  true, true, true, 10.0, 'Mega Store', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'ENABLED', '#FF6B6B',
-  'Phnom Penh, Cambodia', '+855-12-345-678', 'megastore@example.com', 0, false, NOW(), NOW(), 'admin', 'admin'
+  true, true, true, 10.0, 'Mega Store',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  'ENABLED', '#FF6B6B',
+  'Phnom Penh, Cambodia', '+855-12-345-678', 'megastore@example.com',
+  '[
+    {
+      "name": "Facebook",
+      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733547.png",
+      "linkUrl": "https://facebook.com/megastore.cambodia"
+    },
+    {
+      "name": "Instagram",
+      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733558.png",
+      "linkUrl": "https://instagram.com/megastore.cambodia"
+    },
+    {
+      "name": "TikTok",
+      "imageUrl": "https://cdn-icons-png.flaticon.com/512/3046/3046126.png",
+      "linkUrl": "https://tiktok.com/@megastore.cambodia"
+    },
+    {
+      "name": "WhatsApp",
+      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733585.png",
+      "linkUrl": "https://wa.me/85512345678"
+    },
+    {
+      "name": "Telegram",
+      "imageUrl": "https://cdn-icons-png.flaticon.com/512/2111/2111646.png",
+      "linkUrl": "https://t.me/megastore_cambodia"
+    }
+  ]'::jsonb,
+  '[
+    {
+      "day": "Monday",
+      "openTime": "08:00",
+      "closeTime": "22:00",
+      "isClosed": false
+    },
+    {
+      "day": "Tuesday",
+      "openTime": "08:00",
+      "closeTime": "22:00",
+      "isClosed": false
+    },
+    {
+      "day": "Wednesday",
+      "openTime": "08:00",
+      "closeTime": "22:00",
+      "isClosed": false
+    },
+    {
+      "day": "Thursday",
+      "openTime": "08:00",
+      "closeTime": "22:00",
+      "isClosed": false
+    },
+    {
+      "day": "Friday",
+      "openTime": "08:00",
+      "closeTime": "23:00",
+      "isClosed": false
+    },
+    {
+      "day": "Saturday",
+      "openTime": "09:00",
+      "closeTime": "23:00",
+      "isClosed": false
+    },
+    {
+      "day": "Sunday",
+      "openTime": "10:00",
+      "closeTime": "21:00",
+      "isClosed": false
+    }
+  ]'::jsonb,
+  0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
--- Fashion Hub Settings
-INSERT INTO business_settings (id, business_id, use_categories, use_subcategories, use_brands, tax_percentage, business_name, logo_business_url, enable_stock, primary_color, contact_address, contact_phone, contact_email, version, is_deleted, created_at, updated_at, created_by, updated_by)
+-- Fashion Hub Settings (with populated social media and business hours)
+INSERT INTO business_settings (
+  id, business_id, use_categories, use_subcategories, use_brands, tax_percentage,
+  business_name, logo_business_url, enable_stock, primary_color, contact_address,
+  contact_phone, contact_email, social_media, business_hours, version, is_deleted,
+  created_at, updated_at, created_by, updated_by
+)
 VALUES (
   '770e8400-e29b-41d4-a716-446655440003',
   '660cad56-cafd-4aba-baef-c4dcd53940d0',
-  true, true, true, 10.0, 'Fashion Hub', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'ENABLED', '#6B6BFF',
-  'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com', 0, false, NOW(), NOW(), 'admin', 'admin'
+  true, true, true, 10.0, 'Fashion Hub',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  'ENABLED', '#6B6BFF',
+  'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com',
+  '[
+    {
+      "name": "Facebook",
+      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733547.png",
+      "linkUrl": "https://facebook.com/fashionhub.cambodia"
+    },
+    {
+      "name": "Instagram",
+      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733558.png",
+      "linkUrl": "https://instagram.com/fashionhub.cambodia"
+    },
+    {
+      "name": "YouTube",
+      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733564.png",
+      "linkUrl": "https://youtube.com/@fashionhubcambodia"
+    },
+    {
+      "name": "Pinterest",
+      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733553.png",
+      "linkUrl": "https://pinterest.com/fashionhubcambodia"
+    }
+  ]'::jsonb,
+  '[
+    {
+      "day": "Monday",
+      "openTime": "09:30",
+      "closeTime": "21:00",
+      "isClosed": false
+    },
+    {
+      "day": "Tuesday",
+      "openTime": "09:30",
+      "closeTime": "21:00",
+      "isClosed": false
+    },
+    {
+      "day": "Wednesday",
+      "openTime": "09:30",
+      "closeTime": "21:00",
+      "isClosed": false
+    },
+    {
+      "day": "Thursday",
+      "openTime": "09:30",
+      "closeTime": "21:00",
+      "isClosed": false
+    },
+    {
+      "day": "Friday",
+      "openTime": "09:30",
+      "closeTime": "22:00",
+      "isClosed": false
+    },
+    {
+      "day": "Saturday",
+      "openTime": "10:00",
+      "closeTime": "22:00",
+      "isClosed": false
+    },
+    {
+      "day": "Sunday",
+      "openTime": "11:00",
+      "closeTime": "20:00",
+      "isClosed": false
+    }
+  ]'::jsonb,
+  0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
 -- ============================================================================
