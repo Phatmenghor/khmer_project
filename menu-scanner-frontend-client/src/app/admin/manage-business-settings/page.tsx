@@ -201,7 +201,29 @@ export default function BusinessSettingsPage() {
         }
       }
 
-      // Create payload with the uploaded logo URL
+      // Upload social media icons if they're base64
+      const uploadedSocialMedia = await Promise.all(
+        (data.socialMedia || []).map(async (social) => {
+          let imageUrl = social.imageUrl;
+          if (isBase64Image(imageUrl)) {
+            try {
+              console.log(`📤 [UPLOAD CDN] Uploading ${social.name} icon to CDN...`);
+              imageUrl = await uploadImage(imageUrl);
+              console.log(`✅ [UPLOAD CDN] ${social.name} icon URL from CDN:`, imageUrl);
+            } catch (error) {
+              console.error(`Failed to upload ${social.name} icon:`, error);
+              showToast.error(`Failed to upload ${social.name} icon`);
+              throw error;
+            }
+          }
+          return {
+            ...social,
+            imageUrl,
+          };
+        })
+      );
+
+      // Create payload with the uploaded URLs
       const payload = {
         businessName: data.businessName,
         taxPercentage: data.taxPercentage
@@ -209,7 +231,7 @@ export default function BusinessSettingsPage() {
           : null,
         logoBusinessUrl: logoBusinessUrl,
         enableStock: data.enableStock,
-        socialMedia: data.socialMedia,
+        socialMedia: uploadedSocialMedia,
         primaryColor: data.primaryColor,
         contactAddress: data.contactAddress,
         contactPhone: data.contactPhone,
@@ -779,6 +801,7 @@ export default function BusinessSettingsPage() {
                     >
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Platform Name */}
                           <div className="space-y-2">
                             <Label className="text-sm font-medium">
                               Platform Name
@@ -799,27 +822,30 @@ export default function BusinessSettingsPage() {
                               Name of the social platform
                             </p>
                           </div>
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">
-                              Platform Icon URL
-                            </Label>
-                            <Input
-                              placeholder="https://cdn-icons-png.flaticon.com/..."
+
+                          {/* Platform Icon/Logo Upload */}
+                          <div>
+                            <ClickableImageUpload
+                              label="Platform Icon"
                               value={social.imageUrl || ""}
-                              onChange={(e) => {
+                              onChange={(imageData) => {
                                 const updated = [
                                   ...(form.getValues("socialMedia") || []),
                                 ];
-                                updated[index].imageUrl = e.target.value;
+                                updated[index].imageUrl = imageData;
                                 form.setValue("socialMedia", updated, { shouldDirty: true });
                               }}
                               disabled={isSaving}
+                              aspectRatio="square"
+                              height="h-32"
+                              placeholder="Click to upload icon"
+                              maxSize={5}
+                              helperText="Upload platform icon/logo (PNG, JPG)"
                             />
-                            <p className="text-xs text-muted-foreground">
-                              Icon/logo URL of the platform
-                            </p>
                           </div>
                         </div>
+
+                        {/* Profile Link */}
                         <div className="space-y-2">
                           <Label className="text-sm font-medium">
                             Profile Link
