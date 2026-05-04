@@ -357,7 +357,14 @@ export default function PosPage() {
   // ─── Cart Logic ───
   const addToCart = useCallback(
     (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string, quantity: number = 1, customizationIds?: string[]) => {
-      const cartId = size ? `${product.id}-${size.id}` : product.id;
+      // Generate unique cart ID including customizations
+      const customizationKey = customizationIds && customizationIds.length > 0
+        ? `-${customizationIds.sort().join("-")}`
+        : "";
+      
+      const cartId = size
+        ? `${product.id}-${size.id}${customizationKey}`
+        : `${product.id}${customizationKey}`;
       const currentPrice = size
         ? size.price
         : parseFloat(String(product.displayOriginPrice || product.price || 0));
