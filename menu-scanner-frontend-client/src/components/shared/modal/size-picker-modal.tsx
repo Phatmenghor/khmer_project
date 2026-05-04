@@ -172,7 +172,7 @@ export function SizePickerModal({
       setOriginalQuantities(new Map());
       setCustomizationsBySize(new Map());
     }
-  }, [open, product?.id, product?.sizes, product?.customizations, initialQuantities, initialCustomizations, product?.price, product?.displayPrice]);
+  }, [open, product?.id, initialQuantities, initialCustomizations]);
 
   // Handle quantity change - update pending and track if modified
   const handleQuantityChange = useCallback(
