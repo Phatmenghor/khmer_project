@@ -45,7 +45,7 @@ export default async function RootLayout({
     >
       <head>
         <link rel="icon" href="/favicon.ico" />
-        {/* Apply theme colors synchronously via style tag to prevent color flash */}
+        {/* Apply theme colors synchronously BEFORE React renders to prevent color flash */}
         <Script
           id="theme-initializer"
           strategy="beforeInteractive"
@@ -55,23 +55,41 @@ export default async function RootLayout({
                 try {
                   // Get business ID from localStorage, or use default
                   const businessId = localStorage.getItem('businessId') || '550cad56-cafd-4aba-baef-c4dcd53940d0';
-                  console.log('[THEME SYNC] Using business ID:', businessId);
+                  console.log('[THEME SYNC] Checking cache for business ID:', businessId);
 
-                  // Get cached colors from cookie
-                  const cookieName = 'theme_colors_' + businessId;
-                  const cookies = document.cookie.split(';');
+                  // Try localStorage FIRST (fast, synchronous) for instant color application
+                  const localStorageKey = 'theme_colors_' + businessId;
                   let cachedColors = null;
 
-                  for (let cookie of cookies) {
-                    cookie = cookie.trim();
-                    if (cookie.startsWith(cookieName + '=')) {
-                      const value = decodeURIComponent(cookie.substring((cookieName + '=').length));
-                      cachedColors = JSON.parse(value);
-                      break;
+                  try {
+                    const localStorageValue = localStorage.getItem(localStorageKey);
+                    if (localStorageValue) {
+                      cachedColors = JSON.parse(localStorageValue);
+                      console.log('[THEME SYNC] Found colors in localStorage');
+                    }
+                  } catch (e) {
+                    console.warn('[THEME SYNC] Error reading localStorage:', e);
+                  }
+
+                  // Fall back to cookie if localStorage doesn't have it
+                  if (!cachedColors) {
+                    const cookieName = 'theme_colors_' + businessId;
+                    const cookies = document.cookie.split(';');
+                    for (let cookie of cookies) {
+                      cookie = cookie.trim();
+                      if (cookie.startsWith(cookieName + '=')) {
+                        const value = decodeURIComponent(cookie.substring((cookieName + '=').length));
+                        cachedColors = JSON.parse(value);
+                        console.log('[THEME SYNC] Found colors in cookie');
+                        break;
+                      }
                     }
                   }
 
-                  if (!cachedColors) return;
+                  if (!cachedColors || !cachedColors.primaryColor) {
+                    console.log('[THEME SYNC] No cached colors found, showing blank');
+                    return;
+                  }
 
                   // Convert hex to HSL
                   function hexToHsl(hex) {
@@ -103,12 +121,13 @@ export default async function RootLayout({
                     return hue + ' ' + saturation + '% ' + lightness + '%';
                   }
 
-                  // Create and inject style tag to apply colors
+                  // Create and inject style tag to apply colors BEFORE React renders
                   const style = document.createElement('style');
+                  style.id = 'theme-colors-sync';
                   style.textContent = ':root{--primary:' + hexToHsl(cachedColors.primaryColor) + ';}';
-                  document.head.appendChild(style);
+                  document.head.insertBefore(style, document.head.firstChild);
 
-                  console.log('[THEME SYNC] Colors applied synchronously from cache');
+                  console.log('[THEME SYNC] Colors applied synchronously BEFORE React renders');
                 } catch (e) {
                   console.error('[THEME SYNC] Error:', e);
                 }

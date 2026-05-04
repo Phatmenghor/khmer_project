@@ -1,6 +1,8 @@
 /**
  * Theme color caching utilities
- * Stores business colors in cookies to prevent "flash of default colors" on page refresh
+ * Stores business colors in BOTH localStorage (for instant sync access) and cookies (for persistence)
+ * localStorage: Fast synchronous access before React renders (prevents flash)
+ * cookie: Persistent storage across tabs/sessions
  */
 
 export interface ThemeCacheData {
@@ -24,7 +26,6 @@ function getCookie(name: string): string | null {
         return value;
       }
     }
-    console.log(`[THEME CACHE] Cookie ${name} not found`);
     return null;
   } catch (error) {
     console.error(`[THEME CACHE] Error reading cookie ${name}:`, error);
@@ -46,22 +47,64 @@ function setCookie(name: string, value: string, days: number = 30): void {
 }
 
 /**
- * Get cached theme colors for a specific business
+ * Get localStorage item for theme colors
+ * localStorage key: theme_colors_[businessId]
  */
-export function getCachedThemeColors(businessId: string): ThemeCacheData | null {
+function getLocalStorageColors(businessId: string): ThemeCacheData | null {
+  if (typeof window === "undefined" || !window.localStorage) return null;
   try {
-    const cookieName = `theme_colors_${businessId}`;
-    const cookieValue = getCookie(cookieName);
-    if (!cookieValue) return null;
-    return JSON.parse(cookieValue) as ThemeCacheData;
+    const key = `theme_colors_${businessId}`;
+    const value = localStorage.getItem(key);
+    if (!value) return null;
+    console.log(`[THEME CACHE] Retrieved from localStorage: ${key}`);
+    return JSON.parse(value) as ThemeCacheData;
   } catch (error) {
-    console.error("[THEME CACHE] Failed to parse theme cache:", error);
+    console.error("[THEME CACHE] Error reading from localStorage:", error);
     return null;
   }
 }
 
 /**
- * Save theme colors to cookie for a specific business
+ * Set localStorage item for theme colors
+ * Fast synchronous storage for instant access before React renders
+ */
+function setLocalStorageColors(businessId: string, data: ThemeCacheData): void {
+  if (typeof window === "undefined" || !window.localStorage) return;
+  try {
+    const key = `theme_colors_${businessId}`;
+    localStorage.setItem(key, JSON.stringify(data));
+    console.log(`[THEME CACHE] Saved to localStorage: ${key}`);
+  } catch (error) {
+    console.error("[THEME CACHE] Error writing to localStorage:", error);
+  }
+}
+
+/**
+ * Get cached theme colors for a specific business
+ * Tries localStorage first (fast), then falls back to cookies
+ */
+export function getCachedThemeColors(businessId: string): ThemeCacheData | null {
+  try {
+    // Try localStorage first (synchronous, fastest)
+    const localStorageData = getLocalStorageColors(businessId);
+    if (localStorageData) return localStorageData;
+
+    // Fall back to cookie
+    const cookieName = `theme_colors_${businessId}`;
+    const cookieValue = getCookie(cookieName);
+    if (!cookieValue) return null;
+    return JSON.parse(cookieValue) as ThemeCacheData;
+  } catch (error) {
+    console.error("[THEME CACHE] Failed to get theme cache:", error);
+    return null;
+  }
+}
+
+/**
+ * Save theme colors to BOTH localStorage (instant) and cookie (persistent)
+ * This ensures:
+ * 1. Instant access via localStorage for sync script to prevent flash
+ * 2. Persistent storage via cookie for cross-tab/session persistence
  */
 export function cacheThemeColors(
   businessId: string,
@@ -70,14 +113,20 @@ export function cacheThemeColors(
   }
 ): void {
   try {
-    const cookieName = `theme_colors_${businessId}`;
     const cacheData: ThemeCacheData = {
       primaryColor: colors.primaryColor,
       timestamp: Date.now(),
     };
+
+    // Save to localStorage (instant synchronous access)
+    setLocalStorageColors(businessId, cacheData);
+
+    // Save to cookie (persistent across sessions)
+    const cookieName = `theme_colors_${businessId}`;
     setCookie(cookieName, JSON.stringify(cacheData), 30);
+
     console.log(
-      `[THEME CACHE] Cached colors for business ${businessId}:`,
+      `[THEME CACHE] Cached colors for business ${businessId} (localStorage + cookie):`,
       colors
     );
   } catch (error) {
