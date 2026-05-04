@@ -19,7 +19,7 @@ export default function SubcategoriesPage() {
   } = usePublicSubcategoriesState();
 
   const skeletonCount = useSkeletonCount(SkeletonPresets.categoryGrid);
-  const totalSubcategories = data.reduce((acc, group) => acc + group.subcategories.length, 0);
+  const totalSubcategories = (data || []).reduce((acc, group) => acc + group.subcategories.length, 0);
 
   useScrollRestoration({ enabled: true, restoreOnMount: true, customKey: "subcategories" });
 
