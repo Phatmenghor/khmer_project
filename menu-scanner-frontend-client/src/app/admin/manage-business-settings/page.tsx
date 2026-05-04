@@ -843,28 +843,28 @@ export default function BusinessSettingsPage() {
                               helperText="Upload platform icon/logo (PNG, JPG)"
                             />
                           </div>
-                        </div>
 
-                        {/* Profile Link */}
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">
-                            Profile Link
-                          </Label>
-                          <Input
-                            placeholder="https://facebook.com/yourprofile"
-                            value={social.linkUrl}
-                            onChange={(e) => {
-                              const updated = [
-                                ...(form.getValues("socialMedia") || []),
-                              ];
-                              updated[index].linkUrl = e.target.value;
-                              form.setValue("socialMedia", updated, { shouldDirty: true });
-                            }}
-                            disabled={isSaving}
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            URL to your profile on this platform
-                          </p>
+                          {/* Profile Link */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Profile Link
+                            </Label>
+                            <Input
+                              placeholder="https://facebook.com/yourprofile"
+                              value={social.linkUrl}
+                              onChange={(e) => {
+                                const updated = [
+                                  ...(form.getValues("socialMedia") || []),
+                                ];
+                                updated[index].linkUrl = e.target.value;
+                                form.setValue("socialMedia", updated, { shouldDirty: true });
+                              }}
+                              disabled={isSaving}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              URL to your profile on this platform
+                            </p>
+                          </div>
                         </div>
                       </div>
                       {!isSaving && (
