@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Loader2, Save, Plus, Trash2 } from "lucide-react";
+import { Loader2, Save, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -59,6 +59,9 @@ function convertResponseToFormData(
     contactPhone: response.contactPhone || "",
     contactEmail: response.contactEmail || "",
     businessHours: response.businessHours || [],
+    useCategories: response.useCategories ?? true,
+    useSubcategories: response.useSubcategories ?? false,
+    useBrands: response.useBrands ?? false,
   };
 }
 
@@ -83,6 +86,9 @@ export default function BusinessSettingsPage() {
       contactPhone: "",
       contactEmail: "",
       businessHours: [],
+      useCategories: true,
+      useSubcategories: false,
+      useBrands: false,
     },
   });
 
@@ -209,6 +215,9 @@ export default function BusinessSettingsPage() {
         contactPhone: data.contactPhone,
         contactEmail: data.contactEmail,
         businessHours: data.businessHours,
+        useCategories: data.useCategories,
+        useSubcategories: data.useSubcategories,
+        useBrands: data.useBrands,
       };
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
@@ -409,6 +418,136 @@ export default function BusinessSettingsPage() {
                 <p className="text-xs text-muted-foreground">
                   Main brand color
                 </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Feature Configuration */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Feature Configuration</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Enable or disable features on your storefront
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Categories Toggle */}
+              <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold">Categories</h4>
+                    <Badge variant={form.watch("useCategories") ? "default" : "secondary"}>
+                      {form.watch("useCategories") ? "Enabled" : "Disabled"}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Show product categories in your storefront
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant={form.watch("useCategories") ? "default" : "outline"}
+                  size="sm"
+                  onClick={() =>
+                    form.setValue("useCategories", !form.watch("useCategories"), {
+                      shouldDirty: true,
+                    })
+                  }
+                  disabled={isSaving}
+                  className="ml-4"
+                >
+                  {form.watch("useCategories") ? (
+                    <>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Show
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="h-4 w-4 mr-2" />
+                      Hide
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Subcategories Toggle */}
+              <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold">Subcategories</h4>
+                    <Badge variant={form.watch("useSubcategories") ? "default" : "secondary"}>
+                      {form.watch("useSubcategories") ? "Enabled" : "Disabled"}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Show subcategories under main categories
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant={form.watch("useSubcategories") ? "default" : "outline"}
+                  size="sm"
+                  onClick={() =>
+                    form.setValue("useSubcategories", !form.watch("useSubcategories"), {
+                      shouldDirty: true,
+                    })
+                  }
+                  disabled={isSaving}
+                  className="ml-4"
+                >
+                  {form.watch("useSubcategories") ? (
+                    <>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Show
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="h-4 w-4 mr-2" />
+                      Hide
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Brands Toggle */}
+              <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold">Brands</h4>
+                    <Badge variant={form.watch("useBrands") ? "default" : "secondary"}>
+                      {form.watch("useBrands") ? "Enabled" : "Disabled"}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Show product brands in your storefront
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant={form.watch("useBrands") ? "default" : "outline"}
+                  size="sm"
+                  onClick={() =>
+                    form.setValue("useBrands", !form.watch("useBrands"), {
+                      shouldDirty: true,
+                    })
+                  }
+                  disabled={isSaving}
+                  className="ml-4"
+                >
+                  {form.watch("useBrands") ? (
+                    <>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Show
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="h-4 w-4 mr-2" />
+                      Hide
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </CardContent>
