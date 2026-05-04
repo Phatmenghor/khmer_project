@@ -19,6 +19,7 @@ export const fetchPublicSubcategories = createAsyncThunk<
   FetchPublicSubcategoriesParams,
   { rejectValue: string }
 >("publicSubcategories/fetchAll", async (params, { rejectWithValue }) => {
+  const startTime = performance.now();
   try {
     const response = await axiosClient.get(
       "/api/v1/public/subcategories/by-category",
@@ -30,8 +31,11 @@ export const fetchPublicSubcategories = createAsyncThunk<
         }
       }
     );
+    const endTime = performance.now();
+    console.log(`[Subcategories] API call took ${(endTime - startTime).toFixed(2)}ms`);
     return response.data.data.items;
   } catch (error: any) {
+    console.error("[Subcategories] Error fetching:", error);
     return rejectWithValue(
       error.response?.data?.message || "Failed to fetch subcategories"
     );
