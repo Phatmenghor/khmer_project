@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePublicSubcategoriesState } from "@/redux/features/main/store/state/public-subcategories-state";
 import { LayoutGrid } from "lucide-react";
 import { SubcategoryCard } from "@/components/shared/card/subcategory-card";
@@ -21,13 +21,17 @@ export default function SubcategoriesPage() {
 
   const skeletonCount = useSkeletonCount(SkeletonPresets.categoryGrid);
   const totalSubcategories = (data || []).reduce((acc, group) => acc + group.subcategories.length, 0);
+  const hasFetched = useRef(false);
 
   useScrollRestoration({ enabled: true, restoreOnMount: true, customKey: "subcategories" });
 
   useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     console.log("[SubcategoriesPage] Mounted, fetching data...");
     fetchSubcategories({ status: "ACTIVE" });
-  }, [fetchSubcategories]);
+  }, []);
 
   useEffect(() => {
     console.log("[SubcategoriesPage] State updated - isLoading:", isLoading, "data length:", data?.length, "error:", error);
