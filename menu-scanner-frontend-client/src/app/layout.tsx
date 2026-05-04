@@ -11,6 +11,18 @@ import { AuthProvider } from "@/context/auth-provider";
 import { ThemeInitializer } from "@/components/shared/theme/theme-initializer";
 import { defaultLocale, type Locale } from "@/i18n/request";
 
+// Type declaration for global cached business data
+declare global {
+  interface Window {
+    __cachedBusinessData?: {
+      businessName?: string;
+      logoBusinessUrl?: string;
+      primaryColor?: string;
+      taxPercentage?: number;
+    };
+  }
+}
+
 const geistSans = localFont({
   src: "../../public/fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -96,6 +108,7 @@ export default async function RootLayout({
                     businessName: cachedColors.businessName,
                     logoBusinessUrl: cachedColors.logoBusinessUrl,
                     primaryColor: cachedColors.primaryColor,
+                    taxPercentage: cachedColors.taxPercentage,
                   };
                   console.log('[THEME SYNC] Cached business data available globally:', window.__cachedBusinessData);
 

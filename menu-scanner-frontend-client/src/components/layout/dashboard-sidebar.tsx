@@ -14,6 +14,7 @@ declare global {
       businessName?: string;
       logoBusinessUrl?: string;
       primaryColor?: string;
+      taxPercentage?: number;
     };
   }
 }

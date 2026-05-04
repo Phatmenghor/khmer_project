@@ -9,6 +9,7 @@ export interface ThemeCacheData {
   primaryColor: string;
   businessName?: string;
   logoBusinessUrl?: string;
+  taxPercentage?: number;
   timestamp: number;
 }
 
@@ -103,11 +104,11 @@ export function getCachedThemeColors(businessId: string): ThemeCacheData | null 
 }
 
 /**
- * Save theme colors AND business info to BOTH localStorage (instant) and cookie (persistent)
+ * Save business settings to BOTH localStorage (instant) and cookie (persistent)
  * This ensures:
  * 1. Instant access via localStorage for sync script to prevent flash
  * 2. Persistent storage via cookie for cross-tab/session persistence
- * 3. Business name and logo cached for sidebar display
+ * 3. All business data cached: colors, name, logo, tax for fast display
  */
 export function cacheThemeColors(
   businessId: string,
@@ -115,6 +116,7 @@ export function cacheThemeColors(
     primaryColor: string;
     businessName?: string;
     logoBusinessUrl?: string;
+    taxPercentage?: number;
   }
 ): void {
   try {
@@ -122,6 +124,7 @@ export function cacheThemeColors(
       primaryColor: colors.primaryColor,
       businessName: colors.businessName,
       logoBusinessUrl: colors.logoBusinessUrl,
+      taxPercentage: colors.taxPercentage,
       timestamp: Date.now(),
     };
 
@@ -138,6 +141,7 @@ export function cacheThemeColors(
         primaryColor: colors.primaryColor,
         businessName: colors.businessName,
         logoUrl: colors.logoBusinessUrl,
+        taxPercentage: colors.taxPercentage,
       }
     );
   } catch (error) {
@@ -196,20 +200,25 @@ export function applyThemeColors(primaryColor?: string): void {
 }
 
 /**
- * Get cached business info (name, logo)
+ * Get cached business info (name, logo, tax)
  */
-export function getCachedBusinessInfo(businessId: string): { businessName?: string; logoBusinessUrl?: string } | null {
+export function getCachedBusinessInfo(businessId: string): {
+  businessName?: string
+  logoBusinessUrl?: string
+  taxPercentage?: number
+} | null {
   const cached = getCachedThemeColors(businessId);
   if (!cached) return null;
   return {
     businessName: cached.businessName,
     logoBusinessUrl: cached.logoBusinessUrl,
+    taxPercentage: cached.taxPercentage,
   };
 }
 
 /**
  * Check if cached data differs from current data
- * Compares primary color and business info
+ * Compares primary color, business name, logo, and tax percentage
  */
 export function hasThemeChanged(
   cached: ThemeCacheData | null,
@@ -217,12 +226,14 @@ export function hasThemeChanged(
     primaryColor: string;
     businessName?: string;
     logoBusinessUrl?: string;
+    taxPercentage?: number;
   }
 ): boolean {
   if (!cached) return true;
   return (
     cached.primaryColor !== current.primaryColor ||
     cached.businessName !== current.businessName ||
-    cached.logoBusinessUrl !== current.logoBusinessUrl
+    cached.logoBusinessUrl !== current.logoBusinessUrl ||
+    cached.taxPercentage !== current.taxPercentage
   );
 }

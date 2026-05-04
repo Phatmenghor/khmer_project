@@ -148,6 +148,7 @@ export default function BusinessSettingsPage() {
           primaryColor: data.primaryColor || "",
           businessName: data.businessName,
           logoBusinessUrl: data.logoBusinessUrl,
+          taxPercentage: data.taxPercentage,
         };
 
         // STEP 4: Update cache only if data changed
@@ -264,16 +265,21 @@ export default function BusinessSettingsPage() {
         // Store business ID in localStorage for theme initializer
         localStorage.setItem("businessId", result.businessId);
 
-        // Cache business data (colors + name + logo) for instant load on next page refresh
+        // Cache business data (colors + name + logo + tax) for instant load on next page refresh
         const businessData = {
           primaryColor: result.primaryColor || "",
           businessName: result.businessName,
           logoBusinessUrl: result.logoBusinessUrl,
+          taxPercentage: result.taxPercentage,
         };
         cacheThemeColors(result.businessId, businessData);
         console.log(
           `[THEME] Cached business data for ${result.businessId}:`,
-          { color: result.primaryColor, name: result.businessName }
+          {
+            color: result.primaryColor,
+            name: result.businessName,
+            tax: result.taxPercentage,
+          }
         );
 
         // Apply colors in real-time without refresh

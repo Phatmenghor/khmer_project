@@ -107,11 +107,12 @@ export function useBusinessTheme() {
       }
 
       // STEP 2: Fetch fresh data from API in background
-      // Compare with cache and update if changed (colors + business info)
+      // Compare with cache and update if changed (colors + business info + tax)
       const currentData = {
         primaryColor: businessSettings.primaryColor || "",
         businessName: businessSettings.businessName,
         logoBusinessUrl: businessSettings.logoBusinessUrl,
+        taxPercentage: businessSettings.taxPercentage,
       };
 
       if (hasThemeChanged(cachedColors, currentData)) {
@@ -146,6 +147,7 @@ export function useBusinessTheme() {
           primaryColor: payload.primaryColor || "",
           businessName: payload.businessName,
           logoBusinessUrl: payload.logoBusinessUrl,
+          taxPercentage: payload.taxPercentage,
         };
 
         // STEP 4: Update cache only if data changed
