@@ -819,9 +819,6 @@ export default function BusinessSettingsPage() {
                                 }}
                                 disabled={isSaving}
                               />
-                              <p className="text-xs text-muted-foreground">
-                                Name of the social platform
-                              </p>
                             </div>
 
                             {/* Profile Link */}
@@ -841,9 +838,6 @@ export default function BusinessSettingsPage() {
                                 }}
                                 disabled={isSaving}
                               />
-                              <p className="text-xs text-muted-foreground">
-                                URL to your profile on this platform
-                              </p>
                             </div>
                           </div>
 
