@@ -120,7 +120,7 @@ export function Footer() {
                 <div className="text-white">
                   {businessHours.map((hours, index) => (
                     <p key={index} className="font-medium">
-                      {hours.day}: {hours.openingTime} - {hours.closingTime}
+                      {hours.day}: {hours.openTime} - {hours.closeTime}
                     </p>
                   ))}
                 </div>
