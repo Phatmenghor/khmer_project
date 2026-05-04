@@ -417,7 +417,7 @@ export default function PosPage() {
       } else {
         const existing = cartItems.find((item) => item.id === cartId);
         if (existing) {
-          const qty = existing.quantity + 1;
+          const qty = existing.quantity + quantity;
           dispatch(updateCartItem({
             ...newItem,
             quantity: qty,
