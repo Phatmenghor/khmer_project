@@ -106,6 +106,17 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
         const isActive = route.href ? pathname === route.href : false;
 
         if (hasSubItems) {
+          // Filter out Subcategories if useSubcategories is false
+          const filteredItems =
+            route.title === "Master Data" && businessSettings?.useSubcategories === false
+              ? route.items!.filter((item) => item.title !== "Subcategories")
+              : route.items!;
+
+          // Skip rendering if no items left after filtering
+          if (route.title === "Master Data" && filteredItems.length === 0) {
+            return null;
+          }
+
           const isOpen = route.title ? openSections[route.title] : false;
 
           return (
@@ -144,7 +155,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                 <div className="relative ml-6 mt-1 space-y-1">
                   <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 z-0"></div>
 
-                  {route.items!.map((subItem) => {
+                  {filteredItems.map((subItem) => {
                     const isSubItemActive = pathname === subItem.href;
 
                     return (

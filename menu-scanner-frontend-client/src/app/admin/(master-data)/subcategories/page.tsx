@@ -35,10 +35,23 @@ import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/store";
+import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
 
 export default function SubcategoriesPage() {
   useAdminCleanup(resetState);
+  const router = useRouter();
+
+  // Check if subcategories are enabled in business settings
+  const businessSettings = useAppSelector(selectBusinessSettings);
+
+  // Redirect to dashboard if subcategories are disabled
+  useEffect(() => {
+    if (businessSettings && businessSettings.useSubcategories === false) {
+      router.push(ROUTES.ADMIN.DASHBOARD);
+    }
+  }, [businessSettings, router]);
 
   const {
     subcategoriesState,
