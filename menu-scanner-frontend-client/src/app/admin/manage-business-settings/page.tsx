@@ -21,6 +21,7 @@ import {
   type SocialMedia,
 } from "@/redux/features/business/store/services/business-settings-service";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
@@ -693,36 +694,34 @@ export default function BusinessSettingsPage() {
                           <Label className="text-sm font-medium">
                             Opening Time
                           </Label>
-                          <Input
-                            placeholder="09:00"
-                            type="time"
+                          <CustomTimePicker
                             value={hours.openingTime}
-                            onChange={(e) => {
+                            onChange={(time) => {
                               const updated = [
                                 ...(form.getValues("businessHours") || []),
                               ];
-                              updated[index].openingTime = e.target.value;
+                              updated[index].openingTime = time;
                               form.setValue("businessHours", updated, { shouldDirty: true });
                             }}
                             disabled={isSaving}
+                            placeholder="Select opening time"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-sm font-medium">
                             Closing Time
                           </Label>
-                          <Input
-                            placeholder="22:00"
-                            type="time"
+                          <CustomTimePicker
                             value={hours.closingTime}
-                            onChange={(e) => {
+                            onChange={(time) => {
                               const updated = [
                                 ...(form.getValues("businessHours") || []),
                               ];
-                              updated[index].closingTime = e.target.value;
+                              updated[index].closingTime = time;
                               form.setValue("businessHours", updated, { shouldDirty: true });
                             }}
                             disabled={isSaving}
+                            placeholder="Select closing time"
                           />
                         </div>
                       </div>
