@@ -42,7 +42,7 @@ export const businessSettingsApi = {
   fetchBusinessSettings: async (businessId: string): Promise<BusinessSettingsResponse> => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/v1/business-settings/business/${businessId}`,
+        `${API_BASE_URL}/api/v1/public/business-settings/${businessId}`,
         {
           method: "GET",
           headers: {
