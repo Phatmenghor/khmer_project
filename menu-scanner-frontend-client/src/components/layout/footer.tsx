@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
@@ -7,31 +8,42 @@ import { PageContainer } from "../shared/common/page-container";
 import { useAppSelector } from "@/redux/store";
 import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
 
-// Default constants for fallback
-const DEFAULT_CONTACT_ADDRESS = "123 Street Name, Phnom Penh, Cambodia";
-const DEFAULT_CONTACT_PHONE = "+855 12 345 678";
-const DEFAULT_CONTACT_EMAIL = "support@menuscanner.com";
-const DEFAULT_BUSINESS_HOURS = [
-  { day: "Mon - Fri", openingTime: "09:00", closingTime: "22:00" },
-  { day: "Sat", openingTime: "10:00", closingTime: "23:00" },
-  { day: "Sun", openingTime: "10:00", closingTime: "21:00" },
-];
-
-// Social media links - these are hardcoded but could be moved to Redux
-const SOCIAL_LINKS = [
-  { name: "Facebook", url: "https://facebook.com" },
-  { name: "Instagram", url: "https://instagram.com" },
-  { name: "Telegram", url: "https://telegram.me" },
-];
+// Type declaration for global cached business data
+declare global {
+  interface Window {
+    __cachedBusinessData?: {
+      businessName?: string;
+      logoBusinessUrl?: string;
+      primaryColor?: string;
+      taxPercentage?: number;
+    };
+  }
+}
 
 export function Footer() {
   const businessSettings = useAppSelector(selectBusinessSettings);
 
-  // Use Redux data or fallback to defaults
-  const contactAddress = businessSettings?.contactAddress || DEFAULT_CONTACT_ADDRESS;
-  const contactPhone = businessSettings?.contactPhone || DEFAULT_CONTACT_PHONE;
-  const contactEmail = businessSettings?.contactEmail || DEFAULT_CONTACT_EMAIL;
-  const businessHours = businessSettings?.businessHours || DEFAULT_BUSINESS_HOURS;
+  // Use cached data initially for FAST load, then switch to Redux when available
+  const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
+  const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
+
+  // Initialize from cached data on mount (before Redux loads)
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.__cachedBusinessData) {
+      setCachedBusinessName(window.__cachedBusinessData.businessName);
+      setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
+      console.log("## [FOOTER] Loaded cached business data on mount");
+    }
+  }, []);
+
+  // Use Redux data when available, fall back to cache
+  const businessName = businessSettings?.businessName || cachedBusinessName || "Menu Scanner";
+  const businessLogoUrl = businessSettings?.logoBusinessUrl || cachedLogoUrl || "/assets/favicon.ico";
+  const contactAddress = businessSettings?.contactAddress || "Your Business Address";
+  const contactPhone = businessSettings?.contactPhone || "+855 12 345 678";
+  const contactEmail = businessSettings?.contactEmail || "contact@menuscanner.com";
+  const businessHours = businessSettings?.businessHours || [];
+  const socialMedia = businessSettings?.socialMedia || [];
 
   return (
     <footer className="bg-primary/90 text-white">
@@ -41,22 +53,25 @@ export function Footer() {
           {/* Section 1: Logo & Description */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 w-fit">
-              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
                 <Image
-                  src="/assets/favicon.ico"
-                  alt="Menu Scanner"
+                  src={businessLogoUrl}
+                  alt={businessName}
                   width={24}
                   height={24}
-                  className="rounded object-contain"
+                  className="rounded object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/assets/favicon.ico";
+                  }}
                 />
               </div>
               <span className="font-bold text-lg text-white">
-                Menu Scanner
+                {businessName}
               </span>
             </div>
             <p className="text-white text-sm leading-relaxed">
-              Discover and explore menus from your favorite restaurants. Browse,
-              compare, and order with ease.
+              {businessName} - Your trusted destination for premium dining experiences.
+              Explore menus, discover favorites, and enjoy seamless ordering.
             </p>
           </div>
 
@@ -105,21 +120,34 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Section 4: Follow Us */}
+          {/* Section 4: Follow Us - From Business Settings */}
           <div className="space-y-4">
             <h3 className="font-semibold text-white text-base">Follow Us</h3>
             <div className="space-y-2 text-sm">
-              {SOCIAL_LINKS.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-white hover:text-white/80 transition-colors"
-                >
-                  {social.name}
-                </a>
-              ))}
+              {socialMedia && socialMedia.length > 0 ? (
+                socialMedia.map((social) => (
+                  <a
+                    key={social.id || social.name}
+                    href={social.linkUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-white hover:text-white/80 transition-colors"
+                  >
+                    {social.imageUrl && (
+                      <Image
+                        src={social.imageUrl}
+                        alt={social.name}
+                        width={16}
+                        height={16}
+                        className="rounded"
+                      />
+                    )}
+                    <span>{social.name}</span>
+                  </a>
+                ))
+              ) : (
+                <p className="text-white/60">Follow our social channels</p>
+              )}
             </div>
           </div>
         </div>
@@ -130,7 +158,7 @@ export function Footer() {
         {/* Footer Bottom */}
         <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-white text-sm">
-            © 2026 Menu Scanner E-Commerce. All rights reserved.
+            © 2026 {businessName}. All rights reserved.
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">

@@ -3,15 +3,28 @@
  * Features:
  * - Responsive design (mobile, tablet, desktop)
  * - Mobile search overlay with expandable input
- * - Dynamic business logo and name from Redux
+ * - Dynamic business logo and name from Redux or cache
  * - Shopping cart and favorites with badge counters
  * - User authentication dropdown menu
  * - Real-time search with debouncing
  * - URL parameter synchronization
  * - Smooth animations and transitions
+ * - Fast load from cached business data
  */
 
 "use client";
+
+// Type declaration for global cached business data
+declare global {
+  interface Window {
+    __cachedBusinessData?: {
+      businessName?: string;
+      logoBusinessUrl?: string;
+      primaryColor?: string;
+      taxPercentage?: number;
+    };
+  }
+}
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -77,8 +90,25 @@ export function Navbar() {
   const { totalItems: favoriteItemCount } = useFavoriteState();
   const { logout: handleLogout } = useLogout();
 
-  const businessName = useSelector(selectBusinessName);
-  const businessLogoUrl = useSelector(selectBusinessLogo);
+  const reduxBusinessName = useSelector(selectBusinessName);
+  const reduxBusinessLogoUrl = useSelector(selectBusinessLogo);
+
+  // Use cached data initially for FAST load, then switch to Redux when available
+  const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
+  const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
+
+  // Initialize from cached data on mount (before Redux loads)
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.__cachedBusinessData) {
+      setCachedBusinessName(window.__cachedBusinessData.businessName);
+      setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
+      console.log("## [NAVBAR] Loaded cached business data on mount");
+    }
+  }, []);
+
+  // Use Redux data when available, fall back to cache
+  const businessName = reduxBusinessName || cachedBusinessName || "Menu Scanner";
+  const businessLogoUrl = reduxBusinessLogoUrl || cachedLogoUrl || "/assets/favicon.ico";
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);
