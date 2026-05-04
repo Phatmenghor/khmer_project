@@ -62,14 +62,18 @@ export const useBusinessSettings = () => {
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Fetch current business settings
+   * Fetch business settings using public endpoint (no auth required)
    */
   const fetchBusinessSettings = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch("/api/v1/business-settings/current");
+      // Get business ID from localStorage
+      const businessId = localStorage.getItem("businessId") || "550cad56-cafd-4aba-baef-c4dcd53940d0";
+
+      // Use public endpoint (no auth required)
+      const response = await fetch(`/api/v1/public/business-settings/${businessId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch business settings");
       }

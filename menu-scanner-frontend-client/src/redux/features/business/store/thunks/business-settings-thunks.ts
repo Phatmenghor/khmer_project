@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
-  fetchCurrentBusinessSettings,
   fetchBusinessSettingsByBusinessId,
   updateCurrentBusinessSettings,
   type BusinessSettingsResponse,
@@ -9,16 +8,19 @@ import {
 import { AppDefault } from "@/constants/app-resource/default/default";
 
 /**
- * Async thunk to fetch current business settings
- * Fetches complete business settings including tax percentage
- * Uses authenticated endpoint: /api/v1/business-settings/current
+ * Async thunk to fetch business settings
+ * Fetches complete business settings using public endpoint (no auth required)
+ * Uses public endpoint: /api/v1/public/business-settings/{businessId}
  */
 export const fetchBusinessSettingsThunk = createAsyncThunk(
   "businessSettings/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      // Try authenticated endpoint first (includes tax percentage)
-      const settings = await fetchCurrentBusinessSettings();
+      // Get business ID from localStorage
+      const businessId = localStorage.getItem("businessId") || AppDefault.BUSINESS_ID;
+
+      // Use public endpoint (no auth required)
+      const settings = await fetchBusinessSettingsByBusinessId(businessId);
       return settings;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to fetch business settings";
