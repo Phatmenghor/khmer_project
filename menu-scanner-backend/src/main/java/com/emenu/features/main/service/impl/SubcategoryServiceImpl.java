@@ -6,6 +6,8 @@ import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.SubcategoryAllFilterRequest;
 import com.emenu.features.main.dto.filter.SubcategoryFilterRequest;
 import com.emenu.features.main.dto.request.SubcategoryCreateRequest;
+import com.emenu.features.main.dto.response.CategoryWithSubcategoriesResponse;
+import com.emenu.features.main.dto.response.CategoryResponse;
 import com.emenu.features.main.dto.response.SubcategoryResponse;
 import com.emenu.features.main.dto.update.SubcategoryUpdateRequest;
 import com.emenu.features.main.mapper.SubcategoryMapper;
@@ -23,9 +25,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.emenu.enums.common.Status;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -148,6 +154,60 @@ public class SubcategoryServiceImpl implements SubcategoryService {
 
         log.info("Subcategory deleted successfully: {}", id);
         return subcategoryMapper.toResponse(subcategory);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryWithSubcategoriesResponse> getSubcategoriesGroupedByCategory(UUID businessId, String status, String search) {
+        log.info("Getting subcategories grouped by category for business: {}", businessId);
+
+        Status statusEnum = null;
+        if (status != null && !status.isEmpty()) {
+            try {
+                statusEnum = Status.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid status provided: {}", status);
+            }
+        }
+
+        List<Subcategory> subcategories = subcategoryRepository.findAllWithFilters(
+                businessId,
+                null,
+                statusEnum,
+                search,
+                PaginationUtils.createSort("categoryId", "ASC")
+        );
+
+        Map<UUID, CategoryWithSubcategoriesResponse> groupedByCategory = new LinkedHashMap<>();
+
+        for (Subcategory subcategory : subcategories) {
+            UUID categoryId = subcategory.getCategory().getId();
+            CategoryWithSubcategoriesResponse group = groupedByCategory.computeIfAbsent(
+                    categoryId,
+                    k -> {
+                        CategoryResponse categoryResponse = new CategoryResponse();
+                        categoryResponse.setId(subcategory.getCategory().getId());
+                        categoryResponse.setName(subcategory.getCategory().getName());
+                        categoryResponse.setImageUrl(subcategory.getCategory().getImageUrl());
+                        categoryResponse.setBusinessId(subcategory.getCategory().getBusinessId());
+                        categoryResponse.setBusinessName(subcategory.getCategory().getBusiness().getName());
+                        categoryResponse.setStatus(subcategory.getCategory().getStatus());
+                        categoryResponse.setCreatedAt(subcategory.getCategory().getCreatedAt());
+                        categoryResponse.setUpdatedAt(subcategory.getCategory().getUpdatedAt());
+                        categoryResponse.setCreatedBy(subcategory.getCategory().getCreatedBy());
+                        categoryResponse.setUpdatedBy(subcategory.getCategory().getUpdatedBy());
+
+                        return new CategoryWithSubcategoriesResponse(
+                                categoryResponse,
+                                new java.util.ArrayList<>()
+                        );
+                    }
+            );
+
+            group.getSubcategories().add(subcategoryMapper.toResponse(subcategory));
+        }
+
+        return new java.util.ArrayList<>(groupedByCategory.values());
     }
 
     // Private helper methods
