@@ -143,17 +143,19 @@ export default function BusinessSettingsPage() {
 
         // STEP 2: Fetch fresh data from API
         // STEP 3: Compare API data with cache
-        const cachedColors = getCachedThemeColors(businessId);
-        const apiColors = {
+        const cachedData = getCachedThemeColors(businessId);
+        const apiData = {
           primaryColor: data.primaryColor || "",
+          businessName: data.businessName,
+          logoBusinessUrl: data.logoBusinessUrl,
         };
 
         // STEP 4: Update cache only if data changed
-        if (hasThemeChanged(cachedColors, apiColors)) {
+        if (hasThemeChanged(cachedData, apiData)) {
           console.log(
-            `[THEME] API returned new colors, updating cache for business ${businessId}`
+            `[THEME] API returned new business data, updating cache for business ${businessId}`
           );
-          cacheThemeColors(businessId, apiColors);
+          cacheThemeColors(businessId, apiData);
 
           // Apply new colors from API
           applyThemeColors(data.primaryColor);
@@ -262,13 +264,16 @@ export default function BusinessSettingsPage() {
         // Store business ID in localStorage for theme initializer
         localStorage.setItem("businessId", result.businessId);
 
-        // Cache the colors for instant load on next page refresh
-        const colors = {
+        // Cache business data (colors + name + logo) for instant load on next page refresh
+        const businessData = {
           primaryColor: result.primaryColor || "",
+          businessName: result.businessName,
+          logoBusinessUrl: result.logoBusinessUrl,
         };
-        cacheThemeColors(result.businessId, colors);
+        cacheThemeColors(result.businessId, businessData);
         console.log(
-          `[THEME] Cached colors for business ${result.businessId}`
+          `[THEME] Cached business data for ${result.businessId}:`,
+          { color: result.primaryColor, name: result.businessName }
         );
 
         // Apply colors in real-time without refresh

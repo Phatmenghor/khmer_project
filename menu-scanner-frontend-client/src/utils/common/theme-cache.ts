@@ -7,6 +7,8 @@
 
 export interface ThemeCacheData {
   primaryColor: string;
+  businessName?: string;
+  logoBusinessUrl?: string;
   timestamp: number;
 }
 
@@ -101,20 +103,25 @@ export function getCachedThemeColors(businessId: string): ThemeCacheData | null 
 }
 
 /**
- * Save theme colors to BOTH localStorage (instant) and cookie (persistent)
+ * Save theme colors AND business info to BOTH localStorage (instant) and cookie (persistent)
  * This ensures:
  * 1. Instant access via localStorage for sync script to prevent flash
  * 2. Persistent storage via cookie for cross-tab/session persistence
+ * 3. Business name and logo cached for sidebar display
  */
 export function cacheThemeColors(
   businessId: string,
   colors: {
     primaryColor: string;
+    businessName?: string;
+    logoBusinessUrl?: string;
   }
 ): void {
   try {
     const cacheData: ThemeCacheData = {
       primaryColor: colors.primaryColor,
+      businessName: colors.businessName,
+      logoBusinessUrl: colors.logoBusinessUrl,
       timestamp: Date.now(),
     };
 
@@ -126,11 +133,15 @@ export function cacheThemeColors(
     setCookie(cookieName, JSON.stringify(cacheData), 30);
 
     console.log(
-      `[THEME CACHE] Cached colors for business ${businessId} (localStorage + cookie):`,
-      colors
+      `[THEME CACHE] Cached business data for ${businessId} (localStorage + cookie):`,
+      {
+        primaryColor: colors.primaryColor,
+        businessName: colors.businessName,
+        logoUrl: colors.logoBusinessUrl,
+      }
     );
   } catch (error) {
-    console.error("[THEME CACHE] Failed to cache theme colors:", error);
+    console.error("[THEME CACHE] Failed to cache business data:", error);
   }
 }
 
@@ -185,14 +196,33 @@ export function applyThemeColors(primaryColor?: string): void {
 }
 
 /**
- * Check if cached colors differ from current colors
+ * Get cached business info (name, logo)
+ */
+export function getCachedBusinessInfo(businessId: string): { businessName?: string; logoBusinessUrl?: string } | null {
+  const cached = getCachedThemeColors(businessId);
+  if (!cached) return null;
+  return {
+    businessName: cached.businessName,
+    logoBusinessUrl: cached.logoBusinessUrl,
+  };
+}
+
+/**
+ * Check if cached data differs from current data
+ * Compares primary color and business info
  */
 export function hasThemeChanged(
   cached: ThemeCacheData | null,
   current: {
     primaryColor: string;
+    businessName?: string;
+    logoBusinessUrl?: string;
   }
 ): boolean {
   if (!cached) return true;
-  return cached.primaryColor !== current.primaryColor;
+  return (
+    cached.primaryColor !== current.primaryColor ||
+    cached.businessName !== current.businessName ||
+    cached.logoBusinessUrl !== current.logoBusinessUrl
+  );
 }

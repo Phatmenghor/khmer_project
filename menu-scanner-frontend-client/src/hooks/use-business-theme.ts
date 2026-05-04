@@ -4,7 +4,7 @@ import { selectBusinessSettings } from "@/redux/features/business/store/selector
 import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thunks/business-settings-thunks";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { BusinessSettingsResponse } from "@/redux/features/business/store/services/business-settings-service";
-import { getCachedThemeColors, cacheThemeColors, hasThemeChanged } from "@/utils/common/theme-cache";
+import { getCachedThemeColors, cacheThemeColors, hasThemeChanged, getCachedBusinessInfo } from "@/utils/common/theme-cache";
 import { AppDefault } from "@/constants/app-resource/default/default";
 
 // Default brand colors from tailwind config
@@ -107,16 +107,18 @@ export function useBusinessTheme() {
       }
 
       // STEP 2: Fetch fresh data from API in background
-      // Compare with cache and update if changed
-      const currentColors = {
+      // Compare with cache and update if changed (colors + business info)
+      const currentData = {
         primaryColor: businessSettings.primaryColor || "",
+        businessName: businessSettings.businessName,
+        logoBusinessUrl: businessSettings.logoBusinessUrl,
       };
 
-      if (hasThemeChanged(cachedColors, currentColors)) {
+      if (hasThemeChanged(cachedColors, currentData)) {
         console.log(
-          `## [THEME] Colors changed in Redux, updating cache for business ${businessSettings.businessId}`
+          `## [THEME] Business data changed in Redux, updating cache for business ${businessSettings.businessId}`
         );
-        cacheThemeColors(businessSettings.businessId, currentColors);
+        cacheThemeColors(businessSettings.businessId, currentData);
 
         // Apply new colors if they differ from cache
         if (businessSettings.primaryColor) {
@@ -139,20 +141,22 @@ export function useBusinessTheme() {
         localStorage.setItem("businessId", businessId);
 
         // STEP 3: Compare API data with cache
-        const cachedColors = getCachedThemeColors(businessId);
-        const apiColors = {
+        const cachedData = getCachedThemeColors(businessId);
+        const apiData = {
           primaryColor: payload.primaryColor || "",
+          businessName: payload.businessName,
+          logoBusinessUrl: payload.logoBusinessUrl,
         };
 
         // STEP 4: Update cache only if data changed
-        if (hasThemeChanged(cachedColors, apiColors)) {
+        if (hasThemeChanged(cachedData, apiData)) {
           console.log(
-            `## [THEME] API returned new colors, updating cache for business ${businessId}`
+            `## [THEME] API returned new business data, updating cache for business ${businessId}`
           );
-          cacheThemeColors(businessId, apiColors);
+          cacheThemeColors(businessId, apiData);
         } else {
           console.log(
-            `## [THEME] API colors match cache for business ${businessId}, no update needed`
+            `## [THEME] API data matches cache for business ${businessId}, no update needed`
           );
         }
 
