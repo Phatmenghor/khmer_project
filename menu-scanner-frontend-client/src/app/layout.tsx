@@ -67,7 +67,6 @@ export default async function RootLayout({
                 try {
                   // Get business ID from localStorage, or use default
                   const businessId = localStorage.getItem('businessId') || '550cad56-cafd-4aba-baef-c4dcd53940d0';
-                  console.log('[THEME SYNC] Checking cache for business ID:', businessId);
 
                   // Try localStorage FIRST (fast, synchronous) for instant color application
                   const localStorageKey = 'theme_colors_' + businessId;
@@ -77,10 +76,9 @@ export default async function RootLayout({
                     const localStorageValue = localStorage.getItem(localStorageKey);
                     if (localStorageValue) {
                       cachedColors = JSON.parse(localStorageValue);
-                      console.log('[THEME SYNC] Found colors in localStorage');
                     }
                   } catch (e) {
-                    console.warn('[THEME SYNC] Error reading localStorage:', e);
+                    // Ignore errors
                   }
 
                   // Fall back to cookie if localStorage doesn't have it
@@ -92,14 +90,12 @@ export default async function RootLayout({
                       if (cookie.startsWith(cookieName + '=')) {
                         const value = decodeURIComponent(cookie.substring((cookieName + '=').length));
                         cachedColors = JSON.parse(value);
-                        console.log('[THEME SYNC] Found colors in cookie');
                         break;
                       }
                     }
                   }
 
                   if (!cachedColors) {
-                    console.log('[THEME SYNC] No cached business data found, showing blank');
                     return;
                   }
 
@@ -110,7 +106,6 @@ export default async function RootLayout({
                     primaryColor: cachedColors.primaryColor,
                     taxPercentage: cachedColors.taxPercentage,
                   };
-                  console.log('[THEME SYNC] Cached business data available globally:', window.__cachedBusinessData);
 
                   // Convert hex to HSL
                   function hexToHsl(hex) {
@@ -156,12 +151,8 @@ export default async function RootLayout({
                   if (styleText) {
                     document.head.insertBefore(style, document.head.firstChild);
                   }
-
-                  console.log('[THEME SYNC] All cached data applied synchronously BEFORE React renders');
-                  console.log('[THEME SYNC] Business name:', cachedColors.businessName);
-                  console.log('[THEME SYNC] Logo URL:', cachedColors.logoBusinessUrl);
                 } catch (e) {
-                  console.error('[THEME SYNC] Error:', e);
+                  // Ignore errors
                 }
               })();
             `,

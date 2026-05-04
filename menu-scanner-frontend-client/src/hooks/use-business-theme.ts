@@ -70,20 +70,12 @@ export function useBusinessTheme() {
   useEffect(() => {
     // On login pages, use default business theme from AppDefault
     if (typeof window !== "undefined" && window.location.pathname.includes("/login")) {
-      console.log("## [THEME] On login page, checking cache for colors");
-
       // Use default business ID
       const defaultBusinessId = AppDefault.BUSINESS_ID;
       const cachedColors = getCachedThemeColors(defaultBusinessId);
 
       if (cachedColors) {
-        console.log(
-          `## [THEME] Login page: Applying cached colors for default business ${defaultBusinessId}`
-        );
         applyColors(cachedColors.primaryColor);
-      } else {
-        console.log("## [THEME] Login page: No cached colors, showing blank");
-        // Show no colors on login page if no cache
       }
       return;
     }
@@ -96,14 +88,7 @@ export function useBusinessTheme() {
       // STEP 1: Check cache first (instant, no API call)
       const cachedColors = getCachedThemeColors(businessSettings.businessId);
       if (cachedColors) {
-        console.log(
-          `## [THEME] Cache HIT for business ${businessSettings.businessId}, applying cached colors`
-        );
         applyColors(cachedColors.primaryColor);
-      } else {
-        console.log(
-          `## [THEME] Cache MISS for business ${businessSettings.businessId}, showing blank until API returns`
-        );
       }
 
       // STEP 2: Fetch fresh data from API in background
@@ -116,9 +101,6 @@ export function useBusinessTheme() {
       };
 
       if (hasThemeChanged(cachedColors, currentData)) {
-        console.log(
-          `## [THEME] Business data changed in Redux, updating cache for business ${businessSettings.businessId}`
-        );
         cacheThemeColors(businessSettings.businessId, currentData);
 
         // Apply new colors if they differ from cache
@@ -131,7 +113,6 @@ export function useBusinessTheme() {
     }
 
     // If not in Redux, fetch from API using thunk
-    console.log("## [THEME] No Redux data, fetching from API...");
     dispatch(fetchBusinessSettingsThunk()).then((action) => {
       // Check if action was fulfilled and has payload
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
@@ -152,22 +133,11 @@ export function useBusinessTheme() {
 
         // STEP 4: Update cache only if data changed
         if (hasThemeChanged(cachedData, apiData)) {
-          console.log(
-            `## [THEME] API returned new business data, updating cache for business ${businessId}`
-          );
           cacheThemeColors(businessId, apiData);
-        } else {
-          console.log(
-            `## [THEME] API data matches cache for business ${businessId}, no update needed`
-          );
         }
 
         // Apply colors from API
         applyColors(payload.primaryColor);
-        console.log(`## [THEME] Applied colors from API for business ${businessId}`);
-      } else {
-        console.error("## [THEME] Failed to load business theme from API");
-        // Show no colors on error
       }
     });
   }, [dispatch, businessSettings]);

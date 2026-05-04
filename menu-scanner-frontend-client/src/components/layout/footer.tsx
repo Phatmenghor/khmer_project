@@ -32,7 +32,6 @@ export function Footer() {
     if (typeof window !== "undefined" && window.__cachedBusinessData) {
       setCachedBusinessName(window.__cachedBusinessData.businessName);
       setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
-      console.log("## [FOOTER] Loaded cached business data on mount");
     }
   }, []);
 
@@ -59,9 +58,7 @@ export function Footer() {
                     src={businessLogoUrl}
                     alt={businessName}
                     className="w-full h-full object-cover rounded-xl"
-                    onLoad={() => console.log("✅ [FOOTER] Logo loaded:", businessLogoUrl)}
                     onError={(e) => {
-                      console.error("❌ [FOOTER] Failed to load logo:", businessLogoUrl);
                       (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
                     }}
                   />

@@ -100,21 +100,10 @@ export default function BusinessSettingsPage() {
       return;
     }
 
-    console.log(
-      `[BUSINESS SETTINGS] Redux loaded for business ${reduxBusinessSettings.businessId}`
-    );
-
     // STEP 1: Check cache first for instant color application
     const cachedColors = getCachedThemeColors(reduxBusinessSettings.businessId);
     if (cachedColors) {
-      console.log(
-        `[THEME] Cache HIT - Applied cached colors for business ${reduxBusinessSettings.businessId}`
-      );
       applyThemeColors(cachedColors.primaryColor);
-    } else {
-      console.log(
-        `[THEME] Cache MISS for business ${reduxBusinessSettings.businessId}, waiting for API fetch`
-      );
     }
 
     // Then reset form with latest data
@@ -126,7 +115,6 @@ export default function BusinessSettingsPage() {
   const fetchBusinessSettings = async () => {
     try {
       setIsLoading(true);
-      console.log("[BUSINESS SETTINGS] Fetching from API...");
 
       const action = await dispatch(fetchBusinessSettingsThunk());
 
@@ -153,27 +141,18 @@ export default function BusinessSettingsPage() {
 
         // STEP 4: Update cache only if data changed
         if (hasThemeChanged(cachedData, apiData)) {
-          console.log(
-            `[THEME] API returned new business data, updating cache for business ${businessId}`
-          );
           cacheThemeColors(businessId, apiData);
 
           // Apply new colors from API
           applyThemeColors(data.primaryColor);
-          console.log(`[THEME] Applied new colors from API for business ${businessId}`);
         } else {
-          console.log(
-            `[THEME] API colors match cache for business ${businessId}, no update needed`
-          );
           // Still apply colors even if cache is up to date
           applyThemeColors(data.primaryColor);
         }
       } else {
-        console.error("[BUSINESS SETTINGS] Failed to load from API");
         showToast.error("Failed to load business settings");
       }
     } catch (error) {
-      console.error("[BUSINESS SETTINGS] Error fetching settings:", error);
       showToast.error("Failed to load business settings");
     } finally {
       setIsLoading(false);
@@ -198,11 +177,8 @@ export default function BusinessSettingsPage() {
       let logoBusinessUrl = data.logoBusinessUrl;
       if (isBase64Image(logoBusinessUrl)) {
         try {
-          console.log("📤 [UPLOAD CDN] Uploading logo to CDN...");
           logoBusinessUrl = await uploadImage(logoBusinessUrl);
-          console.log("✅ [UPLOAD CDN] Logo URL from CDN:", logoBusinessUrl);
         } catch (error) {
-          console.error("Failed to upload logo:", error);
           showToast.error("Failed to upload logo");
           return;
         }
@@ -214,11 +190,8 @@ export default function BusinessSettingsPage() {
           let imageUrl = social.imageUrl;
           if (isBase64Image(imageUrl)) {
             try {
-              console.log(`📤 [UPLOAD CDN] Uploading ${social.name} icon to CDN...`);
               imageUrl = await uploadImage(imageUrl);
-              console.log(`✅ [UPLOAD CDN] ${social.name} icon URL from CDN:`, imageUrl);
             } catch (error) {
-              console.error(`Failed to upload ${social.name} icon:`, error);
               showToast.error(`Failed to upload ${social.name} icon`);
               throw error;
             }
@@ -255,13 +228,6 @@ export default function BusinessSettingsPage() {
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const result = action.payload as BusinessSettingsResponse;
 
-        // Log the saved data
-        console.log("[FORM] Business settings saved to Redux:", {
-          businessName: result.businessName,
-          logoBusinessUrl: result.logoBusinessUrl,
-          primaryColor: result.primaryColor,
-        });
-
         // Store business ID in localStorage for theme initializer
         localStorage.setItem("businessId", result.businessId);
 
@@ -273,14 +239,6 @@ export default function BusinessSettingsPage() {
           taxPercentage: result.taxPercentage,
         };
         cacheThemeColors(result.businessId, businessData);
-        console.log(
-          `[THEME] Cached business data for ${result.businessId}:`,
-          {
-            color: result.primaryColor,
-            name: result.businessName,
-            tax: result.taxPercentage,
-          }
-        );
 
         // Apply colors in real-time without refresh
         if (result.primaryColor) {
@@ -290,11 +248,9 @@ export default function BusinessSettingsPage() {
         showToast.success("Business settings updated successfully");
       } else {
         showToast.error("Failed to update business settings");
-        console.error("[FORM] Failed to save settings. Action:", action);
         return;
       }
     } catch (error) {
-      console.error("Error updating settings:", error);
       showToast.error("Failed to update business settings");
     } finally {
       setIsSaving(false);

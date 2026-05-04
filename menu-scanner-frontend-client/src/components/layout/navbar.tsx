@@ -101,7 +101,6 @@ export function Navbar() {
     if (typeof window !== "undefined" && window.__cachedBusinessData) {
       setCachedBusinessName(window.__cachedBusinessData.businessName);
       setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
-      console.log("## [NAVBAR] Loaded cached business data on mount");
     }
   }, []);
 
@@ -377,9 +376,7 @@ export function Navbar() {
                       src={businessLogoUrl || "/assets/image/no-image.png"}
                       alt={businessName}
                       className="w-full h-full object-cover rounded"
-                      onLoad={() => console.log("✅ [NAVBAR-MOBILE] Logo loaded:", businessLogoUrl)}
                       onError={(e) => {
-                        console.error("❌ [NAVBAR-MOBILE] Failed to load logo:", businessLogoUrl);
                         (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
                       }}
                     />
@@ -461,9 +458,7 @@ export function Navbar() {
                       src={businessLogoUrl || "/assets/image/no-image.png"}
                       alt={businessName}
                       className="w-full h-full object-cover rounded"
-                      onLoad={() => console.log("✅ [NAVBAR-DESKTOP] Logo loaded:", businessLogoUrl)}
                       onError={(e) => {
-                        console.error("❌ [NAVBAR-DESKTOP] Failed to load logo:", businessLogoUrl);
                         (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
                       }}
                     />

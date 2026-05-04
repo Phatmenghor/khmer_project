@@ -58,7 +58,6 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
     if (typeof window !== "undefined" && window.__cachedBusinessData) {
       setCachedBusinessName(window.__cachedBusinessData.businessName);
       setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
-      console.log("## [SIDEBAR] Loaded cached business data on mount");
     }
   }, []);
 
@@ -66,16 +65,6 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   const businessName = reduxBusinessName || cachedBusinessName;
   const logoUrl = reduxLogoUrl || cachedLogoUrl;
 
-  // Debug logging to verify state
-  useEffect(() => {
-    console.log("## [SIDEBAR] Business data state:", {
-      fromRedux: !!reduxBusinessName,
-      fromCache: !!cachedBusinessName,
-      businessName: businessName || "BLANK",
-      logoUrl: logoUrl || "NO-IMAGE",
-      reduxData: businessSettings,
-    });
-  }, [businessSettings, reduxBusinessName, reduxLogoUrl, cachedBusinessName, cachedLogoUrl]);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,
@@ -257,9 +246,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                     src={logoUrl || "/assets/image/no-image.png"}
                     alt={businessName}
                     className="w-full h-full object-cover rounded"
-                    onLoad={() => console.log("✅ [SIDEBAR] Logo loaded:", logoUrl)}
                     onError={(e) => {
-                      console.error("❌ [SIDEBAR] Failed to load logo:", logoUrl);
                       (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
                     }}
                   />
