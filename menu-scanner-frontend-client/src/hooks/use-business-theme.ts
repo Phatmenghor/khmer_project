@@ -56,9 +56,12 @@ function hexToHsl(hex: string): string {
 
 /**
  * Hook to initialize business theme from settings
- * Fetches business settings on app startup and applies theme colors
- * Skips applying colors on first load to prevent flash - colors applied after API returns
- * Skips fetching on login/auth pages since user is not authenticated
+ * Implements stale-while-revalidate pattern:
+ * 1. Check cache first (instant, no API call)
+ * 2. Apply cached colors if they exist
+ * 3. Fetch fresh data from API in background
+ * 4. Compare API data with cache - update cache only if changed
+ * 5. Keep cache always updated for fast subsequent loads
  */
 export function useBusinessTheme() {
   const dispatch = useAppDispatch();
@@ -67,75 +70,98 @@ export function useBusinessTheme() {
   useEffect(() => {
     // On login pages, use default business theme from AppDefault
     if (typeof window !== "undefined" && window.location.pathname.includes("/login")) {
-      console.log("## [THEME] On login page, loading default business theme");
+      console.log("## [THEME] On login page, checking cache for colors");
 
       // Use default business ID
       const defaultBusinessId = AppDefault.BUSINESS_ID;
       const cachedColors = getCachedThemeColors(defaultBusinessId);
 
       if (cachedColors) {
-        console.log(`## [THEME] Applying cached colors for default business ${defaultBusinessId} on login page`);
+        console.log(
+          `## [THEME] Login page: Applying cached colors for default business ${defaultBusinessId}`
+        );
         applyColors(cachedColors.primaryColor);
       } else {
-        console.log("## [THEME] No cached theme for default business, skipping color application");
-        // Don't apply default colors on login page to avoid flash
+        console.log("## [THEME] Login page: No cached colors, showing blank");
+        // Show no colors on login page if no cache
       }
       return;
     }
 
     // Check if settings already loaded in Redux
     if (businessSettings) {
-      // Store business ID in localStorage for ThemeInitializer
+      // Store business ID in localStorage
       localStorage.setItem("businessId", businessSettings.businessId);
 
-      // Only apply cached colors if they exist
-      // Don't apply from Redux on initial load to prevent color flash
+      // STEP 1: Check cache first (instant, no API call)
       const cachedColors = getCachedThemeColors(businessSettings.businessId);
       if (cachedColors) {
         console.log(
-          `## [THEME] Applying cached colors for business ${businessSettings.businessId}`
+          `## [THEME] Cache HIT for business ${businessSettings.businessId}, applying cached colors`
         );
         applyColors(cachedColors.primaryColor);
       } else {
         console.log(
-          `## [THEME] No cached colors for business ${businessSettings.businessId}, waiting for API`
+          `## [THEME] Cache MISS for business ${businessSettings.businessId}, showing blank until API returns`
         );
-        // Skip applying colors here - let manage-business-settings page apply after API returns
       }
 
-      // Update cache with current settings
+      // STEP 2: Fetch fresh data from API in background
+      // Compare with cache and update if changed
       const currentColors = {
         primaryColor: businessSettings.primaryColor || "",
       };
+
       if (hasThemeChanged(cachedColors, currentColors)) {
+        console.log(
+          `## [THEME] Colors changed in Redux, updating cache for business ${businessSettings.businessId}`
+        );
         cacheThemeColors(businessSettings.businessId, currentColors);
+
+        // Apply new colors if they differ from cache
+        if (businessSettings.primaryColor) {
+          applyColors(businessSettings.primaryColor);
+        }
       }
 
       return;
     }
 
     // If not in Redux, fetch from API using thunk
+    console.log("## [THEME] No Redux data, fetching from API...");
     dispatch(fetchBusinessSettingsThunk()).then((action) => {
       // Check if action was fulfilled and has payload
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const payload = action.payload as BusinessSettingsResponse;
+        const businessId = payload.businessId;
 
         // Store business ID
-        localStorage.setItem("businessId", payload.businessId);
+        localStorage.setItem("businessId", businessId);
 
-        // Cache the colors
-        const colors = {
+        // STEP 3: Compare API data with cache
+        const cachedColors = getCachedThemeColors(businessId);
+        const apiColors = {
           primaryColor: payload.primaryColor || "",
         };
-        cacheThemeColors(payload.businessId, colors);
-        console.log(`## [THEME] Cached colors for business ${payload.businessId}`);
 
-        // Apply colors from API response
+        // STEP 4: Update cache only if data changed
+        if (hasThemeChanged(cachedColors, apiColors)) {
+          console.log(
+            `## [THEME] API returned new colors, updating cache for business ${businessId}`
+          );
+          cacheThemeColors(businessId, apiColors);
+        } else {
+          console.log(
+            `## [THEME] API colors match cache for business ${businessId}, no update needed`
+          );
+        }
+
+        // Apply colors from API
         applyColors(payload.primaryColor);
-        console.log("## [THEME] Business theme loaded and applied successfully");
+        console.log(`## [THEME] Applied colors from API for business ${businessId}`);
       } else {
-        console.error("## [THEME] Failed to load business theme");
-        // Only apply default colors on error, not on first load
+        console.error("## [THEME] Failed to load business theme from API");
+        // Show no colors on error
       }
     });
   }, [dispatch, businessSettings]);

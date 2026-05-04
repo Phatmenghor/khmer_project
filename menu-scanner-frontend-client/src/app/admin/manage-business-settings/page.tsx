@@ -93,20 +93,28 @@ export default function BusinessSettingsPage() {
     },
   });
 
-  // Fetch business settings (with cache support)
+  // Fetch business settings (with cache support - stale-while-revalidate pattern)
   useEffect(() => {
     if (!reduxBusinessSettings) {
       fetchBusinessSettings();
       return;
     }
 
-    // Load from cache first for instant color application
+    console.log(
+      `[BUSINESS SETTINGS] Redux loaded for business ${reduxBusinessSettings.businessId}`
+    );
+
+    // STEP 1: Check cache first for instant color application
     const cachedColors = getCachedThemeColors(reduxBusinessSettings.businessId);
     if (cachedColors) {
       console.log(
-        `[THEME] Applied cached colors for business ${reduxBusinessSettings.businessId}`
+        `[THEME] Cache HIT - Applied cached colors for business ${reduxBusinessSettings.businessId}`
       );
       applyThemeColors(cachedColors.primaryColor);
+    } else {
+      console.log(
+        `[THEME] Cache MISS for business ${reduxBusinessSettings.businessId}, waiting for API fetch`
+      );
     }
 
     // Then reset form with latest data
@@ -117,57 +125,52 @@ export default function BusinessSettingsPage() {
 
   const fetchBusinessSettings = async () => {
     try {
-      // Try to load from cache first (instant, no loading state)
-      if (reduxBusinessSettings) {
-        // Store business ID in localStorage for theme initializer
-        localStorage.setItem("businessId", reduxBusinessSettings.businessId);
-
-        const cachedColors = getCachedThemeColors(
-          reduxBusinessSettings.businessId
-        );
-        if (cachedColors) {
-          console.log(
-            `[THEME] Loading cached colors for business ${reduxBusinessSettings.businessId}`
-          );
-          applyThemeColors(cachedColors.primaryColor);
-          const formData = convertResponseToFormData(reduxBusinessSettings);
-          form.reset(formData);
-        }
-      }
-
       setIsLoading(true);
+      console.log("[BUSINESS SETTINGS] Fetching from API...");
+
       const action = await dispatch(fetchBusinessSettingsThunk());
 
       // Check if the action was fulfilled and has a payload
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const data = action.payload as BusinessSettingsResponse;
+        const businessId = data.businessId;
 
-        // Store business ID for theme initializer
-        localStorage.setItem("businessId", data.businessId);
+        // Store business ID in localStorage
+        localStorage.setItem("businessId", businessId);
 
         const formData = convertResponseToFormData(data);
         form.reset(formData);
 
-        // Check if colors changed and update cache if needed
-        const cachedColors = getCachedThemeColors(data.businessId);
-        const currentColors = {
+        // STEP 2: Fetch fresh data from API
+        // STEP 3: Compare API data with cache
+        const cachedColors = getCachedThemeColors(businessId);
+        const apiColors = {
           primaryColor: data.primaryColor || "",
         };
 
-        if (hasThemeChanged(cachedColors, currentColors)) {
+        // STEP 4: Update cache only if data changed
+        if (hasThemeChanged(cachedColors, apiColors)) {
           console.log(
-            `[THEME] Colors changed, updating cache for business ${data.businessId}`
+            `[THEME] API returned new colors, updating cache for business ${businessId}`
           );
-          cacheThemeColors(data.businessId, currentColors);
-        }
+          cacheThemeColors(businessId, apiColors);
 
-        // Apply theme colors (may have changed from cache)
-        applyThemeColors(data.primaryColor);
+          // Apply new colors from API
+          applyThemeColors(data.primaryColor);
+          console.log(`[THEME] Applied new colors from API for business ${businessId}`);
+        } else {
+          console.log(
+            `[THEME] API colors match cache for business ${businessId}, no update needed`
+          );
+          // Still apply colors even if cache is up to date
+          applyThemeColors(data.primaryColor);
+        }
       } else {
+        console.error("[BUSINESS SETTINGS] Failed to load from API");
         showToast.error("Failed to load business settings");
       }
     } catch (error) {
-      console.error("Error fetching settings:", error);
+      console.error("[BUSINESS SETTINGS] Error fetching settings:", error);
       showToast.error("Failed to load business settings");
     } finally {
       setIsLoading(false);
