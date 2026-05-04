@@ -34,11 +34,11 @@ VALUES (
 -- 2. CREATE BUSINESS SETTINGS (ALL FEATURES ENABLED WITH SOCIAL & HOURS)
 -- ============================================================================
 
--- Mega Store Settings (with populated social media and business hours)
+-- Mega Store Settings
 INSERT INTO business_settings (
   id, business_id, use_categories, use_subcategories, use_brands, tax_percentage,
   business_name, logo_business_url, enable_stock, primary_color, contact_address,
-  contact_phone, contact_email, social_media, business_hours, version, is_deleted,
+  contact_phone, contact_email, version, is_deleted,
   created_at, updated_at, created_by, updated_by
 )
 VALUES (
@@ -48,90 +48,36 @@ VALUES (
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ENABLED', '#FF6B6B',
   'Phnom Penh, Cambodia', '+855-12-345-678', 'megastore@example.com',
-  '[
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440001",
-      "name": "Facebook",
-      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733547.png",
-      "linkUrl": "https://facebook.com/megastore.cambodia"
-    },
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440002",
-      "name": "Instagram",
-      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733558.png",
-      "linkUrl": "https://instagram.com/megastore.cambodia"
-    },
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440003",
-      "name": "TikTok",
-      "imageUrl": "https://cdn-icons-png.flaticon.com/512/3046/3046126.png",
-      "linkUrl": "https://tiktok.com/@megastore.cambodia"
-    },
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440004",
-      "name": "WhatsApp",
-      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733585.png",
-      "linkUrl": "https://wa.me/85512345678"
-    },
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440005",
-      "name": "Telegram",
-      "imageUrl": "https://cdn-icons-png.flaticon.com/512/2111/2111646.png",
-      "linkUrl": "https://t.me/megastore_cambodia"
-    }
-  ]'::jsonb,
-  '[
-    {
-      "day": "Monday",
-      "openTime": "08:00",
-      "closeTime": "22:00",
-      "isClosed": false
-    },
-    {
-      "day": "Tuesday",
-      "openTime": "08:00",
-      "closeTime": "22:00",
-      "isClosed": false
-    },
-    {
-      "day": "Wednesday",
-      "openTime": "08:00",
-      "closeTime": "22:00",
-      "isClosed": false
-    },
-    {
-      "day": "Thursday",
-      "openTime": "08:00",
-      "closeTime": "22:00",
-      "isClosed": false
-    },
-    {
-      "day": "Friday",
-      "openTime": "08:00",
-      "closeTime": "23:00",
-      "isClosed": false
-    },
-    {
-      "day": "Saturday",
-      "openTime": "09:00",
-      "closeTime": "23:00",
-      "isClosed": false
-    },
-    {
-      "day": "Sunday",
-      "openTime": "10:00",
-      "closeTime": "21:00",
-      "isClosed": false
-    }
-  ]'::jsonb,
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
--- Fashion Hub Settings (with populated social media and business hours)
+-- Mega Store Social Media Links
+INSERT INTO social_media (id, business_setting_id, name, image_url, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  ('550e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440002', 'Facebook', 'https://cdn-icons-png.flaticon.com/512/733/733547.png', 'https://facebook.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440002', 'Instagram', 'https://cdn-icons-png.flaticon.com/512/733/733558.png', 'https://instagram.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440002', 'TikTok', 'https://cdn-icons-png.flaticon.com/512/3046/3046126.png', 'https://tiktok.com/@megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440002', 'WhatsApp', 'https://cdn-icons-png.flaticon.com/512/733/733585.png', 'https://wa.me/85512345678', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440002', 'Telegram', 'https://cdn-icons-png.flaticon.com/512/2111/2111646.png', 'https://t.me/megastore_cambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- Mega Store Business Hours
+INSERT INTO business_hours (id, business_setting_id, day, opening_time, closing_time, is_closed, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  ('770e9400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440002', 'Monday', '08:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440002', 'Tuesday', '08:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440002', 'Wednesday', '08:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440002', 'Thursday', '08:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440002', 'Friday', '08:00', '23:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440006', '770e8400-e29b-41d4-a716-446655440002', 'Saturday', '09:00', '23:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440007', '770e8400-e29b-41d4-a716-446655440002', 'Sunday', '10:00', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- Fashion Hub Settings
 INSERT INTO business_settings (
   id, business_id, use_categories, use_subcategories, use_brands, tax_percentage,
   business_name, logo_business_url, enable_stock, primary_color, contact_address,
-  contact_phone, contact_email, social_media, business_hours, version, is_deleted,
+  contact_phone, contact_email, version, is_deleted,
   created_at, updated_at, created_by, updated_by
 )
 VALUES (
@@ -141,78 +87,29 @@ VALUES (
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ENABLED', '#6B6BFF',
   'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com',
-  '[
-    {
-      "id": "660e8400-e29b-41d4-a716-446655440001",
-      "name": "Facebook",
-      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733547.png",
-      "linkUrl": "https://facebook.com/fashionhub.cambodia"
-    },
-    {
-      "id": "660e8400-e29b-41d4-a716-446655440002",
-      "name": "Instagram",
-      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733558.png",
-      "linkUrl": "https://instagram.com/fashionhub.cambodia"
-    },
-    {
-      "id": "660e8400-e29b-41d4-a716-446655440003",
-      "name": "YouTube",
-      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733564.png",
-      "linkUrl": "https://youtube.com/@fashionhubcambodia"
-    },
-    {
-      "id": "660e8400-e29b-41d4-a716-446655440004",
-      "name": "Pinterest",
-      "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733553.png",
-      "linkUrl": "https://pinterest.com/fashionhubcambodia"
-    }
-  ]'::jsonb,
-  '[
-    {
-      "day": "Monday",
-      "openTime": "09:30",
-      "closeTime": "21:00",
-      "isClosed": false
-    },
-    {
-      "day": "Tuesday",
-      "openTime": "09:30",
-      "closeTime": "21:00",
-      "isClosed": false
-    },
-    {
-      "day": "Wednesday",
-      "openTime": "09:30",
-      "closeTime": "21:00",
-      "isClosed": false
-    },
-    {
-      "day": "Thursday",
-      "openTime": "09:30",
-      "closeTime": "21:00",
-      "isClosed": false
-    },
-    {
-      "day": "Friday",
-      "openTime": "09:30",
-      "closeTime": "22:00",
-      "isClosed": false
-    },
-    {
-      "day": "Saturday",
-      "openTime": "10:00",
-      "closeTime": "22:00",
-      "isClosed": false
-    },
-    {
-      "day": "Sunday",
-      "openTime": "11:00",
-      "closeTime": "20:00",
-      "isClosed": false
-    }
-  ]'::jsonb,
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
+
+-- Fashion Hub Social Media Links
+INSERT INTO social_media (id, business_setting_id, name, image_url, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  ('660e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440003', 'Facebook', 'https://cdn-icons-png.flaticon.com/512/733/733547.png', 'https://facebook.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('660e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440003', 'Instagram', 'https://cdn-icons-png.flaticon.com/512/733/733558.png', 'https://instagram.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('660e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440003', 'YouTube', 'https://cdn-icons-png.flaticon.com/512/733/733564.png', 'https://youtube.com/@fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('660e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440003', 'Pinterest', 'https://cdn-icons-png.flaticon.com/512/733/733553.png', 'https://pinterest.com/fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- Fashion Hub Business Hours
+INSERT INTO business_hours (id, business_setting_id, day, opening_time, closing_time, is_closed, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  ('880e9400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440003', 'Monday', '09:30', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440003', 'Tuesday', '09:30', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440003', 'Wednesday', '09:30', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440003', 'Thursday', '09:30', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440003', 'Friday', '09:30', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440006', '770e8400-e29b-41d4-a716-446655440003', 'Saturday', '10:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440007', '770e8400-e29b-41d4-a716-446655440003', 'Sunday', '11:00', '20:00', false, 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 3. CREATE BANNERS (8 Active, 20 Inactive)
