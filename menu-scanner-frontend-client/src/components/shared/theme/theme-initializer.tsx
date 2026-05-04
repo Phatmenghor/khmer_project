@@ -3,87 +3,17 @@
 import { useEffect } from "react";
 
 /**
- * ThemeInitializer - Apply cached theme colors as early as possible
- * This component should run as soon as possible to prevent color flash
+ * ThemeInitializer - Disabled for now to prevent color flash on initial load
+ * Colors will be applied only after business settings API returns
+ * For subsequent page loads with cached colors, they'll be applied when needed
  */
 export function ThemeInitializer() {
   useEffect(() => {
-    // Apply cached colors immediately (runs after hydration)
-    initializeTheme();
+    // Intentionally empty - theme colors are now applied after API returns
+    // See manage-business-settings/page.tsx for color application logic
   }, []);
 
   return null;
-}
-
-/**
- * Initialize theme colors from cache
- * Gets business ID from various sources and applies cached colors
- */
-function initializeTheme() {
-  try {
-    // Try to get business ID from multiple sources
-    let businessId: string | null = null;
-
-    // 1. Check localStorage first (fastest, set on login)
-    businessId = localStorage.getItem("businessId");
-
-    // 2. If not found, check from URL or page context
-    if (!businessId && typeof window !== "undefined") {
-      // Try to get from sessionStorage as fallback
-      businessId = sessionStorage.getItem("businessId");
-
-      // Try to get from cookie (BusinessId cookie if it exists)
-      const cookies = document.cookie.split(";");
-      for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.startsWith("businessId=")) {
-          businessId = decodeURIComponent(cookie.substring("businessId=".length));
-          break;
-        }
-      }
-    }
-
-    if (!businessId) {
-      console.log("[THEME] No business ID found, using defaults");
-      return;
-    }
-
-    // Get cached colors from cookie
-    const cookieName = `theme_colors_${businessId}`;
-    const cookies = document.cookie.split(";");
-    let cachedColorsStr: string | null = null;
-
-    for (let cookie of cookies) {
-      cookie = cookie.trim();
-      if (cookie.startsWith(cookieName + "=")) {
-        cachedColorsStr = decodeURIComponent(
-          cookie.substring((cookieName + "=").length)
-        );
-        break;
-      }
-    }
-
-    if (!cachedColorsStr) {
-      console.log(
-        `[THEME] No cached colors for business ${businessId}, using defaults`
-      );
-      return;
-    }
-
-    try {
-      const cachedColors = JSON.parse(cachedColorsStr);
-      console.log(
-        `[THEME INIT] Applying cached colors for business ${businessId}`
-      );
-
-      // Apply colors immediately
-      applyThemeColorsSync(cachedColors.primaryColor);
-    } catch (e) {
-      console.error("[THEME] Failed to parse cached colors:", e);
-    }
-  } catch (error) {
-    console.error("[THEME INIT] Error initializing theme:", error);
-  }
 }
 
 /**

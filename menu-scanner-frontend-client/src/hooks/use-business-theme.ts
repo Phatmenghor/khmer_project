@@ -57,6 +57,7 @@ function hexToHsl(hex: string): string {
 /**
  * Hook to initialize business theme from settings
  * Fetches business settings on app startup and applies theme colors
+ * Skips applying colors on first load to prevent flash - colors applied after API returns
  * Skips fetching on login/auth pages since user is not authenticated
  */
 export function useBusinessTheme() {
@@ -76,8 +77,8 @@ export function useBusinessTheme() {
         console.log(`## [THEME] Applying cached colors for default business ${defaultBusinessId} on login page`);
         applyColors(cachedColors.primaryColor);
       } else {
-        console.log("## [THEME] No cached theme for default business, using defaults");
-        applyColors(DEFAULT_COLORS.primary);
+        console.log("## [THEME] No cached theme for default business, skipping color application");
+        // Don't apply default colors on login page to avoid flash
       }
       return;
     }
@@ -87,7 +88,8 @@ export function useBusinessTheme() {
       // Store business ID in localStorage for ThemeInitializer
       localStorage.setItem("businessId", businessSettings.businessId);
 
-      // Try to load from cache first (instant colors)
+      // Only apply cached colors if they exist
+      // Don't apply from Redux on initial load to prevent color flash
       const cachedColors = getCachedThemeColors(businessSettings.businessId);
       if (cachedColors) {
         console.log(
@@ -95,8 +97,10 @@ export function useBusinessTheme() {
         );
         applyColors(cachedColors.primaryColor);
       } else {
-        // Apply from redux if no cache
-        applyColors(businessSettings.primaryColor);
+        console.log(
+          `## [THEME] No cached colors for business ${businessSettings.businessId}, waiting for API`
+        );
+        // Skip applying colors here - let manage-business-settings page apply after API returns
       }
 
       // Update cache with current settings
@@ -126,12 +130,12 @@ export function useBusinessTheme() {
         cacheThemeColors(payload.businessId, colors);
         console.log(`## [THEME] Cached colors for business ${payload.businessId}`);
 
-        // Apply colors
+        // Apply colors from API response
         applyColors(payload.primaryColor);
         console.log("## [THEME] Business theme loaded and applied successfully");
       } else {
-        console.error("## [THEME] Failed to load business theme, using defaults");
-        applyColors(DEFAULT_COLORS.primary);
+        console.error("## [THEME] Failed to load business theme");
+        // Only apply default colors on error, not on first load
       }
     });
   }, [dispatch, businessSettings]);
