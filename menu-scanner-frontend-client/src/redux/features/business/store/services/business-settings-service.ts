@@ -33,6 +33,9 @@ export interface BusinessSettingsResponse {
   contactPhone?: string;
   contactEmail?: string;
   businessHours?: BusinessHours[];
+  useCategories?: boolean;
+  useSubcategories?: boolean;
+  useBrands?: boolean;
 }
 
 export interface UpdateBusinessSettingsRequest {
@@ -46,6 +49,9 @@ export interface UpdateBusinessSettingsRequest {
   contactPhone?: string;
   contactEmail?: string;
   businessHours?: BusinessHours[];
+  useCategories?: boolean;
+  useSubcategories?: boolean;
+  useBrands?: boolean;
 }
 
 const API_BASE_URL = "/api/v1/business-settings";
