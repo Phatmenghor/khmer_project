@@ -52,24 +52,32 @@ export function Footer() {
         <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Section 1: Logo & Description */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 w-fit">
-              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                <Image
-                  src={businessLogoUrl}
-                  alt={businessName}
-                  width={24}
-                  height={24}
-                  className="rounded object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/favicon.ico";
-                  }}
-                />
+            <div className="flex items-center gap-3 group">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden flex-shrink-0">
+                  <img
+                    src={businessLogoUrl}
+                    alt={businessName}
+                    className="w-full h-full object-cover rounded-xl"
+                    onLoad={() => console.log("✅ [FOOTER] Logo loaded:", businessLogoUrl)}
+                    onError={(e) => {
+                      console.error("❌ [FOOTER] Failed to load logo:", businessLogoUrl);
+                      (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+                    }}
+                  />
+                </div>
+                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <span className="font-bold text-lg text-white">
-                {businessName}
-              </span>
+              <div className="flex flex-col">
+                <span className="text-white font-bold text-base leading-tight tracking-tight">
+                  {businessName}
+                </span>
+                <span className="text-white/70 text-xs font-medium tracking-wide">
+                  Restaurant
+                </span>
+              </div>
             </div>
-            <p className="text-white text-sm leading-relaxed">
+            <p className="text-white/90 text-sm leading-relaxed">
               {businessName} - Your trusted destination for premium dining experiences.
               Explore menus, discover favorites, and enjoy seamless ordering.
             </p>
