@@ -86,10 +86,18 @@ export default async function RootLayout({
                     }
                   }
 
-                  if (!cachedColors || !cachedColors.primaryColor) {
-                    console.log('[THEME SYNC] No cached colors found, showing blank');
+                  if (!cachedColors) {
+                    console.log('[THEME SYNC] No cached business data found, showing blank');
                     return;
                   }
+
+                  // Store business data globally for React to access before Redux loads
+                  window.__cachedBusinessData = {
+                    businessName: cachedColors.businessName,
+                    logoBusinessUrl: cachedColors.logoBusinessUrl,
+                    primaryColor: cachedColors.primaryColor,
+                  };
+                  console.log('[THEME SYNC] Cached business data available globally:', window.__cachedBusinessData);
 
                   // Convert hex to HSL
                   function hexToHsl(hex) {
@@ -121,13 +129,24 @@ export default async function RootLayout({
                     return hue + ' ' + saturation + '% ' + lightness + '%';
                   }
 
-                  // Create and inject style tag to apply colors BEFORE React renders
+                  // Apply colors AND business data BEFORE React renders
                   const style = document.createElement('style');
                   style.id = 'theme-colors-sync';
-                  style.textContent = ':root{--primary:' + hexToHsl(cachedColors.primaryColor) + ';}';
-                  document.head.insertBefore(style, document.head.firstChild);
+                  let styleText = '';
 
-                  console.log('[THEME SYNC] Colors applied synchronously BEFORE React renders');
+                  // Apply primary color if available
+                  if (cachedColors.primaryColor) {
+                    styleText += ':root{--primary:' + hexToHsl(cachedColors.primaryColor) + ';}';
+                  }
+
+                  style.textContent = styleText;
+                  if (styleText) {
+                    document.head.insertBefore(style, document.head.firstChild);
+                  }
+
+                  console.log('[THEME SYNC] All cached data applied synchronously BEFORE React renders');
+                  console.log('[THEME SYNC] Business name:', cachedColors.businessName);
+                  console.log('[THEME SYNC] Logo URL:', cachedColors.logoBusinessUrl);
                 } catch (e) {
                   console.error('[THEME SYNC] Error:', e);
                 }

@@ -6,6 +6,17 @@ import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+
+// Type declaration for global cached business data
+declare global {
+  interface Window {
+    __cachedBusinessData?: {
+      businessName?: string;
+      logoBusinessUrl?: string;
+      primaryColor?: string;
+    };
+  }
+}
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ROUTES, SIDEBAR_MENU } from "@/constants/app-routes/routes";
 import Image from "next/image";
@@ -34,19 +45,36 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
   // Get business settings from Redux (loaded by useBusinessTheme)
   const businessSettings = useAppSelector(selectBusinessSettings);
-  const businessName = useAppSelector(selectBusinessName);
-  const logoUrl = useAppSelector(selectBusinessLogo);
+  const reduxBusinessName = useAppSelector(selectBusinessName);
+  const reduxLogoUrl = useAppSelector(selectBusinessLogo);
 
-  // Debug logging to verify Redux state
+  // Use cached data initially for FAST load, then switch to Redux when available
+  const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
+  const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
+
+  // Initialize from cached data on mount (before Redux loads)
   useEffect(() => {
-    console.log("## [SIDEBAR] Redux businessSettings state:", {
-      hasData: !!businessSettings,
-      businessName: businessSettings?.businessName || "MISSING",
-      logoUrl: businessSettings?.logoBusinessUrl || "MISSING",
-      logoFromSelector: logoUrl || "NULL",
-      allData: businessSettings,
+    if (typeof window !== "undefined" && window.__cachedBusinessData) {
+      setCachedBusinessName(window.__cachedBusinessData.businessName);
+      setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
+      console.log("## [SIDEBAR] Loaded cached business data on mount");
+    }
+  }, []);
+
+  // Use Redux data when available, fall back to cache
+  const businessName = reduxBusinessName || cachedBusinessName;
+  const logoUrl = reduxLogoUrl || cachedLogoUrl;
+
+  // Debug logging to verify state
+  useEffect(() => {
+    console.log("## [SIDEBAR] Business data state:", {
+      fromRedux: !!reduxBusinessName,
+      fromCache: !!cachedBusinessName,
+      businessName: businessName || "BLANK",
+      logoUrl: logoUrl || "NO-IMAGE",
+      reduxData: businessSettings,
     });
-  }, [businessSettings, businessName, logoUrl]);
+  }, [businessSettings, reduxBusinessName, reduxLogoUrl, cachedBusinessName, cachedLogoUrl]);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,
