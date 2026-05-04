@@ -1293,19 +1293,26 @@ export default function PosPage() {
           </div>
         </div>
       </div>
-
-      {/* ─── Modals ─── */}
-      {/* Calculate initial quantities and customizations when opening modal */}
       {(() => {
         const initialQties = new Map<string, number>();
         let initialCustomIds: string[] = [];
+        
         if (sizePickerProduct && cartItems.length > 0) {
-          // Get all cart items for this product and build a map of size -> quantity
+          // Get all cart items for this product
           cartItems
             .filter((item) => item.productId === sizePickerProduct.id)
             .forEach((item) => {
-              const sizeId = item.productSizeId || "no_size";
-              initialQties.set(sizeId, item.quantity);
+              const sizeId = item.productSizeId || "__no_size__";
+              
+              // Build key with size and customizations for matching
+              const customKey = item.customizations && item.customizations.length > 0
+                ? `-${item.customizations.map(c => c.productCustomizationId).sort().join("-")}`
+                : "";
+              const mapKey = `${sizeId}${customKey}`;
+              
+              // Store quantity mapped to size+customizations combo
+              initialQties.set(mapKey, item.quantity);
+              
               // If this is the item being edited, get its customizations
               if (editingCartItemId && item.id === editingCartItemId && item.customizations) {
                 initialCustomIds = item.customizations.map((c) => c.productCustomizationId);

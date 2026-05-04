@@ -59,10 +59,17 @@ export function SizePickerModal({
   // Check if there are any unsaved changes (includes quantity changes or customization selection)
   const hasUnsavedChanges = modifiedSizes.size > 0 || (selectedSize && (customizationsBySize.get(selectedSize.id)?.size ?? 0) > 0);
 
-  // Get original quantity for a size (like current cart quantity)
+  // Get original quantity for a size, accounting for customizations
   const getQuantityForSize = useCallback(
-    (sizeId: string) => {
-      return originalQuantities.get(sizeId) ?? 0;
+    (sizeId: string, customizationIds?: Set<string>) => {
+      // Build the same key pattern used in POS page
+      const customKey = customizationIds && customizationIds.size > 0
+        ? `-${Array.from(customizationIds).sort().join("-")}`
+        : "";
+      const mapKey = `${sizeId}${customKey}`;
+
+      // Try to get with customizations first, then fallback to just size
+      return originalQuantities.get(mapKey) ?? originalQuantities.get(sizeId) ?? 0;
     },
     [originalQuantities],
   );
