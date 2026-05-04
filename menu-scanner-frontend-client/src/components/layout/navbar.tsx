@@ -104,9 +104,9 @@ export function Navbar() {
     }
   }, []);
 
-  // Use Redux data when available, fall back to cache
-  const businessName = reduxBusinessName || cachedBusinessName || "Menu Scanner";
-  const businessLogoUrl = reduxBusinessLogoUrl || cachedLogoUrl || "/assets/favicon.ico";
+  // Use Redux data when available, fall back to cache, default to blank
+  const businessName = reduxBusinessName || cachedBusinessName || "";
+  const businessLogoUrl = reduxBusinessLogoUrl || cachedLogoUrl || "";
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);
@@ -368,25 +368,29 @@ export function Navbar() {
           ) : (
             /* ── Mobile: compact top bar ── */
             <div className="sm:hidden flex items-center justify-between w-full h-14 gap-2">
-              <button onClick={handleNavigateToHome} className="flex items-center gap-2 shrink-0 group">
-                <div className="relative">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                    <img
-                      key={businessLogoUrl}
-                      src={businessLogoUrl || "/assets/image/no-image.png"}
-                      alt={businessName}
-                      className="w-full h-full object-cover rounded"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
-                      }}
-                    />
+              {businessName && (
+                <button onClick={handleNavigateToHome} className="flex items-center gap-2 shrink-0 group">
+                  <div className="relative">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
+                      {businessLogoUrl && (
+                        <img
+                          key={businessLogoUrl}
+                          src={businessLogoUrl}
+                          alt={businessName}
+                          className="w-full h-full object-cover rounded"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-                  <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-                <span className="font-bold text-sm text-foreground">
-                  {businessName}
-                </span>
-              </button>
+                  <span className="font-bold text-sm text-foreground">
+                    {businessName}
+                  </span>
+                </button>
+              )}
 
               <div className="flex items-center gap-0.5">
                 <Button
@@ -450,30 +454,34 @@ export function Navbar() {
           {/* ── Desktop top bar ── */}
           <div className="hidden sm:flex h-full w-full items-center justify-between gap-4">
             <div className="flex items-center gap-8">
-              <button onClick={handleNavigateToHome} className="flex items-center gap-2 group">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                    <img
-                      key={businessLogoUrl}
-                      src={businessLogoUrl || "/assets/image/no-image.png"}
-                      alt={businessName}
-                      className="w-full h-full object-cover rounded"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
-                      }}
-                    />
+              {businessName && (
+                <button onClick={handleNavigateToHome} className="flex items-center gap-2 group">
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
+                      {businessLogoUrl && (
+                        <img
+                          key={businessLogoUrl}
+                          src={businessLogoUrl}
+                          alt={businessName}
+                          className="w-full h-full object-cover rounded"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-                  <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-                <div className="hidden md:flex flex-col">
-                  <span className="text-foreground font-bold text-sm leading-tight">
+                  <div className="hidden md:flex flex-col">
+                    <span className="text-foreground font-bold text-sm leading-tight">
                     {businessName}
                   </span>
                   <span className="text-muted-foreground text-xs font-medium">
                     Shop Online
                   </span>
                 </div>
-              </button>
+                </button>
+              )}
 
               <div className="hidden lg:flex items-center gap-1">
                 {navigationLinks.map((link) => {
