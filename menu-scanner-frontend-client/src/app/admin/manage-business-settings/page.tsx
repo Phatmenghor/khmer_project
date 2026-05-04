@@ -752,7 +752,7 @@ export default function BusinessSettingsPage() {
                 const currentSocialMedia = form.getValues("socialMedia") || [];
                 form.setValue("socialMedia", [
                   ...currentSocialMedia,
-                  { name: "", linkUrl: "" },
+                  { name: "", imageUrl: "", linkUrl: "" },
                 ]);
               }}
               disabled={isSaving}
@@ -784,7 +784,7 @@ export default function BusinessSettingsPage() {
                               Platform Name
                             </Label>
                             <Input
-                              placeholder="e.g., Facebook"
+                              placeholder="e.g., Facebook, Instagram, TikTok"
                               value={social.name}
                               onChange={(e) => {
                                 const updated = [
@@ -795,25 +795,50 @@ export default function BusinessSettingsPage() {
                               }}
                               disabled={isSaving}
                             />
+                            <p className="text-xs text-muted-foreground">
+                              Name of the social platform
+                            </p>
                           </div>
-                          <div>
-                            <ClickableImageUpload
-                              label="Profile Image"
-                              value={social.linkUrl}
-                              onChange={(base64) => {
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Platform Icon URL
+                            </Label>
+                            <Input
+                              placeholder="https://cdn-icons-png.flaticon.com/..."
+                              value={social.imageUrl || ""}
+                              onChange={(e) => {
                                 const updated = [
                                   ...(form.getValues("socialMedia") || []),
                                 ];
-                                updated[index].linkUrl = base64;
+                                updated[index].imageUrl = e.target.value;
                                 form.setValue("socialMedia", updated, { shouldDirty: true });
                               }}
                               disabled={isSaving}
-                              aspectRatio="square"
-                              height="h-32"
-                              placeholder="Upload profile image"
-                              maxSize={5}
                             />
+                            <p className="text-xs text-muted-foreground">
+                              Icon/logo URL of the platform
+                            </p>
                           </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Profile Link
+                          </Label>
+                          <Input
+                            placeholder="https://facebook.com/yourprofile"
+                            value={social.linkUrl}
+                            onChange={(e) => {
+                              const updated = [
+                                ...(form.getValues("socialMedia") || []),
+                              ];
+                              updated[index].linkUrl = e.target.value;
+                              form.setValue("socialMedia", updated, { shouldDirty: true });
+                            }}
+                            disabled={isSaving}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            URL to your profile on this platform
+                          </p>
                         </div>
                       </div>
                       {!isSaving && (
