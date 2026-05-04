@@ -1,12 +1,10 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect } from "react";
 import { usePublicSubcategoriesState } from "@/redux/features/main/store/state/public-subcategories-state";
-import { LayoutGrid, Loader2 } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import { SubcategoryCard } from "@/components/shared/card/subcategory-card";
 import { SubcategoryCardSkeleton } from "@/components/shared/skeletons/subcategory-card-skeleton";
-import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { useSkeletonCount, SkeletonPresets } from "@/hooks/use-skeleton-count";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -14,55 +12,20 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 
 export default function SubcategoriesPage() {
-  const isLoadingRef = useRef(false);
-  const searchParams = useSearchParams();
-  const search = searchParams.get("q") || "";
-
   const {
     data,
-    pagination,
-    isLoading: isInitialLoading,
-    loadedFilters,
+    isLoading,
     fetchSubcategories,
-    updateLoadedFilters,
-    resetState,
   } = usePublicSubcategoriesState();
 
   const skeletonCount = useSkeletonCount(SkeletonPresets.categoryGrid);
   const totalSubcategories = data.reduce((acc, group) => acc + group.subcategories.length, 0);
-  const hasMore = pagination.hasMore;
-  const isLoadingMore = false;
 
   useScrollRestoration({ enabled: true, restoreOnMount: true, customKey: "subcategories" });
 
   useEffect(() => {
-    const currentFilters = JSON.stringify({ pageNo: 1, search });
-    if (currentFilters !== loadedFilters) {
-      resetState();
-      updateLoadedFilters(currentFilters);
-      fetchSubcategories({ pageNo: 1, status: "ACTIVE", search });
-    }
-  }, [search, loadedFilters, fetchSubcategories, updateLoadedFilters, resetState]);
-
-  const handleLoadMore = useCallback(() => {
-    if (!isLoadingMore && hasMore && !isLoadingRef.current) {
-      isLoadingRef.current = true;
-      fetchSubcategories({
-        pageNo: pagination.currentPage + 1,
-        status: "ACTIVE",
-        search,
-        append: true,
-      }).finally(() => {
-        isLoadingRef.current = false;
-      });
-    }
-  }, [isLoadingMore, hasMore, pagination.currentPage, fetchSubcategories, search]);
-
-  const { observerTarget } = useInfiniteScroll({
-    onLoadMore: handleLoadMore,
-    hasMore,
-    isLoading: isLoadingMore,
-  });
+    fetchSubcategories({ status: "ACTIVE" });
+  }, [fetchSubcategories]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -72,7 +35,7 @@ export default function SubcategoriesPage() {
           icon={LayoutGrid}
           count={totalSubcategories}
           subtitle={
-            isInitialLoading
+            isLoading
               ? "Loading subcategories..."
               : totalSubcategories > 0
               ? `${totalSubcategories} subcategories available`
@@ -80,8 +43,8 @@ export default function SubcategoriesPage() {
           }
         />
 
-        {/* Initial Loading */}
-        {isInitialLoading && (
+        {/* Loading State */}
+        {isLoading && (
           <div className="space-y-8">
             {Array.from({ length: 3 }).map((_, groupIndex) => (
               <div key={groupIndex}>
@@ -97,7 +60,7 @@ export default function SubcategoriesPage() {
         )}
 
         {/* Empty State */}
-        {!isInitialLoading && totalSubcategories === 0 && (
+        {!isLoading && totalSubcategories === 0 && (
           <EmptyState
             icon={LayoutGrid}
             title="No subcategories found"
@@ -107,7 +70,7 @@ export default function SubcategoriesPage() {
         )}
 
         {/* Subcategories Grouped by Category */}
-        {!isInitialLoading && totalSubcategories > 0 && (
+        {!isLoading && totalSubcategories > 0 && (
           <div className="space-y-8">
             {data.map((group) => (
               <div key={group.category.id}>
@@ -128,28 +91,6 @@ export default function SubcategoriesPage() {
                 </div>
               </div>
             ))}
-
-            {isLoadingMore && (
-              <div className="flex items-center justify-center py-6 mt-2">
-                <div className="flex items-center gap-2 text-primary">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm font-medium">Loading more...</span>
-                </div>
-              </div>
-            )}
-
-            {!hasMore && !isLoadingMore && totalSubcategories > 0 && (
-              <div className="flex flex-col items-center justify-center mt-8 py-8">
-                <p className="text-center text-sm text-muted-foreground">
-                  Showing all {totalSubcategories} subcategories
-                </p>
-              </div>
-            )}
-
-            {/* Sentinel div — callback ref ensures observer connects after mount */}
-            {hasMore && !isLoadingMore && (
-              <div ref={observerTarget} className="h-4" />
-            )}
           </div>
         )}
       </PageContainer>

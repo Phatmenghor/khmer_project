@@ -1,26 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchPublicSubcategories, CategoryWithSubcategories, PaginationResponse } from "../thunks/public-subcategories-thunks";
+import { fetchPublicSubcategories, CategoryWithSubcategories } from "../thunks/public-subcategories-thunks";
 
 interface PublicSubcategoriesState {
   data: CategoryWithSubcategories[];
-  pagination: PaginationResponse;
   isLoading: boolean;
   error: string | null;
-  loadedFilters: string;
 }
 
 const initialState: PublicSubcategoriesState = {
   data: [],
-  pagination: {
-    currentPage: 1,
-    pageSize: 12,
-    totalElements: 0,
-    totalPages: 0,
-    hasMore: false,
-  },
   isLoading: false,
   error: null,
-  loadedFilters: "",
 };
 
 const publicSubcategoriesSlice = createSlice({
@@ -28,9 +18,6 @@ const publicSubcategoriesSlice = createSlice({
   initialState,
   reducers: {
     resetSubcategories: () => initialState,
-    setLoadedFilters: (state, action: PayloadAction<string>) => {
-      state.loadedFilters = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -40,9 +27,7 @@ const publicSubcategoriesSlice = createSlice({
       })
       .addCase(fetchPublicSubcategories.fulfilled, (state, action) => {
         state.isLoading = false;
-        const { data, pagination } = action.payload;
-        state.data = action.meta.arg.append ? [...state.data, ...data] : data;
-        state.pagination = pagination;
+        state.data = action.payload;
       })
       .addCase(fetchPublicSubcategories.rejected, (state, action) => {
         state.isLoading = false;
@@ -52,5 +37,5 @@ const publicSubcategoriesSlice = createSlice({
   },
 });
 
-export const { resetSubcategories, setLoadedFilters } = publicSubcategoriesSlice.actions;
+export const { resetSubcategories } = publicSubcategoriesSlice.actions;
 export default publicSubcategoriesSlice.reducer;
