@@ -548,7 +548,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 97 36% 37%;
+    /* Primary color: Left BLANK by default - will be set by sync script from cache or API */
+    /* Default was: 97 36% 37%; (green) - now removed to prevent color flash */
     --primary-foreground: 0 0% 100%;
     --primary-hover: 97 36% 32%;
     --primary-active: 97 36% 27%;
@@ -565,7 +566,7 @@
 
     /* ACCENT - Light grey #F2F3F7 */
     --accent: 220 8% 95%;
-    --accent-foreground: 97 36% 37%;
+    --accent-foreground: 222 47% 11%;
     --accent-hover: 220 8% 90%;
 
     --destructive: 0 84% 60%;
@@ -576,15 +577,15 @@
     --border-strong: 220 13% 75%;
     --border-subtle: 220 13% 96%;
     --input: 220 13% 91%;
-    --input-focus: 97 36% 37%;
-    --ring: 97 36% 37%;
+    --input-focus: 220 8% 90%;
+    --ring: 220 8% 90%;
 
     /* COMBOBOX CUSTOM COLORS */
     --combobox-bg: 0 0% 100%;
     --combobox-fg: 222 47% 11%;
     --combobox-hover: 220 8% 95%;
     --combobox-selected: 220 8% 90%;
-    --combobox-selected-fg: 97 36% 37%;
+    --combobox-selected-fg: 222 47% 11%;
 
     --success: 146 79% 41%;
     --success-foreground: 0 0% 98%;
@@ -610,7 +611,8 @@
     --info-100: 215 79% 91%;
     --info-hover: 215 79% 50%;
 
-    --chart-1: 97 36% 37%;
+    /* Chart colors - chart-1 uses primary color (will be set dynamically) */
+    --chart-1: 220 8% 90%;
     --chart-2: 39 85% 55%;
     --chart-3: 215 79% 55%;
     --chart-4: 146 79% 41%;
@@ -620,14 +622,15 @@
     --card-radius: 0.75rem;
     --button-radius: 0.5rem;
 
+    /* Sidebar colors - sidebar-primary uses primary color (will be set dynamically) */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 97 36% 37%;
+    --sidebar-primary: 220 8% 90%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 97 36% 95%;
-    --sidebar-accent-foreground: 97 36% 25%;
+    --sidebar-accent: 220 8% 95%;
+    --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 97 36% 37%;
+    --sidebar-ring: 220 8% 90%;
 
     --surface-1: 0 0% 100%;
     --surface-2: 220 13% 98%;
