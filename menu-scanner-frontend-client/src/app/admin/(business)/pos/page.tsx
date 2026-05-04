@@ -508,7 +508,8 @@ export default function PosPage() {
 
   // ─── Product Click Handler ───
   const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
-    if (product.hasSizes) {
+    const hasCustomizations = product.customizations && product.customizations.length > 0;
+    if (product.hasSizes || hasCustomizations) {
       dispatch(setSizePickerProduct(product));
       return;
     }
