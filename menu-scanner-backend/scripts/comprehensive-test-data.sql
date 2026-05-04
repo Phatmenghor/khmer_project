@@ -50,26 +50,31 @@ VALUES (
   'Phnom Penh, Cambodia', '+855-12-345-678', 'megastore@example.com',
   '[
     {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
       "name": "Facebook",
       "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733547.png",
       "linkUrl": "https://facebook.com/megastore.cambodia"
     },
     {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
       "name": "Instagram",
       "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733558.png",
       "linkUrl": "https://instagram.com/megastore.cambodia"
     },
     {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
       "name": "TikTok",
       "imageUrl": "https://cdn-icons-png.flaticon.com/512/3046/3046126.png",
       "linkUrl": "https://tiktok.com/@megastore.cambodia"
     },
     {
+      "id": "550e8400-e29b-41d4-a716-446655440004",
       "name": "WhatsApp",
       "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733585.png",
       "linkUrl": "https://wa.me/85512345678"
     },
     {
+      "id": "550e8400-e29b-41d4-a716-446655440005",
       "name": "Telegram",
       "imageUrl": "https://cdn-icons-png.flaticon.com/512/2111/2111646.png",
       "linkUrl": "https://t.me/megastore_cambodia"
@@ -138,21 +143,25 @@ VALUES (
   'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com',
   '[
     {
+      "id": "660e8400-e29b-41d4-a716-446655440001",
       "name": "Facebook",
       "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733547.png",
       "linkUrl": "https://facebook.com/fashionhub.cambodia"
     },
     {
+      "id": "660e8400-e29b-41d4-a716-446655440002",
       "name": "Instagram",
       "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733558.png",
       "linkUrl": "https://instagram.com/fashionhub.cambodia"
     },
     {
+      "id": "660e8400-e29b-41d4-a716-446655440003",
       "name": "YouTube",
       "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733564.png",
       "linkUrl": "https://youtube.com/@fashionhubcambodia"
     },
     {
+      "id": "660e8400-e29b-41d4-a716-446655440004",
       "name": "Pinterest",
       "imageUrl": "https://cdn-icons-png.flaticon.com/512/733/733553.png",
       "linkUrl": "https://pinterest.com/fashionhubcambodia"

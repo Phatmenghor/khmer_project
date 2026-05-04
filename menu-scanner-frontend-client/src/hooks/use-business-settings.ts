@@ -1,8 +1,9 @@
 import { useState, useCallback } from "react";
 
 export interface SocialMedia {
+  id?: string;
   name: string;
-  imageUrl: string;
+  imageUrl?: string;
   linkUrl: string;
 }
 
