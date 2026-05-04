@@ -33,26 +33,26 @@ function POSProductCardComponent({
   const handleIncrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // For sized products, always open modal to select size
-    // Modal will fetch full product details if sizes not loaded
-    if (product.hasSizes) {
+    // For products with sizes or customizations, open modal
+    const hasCustomizations = product.customizations && product.customizations.length > 0;
+    if (product.hasSizes || hasCustomizations) {
       onAddClick(product);
       return;
     }
-    // For non-sized products, directly increment
+    // For simple products (no sizes, no customizations), directly increment
     onQuantityChange(product.id, 1);
   }, [product, onAddClick, onQuantityChange]);
 
   const handleDecrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // For sized products, always open modal to select size
-    // Modal will fetch full product details if sizes not loaded
-    if (product.hasSizes) {
+    // For products with sizes or customizations, open modal
+    const hasCustomizations = product.customizations && product.customizations.length > 0;
+    if (product.hasSizes || hasCustomizations) {
       onAddClick(product);
       return;
     }
-    // For non-sized products, directly decrement
+    // For simple products (no sizes, no customizations), directly decrement
     onQuantityChange(product.id, -1);
   }, [product, onAddClick, onQuantityChange]);
 
@@ -101,12 +101,21 @@ function POSProductCardComponent({
           </div>
         )}
 
-        {/* Sizes Badge - Bottom Left */}
-        {product.hasSizes && (
+        {/* Sizes/Customizations Badge - Bottom Left */}
+        {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
           <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
             <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
-              <Ruler className="h-3 w-3" />
-              Sizes
+              {product.hasSizes ? (
+                <>
+                  <Ruler className="h-3 w-3" />
+                  Sizes
+                </>
+              ) : (
+                <>
+                  <Package className="h-3 w-3" />
+                  Add-ons
+                </>
+              )}
             </Badge>
           </div>
         )}
