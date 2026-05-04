@@ -75,18 +75,6 @@ export const bannerTableColumns = ({
       ),
     },
     {
-      key: "linkUrl",
-      label: "Link",
-      minWidth: "150px",
-      maxWidth: "250px",
-      truncate: true,
-      render: (banner) => (
-        <span className="text-xs text-muted-foreground truncate">
-          {banner?.linkUrl || "---"}
-        </span>
-      ),
-    },
-    {
       key: "status",
       label: "Status",
       minWidth: "120px",

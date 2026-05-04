@@ -44,12 +44,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // ===== PUBLIC ENDPOINTS =====
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/public/**").permitAll()
+                        .requestMatchers("/api/v1/public/**").permitAll() // Includes /api/v1/public/business-settings/**
+                        .requestMatchers("/api/v1/business-settings/business/**").permitAll() // Public endpoint for fetching business settings by ID (theme, logo, name)
                         .requestMatchers("/api/images/**").permitAll()
 
                         .requestMatchers("/api/v1/users/admin-token").permitAll()
                         .requestMatchers("/api/v1/users/business-token").permitAll()
                         .requestMatchers("/api/v1/users/customer-token").permitAll()
+                        .requestMatchers("/api/v1/users/admin/reset-password").permitAll()
 
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-resources/**", "/webjars/**").permitAll()

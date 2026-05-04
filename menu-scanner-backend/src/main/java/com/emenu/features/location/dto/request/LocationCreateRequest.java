@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class LocationCreateRequest {
@@ -30,6 +31,8 @@ public class LocationCreateRequest {
     @DecimalMin(value = "-180.0", message = "Longitude must be between -180 and 180")
     @DecimalMax(value = "180.0", message = "Longitude must be between -180 and 180")
     private BigDecimal longitude;
-    
+
     private Boolean isDefault = false;
+
+    private List<LocationImageRequest> locationImages; // Optional images
 }

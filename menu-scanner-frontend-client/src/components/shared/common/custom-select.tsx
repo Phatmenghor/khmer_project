@@ -24,7 +24,7 @@ interface CustomSelectProps {
   onValueChange: (value: string) => void;
   className?: string;
   disabled?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   label?: string;
   required?: boolean;
   layout?: "vertical" | "horizontal";
@@ -44,6 +44,11 @@ const CUSTOM_SELECT_SIZES = {
   },
   lg: {
     button: "h-10 text-base",
+    icon: "h-5 w-5",
+    item: "text-base py-2 px-3",
+  },
+  xl: {
+    button: "h-11 text-base",
     icon: "h-5 w-5",
     item: "text-base py-2 px-3",
   },
@@ -96,7 +101,15 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             role="combobox"
             disabled={disabled}
             className={cn(
-              "w-full justify-between gap-2 transition-colors",
+              "w-full justify-between gap-2 transition-all duration-200",
+              // Default state
+              "border-input",
+              // Hover state
+              "hover:bg-primary/10 hover:border-primary hover:text-primary",
+              // Focus state
+              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+              // Active/Open state
+              open && "bg-primary/20 border-primary text-primary",
               sizeConfig.button,
               className,
               disabled && "opacity-50 cursor-not-allowed"
@@ -108,15 +121,18 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             <span
               className={cn(
                 "truncate",
-                selectedOption ? "text-foreground" : "text-muted-foreground"
+                selectedOption ? "text-foreground" : "text-muted-foreground",
+                // Change text color when open
+                open && "text-primary"
               )}
             >
               {selectedOption?.label || placeholder}
             </span>
             <ChevronDown
               className={cn(
-                `${sizeConfig.icon} opacity-50 shrink-0 transition-transform duration-200`,
-                open && "rotate-180"
+                `${sizeConfig.icon} shrink-0 transition-all duration-200`,
+                !open && "opacity-50",
+                open && "opacity-100 text-primary rotate-180"
               )}
             />
           </Button>
@@ -148,9 +164,9 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                   className={cn(
                     "w-full flex items-center gap-2 text-left transition-colors",
                     sizeConfig.item,
-                    "hover:bg-accent hover:text-accent-foreground",
+                    "hover:bg-primary/10 hover:text-primary",
                     value === option.value
-                      ? "bg-accent text-accent-foreground font-medium"
+                      ? "bg-primary/20 text-primary font-medium"
                       : "text-foreground",
                     option.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent"
                   )}

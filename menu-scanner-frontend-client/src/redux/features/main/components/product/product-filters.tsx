@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,25 +17,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
   X,
   SlidersHorizontal,
-  Tag,
-  Package,
-  Check,
-  ChevronsUpDown,
   Flame,
   ListChecks,
   FilterX,
@@ -44,6 +27,8 @@ import {
 import { cn } from "@/lib/utils";
 import { usePublicCategoriesState } from "@/redux/features/main/store/state/public-categories-state";
 import { usePublicBrandsState } from "@/redux/features/main/store/state/public-brands-state";
+import { ComboboxSelectBrandPublic } from "@/components/shared/combobox/combobox_select_brand_public";
+import { ComboboxSelectCategoriesPublic } from "@/components/shared/combobox/combobox_select_categories_public";
 
 const PRODUCT_STATUSES = [
   { value: "ACTIVE", label: "Active" },
@@ -56,7 +41,7 @@ interface ProductFiltersProps {
   lockedPromotion?: boolean;
 }
 
-export function ProductFilters({
+function ProductFiltersComponent({
   totalResults,
   basePath = "/products",
   lockedPromotion = false,
@@ -64,11 +49,6 @@ export function ProductFilters({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { categories, loaded: categoriesLoaded, fetchCategories } = usePublicCategoriesState();
-  const { brands, loaded: brandsLoaded, fetchBrands } = usePublicBrandsState();
-
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [brandOpen, setBrandOpen] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
@@ -77,22 +57,15 @@ export function ProductFilters({
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
 
-  useEffect(() => {
-    if (!categoriesLoaded) fetchCategories({ pageSize: 100, status: "ACTIVE" });
-  }, [categoriesLoaded, fetchCategories]);
-
-  useEffect(() => {
-    if (!brandsLoaded) fetchBrands({ pageSize: 100, status: "ACTIVE" });
-  }, [brandsLoaded, fetchBrands]);
 
   // Sync from URL
   useEffect(() => {
     setSelectedCategory(searchParams.get("categoryId") || "");
     setSelectedBrand(searchParams.get("brandId") || "");
     setSelectedStatuses(
-      searchParams.get("status")?.split(",").filter(Boolean) || []
+      searchParams.get("status")?.split(",").filter(Boolean) || [],
     );
-    setHasPromotion(searchParams.get("hasPromotion") === "true");
+    setHasPromotion(!!searchParams.get("hasPromotion"));
     setMinPrice(searchParams.get("minPrice") || "");
     setMaxPrice(searchParams.get("maxPrice") || "");
   }, [searchParams]);
@@ -102,7 +75,7 @@ export function ProductFilters({
       const qs = params.toString();
       router.push(qs ? `${basePath}?${qs}` : basePath);
     },
-    [router, basePath]
+    [router, basePath],
   );
 
   const updateFilter = useCallback(
@@ -112,12 +85,13 @@ export function ProductFilters({
       else params.delete(key);
       pushParams(params);
     },
-    [searchParams, pushParams]
+    [searchParams, pushParams],
   );
 
   const toggleStatus = useCallback(
     (status: string) => {
-      const current = searchParams.get("status")?.split(",").filter(Boolean) || [];
+      const current =
+        searchParams.get("status")?.split(",").filter(Boolean) || [];
       const next = current.includes(status)
         ? current.filter((s) => s !== status)
         : [...current, status];
@@ -126,7 +100,7 @@ export function ProductFilters({
       else params.delete("status");
       pushParams(params);
     },
-    [searchParams, pushParams]
+    [searchParams, pushParams],
   );
 
   const applyPrice = useCallback(() => {
@@ -153,9 +127,6 @@ export function ProductFilters({
     router.push(basePath);
   }, [router, basePath]);
 
-  const selectedCategoryName = categories.find((c) => c.id === selectedCategory)?.name;
-  const selectedBrandName = brands.find((b) => b.id === selectedBrand)?.name;
-
   const urlMinPrice = searchParams.get("minPrice") || "";
   const urlMaxPrice = searchParams.get("maxPrice") || "";
   const hasPriceFilter = !!(urlMinPrice || urlMaxPrice);
@@ -167,76 +138,10 @@ export function ProductFilters({
     (!lockedPromotion && hasPromotion ? 1 : 0) +
     (hasPriceFilter ? 1 : 0);
 
-  const FilterContent = () => (
+
+  // Create filter content once to avoid duplicate component instances
+  const filterContent = (
     <div className="space-y-5">
-      {/* Active Filter Chips */}
-      {activeFiltersCount > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {selectedCategory && (
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={() => updateFilter("categoryId", "")}
-            >
-              <Package className="h-3 w-3" />
-              {selectedCategoryName}
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          )}
-          {selectedBrand && (
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={() => updateFilter("brandId", "")}
-            >
-              <Tag className="h-3 w-3" />
-              {selectedBrandName}
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          )}
-          {selectedStatuses.map((s) => (
-            <Badge
-              key={s}
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={() => toggleStatus(s)}
-            >
-              <ListChecks className="h-3 w-3" />
-              {PRODUCT_STATUSES.find((p) => p.value === s)?.label ?? s}
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          ))}
-          {!lockedPromotion && hasPromotion && (
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={() => updateFilter("hasPromotion", "")}
-            >
-              <Flame className="h-3 w-3" />
-              Promotion
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          )}
-          {hasPriceFilter && (
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-              onClick={clearPrice}
-            >
-              <DollarSign className="h-3 w-3" />
-              {urlMinPrice && urlMaxPrice
-                ? `${urlMinPrice} – ${urlMaxPrice}`
-                : urlMinPrice
-                ? `Min ${urlMinPrice}`
-                : `Max ${urlMaxPrice}`}
-              <X className="h-3 w-3 ml-0.5" />
-            </Badge>
-          )}
-        </div>
-      )}
-
-      {activeFiltersCount > 0 && <Separator />}
-
       {/* Promotion - top, hidden when locked */}
       {!lockedPromotion && (
         <>
@@ -245,20 +150,33 @@ export function ProductFilters({
               "flex items-center justify-between rounded-lg px-3 py-3 border transition-colors cursor-pointer",
               hasPromotion
                 ? "border-orange-400/60 bg-orange-500/5"
-                : "border-border/60 hover:border-border"
+                : "border-border/60 hover:border-border",
             )}
-            onClick={() => updateFilter("hasPromotion", hasPromotion ? "" : "true")}
+            onClick={() =>
+              updateFilter("hasPromotion", hasPromotion ? "" : "true")
+            }
           >
             <div className="flex items-center gap-2.5">
-              <div className={cn(
-                "flex items-center justify-center w-7 h-7 rounded-lg transition-colors",
-                hasPromotion ? "bg-orange-500/20" : "bg-orange-500/10"
-              )}>
-                <Flame className={cn("h-3.5 w-3.5", hasPromotion ? "text-orange-500" : "text-orange-400")} />
+              <div
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-lg transition-colors",
+                  hasPromotion ? "bg-orange-500/20" : "bg-orange-500/10",
+                )}
+              >
+                <Flame
+                  className={cn(
+                    "h-3.5 w-3.5",
+                    hasPromotion ? "text-orange-500" : "text-orange-400",
+                  )}
+                />
               </div>
               <div>
-                <p className="text-sm font-semibold leading-none">On Sale Only</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Show promotional items</p>
+                <p className="text-sm font-semibold leading-none">
+                  On Sale Only
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Show promotional items
+                </p>
               </div>
             </div>
             <Switch
@@ -275,136 +193,26 @@ export function ProductFilters({
       )}
 
       {/* Category - Combobox */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-500/10">
-            <Package className="h-3.5 w-3.5 text-blue-500" />
-          </div>
-          <label className="text-sm font-semibold">Category</label>
-        </div>
-        <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={categoryOpen}
-              className={cn(
-                "w-full justify-between font-normal",
-                selectedCategory && "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary"
-              )}
-            >
-              <span className="truncate text-sm font-medium">
-                {selectedCategoryName || "All Categories"}
-              </span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-            <Command>
-              <CommandInput placeholder="Search category..." />
-              <CommandList>
-                <CommandEmpty>No categories found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandItem
-                    value="__all__"
-                    onSelect={() => {
-                      updateFilter("categoryId", "");
-                      setCategoryOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn("mr-2 h-4 w-4", !selectedCategory ? "opacity-100" : "opacity-0")}
-                    />
-                    All Categories
-                  </CommandItem>
-                  {categories.map((cat) => (
-                    <CommandItem
-                      key={cat.id}
-                      value={cat.name}
-                      onSelect={() => {
-                        updateFilter("categoryId", cat.id === selectedCategory ? "" : cat.id);
-                        setCategoryOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn("mr-2 h-4 w-4", selectedCategory === cat.id ? "opacity-100" : "opacity-0")}
-                      />
-                      {cat.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
+      <ComboboxSelectCategoriesPublic
+        selectedCategory={selectedCategory}
+        onChangeSelected={(categoryId) =>
+          updateFilter("categoryId", categoryId)
+        }
+        label="Category"
+        size="md"
+        placeholder="All Categories"
+      />
 
       <Separator />
 
       {/* Brand - Combobox */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-500/10">
-            <Tag className="h-3.5 w-3.5 text-purple-500" />
-          </div>
-          <label className="text-sm font-semibold">Brand</label>
-        </div>
-        <Popover open={brandOpen} onOpenChange={setBrandOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={brandOpen}
-              className={cn(
-                "w-full justify-between font-normal",
-                selectedBrand && "border-primary/60 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary"
-              )}
-            >
-              <span className="truncate text-sm font-medium">
-                {selectedBrandName || "All Brands"}
-              </span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-            <Command>
-              <CommandInput placeholder="Search brand..." />
-              <CommandList>
-                <CommandEmpty>No brands found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandItem
-                    value="__all__"
-                    onSelect={() => {
-                      updateFilter("brandId", "");
-                      setBrandOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn("mr-2 h-4 w-4", !selectedBrand ? "opacity-100" : "opacity-0")}
-                    />
-                    All Brands
-                  </CommandItem>
-                  {brands.map((brand) => (
-                    <CommandItem
-                      key={brand.id}
-                      value={brand.name}
-                      onSelect={() => {
-                        updateFilter("brandId", brand.id === selectedBrand ? "" : brand.id);
-                        setBrandOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn("mr-2 h-4 w-4", selectedBrand === brand.id ? "opacity-100" : "opacity-0")}
-                      />
-                      {brand.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
+      <ComboboxSelectBrandPublic
+        selectedBrand={selectedBrand}
+        onChangeSelected={(brandId) => updateFilter("brandId", brandId)}
+        label="Brand"
+        size="md"
+        placeholder="All Brands"
+      />
 
       <Separator />
 
@@ -482,74 +290,72 @@ export function ProductFilters({
             Apply
           </Button>
           {hasPriceFilter && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={clearPrice}
-            >
+            <Button size="sm" variant="outline" onClick={clearPrice}>
               <X className="h-3.5 w-3.5" />
             </Button>
           )}
         </div>
       </div>
-
     </div>
   );
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block sticky top-24 h-[calc(100vh-7rem)]">
-        <div className="bg-card border rounded-xl shadow-sm h-full flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border/60 flex-shrink-0">
-            <div className="flex items-center gap-2.5">
-              <SlidersHorizontal className="h-5 w-5 text-primary" />
-              <h3 className="font-bold text-base">Filters</h3>
+      <div className="hidden lg:flex w-72 flex-shrink-0">
+        <div className="sticky top-24 h-[calc(100vh-7rem)] w-full">
+          <div className="bg-card border rounded-xl shadow-sm h-full flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border/60 flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <SlidersHorizontal className="h-5 w-5 text-primary" />
+                <h3 className="font-bold text-base">Filters</h3>
+                {activeFiltersCount > 0 && (
+                  <Badge className="rounded-full h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold">
+                    {activeFiltersCount}
+                  </Badge>
+                )}
+              </div>
               {activeFiltersCount > 0 && (
-                <Badge className="rounded-full h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold">
-                  {activeFiltersCount}
-                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1.5 text-xs"
+                  onClick={clearAllFilters}
+                >
+                  <FilterX className="h-3.5 w-3.5" />
+                  Clear all
+                </Button>
               )}
             </div>
-            {activeFiltersCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1.5 text-xs"
-                onClick={clearAllFilters}
-              >
-                <FilterX className="h-3.5 w-3.5" />
-                Clear all
-              </Button>
-            )}
-          </div>
 
-          {/* Results count */}
-          <div className="px-5 py-3 border-b border-border/40 flex-shrink-0 bg-muted/30">
-            <p className="text-xs text-muted-foreground">
-              <span className="font-semibold text-foreground">
-                {totalResults.toLocaleString()}
-              </span>{" "}
-              result{totalResults !== 1 ? "s" : ""} found
-            </p>
-          </div>
-
-          {/* Scrollable content */}
-          <ScrollArea className="flex-1">
-            <div className="p-5">
-              <FilterContent />
+            {/* Results count */}
+            <div className="px-5 py-3 border-b border-border/40 flex-shrink-0 bg-muted/30">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">
+                  {totalResults.toLocaleString()}
+                </span>{" "}
+                result{totalResults !== 1 ? "s" : ""} found
+              </p>
             </div>
-          </ScrollArea>
+
+            {/* Scrollable content */}
+            <ScrollArea className="flex-1">
+              <div className="p-5">
+                {filterContent}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
       </div>
 
-      {/* Mobile */}
-      <div className="lg:hidden">
+      {/* Mobile Filters */}
+      <div className="lg:hidden w-full">
         <div className="flex items-center justify-between gap-3 bg-card border rounded-xl p-4 shadow-sm">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold truncate">
-              {totalResults.toLocaleString()} result{totalResults !== 1 ? "s" : ""}
+              {totalResults.toLocaleString()} result
+              {totalResults !== 1 ? "s" : ""}
             </p>
             <p className="text-xs text-muted-foreground">
               {activeFiltersCount > 0
@@ -585,7 +391,10 @@ export function ProductFilters({
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-80 sm:w-96 p-0 flex flex-col">
+              <SheetContent
+                side="left"
+                className="w-80 sm:w-96 p-0 flex flex-col"
+              >
                 <SheetHeader className="px-5 py-4 border-b border-border/60 flex-shrink-0">
                   <div className="flex items-center justify-between">
                     <SheetTitle className="flex items-center gap-2.5">
@@ -618,7 +427,7 @@ export function ProductFilters({
                 </SheetHeader>
                 <ScrollArea className="flex-1">
                   <div className="p-5">
-                    <FilterContent />
+                    {filterContent}
                   </div>
                 </ScrollArea>
               </SheetContent>
@@ -629,3 +438,12 @@ export function ProductFilters({
     </>
   );
 }
+
+export const ProductFilters = memo(ProductFiltersComponent, (prevProps, nextProps) => {
+  // Only re-render if basePath or lockedPromotion changes
+  // Ignore totalResults changes as they don't affect filter behavior
+  return (
+    prevProps.basePath === nextProps.basePath &&
+    prevProps.lockedPromotion === nextProps.lockedPromotion
+  );
+});

@@ -10,10 +10,7 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "leave_type_enum", indexes = {
-    @Index(name = "idx_lte_business", columnList = "business_id"),
-    @Index(name = "idx_lte_name", columnList = "enum_name,business_id")
-})
+@Table(name = "leave_type_enum")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder

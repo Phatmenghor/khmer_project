@@ -75,7 +75,6 @@ export function BannerDetailModal({
                   {/* Basic Info - Left Side (50%) */}
                   <div className="w-full md:w-1/2 space-y-4">
                     <p className="text-foreground">{banner.businessName || "---"}</p>
-                    <DisplayField label="Link URL" value={banner.linkUrl || "---"} />
                     <DisplayField label="Status" value={banner.status ? formatEnumValue(banner.status) : "---"} />
                   </div>
 

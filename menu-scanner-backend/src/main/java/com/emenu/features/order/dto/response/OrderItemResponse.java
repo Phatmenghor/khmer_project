@@ -1,39 +1,54 @@
 package com.emenu.features.order.dto.response;
 
-import jakarta.validation.Valid;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderItemResponse {
     private UUID id;
 
     // Product info grouped for easy identification
     private OrderItemProductInfo product;
 
-    // ===== AUDIT TRAIL: Before/After snapshots =====
-    // Snapshot BEFORE any POS modifications (original product price)
-    @Valid
-    private OrderItemPricingSnapshot before;
+    // Pricing
+    private Integer quantity;
+    private BigDecimal currentPrice;        // Base price before promotion
+    private BigDecimal finalPrice;          // Price after promotion discount
+    private BigDecimal totalPrice;
 
-    // Was the item modified from POS? (price override, promotion change, quantity change, etc.)
-    private Boolean hadChangeFromPOS;
+    // Promotion details snapshot
+    private Boolean hasPromotion;
+    private String promotionType;           // PERCENTAGE or FIXED_AMOUNT
+    private BigDecimal promotionValue;
+    private LocalDateTime promotionFromDate;
+    private LocalDateTime promotionToDate;
 
-    // Snapshot AFTER POS modifications
-    @Valid
-    private OrderItemPricingSnapshot after;
-
-    // Reason for the change (if any)
-    private String reason;
+    // Customizations
+    private List<CustomizationDetail> customizations;  // Full customization details
+    private BigDecimal customizationTotal;             // Total cost of customizations for this item
 
     @Data
     public static class OrderItemProductInfo {
         private UUID id;
         private String name;
         private String imageUrl;
+        private String sku;
+        private String barcode;
         private UUID sizeId;
         private String sizeName;
         private String status;
+    }
+
+    @Data
+    public static class CustomizationDetail {
+        private UUID productCustomizationId;
+        private String name;
+        private BigDecimal priceAdjustment;
     }
 }

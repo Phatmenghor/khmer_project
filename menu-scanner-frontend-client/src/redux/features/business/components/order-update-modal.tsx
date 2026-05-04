@@ -1,96 +1,86 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import {
-  selectOrderAdminIsFetchingDetail,
-  selectOrderAdminOperations,
-  selectSelectedOrder,
-} from "../store/selectors/order-admin-selector";
-import {
-  fetchOrderByIdAdminService,
-  updateOrderAdminService,
-} from "../store/thunks/order-admin-thunks";
-import { clearSelectedOrder } from "../store/slice/order-admin-slice";
-import { showToast } from "@/components/shared/common/show-toast";
+import { TextField } from "@/components/shared/form-field/text-field";
+import { SelectField } from "@/components/shared/form-field/select-field";
+import { TextAreaField } from "@/components/shared/form-field/textarea-field";
+import { CancelButton } from "@/components/shared/form-field/cancel-button";
+import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { SelectField } from "@/components/shared/form-field/select-field";
-import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { CancelButton } from "@/components/shared/form-field/cancel-button";
-import { SubmitButton } from "@/components/shared/form-field/submid-button";
-import { OrderStatus } from "@/enums/order-status.enum";
-import { Loading } from "@/components/shared/common/loading";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { showToast } from "@/components/shared/common/show-toast";
+import {
+  selectSelectedOrder,
+  selectOrderAdminIsFetchingDetail,
+} from "../store/selectors/order-admin-selector";
+import { fetchOrderByIdAdminService } from "../store/thunks/order-admin-thunks";
+import { clearSelectedOrder } from "../store/slice/order-admin-slice";
 
-// Define the form schema
+// Validation schema
 const updateOrderSchema = z.object({
   orderStatus: z.string().min(1, "Order status is required"),
-  paymentStatus: z.string().min(1, "Payment status is required"),
-  paymentMethod: z.string().min(1, "Payment method is required"),
   businessNote: z.string().optional(),
+  paymentMethod: z.string().min(1, "Payment method is required"),
+  paymentStatus: z.string().min(1, "Payment status is required"),
 });
 
-type UpdateOrderFormData = z.infer<typeof updateOrderSchema>;
+type UpdateOrderData = z.infer<typeof updateOrderSchema>;
 
 interface OrderUpdateModalProps {
-  orderId: string;
+  orderId?: string;
   isOpen: boolean;
   onClose: () => void;
+  onOrderUpdated?: () => void;
 }
 
 const ORDER_STATUS_OPTIONS = [
-  { value: OrderStatus.PENDING, label: "Pending" },
-  { value: OrderStatus.CONFIRMED, label: "Confirmed" },
-  { value: OrderStatus.PREPARING, label: "Preparing" },
-  { value: OrderStatus.READY, label: "Ready" },
-  { value: OrderStatus.IN_TRANSIT, label: "In Transit" },
-  { value: OrderStatus.COMPLETED, label: "Completed" },
-  { value: OrderStatus.CANCELLED, label: "Cancelled" },
-  { value: OrderStatus.FAILED, label: "Failed" },
-];
-
-const PAYMENT_STATUS_OPTIONS = [
-  { value: "PENDING", label: "Pending" },
-  { value: "PAID", label: "Paid" },
-  { value: "UNPAID", label: "Unpaid" },
-  { value: "REFUNDED", label: "Refunded" },
-  { value: "PARTIALLY_PAID", label: "Partially Paid" },
+  { label: "Pending", value: "PENDING" },
+  { label: "Confirmed", value: "CONFIRMED" },
+  { label: "Completed", value: "COMPLETED" },
+  { label: "Cancelled", value: "CANCELLED" },
 ];
 
 const PAYMENT_METHOD_OPTIONS = [
-  { value: "CASH", label: "Cash" },
-  { value: "BANK_TRANSFER", label: "Bank Transfer" },
-  { value: "ONLINE", label: "Online" },
-  { value: "OTHER", label: "Other" },
+  { label: "Cash", value: "CASH" },
+  { label: "Card", value: "CARD" },
+  { label: "Bank Transfer", value: "BANK_TRANSFER" },
+];
+
+const PAYMENT_STATUS_OPTIONS = [
+  { label: "Paid", value: "PAID" },
+  { label: "Unpaid", value: "UNPAID" },
+  { label: "Pending", value: "PENDING" },
 ];
 
 export function OrderUpdateModal({
   orderId,
   isOpen,
   onClose,
+  onOrderUpdated,
 }: OrderUpdateModalProps) {
   const dispatch = useAppDispatch();
-  const isFetchingDetail = useAppSelector(selectOrderAdminIsFetchingDetail);
-  const operations = useAppSelector(selectOrderAdminOperations);
   const orderData = useAppSelector(selectSelectedOrder);
+  const isFetchingDetail = useAppSelector(selectOrderAdminIsFetchingDetail);
+  const [isSaving, setIsSaving] = useState(false);
 
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors, isDirty },
-  } = useForm<UpdateOrderFormData>({
+  } = useForm<UpdateOrderData>({
     resolver: zodResolver(updateOrderSchema),
     defaultValues: {
-      orderStatus: "",
-      paymentStatus: "",
-      paymentMethod: "",
+      orderStatus: "PENDING",
       businessNote: "",
+      paymentMethod: "CASH",
+      paymentStatus: "PENDING",
     },
     mode: "onChange",
   });
@@ -101,15 +91,15 @@ export function OrderUpdateModal({
   }, [orderId, isOpen, dispatch]);
 
   useEffect(() => {
-    if (orderData) {
+    if (isOpen && orderData) {
       reset({
-        orderStatus: orderData.orderStatus || "",
-        paymentStatus: orderData.payment?.paymentStatus || "",
-        paymentMethod: orderData.payment?.paymentMethod || "",
+        orderStatus: orderData.orderStatus || "PENDING",
         businessNote: orderData.businessNote || "",
+        paymentMethod: orderData.payment?.paymentMethod || "CASH",
+        paymentStatus: orderData.payment?.paymentStatus || "PENDING",
       });
     }
-  }, [orderData, reset]);
+  }, [isOpen, orderData, reset]);
 
   const handleClose = () => {
     reset();
@@ -117,107 +107,124 @@ export function OrderUpdateModal({
     onClose();
   };
 
-  const onSubmit = async (data: UpdateOrderFormData) => {
-    try {
-      await dispatch(
-        updateOrderAdminService({
-          orderId,
-          orderData: {
-            orderStatus: data.orderStatus || undefined,
-            paymentStatus: data.paymentStatus || undefined,
-            paymentMethod: data.paymentMethod || undefined,
-            businessNote: data.businessNote || undefined,
-          },
-        })
-      ).unwrap();
+  const onSubmit = async (data: UpdateOrderData) => {
+    if (!orderId) return;
 
-      showToast.success("Order updated successfully");
-      handleClose();
+    setIsSaving(true);
+    try {
+      const updatePayload = {
+        orderStatus: data.orderStatus,
+        businessNote: data.businessNote,
+        payment: {
+          paymentMethod: data.paymentMethod,
+          paymentStatus: data.paymentStatus,
+        },
+      };
+
+      const response = await fetch(`/api/v1/orders/${orderId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatePayload),
+      });
+
+      if (response.ok) {
+        showToast.success("✅ Order updated successfully!");
+        if (onOrderUpdated) {
+          onOrderUpdated();
+        }
+        handleClose();
+      } else {
+        const error = await response.json();
+        showToast.error(error.message || "Failed to update order");
+      }
     } catch (error: any) {
-      showToast.error(error || "Failed to update order");
+      showToast.error(error?.message || "Error updating order");
+      console.error(error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="w-full max-w-2xl p-0 flex flex-col">
         <FormHeader
           title="Update Order"
-          description={
-            orderData ? `Order #${orderData.orderNumber}` : "Loading order..."
-          }
+          description="Update order status, payment, and notes"
           isCreate={false}
         />
 
-        {isFetchingDetail ? (
-          <div className="flex items-center justify-center py-12">
-            <Loading />
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-hidden"
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
+          <FormBody>
+            {/* Order Status */}
+            <SelectField
+              control={control}
+              name="orderStatus"
+              label="Order Status"
+              placeholder="Select order status"
+              options={ORDER_STATUS_OPTIONS}
+              required
+              disabled={isSaving || isFetchingDetail}
+              error={errors.orderStatus}
+            />
+
+            {/* Payment Method */}
+            <SelectField
+              control={control}
+              name="paymentMethod"
+              label="Payment Method"
+              placeholder="Select payment method"
+              options={PAYMENT_METHOD_OPTIONS}
+              required
+              disabled={isSaving || isFetchingDetail}
+              error={errors.paymentMethod}
+            />
+
+            {/* Payment Status */}
+            <SelectField
+              control={control}
+              name="paymentStatus"
+              label="Payment Status"
+              placeholder="Select payment status"
+              options={PAYMENT_STATUS_OPTIONS}
+              required
+              disabled={isSaving || isFetchingDetail}
+              error={errors.paymentStatus}
+            />
+
+            {/* Business Note */}
+            <TextAreaField
+              control={control}
+              name="businessNote"
+              label="Business Note"
+              placeholder="Enter business note (optional)"
+              disabled={isSaving || isFetchingDetail}
+              error={errors.businessNote}
+              rows={3}
+            />
+          </FormBody>
+
+          <FormFooter
+            isSubmitting={isSaving}
+            isDirty={isDirty}
+            isCreate={false}
+            updateMessage={isSaving ? "Updating..." : "Updating order..."}
           >
-            <FormBody>
-              <div className="space-y-4">
-                <SelectField
-                  control={control}
-                  name="orderStatus"
-                  label="Order Status"
-                  placeholder="Select order status"
-                  options={ORDER_STATUS_OPTIONS}
-                  required
-                  disabled={operations.isUpdating}
-                  error={errors.orderStatus}
-                />
-
-                <SelectField
-                  control={control}
-                  name="paymentMethod"
-                  label="Payment Method"
-                  placeholder="Select payment method"
-                  options={PAYMENT_METHOD_OPTIONS}
-                  required
-                  disabled={operations.isUpdating}
-                  error={errors.paymentMethod}
-                />
-
-                <SelectField
-                  control={control}
-                  name="paymentStatus"
-                  label="Payment Status"
-                  placeholder="Select payment status"
-                  options={PAYMENT_STATUS_OPTIONS}
-                  required
-                  disabled={operations.isUpdating}
-                  error={errors.paymentStatus}
-                />
-
-                <TextareaField
-                  control={control}
-                  name="businessNote"
-                  label="Business Note"
-                  placeholder="Add any notes about this order..."
-                  disabled={operations.isUpdating}
-                  error={errors.businessNote}
-                />
-              </div>
-            </FormBody>
-
-            <FormFooter
-              isSubmitting={operations.isUpdating}
+            <CancelButton onClick={handleClose} disabled={isSaving} />
+            <SubmitButton
+              isSubmitting={isSaving}
               isDirty={isDirty}
               isCreate={false}
-              updateMessage="Updating order..."
-            >
-              <CancelButton onClick={handleClose} disabled={operations.isUpdating} />
-              <SubmitButton
-                isSubmitting={operations.isUpdating}
-                label="Update"
-              />
-            </FormFooter>
-          </form>
-        )}
+              updateText="Update Order"
+              submittingUpdateText={isSaving ? "Updating..." : "Updating order..."}
+            />
+          </FormFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

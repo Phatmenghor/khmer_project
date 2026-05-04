@@ -92,25 +92,15 @@ const publicProductSlice = createSlice({
       })
       .addCase(fetchPublicProducts.fulfilled, (state, action) => {
         const newProducts = action.payload.content || [];
-        const pageSize = action.payload.pageSize;
-
-        // Memory optimization: Keep only last 3 pages of data (like YouTube)
-        const MAX_PAGES_IN_MEMORY = 3;
-        const maxItems = MAX_PAGES_IN_MEMORY * pageSize;
 
         // Append new products, deduplicating by ID to prevent duplicate keys
         // when server-side inserts shift items across page boundaries
         const existingIds = new Set(state.products.map((p) => p.id));
         const uniqueNew = newProducts.filter((p) => !existingIds.has(p.id));
-        const updatedProducts = [...state.products, ...uniqueNew];
 
-        // If we exceed the limit, remove oldest items
-        if (updatedProducts.length > maxItems) {
-          const itemsToRemove = updatedProducts.length - maxItems;
-          state.products = updatedProducts.slice(itemsToRemove);
-        } else {
-          state.products = updatedProducts;
-        }
+        // Simply append new products without trimming
+        // This allows scroll anchoring to detect product count increase
+        state.products = [...state.products, ...uniqueNew];
 
         state.loading.list = false;
         state.pagination = {

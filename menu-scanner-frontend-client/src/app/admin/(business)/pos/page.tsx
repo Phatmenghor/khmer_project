@@ -44,7 +44,7 @@ import { POSOrderSuccessModal } from "@/components/pos-custom/pos-order-success-
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { POSProductCard } from "@/components/shared/card/pos-product-card";
-import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
+import { SizePickerModalLazy as SizePickerModal } from "@/components/shared/modal/lazy-modals";
 import { POSEditCartItemModal } from "@/components/pos-custom/pos-edit-cart-item-modal";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useAppDispatch } from "@/redux/store";
@@ -73,10 +73,15 @@ import {
   setProductsError,
   setSearchTerm,
   setSelectedCategory,
+  setSelectedSubcategory,
   setSelectedBrand,
   setCategories,
+  setSubcategories,
+    subcategories,
   setBrands,
   setCategoriesLoading,
+  setSubcategoriesLoading,
+    subcategoriesLoading,
   setBrandsLoading,
   setProductPage,
   setHasMoreProducts,
@@ -91,25 +96,35 @@ import {
   setIsSubmitting,
   setSizePickerProduct,
   setEditingCartItemId,
+  storeProductCustomizations,
+  clearProductCustomizations,
   setSuccessOrder,
   setShowOrderDetailsModal,
   setBrandOpen,
+  setSubcategoryOpen,
   setPromotionFilter,
   setPromotionOpen,
 } from "@/redux/features/business/store/slice/pos-page-slice";
 import {
   fetchPOSPageCategoriesService,
+  fetchPOSPageSubcategoriesService,
   fetchPOSPageBrandsService,
   fetchPOSPageProductsService,
   createPOSCheckoutOrderService,
 } from "@/redux/features/business/store/thunks/pos-page-thunks";
-import { AppDispatch } from "@/redux/store";
+import { AppDispatch, RootState } from "@/redux/store";
 import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
+import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thunks/business-settings-thunks";
+import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { useSelector } from "react-redux";
 
 
 export default function PosPage() {
   const router = useRouter();
   const dispatch = useAppDispatch() as AppDispatch;
+
+  // ─── Business Settings from Redux (for tax percentage, colors, etc) ───
+  const businessSettings = useSelector((state: RootState) => selectBusinessSettings(state));
 
   // ─── Redux State ───
   const {
@@ -120,10 +135,13 @@ export default function PosPage() {
     productsError,
     searchTerm,
     selectedCategory,
+    selectedSubcategory,
     selectedBrand,
     categories,
+    subcategories,
     brands,
     categoriesLoading,
+    subcategoriesLoading,
     brandsLoading,
     productPage,
     hasMoreProducts,
@@ -134,9 +152,11 @@ export default function PosPage() {
     isSubmitting,
     sizePickerProduct,
     editingCartItemId,
+    lastSelectedCustomizations,
     successOrder,
     showOrderDetailsModal,
     brandOpen,
+    subcategoryOpen,
     promotionFilter,
     promotionOpen,
   } = usePOSPageState();
@@ -192,10 +212,13 @@ export default function PosPage() {
     return () => window.removeEventListener("resize", applyResponsiveZoom);
   }, []);
 
-  // ─── Initialize Categories and Brands on Mount ───
+  // ─── Initialize Categories, Brands, and Business Settings on Mount ───
   useEffect(() => {
     dispatch(fetchPOSPageCategoriesService());
+    dispatch(fetchPOSPageSubcategoriesService());
     dispatch(fetchPOSPageBrandsService());
+    // Fetch business settings from Redux (includes tax percentage, colors, etc)
+    dispatch(fetchBusinessSettingsThunk());
   }, [dispatch]);
 
   // ─── Fetch Products when filters/search change ───
@@ -208,19 +231,37 @@ export default function PosPage() {
         page: 1,
         search: debouncedSearch,
         categoryId: selectedCategory?.id,
+        subcategoryId: selectedSubcategory?.id,
         brandId: selectedBrand?.id,
         hasPromotion: promotionFilter,
         reset: true,
       })
     );
-  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, dispatch]);
+  }, [debouncedSearch, selectedCategory, selectedBrand, selectedSubcategory, promotionFilter, dispatch]);
+
+  // Calculate skeleton count dynamically based on screen width (matches grid columns)
+  const getSkeletonCount = useCallback(() => {
+    if (typeof window === "undefined") return 6;
+    const width = window.innerWidth;
+    if (width < 640) return 2;      // sm: 2 cols
+    if (width < 768) return 3;      // md: 3 cols
+    if (width < 1024) return 4;     // lg: 4 cols
+    if (width < 1280) return 5;     // xl: 5 cols
+    return 6;                        // 2xl: 6 cols
+  }, []);
+
+  const skeletonCount = useMemo(() => getSkeletonCount(), [getSkeletonCount]);
 
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
+      const nextPage = productPage + 1;
+      // IMPORTANT: Update productPage BEFORE fetching so reducer knows to append, not replace
+      dispatch(setProductPage(nextPage));
       dispatch(
         fetchPOSPageProductsService({
-          page: productPage + 1,
+          page: nextPage,
           search: debouncedSearch,
+          subcategoryId: selectedSubcategory?.id,
           categoryId: selectedCategory?.id,
           brandId: selectedBrand?.id,
           hasPromotion: promotionFilter,
@@ -235,6 +276,24 @@ export default function PosPage() {
     hasMore: hasMoreProducts,
     isLoading: productsLoading,
   });
+
+  // ─── Track Scroll Position ───
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+
+  useEffect(() => {
+    const viewport = productGridRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLElement;
+    if (!viewport) return;
+
+    const handleScroll = () => {
+      // Show button if scrolled down more than 200px
+      setShowScrollToTop(viewport.scrollTop > 200);
+    };
+
+    viewport.addEventListener("scroll", handleScroll);
+    return () => viewport.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // ─── Keyboard shortcuts ───
   useEffect(() => {
@@ -261,6 +320,18 @@ export default function PosPage() {
     });
   }, []);
 
+
+  // ─── Scroll Products to Top ───
+  const scrollProductsToTop = useCallback(() => {
+    const viewport = productGridRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLElement;
+    if (!viewport) return;
+    viewport.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   // ─── Configure Category Scroll Styling ───
   useEffect(() => {
     const categoryContainer = categoryScrollRef.current;
@@ -285,34 +356,31 @@ export default function PosPage() {
 
   // ─── Cart Logic ───
   const addToCart = useCallback(
-    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string, quantity: number = 1) => {
+    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string, quantity: number = 1, customizationIds?: string[]) => {
       const cartId = size ? `${product.id}-${size.id}` : product.id;
       const currentPrice = size
         ? size.price
         : parseFloat(String(product.displayOriginPrice || product.price || 0));
-      const finalPrice = size
+      let finalPrice = size
         ? size.finalPrice || size.price
         : product.displayPrice || parseFloat(String(product.price || 0));
-      const hasPromo = size ? size.hasPromotion : product.hasActivePromotion;
 
-      const promotionType = size?.promotionType || product.displayPromotionType || null;
-      const promotionValue = size?.promotionValue ?? product.displayPromotionValue ?? null;
-      const promotionFromDate = size?.promotionFromDate || product.displayPromotionFromDate || null;
-      const promotionToDate = size?.promotionToDate || product.displayPromotionToDate || null;
+      const customizations = customizationIds && customizationIds.length > 0
+        ? customizationIds.map((customId) => {
+            const custom = product.customizations?.find((c) => c.id === customId);
+            return {
+              productCustomizationId: customId,
+              name: custom?.name || "",
+              priceAdjustment: custom?.priceAdjustment || 0,
+            };
+          })
+        : [];
 
-      const snapshot = {
-        currentPrice,
-        finalPrice,
-        hasActivePromotion: hasPromo,
-        quantity,
-        totalBeforeDiscount: currentPrice * quantity,
-        discountAmount: (currentPrice - finalPrice) * quantity,
-        totalPrice: finalPrice * quantity,
-        promotionType,
-        promotionValue,
-        promotionFromDate,
-        promotionToDate,
-      };
+      // Calculate total customization price adjustment
+      const customizationTotal = customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0);
+
+      // Include customization prices in final price
+      finalPrice = finalPrice + customizationTotal;
 
       const newItem: PosPageCartItem = {
         id: cartId,
@@ -322,19 +390,21 @@ export default function PosPage() {
         productSizeId: size?.id || null,
         sizeName: size?.name || null,
         quantity,
-        before: snapshot,
-        hadChangeFromPOS: false,
-        after: snapshot,
+        sku: product.sku || "",
+        barcode: product.barcode || "",
+        customizations,
+        currentPrice,
+        finalPrice,
+        totalPrice: finalPrice * quantity,
       };
 
       if (editingId) {
         const existingItem = cartItems.find((item) => item.id === editingId);
         if (existingItem) {
-          const qty = existingItem.quantity;
           dispatch(updateCartItem({
             ...newItem,
-            quantity: qty,
-            after: { ...newItem.after, quantity: qty, totalBeforeDiscount: newItem.after.currentPrice * qty, discountAmount: (newItem.after.currentPrice - newItem.after.finalPrice) * qty, totalPrice: newItem.after.finalPrice * qty },
+            quantity: existingItem.quantity,
+            totalPrice: finalPrice * existingItem.quantity,
           }));
         }
       } else {
@@ -344,11 +414,19 @@ export default function PosPage() {
           dispatch(updateCartItem({
             ...newItem,
             quantity: qty,
-            after: { ...newItem.after, quantity: qty, totalBeforeDiscount: newItem.after.currentPrice * qty, discountAmount: (newItem.after.currentPrice - newItem.after.finalPrice) * qty, totalPrice: newItem.after.finalPrice * qty },
+            totalPrice: finalPrice * qty,
           }));
         } else {
           dispatch(addCartItem(newItem));
         }
+      }
+
+      // Store customizations for this product so they're available if modal opens again
+      if (customizations.length > 0) {
+        dispatch(storeProductCustomizations({
+          productId: product.id,
+          customizationIds: customizations.map(c => c.productCustomizationId),
+        }));
       }
 
       if (!showCart && window.innerWidth < 1024) {
@@ -367,17 +445,13 @@ export default function PosPage() {
       const newQuantity = Math.max(0, item.quantity + delta);
       if (newQuantity === 0) {
         dispatch(removeCartItem(cartId));
+        dispatch(clearProductCustomizations(item.productId));
       } else {
+        // Note: finalPrice already includes customization prices
         dispatch(updateCartItem({
           ...item,
           quantity: newQuantity,
-          after: {
-            ...item.after,
-            quantity: newQuantity,
-            totalBeforeDiscount: item.after.currentPrice * newQuantity,
-            discountAmount: (item.after.currentPrice - item.after.finalPrice) * newQuantity,
-            totalPrice: item.after.finalPrice * newQuantity,
-          },
+          totalPrice: item.finalPrice * newQuantity,
         }));
       }
     },
@@ -386,44 +460,51 @@ export default function PosPage() {
 
   const removeItem = useCallback(
     (cartId: string) => {
-      dispatch(removeCartItem(cartId));
+      const item = cartItems.find((i) => i.id === cartId);
+      if (item) {
+        dispatch(removeCartItem(cartId));
+        dispatch(clearProductCustomizations(item.productId));
+      }
     },
-    [dispatch]
+    [cartItems, dispatch]
   );
 
   const clearCart = () => dispatch(clearCartItems());
 
-  // ─── Cart Calculations ───
+  // ─── Cart Calculations with Tax ───
   const cartSummary = useMemo(() => {
     let totalItems = cartItems.length;
     let totalQuantity = 0;
-    let subtotalBeforeDiscount = 0;
     let subtotal = 0;
-    let totalDiscount = 0;
+    let customizationTotal = 0;
+    let discountAmount = 0;
     cartItems.forEach((item) => {
       totalQuantity += item.quantity;
-      const beforeDiscount = item.after.currentPrice * item.quantity;
-      const afterDiscount = item.after.finalPrice * item.quantity;
-      subtotalBeforeDiscount += beforeDiscount;
-      subtotal += afterDiscount;
-      totalDiscount += beforeDiscount - afterDiscount;
+      const itemSubtotal = item.finalPrice * item.quantity;
+      subtotal += itemSubtotal;
+      // Calculate customization total for each item
+      if (item.customizations && item.customizations.length > 0) {
+        const itemCustomizationTotal = item.customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0);
+        customizationTotal += itemCustomizationTotal * item.quantity;
+      }
     });
     const deliveryFee = selectedDeliveryOption?.price || 0;
-    const taxRate = 0;
-    const taxAmount = (subtotal + deliveryFee) * taxRate;
+    // Calculate tax from business settings (taxPercentage is 0-100, convert to decimal)
+    const taxPercentage = businessSettings?.taxPercentage || 0;
+    const taxAmount = subtotal * (taxPercentage / 100);
     const finalTotal = Math.max(0, subtotal + deliveryFee + taxAmount);
     return {
       totalItems,
       totalQuantity,
-      subtotalBeforeDiscount,
       subtotal,
-      totalDiscount,
+      customizationTotal,
+      discountAmount,
       deliveryFee,
-      taxRate,
       taxAmount,
+      taxPercentage,
       finalTotal,
     };
-  }, [cartItems, selectedDeliveryOption]);
+  }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage]);
 
   // ─── Product Click Handler ───
   const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
@@ -453,41 +534,18 @@ export default function PosPage() {
   const handleSaveItemChanges = useCallback((editData: any) => {
     if (!editingItemForPrice) return;
 
-    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.after.currentPrice;
+    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.currentPrice;
     const newQuantity = parseInt(editData.newQuantity) || editingItemForPrice.quantity;
-    const promoType: string | null = editData.newPromotion.type || null;
-    const promoValue: number | null = editData.newPromotion.value ? parseFloat(editData.newPromotion.value) : null;
 
     let finalPrice = newPrice;
-    if (promoType === "PERCENTAGE" && promoValue) {
-      finalPrice = newPrice * (1 - promoValue / 100);
-    } else if (promoType === "FIXED" && promoValue) {
-      finalPrice = Math.max(0, newPrice - promoValue);
-    }
-
-    const hadChange =
-      newPrice !== editingItemForPrice.before.currentPrice ||
-      finalPrice !== editingItemForPrice.before.finalPrice ||
-      newQuantity !== editingItemForPrice.before.quantity ||
-      !!promoType !== editingItemForPrice.before.hasActivePromotion;
+    // Note: Promotional calculations removed as we simplified pricing model
 
     const updatedItem: PosPageCartItem = {
       ...editingItemForPrice,
       quantity: newQuantity,
-      hadChangeFromPOS: hadChange,
-      after: {
-        currentPrice: newPrice,
-        finalPrice,
-        hasActivePromotion: !!promoType,
-        quantity: newQuantity,
-        totalBeforeDiscount: newPrice * newQuantity,
-        discountAmount: (newPrice - finalPrice) * newQuantity,
-        totalPrice: finalPrice * newQuantity,
-        promotionType: promoType,
-        promotionValue: promoValue,
-        promotionFromDate: editingItemForPrice.after.promotionFromDate,
-        promotionToDate: editingItemForPrice.after.promotionToDate,
-      },
+      currentPrice: newPrice,
+      finalPrice,
+      totalPrice: finalPrice * newQuantity,
     };
 
     dispatch(updateCartItem(updatedItem));
@@ -526,19 +584,10 @@ export default function PosPage() {
     // Order: before/after pricing + discount metadata
     const payload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
-
-      // Full delivery details (same as public checkout)
-      deliveryAddress: {
-        village: "",
-        commune: "",
-        district: "",
-        province: "",
-        streetNumber: "",
-        houseNumber: "",
-        note: "",
-        latitude: 0,
-        longitude: 0,
-      },
+      customerName: customerName || "Walk-in Customer",
+      customerPhone: "",
+      customerEmail: "",
+      customerAddress: "",  // POS address entry
 
       // Full delivery option details (same as public checkout)
       deliveryOption: {
@@ -548,7 +597,7 @@ export default function PosPage() {
         price: selectedDeliveryOption.price || 0,
       },
 
-      // Cart — items only, no pricing (pricing is top-level)
+      // Cart — items with full customization details
       cart: {
         businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
         businessName: products[0]?.businessName || "",
@@ -559,61 +608,37 @@ export default function PosPage() {
           productSizeId: item.productSizeId || null,
           sizeName: item.sizeName || null,
           quantity: item.quantity,
-          before: item.before,
-          hadChangeFromPOS: item.hadChangeFromPOS,
-          after: item.after,
-          // Flat fields for backend fallback
-          currentPrice: item.after.currentPrice,
-          finalPrice: item.after.finalPrice,
-          hasActivePromotion: item.after.hasActivePromotion,
-          promotionType: item.after.promotionType,
-          promotionValue: item.after.promotionValue,
-          totalBeforeDiscount: item.after.totalBeforeDiscount,
-          discountAmount: item.after.discountAmount,
-          totalPrice: item.after.totalPrice,
+          // Send full customization details (only customizations, not duplicate IDs)
+          customizations: item.customizations || [],
+          finalPrice: item.finalPrice,
+          totalPrice: item.totalPrice,
+          // SKU and barcode for store tracking
+          sku: item.sku || "",
+          barcode: item.barcode || "",
         })),
         totalItems: cartSummary.totalItems,
         totalQuantity: cartSummary.totalQuantity,
-        subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
         subtotal: cartSummary.subtotal,
-        totalDiscount: cartSummary.totalDiscount,
+        customizationTotal: cartSummary.customizationTotal,
         finalTotal: cartSummary.finalTotal,
       },
 
-      // Order-level pricing audit trail — top-level, matches backend PricingInfo
-      pricing: (() => {
-        const deliveryFee = selectedDeliveryOption?.price || 0;
-        const beforeSnapshot = {
-          totalItems: cartSummary.totalItems,
-          subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
-          subtotal: cartSummary.subtotalBeforeDiscount,
-          totalDiscount: 0,
-          deliveryFee,
-          taxAmount: 0,
-          finalTotal: cartSummary.subtotalBeforeDiscount + deliveryFee,
-        };
-        let afterFinalTotal = cartSummary.finalTotal;
-        if (orderDiscount) {
-          afterFinalTotal = orderDiscount.type === "fixed"
-            ? Math.max(0, afterFinalTotal - orderDiscount.value)
-            : afterFinalTotal * (1 - orderDiscount.value / 100);
-        }
-        const afterSnapshot = {
-          totalItems: cartSummary.totalItems,
-          subtotalBeforeDiscount: cartSummary.subtotalBeforeDiscount,
-          subtotal: cartSummary.subtotal,
-          totalDiscount: cartSummary.totalDiscount,
-          deliveryFee,
-          taxAmount: 0,
-          finalTotal: afterFinalTotal,
-        };
-        return {
-          before: beforeSnapshot,
-          hadOrderLevelChangeFromPOS: !!orderDiscount,
-          after: afterSnapshot,
-          orderLevelChangeReason: orderDiscount?.reason || "",
-        };
-      })(),
+      // Pricing with complete breakdown including tax
+      pricing: {
+        // Base pricing
+        subtotal: cartSummary.subtotal,
+        customizationTotal: cartSummary.customizationTotal,
+        deliveryFee: selectedDeliveryOption?.price || 0,
+        // Tax breakdown
+        taxPercentage: cartSummary.taxPercentage,
+        taxAmount: cartSummary.taxAmount,
+        // Optional: order-level discount
+        discountAmount: orderDiscount?.discountAmount || 0,
+        discountType: orderDiscount?.type || null,
+        discountReason: orderDiscount?.reason || null,
+        // Final total after all adjustments
+        finalTotal: cartSummary.finalTotal,
+      },
 
       // Payment info
       payment: {
@@ -626,6 +651,16 @@ export default function PosPage() {
       businessNote: "Created via POS System",
       orderStatus: OrderStatus.PENDING,
     };
+
+    // Debug: Log complete payload being sent
+    console.log("📤 Sending POS Checkout Request:", {
+      pricing: payload.pricing,
+      cart: {
+        items: payload.cart.items.length,
+        subtotal: payload.cart.subtotal,
+        customizationTotal: payload.cart.customizationTotal,
+      },
+    });
 
     dispatch(setIsSubmitting(true));
     try {
@@ -656,7 +691,7 @@ export default function PosPage() {
       {/* ─── Main Content ─── */}
       <div className="flex max-md:flex-col md:flex-row flex-1 overflow-hidden">
         {/* ─── Product Section ─── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden relative">
           {/* Search & Brand Filter Bar */}
           <div className="flex flex-wrap items-end gap-2 max-md:gap-1 max-md:p-2 md:p-3 border-b bg-muted/20 shrink-0">
             <div className="relative flex-1 max-md:min-w-[140px] md:min-w-[200px]">
@@ -729,6 +764,65 @@ export default function PosPage() {
                 </Command>
               </PopoverContent>
             </Popover>
+            {/* Subcategory Filter */}
+            <Popover open={subcategoryOpen} onOpenChange={(open) => dispatch(setSubcategoryOpen(open))}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={subcategoryOpen}
+                  className="max-md:w-[140px] md:w-[200px] justify-between h-9 text-sm"
+                >
+                  {selectedSubcategory?.name || "All Subcategories"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="Search subcategories..." />
+                  <CommandEmpty>No subcategory found.</CommandEmpty>
+                  <CommandList>
+                    <CommandGroup>
+                      <CommandItem
+                        value=""
+                        onSelect={() => {
+                          dispatch(setSelectedSubcategory(null));
+                          dispatch(setSubcategoryOpen(false));
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            selectedSubcategory === null ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        All Subcategories
+                      </CommandItem>
+                      {subcategories.map((subcategory) => (
+                        <CommandItem
+                          key={subcategory.id}
+                          value={subcategory.id}
+                          onSelect={() => {
+                            dispatch(setSelectedSubcategory(subcategory));
+                            dispatch(setSubcategoryOpen(false));
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedSubcategory?.id === subcategory.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {subcategory.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {/* Promotion Filter */}
             <Popover open={promotionOpen} onOpenChange={(open) => dispatch(setPromotionOpen(open))}>
               <PopoverTrigger asChild>
@@ -784,7 +878,7 @@ export default function PosPage() {
               </PopoverContent>
             </Popover>
             {/* Clear All Filter Button */}
-            {(searchTerm || selectedCategory || selectedBrand || promotionFilter !== undefined) && (
+            {(searchTerm || selectedCategory || selectedBrand || selectedSubcategory || promotionFilter !== undefined) && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -793,6 +887,7 @@ export default function PosPage() {
                   dispatch(setSearchTerm(""));
                   dispatch(setSelectedCategory(null));
                   dispatch(setSelectedBrand(null));
+                  dispatch(setSelectedSubcategory(null));
                   dispatch(setPromotionFilter(undefined));
                 }}
                 title="Clear all filters"
@@ -872,21 +967,30 @@ export default function PosPage() {
             >
               {productsLoading && products.length === 0 &&
                 Array.from({ length: 12 }).map((_, i) => (
-                  <ProductCardSkeleton key={`skeleton-${i}`} />
+                  <ProductCardSkeleton key={`skeleton-initial-${i}`} />
                 ))}
               {products.map((product, index) => (
                 <POSProductCard
                   key={`${product.id}-${index}`}
                   product={product}
-                  quantity={getProductCartQuantity(product.id)}
                   onAddClick={handleProductClick}
                   onQuantityChange={updateQuantity}
                 />
               ))}
-              {productsLoading && products.length > 0 &&
-                Array.from({ length: 15 }).map((_, i) => (
-                  <ProductCardSkeleton key={`skeleton-${i}`} />
+              {/* ALWAYS show skeleton loaders when hasMoreProducts is true - matches home page pattern */}
+              {hasMoreProducts &&
+                Array.from({ length: skeletonCount }).map((_, i) => (
+                  <ProductCardSkeleton key={`skeleton-pagination-${i}`} />
                 ))}
+              {/* ALWAYS show loading message when hasMoreProducts is true */}
+              {hasMoreProducts && (
+                <div className="col-span-full flex flex-col items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Loading more products...
+                  </p>
+                </div>
+              )}
             </div>
             {hasMoreProducts && !productsLoading && (
               <div ref={observerTarget} className="h-1" />
@@ -910,6 +1014,7 @@ export default function PosPage() {
                             page: 1,
                             search: debouncedSearch,
                             categoryId: selectedCategory?.id,
+                            subcategoryId: selectedSubcategory?.id,
                             brandId: selectedBrand?.id,
                             hasPromotion: promotionFilter,
                             reset: true,
@@ -930,6 +1035,19 @@ export default function PosPage() {
               </div>
             )}
           </ScrollArea>
+          
+          {/* Scroll to Top Button */}
+          {showScrollToTop && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute bottom-4 right-4 h-10 w-10 rounded-full border-2 border-primary shadow-lg bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-200 animate-fade-in"
+              onClick={scrollProductsToTop}
+              title="Scroll to top"
+            >
+              <ChevronRight className="h-5 w-5 transform -rotate-90" />
+            </Button>
+          )}
         </div>
 
         {/* ─── Cart Panel ─── */}
@@ -993,14 +1111,10 @@ export default function PosPage() {
                       productName={item.productName}
                       productImageUrl={item.productImageUrl}
                       sizeName={item.sizeName}
-                      currentPrice={item.after.currentPrice}
-                      finalPrice={item.after.finalPrice}
+                      currentPrice={item.currentPrice}
+                      finalPrice={item.finalPrice}
                       quantity={item.quantity}
-                      hasPromotion={item.after.hasActivePromotion}
-                      promotionType={item.after.promotionType}
-                      promotionValue={item.after.promotionValue}
-                      originalPrice={item.before.finalPrice}
-                      hadChangeFromPOS={item.hadChangeFromPOS}
+                      customizations={item.customizations}
                       onQuantityChange={(delta) => updateQuantity(item.id, delta)}
                       onRemove={() => removeItem(item.id)}
                       onEdit={() => handleEditPriceItem(item)}
@@ -1050,12 +1164,18 @@ export default function PosPage() {
                   <span className="text-muted-foreground">
                     Subtotal ({cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"})
                   </span>
-                  <span className="font-medium">{formatCurrency(cartSummary.subtotalBeforeDiscount)}</span>
+                  <span className="font-medium">{formatCurrency(cartSummary.subtotal)}</span>
                 </div>
-                {cartSummary.totalDiscount > 0 && (
+                {cartSummary.customizationTotal > 0 && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-green-600 font-medium">Add-ons</span>
+                    <span className="text-green-600 font-semibold">+{formatCurrency(cartSummary.customizationTotal)}</span>
+                  </div>
+                )}
+                {cartSummary.discountAmount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-red-500 font-medium">Discount</span>
-                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.totalDiscount)}</span>
+                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-xs">
@@ -1066,7 +1186,7 @@ export default function PosPage() {
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground flex items-center gap-1">
-                    Tax<span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
+                    Tax<span className="text-[9px] bg-muted px-1 py-0.5 rounded font-medium">{cartSummary.taxPercentage}%</span>
                   </span>
                   <span className="font-medium">{formatCurrency(cartSummary.taxAmount)}</span>
                 </div>
@@ -1167,9 +1287,10 @@ export default function PosPage() {
       </div>
 
       {/* ─── Modals ─── */}
-      {/* Calculate initial quantities when opening modal - show current cart quantities */}
+      {/* Calculate initial quantities and customizations when opening modal */}
       {(() => {
         const initialQties = new Map<string, number>();
+        let initialCustomIds: string[] = [];
         if (sizePickerProduct && cartItems.length > 0) {
           // Get all cart items for this product and build a map of size -> quantity
           cartItems
@@ -1177,7 +1298,19 @@ export default function PosPage() {
             .forEach((item) => {
               const sizeId = item.productSizeId || "no_size";
               initialQties.set(sizeId, item.quantity);
+              // If this is the item being edited, get its customizations
+              if (editingCartItemId && item.id === editingCartItemId && item.customizations) {
+                initialCustomIds = item.customizations.map((c) => c.productCustomizationId);
+              }
             });
+        }
+
+        // If not editing and no customizations found, use last stored customizations for this product
+        if (!editingCartItemId && initialCustomIds.length === 0 && sizePickerProduct) {
+          const storedCustomIds = lastSelectedCustomizations?.[sizePickerProduct.id];
+          if (storedCustomIds && storedCustomIds.length > 0) {
+            initialCustomIds = storedCustomIds;
+          }
         }
         return (
           <SizePickerModal
@@ -1189,13 +1322,14 @@ export default function PosPage() {
                 dispatch(setEditingCartItemId(null));
               }
             }}
-            onSizeSelect={(product, size, qty) => {
-              addToCart(product, size, editingCartItemId || undefined, qty || 1);
+            onSizeSelect={(product, size, qty, customizationIds) => {
+              addToCart(product, size, editingCartItemId || undefined, qty || 1, customizationIds);
               dispatch(setSizePickerProduct(null));
               dispatch(setEditingCartItemId(null));
             }}
             isEditing={!!editingCartItemId}
             initialQuantities={initialQties}
+            initialCustomizations={initialCustomIds}
           />
         );
       })()}
@@ -1220,11 +1354,8 @@ export default function PosPage() {
             productName: editingItemForPrice.productName,
             productImageUrl: editingItemForPrice.productImageUrl,
             sizeName: editingItemForPrice.sizeName,
-            currentPrice: editingItemForPrice.after.currentPrice,
+            currentPrice: editingItemForPrice.currentPrice,
             quantity: editingItemForPrice.quantity,
-            hasActivePromotion: editingItemForPrice.after.hasActivePromotion,
-            promotionType: editingItemForPrice.after.promotionType,
-            promotionValue: editingItemForPrice.after.promotionValue,
           } : null
         }
         onSave={handleSaveItemChanges}

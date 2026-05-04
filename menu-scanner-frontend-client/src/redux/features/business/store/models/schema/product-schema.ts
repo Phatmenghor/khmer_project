@@ -13,12 +13,26 @@ export const imageSchema = z.object({
 });
 
 /**
+ * Customization Schema
+ */
+export const customizationSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Customization name is required"),
+  priceAdjustment: z
+    .number()
+    .min(0, "Price adjustment must be zero or positive")
+    .optional(),
+});
+
+/**
  * Size Schema with Promotion Validation
  */
 export const sizeSchema = z
   .object({
     id: z.string().optional(),
     name: z.string().min(1, "Size name is required"),
+    barcode: z.string().optional(),
+    sku: z.string().optional(),
     price: z.number().min(0, "Price must be positive"),
     promotionType: z.string().optional(),
     promotionValue: z
@@ -77,6 +91,7 @@ const baseProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().min(1, "Description is required"),
   categoryId: z.string().min(1, "Category is required"),
+  subcategoryId: z.string().optional(),
   brandId: z.string().optional(),
   sku: z.string().optional(),
   barcode: z.string().optional(),
@@ -97,6 +112,7 @@ const baseProductSchema = z.object({
 
   images: z.array(imageSchema).optional().default([]),
   sizes: z.array(sizeSchema).optional().default([]),
+  customizations: z.array(customizationSchema).optional().default([]),
   status: z.string().min(1, "Status is required"),
 });
 
@@ -239,6 +255,7 @@ export type ProductFormData = {
   name: string;
   description: string;
   categoryId: string;
+  subcategoryId?: string;
   brandId?: string;
   sku?: string;
   barcode?: string;
@@ -255,11 +272,18 @@ export type ProductFormData = {
   sizes?: Array<{
     id?: string;
     name: string;
+    barcode?: string;
+    sku?: string;
     price: number;
     promotionType?: string;
     promotionValue?: number;
     promotionFromDate?: string;
     promotionToDate?: string;
+  }>;
+  customizations?: Array<{
+    id?: string;
+    name: string;
+    priceAdjustment?: number;
   }>;
   status: string;
 };
@@ -268,3 +292,4 @@ export type CreateProductData = z.infer<typeof createProductSchema>;
 export type UpdateProductData = z.infer<typeof updateProductSchema>;
 export type ImageData = z.infer<typeof imageSchema>;
 export type SizeData = z.infer<typeof sizeSchema>;
+export type CustomizationData = z.infer<typeof customizationSchema>;

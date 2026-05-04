@@ -3,9 +3,12 @@ import { BaseGetAllRequest } from "@/utils/common/get-all-request";
 export interface AllProductRequest extends BaseGetAllRequest {
   businessId?: string;
   categoryId?: string;
+  subcategoryId?: string;
   brandId?: string;
-  status?: string;
+  statuses?: string[];
   hasPromotion?: boolean;
+  hasSize?: boolean;
+  stockStatuses?: string[];
   minPrice?: number;
   maxPrice?: number;
 }
@@ -29,6 +32,7 @@ export interface CreateProductRequest {
   name: string;
   description: string;
   categoryId: string;
+  subcategoryId?: string; // Optional
   brandId?: string; // Optional
   mainImageUrl: string;
 
@@ -50,6 +54,7 @@ export interface UpdateProductRequest {
   name?: string;
   description?: string;
   categoryId?: string;
+  subcategoryId?: string; // Optional
   brandId?: string; // Optional
   mainImageUrl?: string;
 

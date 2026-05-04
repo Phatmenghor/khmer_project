@@ -9,12 +9,14 @@ import java.util.UUID;
 public interface BusinessSettingService {
 
     BusinessSettingResponse createBusinessSetting(BusinessSettingCreateRequest request);
-    
+
     BusinessSettingResponse getBusinessSettingByBusinessId(UUID businessId);
-    
+
     BusinessSettingResponse updateBusinessSetting(UUID businessId, BusinessSettingUpdateRequest request);
-    
+
+    BusinessSettingResponse updateCurrentBusinessSetting(BusinessSettingUpdateRequest request);
+
     void deleteBusinessSetting(UUID businessId);
-    
+
     BusinessSettingResponse getCurrentBusinessSetting();
 }

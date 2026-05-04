@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -37,9 +37,11 @@ import {
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
+import { ComboboxSelectSubcategories } from "@/components/shared/combobox/combobox_select_subcategories";
 import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import {
   createProductSchema,
   ProductFormData,
@@ -80,6 +82,8 @@ export default function ProductModal({
   );
   const [selectedCategory, setSelectedCategory] =
     useState<CategoriesResponseModel | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] =
+    useState<SubcategoriesResponseModel | null>(null);
 
   const {
     control,
@@ -97,6 +101,7 @@ export default function ProductModal({
       name: "",
       description: "",
       categoryId: "",
+      subcategoryId: "",
       brandId: "",
       sku: "",
       barcode: "",
@@ -108,12 +113,13 @@ export default function ProductModal({
       promotionToDate: "",
       images: [],
       sizes: [],
+      customizations: [],
       status: ProductStatus.ACTIVE,
     },
     mode: "onChange",
   });
 
-  // Field arrays for images and sizes
+  // Field arrays for images, sizes, and customizations
   const {
     fields: imageFields,
     append: appendImage,
@@ -130,6 +136,15 @@ export default function ProductModal({
   } = useFieldArray({
     control,
     name: "sizes",
+  });
+
+  const {
+    fields: customizationFields,
+    append: appendCustomization,
+    remove: removeCustomization,
+  } = useFieldArray({
+    control,
+    name: "customizations",
   });
 
   const productName = watch("name");
@@ -255,11 +270,19 @@ export default function ProductModal({
             } as CategoriesResponseModel);
           }
 
+          if (data.subcategoryId) {
+            setSelectedSubcategory({
+              id: data.subcategoryId,
+              name: data.subcategoryName,
+            } as SubcategoriesResponseModel);
+          }
+
           reset({
             id: data.id,
             name: data.name || "",
             description: data.description || "",
             categoryId: data.categoryId || "",
+            subcategoryId: data.subcategoryId || "",
             brandId: data.brandId || "",
             sku: data.sku || "",
             barcode: data.barcode || "",
@@ -271,6 +294,7 @@ export default function ProductModal({
             promotionToDate: data.promotionToDate || "",
             images: data.images || [],
             sizes: data.sizes || [],
+            customizations: data.customizations || [],
             status: data.status || ProductStatus.ACTIVE,
           });
         }
@@ -287,10 +311,12 @@ export default function ProductModal({
     if (isOpen && isCreate) {
       setSelectedBrand(null);
       setSelectedCategory(null);
+      setSelectedSubcategory(null);
       reset({
         name: "",
         description: "",
         categoryId: "",
+        subcategoryId: "",
         brandId: "",
         sku: "",
         barcode: "",
@@ -302,6 +328,7 @@ export default function ProductModal({
         promotionToDate: "",
         images: [],
         sizes: [],
+        customizations: [],
         status: ProductStatus.ACTIVE,
       });
     }
@@ -396,17 +423,26 @@ export default function ProductModal({
         ),
       }));
 
+      // Clean customizations data
+      const cleanedCustomizations = (data.customizations || []).map((customization) => ({
+        id: customization.id,
+        name: customization.name,
+        priceAdjustment: customization.priceAdjustment || 0,
+      }));
+
       // Prepare base payload
       const basePayload = {
         name: data.name,
         description: data.description,
         categoryId: data.categoryId,
+        subcategoryId: data.subcategoryId || undefined,
         brandId: data.brandId || undefined,
         sku: data.sku || undefined,
         barcode: data.barcode || undefined,
         mainImageUrl: finalMainImageUrl,
         images: validImages.length > 0 ? validImages : undefined,
         sizes: cleanedSizes.length > 0 ? cleanedSizes : undefined,
+        customizations: cleanedCustomizations.length > 0 ? cleanedCustomizations : undefined,
         status: data.status,
       };
 
@@ -458,6 +494,7 @@ export default function ProductModal({
     setIsProcessingImages(false);
     setSelectedBrand(null);
     setSelectedCategory(null);
+    setSelectedSubcategory(null);
     dispatch(clearError());
     dispatch(clearSelectedProduct());
     onClose();
@@ -536,6 +573,23 @@ export default function ProductModal({
                           required
                           disabled={isProcessing}
                           error={errors.categoryId?.message}
+                          showAllOption={false}
+                        />
+                      </div>
+
+                      <div>
+                        <ComboboxSelectSubcategories
+                          dataSelect={selectedSubcategory}
+                          onChangeSelected={(subcategory) => {
+                            setSelectedSubcategory(subcategory);
+                            setValue("subcategoryId", subcategory?.id || "", {
+                              shouldDirty: true,
+                            });
+                          }}
+                          label="Subcategory (Optional)"
+                          placeholder="Select subcategory"
+                          disabled={isProcessing}
+                          error={errors.subcategoryId?.message}
                           showAllOption={false}
                         />
                       </div>
@@ -785,6 +839,8 @@ export default function ProductModal({
                           onClick={() =>
                             appendSize({
                               name: "",
+                              barcode: "",
+                              sku: "",
                               price: 0,
                               promotionType: "NONE",
                               promotionValue: undefined,
@@ -903,6 +959,28 @@ export default function ProductModal({
                                 </div>
 
                                 <div>
+                                  <TextField
+                                    control={control}
+                                    name={`sizes.${index}.sku`}
+                                    label="SKU"
+                                    placeholder="Enter SKU"
+                                    disabled={isProcessing}
+                                    error={errors.sizes?.[index]?.sku as any}
+                                  />
+                                </div>
+
+                                <div>
+                                  <TextField
+                                    control={control}
+                                    name={`sizes.${index}.barcode`}
+                                    label="Barcode"
+                                    placeholder="Enter barcode"
+                                    disabled={isProcessing}
+                                    error={errors.sizes?.[index]?.barcode as any}
+                                  />
+                                </div>
+
+                                <div>
                                   <SelectField
                                     control={control}
                                     name={`sizes.${index}.promotionType`}
@@ -974,6 +1052,99 @@ export default function ProductModal({
                             </div>
                           );
                         })}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Product Customizations */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Product Customizations</CardTitle>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          appendCustomization({
+                            name: "",
+                            priceAdjustment: 0,
+                          })
+                        }
+                        disabled={isProcessing}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Customization
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {customizationFields.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-sm text-muted-foreground">
+                          No customizations defined
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {customizationFields.map((field, index) => (
+                          <div
+                            key={field.id}
+                            className="border rounded-lg p-4 space-y-4"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className="font-semibold text-foreground">
+                                Customization {index + 1}
+                              </h4>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeCustomization(index)}
+                                disabled={isProcessing}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                              <div>
+                                <TextField
+                                  control={control}
+                                  name={`customizations.${index}.name`}
+                                  label="Customization Name"
+                                  placeholder="e.g., Extra cheese, Add sauce"
+                                  required
+                                  disabled={isProcessing}
+                                  error={
+                                    errors.customizations?.[index]?.name as any
+                                  }
+                                />
+                              </div>
+
+                              <div>
+                                <TextField
+                                  control={control}
+                                  name={`customizations.${index}.priceAdjustment`}
+                                  label="Price Adjustment"
+                                  type="number"
+                                  placeholder="Enter price adjustment"
+                                  disabled={isProcessing}
+                                  error={
+                                    errors.customizations?.[index]
+                                      ?.priceAdjustment as any
+                                  }
+                                  valueAsNumber={true}
+                                  min={0}
+                                  step="0.01"
+                                  allowZero={true}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </CardContent>

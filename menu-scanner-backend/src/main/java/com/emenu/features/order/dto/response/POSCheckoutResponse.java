@@ -18,9 +18,11 @@ public class POSCheckoutResponse {
     private UUID id;
     private String orderNumber;
     private BigDecimal subtotal;
+    private BigDecimal customizationTotal;  // Total add-ons cost
     private BigDecimal discountAmount;
     private BigDecimal deliveryFee;
-    private BigDecimal taxAmount;
+    private BigDecimal taxPercentage;       // Tax percentage applied
+    private BigDecimal taxAmount;           // Calculated tax amount
     private BigDecimal totalAmount;
 
     // POS-specific fields

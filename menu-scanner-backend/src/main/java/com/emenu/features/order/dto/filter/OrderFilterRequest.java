@@ -16,4 +16,6 @@ public class OrderFilterRequest extends BaseFilterRequest {
     private OrderStatus orderStatus;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;
+    private String startDate;
+    private String endDate;
 }

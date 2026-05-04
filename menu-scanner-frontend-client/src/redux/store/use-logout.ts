@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   selectIsAdmin,
@@ -13,17 +13,20 @@ import { ROUTES } from "@/constants/app-routes/routes";
 
 /**
  * Custom hook for handling user logout
- * Clears auth state and redirects to appropriate login page based on user type
+ * - For public pages: refreshes current page to clear auth data
+ * - For admin pages: redirects to admin login
+ * - For auth pages: redirects to customer login
  */
 export function useLogout() {
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useAppDispatch();
   const isAdmin = useAppSelector(selectIsAdmin);
   const userType = useAppSelector(selectUserType);
 
   const handleLogout = useCallback(async () => {
     try {
-      console.log("📤 Logging out user...", { userType, isAdmin });
+      console.log("📤 Logging out user...", { userType, isAdmin, currentPath: pathname });
 
       // Call logout API to invalidate session on server
       await dispatch(logoutService()).unwrap();
@@ -34,12 +37,23 @@ export function useLogout() {
       console.error("✗ Logout API failed, clearing local state:", error);
       dispatch(logout());
     } finally {
-      // Redirect to login page based on user type
-      const redirectUrl = isAdmin ? ROUTES.AUTH.LOGIN : ROUTES.AUTH.LOGIN;
-      console.log("📍 Redirecting to:", redirectUrl);
-      router.push(redirectUrl);
+      // Determine redirect behavior based on current page
+      const isPublicPage = ["/", "/products", "/categories", "/brands", "/promotions", "/favorites", "/cart"].some(
+        (path) => pathname === path || pathname.startsWith(path + "?")
+      );
+
+      if (isPublicPage) {
+        // For public pages, just refresh to clear auth state
+        console.log("🔄 Refreshing public page after logout");
+        window.location.reload();
+      } else {
+        // For admin or auth pages, redirect to login
+        const redirectUrl = isAdmin ? ROUTES.AUTH.LOGIN : ROUTES.AUTH.LOGIN;
+        console.log("📍 Redirecting to:", redirectUrl);
+        router.push(redirectUrl);
+      }
     }
-  }, [dispatch, router, isAdmin, userType]);
+  }, [dispatch, router, isAdmin, userType, pathname]);
 
   return { logout: handleLogout };
 }

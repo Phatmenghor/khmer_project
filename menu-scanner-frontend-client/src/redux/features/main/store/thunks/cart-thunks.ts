@@ -13,16 +13,20 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
   async (data, signal) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { optimisticTimestamp, ...requestData } = data;
+    const businessId = AppDefault.BUSINESS_ID;
 
     // DEBUG: Log request
     console.log("%c## CART API REQUEST", "background:#007bff;color:white;padding:5px;border-radius:3px;font-weight:bold", {
       endpoint: "POST /api/v1/cart",
-      payload: requestData,
+      payload: { ...requestData, businessId },
       action: requestData.quantity === 0 ? "REMOVE" : "ADD/UPDATE",
       timestamp: new Date().toLocaleTimeString()
     });
 
-    const response = await axiosClientWithAuth.post("/api/v1/cart", requestData, {
+    const response = await axiosClientWithAuth.post("/api/v1/cart", {
+      ...requestData,
+      businessId,
+    }, {
       signal,
     });
 
@@ -73,8 +77,12 @@ export const updateCartItem = createApiThunk<
 >("cart/updateCartItem", async (data, signal) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { optimisticTimestamp, ...requestData } = data;
+  const businessId = AppDefault.BUSINESS_ID;
 
-  const response = await axiosClientWithAuth.post("/api/v1/cart", requestData, {
+  const response = await axiosClientWithAuth.post("/api/v1/cart", {
+    ...requestData,
+    businessId,
+  }, {
     signal,
   });
   let responseData = response.data.data;
@@ -91,41 +99,18 @@ export const updateCartItem = createApiThunk<
   return responseData;
 });
 
-export const fetchCartPaginated = createApiThunk<
-  CartResponseModel & { pageInfo?: any },
-  { pageNo: number; pageSize: number }
->(
-  "cart/fetchPaginated",
-  async (params, signal) => {
+export const fetchCart = createApiThunk<CartResponseModel, void>(
+  "cart/fetch",
+  async (_, signal) => {
     const businessId = AppDefault.BUSINESS_ID;
     const response = await axiosClientWithAuth.post(
       "/api/v1/cart/all",
       {
         businessId: businessId,
-        pageNo: params.pageNo,
-        pageSize: params.pageSize,
       },
       { signal }
     );
-    let paginationResponse = response.data.data;
-
-    // Extract cart data from pagination wrapper
-    // Response structure: { content: [cartData], pageNo, pageSize, totalElements, ... }
-    let responseData = paginationResponse?.content?.[0] || paginationResponse;
-
-    // Store pagination info for later use
-    if (paginationResponse?.pageNo !== undefined) {
-      responseData.pageInfo = {
-        pageNo: paginationResponse.pageNo,
-        pageSize: paginationResponse.pageSize,
-        totalElements: paginationResponse.totalElements,
-        totalPages: paginationResponse.totalPages,
-        hasNext: paginationResponse.hasNext,
-        hasPrevious: paginationResponse.hasPrevious,
-        first: paginationResponse.first,
-        last: paginationResponse.last,
-      };
-    }
+    let responseData = response.data.data;
 
     // Transform response to ensure frontend compatibility
     if (responseData?.items) {

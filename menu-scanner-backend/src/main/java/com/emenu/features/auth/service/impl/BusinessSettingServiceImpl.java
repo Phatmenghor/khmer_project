@@ -99,11 +99,26 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
     @Transactional(readOnly = true)
     public BusinessSettingResponse getCurrentBusinessSetting() {
         User currentUser = securityUtils.getCurrentUser();
-        
+
         if (currentUser.getBusinessId() == null) {
             throw new ValidationException("User is not associated with any business");
         }
 
         return getBusinessSettingByBusinessId(currentUser.getBusinessId());
+    }
+
+    /**
+     * Updates business settings for the currently authenticated user's business
+     */
+    @Override
+    public BusinessSettingResponse updateCurrentBusinessSetting(BusinessSettingUpdateRequest request) {
+        User currentUser = securityUtils.getCurrentUser();
+
+        if (currentUser.getBusinessId() == null) {
+            throw new ValidationException("User is not associated with any business");
+        }
+
+        log.info("Updating current business setting for user: {}", currentUser.getId());
+        return updateBusinessSetting(currentUser.getBusinessId(), request);
     }
 }

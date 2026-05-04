@@ -5,25 +5,31 @@ import { Check, Package, X, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { QuantitySelector } from "@/components/shared/input/quantity-selector";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { FormBody } from "@/components/shared/form-field/form-body";
+import { FormFooter } from "@/components/shared/form-field/form-footer";
+import { CancelButton } from "@/components/shared/form-field/cancel-button";
+import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/redux/features/business/store/models/response/product-response";
 import { appImages } from "@/constants/app-resource/icons/app-images";
+import { showToast } from "@/components/shared/common/show-toast";
 
 interface SizePickerModalProps {
   product: ProductDetailResponseModel | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSizeSelect: (product: ProductDetailResponseModel, size?: ProductSize, quantity?: number) => void;
+  onSizeSelect: (product: ProductDetailResponseModel, size?: ProductSize, quantity?: number, customizationIds?: string[]) => void;
   isEditing?: boolean;
   // Initial quantities for each size (e.g., when editing existing cart item)
   initialQuantities?: Map<string, number>;
+  // Initial customizations for editing existing cart item
+  initialCustomizations?: string[];
 }
 
 export function SizePickerModal({
@@ -33,9 +39,13 @@ export function SizePickerModal({
   onSizeSelect,
   isEditing = false,
   initialQuantities,
+  initialCustomizations,
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
+
+  // Track customizations per size: key = sizeId, value = Set of customization IDs
+  const [customizationsBySize, setCustomizationsBySize] = useState<Map<string, Set<string>>>(new Map());
 
   // Track pending quantities for each size: key = sizeId, value = quantity
   const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
@@ -46,8 +56,8 @@ export function SizePickerModal({
   // Track which sizes have been modified (differ from original)
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
 
-  // Check if there are any unsaved changes
-  const hasUnsavedChanges = modifiedSizes.size > 0;
+  // Check if there are any unsaved changes (includes quantity changes or customization selection)
+  const hasUnsavedChanges = modifiedSizes.size > 0 || (selectedSize && (customizationsBySize.get(selectedSize.id)?.size ?? 0) > 0);
 
   // Get original quantity for a size (like current cart quantity)
   const getQuantityForSize = useCallback(
@@ -75,12 +85,44 @@ export function SizePickerModal({
     ? getDisplayQuantity(selectedSize.id)
     : 0;
 
+  // Toggle customization selection for selected size
+  const toggleCustomization = useCallback((customizationId: string) => {
+    if (!selectedSize) return;
+
+    setCustomizationsBySize((prev) => {
+      const next = new Map(prev);
+      const sizeCustoms = next.get(selectedSize.id) ?? new Set();
+      const newSizeCustoms = new Set(sizeCustoms);
+
+      if (newSizeCustoms.has(customizationId)) {
+        newSizeCustoms.delete(customizationId);
+      } else {
+        newSizeCustoms.add(customizationId);
+      }
+
+      if (newSizeCustoms.size > 0) {
+        next.set(selectedSize.id, newSizeCustoms);
+      } else {
+        next.delete(selectedSize.id);
+      }
+      return next;
+    });
+  }, [selectedSize]);
+
   // Initialize when modal opens
   useEffect(() => {
     if (open && product?.sizes && product.sizes.length > 0) {
       setSelectedSize(product.sizes[0]);
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
+
+      // Initialize customizations per size from prop if editing, otherwise empty
+      const customsBySize = new Map<string, Set<string>>();
+      if (initialCustomizations && initialCustomizations.length > 0) {
+        // When editing, customizations apply to first size
+        customsBySize.set(product.sizes[0].id, new Set(initialCustomizations));
+      }
+      setCustomizationsBySize(customsBySize);
 
       // Initialize original quantities from prop or default to 0
       const origQties = new Map<string, number>();
@@ -100,8 +142,9 @@ export function SizePickerModal({
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
       setOriginalQuantities(new Map());
+      setCustomizationsBySize(new Map());
     }
-  }, [open, product?.id, product?.sizes, initialQuantities]);
+  }, [open, product?.id, product?.sizes, initialQuantities, initialCustomizations]);
 
   // Handle quantity change - update pending and track if modified
   const handleQuantityChange = useCallback(
@@ -137,7 +180,7 @@ export function SizePickerModal({
     [selectedSize, getQuantityForSize],
   );
 
-  // Clear size - set quantity to 0
+  // Clear size - set quantity to 0 and clear customizations
   const handleClearSize = useCallback(() => {
     if (!selectedSize) return;
 
@@ -148,6 +191,13 @@ export function SizePickerModal({
     setPendingQuantities((prev) => {
       const next = new Map(prev);
       next.set(sizeId, 0);
+      return next;
+    });
+
+    // Clear customizations for this size
+    setCustomizationsBySize((prev) => {
+      const next = new Map(prev);
+      next.delete(sizeId);
       return next;
     });
 
@@ -171,19 +221,59 @@ export function SizePickerModal({
   const handleSelectSize = useCallback(() => {
     if (!product || !hasUnsavedChanges) return;
 
-    // Loop through ALL modified sizes and add each one to cart
+    // Check if any modified size has quantity > 0
+    // OR if only customizations are added to an existing size (without quantity change)
+    let hasValidQuantity = false;
     for (const sizeId of modifiedSizes) {
+      const qty = getDisplayQuantity(sizeId);
+      if (qty > 0) {
+        hasValidQuantity = true;
+        break;
+      }
+    }
+
+    // If only customizations changed (no quantity changes) but selected size has existing quantity
+    const selectedSizeCustomizations = selectedSize ? (customizationsBySize.get(selectedSize.id) ?? new Set()) : new Set();
+    if (!hasValidQuantity && selectedSizeCustomizations.size > 0 && selectedSize) {
+      const currentQty = getDisplayQuantity(selectedSize.id);
+      if (currentQty > 0) {
+        hasValidQuantity = true;
+      }
+    }
+
+    // If customizations are selected but no quantity, show error
+    if (selectedSizeCustomizations.size > 0 && !hasValidQuantity) {
+      showToast.error("Please set quantity greater than 0 before adding customizations");
+      return;
+    }
+
+    // If no valid quantity and no customizations, show error
+    if (!hasValidQuantity) {
+      showToast.error("Please set quantity greater than 0");
+      return;
+    }
+
+    // Collect all sizes that need to be saved: either quantity was modified OR customizations were added
+    const sizesToUpdate = new Set(modifiedSizes);
+    customizationsBySize.forEach((_, sizeId) => {
+      sizesToUpdate.add(sizeId);
+    });
+
+    // Loop through ALL sizes with changes (quantity or customizations) and add each one to cart
+    for (const sizeId of sizesToUpdate) {
       const size = product.sizes?.find((s) => s.id === sizeId);
       const qty = getDisplayQuantity(sizeId);
 
       // Only add if quantity > 0
       if (size && qty > 0) {
-        onSizeSelect(product, size, qty);
+        // Get customizations for this specific size
+        const sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
+        onSizeSelect(product, size, qty, sizeCustomizations);
       }
     }
 
     onOpenChange(false);
-  }, [product, modifiedSizes, getDisplayQuantity, onSizeSelect, onOpenChange]);
+  }, [product, modifiedSizes, selectedSize, customizationsBySize, getDisplayQuantity, onSizeSelect, onOpenChange]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
@@ -194,6 +284,17 @@ export function SizePickerModal({
   const activeSizes = product?.sizes?.filter((s) => s.id) || [];
 
   const displayPrice = selectedSize?.finalPrice || product?.displayPrice || 0;
+
+  // Calculate total customization price from customizations for selected size only
+  const selectedSizeCustoms = selectedSize ? (customizationsBySize.get(selectedSize.id) ?? new Set()) : new Set();
+  const customizationTotal = Array.from(selectedSizeCustoms).reduce((sum, customId) => {
+    const custom = product?.customizations?.find((c) => c.id === customId);
+    return sum + (custom?.priceAdjustment || 0);
+  }, 0);
+
+  // Final price includes customizations
+  const priceWithCustomizations = displayPrice + customizationTotal;
+
   const originalPrice = selectedSize?.hasPromotion
     ? selectedSize.price
     : product?.hasActivePromotion
@@ -205,15 +306,17 @@ export function SizePickerModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full sm:max-w-[480px] p-0 overflow-hidden">
+      <DialogContent className="w-full sm:max-w-[500px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Header */}
-        <DialogHeader className="p-4 pb-0">
-          <DialogTitle className="text-lg font-bold">
-            {isEditing ? "Edit Size" : "Choose Size"}
-          </DialogTitle>
-        </DialogHeader>
+        <FormHeader
+          title={isEditing ? "Edit Size" : "Choose Size"}
+          description={product?.name}
+          isCreate={isEditing === false}
+          showAvatar={false}
+        />
 
-        <div className="p-4 pt-2">
+        {/* Body */}
+        <FormBody contentClassName="space-y-4">
           {/* Product Info */}
           <div className="flex gap-4 mb-4">
             <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
@@ -230,7 +333,7 @@ export function SizePickerModal({
               </h3>
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold text-primary">
-                  {formatCurrency(displayPrice)}
+                  {formatCurrency(priceWithCustomizations)}
                 </span>
                 {hasDiscount && originalPrice && (
                   <span className="text-xs text-muted-foreground line-through">
@@ -312,8 +415,8 @@ export function SizePickerModal({
           )}
 
           {/* Quantity Selector + Clear Button */}
-          <div className="mb-4">
-            <h4 className="font-semibold mb-2 text-sm">Quantity</h4>
+          <div className="mb-4 p-3 bg-muted/30 rounded-lg border">
+            <h4 className="font-semibold mb-3 text-sm">Quantity</h4>
             <div className="flex items-center gap-2">
               <QuantitySelector
                 value={currentQuantity}
@@ -336,34 +439,135 @@ export function SizePickerModal({
             </div>
           </div>
 
-          {/* Total */}
-          <div className="flex justify-between items-center py-3 border-t mb-4">
-            <span className="text-muted-foreground">Total</span>
-            <span className="text-xl font-bold text-primary">
-              {formatCurrency(displayPrice * currentQuantity)}
-            </span>
-          </div>
+          {/* Customizations Selection */}
+          {product?.customizations && product.customizations.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <h4 className="font-semibold text-sm">Add-ons</h4>
+                {selectedSizeCustoms.size > 0 && (
+                  <Badge variant="secondary" className="text-xs">
+                    {selectedSizeCustoms.size} selected
+                  </Badge>
+                )}
+              </div>
+              <div className="space-y-2">
+                {product.customizations.map((customization) => {
+                  const isSelected = selectedSizeCustoms.has(customization.id);
+                  const priceAdjustment = customization.priceAdjustment || 0;
+                  return (
+                    <button
+                      key={customization.id}
+                      onClick={() => toggleCustomization(customization.id)}
+                      className={cn(
+                        "w-full flex items-center justify-between rounded-lg px-3 py-2.5 transition-all cursor-pointer text-left",
+                        isSelected
+                          ? "bg-blue-50/50"
+                          : "border-2 border-border hover:border-blue-300 hover:bg-muted/30"
+                      )}
+                      style={isSelected ? { borderWidth: "0.5px", borderColor: "rgb(59, 130, 246)" } : {}}
+                    >
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm text-foreground">
+                          {customization.name}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 ml-2">
+                        <span className="text-sm font-semibold text-primary">
+                          +{formatCurrency(priceAdjustment)}
+                        </span>
+                        {isSelected && (
+                          <div className="bg-blue-500 text-white rounded-full p-0.5 flex-shrink-0">
+                            <Check className="h-3 w-3" />
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <CustomButton
-              variant="outline"
-              className="flex-1"
-              onClick={handleClose}
-            >
-              <X className="h-4 w-4 mr-1.5" />
-              Cancel
-            </CustomButton>
-            <CustomButton
-              className="flex-1"
-              onClick={handleSelectSize}
-              disabled={!hasUnsavedChanges}
-            >
-              <Package className="h-4 w-4 mr-1.5" />
-              Add to Cart
-            </CustomButton>
+          {/* Total */}
+          <div className="bg-muted/30 rounded-lg p-4 border space-y-2">
+            {customizationTotal > 0 ? (
+              <>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground text-sm">Base price</span>
+                  <span className="font-semibold">
+                    {formatCurrency(displayPrice)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-green-600">
+                  <span className="text-muted-foreground text-sm">Add-ons</span>
+                  <span className="font-semibold">
+                    +{formatCurrency(customizationTotal)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-t pt-2">
+                  <span className="text-muted-foreground text-sm">Price per item</span>
+                  <span className="font-semibold">
+                    {formatCurrency(priceWithCustomizations)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground text-sm">Price per item</span>
+                <span className="font-semibold">
+                  {formatCurrency(displayPrice)}
+                </span>
+              </div>
+            )}
+            {hasDiscount && originalPrice && (
+              <div className="flex justify-between items-center text-destructive">
+                <span className="text-muted-foreground text-sm">Original price</span>
+                <span className="text-sm line-through">
+                  {formatCurrency(originalPrice)}
+                </span>
+              </div>
+            )}
+            {(currentQuantity > 1 || customizationTotal > 0) && (
+              <>
+                <div className="flex justify-between items-center text-muted-foreground text-xs pt-1">
+                  <span>Base subtotal ({currentQuantity}×)</span>
+                  <span>{formatCurrency(displayPrice * currentQuantity)}</span>
+                </div>
+                {customizationTotal > 0 && (
+                  <div className="flex justify-between items-center text-green-600 text-xs">
+                    <span>Add-ons subtotal ({currentQuantity}×)</span>
+                    <span>+{formatCurrency(customizationTotal * currentQuantity)}</span>
+                  </div>
+                )}
+              </>
+            )}
+            <div className="flex justify-between items-center border-t pt-2">
+              <span className="text-muted-foreground font-semibold text-sm">Total</span>
+              <span className="text-lg font-bold text-primary">
+                {formatCurrency(priceWithCustomizations * currentQuantity)}
+              </span>
+            </div>
           </div>
-        </div>
+        </FormBody>
+
+        {/* Footer */}
+        <FormFooter
+          isSubmitting={false}
+          isDirty={hasUnsavedChanges}
+          isCreate={!isEditing}
+          createMessage="Adding..."
+          updateMessage="Saving..."
+          noChangesMessage="No changes made"
+        >
+          <CancelButton onClick={handleClose} />
+          <SubmitButton
+            onClick={handleSelectSize}
+            isLoading={false}
+            disabled={!hasUnsavedChanges}
+            text={isEditing ? "Save Changes" : "Add to Cart"}
+            loadingText={isEditing ? "Saving..." : "Adding..."}
+          />
+        </FormFooter>
       </DialogContent>
     </Dialog>
   );

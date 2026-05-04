@@ -131,6 +131,10 @@ export function ProductDetailModal({
                     value={productData.categoryName || "---"}
                   />
                   <DisplayField
+                    label="Subcategory"
+                    value={productData.subcategoryName || "---"}
+                  />
+                  <DisplayField
                     label="Brand"
                     value={productData.brandName || "---"}
                   />
@@ -172,7 +176,11 @@ export function ProductDetailModal({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DisplayField
                     label="Base Price"
-                    value={formatCurrency(parseFloat(productData.price))}
+                    value={
+                      productData.price
+                        ? formatCurrency(parseFloat(productData.price) || 0)
+                        : "---"
+                    }
                   />
                   <DisplayField
                     label="Display Price"
@@ -277,12 +285,20 @@ export function ProductDetailModal({
                               label="Final Price"
                               value={formatCurrency(size.finalPrice)}
                             />
+                            <DisplayField
+                              label="SKU"
+                              value={size.sku || "---"}
+                            />
+                            <DisplayField
+                              label="Barcode"
+                              value={size.barcode || "---"}
+                            />
+                            <DisplayField
+                              label="Total Stock"
+                              value={size.totalStock ? size.totalStock.toString() : "0"}
+                            />
                             {size.hasPromotion && (
                               <>
-                                <DisplayField
-                                  label="Promotion Type"
-                                  value={size.promotionType || "---"}
-                                />
                                 <DisplayField
                                   label="Promotion Value"
                                   value={
@@ -292,12 +308,97 @@ export function ProductDetailModal({
                                   }
                                 />
                                 <DisplayField
-                                  label="Valid Until"
+                                  label="Promotion From"
+                                  value={dateTimeFormat(
+                                    size.promotionFromDate ?? "",
+                                  )}
+                                />
+                                <DisplayField
+                                  label="Promotion To"
                                   value={dateTimeFormat(
                                     size.promotionToDate ?? "",
                                   )}
                                 />
                               </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+            {/* Stock Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Stock Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField
+                    label="Stock Status"
+                    value={
+                      <Badge
+                        variant={
+                          productData.stockStatus === "ENABLED"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {productData.stockStatus || "---"}
+                      </Badge>
+                    }
+                  />
+                  <DisplayField
+                    label="Total Stock"
+                    value={productData.totalStock ? productData.totalStock.toString() : "0"}
+                  />
+                  <DisplayField
+                    label="Quantity Available"
+                    value={productData.quantityAvailable ? productData.quantityAvailable.toString() : "0"}
+                  />
+                  <DisplayField
+                    label="Quantity Reserved"
+                    value={productData.quantityReserved ? productData.quantityReserved.toString() : "0"}
+                  />
+                  <DisplayField
+                    label="Quantity On Hand"
+                    value={productData.quantityOnHand ? productData.quantityOnHand.toString() : "0"}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Product Customizations */}
+            {productData.customizations &&
+              productData.customizations.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Product Customizations</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {productData.customizations.map((customization) => (
+                        <div
+                          key={customization.id}
+                          className="border rounded-lg p-4 space-y-3"
+                        >
+                          <h4 className="font-semibold text-foreground">
+                            {customization.name}
+                          </h4>
+                          <div className="space-y-3 text-sm">
+                            <DisplayField
+                              label="Price Adjustment"
+                              value={formatCurrency(
+                                customization.priceAdjustment || 0,
+                              )}
+                            />
+                            {customization.createdAt && (
+                              <DisplayField
+                                label="Created At"
+                                value={dateTimeFormat(customization.createdAt)}
+                              />
                             )}
                           </div>
                         </div>

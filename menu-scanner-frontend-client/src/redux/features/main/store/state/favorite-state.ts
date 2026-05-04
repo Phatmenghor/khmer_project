@@ -9,6 +9,7 @@ export const useFavoriteState = () => {
     dispatch,
     items: favorites.items,
     totalItems: favorites.totalItems,
+    pagination: favorites.pagination,
     loading: favorites.loading,
     error: favorites.error,
     loaded: favorites.loaded,

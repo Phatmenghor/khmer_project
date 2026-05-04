@@ -1,46 +1,42 @@
 package com.emenu.features.auth.dto.update;
 
+import com.emenu.features.auth.dto.response.SocialMediaResponse;
+import com.emenu.features.auth.dto.request.BusinessHoursRequest;
+import com.emenu.features.auth.enums.StockStatus;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
 
+import java.util.List;
+
+/**
+ * Business Settings Update Request DTO
+ * Contains only essential fields for business settings update
+ */
 @Data
 public class BusinessSettingUpdateRequest {
 
-    private String openingTime;
-    private String closingTime;
-    private Boolean isOpen24Hours;
-    private String workingDays;
-
-    private String timezone;
-    private String currency;
-    private String language;
-
-    private String contactEmail;
-    private String contactPhone;
-    private String whatsappNumber;
-    private String facebookUrl;
-    private String instagramUrl;
-    private String websiteUrl;
-
-    private String logoUrl;
-    private String bannerUrl;
-    private String primaryColor;
-    private String secondaryColor;
+    private String businessName;
 
     @DecimalMin(value = "0.0")
     @DecimalMax(value = "100.0")
     private Double taxPercentage;
 
-    @DecimalMin(value = "0.0")
-    @DecimalMax(value = "100.0")
-    private Double serviceChargePercentage;
+    private String logoBusinessUrl;
 
-    private Double minOrderAmount;
-    private Double deliveryRadiusKm;
-    private String estimatedDeliveryTime;
+    private StockStatus enableStock;
 
-    private String termsAndConditions;
-    private String privacyPolicy;
-    private String refundPolicy;
+    private List<SocialMediaResponse> socialMedia;
+
+    private String primaryColor;
+
+    // Contact Information
+    private String contactAddress;
+
+    private String contactPhone;
+
+    private String contactEmail;
+
+    // Business Hours
+    private List<BusinessHoursRequest> businessHours;
 }

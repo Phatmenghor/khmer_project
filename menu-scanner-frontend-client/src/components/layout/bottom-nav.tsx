@@ -46,7 +46,10 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-background/95 backdrop-blur-lg border-t border-border/60 shadow-[0_-1px_12px_0_rgba(0,0,0,0.08)]">
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-[9999] sm:hidden bg-white border-t border-border/60 shadow-[0_-1px_12px_0_rgba(0,0,0,0.08)]"
+        style={{ backgroundColor: "#ffffff", width: "100vw", backdropFilter: "blur(8px)" }}
+      >
         <div className="flex items-stretch h-16">
           {tabs.map((tab) => {
             const active = isActive(tab.href);
@@ -101,7 +104,7 @@ export function BottomNav() {
           })}
         </div>
         {/* Safe area spacer for devices with home indicator */}
-        <div className="h-safe-bottom bg-background" />
+        <div className="h-safe-bottom bg-white" style={{ backgroundColor: "#ffffff" }} />
       </nav>
 
       <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />

@@ -16,7 +16,6 @@ import java.util.UUID;
 public class OrderStatusHistoryResponse {
     private UUID id;
     private String statusName;
-    private String statusDescription;
     private String note;
 
     // User who changed the status - nested object with full details

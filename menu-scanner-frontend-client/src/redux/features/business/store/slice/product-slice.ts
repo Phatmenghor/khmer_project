@@ -12,6 +12,9 @@ import {
   fetchAllProductService,
   fetchProductByIdService,
   updateProductService,
+  resetProductPromotionService,
+  resetAllPromotionsService,
+  resetBulkPromotionsService,
 } from "../thunks/product-thunks";
 import { ProductStatus } from "@/constants/status/status";
 import { selectCategories } from "@/redux/features/master-data/store/selectors/categories-selector";
@@ -27,12 +30,16 @@ const initialState: ProductManagementState = {
   filters: {
     search: "",
     pageNo: 1,
+    status: ProductStatus.ALL,
   },
   operations: {
     isCreating: false,
     isUpdating: false,
     isDeleting: false,
     isFetchingDetail: false,
+    isResettingPromotion: false,
+    isResettingAll: false,
+    isResettingBulk: false,
   },
 };
 
@@ -224,6 +231,170 @@ const productSlice = createSlice({
         });
       }
     },
+
+    createBulkPromotionsOptimistic: (
+      state,
+      action: PayloadAction<{
+        productIds: string[];
+        promotionType: string;
+        promotionValue: number;
+        promotionFromDate: string;
+        promotionToDate: string;
+        productSizeMapping?: Record<string, string[]>;
+      }>,
+    ) => {
+      // Update products and sizes optimistically after bulk promotion creation
+      if (state.data) {
+        const {
+          productIds,
+          promotionType,
+          promotionValue,
+          promotionFromDate,
+          promotionToDate,
+          productSizeMapping,
+        } = action.payload;
+
+        const selectedIds = new Set(productIds);
+
+        state.data.content = state.data.content.map((product) => {
+          if (selectedIds.has(product.id)) {
+            // Check if this product has specific size mappings
+            const productSizeIds = productSizeMapping?.[product.id];
+            const hasSizeMappings =
+              productSizeIds && productSizeIds.length > 0;
+
+            // Update sizes if they exist
+            let updatedSizes = product.sizes;
+            if (product.sizes && product.sizes.length > 0) {
+              updatedSizes = product.sizes.map((size: any) => {
+                // If size mapping exists, only update specified sizes; otherwise update all
+                const shouldUpdateSize =
+                  !hasSizeMappings ||
+                  (productSizeIds && productSizeIds.includes(size.id));
+
+                if (shouldUpdateSize) {
+                  const discountAmount =
+                    promotionType === "PERCENTAGE"
+                      ? (parseFloat(product.price) * promotionValue) / 100
+                      : promotionValue;
+                  const newPrice =
+                    parseFloat(product.price) - discountAmount;
+
+                  return {
+                    ...size,
+                    promotionType,
+                    promotionValue,
+                    promotionFromDate,
+                    promotionToDate,
+                    finalPrice: Math.max(newPrice, 0),
+                    hasPromotion: true,
+                  };
+                }
+                return size;
+              });
+            }
+
+            // Calculate display price for product level
+            const discountAmount =
+              promotionType === "PERCENTAGE"
+                ? (parseFloat(product.price) * promotionValue) / 100
+                : promotionValue;
+            const displayPrice = Math.max(
+              parseFloat(product.price) - discountAmount,
+              0,
+            );
+
+            return {
+              ...product,
+              promotionType,
+              promotionValue,
+              promotionFromDate,
+              promotionToDate,
+              displayPrice,
+              displayOriginPrice: parseFloat(product.price),
+              displayPromotionType: promotionType,
+              displayPromotionValue: promotionValue,
+              displayPromotionFromDate: promotionFromDate,
+              displayPromotionToDate: promotionToDate,
+              hasPromotion: true,
+              sizes: updatedSizes,
+            };
+          }
+          return product;
+        });
+      }
+    },
+
+    resetSelectedPromotionsOptimistic: (
+      state,
+      action: PayloadAction<{
+        productIds: string[];
+        productSizeMapping?: Record<string, string[]>;
+      }>,
+    ) => {
+      // Reset promotions for selected products/sizes optimistically
+      if (state.data) {
+        const { productIds, productSizeMapping } = action.payload;
+        const selectedIds = new Set(productIds);
+        const hasSizeMapping =
+          productSizeMapping && Object.keys(productSizeMapping).length > 0;
+
+        state.data.content = state.data.content.map((product) => {
+          if (selectedIds.has(product.id)) {
+            const productSizeIds = productSizeMapping?.[product.id];
+            const shouldResetAll = !hasSizeMapping || !productSizeIds;
+
+            // Reset sizes if they exist
+            let updatedSizes = product.sizes;
+            if (product.sizes && product.sizes.length > 0) {
+              updatedSizes = product.sizes.map((size: any) => {
+                const shouldResetSize =
+                  shouldResetAll ||
+                  (productSizeIds && productSizeIds.includes(size.id));
+
+                if (shouldResetSize) {
+                  return {
+                    ...size,
+                    promotionType: null,
+                    promotionValue: null,
+                    promotionFromDate: null,
+                    promotionToDate: null,
+                    finalPrice: size.price,
+                    hasPromotion: false,
+                  };
+                }
+                return size;
+              });
+            }
+
+            // Reset product-level promotion only if all sizes are being reset
+            if (shouldResetAll) {
+              return {
+                ...product,
+                promotionType: null,
+                promotionValue: null,
+                promotionFromDate: null,
+                promotionToDate: null,
+                displayPrice: parseFloat(product.price),
+                displayOriginPrice: parseFloat(product.price),
+                displayPromotionType: null,
+                displayPromotionValue: null,
+                displayPromotionFromDate: null,
+                displayPromotionToDate: null,
+                hasPromotion: false,
+                sizes: updatedSizes,
+              };
+            }
+
+            return {
+              ...product,
+              sizes: updatedSizes,
+            };
+          }
+          return product;
+        });
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -345,6 +516,45 @@ const productSlice = createSlice({
         state.error = action.payload as string;
         state.operations.isDeleting = false;
       });
+
+    builder
+      .addCase(resetProductPromotionService.pending, (state) => {
+        state.operations.isResettingPromotion = true;
+        state.error = null;
+      })
+      .addCase(resetProductPromotionService.fulfilled, (state) => {
+        state.operations.isResettingPromotion = false;
+      })
+      .addCase(resetProductPromotionService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.operations.isResettingPromotion = false;
+      });
+
+    builder
+      .addCase(resetAllPromotionsService.pending, (state) => {
+        state.operations.isResettingAll = true;
+        state.error = null;
+      })
+      .addCase(resetAllPromotionsService.fulfilled, (state) => {
+        state.operations.isResettingAll = false;
+      })
+      .addCase(resetAllPromotionsService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.operations.isResettingAll = false;
+      });
+
+    builder
+      .addCase(resetBulkPromotionsService.pending, (state) => {
+        state.operations.isResettingBulk = true;
+        state.error = null;
+      })
+      .addCase(resetBulkPromotionsService.fulfilled, (state) => {
+        state.operations.isResettingBulk = false;
+      })
+      .addCase(resetBulkPromotionsService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.operations.isResettingBulk = false;
+      });
   },
 });
 
@@ -360,6 +570,8 @@ export const {
   resetProductPromotionOptimistic,
   resetAllPromotionsOptimistic,
   resetTablePromotionsOptimistic,
+  createBulkPromotionsOptimistic,
+  resetSelectedPromotionsOptimistic,
   toggleProductSelection,
   selectAllProducts,
   deselectAllProducts,

@@ -50,6 +50,17 @@ const getPaymentVariant = (status: string) => {
   }
 };
 
+const getOrderFromVariant = (orderFrom: string) => {
+  switch (orderFrom) {
+    case "CUSTOMER":
+      return "outline";
+    case "BUSINESS":
+      return "secondary";
+    default:
+      return "outline";
+  }
+};
+
 export const orderAdminTableColumns = ({
   data,
   handlers,
@@ -80,6 +91,17 @@ export const orderAdminTableColumns = ({
       ),
     },
     {
+      key: "orderFrom",
+      label: "Type",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (order) => (
+        <span className="text-xs font-medium">
+          {order?.orderFrom === "CUSTOMER" ? "Public" : "POS"}
+        </span>
+      ),
+    },
+    {
       key: "customerName",
       label: "Customer",
       minWidth: "10px",
@@ -87,21 +109,21 @@ export const orderAdminTableColumns = ({
       truncate: true,
       render: (order) => (
         <div className="flex flex-col">
-          <span className="text-xs">{order?.customerName || "---"}</span>
+          <span className="text-xs font-medium">{order?.customerName || "Walk-in"}</span>
           <span className="text-xs text-muted-foreground">
-            {order?.customerPhone || ""}
+            {order?.customerPhone || "No phone"}
           </span>
         </div>
       ),
     },
     {
-      key: "totalItems",
+      key: "items",
       label: "Items",
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (
-        <span className="text-xs text-muted-foreground">
-          {order?.pricing?.totalItems || 0}
+        <span className="text-xs font-medium">
+          {order?.items?.length || 0}
         </span>
       ),
     },
@@ -111,9 +133,18 @@ export const orderAdminTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (
-        <span className="text-xs font-medium">
-          {formatCurrency(order?.pricing?.finalTotal || 0)}
-        </span>
+        <div className="flex flex-col">
+          <span className="text-xs font-bold text-green-600">
+            {formatCurrency(
+              order?.pricing?.after?.finalTotal ?? order?.pricing?.before?.finalTotal ?? 0
+            )}
+          </span>
+          {order?.pricing?.hadOrderLevelChangeFromPOS && (
+            <span className="text-xs text-muted-foreground line-through">
+              {formatCurrency(order?.pricing?.before?.finalTotal ?? 0)}
+            </span>
+          )}
+        </div>
       ),
     },
     {
@@ -121,26 +152,69 @@ export const orderAdminTableColumns = ({
       label: "Status",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (order) => (
-        <Badge variant={getStatusVariant(order?.orderStatus)}>
-          {getOrderStatusLabel(order?.orderStatus)}
-        </Badge>
-      ),
+      render: (order) => {
+        const getStatusColor = (status: string) => {
+          switch (status) {
+            case "COMPLETED":
+            case "READY":
+              return "text-green-600 font-medium";
+            case "CANCELLED":
+            case "FAILED":
+              return "text-red-600 font-medium";
+            case "PENDING":
+            case "PREPARING":
+              return "text-blue-600 font-medium";
+            default:
+              return "text-gray-600 font-medium";
+          }
+        };
+        return (
+          <span className={`text-xs ${getStatusColor(order?.orderStatus)}`}>
+            {getOrderStatusLabel(order?.orderStatus)}
+          </span>
+        );
+      },
     },
     {
       key: "paymentStatus",
       label: "Payment",
       minWidth: "10px",
       maxWidth: "400px",
+      render: (order) => {
+        const getPaymentColor = (status: string) => {
+          switch (status) {
+            case "PAID":
+              return "text-green-600 font-medium";
+            case "UNPAID":
+            case "PENDING":
+              return "text-orange-600 font-medium";
+            case "REFUNDED":
+              return "text-red-600 font-medium";
+            default:
+              return "text-gray-600 font-medium";
+          }
+        };
+        return (
+          <span className={`text-xs ${getPaymentColor(order?.payment?.paymentStatus)}`}>
+            {order?.payment?.paymentStatus || "---"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "deliveryOption",
+      label: "Delivery",
+      minWidth: "10px",
+      maxWidth: "400px",
       render: (order) => (
-        <Badge variant={getPaymentVariant(order?.payment?.paymentStatus)}>
-          {order?.payment?.paymentStatus || "---"}
-        </Badge>
+        <span className="text-xs font-medium">
+          {order?.deliveryOption?.name || "---"}
+        </span>
       ),
     },
     {
       key: "createdAt",
-      label: "Created At",
+      label: "Created",
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (

@@ -6,7 +6,7 @@
 
 import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { setCartItems } from "@/redux/features/business/store/slice/pos-page-slice";
+import { loadPersistedCart } from "@/redux/features/business/store/slice/pos-page-slice";
 import { selectCartItems } from "@/redux/features/business/store/selectors/pos-page-selector";
 import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
 
@@ -91,11 +91,11 @@ export function useLocalStorageSync(
               item.productId &&
               item.productName &&
               typeof item.quantity === "number" &&
-              typeof item.before?.currentPrice === "number"
+              typeof item.currentPrice === "number"
           );
 
           if (isValid) {
-            dispatch(setCartItems(parsedCart));
+            dispatch(loadPersistedCart(parsedCart));
             console.log(
               `✅ Loaded ${parsedCart.length} items from localStorage (${storageKey})`
             );
@@ -235,7 +235,7 @@ export function useLocalStorageSync(
       exportedAt: new Date().toISOString(),
       itemCount: cartItems.length,
       totalPrice: cartItems.reduce(
-        (sum, item) => sum + item.after.finalPrice * item.quantity,
+        (sum, item) => sum + item.finalPrice * item.quantity,
         0
       ),
     };

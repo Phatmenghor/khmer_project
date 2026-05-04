@@ -13,6 +13,7 @@ import { UserAvatarCard } from "../shared/avator/user-avatar-card";
 import { useIsMobile } from "@/redux/store/use-mobile";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { getProfileService } from "@/redux/features/auth/store/thunks/auth-thunks";
+import { businessSettingsStorage } from "@/utils/storage/business-settings-storage";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -20,16 +21,31 @@ interface SidebarProps {
 }
 
 export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
   const { profile, isProfileLoading, dispatch } = useAuthState();
+
+  // Only render cached data after client hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Get all business settings from cache (instant, no Redux delay)
+  const cachedSettings = isMounted ? businessSettingsStorage.getCached() : null;
+  const businessName = cachedSettings?.data?.businessName || "Dashboard";
+  const logoUrl = cachedSettings?.data?.logoBusinessUrl || null;
+  const primaryColor = cachedSettings?.data?.primaryColor || "#3b82f6";
+
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,
     HR: true,
     Business: true,
     Users: true,
+    "Stock Management": true,
+    Settings: true,
   });
   const [collapsed, setCollapsed] = useState(false);
 
@@ -37,6 +53,8 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
     if (!profile && !isProfileLoading) {
       dispatch(getProfileService());
     }
+    // Business settings are loaded by useBusinessTheme hook in client-provider
+    // No need to fetch here - just use Redux selectors
   }, [profile, isProfileLoading, dispatch]);
 
   const toggleSection = (section: string) => {
@@ -126,7 +144,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                           className={cn(
                             "relative w-full justify-start hover:bg-primary/10 hover:text-primary pl-6 rounded z-20 border-l border-transparent hover:border-l-primary/30 transition-all duration-200",
                             isSubItemActive &&
-                              "bg-primary/15 text-primary font-medium border-l-2 border-primary shadow-sm",
+                              "bg-primary/20 text-primary font-medium border-l-2 border-primary shadow-sm",
                           )}
                         >
                           <Link
@@ -153,7 +171,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             className={cn(
               "w-full justify-start hover:bg-primary/10 hover:text-primary rounded transition-all duration-200",
               isActive &&
-                "bg-primary/15 text-primary font-medium border-l-2 border-primary",
+                "bg-primary/20 text-primary font-medium border-l-2 border-primary",
             )}
           >
             <Link
@@ -186,30 +204,41 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
           isMobile && !isOpen && "hidden",
         )}
       >
-        <div className="relative flex h-20 items-center justify-between border-b border-border/50 px-4 bg-gradient-to-br from-primary/5 via-background/50 to-accent/5">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-50 blur-3xl"></div>
+        <div className="relative flex h-20 items-center justify-between border-b border-border/50 px-4 bg-gradient-to-br from-primary/5 via-background/50 to-primary/5">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/10 opacity-50 blur-3xl"></div>
 
           {!collapsed && (
             <Link
               href="/"
               className="relative flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
+              suppressHydrationWarning
             >
               <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                  <Image
-                    src="/assets/favicon.ico"
-                    alt="Menu Scanner Logo"
-                    width={24}
-                    height={24}
-                    className="rounded object-contain"
-                    priority
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 overflow-hidden"
+                  style={{ backgroundColor: primaryColor }}
+                  suppressHydrationWarning
+                >
+                  <img
+                    key={logoUrl}
+                    src={logoUrl || "/assets/image/no-image.png"}
+                    alt={businessName}
+                    className="w-full h-full object-cover rounded"
+                    onLoad={() => console.log("✅ [SIDEBAR] Logo loaded:", logoUrl)}
+                    onError={(e) => {
+                      console.error("❌ [SIDEBAR] Failed to load logo:", logoUrl);
+                      (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+                    }}
                   />
                 </div>
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
-                  Menu Scanner
+                <span
+                  className="font-bold text-sm leading-tight tracking-tight"
+                  style={{ color: primaryColor }}
+                >
+                  {businessName}
                 </span>
                 <span className="text-muted-foreground text-xs font-medium tracking-wide">
                   Dashboard
@@ -223,11 +252,11 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             size="icon"
             onClick={toggleCollapsed}
             className={cn(
-              "relative h-9 w-9 rounded-xl transition-all duration-300 hover:bg-accent/50 hover:scale-110 group",
+              "relative h-9 w-9 rounded-xl transition-all duration-300 hover:bg-primary/10 hover:scale-110 group",
               collapsed && "ml-auto",
             )}
           >
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/10 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <ChevronLeft
               className={cn(
                 "h-4 w-4 relative z-10 transition-transform duration-300",

@@ -12,7 +12,18 @@ const initialState: LocationState = {
   data: null,
   locations: [],
   defaultLocation: null,
-  isLoading: false,
+  pagination: {
+    currentPage: 1,
+    pageSize: 6,
+    hasMore: false,
+    isInitialLoaded: false,
+  },
+  isLoading: {
+    fetch: false,
+    create: false,
+    update: false,
+    delete: false,
+  },
   error: null,
   operations: {
     isCreating: false,
@@ -34,26 +45,42 @@ const locationSlice = createSlice({
     // Fetch all
     builder
       .addCase(fetchAllLocationsService.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading.fetch = true;
         state.error = null;
       })
       .addCase(fetchAllLocationsService.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.isLoading.fetch = false;
         state.data = action.payload;
-        state.locations = action.payload?.content || [];
+        const newLocations = action.payload?.content || [];
+        const pageNo = (action.meta.arg as any)?.pageNo || 1;
+        const pageSize = (action.meta.arg as any)?.pageSize || state.pagination.pageSize;
+
+        // First page: replace, subsequent pages: append
+        if (pageNo === 1) {
+          state.locations = newLocations;
+        } else {
+          state.locations.push(...newLocations);
+        }
+
+        state.pagination.currentPage = pageNo;
+        state.pagination.pageSize = pageSize;
+        state.pagination.hasMore = state.locations.length < (action.payload?.totalElements || 0);
+        state.pagination.isInitialLoaded = true;
       })
       .addCase(fetchAllLocationsService.rejected, (state, action) => {
-        state.isLoading = false;
+        state.isLoading.fetch = false;
         state.error = (action.payload as string) || "Failed to fetch locations";
       });
 
     // Create
     builder
       .addCase(createLocationService.pending, (state) => {
+        state.isLoading.create = true;
         state.operations.isCreating = true;
         state.error = null;
       })
       .addCase(createLocationService.fulfilled, (state, action) => {
+        state.isLoading.create = false;
         state.operations.isCreating = false;
         const newLocation = action.payload;
         // If new location is primary, remove primary from others
@@ -67,6 +94,7 @@ const locationSlice = createSlice({
         state.locations = [newLocation, ...state.locations];
       })
       .addCase(createLocationService.rejected, (state, action) => {
+        state.isLoading.create = false;
         state.operations.isCreating = false;
         state.error = (action.payload as string) || "Failed to create location";
       });
@@ -74,10 +102,12 @@ const locationSlice = createSlice({
     // Update
     builder
       .addCase(updateLocationService.pending, (state) => {
+        state.isLoading.update = true;
         state.operations.isUpdating = true;
         state.error = null;
       })
       .addCase(updateLocationService.fulfilled, (state, action) => {
+        state.isLoading.update = false;
         state.operations.isUpdating = false;
         const updated = action.payload;
         if (updated.isPrimary || updated.isDefault) {
@@ -92,6 +122,7 @@ const locationSlice = createSlice({
         );
       })
       .addCase(updateLocationService.rejected, (state, action) => {
+        state.isLoading.update = false;
         state.operations.isUpdating = false;
         state.error = (action.payload as string) || "Failed to update location";
       });
@@ -99,10 +130,12 @@ const locationSlice = createSlice({
     // Delete
     builder
       .addCase(deleteLocationService.pending, (state) => {
+        state.isLoading.delete = true;
         state.operations.isDeleting = true;
         state.error = null;
       })
       .addCase(deleteLocationService.fulfilled, (state, action) => {
+        state.isLoading.delete = false;
         state.operations.isDeleting = false;
         const deleted = action.payload;
         state.locations = state.locations.filter(
@@ -110,6 +143,7 @@ const locationSlice = createSlice({
         );
       })
       .addCase(deleteLocationService.rejected, (state, action) => {
+        state.isLoading.delete = false;
         state.operations.isDeleting = false;
         state.error = (action.payload as string) || "Failed to delete location";
       });

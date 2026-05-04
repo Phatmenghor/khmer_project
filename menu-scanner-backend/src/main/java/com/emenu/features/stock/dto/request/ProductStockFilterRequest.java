@@ -2,6 +2,7 @@ package com.emenu.features.stock.dto.request;
 
 import com.emenu.shared.dto.BaseFilterRequest;
 import com.emenu.enums.product.ProductStatus;
+import com.emenu.enums.product.StockStatus;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,9 +20,15 @@ public class ProductStockFilterRequest extends BaseFilterRequest {
 
     private ProductStatus status;
 
+    // Filter by stock status (ENABLED, DISABLED)
+    private StockStatus stockStatus;
+
     // When set, returns stocks with quantityOnHand < lowStockThreshold (e.g. 3 = quantity < 3)
     private Integer lowStockThreshold;
 
     // When set, returns stocks whose expiryDate <= this datetime (e.g. now+7days = expiring within 7 days)
     private LocalDateTime expiredBefore;
+
+    // Filter by product sizes: true = only products with sizes, false = only products without sizes, null = all
+    private Boolean hasSizes;
 }

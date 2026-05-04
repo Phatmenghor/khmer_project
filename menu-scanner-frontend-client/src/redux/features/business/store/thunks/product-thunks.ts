@@ -141,6 +141,23 @@ export const resetBulkPromotionsService = createApiThunk<
 );
 
 /**
+ * Reset Selected Promotions with optional size mapping
+ */
+export const resetSelectedPromotionsService = createApiThunk<
+  { message: string; resetCount: number; productsReset: number; sizesReset: number },
+  { productIds: string[]; productSizeMapping?: Record<string, string[]> }
+>(
+  "products/resetSelectedPromotions",
+  async (request) => {
+    const response = await axiosClientWithAuth.put(
+      "/api/v1/products/reset-selected-promotions",
+      request
+    );
+    return response.data.data;
+  }
+);
+
+/**
  * Create Bulk Promotions
  */
 export const createBulkPromotionsService = createApiThunk<

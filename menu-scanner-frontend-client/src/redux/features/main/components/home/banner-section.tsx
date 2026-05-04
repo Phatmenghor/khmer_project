@@ -14,13 +14,22 @@ import {
 import { cn } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
 
+// App images constants
+const appImages = {
+  NoImage: "/assets/image/no-image.png",
+};
+
 interface BannerSectionProps {
   banners: BannerResponseModel[];
   loading: boolean;
   error: string | null;
 }
 
-export const BannerSection = ({
+/**
+ * Memoized component to prevent unnecessary re-renders
+ * Only re-renders when props actually change (banners, loading, error)
+ */
+const BannerSectionComponent = ({
   banners,
   loading,
   error,
@@ -35,8 +44,8 @@ export const BannerSection = ({
   const autoplayPlugin = React.useRef(
     Autoplay({
       delay: 5000,
-      stopOnInteraction: true,
-      stopOnMouseEnter: true,
+      stopOnInteraction: false,
+      stopOnMouseEnter: false,
       playOnInit: true,
     }),
   );
@@ -98,10 +107,7 @@ export const BannerSection = ({
                   )}
 
                   <Image
-                    src={
-                      banner.imageUrl ||
-                      `https://picsum.photos/1200/400?random=${index}`
-                    }
+                    src={banner.imageUrl || appImages.NoImage}
                     alt={banner.businessName || "Banner"}
                     fill
                     className={cn(
@@ -111,36 +117,6 @@ export const BannerSection = ({
                     onLoad={() => handleImageLoad(index)}
                     priority={index === 0}
                   />
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
-                  <div className="absolute inset-0 flex items-end pb-12">
-                    <div className="p-4 sm:p-6 md:p-8 w-full">
-                      <div className="max-w-2xl">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white drop-shadow-2xl tracking-tight">
-                          {banner.businessName}
-                        </h2>
-                        {banner.description && (
-                          <p className="text-sm sm:text-base text-white/90 mt-2 drop-shadow-lg line-clamp-2">
-                            {banner.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {banner.linkUrl && (
-                    <a
-                      href={banner.linkUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute inset-0 z-10"
-                    >
-                      <span className="sr-only">
-                        View {banner.businessName}
-                      </span>
-                    </a>
-                  )}
                 </div>
               </CarouselItem>
             ))}
@@ -218,3 +194,9 @@ export const BannerSection = ({
     </div>
   );
 };
+
+/**
+ * Export memoized component
+ * Prevents re-renders when parent updates but props remain the same
+ */
+export const BannerSection = React.memo(BannerSectionComponent);

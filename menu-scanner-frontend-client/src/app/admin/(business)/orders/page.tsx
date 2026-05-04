@@ -18,12 +18,15 @@ import {
   setSearchFilter,
   setOrderStatusFilter,
   setPaymentStatusFilter,
+  setStartDateFilter,
+  setEndDateFilter,
   resetState,
 } from "@/redux/features/business/store/slice/order-admin-slice";
 import { orderAdminTableColumns } from "@/redux/features/business/table/order-admin-table";
 import { OrderDetailModal } from "@/redux/features/business/components/order-detail-modal";
 import { OrderUpdateModal } from "@/redux/features/business/components/order-update-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
+import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -74,23 +77,37 @@ export default function OrdersAdminPage() {
   });
 
   useEffect(() => {
-    dispatch(
-      fetchAllOrderAdminService({
-        search: debouncedSearch,
-        pageNo: filters.pageNo,
-        pageSize: globalPageSize,
-        orderStatus:
-          filters.orderStatus === "ALL" ? undefined : filters.orderStatus,
-        paymentStatus:
-          filters.paymentStatus === "ALL" ? undefined : filters.paymentStatus,
-      })
-    );
+    const requestParams: any = {
+      search: debouncedSearch,
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize,
+    };
+
+    if (filters.orderStatus && filters.orderStatus !== "ALL") {
+      requestParams.orderStatus = filters.orderStatus;
+    }
+
+    if (filters.paymentStatus && filters.paymentStatus !== "ALL") {
+      requestParams.paymentStatus = filters.paymentStatus;
+    }
+
+    if (filters.startDate && filters.startDate.trim()) {
+      requestParams.startDate = filters.startDate;
+    }
+
+    if (filters.endDate && filters.endDate.trim()) {
+      requestParams.endDate = filters.endDate;
+    }
+
+    dispatch(fetchAllOrderAdminService(requestParams));
   }, [
     dispatch,
     debouncedSearch,
     filters.pageNo,
     filters.orderStatus,
     filters.paymentStatus,
+    filters.startDate,
+    filters.endDate,
     globalPageSize,
   ]);
 
@@ -178,6 +195,14 @@ export default function OrdersAdminPage() {
     dispatch(setPaymentStatusFilter(value));
   };
 
+  const handleStartDateChange = (dateString: string) => {
+    dispatch(setStartDateFilter(dateString && dateString.trim() ? dateString : undefined));
+  };
+
+  const handleEndDateChange = (dateString: string) => {
+    dispatch(setEndDateFilter(dateString && dateString.trim() ? dateString : undefined));
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
@@ -192,7 +217,7 @@ export default function OrdersAdminPage() {
           onSearchChange={handleSearchChange}
           buttonText="New Order"
           buttonIcon={<Plus className="h-4 w-4" />}
-          buttonHref={ROUTES.ADMIN.ORDERS_CREATE}
+          buttonHref={ROUTES.ADMIN.POS}
           buttonTooltip="Create a new POS order"
         >
           <CustomSelect
@@ -210,6 +235,26 @@ export default function OrdersAdminPage() {
             onValueChange={handlePaymentStatusChange}
             label="Payment Status"
           />
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground mb-1 block">From Date</label>
+              <CustomDateTimePicker
+                value={filters.startDate || ""}
+                onChange={handleStartDateChange}
+                placeholder="Select start date"
+                mode="date"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground mb-1 block">To Date</label>
+              <CustomDateTimePicker
+                value={filters.endDate || ""}
+                onChange={handleEndDateChange}
+                placeholder="Select end date"
+                mode="date"
+              />
+            </div>
+          </div>
         </CardHeaderSection>
 
         <DataTableWithPagination

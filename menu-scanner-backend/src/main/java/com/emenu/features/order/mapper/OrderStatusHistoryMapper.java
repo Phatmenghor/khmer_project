@@ -12,7 +12,6 @@ import java.util.List;
 public interface OrderStatusHistoryMapper {
 
     @Mapping(source = "orderStatus.displayName", target = "statusName")
-    @Mapping(source = "orderStatus.description", target = "statusDescription")
     @Mapping(source = "createdAt", target = "changedAt")
     OrderStatusHistoryResponse toResponse(OrderStatusHistory history);
 

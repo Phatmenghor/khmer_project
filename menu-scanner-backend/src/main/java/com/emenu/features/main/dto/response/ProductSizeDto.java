@@ -9,6 +9,8 @@ import java.util.UUID;
 public class ProductSizeDto {
     private UUID id;
     private String name;
+    private String barcode;
+    private String sku;
     private BigDecimal price;
     private String promotionType;
     private BigDecimal promotionValue;
@@ -17,5 +19,9 @@ public class ProductSizeDto {
     private BigDecimal finalPrice;
     private Boolean hasPromotion;
     private Integer quantity;
+
+    // Stock tracking for this size
+    private Integer totalStock;
+
     private LocalDateTime createdAt;
 }

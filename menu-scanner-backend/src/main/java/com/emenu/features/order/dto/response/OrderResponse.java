@@ -1,7 +1,9 @@
 package com.emenu.features.order.dto.response;
 
 import com.emenu.enums.order.OrderStatus;
+import com.emenu.features.order.enums.OrderFromEnum;
 import com.emenu.shared.dto.BaseAuditResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,13 +14,18 @@ import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderResponse extends BaseAuditResponse {
     private String orderNumber;
+
+    // Order source identifier
+    private OrderFromEnum orderFrom;
 
     // Customer info
     private UUID customerId;
     private String customerName;
     private String customerPhone;
+    private String customerEmail;
 
     // Business info
     private UUID businessId;

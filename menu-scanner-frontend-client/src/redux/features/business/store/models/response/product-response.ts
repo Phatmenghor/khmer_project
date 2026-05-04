@@ -1,4 +1,5 @@
 import { BasePagination } from "@/utils/common/pagination";
+import { ProductCustomizationDto } from "./product-customization-response";
 
 export interface AllProductResponseModel extends BasePagination {
   content: ProductDetailResponseModel[];
@@ -35,12 +36,21 @@ export interface ProductDetailResponseModel {
   businessName: string;
   categoryId: string;
   categoryName: string;
+  subcategoryId: string;
+  subcategoryName: string;
   brandId: string;
   brandName: string;
   barcode: string;
   sku: string;
+  // Stock tracking
+  stockStatus: string; // ENABLED or DISABLED
+  totalStock: number;
+  quantityAvailable: number;
+  quantityReserved: number;
+  quantityOnHand: number;
   images: ProductImage[];
   sizes: ProductSize[];
+  customizations: ProductCustomizationDto[];
   isSelected?: boolean; // Frontend state for bulk operations (default: false)
 }
 
@@ -54,6 +64,8 @@ interface ProductImage {
 export interface ProductSize {
   id: string;
   name: string;
+  barcode: string;
+  sku: string;
   price: number;
   promotionType: string;
   promotionValue: number;
@@ -63,4 +75,8 @@ export interface ProductSize {
   hasPromotion: boolean;
   quantity: string;
   createdAt: string;
+  // Stock tracking for size variants
+  totalStock: number;
+  quantityAvailable: number;
+  quantityReserved: number;
 }

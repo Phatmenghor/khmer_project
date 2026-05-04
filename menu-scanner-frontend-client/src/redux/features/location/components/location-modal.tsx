@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, {
   useEffect,
   useCallback,
@@ -7,15 +8,18 @@ import React, {
   useState,
   useMemo,
 } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { showToast } from "@/components/shared/common/show-toast";
+import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -121,10 +125,16 @@ interface MultiImageUploadProps {
 function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const MAX_IMAGES = 5;
+  const canAddMore = images.length < MAX_IMAGES;
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     Array.from(e.target.files ?? []).forEach((file) => {
       if (!file.type.startsWith("image/")) return;
+      if (images.length >= MAX_IMAGES) {
+        showToast.warning(`Maximum ${MAX_IMAGES} images allowed`);
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => { if (typeof reader.result === "string") onAdd(reader.result); };
       reader.readAsDataURL(file);
@@ -136,7 +146,6 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
     <div className="space-y-2.5">
       {lightbox && (
         <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center" onClick={() => setLightbox(null)}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={lightbox} alt="Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl" />
           <button type="button" onClick={() => setLightbox(null)} className="absolute top-4 right-4 rounded-full bg-white/20 text-white p-2 hover:bg-white/40 transition-colors">
             <X className="h-5 w-5" />
@@ -147,25 +156,32 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
       <Label className="text-sm font-medium flex items-center gap-2">
         <ImageIcon className="h-4 w-4 text-muted-foreground" />
         Location Images
-        <span className="text-muted-foreground text-xs font-normal">(optional)</span>
+        <span className="text-muted-foreground text-xs font-normal">({images.length}/{MAX_IMAGES})</span>
       </Label>
 
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
         {images.map((img, idx) => (
-          <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border bg-muted cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setLightbox(img.imageUrl)}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img.imageUrl} alt={`Location ${idx + 1}`} className="w-full h-full object-cover" />
+          <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border bg-muted cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setLightbox(img.imageUrl)}>
+            <Image
+              src={img.imageUrl}
+              alt={`Location ${idx + 1}`}
+              fill
+              className="object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+              }}
+            />
             {!disabled && (
-              <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(idx); }} className="absolute top-1 right-1 rounded-full bg-destructive/90 text-white p-0.5 hover:bg-destructive transition-colors">
+              <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(idx); }} className="absolute top-0.5 right-0.5 rounded-full bg-destructive/90 text-white p-0.5 hover:bg-destructive transition-colors">
                 <X className="h-3 w-3" />
               </button>
             )}
           </div>
         ))}
-        {!disabled && (
-          <button type="button" onClick={() => inputRef.current?.click()} className="aspect-square rounded-xl border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center gap-1.5 transition-colors text-muted-foreground hover:text-primary">
-            <Upload className="h-4 w-4" />
-            <span className="text-xs font-medium">Add</span>
+        {!disabled && canAddMore && (
+          <button type="button" onClick={() => inputRef.current?.click()} className="aspect-square rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center gap-1 transition-colors text-muted-foreground hover:text-primary">
+            <Upload className="h-3.5 w-3.5" />
+            <span className="text-[10px] font-medium">Add</span>
           </button>
         )}
       </div>
@@ -193,7 +209,9 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   // Map refs
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const fullscreenMapContainerRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
+  const fullscreenMapRef = useRef<google.maps.Map | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const fullscreenSearchRef = useRef<HTMLInputElement>(null);
   const fullscreenAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -202,6 +220,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   const [isMapReady, setIsMapReady] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isFullScreenMapReady, setIsFullScreenMapReady] = useState(false);
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
@@ -211,7 +230,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const [geocodedCoords, setGeocodedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geocodeSuccess, setGeocodeSuccess] = useState(false);
 
-  const { control, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<LocationFormData>({
+  const { control, handleSubmit, reset, setValue, watch, getValues, formState: { errors, isDirty } } = useForm<LocationFormData>({
     resolver: zodResolver(createLocationSchema) as any,
     defaultValues: {
       label: "", latitude: 0, longitude: 0,
@@ -232,7 +251,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const addressPreview = useMemo(() => {
     const parts = [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")].filter(Boolean);
     return parts.length > 0 ? parts.join(", ") : null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")]);
 
   // Reset on open
@@ -256,7 +274,16 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   // Load Google Maps as soon as modal opens
   useEffect(() => {
-    if (!isOpen) { setIsMapReady(false); setIsFullScreen(false); setMapError(null); return; }
+    if (!isOpen) {
+      setIsMapReady(false);
+      setIsFullScreen(false);
+      setMapError(null);
+      // Clean up map refs when modal closes
+      googleMapRef.current = null;
+      geocoderRef.current = null;
+      fullscreenAutocompleteRef.current = null;
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -308,7 +335,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       if (place.geometry?.location) {
         map.setCenter(place.geometry.location);
         map.setZoom(17);
-        // Update coords and reverse-geocode after autocomplete selection
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
         setValueRef.current("latitude", lat, { shouldDirty: true });
@@ -330,7 +356,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     googleMapRef.current = map;
     geocoderRef.current = new google.maps.Geocoder();
 
-    // dragstart / dragend — only trigger geocoding on explicit drag
     map.addListener("dragstart", () => setIsDragging(true));
     map.addListener("dragend", () => {
       const center = map.getCenter();
@@ -345,11 +370,9 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
     setValueRef.current("latitude", lat, { shouldDirty: true });
     setValueRef.current("longitude", lng, { shouldDirty: true });
-    // Reverse-geocode on initial load to populate address fields
     reverseGeocode(lat, lng);
   }, [reverseGeocode]);
 
-  // Init map once when ready
   useEffect(() => {
     if (!isMapReady || !mapContainerRef.current) return;
     if (googleMapRef.current) return;
@@ -358,30 +381,90 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     initMap(mapContainerRef.current, lat, lng);
     return () => {
       if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
-      googleMapRef.current = null; geocoderRef.current = null;
-      fullscreenAutocompleteRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapReady]);
 
-  // Toggle gesture handling & zoom control when entering/leaving fullscreen
   useEffect(() => {
     const map = googleMapRef.current;
     if (!map || !isMapReady) return;
-    map.setOptions({
-      gestureHandling: isFullScreen ? "greedy" : "none",
-      zoomControl: isFullScreen,
-    });
-    const t = setTimeout(() => {
-      google.maps.event.trigger(map, "resize");
-      const c = map.getCenter();
-      if (c) map.setCenter(c);
-      if (isFullScreen && fullscreenSearchRef.current && google.maps.places) {
-        setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
-      }
-    }, 100);
-    return () => clearTimeout(t);
-  }, [isFullScreen, selectionMode, isMapReady, setupAutocomplete]);
+
+    if (isFullScreen && fullscreenMapContainerRef.current) {
+      setIsFullScreenMapReady(false);
+      // Get current center and zoom from modal map
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+
+      // Reinitialize map in fullscreen container
+      const fullscreenMap = new google.maps.Map(fullscreenMapContainerRef.current, {
+        center: center || { lat: 11.5564, lng: 104.9282 },
+        zoom: zoom || 15,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: true,
+        gestureHandling: "greedy",
+      });
+
+      // Add same listeners to fullscreen map
+      fullscreenMap.addListener("dragstart", () => setIsDragging(true));
+      fullscreenMap.addListener("dragend", () => {
+        const c = fullscreenMap.getCenter();
+        if (!c) return;
+        const lat = c.lat();
+        const lng = c.lng();
+        setValueRef.current("latitude", lat, { shouldDirty: true });
+        setValueRef.current("longitude", lng, { shouldDirty: true });
+        setIsDragging(false);
+        if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+        geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 400);
+      });
+
+      fullscreenMapRef.current = fullscreenMap;
+
+      // Trigger resize and setup autocomplete after DOM is ready
+      const t = setTimeout(() => {
+        google.maps.event.trigger(fullscreenMap, "resize");
+        if (center) fullscreenMap.setCenter(center);
+        setIsFullScreenMapReady(true);
+        if (fullscreenSearchRef.current && google.maps.places) {
+          setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
+        }
+      }, 100);
+
+      return () => clearTimeout(t);
+    } else if (!isFullScreen) {
+      setIsFullScreenMapReady(false);
+      // Clean up fullscreen map when exiting
+      fullscreenMapRef.current = null;
+
+      // Reinitialize modal map with current coordinates from form
+      const t = setTimeout(() => {
+        if (mapContainerRef.current) {
+          // Clear the container
+          mapContainerRef.current.innerHTML = "";
+          // Get current coordinates from form or fullscreen map
+          const currentLat = latitude || map.getCenter()?.lat() || 11.5564;
+          const currentLng = longitude || map.getCenter()?.lng() || 104.9282;
+          // Reinitialize the map
+          googleMapRef.current = null;
+          initMap(mapContainerRef.current, currentLat, currentLng);
+        }
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [isFullScreen, isMapReady, setupAutocomplete, reverseGeocode]);
+
+  // Handle tab switching - trigger resize when switching to map mode
+  useEffect(() => {
+    if (selectionMode === "map" && googleMapRef.current) {
+      const t = setTimeout(() => {
+        google.maps.event.trigger(googleMapRef.current, "resize");
+        const center = googleMapRef.current.getCenter();
+        if (center) googleMapRef.current.setCenter(center);
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [selectionMode]);
 
   const handleMyLocation = useCallback(() => {
     if (!navigator.geolocation) { showToast.error("Geolocation not supported"); return; }
@@ -455,13 +538,31 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   const onSubmit = async (data: LocationFormData) => {
     try {
+      // Upload location images if they're base64
+      const processedImages = await Promise.all(
+        (data.locationImages ?? []).map(async (img) => {
+          let imageUrl = img.imageUrl;
+          if (imageUrl && isBase64Image(imageUrl)) {
+            try {
+              imageUrl = await uploadImage(imageUrl);
+            } catch (error) {
+              console.error("Failed to upload image:", error);
+              return null;
+            }
+          }
+          return { imageUrl };
+        })
+      );
+
+      const validImages = processedImages.filter((img) => img !== null);
+
       const payload = {
         label: data.label, latitude: data.latitude, longitude: data.longitude,
         houseNumber: data.houseNumber || "", streetNumber: data.streetNumber || "",
         village: data.village || "", commune: data.commune || "",
         district: data.district || "", province: data.province || "",
         country: data.country || "", note: data.note || "",
-        isPrimary: data.isPrimary, locationImages: data.locationImages ?? [],
+        isPrimary: data.isPrimary, locationImages: validImages,
       };
       if (isCreate) { await create(payload).unwrap(); showToast.success("Location created"); }
       else { await update({ locationId: editData!.id, locationData: payload }).unwrap(); showToast.success("Location updated"); }
@@ -484,209 +585,172 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   };
 
   // ---------------------------------------------------------------------------
-  // Render
+  // Fullscreen map overlay
+  // ---------------------------------------------------------------------------
+  if (isFullScreen) {
+    return (
+      <div className="fixed inset-0 z-[201] flex flex-col bg-white">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between px-4 py-3 border-b bg-background shrink-0 gap-3 shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2 rounded-lg bg-primary/10 shrink-0">
+              <MapPin className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-sm font-semibold block">Select on Map</span>
+              {hasCoords && (
+                <span className="text-xs font-mono text-muted-foreground">
+                  {latitude.toFixed(5)}, {longitude.toFixed(5)}
+                  {isReverseGeocoding && <Loader2 className="inline-block h-3 w-3 ml-1 animate-spin" />}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button type="button" variant="outline" size="sm" onClick={handleMyLocation} className="gap-1 h-9">
+              <LocateFixed className="h-4 w-4" />
+              <span className="hidden sm:inline">My Location</span>
+            </Button>
+            <Button type="button" variant="default" size="sm" onClick={() => setIsFullScreen(false)} className="gap-1 h-9">
+              <Minimize2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Done</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Search bar */}
+        <div className="px-4 py-3 border-b bg-background/95 backdrop-blur shrink-0">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input ref={fullscreenSearchRef} type="text" placeholder="Search for a place, address…" className="pl-9 h-10 rounded-lg text-sm w-full" autoComplete="off" />
+          </div>
+        </div>
+
+        {/* Map container */}
+        <div className="flex-1 relative bg-gray-100">
+          {!isFullScreenMapReady && (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted/80 z-10">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">Loading map…</span>
+              </div>
+            </div>
+          )}
+          <CenterPin isDragging={isDragging} size="h-10 w-10" />
+          <div ref={fullscreenMapContainerRef} className="w-full h-full bg-white" />
+          {/* Address display */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/95 backdrop-blur-sm border rounded-xl px-6 py-4 shadow-lg w-[90%] max-w-2xl">
+            <div className="flex items-start gap-3">
+              <MapPin className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                {addressPreview && (
+                  <p className="text-base font-semibold text-foreground leading-relaxed break-words">
+                    {addressPreview}
+                  </p>
+                )}
+                <p className="text-sm font-mono text-muted-foreground mt-2 flex items-center gap-2">
+                  {latitude.toFixed(6)}, {longitude.toFixed(6)}
+                  {isReverseGeocoding && <Loader2 className="h-3 w-3 animate-spin shrink-0" />}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Main modal render
   // ---------------------------------------------------------------------------
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      {/* ── Fullscreen map overlay (fixed, on top of dialog) ── */}
-      {isFullScreen && (
-        <div className="fixed inset-0 z-[201] flex flex-col pointer-events-none">
-          {/* Toolbar */}
-          <div className="flex items-center justify-between px-4 py-3.5 border-b bg-background shrink-0 gap-3 shadow-sm pointer-events-auto">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="p-2 rounded-xl bg-primary/10 shrink-0">
-                <MapPin className="h-4 w-4 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-sm font-semibold block">Select on Map</span>
-                {hasCoords && (
-                  <span className="text-xs font-mono text-muted-foreground">
-                    {latitude.toFixed(5)}, {longitude.toFixed(5)}
-                    {isReverseGeocoding && <Loader2 className="inline-block h-3 w-3 ml-1 animate-spin" />}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button type="button" variant="outline" size="sm" onClick={handleMyLocation} className="gap-1.5 rounded-xl">
-                <LocateFixed className="h-4 w-4" />
-                <span className="hidden sm:inline">My Location</span>
-              </Button>
-              <Button type="button" variant="default" size="sm" onClick={() => setIsFullScreen(false)} className="gap-1.5 rounded-xl">
-                <Minimize2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Done</span>
-              </Button>
-            </div>
-          </div>
-
-          {/* Search bar */}
-          <div className="px-4 py-2.5 border-b bg-background/95 backdrop-blur shrink-0 pointer-events-auto">
-            <div className="relative max-w-lg mx-auto">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input ref={fullscreenSearchRef} type="text" placeholder="Search for a place, address…" className="pl-10 h-10 rounded-xl bg-muted/50" autoComplete="off" />
-            </div>
-          </div>
-
-          {/* Center of map: pin + coords badge */}
-          <div className="flex-1 relative">
-            <CenterPin isDragging={isDragging} size="h-10 w-10" />
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 shadow-lg pointer-events-auto flex items-center gap-2 text-xs">
-              <MapPin className="h-3 w-3 text-red-500 shrink-0" />
-              <span className="font-mono">
-                {latitude.toFixed(6)}, {longitude.toFixed(6)}
-              </span>
-              {isReverseGeocoding && <Loader2 className="h-3 w-3 animate-spin shrink-0" />}
-            </div>
-          </div>
-        </div>
-      )}
-
       <DialogContent
-        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-2xl lg:max-w-3xl max-h-[95dvh] rounded-t-2xl sm:rounded-2xl"
+        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-3xl lg:max-w-5xl max-h-[95dvh] rounded-2xl"
         onInteractOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
         onPointerDownOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
       >
-        <DialogTitle className="sr-only">
-          {isCreate ? "Add New Location" : "Edit Location"}
-        </DialogTitle>
+        <FormHeader
+          title={isCreate ? "Add Location" : "Edit Location"}
+          description={isCreate ? "Pin on map or select from address list" : "Update your location details"}
+          isCreate={isCreate}
+        />
 
-        {/* ── Header with tabs ── */}
-        <div className="shrink-0">
-          {/* Gradient accent bar */}
-          <div className={cn("h-1 w-full", isCreate
-            ? "bg-gradient-to-r from-primary/70 via-primary to-primary/50"
-            : "bg-gradient-to-r from-amber-400 via-amber-500 to-amber-300"
-          )} />
-
-          {/* Title row */}
-          <div className="px-5 pt-4 pb-0 flex items-center gap-3">
-            <div className={cn("p-2.5 rounded-xl shrink-0", isCreate ? "bg-primary/10" : "bg-amber-100 dark:bg-amber-900/30")}>
-              <MapPin className={cn("h-5 w-5", isCreate ? "text-primary" : "text-amber-600 dark:text-amber-400")} />
-            </div>
-            <div className="min-w-0">
-              <h2 className="text-base font-bold leading-none">
-                {isCreate ? "Add New Location" : "Edit Location"}
-              </h2>
-              <p className="text-xs text-muted-foreground mt-1">
-                {isCreate ? "Pin on map or pick from address list" : "Update your location details"}
-              </p>
-            </div>
-          </div>
-
-          {/* Tab navigation */}
-          <div className="flex mt-3 border-b px-2">
-            {(["map", "select"] as SelectionMode[]).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => handleModeChange(mode)}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px rounded-t-lg",
-                  selectionMode === mode
-                    ? "border-primary text-primary bg-primary/5"
-                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                )}
-              >
-                {mode === "map"
-                  ? <><Map className="h-4 w-4" /> Map</>
-                  : <><ListFilter className="h-4 w-4" /> Location Selector</>}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Form with full-body scroll ── */}
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
-          {/* Scrollable body — map preview + all form fields scroll together */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+          <FormBody contentClassName="space-y-5">
             {/* Error banner */}
             {reduxError && (
-              <div className="p-3.5 bg-destructive/10 border border-destructive/30 rounded-xl">
-                <p className="text-sm text-destructive font-medium">{reduxError}</p>
+              <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive font-medium">
+                {reduxError}
               </div>
             )}
 
-            {/* ── Map section ── */}
-            {selectionMode === "map" && (
-              <div className="space-y-2.5">
-                {/* Map canvas — fixed inset-0 z-[200] when fullscreen, h-[220px] in flow otherwise */}
-                <div
+            {/* Mode selector tabs */}
+            <div className="flex border-b -mx-6 px-6">
+              {(["map", "select"] as SelectionMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => handleModeChange(mode)}
                   className={cn(
-                    isFullScreen
-                      ? "fixed inset-0 z-[200]"
-                      : "relative h-[220px] rounded-xl overflow-hidden border"
+                    "flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px rounded-t-lg",
+                    selectionMode === mode
+                      ? "border-primary text-primary bg-primary/5"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
+                  {mode === "map" ? <><Map className="h-4 w-4" /> Map</> : <><ListFilter className="h-4 w-4" /> Select</>}
+                </button>
+              ))}
+            </div>
+
+            {/* Map section */}
+            <div className={cn(selectionMode !== "map" && "hidden")}>
+              <div className="space-y-3">
+                <div className="relative h-64 rounded-lg overflow-hidden border bg-muted">
                   <div ref={mapContainerRef} className="w-full h-full" />
-
-                  {/* Normal-mode overlays (hidden when fullscreen because map is fixed) */}
-                  {!isFullScreen && (
-                    <>
-                      {/* Click overlay → open fullscreen */}
-                      <div
-                        className="absolute inset-0 group cursor-pointer flex items-end justify-center pb-3"
-                        onClick={() => setIsFullScreen(true)}
-                      >
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.06] transition-colors duration-150" />
-                        <div className="relative z-10 bg-background/95 backdrop-blur-sm border shadow-lg rounded-xl px-4 py-2 flex items-center gap-2 group-hover:shadow-xl transition-all group-hover:scale-105 duration-200">
-                          <Maximize2 className="h-4 w-4 text-primary" />
-                          <span className="text-sm font-medium text-foreground">Click to open full-screen map</span>
-                        </div>
+                  {!isMapReady && !mapError && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        <span className="text-sm text-muted-foreground">Loading map…</span>
                       </div>
-
-                      <CenterPin isDragging={isDragging} size="h-8 w-8" />
-
-                      {/* Loading skeleton */}
-                      {!isMapReady && !mapError && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-muted/80 pointer-events-none">
-                          <div className="flex flex-col items-center gap-2">
-                            <Loader2 className="h-7 w-7 animate-spin text-primary" />
-                            <span className="text-sm text-muted-foreground">Loading map…</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Error state */}
-                      {mapError && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-yellow-50/90 pointer-events-none">
-                          <div className="text-center px-4">
-                            <AlertTriangle className="h-6 w-6 text-yellow-600 mx-auto mb-1.5" />
-                            <p className="text-sm font-medium text-yellow-800">Map unavailable</p>
-                            <p className="text-xs text-yellow-700 mt-0.5">Check your API key configuration</p>
-                          </div>
-                        </div>
-                      )}
-                    </>
+                    </div>
                   )}
+                  {mapError && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-yellow-50/90">
+                      <div className="text-center">
+                        <AlertTriangle className="h-5 w-5 text-yellow-600 mx-auto mb-1" />
+                        <p className="text-sm font-medium text-yellow-800">Map unavailable</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 group cursor-pointer" onClick={() => setIsFullScreen(true)}>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm border rounded-lg px-3 py-1.5 text-xs text-foreground flex items-center gap-1.5 shadow-sm group-hover:shadow-md transition-all">
+                      <Maximize2 className="h-3.5 w-3.5 text-primary" />
+                      Click to expand
+                    </div>
+                  </div>
+                  <CenterPin isDragging={isDragging} size="h-8 w-8" />
                 </div>
 
-                {/* Coordinates badge */}
                 {hasCoords && (
-                  <div className="flex items-center justify-between bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl px-3.5 py-2.5">
-                    <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400">
-                      <CheckCircle2 className="h-4 w-4 shrink-0" />
-                      <span className="font-mono text-xs">{latitude.toFixed(6)}, {longitude.toFixed(6)}</span>
-                      {isReverseGeocoding && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    </div>
-                    <Badge variant="secondary" className="text-xs">Pin set</Badge>
+                  <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
+                    <span className="text-xs font-mono text-green-700 dark:text-green-400 flex-1">{latitude.toFixed(6)}, {longitude.toFixed(6)}</span>
+                    <Badge variant="secondary" className="text-xs">Set</Badge>
                   </div>
                 )}
 
-                {/* Hint when no coords */}
-                {!hasCoords && (
-                  <button
-                    type="button"
-                    onClick={() => setIsFullScreen(true)}
-                    className="w-full flex items-center gap-2 justify-center py-2.5 text-sm text-muted-foreground border-2 border-dashed rounded-xl hover:border-primary hover:text-primary hover:bg-primary/5 transition-all"
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                    Open full-screen map to drop a pin
-                  </button>
-                )}
+                <Button type="button" variant="outline" onClick={handleMyLocation} className="w-full gap-2" disabled={isSubmitting}>
+                  <LocateFixed className="h-4 w-4" />
+                  Use My Location
+                </Button>
               </div>
-            )}
+            </div>
 
-            {/* ── Location Selector tab ── */}
+            {/* Location selector tab */}
             {selectionMode === "select" && (
               <LocationSelectTab
                 selectedProvince={selectedProvince}
@@ -705,22 +769,8 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
               />
             )}
 
-            {/* ── Address Details ── */}
-            <div className="pt-1 border-t space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-muted shrink-0">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold leading-none">Address Details</h3>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {selectionMode === "map"
-                      ? "Auto-filled from map pin — edit if needed"
-                      : "Add house / street number for precise delivery"}
-                  </p>
-                </div>
-              </div>
-
+            {/* Address details section */}
+            <div className="space-y-4 pt-3 border-t">
               <TextField control={control} name="label" label="Label" placeholder="e.g., Home, Office, Shop" required disabled={isSubmitting} error={errors.label} />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -732,37 +782,34 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
                     <TextField control={control} name="commune" label="Commune / City" placeholder="Auto-filled" required disabled={isSubmitting} error={errors.commune} />
                     <TextField control={control} name="district" label="District / Khan" placeholder="Auto-filled" disabled={isSubmitting} error={errors.district} />
                     <TextField control={control} name="province" label="Province" placeholder="Auto-filled" disabled={isSubmitting} error={errors.province} />
-                    <TextField control={control} name="country" label="Country" placeholder="Auto-filled" disabled={isSubmitting} error={errors.country} />
                   </>
                 )}
               </div>
 
-              <TextareaField control={control} name="note" label="Note" placeholder="Delivery instructions or extra details" rows={3} disabled={isSubmitting} error={errors.note} />
+              <TextareaField control={control} name="note" label="Notes" placeholder="Delivery instructions…" rows={2} disabled={isSubmitting} error={errors.note} />
 
-              {/* isPrimary star toggle */}
+              {/* Primary location toggle */}
               <button
                 type="button"
                 onClick={() => setValue("isPrimary", !isPrimaryValue, { shouldDirty: true })}
                 disabled={isSubmitting}
                 className={cn(
-                  "w-full flex items-center gap-4 rounded-2xl border-2 p-4 text-left transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "w-full flex items-center gap-3 rounded-lg border-2 p-3 text-left transition-all focus:outline-none",
                   isPrimaryValue
-                    ? "border-amber-300 bg-amber-50/70 dark:bg-amber-950/20 dark:border-amber-700"
-                    : "border-border bg-muted/20 hover:border-primary/30 hover:bg-muted/40"
+                    ? "border-amber-300 bg-amber-50/50 dark:bg-amber-950/20"
+                    : "border-border hover:border-primary/30 hover:bg-muted/30"
                 )}
               >
-                <div className={cn("p-2.5 rounded-xl transition-colors shrink-0", isPrimaryValue ? "bg-amber-100 dark:bg-amber-900/40" : "bg-muted")}>
-                  <Star className={cn("h-5 w-5 transition-all duration-200", isPrimaryValue ? "text-amber-500 fill-amber-500 scale-110" : "text-muted-foreground")} />
+                <div className={cn("p-2 rounded-lg shrink-0", isPrimaryValue ? "bg-amber-100 dark:bg-amber-900/40" : "bg-muted")}>
+                  <Star className={cn("h-4 w-4", isPrimaryValue ? "text-amber-500 fill-amber-500" : "text-muted-foreground")} />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className={cn("text-sm font-semibold", isPrimaryValue ? "text-amber-700 dark:text-amber-400" : "text-foreground")}>
                     {isPrimaryValue ? "Primary Location" : "Set as Primary"}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {isPrimaryValue ? "This is your default delivery address" : "Mark as your default delivery address"}
-                  </p>
+                  <p className="text-xs text-muted-foreground">Default address for deliveries</p>
                 </div>
-                {isPrimaryValue && <CheckCircle2 className="h-5 w-5 text-amber-500 shrink-0" />}
+                {isPrimaryValue && <CheckCircle2 className="h-4 w-4 text-amber-500 shrink-0" />}
               </button>
 
               {/* Location images */}
@@ -773,11 +820,11 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
                 disabled={isSubmitting}
               />
             </div>
-          </div>
+          </FormBody>
 
-          <FormFooter isSubmitting={isSubmitting} isDirty={isDirty} isCreate={isCreate} createMessage="Creating location..." updateMessage="Updating location...">
+          <FormFooter isSubmitting={isSubmitting} isDirty={isDirty} isCreate={isCreate} createMessage="Creating location…" updateMessage="Updating location…">
             <CancelButton onClick={handleClose} disabled={isSubmitting} />
-            <SubmitButton isSubmitting={isSubmitting} isDirty={isDirty} isCreate={isCreate} createText="Add Location" updateText="Update Location" submittingCreateText="Creating..." submittingUpdateText="Updating..." />
+            <SubmitButton isSubmitting={isSubmitting} isDirty={isDirty} isCreate={isCreate} createText="Add Location" updateText="Update" submittingCreateText="Creating…" submittingUpdateText="Updating…" />
           </FormFooter>
         </form>
       </DialogContent>

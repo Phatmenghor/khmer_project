@@ -159,10 +159,13 @@ export function ComboboxSelectDelivery({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between px-4 py-2 h-11 text-sm",
+              "w-full justify-between px-4 py-2 h-11 text-sm transition-all duration-200 border-input",
               !dataSelect && "text-muted-foreground",
-              disabled && "opacity-50 cursor-not-allowed",
-              error && "border-red-500"
+              "hover:bg-primary/10 hover:border-primary hover:text-primary",
+              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+              open && "bg-primary/20 border-primary text-primary",
+              error && "border-red-500",
+              disabled && "opacity-50 cursor-not-allowed"
             )}
             disabled={disabled}
           >
@@ -178,7 +181,7 @@ export function ComboboxSelectDelivery({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
+          className="w-[var(--radix-popover-trigger-width)] p-0 shadow-lg border-border"
           align="start"
           side="bottom"
           sideOffset={4}

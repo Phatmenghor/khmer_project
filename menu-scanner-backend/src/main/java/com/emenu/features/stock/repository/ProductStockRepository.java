@@ -101,6 +101,18 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     """)
     List<Object[]> sumOnHandQuantityByProductIds(@Param("productIds") List<UUID> productIds);
 
+    /**
+     * Get total quantity on hand for a specific product size ID (for size-level stock enrichment).
+     */
+    @Query("""
+        SELECT COALESCE(SUM(ps.quantityOnHand), 0)
+        FROM ProductStock ps
+        WHERE ps.productSizeId = :productSizeId
+            AND ps.isExpired = false
+            AND ps.status = 'ACTIVE'
+    """)
+    Integer sumOnHandQuantityByProductSizeId(@Param("productSizeId") UUID productSizeId);
+
     // ========== Stock Status Queries ==========
     @Query("""
         SELECT ps FROM ProductStock ps
@@ -147,32 +159,41 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     Page<ProductStock> findByBusinessId(UUID businessId, Pageable pageable);
 
     @Query(value = """
-        SELECT * FROM product_stock ps
+        SELECT ps.* FROM product_stock ps
+        LEFT JOIN products p ON ps.product_id = p.id
         WHERE ps.business_id = :businessId
             AND (CAST(:productId AS uuid) IS NULL OR ps.product_id = :productId)
             AND (CAST(:productSizeId AS uuid) IS NULL OR ps.product_size_id = :productSizeId)
-            AND (CAST(:status AS text) IS NULL OR ps.status = :status)
+            AND (CAST(:status AS text) IS NULL OR p.status = :status)
+            AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
             AND (CAST(:lowStockThreshold AS integer) IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
             AND (CAST(:expiredBefore AS timestamp) IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore))
-            AND (CAST(:search AS text) IS NULL OR CAST(ps.location AS text) ILIKE '%' || CAST(:search AS text) || '%')
-        ORDER BY ps.date_in DESC NULLS LAST, ps.created_at DESC
+            AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
     """,
     countQuery = """
         SELECT COUNT(*) FROM product_stock ps
+        LEFT JOIN products p ON ps.product_id = p.id
         WHERE ps.business_id = :businessId
             AND (CAST(:productId AS uuid) IS NULL OR ps.product_id = :productId)
             AND (CAST(:productSizeId AS uuid) IS NULL OR ps.product_size_id = :productSizeId)
-            AND (CAST(:status AS text) IS NULL OR ps.status = :status)
+            AND (CAST(:status AS text) IS NULL OR p.status = :status)
+            AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
             AND (CAST(:lowStockThreshold AS integer) IS NULL OR ps.quantity_on_hand < :lowStockThreshold)
             AND (CAST(:expiredBefore AS timestamp) IS NULL OR (ps.expiry_date IS NOT NULL AND ps.expiry_date <= :expiredBefore))
-            AND (CAST(:search AS text) IS NULL OR CAST(ps.location AS text) ILIKE '%' || CAST(:search AS text) || '%')
+            AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
     """,
     nativeQuery = true)
+    /**
+     * Find product stocks with filtering and sorting.
+     * Pagination and sorting are handled by Spring Data Pageable (no hardcoded ORDER BY).
+     * Supports sorting by: date_in, created_at, updated_at, quantity_on_hand, etc.
+     */
     Page<ProductStock> findWithFilters(
         @Param("businessId") UUID businessId,
         @Param("productId") UUID productId,
         @Param("productSizeId") UUID productSizeId,
         @Param("status") String status,
+        @Param("stockStatus") String stockStatus,
         @Param("lowStockThreshold") Integer lowStockThreshold,
         @Param("expiredBefore") LocalDateTime expiredBefore,
         @Param("search") String search,
@@ -203,4 +224,233 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     );
 
     Long countByBusinessIdAndIsExpiredTrue(UUID businessId);
+
+    // ========== Product Stock Items (Flat List) Query ==========
+    /**
+     * Get flattened product stock items for listing (products and sizes as separate items).
+     * Returns a flat list where:
+     * - Products without sizes: 1 item per product (type=PRODUCT, sizeName=null)
+     * - Products with sizes: 1 item per size (type=SIZE, sizeName=size name)
+     * Each item contains aggregated stock data (summed from all batches of that product/size).
+     */
+    @Query(value = """
+        SELECT * FROM (
+            (
+                -- Products without sizes
+                SELECT
+                    p.id as product_id,
+                    NULL::uuid as product_size_id,
+                    p.name as product_name,
+                    p.description,
+                    p.category_id,
+                    p.category_name,
+                    p.brand_id,
+                    p.brand_name,
+                    p.sku,
+                    p.barcode,
+                    NULL::varchar as size_name,
+                    p.price,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_price
+                        ELSE p.price
+                    END::decimal as display_price,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_promotion_type
+                        ELSE NULL
+                    END::varchar as display_promotion_type,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_promotion_value
+                        ELSE NULL
+                    END::decimal as display_promotion_value,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_promotion_from_date
+                        ELSE NULL
+                    END as display_promotion_from_date,
+                    CASE
+                        WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                            AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                            AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
+                        THEN p.display_promotion_to_date
+                        ELSE NULL
+                    END as display_promotion_to_date,
+                    (p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
+                        AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
+                        AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)) as has_promotion,
+                    COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
+                    COALESCE(SUM(ps.quantity_on_hand - ps.quantity_reserved), 0)::bigint as quantity_available,
+                    COALESCE(SUM(ps.quantity_reserved), 0)::bigint as quantity_reserved,
+                    COALESCE(MAX(ps.quantity_on_hand), 0)::bigint as quantity_on_hand,
+                    p.main_image_url,
+                    p.status,
+                    p.stock_status,
+                    'PRODUCT'::varchar as item_type,
+                    COALESCE(MAX(ps.created_at), p.created_at) as created_at,
+                    COALESCE(MAX(ps.updated_at), p.updated_at) as updated_at
+                FROM products p
+                LEFT JOIN product_stock ps ON p.id = ps.product_id
+                    AND ps.is_expired = false
+                    AND ps.status = 'ACTIVE'
+                WHERE p.business_id = :businessId
+                    AND p.is_deleted = false
+                    AND p.has_sizes = false
+                    AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = false)
+                    AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                    AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                    AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                GROUP BY p.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, p.price, p.display_price, p.display_promotion_type, p.display_promotion_value, p.display_promotion_from_date, p.display_promotion_to_date, p.has_active_promotion, p.main_image_url, p.status, p.stock_status, p.created_at, p.updated_at
+                HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+            )
+            UNION ALL
+            (
+                -- Products with sizes (use ProductSize promotion fields)
+                SELECT
+                    p.id as product_id,
+                    psz.id as product_size_id,
+                    p.name as product_name,
+                    p.description,
+                    p.category_id,
+                    p.category_name,
+                    p.brand_id,
+                    p.brand_name,
+                    p.sku,
+                    p.barcode,
+                    psz.name as size_name,
+                    psz.price,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN CASE
+                            WHEN psz.promotion_type = 'PERCENTAGE' THEN (psz.price::numeric * (1 - psz.promotion_value / 100))::decimal
+                            ELSE (psz.price::numeric - psz.promotion_value)::decimal
+                        END
+                        ELSE psz.price
+                    END::decimal as display_price,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN psz.promotion_type
+                        ELSE NULL
+                    END::varchar as display_promotion_type,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN psz.promotion_value
+                        ELSE NULL
+                    END::decimal as display_promotion_value,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN psz.promotion_from_date
+                        ELSE NULL
+                    END as display_promotion_from_date,
+                    CASE
+                        WHEN psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                            AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                            AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)
+                        THEN psz.promotion_to_date
+                        ELSE NULL
+                    END as display_promotion_to_date,
+                    (psz.promotion_value IS NOT NULL AND psz.promotion_type IS NOT NULL
+                        AND (psz.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= psz.promotion_from_date)
+                        AND (psz.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= psz.promotion_to_date)) as has_promotion,
+                    COALESCE(SUM(ps.quantity_on_hand), 0)::bigint as total_stock,
+                    COALESCE(SUM(ps.quantity_on_hand - ps.quantity_reserved), 0)::bigint as quantity_available,
+                    COALESCE(SUM(ps.quantity_reserved), 0)::bigint as quantity_reserved,
+                    COALESCE(MAX(ps.quantity_on_hand), 0)::bigint as quantity_on_hand,
+                    p.main_image_url,
+                    p.status,
+                    p.stock_status,
+                    'SIZE'::varchar as item_type,
+                    COALESCE(MAX(ps.created_at), psz.created_at) as created_at,
+                    COALESCE(MAX(ps.updated_at), psz.updated_at) as updated_at
+                FROM products p
+                INNER JOIN product_sizes psz ON p.id = psz.product_id AND psz.is_deleted = false
+                LEFT JOIN product_stock ps ON p.id = ps.product_id
+                    AND psz.id = ps.product_size_id
+                    AND ps.is_expired = false
+                    AND ps.status = 'ACTIVE'
+                WHERE p.business_id = :businessId
+                    AND p.is_deleted = false
+                    AND p.has_sizes = true
+                    AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = true)
+                    AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                    AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                    AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, psz.price, psz.promotion_type, psz.promotion_value, psz.promotion_from_date, psz.promotion_to_date, p.main_image_url, p.status, p.stock_status, psz.created_at, psz.updated_at
+                HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+            )
+        ) AS result
+    """,
+    countQuery = """
+        SELECT COUNT(*) FROM (
+            (
+                -- Products without sizes
+                SELECT p.id
+                FROM products p
+                LEFT JOIN product_stock ps ON p.id = ps.product_id
+                    AND ps.is_expired = false
+                    AND ps.status = 'ACTIVE'
+                WHERE p.business_id = :businessId
+                    AND p.is_deleted = false
+                    AND p.has_sizes = false
+                    AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = false)
+                    AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                    AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                    AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                GROUP BY p.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, p.status, p.stock_status, p.created_at, p.updated_at
+                HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+            )
+            UNION ALL
+            (
+                -- Products with sizes
+                SELECT p.id
+                FROM products p
+                INNER JOIN product_sizes psz ON p.id = psz.product_id AND psz.is_deleted = false
+                LEFT JOIN product_stock ps ON p.id = ps.product_id
+                    AND psz.id = ps.product_size_id
+                    AND ps.is_expired = false
+                    AND ps.status = 'ACTIVE'
+                WHERE p.business_id = :businessId
+                    AND p.is_deleted = false
+                    AND p.has_sizes = true
+                    AND (CAST(:hasSizes AS boolean) IS NULL OR CAST(:hasSizes AS boolean) = true)
+                    AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
+                    AND (CAST(:status AS text) IS NULL OR p.status = :status)
+                    AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
+                GROUP BY p.id, psz.id, p.name, p.category_name, p.brand_name, p.sku, p.barcode, psz.name, p.status, p.stock_status, psz.created_at, psz.updated_at
+                HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
+            )
+        ) AS count_result
+    """,
+    nativeQuery = true)
+    /**
+     * Find product stock items with filtering and sorting.
+     * Wrapped in subquery to allow Spring Data Pageable to properly apply ORDER BY and pagination.
+     * Supports sorting by: product_name, total_stock, status, stock_status, sku, barcode, created_at, updated_at
+     */
+    Page<Object[]> findProductStockItems(
+        @Param("businessId") UUID businessId,
+        @Param("search") String search,
+        @Param("status") String status,
+        @Param("stockStatus") String stockStatus,
+        @Param("lowStockThreshold") Integer lowStockThreshold,
+        @Param("hasSizes") Boolean hasSizes,
+        Pageable pageable
+    );
 }

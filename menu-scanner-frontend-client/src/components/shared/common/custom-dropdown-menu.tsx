@@ -213,9 +213,9 @@ export function CustomDropdownMenu({
                       onClick={() => handleItemClick(item.onClick)}
                       className={cn(
                         "w-full flex items-center px-3 py-2 text-sm transition-colors cursor-pointer",
-                        "hover:bg-accent focus:bg-accent focus:outline-none",
+                        "hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary focus:outline-none",
                         item.variant === "destructive"
-                          ? "text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+                          ? "text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive"
                           : "text-foreground"
                       )}
                     >

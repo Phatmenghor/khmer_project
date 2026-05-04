@@ -28,23 +28,25 @@ import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderItem;
 import com.emenu.features.order.models.OrderDeliveryAddress;
 import com.emenu.features.order.models.OrderDeliveryOption;
-import com.emenu.features.order.models.OrderItemPricingSnapshot;
 import com.emenu.features.order.repository.OrderPaymentRepository;
 import com.emenu.features.order.repository.CartRepository;
 import com.emenu.features.order.repository.OrderRepository;
+import com.emenu.features.order.repository.OrderSpecification;
 import com.emenu.features.order.repository.OrderStatusHistoryRepository;
 import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
 import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
-import com.emenu.features.order.repository.OrderItemPricingSnapshotRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
+import com.emenu.features.location.repository.LocationRepository;
 import com.emenu.features.order.service.OrderService;
 import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.generate.ReferenceNumberGenerator;
+import com.emenu.shared.generate.OrderNumberGenerator;
 import com.emenu.shared.generate.PaymentReferenceGenerator;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -69,16 +71,18 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final DeliveryOptionRepository deliveryOptionRepository;
     private final ProductRepository productRepository;
+    private final LocationRepository locationRepository;
     private final OrderDeliveryAddressRepository orderDeliveryAddressRepository;
     private final OrderDeliveryOptionRepository orderDeliveryOptionRepository;
-    private final OrderItemPricingSnapshotRepository orderItemPricingSnapshotRepository;
     private final OrderMapper orderMapper;
     private final OrderPaymentMapper paymentMapper;
     private final SecurityUtils securityUtils;
     private final ReferenceNumberGenerator referenceNumberGenerator;
+    private final OrderNumberGenerator orderNumberGenerator;
     private final PaymentReferenceGenerator paymentReferenceGenerator;
     private final PaginationMapper paginationMapper;
     private final StockServiceImpl stockService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
@@ -100,22 +104,27 @@ public class OrderServiceImpl implements OrderService {
             Order savedOrder = orderRepository.save(order);
             log.info("✅ [ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
-            // Create delivery snapshots from request
-            if (request.getDeliveryAddress() != null) {
-                OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
-                deliveryAddress.setOrderId(savedOrder.getId());
-                deliveryAddress.setVillage(request.getDeliveryAddress().getVillage());
-                deliveryAddress.setCommune(request.getDeliveryAddress().getCommune());
-                deliveryAddress.setDistrict(request.getDeliveryAddress().getDistrict());
-                deliveryAddress.setProvince(request.getDeliveryAddress().getProvince());
-                deliveryAddress.setStreetNumber(request.getDeliveryAddress().getStreetNumber());
-                deliveryAddress.setHouseNumber(request.getDeliveryAddress().getHouseNumber());
-                deliveryAddress.setNote(request.getDeliveryAddress().getNote());
-                deliveryAddress.setLatitude(request.getDeliveryAddress().getLatitude());
-                deliveryAddress.setLongitude(request.getDeliveryAddress().getLongitude());
-                orderDeliveryAddressRepository.save(deliveryAddress);
-                log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for order: {}", savedOrder.getId());
+            // Create delivery snapshots from request - fetch address by ID
+            if (request.getAddressId() != null) {
+                OrderDeliveryAddress deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
+                if (deliveryAddress != null) {
+                    orderDeliveryAddressRepository.save(deliveryAddress);
+                    log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for order: {}", savedOrder.getId());
+                }
             }
+
+            // Set customer details
+            if (request.getCustomerName() != null) {
+                savedOrder.setCustomerName(request.getCustomerName());
+            }
+            if (request.getCustomerPhone() != null) {
+                savedOrder.setCustomerPhone(request.getCustomerPhone());
+            }
+            if (request.getCustomerEmail() != null) {
+                savedOrder.setCustomerEmail(request.getCustomerEmail());
+            }
+            // Save customer details
+            orderRepository.save(savedOrder);
 
             if (request.getDeliveryOption() != null) {
                 OrderDeliveryOption deliveryOption = new OrderDeliveryOption();
@@ -162,8 +171,7 @@ public class OrderServiceImpl implements OrderService {
             OrderResponse response = getOrderById(savedOrder.getId());
             log.info("🎉 [CHECKOUT COMPLETE] Order #{} - Total: {}, Items: {}",
                 response.getOrderNumber(),
-                response.getPricing() != null && response.getPricing().getAfter() != null ?
-                    response.getPricing().getAfter().getFinalTotal() : "N/A",
+                response.getPricing() != null ? response.getPricing().getFinalTotal() : "N/A",
                 response.getItems().size());
             return response;
         } catch (Exception e) {
@@ -247,16 +255,39 @@ public class OrderServiceImpl implements OrderService {
         log.debug("📑 [PAGINATION] PageNo: {}, PageSize: {}, SortBy: {}, Direction: {}",
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
 
-        // Apply filters: businessId, orderStatus, paymentMethod, paymentStatus
+        // Apply filters: businessId, orderStatus, paymentMethod, paymentStatus, date range
         log.debug("🗄️  [DB QUERY START] Executing filtered query with eager loading...");
+        if (filter.getStartDate() != null || filter.getEndDate() != null) {
+            log.debug("📅 [DATE RANGE FILTER] From: {}, To: {}", filter.getStartDate(), filter.getEndDate());
+        }
         long queryStartTime = System.currentTimeMillis();
-        Page<Order> page = orderRepository.findAllWithFilters(
+        LocalDateTime startDate = null;
+        if (filter.getStartDate() != null && !filter.getStartDate().isBlank()) {
+            try {
+                startDate = LocalDateTime.parse(filter.getStartDate());
+            } catch (Exception e) {
+                log.warn("Invalid start date format: {}", filter.getStartDate());
+            }
+        }
+
+        LocalDateTime endDate = null;
+        if (filter.getEndDate() != null && !filter.getEndDate().isBlank()) {
+            try {
+                endDate = LocalDateTime.parse(filter.getEndDate());
+            } catch (Exception e) {
+                log.warn("Invalid end date format: {}", filter.getEndDate());
+            }
+        }
+
+        var spec = OrderSpecification.buildFilterSpecification(
                 filter.getBusinessId(),
                 filter.getOrderStatus(),
                 filter.getPaymentMethod(),
                 filter.getPaymentStatus(),
-                pageable
+                startDate,
+                endDate
         );
+        Page<Order> page = orderRepository.findAll(spec, pageable);
         long queryDuration = System.currentTimeMillis() - queryStartTime;
         log.info("✅ [DB QUERY COMPLETE] Retrieved {} orders (query took {} ms) | Total: {} | Pages: {}",
                 page.getNumberOfElements(), queryDuration, page.getTotalElements(), page.getTotalPages());
@@ -341,11 +372,21 @@ public class OrderServiceImpl implements OrderService {
             order.setTotalAmount(order.getSubtotal().add(request.getDeliveryOption().getPrice()));
         }
 
-        if (request.getPaymentMethod() != null) {
-            order.setPaymentMethod(request.getPaymentMethod());
-        }
-        if (request.getPaymentStatus() != null) {
-            order.setPaymentStatus(request.getPaymentStatus());
+        if (request.getPayment() != null) {
+            if (request.getPayment().getPaymentMethod() != null) {
+                try {
+                    order.setPaymentMethod(PaymentMethod.valueOf(request.getPayment().getPaymentMethod()));
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid payment method: {}", request.getPayment().getPaymentMethod());
+                }
+            }
+            if (request.getPayment().getPaymentStatus() != null) {
+                try {
+                    order.setPaymentStatus(PaymentStatus.valueOf(request.getPayment().getPaymentStatus()));
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid payment status: {}", request.getPayment().getPaymentStatus());
+                }
+            }
         }
         if (request.getCustomerNote() != null) {
             order.setCustomerNote(request.getCustomerNote());
@@ -369,6 +410,12 @@ public class OrderServiceImpl implements OrderService {
                 item.setProductName(itemRequest.getProductName());
                 item.setProductImageUrl(itemRequest.getProductImageUrl());
                 item.setSizeName(itemRequest.getSizeName());
+
+                // Set SKU and barcode: prefer product master data, fallback to request data
+                Product product = productRepository.findById(itemRequest.getProductId()).orElse(null);
+                item.setSku(product != null && product.getSku() != null ? product.getSku() : itemRequest.getSku());
+                item.setBarcode(product != null && product.getBarcode() != null ? product.getBarcode() : itemRequest.getBarcode());
+
                 item.setCurrentPrice(itemRequest.getCurrentPrice());
                 item.setFinalPrice(itemRequest.getFinalPrice());
                 item.setUnitPrice(itemRequest.getUnitPrice());
@@ -391,21 +438,22 @@ public class OrderServiceImpl implements OrderService {
             order.setSubtotal(newSubtotal);
         }
 
-        // Full update fields
-        if (request.getDiscountAmount() != null) {
-            order.setDiscountAmount(request.getDiscountAmount());
-        }
-        if (request.getTaxAmount() != null) {
-            order.setTaxAmount(request.getTaxAmount());
-        }
-        if (request.getDeliveryFee() != null && request.getDeliveryOption() == null) {
-            // Only update delivery fee directly if delivery option is not provided
-            order.setDeliveryFee(request.getDeliveryFee());
+        // Full update fields (from pricing info if available)
+        if (request.getPricing() != null) {
+            if (request.getPricing().getDiscountAmount() != null) {
+                order.setDiscountAmount(request.getPricing().getDiscountAmount());
+            }
+            if (request.getPricing().getFinalTotal() != null) {
+                order.setTotalAmount(request.getPricing().getFinalTotal());
+            }
+            if (request.getPricing().getDeliveryFee() != null && request.getDeliveryOption() == null) {
+                // Only update delivery fee directly if delivery option is not provided
+                order.setDeliveryFee(request.getPricing().getDeliveryFee());
+            }
         }
 
         // Recalculate total amount if any pricing fields are updated or items changed
-        if (request.getItems() != null || request.getDiscountAmount() != null || request.getTaxAmount() != null ||
-            (request.getDeliveryFee() != null && request.getDeliveryOption() == null)) {
+        if (request.getItems() != null || request.getPricing() != null) {
             BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
             BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
             BigDecimal delivery = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
@@ -439,8 +487,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Order createBaseOrder(OrderCreateRequest request, UUID customerId) {
-        OrderCreateHelper helper = orderMapper.buildOrderHelper(request, customerId, generateOrderNumber());
-        return orderMapper.createFromHelper(helper);
+        // Generate order number with per-business counter (ORD-YYYYMMDD-XXXXX)
+        String orderNumber = orderNumberGenerator.generateOrderNumber(request.getBusinessId());
+        OrderCreateHelper helper = orderMapper.buildOrderHelper(request, customerId, orderNumber);
+        Order order = orderMapper.createFromHelper(helper);
+        // Set orderFrom to distinguish between CUSTOMER (checkout) and BUSINESS (POS) orders
+        if (request.getOrderFrom() != null) {
+            order.setOrderFrom(request.getOrderFrom());
+        }
+        return order;
     }
 
     private void createOrderItemsFromCart(UUID orderId, Cart cart) {
@@ -448,7 +503,16 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal discountAmount = BigDecimal.ZERO;
 
         for (var cartItem : cart.getItems()) {
+            // Get product for SKU/barcode
+            Product product = productRepository.findById(cartItem.getProductId())
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + cartItem.getProductId()));
+
             OrderItemCreateHelper helper = orderMapper.buildOrderItemHelperFromCartItem(cartItem, orderId);
+
+            // Set SKU and barcode from product master data (primary source)
+            helper.setSku(product.getSku());
+            helper.setBarcode(product.getBarcode());
+
             OrderItem orderItem = orderMapper.createOrderItemFromHelper(helper);
             orderItem.calculateTotalPrice();
 
@@ -508,11 +572,13 @@ public class OrderServiceImpl implements OrderService {
         for (var item : cartResponse.getItems()) {
             itemCount++;
 
-            // Use after snapshot for final pricing if available (new audit trail structure)
-            BigDecimal finalPrice = item.getAfter() != null ? item.getAfter().getFinalPrice() : item.getFinalPrice();
+            // Get product for SKU/barcode
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + item.getProductId()));
 
-            log.debug("📦 [ITEM {}] Product: {} (ID: {}), Qty: {}, Price: {}, HasChangeFromPOS: {}",
-                itemCount, item.getProductName(), item.getProductId(), item.getQuantity(), finalPrice, item.getHadChangeFromPOS());
+            BigDecimal finalPrice = item.getFinalPrice();
+            log.debug("📦 [ITEM {}] Product: {} (ID: {}), Qty: {}, Price: {}",
+                itemCount, item.getProductName(), item.getProductId(), item.getQuantity(), finalPrice);
 
             OrderItemCreateHelper helper = OrderItemCreateHelper.builder()
                     .orderId(orderId)
@@ -521,63 +587,20 @@ public class OrderServiceImpl implements OrderService {
                     .productName(item.getProductName())
                     .productImageUrl(item.getProductImageUrl())
                     .sizeName(item.getSizeName())
-                    // Use before snapshot for current price if available
-                    .currentPrice(item.getBefore() != null ? item.getBefore().getCurrentPrice() : item.getCurrentPrice())
                     .finalPrice(finalPrice)
                     .unitPrice(finalPrice)
-                    .hasPromotion(item.getAfter() != null ? item.getAfter().getHasActivePromotion() : item.getHasActivePromotion())
-                    .promotionType(item.getAfter() != null && item.getAfter().getPromotionType() != null ?
-                            item.getAfter().getPromotionType() : item.getPromotionType())
-                    .promotionValue(item.getAfter() != null ? item.getAfter().getPromotionValue() : item.getPromotionValue())
-                    .promotionFromDate(item.getAfter() != null ? item.getAfter().getPromotionFromDate() : null)
-                    .promotionToDate(item.getAfter() != null ? item.getAfter().getPromotionToDate() : null)
                     .quantity(item.getQuantity())
+                    .sku(product.getSku())
+                    .barcode(product.getBarcode())
                     .build();
 
             OrderItem orderItem = orderMapper.createOrderItemFromHelper(helper);
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
                     finalPrice.multiply(new BigDecimal(item.getQuantity())));
 
-            // Store audit trail - always set hadChangeFromPOS (true/false, never null)
-            orderItem.setHadChangeFromPOS(item.getHadChangeFromPOS() != null && item.getHadChangeFromPOS());
-
             orderItem.setOrder(order);
             order.getItems().add(orderItem);
 
-            // Save the order item first to get its ID for creating the pricing snapshot
-            orderRepository.save(order);
-
-            // Create pricing snapshot with before/after snapshots
-            OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
-            snapshot.setOrderItemId(orderItem.getId());
-
-            // Store before snapshot fields
-            if (item.getBefore() != null) {
-                snapshot.setBeforeCurrentPrice(item.getBefore().getCurrentPrice());
-                snapshot.setBeforeFinalPrice(item.getBefore().getFinalPrice());
-                snapshot.setBeforeHasActivePromotion(item.getBefore().getHasActivePromotion());
-                snapshot.setBeforeDiscountAmount(item.getBefore().getDiscountAmount());
-                snapshot.setBeforeTotalPrice(item.getBefore().getTotalPrice());
-                snapshot.setBeforePromotionType(item.getBefore().getPromotionType());
-                snapshot.setBeforePromotionValue(item.getBefore().getPromotionValue());
-                snapshot.setBeforePromotionFromDate(item.getBefore().getPromotionFromDate());
-                snapshot.setBeforePromotionToDate(item.getBefore().getPromotionToDate());
-            }
-
-            // Store after snapshot fields
-            if (item.getAfter() != null && item.getHadChangeFromPOS() != null && item.getHadChangeFromPOS()) {
-                snapshot.setAfterCurrentPrice(item.getAfter().getCurrentPrice());
-                snapshot.setAfterFinalPrice(item.getAfter().getFinalPrice());
-                snapshot.setAfterHasActivePromotion(item.getAfter().getHasActivePromotion());
-                snapshot.setAfterDiscountAmount(item.getAfter().getDiscountAmount());
-                snapshot.setAfterTotalPrice(item.getAfter().getTotalPrice());
-                snapshot.setAfterPromotionType(item.getAfter().getPromotionType());
-                snapshot.setAfterPromotionValue(item.getAfter().getPromotionValue());
-                snapshot.setAfterPromotionFromDate(item.getAfter().getPromotionFromDate());
-                snapshot.setAfterPromotionToDate(item.getAfter().getPromotionToDate());
-            }
-
-            orderItemPricingSnapshotRepository.save(snapshot);
             log.debug("✅ [ITEM ADDED] Item {} added to order, total items now: {}", itemCount, order.getItems().size());
         }
 
@@ -591,17 +614,16 @@ public class OrderServiceImpl implements OrderService {
 
         // Store order-level pricing audit trail if provided
         if (pricingInfo != null) {
-            // Always set hadOrderLevelChangeFromPOS (true/false, never null)
-            order.setHadOrderLevelChangeFromPOS(pricingInfo.getHadOrderLevelChangeFromPOS() != null && pricingInfo.getHadOrderLevelChangeFromPOS());
-
-            // Store the reason for order-level changes
-            if (pricingInfo.getOrderLevelChangeReason() != null && !pricingInfo.getOrderLevelChangeReason().isEmpty()) {
-                order.setOrderLevelChangeReason(pricingInfo.getOrderLevelChangeReason());
-            } else if (!order.getHadOrderLevelChangeFromPOS()) {
-                // Set default reason if no change occurred
-                order.setOrderLevelChangeReason("No order-level changes from POS");
+            // Extract pricing fields from simplified structure
+            if (pricingInfo.getSubtotal() != null) {
+                order.setSubtotal(pricingInfo.getSubtotal());
             }
-            // Note: Pricing snapshots are reconstructed from order fields (subtotal, discount, delivery, tax, total) when needed
+            if (pricingInfo.getDeliveryFee() != null) {
+                order.setDeliveryFee(pricingInfo.getDeliveryFee());
+            }
+            if (pricingInfo.getFinalTotal() != null) {
+                order.setTotalAmount(pricingInfo.getFinalTotal());
+            }
         }
 
         log.info("💾 [SAVING ORDER] Order ID: {}, Items: {}, Total: {} (Subtotal: {}, Discount: {}, Delivery: {}, Tax: {})",
@@ -665,9 +687,8 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    private String generateOrderNumber() {
-        return referenceNumberGenerator.generateOrderNumber();
-    }
+    // Order number generation is now handled by orderNumberGenerator with per-business counters
+    // Format: ORD-YYYYMMDD-XXXXX (where XXXXX can be 00001-99999, 100000 onwards)
 
     @Override
     public POSCheckoutResponse createPOSCheckoutOrder(POSCheckoutRequest request) {
@@ -693,35 +714,35 @@ public class OrderServiceImpl implements OrderService {
             Order order = new Order();
             order.setBusinessId(request.getBusinessId());
             order.setCustomerId(request.getCustomerId());
-            order.setOrderNumber(generateOrderNumber());
+            // Generate per-business order number (ORD-YYYYMMDD-XXXXX)
+            order.setOrderNumber(orderNumberGenerator.generateOrderNumber(request.getBusinessId()));
             order.setOrderStatus(OrderStatus.COMPLETED); // POS orders are always completed
             order.setSource("POS"); // Mark as POS order
+            // Set orderFrom for POS orders
+            order.setOrderFrom(com.emenu.features.order.enums.OrderFromEnum.BUSINESS);
             order.setPaymentMethod(PaymentMethod.CASH);
             order.setPaymentStatus(PaymentStatus.PAID);
             order.setDeliveryFee(deliveryPrice);
             order.setCustomerNote(request.getCustomerNote());
             order.setBusinessNote(request.getBusinessNote());
 
+            // Set customer details
+            if (request.getCustomerName() != null) {
+                order.setCustomerName(request.getCustomerName());
+            }
+            if (request.getCustomerPhone() != null) {
+                order.setCustomerPhone(request.getCustomerPhone());
+            }
+            if (request.getCustomerEmail() != null) {
+                order.setCustomerEmail(request.getCustomerEmail());
+            }
+
+            if (request.getCustomerAddress() != null) {
+                order.setCustomerAddress(request.getCustomerAddress());
+            }
 
             log.debug("💾 [STEP 3/6] Saving order...");
             Order savedOrder = orderRepository.save(order);
-
-            // Create delivery address snapshot
-            if (request.getDeliveryAddress() != null) {
-                OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
-                deliveryAddress.setOrderId(savedOrder.getId());
-                deliveryAddress.setVillage(request.getDeliveryAddress().getVillage());
-                deliveryAddress.setCommune(request.getDeliveryAddress().getCommune());
-                deliveryAddress.setDistrict(request.getDeliveryAddress().getDistrict());
-                deliveryAddress.setProvince(request.getDeliveryAddress().getProvince());
-                deliveryAddress.setStreetNumber(request.getDeliveryAddress().getStreetNumber());
-                deliveryAddress.setHouseNumber(request.getDeliveryAddress().getHouseNumber());
-                deliveryAddress.setNote(request.getDeliveryAddress().getNote());
-                deliveryAddress.setLatitude(request.getDeliveryAddress().getLatitude());
-                deliveryAddress.setLongitude(request.getDeliveryAddress().getLongitude());
-                orderDeliveryAddressRepository.save(deliveryAddress);
-                log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for POS order: {}", savedOrder.getId());
-            }
 
             // Create delivery option snapshot
             if (request.getDeliveryOption() != null) {
@@ -738,6 +759,7 @@ public class OrderServiceImpl implements OrderService {
             // Create order items and calculate totals
             log.debug("📦 [STEP 4/6] Creating order items ({} items)...", request.getCart().getItems().size());
             BigDecimal subtotal = BigDecimal.ZERO;
+            BigDecimal customizationTotalForOrder = BigDecimal.ZERO;
             BigDecimal totalDiscount = BigDecimal.ZERO;
             List<OrderItem> createdItems = new java.util.ArrayList<>();
 
@@ -752,90 +774,98 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setProductName(itemRequest.getProductName() != null ? itemRequest.getProductName() : product.getName());
                 orderItem.setProductImageUrl(itemRequest.getProductImageUrl() != null ? itemRequest.getProductImageUrl() : product.getMainImageUrl());
                 orderItem.setSizeName(itemRequest.getSizeName());
+
+                // Set SKU and barcode: prefer product master data, fallback to request data if not available
+                orderItem.setSku(product.getSku() != null ? product.getSku() : itemRequest.getSku());
+                orderItem.setBarcode(product.getBarcode() != null ? product.getBarcode() : itemRequest.getBarcode());
+
                 orderItem.setQuantity(itemRequest.getQuantity());
-                orderItem.setHadChangeFromPOS(false); // No POS changes in regular POS checkout
 
-                // Determine current price
-                BigDecimal currentPrice = itemRequest.getOverridePrice() != null ?
-                    itemRequest.getOverridePrice() : product.getPrice();
-                orderItem.setCurrentPrice(currentPrice);
-                orderItem.setUnitPrice(currentPrice);
-
-                // Apply promotion if specified
-                BigDecimal finalPrice = currentPrice;
-                Boolean hasPromotion = false;
-                String promotionType = null;
-                BigDecimal promotionValue = null;
-                LocalDateTime promotionFromDate = null;
-                LocalDateTime promotionToDate = null;
-
-                if (itemRequest.getPromotionType() != null && itemRequest.getPromotionValue() != null) {
-                    if ("PERCENTAGE".equals(itemRequest.getPromotionType())) {
-                        BigDecimal discountPercent = itemRequest.getPromotionValue().divide(BigDecimal.valueOf(100));
-                        finalPrice = currentPrice.multiply(BigDecimal.ONE.subtract(discountPercent));
-                    } else if ("FIXED_AMOUNT".equals(itemRequest.getPromotionType())) {
-                        finalPrice = currentPrice.subtract(itemRequest.getPromotionValue());
-                    }
-                    hasPromotion = true;
-                    promotionType = itemRequest.getPromotionType();
-                    promotionValue = itemRequest.getPromotionValue();
-                    // Promotion dates not available in POSCheckoutItemRequest
-                    promotionFromDate = null;
-                    promotionToDate = null;
-                }
-
-                orderItem.setHasPromotion(hasPromotion);
-                orderItem.setPromotionType(promotionType);
-                orderItem.setPromotionValue(promotionValue);
-                orderItem.setPromotionFromDate(promotionFromDate);
-                orderItem.setPromotionToDate(promotionToDate);
+                // Use final price from request
+                BigDecimal finalPrice = itemRequest.getFinalPrice() != null ?
+                    itemRequest.getFinalPrice() : product.getPrice();
+                orderItem.setUnitPrice(finalPrice);
                 orderItem.setFinalPrice(finalPrice);
-                orderItem.calculateTotalPrice();
+
+                // Set total price
+                BigDecimal totalPrice = itemRequest.getTotalPrice() != null ?
+                    itemRequest.getTotalPrice() : finalPrice.multiply(new BigDecimal(itemRequest.getQuantity()));
+                orderItem.setTotalPrice(totalPrice);
+
+                // Process customizations for this item
+                if (itemRequest.getCustomizations() != null && !itemRequest.getCustomizations().isEmpty()) {
+                    try {
+                        String customizationsJson = objectMapper.writeValueAsString(itemRequest.getCustomizations());
+                        orderItem.setCustomizations(customizationsJson);
+
+                        // Extract customization IDs as JSON array
+                        List<String> customizationIds = itemRequest.getCustomizations().stream()
+                            .map(c -> c.getProductCustomizationId().toString())
+                            .toList();
+                        String customizationIdsJson = objectMapper.writeValueAsString(customizationIds);
+                        orderItem.setCustomizationIds(customizationIdsJson);
+
+                        // Calculate customization total for this item
+                        BigDecimal itemCustomizationTotal = itemRequest.getCustomizations().stream()
+                            .map(POSCheckoutItemRequest.CustomizationDetail::getPriceAdjustment)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add)
+                            .multiply(new BigDecimal(itemRequest.getQuantity()));
+                        orderItem.setCustomizationTotal(itemCustomizationTotal);
+                        customizationTotalForOrder = customizationTotalForOrder.add(itemCustomizationTotal);
+
+                        log.debug("✅ [CUSTOMIZATIONS] Item {} has {} customizations, total: {}",
+                            itemRequest.getProductId(), itemRequest.getCustomizations().size(), itemCustomizationTotal);
+                    } catch (Exception e) {
+                        log.warn("Failed to serialize customizations for item {}: {}", itemRequest.getProductId(), e.getMessage());
+                        orderItem.setCustomizationTotal(BigDecimal.ZERO);
+                    }
+                } else {
+                    orderItem.setCustomizationTotal(BigDecimal.ZERO);
+                }
 
                 savedOrder.getItems().add(orderItem);
                 createdItems.add(orderItem);
 
-                subtotal = subtotal.add(currentPrice.multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
-                totalDiscount = totalDiscount.add(currentPrice.subtract(finalPrice).multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
+                subtotal = subtotal.add(totalPrice);
             }
 
             // Save order with items
             orderRepository.save(savedOrder);
 
-            // Create pricing snapshots for each item
-            for (OrderItem item : createdItems) {
-                OrderItemPricingSnapshot snapshot = new OrderItemPricingSnapshot();
-                snapshot.setOrderItemId(item.getId());
-                // Store current pricing as before snapshot (no previous state in POS)
-                snapshot.setBeforeCurrentPrice(item.getCurrentPrice());
-                snapshot.setBeforeFinalPrice(item.getFinalPrice());
-                snapshot.setBeforeHasActivePromotion(item.getHasPromotion());
-                snapshot.setBeforePromotionType(item.getPromotionType());
-                snapshot.setBeforePromotionValue(item.getPromotionValue());
-                snapshot.setBeforePromotionFromDate(item.getPromotionFromDate());
-                snapshot.setBeforePromotionToDate(item.getPromotionToDate());
-
-                BigDecimal discountAmount = item.getCurrentPrice().subtract(item.getFinalPrice()).multiply(BigDecimal.valueOf(item.getQuantity()));
-                snapshot.setBeforeDiscountAmount(discountAmount);
-                snapshot.setBeforeTotalPrice(item.getTotalPrice());
-
-                orderItemPricingSnapshotRepository.save(snapshot);
-                log.debug("✅ [PRICING SNAPSHOT] Created for POS item: {}", item.getId());
-            }
-
             // Update order totals
             log.debug("💰 [STEP 5/6] Calculating totals...");
-            // Get discount from cart or use calculated item-level discount
-            BigDecimal discountAmount = request.getCart().getTotalDiscount() != null ?
-                request.getCart().getTotalDiscount() : totalDiscount;
-            BigDecimal taxAmount = BigDecimal.ZERO; // Tax not used in POS, reserved for future
-            BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
 
-            savedOrder.setSubtotal(subtotal);
-            savedOrder.setDiscountAmount(discountAmount);
-            savedOrder.setTaxAmount(taxAmount);
-            savedOrder.setDeliveryFee(deliveryFee);
-            savedOrder.setTotalAmount(subtotal.subtract(discountAmount).add(taxAmount).add(deliveryFee));
+            // Use pricing data from request
+            BigDecimal orderSubtotal = request.getPricing().getSubtotal() != null ?
+                request.getPricing().getSubtotal() : subtotal;
+            BigDecimal orderCustomizationTotal = request.getPricing().getCustomizationTotal() != null ?
+                request.getPricing().getCustomizationTotal() : customizationTotalForOrder;
+            BigDecimal orderDeliveryFee = request.getPricing().getDeliveryFee() != null ?
+                request.getPricing().getDeliveryFee() : order.getDeliveryFee();
+            BigDecimal orderTaxPercentage = request.getPricing().getTaxPercentage() != null ?
+                request.getPricing().getTaxPercentage() : BigDecimal.ZERO;
+            BigDecimal orderTaxAmount = request.getPricing().getTaxAmount() != null ?
+                request.getPricing().getTaxAmount() : BigDecimal.ZERO;
+            BigDecimal orderDiscountAmount = request.getPricing().getDiscountAmount() != null ?
+                request.getPricing().getDiscountAmount() : BigDecimal.ZERO;
+            String orderDiscountType = request.getPricing().getDiscountType();
+            String orderDiscountReason = request.getPricing().getDiscountReason();
+            BigDecimal orderFinalTotal = request.getPricing().getFinalTotal() != null ?
+                request.getPricing().getFinalTotal() : BigDecimal.ZERO;
+
+            savedOrder.setSubtotal(orderSubtotal);
+            savedOrder.setCustomizationTotal(orderCustomizationTotal);
+            savedOrder.setDiscountAmount(orderDiscountAmount);
+            savedOrder.setDiscountType(orderDiscountType);
+            savedOrder.setDiscountReason(orderDiscountReason);
+            savedOrder.setTaxPercentage(orderTaxPercentage);
+            savedOrder.setTaxAmount(orderTaxAmount);
+            savedOrder.setDeliveryFee(orderDeliveryFee);
+            savedOrder.setTotalAmount(orderFinalTotal);
+
+            log.debug("💰 [PRICING BREAKDOWN] Subtotal: {}, Customization: {}, Delivery: {}, Tax: {} ({}%), Discount: {} ({}), Final: {}",
+                orderSubtotal, orderCustomizationTotal, orderDeliveryFee, orderTaxAmount, orderTaxPercentage,
+                orderDiscountAmount, orderDiscountType, orderFinalTotal);
 
             Order updatedOrder = orderRepository.save(savedOrder);
 
@@ -848,12 +878,14 @@ public class OrderServiceImpl implements OrderService {
             payment.setStatus(PaymentStatus.PAID);
             payment.setPaymentReference(paymentReferenceGenerator.generateUniqueReference());
             payment.setSubtotal(updatedOrder.getSubtotal());
+            payment.setCustomizationTotal(updatedOrder.getCustomizationTotal());
             payment.setDiscountAmount(updatedOrder.getDiscountAmount());
             payment.setDeliveryFee(updatedOrder.getDeliveryFee());
             payment.setTaxAmount(updatedOrder.getTaxAmount());
             payment.setTotalAmount(updatedOrder.getTotalAmount());
             payment.setCustomerPaymentMethod("Cash");
             paymentRepository.save(payment);
+            log.debug("✅ [PAYMENT RECORD] Created for order {} with amount: {}", updatedOrder.getOrderNumber(), updatedOrder.getTotalAmount());
 
             // Create initial status history
             log.debug("📋 [STEP 6/6] Creating status history...");
@@ -867,8 +899,10 @@ public class OrderServiceImpl implements OrderService {
                     .id(updatedOrder.getId())
                     .orderNumber(updatedOrder.getOrderNumber())
                     .subtotal(updatedOrder.getSubtotal())
+                    .customizationTotal(updatedOrder.getCustomizationTotal())
                     .discountAmount(updatedOrder.getDiscountAmount())
                     .deliveryFee(updatedOrder.getDeliveryFee())
+                    .taxPercentage(updatedOrder.getTaxPercentage())
                     .taxAmount(updatedOrder.getTaxAmount())
                     .totalAmount(updatedOrder.getTotalAmount())
                     .orderStatus("COMPLETED")
@@ -911,5 +945,51 @@ public class OrderServiceImpl implements OrderService {
         }
 
         log.info("Stock deducted via FIFO for confirmed order: {}", order.getOrderNumber());
+    }
+
+    /**
+     * Create delivery address snapshot by fetching location from database
+     * Stores complete address details + location images for order history preservation
+     */
+    private OrderDeliveryAddress createDeliveryAddressSnapshot(UUID orderId, UUID addressId) {
+        try {
+            // Fetch location from database
+            com.emenu.features.location.models.Location location = locationRepository.findById(addressId)
+                    .orElseThrow(() -> new NotFoundException("Address not found: " + addressId));
+
+            // Create snapshot with all location details
+            OrderDeliveryAddress deliveryAddress = new OrderDeliveryAddress();
+            deliveryAddress.setOrderId(orderId);
+            deliveryAddress.setVillage(location.getVillage());
+            deliveryAddress.setCommune(location.getCommune());
+            deliveryAddress.setDistrict(location.getDistrict());
+            deliveryAddress.setProvince(location.getProvince());
+            deliveryAddress.setStreetNumber(location.getStreetNumber());
+            deliveryAddress.setHouseNumber(location.getHouseNumber());
+            deliveryAddress.setNote(location.getNote());
+            deliveryAddress.setLatitude(location.getLatitude());
+            deliveryAddress.setLongitude(location.getLongitude());
+
+            // Store reference to original location
+            deliveryAddress.setLocationId(addressId);
+
+            // Snapshot location images at time of order
+            // If location images are updated later, orders preserve the images from checkout
+            if (location.getLocationImages() != null && !location.getLocationImages().isEmpty()) {
+                java.util.List<String> imageUrls = location.getLocationImages().stream()
+                        .map(img -> img.getImageUrl())
+                        .collect(java.util.stream.Collectors.toList());
+                deliveryAddress.setLocationImages(imageUrls);
+                log.debug("✅ [LOCATION IMAGES SNAPSHOT] Stored {} images for order history", imageUrls.size());
+            }
+
+            return deliveryAddress;
+        } catch (NotFoundException e) {
+            log.error("❌ [ADDRESS ERROR] Failed to fetch address: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("❌ [ADDRESS ERROR] Error creating delivery address snapshot: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to create delivery address snapshot", e);
+        }
     }
 }

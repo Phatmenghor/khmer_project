@@ -1,0 +1,197 @@
+{
+  "_comment": "Quick reference for testing customization endpoints. Use with Postman or API client.",
+  "coffee_shop_example": {
+    "product": {
+      "id": "latte-123",
+      "name": "Iced Latte",
+      "basePrice": 3.50
+    },
+    "customization_groups": {
+      "size": {
+        "id": "group-size-456",
+        "name": "Size",
+        "isRequired": true,
+        "allowMultiple": false,
+        "options": {
+          "small": {"id": "opt-small-001", "name": "Small", "price": "+0.00"},
+          "medium": {"id": "opt-medium-002", "name": "Medium", "price": "+0.50"},
+          "large": {"id": "opt-large-003", "name": "Large", "price": "+1.00"}
+        }
+      },
+      "addons": {
+        "id": "group-addons-789",
+        "name": "Add-ons",
+        "isRequired": false,
+        "allowMultiple": true,
+        "options": {
+          "shot": {"id": "opt-shot-101", "name": "Extra Shot", "price": "+0.50"},
+          "oat_milk": {"id": "opt-oatmilk-102", "name": "Oat Milk", "price": "+0.75"},
+          "sugar": {"id": "opt-sugar-103", "name": "Extra Sugar", "price": "+0.25"},
+          "whip": {"id": "opt-whip-104", "name": "Whipped Cream", "price": "+0.50"}
+        }
+      }
+    },
+    "customer_selection": {
+      "size": "medium",
+      "addons": ["oat_milk", "sugar"],
+      "calculation": {
+        "base": 3.50,
+        "size_adjustment": 0.50,
+        "addon_adjustments": 1.00,
+        "total": 5.00
+      }
+    }
+  },
+  "api_endpoints": {
+    "create_group": {
+      "method": "POST",
+      "path": "/api/v1/product-customizations/groups",
+      "body": {
+        "productId": "latte-123",
+        "name": "Size",
+        "description": "Choose your drink size",
+        "isRequired": true,
+        "allowMultiple": false,
+        "sortOrder": 1,
+        "status": "ACTIVE"
+      }
+    },
+    "create_option": {
+      "method": "POST",
+      "path": "/api/v1/product-customizations",
+      "body": {
+        "productCustomizationGroupId": "group-size-456",
+        "name": "Medium",
+        "description": "16 oz",
+        "priceAdjustment": "0.50",
+        "sortOrder": 2,
+        "status": "ACTIVE"
+      }
+    },
+    "get_product_customizations": {
+      "method": "GET",
+      "path": "/api/v1/public/product-customizations/product/latte-123"
+    },
+    "get_group_by_id": {
+      "method": "GET",
+      "path": "/api/v1/public/product-customizations/groups/group-size-456"
+    },
+    "update_group": {
+      "method": "PUT",
+      "path": "/api/v1/product-customizations/groups/group-size-456",
+      "body": {
+        "name": "Size",
+        "description": "Choose your drink size",
+        "isRequired": true,
+        "allowMultiple": false,
+        "sortOrder": 1,
+        "status": "ACTIVE"
+      }
+    },
+    "update_option": {
+      "method": "PUT",
+      "path": "/api/v1/product-customizations/opt-medium-002",
+      "body": {
+        "name": "Medium",
+        "description": "16 oz",
+        "priceAdjustment": "0.50",
+        "sortOrder": 2,
+        "status": "ACTIVE"
+      }
+    },
+    "delete_group": {
+      "method": "DELETE",
+      "path": "/api/v1/product-customizations/groups/group-size-456"
+    },
+    "delete_option": {
+      "method": "DELETE",
+      "path": "/api/v1/product-customizations/opt-medium-002"
+    }
+  },
+  "postman_collection_curl_examples": {
+    "create_size_group": "curl -X POST http://localhost:8080/api/v1/product-customizations/groups -H 'Content-Type: application/json' -d '{\"productId\":\"latte-123\",\"name\":\"Size\",\"isRequired\":true,\"allowMultiple\":false,\"status\":\"ACTIVE\"}'",
+    "create_medium_size": "curl -X POST http://localhost:8080/api/v1/product-customizations -H 'Content-Type: application/json' -d '{\"productCustomizationGroupId\":\"group-size-456\",\"name\":\"Medium\",\"priceAdjustment\":\"0.50\",\"status\":\"ACTIVE\"}'",
+    "create_addons_group": "curl -X POST http://localhost:8080/api/v1/product-customizations/groups -H 'Content-Type: application/json' -d '{\"productId\":\"latte-123\",\"name\":\"Add-ons\",\"isRequired\":false,\"allowMultiple\":true,\"status\":\"ACTIVE\"}'",
+    "create_extra_shot": "curl -X POST http://localhost:8080/api/v1/product-customizations -H 'Content-Type: application/json' -d '{\"productCustomizationGroupId\":\"group-addons-789\",\"name\":\"Extra Shot\",\"priceAdjustment\":\"0.50\",\"status\":\"ACTIVE\"}'",
+    "get_product_customizations": "curl -X GET http://localhost:8080/api/v1/public/product-customizations/product/latte-123"
+  },
+  "restaurant_example": {
+    "product": {
+      "id": "burger-456",
+      "name": "Classic Burger",
+      "basePrice": 12.00
+    },
+    "customization_groups": {
+      "meat_type": {
+        "name": "Meat Type",
+        "isRequired": true,
+        "allowMultiple": false,
+        "options": ["Beef (+0.00)", "Chicken (+0.00)", "Veggie (+1.00)", "Beyond Meat (+2.00)"]
+      },
+      "toppings": {
+        "name": "Toppings",
+        "isRequired": false,
+        "allowMultiple": true,
+        "options": ["Bacon (+1.50)", "Cheese (+0.50)", "Fried Egg (+1.00)", "Mushrooms (+0.75)"]
+      },
+      "sauce": {
+        "name": "Sauce",
+        "isRequired": true,
+        "allowMultiple": false,
+        "options": ["Ketchup (+0.00)", "BBQ (+0.00)", "House Special (+0.50)"]
+      }
+    },
+    "example_order": {
+      "meat": "Beef",
+      "toppings": ["Bacon", "Fried Egg"],
+      "sauce": "House Special",
+      "price_calculation": {
+        "base": 12.00,
+        "meat": 0.00,
+        "bacon": 1.50,
+        "egg": 1.00,
+        "sauce": 0.50,
+        "total": 15.00
+      }
+    }
+  },
+  "clothing_store_example": {
+    "product": {
+      "id": "tshirt-789",
+      "name": "Classic T-Shirt",
+      "basePrice": 25.00
+    },
+    "customization_groups": {
+      "size": {
+        "name": "Size",
+        "isRequired": true,
+        "allowMultiple": false,
+        "options": ["XS (+0.00)", "S (+0.00)", "M (+0.00)", "L (+0.00)", "XL (+1.00)", "XXL (+2.00)"]
+      },
+      "color": {
+        "name": "Color",
+        "isRequired": true,
+        "allowMultiple": false,
+        "options": ["Black (+0.00)", "White (+0.00)", "Blue (+0.00)", "Red (+0.50)", "Custom (+3.00)"]
+      },
+      "options": {
+        "name": "Add-ons",
+        "isRequired": false,
+        "allowMultiple": true,
+        "options": ["Embroidery (+2.00)", "Gift Wrap (+2.00)"]
+      }
+    },
+    "example_order": {
+      "size": "L",
+      "color": "Red",
+      "addons": ["Embroidery"],
+      "price_calculation": {
+        "base": 25.00,
+        "size": 0.00,
+        "color": 0.50,
+        "embroidery": 2.00,
+        "total": 27.50
+      }
+    }
+  }
+}

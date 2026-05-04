@@ -52,6 +52,13 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "size_name")
     private String sizeName; // "Standard" if no size
 
+    // Product SKU and barcode snapshot from store master data
+    @Column(name = "sku")
+    private String sku; // Product SKU from store master data
+
+    @Column(name = "barcode")
+    private String barcode; // Product barcode from store master data
+
     // Pricing snapshot - preserves discount/promotion at time of order
     @Column(name = "current_price", precision = 10, scale = 2)
     private BigDecimal currentPrice; // Base price before discount
@@ -84,6 +91,18 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice; // finalPrice * quantity
 
+    // Customizations/Add-ons snapshot - stored as JSON for flexibility
+    @Column(name = "customizations", columnDefinition = "JSON")
+    private String customizations; // JSON array: [{id, productCustomizationId, name, priceAdjustment}]
+
+    // Customization IDs for quick lookup
+    @Column(name = "customization_ids", columnDefinition = "JSON")
+    private String customizationIds; // JSON array of UUIDs
+
+    // Total customization cost for this item
+    @Column(name = "customization_total", precision = 10, scale = 2)
+    private BigDecimal customizationTotal = BigDecimal.ZERO;
+
     // Customer instructions for this specific item
     @Column(name = "special_instructions", columnDefinition = "TEXT")
     private String specialInstructions;
@@ -96,10 +115,6 @@ public class OrderItem extends BaseUUIDEntity {
     // Reason for the change (if any)
     @Column(name = "change_reason", columnDefinition = "TEXT")
     private String changeReason;
-
-    // ===== Pricing Snapshot (Before/After) =====
-    @OneToOne(mappedBy = "orderItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private OrderItemPricingSnapshot pricingSnapshot;
 
     // Business Methods
     public void calculateTotalPrice() {

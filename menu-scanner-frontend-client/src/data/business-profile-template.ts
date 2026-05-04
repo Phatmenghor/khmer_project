@@ -306,9 +306,7 @@ export const demoBusinessProfile: BusinessProfile = {
   },
 
   theme: {
-    primaryColor: "#8B4513",
-    secondaryColor: "#D2691E",
-    accentColor: "#F5DEB3",
+    primaryColor: "#57823D",    // Green - brand color
     fontFamily: "Inter",
     layout: "modern",
   },

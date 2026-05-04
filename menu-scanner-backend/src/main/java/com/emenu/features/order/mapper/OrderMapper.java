@@ -31,8 +31,9 @@ public interface OrderMapper {
     @Mapping(target = "updatedAt", source = "updatedAt")
     @Mapping(target = "createdBy", source = "createdBy")
     @Mapping(target = "updatedBy", source = "updatedBy")
-    @Mapping(target = "customerName", expression = "java(order.getCustomerIdentifier())")
-    @Mapping(target = "customerPhone", expression = "java(order.getCustomerContact())")
+    @Mapping(source = "customerName", target = "customerName")
+    @Mapping(source = "customerPhone", target = "customerPhone")
+    @Mapping(source = "customerEmail", target = "customerEmail")
     @Mapping(source = "business.name", target = "businessName")
     @Mapping(target = "deliveryAddress", expression = "java(mapDeliveryAddress(order))")
     @Mapping(target = "deliveryOption", expression = "java(mapDeliveryOption(order))")
@@ -75,18 +76,8 @@ public interface OrderMapper {
                 // Initialize businessNote as empty (will be set later if provided)
                 .businessNote("");
 
-        // Set delivery address fields (no JSON serialization)
-        if (request.getDeliveryAddress() != null) {
-            builder.deliveryVillage(request.getDeliveryAddress().getVillage());
-            builder.deliveryCommune(request.getDeliveryAddress().getCommune());
-            builder.deliveryDistrict(request.getDeliveryAddress().getDistrict());
-            builder.deliveryProvince(request.getDeliveryAddress().getProvince());
-            builder.deliveryStreetNumber(request.getDeliveryAddress().getStreetNumber());
-            builder.deliveryHouseNumber(request.getDeliveryAddress().getHouseNumber());
-            builder.deliveryNote(request.getDeliveryAddress().getNote());
-            builder.deliveryLatitude(request.getDeliveryAddress().getLatitude());
-            builder.deliveryLongitude(request.getDeliveryAddress().getLongitude());
-        }
+        // Delivery address will be created from addressId in service layer
+        // by fetching from database - not set here
 
         // Set delivery option fields (no JSON serialization)
         if (request.getDeliveryOption() != null) {
@@ -110,7 +101,7 @@ public interface OrderMapper {
         LocalDateTime promotionFromDate = null;
         LocalDateTime promotionToDate = null;
 
-        if (cartItem.getProduct() != null && cartItem.getProduct().getHasActivePromotion()) {
+        if (cartItem.getProduct() != null && cartItem.getProduct().isPromotionActive()) {
             promotionType = cartItem.getProduct().getPromotionType() != null ?
                     cartItem.getProduct().getPromotionType().toString() : null;
             promotionValue = cartItem.getProduct().getPromotionValue();
@@ -149,12 +140,12 @@ public interface OrderMapper {
 
         var deliveryAddress = order.getDeliveryAddress();
 
-        // Check if any delivery address field is populated
+        // Check if any delivery address field is populated (address fields or location reference)
         if (deliveryAddress.getVillage() == null && deliveryAddress.getCommune() == null &&
             deliveryAddress.getDistrict() == null && deliveryAddress.getProvince() == null &&
             deliveryAddress.getStreetNumber() == null && deliveryAddress.getHouseNumber() == null &&
             deliveryAddress.getNote() == null && deliveryAddress.getLatitude() == null &&
-            deliveryAddress.getLongitude() == null) {
+            deliveryAddress.getLongitude() == null && deliveryAddress.getLocationId() == null) {
             return null;
         }
 
@@ -168,6 +159,8 @@ public interface OrderMapper {
                 .note(deliveryAddress.getNote())
                 .latitude(deliveryAddress.getLatitude())
                 .longitude(deliveryAddress.getLongitude())
+                .locationId(deliveryAddress.getLocationId())
+                .locationImages(deliveryAddress.getLocationImages())
                 .build();
     }
 
@@ -223,8 +216,6 @@ public interface OrderMapper {
                         .id(history.getId())
                         .statusName(history.getOrderStatus() != null ?
                                 history.getOrderStatus().getDisplayName() : null)
-                        .statusDescription(history.getOrderStatus() != null ?
-                                history.getOrderStatus().getDescription() : null)
                         .note(history.getNote())
                         .changedBy(mapStatusHistoryUserInfo(history))
                         .changedAt(history.getCreatedAt())
@@ -252,50 +243,44 @@ public interface OrderMapper {
     }
 
     /**
-     * Map pricing details to nested pricing info object with before/after snapshots
+     * Map pricing details to nested pricing info object with complete breakdown
      */
     default OrderPricingInfo mapPricingInfo(Order order) {
         if (order == null) {
             return null;
         }
 
-        BigDecimal subtotalBeforeDiscount = calculateSubtotalBeforeDiscount(order);
-        BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
-        BigDecimal subtotalAfterDiscount = subtotalBeforeDiscount.subtract(discount);
-        BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
-        BigDecimal taxAmount = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
-
-        // Build before snapshot (before order-level changes)
-        OrderPricingSnapshot before = OrderPricingSnapshot.builder()
-                .totalItems(calculateTotalItems(order))
-                .subtotalBeforeDiscount(subtotalBeforeDiscount)
-                .subtotal(subtotalBeforeDiscount)  // Before discount
-                .totalDiscount(BigDecimal.ZERO)
-                .deliveryFee(deliveryFee)
-                .taxAmount(taxAmount)
-                .finalTotal(subtotalBeforeDiscount.add(deliveryFee).add(taxAmount))
-                .build();
-
-        // Build after snapshot (after order-level changes if any)
-        OrderPricingSnapshot after = OrderPricingSnapshot.builder()
-                .totalItems(calculateTotalItems(order))
-                .subtotalBeforeDiscount(subtotalBeforeDiscount)
-                .subtotal(subtotalAfterDiscount)  // After discount
-                .totalDiscount(discount)
-                .deliveryFee(deliveryFee)
-                .taxAmount(taxAmount)
-                .finalTotal(order.getTotalAmount() != null ? order.getTotalAmount() :
-                           subtotalAfterDiscount.add(deliveryFee).add(taxAmount))
-                .build();
-
-        boolean hadChange = order.getHadOrderLevelChangeFromPOS() != null && order.getHadOrderLevelChangeFromPOS();
-
         return OrderPricingInfo.builder()
-                .before(before)
-                .hadOrderLevelChangeFromPOS(hadChange)
-                .after(hadChange ? after : null)  // Only include after if there were changes
-                .reason(order.getOrderLevelChangeReason() != null ? order.getOrderLevelChangeReason() : "No order-level changes")
+                .totalItems(calculateTotalItems(order))
+                .subtotal(order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO)
+                .customizationTotal(order.getCustomizationTotal() != null ? order.getCustomizationTotal() : BigDecimal.ZERO)
+                .deliveryFee(order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO)
+                .taxPercentage(order.getTaxPercentage() != null ? order.getTaxPercentage() : BigDecimal.ZERO)
+                .taxAmount(order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO)
+                .discountAmount(order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO)
+                .discountType(order.getDiscountType())
+                .discountReason(order.getDiscountReason())
+                .finalTotal(order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO)
                 .build();
+    }
+
+    /**
+     * Calculate sum of item-level discounts
+     */
+    default BigDecimal calculateItemLevelDiscounts(Order order) {
+        if (order == null || order.getItems() == null || order.getItems().isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        return order.getItems().stream()
+                .map(item -> {
+                    if (item.getCurrentPrice() != null && item.getFinalPrice() != null && item.getQuantity() != null) {
+                        BigDecimal discountPerItem = item.getCurrentPrice().subtract(item.getFinalPrice());
+                        return discountPerItem.multiply(new BigDecimal(item.getQuantity()));
+                    }
+                    return BigDecimal.ZERO;
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**

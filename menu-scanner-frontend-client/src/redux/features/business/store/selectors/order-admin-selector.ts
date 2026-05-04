@@ -41,3 +41,6 @@ export const selectOrderAdminPagination = createSelector(
     hasPrevious: data?.hasPrevious || false,
   })
 );
+
+export const selectOrderAdminDetailError = (state: RootState) =>
+  state.ordersAdmin.error;

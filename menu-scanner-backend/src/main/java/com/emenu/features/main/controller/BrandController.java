@@ -7,6 +7,7 @@ import com.emenu.features.main.dto.response.BrandResponse;
 import com.emenu.features.main.dto.response.BrandWithProductCountResponse;
 import com.emenu.features.main.dto.update.BrandUpdateRequest;
 import com.emenu.features.main.service.BrandService;
+import com.emenu.features.main.service.ProductConditionalService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.UUID;
 
 @RestController
@@ -26,6 +28,7 @@ import java.util.UUID;
 public class BrandController {
 
     private final BrandService brandService;
+    private final ProductConditionalService productConditionalService;
     private final SecurityUtils securityUtils;
 
     /**
@@ -40,24 +43,45 @@ public class BrandController {
     }
 
     /**
-     * Get all brands with filtering
+     * Get all brands with filtering - respects business settings (useBrands flag)
      */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BrandResponse>>> getAllBrands(@Valid @RequestBody BrandFilterRequest filter) {
-        log.info("Getting all brands for current user's business");
+        log.info("Getting all brands - BusinessId: {}", filter.getBusinessId());
+
+        // Check if business uses brands
+        if (filter.getBusinessId() != null && !productConditionalService.businessUsesBrands(filter.getBusinessId())) {
+            log.info("Business {} does not use brands - returning empty list", filter.getBusinessId());
+            PaginationResponse<BrandResponse> emptyResponse = new PaginationResponse<>();
+            emptyResponse.setContent(Collections.emptyList());
+            emptyResponse.setTotalElements(0L);
+            emptyResponse.setTotalPages(0);
+            return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
+        }
+
         PaginationResponse<BrandResponse> brands = brandService.getAllBrands(filter);
         return ResponseEntity.ok(ApiResponse.success("Brands retrieved successfully", brands));
     }
 
     /**
-     * Get my business brands
-     * If businessId is provided in filter, use it; otherwise use current user's business
+     * Get my business brands - respects business settings (useBrands flag)
      */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BrandResponse>>> getMyBusinessBrands(@Valid @RequestBody BrandFilterRequest filter) {
         log.info("Getting brands for current user's business");
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(currentUser.getBusinessId());
+
+        // Check if business uses brands
+        if (!productConditionalService.businessUsesBrands(currentUser.getBusinessId())) {
+            log.info("Business {} does not use brands - returning empty list", currentUser.getBusinessId());
+            PaginationResponse<BrandResponse> emptyResponse = new PaginationResponse<>();
+            emptyResponse.setContent(Collections.emptyList());
+            emptyResponse.setTotalElements(0L);
+            emptyResponse.setTotalPages(0);
+            return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
+        }
+
         PaginationResponse<BrandResponse> brands = brandService.getAllBrands(filter);
         return ResponseEntity.ok(ApiResponse.success("Business brands retrieved successfully", brands));
     }

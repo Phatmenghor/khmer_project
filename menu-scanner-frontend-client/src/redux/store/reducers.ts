@@ -11,6 +11,7 @@ import sessionReducer from "../features/sessions/store/slice/session-slice";
 import bannerReducer from "../features/master-data/store/slice/banner-slice";
 import brandReducer from "../features/master-data/store/slice/brand-slice";
 import categoriesReducer from "../features/master-data/store/slice/categories-slice";
+import subcategoriesReducer from "../features/master-data/store/slice/subcategories-slice";
 import exchangeRateReducer from "../features/master-data/store/slice/exchange-rate-slice";
 import deliveryOptionsReducer from "../features/master-data/store/slice/delivery-options-slice";
 import paymentOptionsReducer from "../features/master-data/store/slice/payment-options-slice";
@@ -23,10 +24,14 @@ import attendanceReducer from "../features/hr/store/slice/attendance-slice";
 
 import favoritesReducer from "../features/main/store/slice/favorite-slice";
 import productReducer from "../features/business/store/slice/product-slice";
+import stockReducer from "../features/business/store/slice/stock-slice";
+import stockItemsReducer from "../features/business/store/slice/stock-items-slice";
+import stockManagementReducer from "../features/business/store/slice/stock-management-slice";
 import orderAdminReducer from "../features/business/store/slice/order-admin-slice";
 import posPageReducer from "../features/business/store/slice/pos-page-slice";
 import bulkPromotionReducer from "../features/business/store/slice/bulk-promotion-slice";
 import promotionSizeSelectionReducer from "../features/business/store/slice/promotion-size-selection-slice";
+import businessSettingsReducer from "../features/business/store/slice/business-settings-slice";
 import homeReducer from "../features/main/store/slice/home-slice";
 import publicProductReducer from "../features/main/store/slice/public-product-slice";
 import publicBrandsReducer from "../features/main/store/slice/public-brands-slice";
@@ -56,12 +61,17 @@ export const reducers = {
   banner: bannerReducer,
   brand: brandReducer,
   categories: categoriesReducer,
+  subcategories: subcategoriesReducer,
   exchangeRate: exchangeRateReducer,
   deliveryOptions: deliveryOptionsReducer,
   paymentOptions: paymentOptionsReducer,
 
   // Business
+  businessSettings: businessSettingsReducer,
   products: productReducer,
+  stocks: stockReducer,
+  stockItems: stockItemsReducer,
+  stockManagement: stockManagementReducer,
   ordersAdmin: orderAdminReducer,
   posPage: posPageReducer,
   bulkPromotion: bulkPromotionReducer,

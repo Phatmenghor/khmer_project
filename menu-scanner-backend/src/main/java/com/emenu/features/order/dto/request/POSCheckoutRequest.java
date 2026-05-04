@@ -1,6 +1,5 @@
 package com.emenu.features.order.dto.request;
 
-import com.emenu.features.order.dto.response.OrderPricingSnapshot;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -36,11 +35,8 @@ public class POSCheckoutRequest {
     private UUID customerId;
     private String customerName;
     private String customerPhone;
-
-    // Delivery address
-    @NotNull(message = "Delivery address is required")
-    @Valid
-    private POSCheckoutAddressRequest deliveryAddress;
+    private String customerEmail;
+    private String customerAddress;  // Full address as string
 
     // Delivery option (full object with price, not just ID)
     @Valid
@@ -94,6 +90,7 @@ public class POSCheckoutRequest {
         private Integer totalQuantity;
         private BigDecimal subtotalBeforeDiscount;  // Sum of all original prices
         private BigDecimal subtotal;                // After product-level discounts
+        private BigDecimal customizationTotal;      // Total cost of all add-ons/customizations
         private BigDecimal totalDiscount;           // Total discount from promotions
         private BigDecimal finalTotal;              // After order-level discount applied
     }
@@ -103,17 +100,22 @@ public class POSCheckoutRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PricingInfo {
-        // Snapshot BEFORE any order-level modifications
-        private OrderPricingSnapshot before;
+        // Base pricing
+        private BigDecimal subtotal;
+        private BigDecimal customizationTotal;      // Total add-ons cost
+        private BigDecimal deliveryFee;
 
-        // Was order total modified?
-        private Boolean hadOrderLevelChangeFromPOS;
+        // Tax breakdown - for audit trail and financial reporting
+        private BigDecimal taxPercentage;           // Tax rate from business settings (e.g., 10 for 10%)
+        private BigDecimal taxAmount;               // Calculated tax amount (subtotal * taxPercentage / 100)
 
-        // Snapshot AFTER order-level modifications
-        private OrderPricingSnapshot after;
+        // Order-level discount
+        private BigDecimal discountAmount;          // Amount discounted
+        private String discountType;                // "fixed" or "percentage"
+        private String discountReason;              // Why discount was applied
 
-        // Reason for order-level change
-        private String orderLevelChangeReason;
+        // Final total
+        private BigDecimal finalTotal;              // subtotal + customizationTotal + deliveryFee + taxAmount - discountAmount
     }
 
     @Data

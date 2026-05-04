@@ -6,6 +6,7 @@ import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.location.models.Location;
+import com.emenu.features.order.enums.OrderFromEnum;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -59,6 +60,23 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "source", nullable = false, length = 50)
     private String source = "PUBLIC"; // PUBLIC or POS
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_from", nullable = false, length = 20)
+    private OrderFromEnum orderFrom = OrderFromEnum.CUSTOMER;
+
+    // Customer contact info - captured at checkout time
+    @Column(name = "customer_name")
+    private String customerName;
+
+    @Column(name = "customer_phone")
+    private String customerPhone;
+
+    @Column(name = "customer_email")
+    private String customerEmail;
+
+    @Column(name = "customer_address", columnDefinition = "TEXT")
+    private String customerAddress;
+
     @Column(name = "customer_note", columnDefinition = "TEXT")
     private String customerNote;
 
@@ -78,14 +96,26 @@ public class Order extends BaseUUIDEntity {
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;           // Items total before discounts
 
+    @Column(name = "customization_total", precision = 10, scale = 2)
+    private BigDecimal customizationTotal = BigDecimal.ZERO; // Total cost of add-ons/customizations
+
     @Column(name = "discount_amount", precision = 10, scale = 2)
     private BigDecimal discountAmount = BigDecimal.ZERO; // Total discount applied
+
+    @Column(name = "discount_type", length = 20)
+    private String discountType; // PERCENTAGE or FIXED_AMOUNT (null if no discount)
+
+    @Column(name = "discount_reason", columnDefinition = "TEXT")
+    private String discountReason; // Why discount was applied (audit trail)
 
     @Column(name = "delivery_fee", precision = 10, scale = 2)
     private BigDecimal deliveryFee = BigDecimal.ZERO;
 
+    @Column(name = "tax_percentage", precision = 5, scale = 2)
+    private BigDecimal taxPercentage = BigDecimal.ZERO; // Tax rate (e.g., 10.00 for 10%)
+
     @Column(name = "tax_amount", precision = 10, scale = 2)
-    private BigDecimal taxAmount = BigDecimal.ZERO;      // Tax (reserved for future use)
+    private BigDecimal taxAmount = BigDecimal.ZERO;     // Calculated tax amount
 
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;        // Final = subtotal - discount + delivery + tax
@@ -130,10 +160,6 @@ public class Order extends BaseUUIDEntity {
 
     public void cancelOrder() {
         this.orderStatus = OrderStatus.CANCELLED;
-    }
-
-    public void failOrder() {
-        this.orderStatus = OrderStatus.FAILED;
     }
 
     public void confirm() {

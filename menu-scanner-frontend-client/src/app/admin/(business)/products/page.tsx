@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -30,17 +29,33 @@ import {
 import { productTableColumns } from "@/redux/features/business/table/product-table";
 import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
-import { CustomSelect } from "@/components/shared/common/custom-select";
-import { PRODUCT_STATUS_FILTER, PRODUCT_PROMOTION_FILTER } from "@/constants/status/filter-status";
-import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
-import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
+import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/redux/store";
+import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
+
+// Sort field options for products page
+const SORT_BY_OPTIONS = [
+  { value: "createdAt", label: "Created Date" },
+  { value: "displayPrice", label: "Display Price" },
+  { value: "barcode", label: "Barcode" },
+  { value: "sku", label: "SKU" },
+  { value: "totalStock", label: "Total Stock" },
+  { value: "favoriteCount", label: "Favorite Count" },
+  { value: "viewCount", label: "View Count" },
+];
+
+const SORT_DIRECTION_OPTIONS = [
+  { value: "DESC", label: "High to Low (DESC)" },
+  { value: "ASC", label: "Low to High (ASC)" },
+];
 
 export default function ProductPage() {
   // Clean up state when leaving admin area (performance optimization)
@@ -58,6 +73,13 @@ export default function ProductPage() {
     dispatch,
   } = useProductState();
 
+  // Reset filters when entering this page (separate from other admin pages)
+  useEffect(() => {
+    dispatch(setPageNo(1));
+    dispatch(setSearchFilter(""));
+    dispatch(selectProductStatus(ProductStatus.ALL));
+  }, []);
+
   // Local UI state for modals only
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -68,9 +90,13 @@ export default function ProductPage() {
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
     null,
   );
-  const [promotionFilter, setPromotionFilter] = useState("ALL");
+  const [sizeFilter, setSizeFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDirection, setSortDirection] = useState("DESC");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
+  const [selectedSubcategories, setSelectedSubcategories] =
+    useState<SubcategoriesResponseModel | null>(null);
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -98,25 +124,28 @@ export default function ProductPage() {
   });
 
   useEffect(() => {
-    // Determine hasPromotion filter value
-    let hasPromotion: boolean | undefined;
-    if (promotionFilter === "HAS_PROMOTION") {
-      hasPromotion = true;
-    } else if (promotionFilter === "NO_PROMOTION") {
-      hasPromotion = false;
+    // Determine hasSize filter value
+    let hasSize: boolean | undefined;
+    if (sizeFilter === "true") {
+      hasSize = true;
+    } else if (sizeFilter === "false") {
+      hasSize = false;
     }
-    // if ALL, hasPromotion remains undefined (no filter)
+    // if ALL, hasSize remains undefined (no filter)
 
     dispatch(
       fetchAllProductAdminService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
-        status:
-          filters.status == ProductStatus.ALL ? undefined : filters.status,
+        statuses:
+          filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
-        hasPromotion,
+        subcategoryId: selectedSubcategories?.id,
+        hasSize,
+        sortBy,
+        sortDirection,
       }),
     );
   }, [
@@ -127,7 +156,10 @@ export default function ProductPage() {
     globalPageSize,
     selectedBrand,
     selectedCategories,
-    promotionFilter,
+    selectedSubcategories,
+    sizeFilter,
+    sortBy,
+    sortDirection,
   ]);
 
   // Event handlers
@@ -301,8 +333,8 @@ export default function ProductPage() {
     dispatch(selectProductStatus(status));
   };
 
-  const handlePromotionFilterChange = (value: string) => {
-    setPromotionFilter(value);
+  const handleSizeFilterChange = (value: string) => {
+    setSizeFilter(value);
   };
 
   const handleBrandChange = (brand: BrandResponseModel | null) => {
@@ -315,54 +347,106 @@ export default function ProductPage() {
     setSelectedCategories(categories);
   };
 
+  const handleSubcategoriesChange = (
+    subcategories: SubcategoriesResponseModel | null,
+  ) => {
+    setSelectedSubcategories(subcategories);
+  };
+
+  const handleSortByChange = (value: string) => {
+    setSortBy(value);
+  };
+
+  const handleSortDirectionChange = (value: string) => {
+    setSortDirection(value);
+  };
+
+  // Create filter configuration for CollapsibleFilterPanel
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Product Information",
+    searchValue: filters.search,
+    searchPlaceholder: "Search product...",
+    onSearchChange: handleSearchChange,
+    buttonText: "New",
+    buttonDisabled: false,
+    onButtonClick: handleCreateBrand,
+    filters: [
+      {
+        id: "brand",
+        type: "combobox-brand",
+        label: "Brand",
+        placeholder: "All Brand",
+        value: selectedBrand,
+        onChange: handleBrandChange,
+        showAllOption: true,
+      },
+      {
+        id: "category",
+        type: "combobox-categories",
+        label: "Category",
+        placeholder: "All Categories",
+        value: selectedCategories,
+        onChange: handleCategoriesChange,
+        showAllOption: true,
+      },
+      {
+        id: "subcategory",
+        type: "combobox-subcategories",
+        label: "Subcategory",
+        placeholder: "All Subcategories",
+        value: selectedSubcategories,
+        onChange: handleSubcategoriesChange,
+        showAllOption: true,
+      },
+      {
+        id: "size",
+        type: "select",
+        label: "Product Size",
+        placeholder: "All Products",
+        value: sizeFilter,
+        onChange: handleSizeFilterChange,
+        options: PRODUCT_SIZE_FILTER,
+      },
+      {
+        id: "status",
+        type: "select",
+        label: "Product Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => handleProductStatusChange(value as ProductStatus),
+        options: PRODUCT_STATUS_FILTER,      },
+      {
+        id: "sortBy",
+        type: "select",
+        label: "Sort By",
+        placeholder: "Created Date",
+        value: sortBy,
+        onChange: handleSortByChange,
+        options: SORT_BY_OPTIONS,
+      },
+      {
+        id: "sortDirection",
+        type: "select",
+        label: "Order",
+        placeholder: "DESC",
+        value: sortDirection,
+        onChange: handleSortDirectionChange,
+        options: SORT_DIRECTION_OPTIONS,
+      }
+    ],
+  }), [filters.search, filters.status, selectedBrand, selectedCategories, selectedSubcategories, sizeFilter, sortBy, sortDirection]);
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        <CardHeaderSection
-          title="Product Information"
-          searchValue={filters.search}
-          searchPlaceholder="Search product..."
-          buttonTooltip="Create a new product"
-          buttonIcon={<Plus className="w-3 h-3" />}
-          buttonText="New"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreateBrand}
-        >
-          <ComboboxSelectBrand
-            dataSelect={selectedBrand}
-            onChangeSelected={handleBrandChange}
-            placeholder="All Brand"
-            showAllOption={true}
-          />
-
-          <ComboboxSelectCategories
-            dataSelect={selectedCategories}
-            onChangeSelected={handleCategoriesChange}
-            placeholder="All Categires"
-            showAllOption={true}
-          />
-
-          <CustomSelect
-            options={PRODUCT_STATUS_FILTER}
-            value={filters.status}
-            placeholder="All Status"
-            onValueChange={(value) =>
-              handleProductStatusChange(value as ProductStatus)
-            }
-            label="Product Status"
-          />
-
-          <CustomSelect
-            options={PRODUCT_PROMOTION_FILTER}
-            value={promotionFilter}
-            placeholder="All Products"
-            onValueChange={handlePromotionFilterChange}
-            label="Promotion Status"
-          />
-        </CardHeaderSection>
+        <CollapsibleFilterPanel
+          config={filterConfig}
+          essentialFilterIds={["size", "status"]}
+        />
 
         {/* Data Table with Your Custom Pagination */}
-        <DataTableWithPagination
+        <div className="overflow-x-auto max-w-full rounded-lg border">
+          <DataTableWithPagination
           data={productContent}
           columns={columns}
           loading={isLoading}
@@ -376,6 +460,7 @@ export default function ProductPage() {
           onPageSizeChange={handlePageSizeChange}
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
+        </div>
       </div>
 
       {/* Modals Add/Edit */}

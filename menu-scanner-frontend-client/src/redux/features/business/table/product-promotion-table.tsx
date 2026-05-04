@@ -5,10 +5,13 @@ import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBusinessColors } from "@/hooks/use-business-colors";
 import { cn } from "@/lib/utils";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   Select,
   SelectContent,
@@ -26,6 +29,7 @@ interface ProductTableHandlers {
   handleProductViewDetail: (brand: ProductDetailResponseModel) => void;
   handleDeleteProduct: (brand: ProductDetailResponseModel) => void;
   handleResetPromotion?: (brand: ProductDetailResponseModel) => void;
+  handleStatusChange?: (productId: string, status: string) => void;
 }
 
 interface ProductPromotionTableOptions {
@@ -75,8 +79,11 @@ function ProductImagePreview({
 
 /**
  * SizesDisplay - Display product sizes in simple bordered boxes
+ * Uses secondary color (yellow) from business theme for borders
  */
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
+  const { secondary } = useBusinessColors();
+
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }
@@ -88,7 +95,7 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
           key={size.id}
           className="px-2 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
           style={{
-            border: "0.5px solid #FCD34D",
+            border: `0.5px solid ${secondary}`,
           }}
         >
           {size.name} ${size.finalPrice}
@@ -105,42 +112,18 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   );
 }
 
-/**
- * StatusDisplay - Display product status with consistent styling
- */
-function StatusDisplay({ value }: { value: string }) {
-  const statusOptions = [
-    { value: "ACTIVE", label: "Active" },
-    { value: "INACTIVE", label: "Inactive" },
-    { value: "OUT_OF_STOCK", label: "Out Of Stock" },
-  ];
-
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "Active";
-      case "INACTIVE":
-        return "Inactive";
-      case "OUT_OF_STOCK":
-        return "Out Of Stock";
-      default:
-        return status;
-    }
-  };
-
-  return (
-    <div className="w-36 h-8 px-3 py-2 rounded-md bg-gray-100 text-gray-700 text-xs flex items-center">
-      {getStatusDisplay(value)}
-    </div>
-  );
-}
 
 export const productPromotionTableColumns = ({
   data,
   handlers,
 }: ProductPromotionTableOptions): TableColumn<ProductDetailResponseModel>[] => {
-  const { handleEditProduct, handleProductViewDetail, handleDeleteProduct, handleResetPromotion } =
-    handlers;
+  const {
+    handleEditProduct,
+    handleProductViewDetail,
+    handleDeleteProduct,
+    handleResetPromotion,
+    handleStatusChange,
+  } = handlers;
 
   return [
     {
@@ -204,57 +187,28 @@ export const productPromotionTableColumns = ({
     },
 
     {
-      key: "categoryName",
-      label: "Category",
-      minWidth: "10px",
-      maxWidth: "150px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.categoryName || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "brandName",
-      label: "Brand",
-      minWidth: "10px",
-      maxWidth: "150px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.brandName || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "displayPrice",
+      key: "pricing",
       label: "Price",
-      minWidth: "10px",
-      maxWidth: "100px",
-      truncate: true,
+      minWidth: "150px",
+      maxWidth: "250px",
       render: (product) => (
-        <span className="text-xs font-semibold text-foreground">
-          ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
-        </span>
-      ),
-    },
-
-    {
-      key: "displayOriginPrice",
-      label: "Original Price",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground line-through">
-          $
-          {parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(
-            2,
+        <div className="space-y-1">
+          <span className="text-xs font-semibold text-foreground">
+            ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
+          </span>
+          {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
+            <div className="text-xs text-muted-foreground line-through">
+              ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
+            </div>
           )}
-        </span>
+          {product?.hasPromotion && (
+            <div className="text-xs font-semibold text-red-600">
+              {product.displayPromotionType === "PERCENTAGE"
+                ? `-${product.displayPromotionValue}%`
+                : `-$${product.displayPromotionValue}`}
+            </div>
+          )}
+        </div>
       ),
     },
 
@@ -262,65 +216,13 @@ export const productPromotionTableColumns = ({
       key: "sizes",
       label: "Sizes",
       minWidth: "25px",
-      maxWidth: "1000px",
+      maxWidth: "400px",
       render: (product) => <SizesDisplay sizes={product?.sizes} />,
     },
 
     {
-      key: "displayPromotionType",
-      label: "Promo Type",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => {
-        const typeLabel =
-          product?.displayPromotionType === "FIXED_AMOUNT"
-            ? "Fixed Amount"
-            : product?.displayPromotionType === "PERCENTAGE"
-              ? "Percentage"
-              : "---";
-
-        return (
-          <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200 whitespace-nowrap">
-            <Zap className="w-3 h-3" />
-            {typeLabel}
-          </Badge>
-        );
-      },
-    },
-
-    {
-      key: "displayPromotionValue",
-      label: "Promo Value",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => {
-        const value = product?.displayPromotionValue;
-        const type = product?.displayPromotionType;
-
-        let displayValue = "---";
-        if (value) {
-          if (type === "PERCENTAGE") {
-            displayValue = `${value}%`;
-          } else if (type === "FIXED_AMOUNT") {
-            displayValue = `$${parseFloat(value.toString()).toFixed(2)}`;
-          } else {
-            displayValue = value.toString();
-          }
-        }
-
-        return (
-          <span className="text-xs font-semibold text-red-600">
-            {displayValue}
-          </span>
-        );
-      },
-    },
-
-    {
       key: "displayPromotionFromDate",
-      label: "From Date",
+      label: "Promo From",
       minWidth: "10px",
       maxWidth: "150px",
       truncate: true,
@@ -333,7 +235,7 @@ export const productPromotionTableColumns = ({
 
     {
       key: "displayPromotionToDate",
-      label: "To Date",
+      label: "Promo To",
       minWidth: "10px",
       maxWidth: "150px",
       truncate: true,
@@ -350,7 +252,18 @@ export const productPromotionTableColumns = ({
       minWidth: "150px",
       maxWidth: "350px",
       render: (product) => (
-        <StatusDisplay value={product?.status || "ACTIVE"} />
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={product?.status === "ACTIVE"}
+            onCheckedChange={() => {
+              const newStatus = product?.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+              handleStatusChange?.(product?.id || "", newStatus);
+            }}
+          />
+          <span className="text-xs text-muted-foreground">
+            {product?.status ? formatEnumValue(product.status) : "---"}
+          </span>
+        </div>
       ),
     },
 
@@ -388,7 +301,6 @@ export const productPromotionTableColumns = ({
               icon={<RotateCcw className="w-4 h-4" />}
               tooltip="Reset Promotion"
               onClick={() => handleResetPromotion(brand)}
-              variant="secondary"
             />
           )}
           <ActionButton

@@ -2,9 +2,12 @@ package com.emenu.features.stock.controller;
 
 import com.emenu.features.stock.dto.request.ProductStockCreateRequest;
 import com.emenu.features.stock.dto.request.ProductStockFilterRequest;
+import com.emenu.features.stock.dto.request.ProductStockItemsFilterRequest;
 import com.emenu.features.stock.dto.request.ProductStockUpdateRequest;
 import com.emenu.features.stock.dto.response.ProductStockDto;
+import com.emenu.features.stock.dto.response.ProductStockItemDto;
 import com.emenu.features.stock.service.ProductStockService;
+import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProductStockController {
 
     private final ProductStockService productStockService;
+    private final SecurityUtils securityUtils;
 
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductStockDto>>> getAllProductStocks(
@@ -29,6 +33,89 @@ public class ProductStockController {
         log.info("Get all product stocks - business: {}", request.getBusinessId());
         PaginationResponse<ProductStockDto> response = productStockService.getAllProductStocks(request);
         return ResponseEntity.ok(ApiResponse.success("Product stocks retrieved", response));
+    }
+
+    @PostMapping("/my-business/all")
+    public ResponseEntity<ApiResponse<PaginationResponse<ProductStockDto>>> getMyBusinessProductStocks(
+            @Valid @RequestBody ProductStockFilterRequest request) {
+        long startTime = System.currentTimeMillis();
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        request.setBusinessId(businessId);
+        log.info("Get product stocks for my business - business: {}, Page: {}, Size: {}",
+                businessId, request.getPageNo(), request.getPageSize());
+
+        try {
+            PaginationResponse<ProductStockDto> response = productStockService.getAllProductStocks(request);
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("Get product stocks for my business succeeded in {}ms - Retrieved {} stocks, Total: {}",
+                    duration, response.getContent().size(), response.getTotalElements());
+            return ResponseEntity.ok(ApiResponse.success("Product stocks retrieved", response));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Get product stocks for my business failed after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @PostMapping("/items/my-business/all")
+    public ResponseEntity<ApiResponse<PaginationResponse<ProductStockItemDto>>> getMyBusinessProductStockItems(
+            @Valid @RequestBody ProductStockFilterRequest request) {
+        long startTime = System.currentTimeMillis();
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        request.setBusinessId(businessId);
+        log.info("Get product stock items for my business - business: {}, Page: {}, Size: {}",
+                businessId, request.getPageNo(), request.getPageSize());
+
+        try {
+            PaginationResponse<ProductStockItemDto> response = productStockService.getAllProductStockItems(request);
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("Get product stock items for my business succeeded in {}ms - Retrieved {} items, Total: {}",
+                    duration, response.getContent().size(), response.getTotalElements());
+            return ResponseEntity.ok(ApiResponse.success("Product stock items retrieved", response));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Get product stock items for my business failed after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
+     * Type-safe endpoint for product stock items with easy field names and smart defaults.
+     * Recommended for frontend usage with better IDE support and default sorting by totalStock DESC.
+     *
+     * Example request:
+     * {
+     *   "pageNo": 1,
+     *   "pageSize": 15,
+     *   "sortBy": "totalStock",  // Options: totalStock, productName, sku, barcode, status, stockStatus, sizeName, createdAt, updatedAt
+     *   "sortDirection": "DESC",  // ASC or DESC
+     *   "search": "Product Name",
+     *   "status": "ACTIVE",  // ACTIVE, INACTIVE
+     *   "stockStatus": "ENABLED",  // ENABLED, DISABLED
+     *   "lowStockThreshold": 10,  // Optional: stock < 10
+     *   "hasSizes": true  // Optional: filter by product with/without sizes
+     * }
+     */
+    @PostMapping("/items/my-business")
+    public ResponseEntity<ApiResponse<PaginationResponse<ProductStockItemDto>>> getMyBusinessProductStockItemsTypeSafe(
+            @Valid @RequestBody ProductStockItemsFilterRequest request) {
+        long startTime = System.currentTimeMillis();
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        request.setBusinessId(businessId);
+        log.info("Get product stock items (type-safe) for my business - business: {}, sortBy: {}, direction: {}, Page: {}, Size: {}",
+                businessId, request.getSortBy(), request.getSortDirection(), request.getPageNo(), request.getPageSize());
+
+        try {
+            PaginationResponse<ProductStockItemDto> response = productStockService.getProductStockItems(request);
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("Get product stock items (type-safe) for my business succeeded in {}ms - Retrieved {} items, Total: {}",
+                    duration, response.getContent().size(), response.getTotalElements());
+            return ResponseEntity.ok(ApiResponse.success("Product stock items retrieved", response));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Get product stock items (type-safe) for my business failed after {}ms - Error: {}", duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @GetMapping("/{productStockId}")
@@ -42,7 +129,9 @@ public class ProductStockController {
     @PostMapping
     public ResponseEntity<ApiResponse<ProductStockDto>> createProductStock(
             @Valid @RequestBody ProductStockCreateRequest request) {
-        log.info("Create product stock - business: {}, product: {}", request.getBusinessId(), request.getProductId());
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        request.setBusinessId(businessId);
+        log.info("Create product stock - business: {}, product: {}", businessId, request.getProductId());
         ProductStockDto response = productStockService.createProductStock(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Product stock created", response));

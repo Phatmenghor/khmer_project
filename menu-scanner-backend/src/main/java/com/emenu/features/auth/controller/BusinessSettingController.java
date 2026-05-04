@@ -33,6 +33,17 @@ public class BusinessSettingController {
     }
 
     /**
+     * Updates the current authenticated user's business settings
+     */
+    @PutMapping
+    public ResponseEntity<ApiResponse<BusinessSettingResponse>> updateCurrentBusinessSetting(
+            @Valid @RequestBody BusinessSettingUpdateRequest request) {
+        log.info("Update current business setting");
+        BusinessSettingResponse response = businessSettingService.updateCurrentBusinessSetting(request);
+        return ResponseEntity.ok(ApiResponse.success("Business setting updated", response));
+    }
+
+    /**
      * Retrieves business settings for a specific business
      */
     @GetMapping("/business/{businessId}")

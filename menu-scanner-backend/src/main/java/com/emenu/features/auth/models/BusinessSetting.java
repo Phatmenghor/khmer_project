@@ -1,5 +1,6 @@
 package com.emenu.features.auth.models;
 
+import com.emenu.features.auth.enums.StockStatus;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -24,99 +26,55 @@ public class BusinessSetting extends BaseUUIDEntity {
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
     private Business business;
 
-    // Business Display
-    @Column(name = "logo_url")
-    private String logoUrl;
+    @Column(name = "tax_percentage")
+    private Double taxPercentage;
 
-    @Column(name = "banner_url")
-    private String bannerUrl;
+    @Column(name = "business_name")
+    private String businessName;
 
-    @Column(name = "business_type")
-    private String businessType;
+    @Column(name = "logo_business_url")
+    private String logoBusinessUrl;
 
-    // Business Hours
-    @Column(name = "opening_time")
-    private String openingTime;
+    @Column(name = "enable_stock")
+    @Enumerated(EnumType.STRING)
+    private StockStatus enableStock;
 
-    @Column(name = "closing_time")
-    private String closingTime;
-
-    @Column(name = "is_open_24_hours")
-    private Boolean isOpen24Hours = false;
-
-    @Column(name = "working_days")
-    private String workingDays;
-
-    // Localization
-    @Column(name = "timezone")
-    private String timezone = "Asia/Phnom_Penh";
-
-    @Column(name = "currency")
-    private String currency = "USD";
-
-    @Column(name = "language")
-    private String language = "en";
-
-    // Currency Exchange
-    @Column(name = "usd_to_khr_rate")
-    private Double usdToKhrRate = 4000.0;
-
-    // Contact & Social
-    @Column(name = "contact_email")
-    private String contactEmail;
-
-    @Column(name = "contact_phone")
-    private String contactPhone;
-
-    @Column(name = "whatsapp_number")
-    private String whatsappNumber;
-
-    @Column(name = "facebook_url")
-    private String facebookUrl;
-
-    @Column(name = "instagram_url")
-    private String instagramUrl;
-
-    @Column(name = "telegram_url")
-    private String telegramUrl;
-
-    @Column(name = "website_url")
-    private String websiteUrl;
-
-    // Display Settings
     @Column(name = "primary_color")
     private String primaryColor;
 
-    @Column(name = "secondary_color")
-    private String secondaryColor;
+    // Contact Information
+    @Column(name = "contact_address", length = 500)
+    private String contactAddress;
 
-    // Inventory Settings
-    @Column(name = "track_inventory")
-    private Boolean trackInventory = true;
+    @Column(name = "contact_phone", length = 20)
+    private String contactPhone;
 
-    // Business Policies
-    @Column(name = "tax_rate")
-    private Double taxRate = 0.0;
+    @Column(name = "contact_email", length = 100)
+    private String contactEmail;
 
-    @Column(name = "service_charge_percentage")
-    private Double serviceChargePercentage;
+    @OneToMany(
+        mappedBy = "businessSetting",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    private List<SocialMedia> socialMedia;
 
-    @Column(name = "min_order_amount")
-    private Double minOrderAmount;
+    @OneToMany(
+        mappedBy = "businessSetting",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    private List<BusinessHours> businessHours;
 
-    @Column(name = "delivery_radius_km")
-    private Double deliveryRadiusKm;
+    // Feature Visibility Flags
+    @Column(name = "use_categories", nullable = false)
+    private Boolean useCategories = true;
 
-    @Column(name = "estimated_delivery_time")
-    private String estimatedDeliveryTime;
+    @Column(name = "use_subcategories", nullable = false)
+    private Boolean useSubcategories = false;
 
-    // Terms & Policies
-    @Column(name = "terms_and_conditions", columnDefinition = "TEXT")
-    private String termsAndConditions;
-
-    @Column(name = "privacy_policy", columnDefinition = "TEXT")
-    private String privacyPolicy;
-
-    @Column(name = "refund_policy", columnDefinition = "TEXT")
-    private String refundPolicy;
+    @Column(name = "use_brands", nullable = false)
+    private Boolean useBrands = false;
 }

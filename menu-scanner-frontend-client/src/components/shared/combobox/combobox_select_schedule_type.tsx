@@ -112,10 +112,13 @@ export function ComboboxSelectScheduleType({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between h-9 text-sm",
+              "w-full justify-between h-10 text-sm transition-all duration-200 border-input",
               !value && "text-muted-foreground",
-              disabled && "opacity-50 cursor-not-allowed",
+              "hover:bg-primary/10 hover:border-primary hover:text-primary",
+              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+              open && "bg-primary/20 border-primary text-primary",
               error && "border-red-500",
+              disabled && "opacity-50 cursor-not-allowed"
             )}
             disabled={disabled}
           >
@@ -125,7 +128,7 @@ export function ComboboxSelectScheduleType({
         </PopoverTrigger>
 
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
+          className="w-[var(--radix-popover-trigger-width)] p-0 shadow-lg border-border"
           align="start"
           side="bottom"
           sideOffset={4}
@@ -154,7 +157,7 @@ export function ComboboxSelectScheduleType({
                         key={type.id}
                         value={type.enumName}
                         onSelect={() => handleSelect(type.enumName)}
-                        className="h-9 text-sm"
+                        className="h-10 text-sm"
                       >
                         <Check
                           className={cn(

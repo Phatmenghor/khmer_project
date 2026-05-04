@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
+import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -19,6 +20,7 @@ import {
   resetProductPromotionService,
   resetAllPromotionsService,
   resetBulkPromotionsService,
+  updateProductService,
 } from "@/redux/features/business/store/thunks/product-thunks";
 import {
   selectProductStatus,
@@ -28,15 +30,18 @@ import {
   resetProductPromotionOptimistic,
   resetAllPromotionsOptimistic,
   resetTablePromotionsOptimistic,
+  updateProductOptimistic,
 } from "@/redux/features/business/store/slice/product-slice";
 import { useRouter } from "next/navigation";
 import ProductModal from "@/redux/features/business/components/product-modal";
 import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
+import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
+import { ComboboxSelectSubcategories } from "@/components/shared/combobox/combobox_select_subcategories";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -44,6 +49,22 @@ import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/redux/store";
 import { productPromotionTableColumns } from "@/redux/features/business/table/product-promotion-table";
+
+// Sort field options for promotions page
+const SORT_BY_OPTIONS = [
+  { value: "createdAt", label: "Created Date" },
+  { value: "displayPrice", label: "Display Price" },
+  { value: "barcode", label: "Barcode" },
+  { value: "sku", label: "SKU" },
+  { value: "totalStock", label: "Total Stock" },
+  { value: "favoriteCount", label: "Favorite Count" },
+  { value: "viewCount", label: "View Count" },
+];
+
+const SORT_DIRECTION_OPTIONS = [
+  { value: "DESC", label: "High to Low (DESC)" },
+  { value: "ASC", label: "Low to High (ASC)" },
+];
 
 export default function ProductPromotionPage() {
   const router = useRouter();
@@ -63,6 +84,13 @@ export default function ProductPromotionPage() {
     dispatch,
   } = useProductState();
 
+  // Reset filters when entering this page (separate from other admin pages)
+  useEffect(() => {
+    dispatch(setPageNo(1));
+    dispatch(setSearchFilter(""));
+    dispatch(selectProductStatus(ProductStatus.ALL));
+  }, []);
+
   // Local UI state for modals only
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -73,8 +101,13 @@ export default function ProductPromotionPage() {
   const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
     null,
   );
+  const [sizeFilter, setSizeFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDirection, setSortDirection] = useState("DESC");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
+  const [selectedSubcategories, setSelectedSubcategories] =
+    useState<SubcategoriesResponseModel | null>(null);
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -91,6 +124,17 @@ export default function ProductPromotionPage() {
     product: null as ProductDetailResponseModel | null,
   });
 
+  // ===== RESET ALL PROMOTIONS =====
+  const [resetAllState, setResetAllState] = useState({
+    isOpen: false,
+  });
+
+  // ===== RESET TABLE PROMOTIONS (SELECTED) =====
+  const [resetTableState, setResetTableState] = useState({
+    isOpen: false,
+    selectedProductIds: [] as string[],
+  });
+
   // Global page size from global settings (synced across all admin pages)
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
@@ -102,16 +146,29 @@ export default function ProductPromotionPage() {
   });
 
   useEffect(() => {
+    // Determine hasSize filter value
+    let hasSize: boolean | undefined;
+    if (sizeFilter === "true") {
+      hasSize = true;
+    } else if (sizeFilter === "false") {
+      hasSize = false;
+    }
+    // if ALL, hasSize remains undefined (no filter)
+
     dispatch(
       fetchAllProductAdminService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
         hasPromotion: true,
-        status:
-          filters.status == ProductStatus.ALL ? undefined : filters.status,
+        statuses:
+          filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
+        subcategoryId: selectedSubcategories?.id,
+        hasSize,
+        sortBy,
+        sortDirection,
       }),
     );
   }, [
@@ -122,6 +179,10 @@ export default function ProductPromotionPage() {
     globalPageSize,
     selectedBrand,
     selectedCategories,
+    selectedSubcategories,
+    sizeFilter,
+    sortBy,
+    sortDirection,
   ]);
 
   // Event handlers
@@ -158,12 +219,27 @@ export default function ProductPromotionPage() {
     });
   };
 
-  const tableHandlers = useMemo(
+  const handleStatusChange = (productId: string, status: string) => {
+    // Optimistic update - update local state immediately for instant UI feedback
+    dispatch(
+      updateProductOptimistic({
+        id: productId,
+        status,
+      })
+    );
 
-  // ===== RESET ALL PROMOTIONS =====
-  const [resetAllState, setResetAllState] = useState({
-    isOpen: false,
-  });
+    // Call API in background without blocking UI
+    dispatch(
+      updateProductService({
+        productId,
+        productData: { status },
+      })
+    ).then(() => {
+      showToast.success(`Product status updated to ${status}`);
+    }).catch((error: any) => {
+      showToast.error(error?.message || "Failed to update product status");
+    });
+  };
 
   const handleResetAllPromotions = () => {
     setResetAllState({ isOpen: true });
@@ -176,20 +252,13 @@ export default function ProductPromotionPage() {
   const handleConfirmResetAllPromotions = async () => {
     dispatch(resetAllPromotionsOptimistic());
     closeResetAllModal();
-    dispatch(resetAllPromotionsService())
-      .then(() => {
-        showToast.success("All promotions reset successfully");
-      })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to reset all promotions");
-      });
+    try {
+      await dispatch(resetAllPromotionsService()).unwrap();
+      showToast.success("All promotions reset successfully");
+    } catch (error: any) {
+      showToast.error(error?.message || error || "Failed to reset all promotions");
+    }
   };
-
-  // ===== RESET TABLE PROMOTIONS (SELECTED) =====
-  const [resetTableState, setResetTableState] = useState({
-    isOpen: false,
-    selectedProductIds: [] as string[],
-  });
 
   const handleResetTablePromotions = () => {
     const selectedIds = productContent?.filter((p) => p.isSelected).map((p) => p.id) || [];
@@ -208,21 +277,24 @@ export default function ProductPromotionPage() {
   };
 
   const handleConfirmResetTablePromotions = async () => {
-    dispatch(resetTablePromotionsOptimistic(resetTableState.selectedProductIds));
+    const ids = resetTableState.selectedProductIds;
+    dispatch(resetTablePromotionsOptimistic(ids));
     closeResetTableModal();
-    dispatch(resetBulkPromotionsService(resetTableState.selectedProductIds as any))
-      .then(() => {
-        showToast.success(`Reset promotions for ${resetTableState.selectedProductIds.length} products`);
-      })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to reset promotions");
-      });
+    try {
+      await dispatch(resetBulkPromotionsService(ids as any)).unwrap();
+      showToast.success(`Reset promotions for ${ids.length} products`);
+    } catch (error: any) {
+      showToast.error(error?.message || error || "Failed to reset promotions");
+    }
   };
+
+  const tableHandlers = useMemo(
     () => ({
       handleEditProduct,
       handleProductViewDetail,
       handleDeleteProduct,
       handleResetPromotion,
+      handleStatusChange,
     }),
     [],
   );
@@ -311,15 +383,14 @@ export default function ProductPromotionPage() {
     closeResetPromotionModal();
 
     // Call API in background without blocking UI
-    dispatch(resetProductPromotionService(resetPromotionState.product.id))
-      .then(() => {
-        showToast.success(
-          `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
-        );
-      })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to reset promotion");
-      });
+    try {
+      await dispatch(resetProductPromotionService(resetPromotionState.product.id)).unwrap();
+      showToast.success(
+        `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
+      );
+    } catch (error: any) {
+      showToast.error(error?.message || error || "Failed to reset promotion");
+    }
   };
 
   const handleProductStatusChange = (status: ProductStatus) => {
@@ -336,63 +407,111 @@ export default function ProductPromotionPage() {
     setSelectedCategories(categories);
   };
 
+  const handleSubcategoriesChange = (
+    subcategories: SubcategoriesResponseModel | null,
+  ) => {
+    setSelectedSubcategories(subcategories);
+  };
+
+  const handleSizeFilterChange = (value: string) => {
+    setSizeFilter(value);
+  };
+
+  const handleSortByChange = (value: string) => {
+    setSortBy(value);
+  };
+
+  const handleSortDirectionChange = (value: string) => {
+    setSortDirection(value);
+  };
+
+  // Create filter configuration for CollapsibleFilterPanel
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Product Promotions",
+    searchValue: filters.search,
+    searchPlaceholder: "Search product...",
+    onSearchChange: handleSearchChange,
+    buttonText: "Create Promotion",
+    buttonDisabled: false,
+    onButtonClick: handleCreatePromotion,
+    filters: [
+      {
+        id: "status",
+        type: "select",
+        label: "Product Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => handleProductStatusChange(value as ProductStatus),
+        options: PRODUCT_STATUS_FILTER,
+      },
+      {
+        id: "brand",
+        type: "combobox-brand",
+        label: "Brand",
+        placeholder: "All Brand",
+        value: selectedBrand,
+        onChange: handleBrandChange,
+        showAllOption: true,
+      },
+      {
+        id: "category",
+        type: "combobox-categories",
+        label: "Category",
+        placeholder: "All Categories",
+        value: selectedCategories,
+        onChange: handleCategoriesChange,
+        showAllOption: true,
+      },
+      {
+        id: "subcategory",
+        type: "combobox-subcategories",
+        label: "Subcategory",
+        placeholder: "All Subcategories",
+        value: selectedSubcategories,
+        onChange: handleSubcategoriesChange,
+        showAllOption: true,
+      },
+      {
+        id: "size",
+        type: "select",
+        label: "Product Size",
+        placeholder: "All Products",
+        value: sizeFilter,
+        onChange: handleSizeFilterChange,
+        options: PRODUCT_SIZE_FILTER,
+      },
+      {
+        id: "sortBy",
+        type: "select",
+        label: "Sort By",
+        placeholder: "Created Date",
+        value: sortBy,
+        onChange: handleSortByChange,
+        options: SORT_BY_OPTIONS,
+      },
+      {
+        id: "sortDirection",
+        type: "select",
+        label: "Order",
+        placeholder: "DESC",
+        value: sortDirection,
+        onChange: handleSortDirectionChange,
+        options: SORT_DIRECTION_OPTIONS,
+      },
+    ],
+  }), [filters.search, filters.status, selectedBrand, selectedCategories, selectedSubcategories, sizeFilter, sortBy, sortDirection]);
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        <CardHeaderSection
-          title="Product Promotions"
-          searchValue={filters.search}
-          searchPlaceholder="Search product..."
-          buttonTooltip="Create bulk promotion for multiple products"
-          buttonIcon={<Plus className="w-3 h-3" />}
-          buttonText="Create Promotion"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreatePromotion}
-        >
-          <ComboboxSelectBrand
-            dataSelect={selectedBrand}
-            onChangeSelected={handleBrandChange}
-            placeholder="All Brand"
-            showAllOption={true}
-          />
-
-          <ComboboxSelectCategories
-            dataSelect={selectedCategories}
-            onChangeSelected={handleCategoriesChange}
-            placeholder="All Categires"
-            showAllOption={true}
-          />
-
-          <CustomSelect
-
-        {/* Action Buttons for Reset */}
-        <div className="flex gap-2">
-          <button
-            onClick={handleResetTablePromotions}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-          >
-            Reset Selected
-          </button>
-
-          <button
-            onClick={handleResetAllPromotions}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-          >
-            Reset All
-          </button>
-        </div>
-            options={PRODUCT_STATUS_FILTER}
-            value={filters.status}
-            placeholder="All Status"
-            onValueChange={(value) =>
-              handleProductStatusChange(value as ProductStatus)
-            }
-            label="Product Status"
-          />
-        </CardHeaderSection>
+        <CollapsibleFilterPanel
+          config={filterConfig}
+          essentialFilterIds={["size", "status"]}
+        />
 
         {/* Data Table with Your Custom Pagination */}
-        <DataTableWithPagination
+        <div className="overflow-x-auto max-w-full rounded-lg border">
+          <DataTableWithPagination
           data={productContent}
           columns={columns}
           loading={isLoading}
@@ -406,6 +525,7 @@ export default function ProductPromotionPage() {
           onPageSizeChange={handlePageSizeChange}
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
+        </div>
       </div>
 
       {/* Modals Add/Edit */}
@@ -450,7 +570,6 @@ export default function ProductPromotionPage() {
         buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
         isDangerous={false}
       />
-    </div>
 
       {/* Reset All Promotions Modal */}
       <ConfirmationModal
@@ -481,5 +600,6 @@ export default function ProductPromotionPage() {
         buttonColor="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
         isDangerous={false}
       />
+    </div>
   );
 }

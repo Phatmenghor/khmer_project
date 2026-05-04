@@ -18,6 +18,9 @@ export interface OperationStates {
   isUpdating: boolean;
   isDeleting: boolean;
   isFetchingDetail: boolean;
+  isResettingPromotion: boolean;
+  isResettingAll: boolean;
+  isResettingBulk: boolean;
 }
 
 export interface ProductManagementState {

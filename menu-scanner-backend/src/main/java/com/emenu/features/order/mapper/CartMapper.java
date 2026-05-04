@@ -1,11 +1,13 @@
 package com.emenu.features.order.mapper;
 
 import com.emenu.features.order.dto.helper.CartCreateHelper;
+import com.emenu.features.order.dto.response.CartItemCustomizationResponse;
 import com.emenu.features.order.dto.response.CartItemResponse;
 import com.emenu.features.order.dto.response.CartResponse;
 import com.emenu.features.order.dto.response.CartSummaryResponse;
 import com.emenu.features.order.models.Cart;
 import com.emenu.features.order.models.CartItem;
+import com.emenu.features.order.models.CartItemCustomization;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.*;
@@ -39,42 +41,26 @@ public interface CartMapper {
             response.setProductImageUrl(cartItem.getProduct().getMainImageUrl());
             response.setStatus(cartItem.getProduct().getStatus() != null
                     ? cartItem.getProduct().getStatus().name() : null);
+            // Set SKU and barcode from product master data
+            response.setSku(cartItem.getProduct().getSku());
+            response.setBarcode(cartItem.getProduct().getBarcode());
         }
     }
 
-    @AfterMapping
-    default void setPromotionDetails(@MappingTarget CartItemResponse response, CartItem cartItem) {
-        if (cartItem.getProductSize() != null && cartItem.getProductSize().isPromotionActive()) {
-            response.setPromotionType(cartItem.getProductSize().getPromotionType() != null ?
-                    cartItem.getProductSize().getPromotionType().name() : null);
-            response.setPromotionValue(cartItem.getProductSize().getPromotionValue());
-            response.setPromotionFromDate(cartItem.getProductSize().getPromotionFromDate());
-            response.setPromotionToDate(cartItem.getProductSize().getPromotionToDate());
-        } else if (cartItem.getProduct() != null && cartItem.getProduct().isPromotionActive()) {
-            response.setPromotionType(cartItem.getProduct().getPromotionType() != null ?
-                    cartItem.getProduct().getPromotionType().name() : null);
-            response.setPromotionValue(cartItem.getProduct().getPromotionValue());
-            response.setPromotionFromDate(cartItem.getProduct().getPromotionFromDate());
-            response.setPromotionToDate(cartItem.getProduct().getPromotionToDate());
-        }
-    }
 
-    /**
-     * Calculate detailed pricing breakdown for standardized format across cart/checkout/order
-     */
     @AfterMapping
-    default void calculatePricingBreakdown(@MappingTarget CartItemResponse response, CartItem cartItem) {
-        if (response.getCurrentPrice() != null && response.getQuantity() != null) {
-            // totalBeforeDiscount: currentPrice * quantity
-            BigDecimal totalBeforeDiscount = response.getCurrentPrice()
-                    .multiply(new BigDecimal(response.getQuantity()));
-            response.setTotalBeforeDiscount(totalBeforeDiscount);
-
-            // discountAmount: totalBeforeDiscount - totalPrice
-            if (response.getTotalPrice() != null) {
-                BigDecimal discountAmount = totalBeforeDiscount.subtract(response.getTotalPrice());
-                response.setDiscountAmount(discountAmount);
-            }
+    default void setCustomizations(@MappingTarget CartItemResponse response, CartItem cartItem) {
+        if (cartItem.getCustomizations() != null && !cartItem.getCustomizations().isEmpty()) {
+            response.setCustomizations(
+                    cartItem.getCustomizations().stream()
+                            .map(custom -> new CartItemCustomizationResponse(
+                                    custom.getId(),
+                                    custom.getProductCustomizationId(),
+                                    custom.getName(),
+                                    custom.getPriceAdjustment()
+                            ))
+                            .toList()
+            );
         }
     }
 

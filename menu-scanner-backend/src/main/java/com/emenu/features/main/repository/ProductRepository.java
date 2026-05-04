@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Sort;
 
 import com.emenu.enums.product.ProductStatus;
+import com.emenu.enums.product.StockStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -100,12 +101,24 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "WHERE p.isDeleted = false " +
            "AND (:businessId IS NULL OR p.businessId = :businessId) " +
            "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
+           "AND (:subcategoryId IS NULL OR p.subcategoryId = :subcategoryId) " +
            "AND (:brandId IS NULL OR p.brandId = :brandId) " +
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
-           "AND (:needsPromotion IS NULL OR p.hasActivePromotion = true) " +
-           "AND (:needsNoPromotion IS NULL OR p.hasActivePromotion = false) " +
-           "AND (:minPrice IS NULL OR p.displayPrice >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR p.displayPrice <= :maxPrice) " +
+           "AND (:needsPromotion IS NULL OR ((p.hasSizes = false AND p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP)) OR (p.hasSizes = true AND EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
+           "AND (:needsNoPromotion IS NULL OR ((p.hasSizes = false AND (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) OR (p.hasSizes = true AND NOT EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
+           "AND (:minPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) <= :maxPrice) " +
+           "AND (:hasSizes IS NULL OR p.hasSizes = :hasSizes) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -114,12 +127,14 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Page<Product> findAllWithFiltersOptimized(
         @Param("businessId") UUID businessId,
         @Param("categoryId") UUID categoryId,
+        @Param("subcategoryId") UUID subcategoryId,
         @Param("brandId") UUID brandId,
         @Param("statuses") List<ProductStatus> statuses,
         @Param("needsPromotion") Boolean needsPromotion,
         @Param("needsNoPromotion") Boolean needsNoPromotion,
         @Param("minPrice") BigDecimal minPrice,
         @Param("maxPrice") BigDecimal maxPrice,
+        @Param("hasSizes") Boolean hasSizes,
         @Param("search") String search,
         Pageable pageable
     );
@@ -134,12 +149,25 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "WHERE p.isDeleted = false " +
            "AND (:businessId IS NULL OR p.businessId = :businessId) " +
            "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
+           "AND (:subcategoryId IS NULL OR p.subcategoryId = :subcategoryId) " +
            "AND (:brandId IS NULL OR p.brandId = :brandId) " +
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
-           "AND (:needsPromotion IS NULL OR p.hasActivePromotion = true) " +
-           "AND (:needsNoPromotion IS NULL OR p.hasActivePromotion = false) " +
-           "AND (:minPrice IS NULL OR p.displayPrice >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR p.displayPrice <= :maxPrice) " +
+           "AND (:needsPromotion IS NULL OR ((p.hasSizes = false AND p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP)) OR (p.hasSizes = true AND EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
+           "AND (:needsNoPromotion IS NULL OR ((p.hasSizes = false AND (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) OR (p.hasSizes = true AND NOT EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
+           "AND (:minPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) <= :maxPrice) " +
+           "AND (:hasSizes IS NULL OR p.hasSizes = :hasSizes) " +
+           "AND (:stockStatuses IS NULL OR p.stockStatus IN :stockStatuses) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -148,12 +176,15 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Page<Product> findAllWithFilters(
         @Param("businessId") UUID businessId,
         @Param("categoryId") UUID categoryId,
+        @Param("subcategoryId") UUID subcategoryId,
         @Param("brandId") UUID brandId,
         @Param("statuses") List<ProductStatus> statuses,
         @Param("needsPromotion") Boolean needsPromotion,
         @Param("needsNoPromotion") Boolean needsNoPromotion,
         @Param("minPrice") BigDecimal minPrice,
         @Param("maxPrice") BigDecimal maxPrice,
+        @Param("hasSizes") Boolean hasSizes,
+        @Param("stockStatuses") List<StockStatus> stockStatuses,
         @Param("search") String search,
         Pageable pageable
     );
@@ -172,10 +203,20 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
            "AND (:brandId IS NULL OR p.brandId = :brandId) " +
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
-           "AND (:needsPromotion IS NULL OR p.hasActivePromotion = true) " +
-           "AND (:needsNoPromotion IS NULL OR p.hasActivePromotion = false) " +
-           "AND (:minPrice IS NULL OR p.displayPrice >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR p.displayPrice <= :maxPrice) " +
+           "AND (:needsPromotion IS NULL OR ((p.hasSizes = false AND p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP)) OR (p.hasSizes = true AND EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
+           "AND (:needsNoPromotion IS NULL OR ((p.hasSizes = false AND (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) OR (p.hasSizes = true AND NOT EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
+           "AND (:minPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR (CASE " +
+           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
+           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
+           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
+           "  ELSE p.price " +
+           "END) <= :maxPrice) " +
            "AND (:search IS NULL OR :search = '' OR " +
            "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -258,35 +299,35 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         "    has_active_promotion = true, " +
         "    display_promotion_type = (" +
         "        SELECT ps.promotion_type FROM product_sizes ps " +
-        "        WHERE ps.product_id = p.id AND ps.is_deleted = false " +
+        "        WHERE ps.productId = p.id AND ps.is_deleted = false " +
         "          AND ps.promotion_value IS NOT NULL AND ps.promotion_type IS NOT NULL " +
         "          AND (ps.promotion_from_date IS NULL OR ps.promotion_from_date::date <= CURRENT_DATE) " +
         "          AND (ps.promotion_to_date   IS NULL OR ps.promotion_to_date::date   >= CURRENT_DATE) " +
         "        ORDER BY ps.price ASC LIMIT 1), " +
         "    display_promotion_value = (" +
         "        SELECT ps.promotion_value FROM product_sizes ps " +
-        "        WHERE ps.product_id = p.id AND ps.is_deleted = false " +
+        "        WHERE ps.productId = p.id AND ps.is_deleted = false " +
         "          AND ps.promotion_value IS NOT NULL AND ps.promotion_type IS NOT NULL " +
         "          AND (ps.promotion_from_date IS NULL OR ps.promotion_from_date::date <= CURRENT_DATE) " +
         "          AND (ps.promotion_to_date   IS NULL OR ps.promotion_to_date::date   >= CURRENT_DATE) " +
         "        ORDER BY ps.price ASC LIMIT 1), " +
         "    display_promotion_from_date = (" +
         "        SELECT ps.promotion_from_date FROM product_sizes ps " +
-        "        WHERE ps.product_id = p.id AND ps.is_deleted = false " +
+        "        WHERE ps.productId = p.id AND ps.is_deleted = false " +
         "          AND ps.promotion_value IS NOT NULL AND ps.promotion_type IS NOT NULL " +
         "          AND (ps.promotion_from_date IS NULL OR ps.promotion_from_date::date <= CURRENT_DATE) " +
         "          AND (ps.promotion_to_date   IS NULL OR ps.promotion_to_date::date   >= CURRENT_DATE) " +
         "        ORDER BY ps.price ASC LIMIT 1), " +
         "    display_promotion_to_date = (" +
         "        SELECT ps.promotion_to_date FROM product_sizes ps " +
-        "        WHERE ps.product_id = p.id AND ps.is_deleted = false " +
+        "        WHERE ps.productId = p.id AND ps.is_deleted = false " +
         "          AND ps.promotion_value IS NOT NULL AND ps.promotion_type IS NOT NULL " +
         "          AND (ps.promotion_from_date IS NULL OR ps.promotion_from_date::date <= CURRENT_DATE) " +
         "          AND (ps.promotion_to_date   IS NULL OR ps.promotion_to_date::date   >= CURRENT_DATE) " +
         "        ORDER BY ps.price ASC LIMIT 1), " +
         "    display_origin_price = (" +
         "        SELECT ps.price FROM product_sizes ps " +
-        "        WHERE ps.product_id = p.id AND ps.is_deleted = false " +
+        "        WHERE ps.productId = p.id AND ps.is_deleted = false " +
         "          AND ps.promotion_value IS NOT NULL AND ps.promotion_type IS NOT NULL " +
         "          AND (ps.promotion_from_date IS NULL OR ps.promotion_from_date::date <= CURRENT_DATE) " +
         "          AND (ps.promotion_to_date   IS NULL OR ps.promotion_to_date::date   >= CURRENT_DATE) " +
@@ -299,7 +340,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         "                THEN GREATEST(0, ps.price - ps.promotion_value) " +
         "            ELSE ps.price " +
         "        END FROM product_sizes ps " +
-        "        WHERE ps.product_id = p.id AND ps.is_deleted = false " +
+        "        WHERE ps.productId = p.id AND ps.is_deleted = false " +
         "          AND ps.promotion_value IS NOT NULL AND ps.promotion_type IS NOT NULL " +
         "          AND (ps.promotion_from_date IS NULL OR ps.promotion_from_date::date <= CURRENT_DATE) " +
         "          AND (ps.promotion_to_date   IS NULL OR ps.promotion_to_date::date   >= CURRENT_DATE) " +
@@ -309,7 +350,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         "  AND p.has_active_promotion = false " +
         "  AND EXISTS ( " +
         "      SELECT 1 FROM product_sizes ps " +
-        "      WHERE ps.product_id = p.id " +
+        "      WHERE ps.productId = p.id " +
         "        AND ps.is_deleted = false " +
         "        AND ps.promotion_value IS NOT NULL " +
         "        AND ps.promotion_type  IS NOT NULL " +
@@ -330,14 +371,14 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         "    display_promotion_value = NULL, " +
         "    display_promotion_from_date = NULL, " +
         "    display_promotion_to_date = NULL, " +
-        "    display_price        = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false), " +
-        "    display_origin_price = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false) " +
+        "    display_price        = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.productId = p.id AND ps.is_deleted = false), " +
+        "    display_origin_price = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.productId = p.id AND ps.is_deleted = false) " +
         "WHERE p.is_deleted = false " +
         "  AND p.has_sizes = true " +
         "  AND p.has_active_promotion = true " +
         "  AND NOT EXISTS ( " +
         "      SELECT 1 FROM product_sizes ps " +
-        "      WHERE ps.product_id = p.id " +
+        "      WHERE ps.productId = p.id " +
         "        AND ps.is_deleted = false " +
         "        AND ps.promotion_value IS NOT NULL " +
         "        AND ps.promotion_type  IS NOT NULL " +
@@ -385,19 +426,21 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         "    display_promotion_value = NULL, " +
         "    display_promotion_from_date = NULL, " +
         "    display_promotion_to_date = NULL, " +
-        "    display_price = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false), " +
-        "    display_origin_price = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.product_id = p.id AND ps.is_deleted = false) " +
+        "    display_price = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.productId = p.id AND ps.is_deleted = false), " +
+        "    display_origin_price = (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.productId = p.id AND ps.is_deleted = false) " +
         "WHERE p.business_id = :businessId " +
         "  AND p.is_deleted = false " +
         "  AND p.has_sizes = true")
     int resetAllPromotionsForProductsWithSizes(@Param("businessId") UUID businessId);
 
     /**
-     * Bulk reset promotions for specific products (by IDs)
+     * Reset promotion for a single product.
+     * Handles both with/without sizes for display_price calculation.
+     * clearAutomatically evicts stale entities from the L1 cache so subsequent reads are fresh.
      */
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(nativeQuery = true, value =
-        "UPDATE products SET " +
+        "UPDATE products p SET " +
         "    promotion_type = NULL, " +
         "    promotion_value = NULL, " +
         "    promotion_from_date = NULL, " +
@@ -407,9 +450,35 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         "    display_promotion_value = NULL, " +
         "    display_promotion_from_date = NULL, " +
         "    display_promotion_to_date = NULL, " +
-        "    display_price = price, " +
-        "    display_origin_price = price " +
-        "WHERE id IN :productIds " +
-        "  AND is_deleted = false")
+        "    display_price = CASE WHEN p.has_sizes = false THEN p.price " +
+        "                         ELSE (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.productId = p.id AND ps.is_deleted = false) END, " +
+        "    display_origin_price = CASE WHEN p.has_sizes = false THEN p.price " +
+        "                                ELSE (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.productId = p.id AND ps.is_deleted = false) END " +
+        "WHERE p.id = :productId " +
+        "  AND p.is_deleted = false")
+    int resetProductPromotionById(@Param("productId") UUID productId);
+
+    /**
+     * Bulk reset promotions for specific products (by IDs).
+     * Products without sizes use their own price; products with sizes use MIN(size.price).
+     */
+    @Modifying
+    @Query(nativeQuery = true, value =
+        "UPDATE products p SET " +
+        "    promotion_type = NULL, " +
+        "    promotion_value = NULL, " +
+        "    promotion_from_date = NULL, " +
+        "    promotion_to_date = NULL, " +
+        "    has_active_promotion = false, " +
+        "    display_promotion_type = NULL, " +
+        "    display_promotion_value = NULL, " +
+        "    display_promotion_from_date = NULL, " +
+        "    display_promotion_to_date = NULL, " +
+        "    display_price = CASE WHEN p.has_sizes = false THEN p.price " +
+        "                         ELSE (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.productId = p.id AND ps.is_deleted = false) END, " +
+        "    display_origin_price = CASE WHEN p.has_sizes = false THEN p.price " +
+        "                                ELSE (SELECT MIN(ps.price) FROM product_sizes ps WHERE ps.productId = p.id AND ps.is_deleted = false) END " +
+        "WHERE p.id IN :productIds " +
+        "  AND p.is_deleted = false")
     int resetPromotionsBulk(@Param("productIds") List<UUID> productIds);
 }

@@ -11,6 +11,5 @@ public class BannerCreateRequest {
     private String imageUrl;
 
     private String description;
-    private String linkUrl;
     private Status status = Status.ACTIVE;
 }

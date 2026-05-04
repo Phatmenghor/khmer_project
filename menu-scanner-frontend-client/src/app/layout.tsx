@@ -40,11 +40,13 @@ export default async function RootLayout({
     <html
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable}`}
+      style={{ colorScheme: "light", backgroundColor: "#ffffff" }}
     >
       <head>
         <link rel="icon" href="/favicon.ico" />
+        <meta name="color-scheme" content="light" />
       </head>
-      <body className="antialiased">
+      <body className="antialiased" style={{ backgroundColor: "#ffffff" }}>
         <LocaleProvider initialLocale={locale} initialMessages={messages}>
           <ClientProviders>
             <AuthProvider>

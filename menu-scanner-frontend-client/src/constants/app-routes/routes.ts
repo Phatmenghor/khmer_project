@@ -5,6 +5,7 @@ import {
   LucideIcon,
   LucideBriefcaseBusiness,
   ShoppingCart,
+  Settings,
 } from "lucide-react";
 
 export const ROUTES = {
@@ -27,6 +28,7 @@ export const ROUTES = {
     BRAND: "/admin/brand",
     BANNER: "/admin/banner",
     CATEGORIES: "/admin/categories",
+    SUBCATEGORIES: "/admin/subcategories",
     EXCHANGE_RATE: "/admin/exchange-rate",
     DELIVERY_OPTIONS: "/admin/delivery-options",
     PAYMENT_OPTIONS: "/admin/payment-options",
@@ -34,8 +36,15 @@ export const ROUTES = {
     PRODUCTS_PROMOTION: "/admin/product-promotions",
     BULK_PROMOTION_CREATION: "/admin/bulk-promotion",
     ORDERS: "/admin/orders",
-    ORDERS_CREATE: "/admin/orders/create",
+    ORDERS_PENDING: "/admin/orders/pending",
     POS: "/admin/pos",
+    BUSINESS_SETTINGS: "/admin/manage-business-settings",
+  },
+
+  MANAGE_STOCK: {
+    PRODUCTS_STOCK: "/admin/manage-stock/products-stock",
+    SIZE_STOCK: "/admin/manage-stock/size-stock",
+    STOCK_ITEMS: "/admin/manage-stock/stock-items",
   },
 
   HR: {
@@ -101,6 +110,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
         href: ROUTES.ADMIN.CATEGORIES,
       },
       {
+        title: "Subcategories",
+        href: ROUTES.ADMIN.SUBCATEGORIES,
+      },
+      {
         title: "Brand",
         href: ROUTES.ADMIN.BRAND,
       },
@@ -138,6 +151,38 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Orders",
         href: ROUTES.ADMIN.ORDERS,
+      },
+      {
+        title: "Pending Orders",
+        href: ROUTES.ADMIN.ORDERS_PENDING,
+      },
+    ],
+  },
+  {
+    title: "Stock Management",
+    icon: ShoppingCart,
+    items: [
+      {
+        title: "Stock Items",
+        href: ROUTES.MANAGE_STOCK.STOCK_ITEMS,
+      },
+      {
+        title: "Products Stock",
+        href: ROUTES.MANAGE_STOCK.PRODUCTS_STOCK,
+      },
+      {
+        title: "Size Stock",
+        href: ROUTES.MANAGE_STOCK.SIZE_STOCK,
+      },
+    ],
+  },
+  {
+    title: "Settings",
+    icon: Settings,
+    items: [
+      {
+        title: "Business Settings",
+        href: ROUTES.ADMIN.BUSINESS_SETTINGS,
       },
     ],
   },

@@ -344,7 +344,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
 
         if (token) {
           config.headers["Authorization"] = `Bearer ${token}`;
-        } else {
+        } else if (isDevelopment) {
           logger.warn(
             "No authentication token for protected route",
             undefined,
@@ -501,14 +501,31 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         // Check if this is the refresh token endpoint itself failing
         if (originalRequest.url?.includes("/api/v1/auth/refresh")) {
           const admin = isAdminUser();
+          const hadToken = admin ? !!getAdminToken() : !!getToken();
+
           if (admin) {
             clearAdminTokens();
           } else {
             clearAllTokens();
           }
+
           if (typeof window !== "undefined") {
-            toast.error("Session expired. Please login again.");
-            window.location.href = admin ? "/admin/login" : "/login";
+            // Only show session expired if user WAS logged in
+            // Skip on login page and public pages
+            const isOnLoginPage = window.location.pathname.includes("/login");
+            const isOnPublicHome = window.location.pathname === "/";
+
+            if (!isOnLoginPage && !isOnPublicHome && hadToken) {
+              toast.error("Session expired. Please login again.");
+              // Auto-refresh page after short delay to show toast
+              setTimeout(() => {
+                window.location.href = admin ? "/admin/login" : "/login";
+                // Ensure page refresh instead of just redirect
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
+              }, 1000);
+            }
           }
           return Promise.reject(error);
         }
@@ -538,10 +555,29 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
 
         if (!refreshToken) {
           isRefreshing = false;
-          if (admin) clearAdminTokens(); else clearAllTokens();
+          const admin = isAdminUser();
+          const hadToken = admin ? !!getAdminToken() : !!getToken();
+
+          if (admin) clearAdminTokens();
+          else clearAllTokens();
+
           if (typeof window !== "undefined") {
-            toast.error("Session expired. Please login again.");
-            window.location.href = admin ? "/admin/login" : "/login";
+            // Only show session expired if user WAS logged in
+            // Skip on login page and public pages
+            const isOnLoginPage = window.location.pathname.includes("/login");
+            const isOnPublicHome = window.location.pathname === "/";
+
+            if (!isOnLoginPage && !isOnPublicHome && hadToken) {
+              toast.error("Session expired. Please login again.");
+              // Auto-refresh page after short delay to show toast
+              setTimeout(() => {
+                window.location.href = admin ? "/admin/login" : "/login";
+                // Ensure page refresh instead of just redirect
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
+              }, 1000);
+            }
           }
           return Promise.reject(error);
         }
@@ -572,10 +608,29 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           return axiosInstance(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError, null);
-          if (admin) clearAdminTokens(); else clearAllTokens();
+          const admin = isAdminUser();
+          const hadToken = admin ? !!getAdminToken() : !!getToken();
+
+          if (admin) clearAdminTokens();
+          else clearAllTokens();
+
           if (typeof window !== "undefined") {
-            toast.error("Session expired. Please login again.");
-            window.location.href = admin ? "/admin/login" : "/login";
+            // Only show session expired if user WAS logged in
+            // Skip on login page and public pages
+            const isOnLoginPage = window.location.pathname.includes("/login");
+            const isOnPublicHome = window.location.pathname === "/";
+
+            if (!isOnLoginPage && !isOnPublicHome && hadToken) {
+              toast.error("Session expired. Please login again.");
+              // Auto-refresh page after short delay to show toast
+              setTimeout(() => {
+                window.location.href = admin ? "/admin/login" : "/login";
+                // Ensure page refresh instead of just redirect
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
+              }, 1000);
+            }
           }
           return Promise.reject(refreshError);
         } finally {

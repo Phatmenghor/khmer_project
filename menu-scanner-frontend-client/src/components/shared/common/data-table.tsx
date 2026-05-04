@@ -40,6 +40,7 @@ interface DataTableWithPaginationProps<T = any> {
   onPageChange: (page: number) => void;
   paginationSize?: "sm" | "md" | "lg";
   showPagination?: boolean;
+  hideEllipsis?: boolean;
 
   // Page size selector props
   pageSize?: number;
@@ -61,6 +62,7 @@ export function DataTableWithPagination<T = any>({
   onPageChange,
   paginationSize = "md",
   showPagination = true,
+  hideEllipsis = false,
   pageSize = 10,
   totalElements = 0,
   onPageSizeChange = () => {},
@@ -99,20 +101,21 @@ export function DataTableWithPagination<T = any>({
     } else {
       items.push(1);
 
-      let start = Math.max(PAGINATION_START_OFFSET, currentPage - 1);
-      let end = Math.min(totalPages - 1, currentPage + 1);
+      // Center current page with 2 pages on each side (5 total pages)
+      let start = Math.max(PAGINATION_START_OFFSET, currentPage - 2);
+      let end = Math.min(totalPages - 1, currentPage + 2);
 
       if (currentPage <= PAGINATION_SIDE_ITEMS) {
         start = PAGINATION_START_OFFSET;
-        end = PAGINATION_WINDOW_SIZE;
+        end = PAGINATION_WINDOW_SIZE + 1;
       }
 
-      if (currentPage >= totalPages - 2) {
-        start = totalPages - PAGINATION_SIDE_ITEMS;
+      if (currentPage >= totalPages - 3) {
+        start = totalPages - PAGINATION_SIDE_ITEMS - 1;
         end = totalPages - 1;
       }
 
-      if (start > PAGINATION_START_OFFSET) {
+      if (!hideEllipsis && start > PAGINATION_START_OFFSET) {
         items.push("ellipsis");
       }
 
@@ -120,7 +123,7 @@ export function DataTableWithPagination<T = any>({
         items.push(i);
       }
 
-      if (end < totalPages - 1) {
+      if (!hideEllipsis && end < totalPages - 1) {
         items.push("ellipsis");
       }
 
@@ -231,7 +234,7 @@ export function DataTableWithPagination<T = any>({
               tableData.map((item, index) => (
                 <tr
                   key={getRowKey(item, index)}
-                  className={`text-sm transition-all duration-200 hover:bg-muted/30 ${
+                  className={`text-sm transition-all duration-200 hover:bg-primary/5 ${
                     onRowClick ? "cursor-pointer" : ""
                   }`}
                   onClick={() => onRowClick?.(item)}
@@ -304,7 +307,7 @@ export function DataTableWithPagination<T = any>({
                 ${
                   currentPage === 1
                     ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
-                    : "text-foreground border-border hover:bg-muted hover:border-border-strong"
+                    : "text-foreground border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
                 }
               `}
               >
@@ -335,8 +338,8 @@ export function DataTableWithPagination<T = any>({
                       rounded-lg font-medium px-2 transition-all duration-200
                       ${
                         currentPage === item
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-foreground border border-border hover:bg-muted hover:border-border-strong"
+                          ? "bg-primary text-primary-foreground border-2 border-primary shadow-md font-bold"
+                          : "text-foreground border border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
                       }
                     `}
                     >
@@ -358,7 +361,7 @@ export function DataTableWithPagination<T = any>({
                 ${
                   currentPage === totalPages
                     ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
-                    : "text-foreground border-border hover:bg-muted hover:border-border-strong"
+                    : "text-foreground border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
                 }
               `}
               >

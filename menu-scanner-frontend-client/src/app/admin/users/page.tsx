@@ -29,10 +29,7 @@ import {
   resetState,
 } from "@/redux/features/auth/store/slice/users-slice";
 import { UserResponseModel } from "@/redux/features/auth/store/models/response/users-response";
-import {
-  ACCOUNT_STATUS_FILTER,
-  USER_BUSINESS_ROLE_FILTER,
-} from "@/constants/status/filter-status";
+import { ACCOUNT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import {
   AccountStatus,
@@ -50,7 +47,16 @@ import { useAppSelector } from "@/redux/store";
 export default function UserBusinessPage() {
   useAdminCleanup(resetState);
 
-  const { filters, pagination, usersData, usersContent, userState, isLoading, operations, dispatch } = useUsersState();
+  const {
+    filters,
+    pagination,
+    usersData,
+    usersContent,
+    userState,
+    isLoading,
+    operations,
+    dispatch,
+  } = useUsersState();
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
   const rolesContent = useAppSelector(selectRolesList);
@@ -87,14 +93,21 @@ export default function UserBusinessPage() {
       pageSize: globalPageSize,
       roles: filters.role === UserRole.ALL ? [] : [filters.role],
       userTypes: [UserGropeType.BUSINESS_USER],
-      accountStatuses: filters.accountStatus === AccountStatus.ALL ? [] : [filters.accountStatus],
+      accountStatuses:
+        filters.accountStatus === AccountStatus.ALL
+          ? []
+          : [filters.accountStatus],
     };
 
-    // Debug: Log the filter payload being sent
-    console.log("📤 Sending filter to API:", filterPayload);
-
     dispatch(fetchAllUsersService(filterPayload));
-  }, [dispatch, debouncedSearch, filters.accountStatus, filters.role, filters.pageNo, globalPageSize]);
+  }, [
+    dispatch,
+    debouncedSearch,
+    filters.accountStatus,
+    filters.role,
+    filters.pageNo,
+    globalPageSize,
+  ]);
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -111,7 +124,7 @@ export default function UserBusinessPage() {
     isOpen: false,
     userBusinessId: "",
     userName: "",
-    userRole: [] as string[],
+    roles: [] as string[],
     profileImageUrl: "",
   });
 
@@ -120,11 +133,30 @@ export default function UserBusinessPage() {
     user: null as UserResponseModel | null,
   });
 
-  const handleCreateUser = () => setModalState({ isOpen: true, mode: ModalMode.CREATE_MODE, userId: "" });
-  const handleEditUser = (user: UserResponseModel) => setModalState({ isOpen: true, mode: ModalMode.UPDATE_MODE, userId: user?.id || "" });
-  const handleViewDetail = (user: UserResponseModel) => setDetailModalState({ isOpen: true, userBusinessId: user.id || "" });
-  const handleResetPassword = (user: UserResponseModel) => setResetPasswordState({ isOpen: true, userBusinessId: user.id || "", userName: user.userIdentifier || "", userRole: user.roles || [], profileImageUrl: user.profileImageUrl || "" });
-  const handleDeleteUser = (user: UserResponseModel) => setDeleteState({ isOpen: true, user });
+  const handleCreateUser = () =>
+    setModalState({ isOpen: true, mode: ModalMode.CREATE_MODE, userId: "" });
+
+  const handleEditUser = (user: UserResponseModel) =>
+    setModalState({
+      isOpen: true,
+      mode: ModalMode.UPDATE_MODE,
+      userId: user?.id || "",
+    });
+
+  const handleViewDetail = (user: UserResponseModel) =>
+    setDetailModalState({ isOpen: true, userBusinessId: user.id || "" });
+
+  const handleResetPassword = (user: UserResponseModel) =>
+    setResetPasswordState({
+      isOpen: true,
+      userBusinessId: user.id || "",
+      userName: user.userIdentifier || "",
+      roles: user.roles || [],
+      profileImageUrl: user.profileImageUrl || "",
+    });
+
+  const handleDeleteUser = (user: UserResponseModel) =>
+    setDeleteState({ isOpen: true, user });
 
   const handleToggleStatus = async (user: UserResponseModel) => {
     if (!user?.id) return;
@@ -137,12 +169,19 @@ export default function UserBusinessPage() {
   };
 
   const tableHandlers = useMemo(
-    () => ({ handleEditUser, handleViewUserDetail: handleViewDetail, handleResetPassword, handleDeleteUser, handleToggleStatus }),
+    () => ({
+      handleEditUser,
+      handleViewUserDetail: handleViewDetail,
+      handleResetPassword,
+      handleDeleteUser,
+      handleToggleStatus,
+    }),
     [],
   );
 
   const columns = useMemo(
-    () => userBusinessTableColumns({ data: usersData, handlers: tableHandlers }),
+    () =>
+      userBusinessTableColumns({ data: usersData, handlers: tableHandlers }),
     [userState, tableHandlers],
   );
 
@@ -160,7 +199,9 @@ export default function UserBusinessPage() {
     if (!deleteState.user?.id) return;
     try {
       await dispatch(deleteUserService(deleteState.user.id)).unwrap();
-      showToast.success(`User business "${deleteState.user.fullName ?? ""}" deleted successfully`);
+      showToast.success(
+        `User business "${deleteState.user.fullName ?? ""}" deleted successfully`,
+      );
       closeDeleteModal();
       if (usersContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
@@ -172,9 +213,21 @@ export default function UserBusinessPage() {
     }
   };
 
-  const closeModal = () => setModalState({ isOpen: false, mode: ModalMode.CREATE_MODE, userId: "" });
-  const closeDetailModal = () => setDetailModalState({ isOpen: false, userBusinessId: "" });
-  const closeResetPasswordModal = () => setResetPasswordState({ isOpen: false, userBusinessId: "", userName: "", userRole: [], profileImageUrl: "" });
+  const closeModal = () =>
+    setModalState({ isOpen: false, mode: ModalMode.CREATE_MODE, userId: "" });
+
+  const closeDetailModal = () =>
+    setDetailModalState({ isOpen: false, userBusinessId: "" });
+
+  const closeResetPasswordModal = () =>
+    setResetPasswordState({
+      isOpen: false,
+      userBusinessId: "",
+      userName: "",
+      roles: [] as string[],
+      profileImageUrl: "",
+    });
+
   const closeDeleteModal = () => setDeleteState({ isOpen: false, user: null });
 
   return (
@@ -195,14 +248,18 @@ export default function UserBusinessPage() {
               options={ACCOUNT_STATUS_FILTER}
               value={filters.accountStatus}
               placeholder="All Status"
-              onValueChange={(value) => dispatch(setAccountStatusFilter(value as AccountStatus))}
+              onValueChange={(value) =>
+                dispatch(setAccountStatusFilter(value as AccountStatus))
+              }
               label="Account Status"
             />
             <CustomSelect
               options={roleFilterOptions}
               value={filters.role}
               placeholder="All Roles"
-              onValueChange={(value) => dispatch(setRoleFilter(value as UserRole))}
+              onValueChange={(value) =>
+                dispatch(setRoleFilter(value as UserRole))
+              }
               label="Business Role"
             />
           </div>
@@ -224,15 +281,34 @@ export default function UserBusinessPage() {
         />
       </div>
 
-      <UserBusinessModal isOpen={modalState.isOpen} onClose={closeModal} userId={modalState.userId} mode={modalState.mode} />
-      <UserBusinessDetailModal userId={detailModalState.userBusinessId} isOpen={detailModalState.isOpen} onClose={closeDetailModal} />
-      <ResetPasswordModal isOpen={resetPasswordState.isOpen} userName={resetPasswordState.userName} userRole={resetPasswordState.userRole} profileImageUrl={resetPasswordState.profileImageUrl} onClose={closeResetPasswordModal} userId={resetPasswordState.userBusinessId} />
+      <UserBusinessModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        userId={modalState.userId}
+        mode={modalState.mode}
+      />
+
+      <UserBusinessDetailModal
+        userId={detailModalState.userBusinessId}
+        isOpen={detailModalState.isOpen}
+        onClose={closeDetailModal}
+      />
+
+      <ResetPasswordModal
+        isOpen={resetPasswordState.isOpen}
+        userName={resetPasswordState.userName}
+        userRole={resetPasswordState.roles}
+        profileImageUrl={resetPasswordState.profileImageUrl}
+        onClose={closeResetPasswordModal}
+        userId={resetPasswordState.userBusinessId}
+      />
+
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}
         onDelete={handleDelete}
         title="Delete User"
-        description={`Are you sure you want to delete this user ${deleteState.user?.userIdentifier || deleteState.user?.email}?`}
+        description={`Are you sure you want to delete this user ${deleteState.user?.userIdentifier}?`}
         itemName={deleteState.user?.fullName || deleteState.user?.email}
         isSubmitting={operations.isDeleting}
       />

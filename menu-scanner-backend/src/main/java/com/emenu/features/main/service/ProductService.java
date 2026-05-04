@@ -3,6 +3,7 @@ package com.emenu.features.main.service;
 import com.emenu.features.main.dto.filter.ProductFilterDto;
 import com.emenu.features.main.dto.request.ProductCreateDto;
 import com.emenu.features.main.dto.request.BulkPromotionCreateDto;
+import com.emenu.features.main.dto.request.ResetSelectedPromotionsDto;
 import com.emenu.features.main.dto.response.ProductDetailDto;
 import com.emenu.features.main.dto.response.ProductListDto;
 import com.emenu.features.main.dto.response.BulkPromotionResultDto;
@@ -17,6 +18,7 @@ public interface ProductService {
     ProductDetailDto createProduct(ProductCreateDto request);
     PaginationResponse<ProductDetailDto> getAllProductsAdmin(ProductFilterDto filter);
     PaginationResponse<ProductDetailDto> getAllProductsAdminPos(ProductFilterDto filter);
+    PaginationResponse<ProductDetailDto> getAllProductsAdminStock(ProductFilterDto filter);
     PaginationResponse<ProductListDto> getAllProducts(ProductFilterDto filter);
     List<ProductListDto> getAllDataProducts(ProductFilterDto filter);
     ProductDetailDto getProductById(UUID id);
@@ -25,7 +27,7 @@ public interface ProductService {
     ProductDetailDto getProductByIdPublic(UUID id);
     ProductDetailDto resetProductPromotion(UUID id);
     Map<String, Object> resetAllPromotions();
-    Map<String, Object> resetPromotionsBulk(List<UUID> productIds);
+    Map<String, Object> resetSelectedPromotions(ResetSelectedPromotionsDto request);
     BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request);
     int[] syncExpiredPromotions();
     int[] syncStartedPromotions();

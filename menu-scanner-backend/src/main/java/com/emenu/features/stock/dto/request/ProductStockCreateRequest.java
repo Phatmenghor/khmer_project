@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 public class ProductStockCreateRequest {
 
-    @NotNull(message = "Business ID is required")
+    // Set by controller from security token (not from client)
     private UUID businessId;
 
     @NotNull(message = "Product ID is required")

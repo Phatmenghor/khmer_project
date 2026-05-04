@@ -9,6 +9,7 @@ import {
   selectDefaultLocation,
   selectPrimaryLocation,
   selectLocationCount,
+  selectLocationPagination,
 } from "../selectors/location-selector";
 import {
   fetchAllLocationsService,
@@ -31,6 +32,11 @@ export const useLocationState = () => {
   const dispatch = useAppDispatch();
 
   const fetchAll = useCallback(() => dispatch(fetchAllLocationsService()), [dispatch]);
+  const fetchAllWithPagination = useCallback(
+    (params: { pageNo: number; pageSize: number }) =>
+      dispatch(fetchAllLocationsService(params)),
+    [dispatch]
+  );
   const create = useCallback((data: LocationCreateRequest) => dispatch(createLocationService(data)), [dispatch]);
   const update = useCallback((params: LocationUpdateRequest) => dispatch(updateLocationService(params)), [dispatch]);
   const remove = useCallback((locationId: string) => dispatch(deleteLocationService(locationId)), [dispatch]);
@@ -45,6 +51,7 @@ export const useLocationState = () => {
     defaultLocation: useAppSelector(selectDefaultLocation),
     primaryLocation: useAppSelector(selectPrimaryLocation),
     locationCount: useAppSelector(selectLocationCount),
+    locationPagination: useAppSelector(selectLocationPagination),
 
     // ── Loading / Error ────────────────────────────────────────────────
     isLoading: useAppSelector(selectLocationIsLoading),
@@ -53,6 +60,7 @@ export const useLocationState = () => {
 
     // ── Actions ────────────────────────────────────────────────────────
     fetchAll,
+    fetchAllWithPagination,
     create,
     update,
     remove,

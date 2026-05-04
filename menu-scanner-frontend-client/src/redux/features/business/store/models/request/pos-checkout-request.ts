@@ -1,11 +1,9 @@
 /**
  * POS Checkout Request Models
- * Matches backend POSCheckoutRequest and nested DTOs exactly.
+ * Simplified request DTOs without audit trail snapshots
  */
 
-import { ItemPricingSnapshot, OrderPricingSnapshot } from "../type/pos-page-type";
-
-// Item in the cart — matches backend POSCheckoutItemRequest
+// Item in the cart — simplified without before/after
 export interface POSCheckoutItemRequest {
   productId: string;
   productSizeId?: string | null;
@@ -17,26 +15,20 @@ export interface POSCheckoutItemRequest {
   sizeName?: string | null;
   status?: string;
 
-  // Snapshot BEFORE any POS modifications (original product pricing)
-  before: ItemPricingSnapshot;
+  // Customizations/Add-ons - full details (only productCustomizationId, no duplicate)
+  customizations?: Array<{
+    productCustomizationId: string;
+    name: string;
+    priceAdjustment: number;
+  }>;
 
-  // Was item modified by POS operator?
-  hadChangeFromPOS: boolean;
-
-  // Snapshot AFTER POS modifications (current/final pricing)
-  after: ItemPricingSnapshot;
-
-  // Flat pricing fields (used by backend as fallback / legacy support)
-  originalPrice?: number;
-  currentPrice?: number;
+  // Pricing - final price only
   finalPrice?: number;
-  hasActivePromotion?: boolean;
-  overridePrice?: number;
-  promotionType?: string | null;
-  promotionValue?: number | null;
-  totalBeforeDiscount?: number;
-  discountAmount?: number;
   totalPrice?: number;
+
+  // SKU and barcode
+  sku?: string;
+  barcode?: string;
 }
 
 export interface DeliveryOptionRequest {
@@ -46,37 +38,33 @@ export interface DeliveryOptionRequest {
   price: number;
 }
 
-// Cart summary — matches backend POSCheckoutRequest.CartSummary
+// Cart summary — simplified
 export interface CartSummary {
   businessId: string;
   businessName?: string;
   items: POSCheckoutItemRequest[];
   totalItems: number;
   totalQuantity: number;
-  subtotalBeforeDiscount: number;
   subtotal: number;
-  totalDiscount: number;
+  customizationTotal: number;
   finalTotal: number;
 }
 
-export interface POSCheckoutAddressRequest {
-  village: string;
-  commune: string;
-  district: string;
-  province: string;
-  streetNumber?: string;
-  houseNumber?: string;
-  note?: string;
-  latitude?: number;
-  longitude?: number;
-}
-
-// Order-level pricing audit trail — matches backend POSCheckoutRequest.PricingInfo
+// Order-level pricing — complete breakdown
 export interface PricingInfo {
-  before: OrderPricingSnapshot;
-  hadOrderLevelChangeFromPOS: boolean;
-  after: OrderPricingSnapshot;
-  orderLevelChangeReason?: string;
+  // Base pricing
+  subtotal: number;
+  customizationTotal: number;
+  deliveryFee: number;
+  // Tax breakdown - for proper tax tracking and audit trail
+  taxPercentage: number;
+  taxAmount: number;
+  // Optional: order-level discount (applied after tax)
+  discountAmount: number;
+  discountType?: "fixed" | "percentage" | null;
+  discountReason?: string | null;
+  // Final total
+  finalTotal: number;
 }
 
 export interface PaymentInfo {
@@ -90,8 +78,9 @@ export interface POSCheckoutRequest {
   customerId?: string;
   customerName?: string;
   customerPhone?: string;
+  customerEmail?: string;
+  customerAddress?: string;
 
-  deliveryAddress: POSCheckoutAddressRequest;
   deliveryOption: DeliveryOptionRequest;
   cart: CartSummary;
 
@@ -108,11 +97,18 @@ export interface POSCheckoutRequest {
 export interface POSCheckoutResponse {
   id: string;
   orderNumber: string;
+  // Pricing breakdown
   subtotal: number;
-  discountAmount: number;
+  customizationTotal?: number;
   deliveryFee: number;
+  // Tax fields - must be present in response
+  taxPercentage: number;
   taxAmount: number;
+  // Discount
+  discountAmount: number;
+  // Final total
   totalAmount: number;
+  // Order metadata
   orderStatus: string;
   source: string;
   paymentMethod: string;

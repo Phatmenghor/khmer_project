@@ -8,26 +8,21 @@ import { createApiThunk } from "@/utils/axios/api-wrapper";
 import { PaymentOptionType } from "@/redux/features/master-data/store/models/response/payment-option-response";
 import { OrderResponse } from "../models/response/order-response";
 import { OrderStatus } from "@/enums/order-status.enum";
+import { OrderFromEnum } from "@/enums/order.enum";
 
 export interface CheckoutPayload {
   businessId: string;
-  deliveryAddress: {
-    village: string;
-    commune: string;
-    district: string;
-    province: string;
-    streetNumber: string;
-    houseNumber: string;
-    note: string;
-    latitude: number;
-    longitude: number;
-  };
+  addressId: string;
   deliveryOption: {
     name: string;
     description: string;
     imageUrl: string;
     price: number;
   };
+  // Customer details
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
   cart: {
     businessId: string;
     businessName: string;
@@ -50,12 +45,14 @@ export interface CheckoutPayload {
       promotionValue: number;
       promotionFromDate: string;
       promotionToDate: string;
+      sku?: string;
+      barcode?: string;
     }>;
     totalItems: number;
     totalQuantity: number;
     subtotalBeforeDiscount: number;
     subtotal: number;
-    totalDiscount: number;
+    discountAmount: number;
     finalTotal: number;
   };
   payment: {
@@ -63,6 +60,7 @@ export interface CheckoutPayload {
     paymentStatus: "PENDING";
   };
   customerNote: string;
+  orderFrom: OrderFromEnum;
   orderStatus?: OrderStatus;
 }
 

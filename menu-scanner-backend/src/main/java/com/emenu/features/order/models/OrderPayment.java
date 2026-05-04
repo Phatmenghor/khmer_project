@@ -42,6 +42,9 @@ public class OrderPayment extends BaseUUIDEntity {
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;          // Items total before discounts
 
+    @Column(name = "customization_total", precision = 10, scale = 2)
+    private BigDecimal customizationTotal = BigDecimal.ZERO; // Total cost of customizations/add-ons
+
     @Column(name = "discount_amount", precision = 10, scale = 2)
     private BigDecimal discountAmount = BigDecimal.ZERO; // Total discount applied
 

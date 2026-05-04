@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import { AllFavoriteResponseModel } from "../models/response/favorite-response";
 import {
+  fetchFavoritePaginated,
   fetchFavoriteList,
   toggleFavorite,
   clearAllFavorites,
@@ -10,6 +11,11 @@ import {
 interface FavoriteState {
   items: ProductDetailResponseModel[];
   totalItems: number;
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    hasMore: boolean;
+  };
   loading: {
     fetch: boolean;
     toggle: boolean;
@@ -22,6 +28,11 @@ interface FavoriteState {
 const initialState: FavoriteState = {
   items: [],
   totalItems: 0,
+  pagination: {
+    currentPage: 1,
+    pageSize: 20,
+    hasMore: false,
+  },
   loading: {
     fetch: false,
     toggle: false,
@@ -39,7 +50,39 @@ const favoriteSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Service 1: Fetch Favorites List
+      // Service 1: Fetch Favorites with Pagination (infinite scroll)
+      .addCase(fetchFavoritePaginated.pending, (state) => {
+        state.loading.fetch = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchFavoritePaginated.fulfilled,
+        (state, action: PayloadAction<AllFavoriteResponseModel>) => {
+          state.loading.fetch = false;
+          const newItems = action.payload.content || [];
+          const pageNo = action.meta.arg.pageNo;
+
+          // First page: replace items, subsequent pages: append
+          if (pageNo === 1) {
+            state.items = newItems;
+          } else {
+            state.items.push(...newItems);
+          }
+
+          state.totalItems = action.payload.totalElements || 0;
+          state.pagination.currentPage = pageNo;
+          state.pagination.pageSize = action.meta.arg.pageSize;
+          state.pagination.hasMore = state.items.length < state.totalItems;
+          state.loaded = true;
+          state.error = null;
+        },
+      )
+      .addCase(fetchFavoritePaginated.rejected, (state, action) => {
+        state.loading.fetch = false;
+        state.error = (action.payload as string) || "Failed to fetch favorites";
+      })
+
+      // Service 2: Fetch All Favorites List (legacy - kept for backward compatibility)
       .addCase(fetchFavoriteList.pending, (state) => {
         state.loading.fetch = true;
         state.error = null;
@@ -50,6 +93,9 @@ const favoriteSlice = createSlice({
           state.loading.fetch = false;
           state.items = action.payload.content || [];
           state.totalItems = action.payload.totalElements || 0;
+          state.pagination.currentPage = 1;
+          state.pagination.pageSize = state.items.length;
+          state.pagination.hasMore = false;
           state.loaded = true;
           state.error = null;
         },
@@ -103,6 +149,11 @@ const favoriteSlice = createSlice({
         state.loading.clearAll = false;
         state.items = [];
         state.totalItems = 0;
+        state.pagination = {
+          currentPage: 1,
+          pageSize: 20,
+          hasMore: false,
+        };
         state.error = null;
       })
       .addCase(clearAllFavorites.rejected, (state, action) => {

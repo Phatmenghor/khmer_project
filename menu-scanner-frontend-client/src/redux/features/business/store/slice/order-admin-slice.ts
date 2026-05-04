@@ -42,6 +42,14 @@ const orderAdminSlice = createSlice({
       state.filters.paymentStatus = action.payload;
       state.filters.pageNo = 1;
     },
+    setStartDateFilter: (state, action: PayloadAction<string | undefined>) => {
+      state.filters.startDate = action.payload;
+      state.filters.pageNo = 1;
+    },
+    setEndDateFilter: (state, action: PayloadAction<string | undefined>) => {
+      state.filters.endDate = action.payload;
+      state.filters.pageNo = 1;
+    },
     clearError: (state) => {
       state.error = null;
     },
@@ -144,6 +152,8 @@ export const {
   setPageNo,
   setOrderStatusFilter,
   setPaymentStatusFilter,
+  setStartDateFilter,
+  setEndDateFilter,
   clearError,
   clearSelectedOrder,
   resetFilters,

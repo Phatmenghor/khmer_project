@@ -14,6 +14,7 @@ import {
   Plus,
   Camera,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -501,7 +502,7 @@ export default function AdminProfilePage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         {/* Profile Header */}
-        <Card className="mb-6">
+        <Card className="mb-6 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5 shadow-md">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               {/* Profile Image - Camera Icon */}
@@ -509,14 +510,14 @@ export default function AdminProfilePage() {
                 className="relative group cursor-pointer"
                 onClick={() => setIsProfilePictureModalOpen(true)}
               >
-                <div className="relative">
+                <div className="relative ring-2 ring-primary/20 rounded-2xl">
                   <CustomAvatar
                     imageUrl={userProfile?.profileImageUrl}
                     name={userProfile?.fullName}
                     size="xxl"
                   />
                   {/* Camera Icon Overlay - Auto show on hover */}
-                  <div className="absolute bottom-1 right-1 bg-primary rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-md hover:bg-primary/90">
+                  <div className="absolute bottom-1 right-1 bg-primary rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
                     <Camera className="h-4 w-4 text-white" />
                   </div>
                 </div>
@@ -525,16 +526,16 @@ export default function AdminProfilePage() {
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-foreground">
+                    <h2 className="text-2xl font-bold text-foreground">
                       {userProfile?.fullName}
                     </h2>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-primary/70 text-sm font-medium">
                       {userProfile?.email}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="secondary" className="text-xs">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold">
                         {userProfile?.userType}
-                      </Badge>
+                      </span>
                     </div>
                   </div>
 
@@ -546,6 +547,7 @@ export default function AdminProfilePage() {
                           size="sm"
                           onClick={handleCancel}
                           disabled={isProfileLoading || isUploadingImage}
+                          className="border-primary/30 hover:bg-primary/5 hover:text-primary hover:border-primary/50"
                         >
                           Cancel
                         </Button>
@@ -557,6 +559,7 @@ export default function AdminProfilePage() {
                             isUploadingImage ||
                             !isDirty
                           }
+                          className="bg-primary hover:bg-primary/90"
                         >
                           {isProfileLoading || isUploadingImage ? (
                             <>
@@ -570,9 +573,9 @@ export default function AdminProfilePage() {
                       </>
                     ) : (
                       <Button
-                        variant="outline"
                         size="sm"
                         onClick={() => setIsEditing(true)}
+                        className="bg-primary hover:bg-primary/90 text-white"
                       >
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
@@ -585,26 +588,55 @@ export default function AdminProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Navigation Tabs */}
-        <div className="flex gap-1 mb-6 bg-card rounded-lg p-1 border w-full">
-          <Button
-            variant={activeSection === "profile" ? "secondary" : "ghost"}
-            size="sm"
+        {/* Navigation Tabs - Premium Clean Design */}
+        <div className="flex gap-0 mb-8 w-full relative group border border-primary/30 rounded-xl overflow-hidden">
+          {/* Background indicator */}
+          <div
+            className={cn(
+              "absolute inset-y-0 h-full bg-primary/5 transition-all duration-500 ease-out",
+              activeSection === "profile" ? "left-0 w-1/2" : "left-1/2 w-1/2"
+            )}
+          />
+
+          {/* Center divider line */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20" />
+
+          {/* Profile Tab */}
+          <button
             onClick={() => setActiveSection("profile")}
-            className="flex-1 justify-center"
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative z-10",
+              "text-sm font-semibold transition-all duration-300",
+              "border-r border-primary/20",
+              activeSection === "profile"
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground/70"
+            )}
           >
-            <User className="h-4 w-4 mr-2" />
-            Profile
-          </Button>
-          <Button
-            variant={activeSection === "security" ? "secondary" : "ghost"}
-            size="sm"
+            <User className={cn(
+              "h-4 w-4 transition-all duration-300",
+              activeSection === "profile" ? "scale-110" : "scale-100"
+            )} />
+            <span>Profile</span>
+          </button>
+
+          {/* Security Tab */}
+          <button
             onClick={() => setActiveSection("security")}
-            className="flex-1 justify-center"
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2.5 py-4 px-6 relative z-10",
+              "text-sm font-semibold transition-all duration-300",
+              activeSection === "security"
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground/70"
+            )}
           >
-            <Lock className="h-4 w-4 mr-2" />
-            Security
-          </Button>
+            <Lock className={cn(
+              "h-4 w-4 transition-all duration-300",
+              activeSection === "security" ? "scale-110" : "scale-100"
+            )} />
+            <span>Security</span>
+          </button>
         </div>
 
         {/* Profile Section */}
@@ -733,6 +765,29 @@ export default function AdminProfilePage() {
                 </CardContent>
               </Card>
 
+              {/* Business Information */}
+              {userProfile?.businessId && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      🏢 Business Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <DisplayField
+                        label="Business Name"
+                        value={userProfile?.businessName || "-"}
+                      />
+                      <DisplayField
+                        label="Business ID"
+                        value={userProfile?.businessId || "-"}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Employment Information */}
               <Card>
                 <CardHeader>
@@ -831,7 +886,6 @@ export default function AdminProfilePage() {
                     {isEditing && (
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
                         onClick={() =>
                           appendAddress({
@@ -846,6 +900,7 @@ export default function AdminProfilePage() {
                             country: "",
                           })
                         }
+                        className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Address
@@ -863,7 +918,7 @@ export default function AdminProfilePage() {
                       {addressFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border rounded-lg p-4 relative"
+                          className="border-l-4 border-l-primary/40 rounded-lg p-4 relative bg-primary/5"
                         >
                           <Button
                             type="button"
@@ -988,7 +1043,6 @@ export default function AdminProfilePage() {
                     {isEditing && (
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
                         onClick={() =>
                           appendContact({
@@ -998,6 +1052,7 @@ export default function AdminProfilePage() {
                             relationship: "",
                           })
                         }
+                        className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Contact
@@ -1015,7 +1070,7 @@ export default function AdminProfilePage() {
                       {contactFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border rounded-lg p-4 relative"
+                          className="border-l-4 border-l-primary/40 rounded-lg p-4 relative bg-primary/5"
                         >
                           <Button
                             type="button"
@@ -1083,7 +1138,6 @@ export default function AdminProfilePage() {
                     {isEditing && (
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
                         onClick={() =>
                           appendDocument({
@@ -1093,6 +1147,7 @@ export default function AdminProfilePage() {
                             fileUrl: "",
                           })
                         }
+                        className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Document
@@ -1110,7 +1165,7 @@ export default function AdminProfilePage() {
                       {documentFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border rounded-lg p-4 relative"
+                          className="border-l-4 border-l-primary/40 rounded-lg p-4 relative bg-primary/5"
                         >
                           <Button
                             type="button"
@@ -1172,7 +1227,7 @@ export default function AdminProfilePage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {documentFields.map((field: any, index) => (
-                        <div key={field.id} className="border rounded-lg p-4">
+                        <div key={field.id} className="border-l-4 border-l-primary/40 rounded-lg p-4 bg-primary/5">
                           <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <DisplayField
@@ -1213,7 +1268,6 @@ export default function AdminProfilePage() {
                     {isEditing && (
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
                         onClick={() =>
                           appendEducation({
@@ -1227,6 +1281,7 @@ export default function AdminProfilePage() {
                             certificateUrl: "",
                           })
                         }
+                        className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Education
@@ -1244,7 +1299,7 @@ export default function AdminProfilePage() {
                       {educationFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border rounded-lg p-4 relative"
+                          className="border-l-4 border-l-primary/40 rounded-lg p-4 relative bg-primary/5"
                         >
                           <Button
                             type="button"
@@ -1353,7 +1408,7 @@ export default function AdminProfilePage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {educationFields.map((field: any, index) => (
-                        <div key={field.id} className="border rounded-lg p-4">
+                        <div key={field.id} className="border-l-4 border-l-primary/40 rounded-lg p-4 bg-primary/5">
                           <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <DisplayField
@@ -1426,7 +1481,7 @@ export default function AdminProfilePage() {
           <div className="w-full space-y-4">
             {/* Connected Accounts */}
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-medium text-primary mb-3 flex items-center gap-2 font-semibold">
                 <Link2 className="h-4 w-4" />
                 Connected Accounts
               </h3>
@@ -1447,7 +1502,7 @@ export default function AdminProfilePage() {
                     </p>
                   </div>
                   <Link href="/admin/sessions">
-                    <Button variant="outline">
+                    <Button className="bg-primary hover:bg-primary/90 text-white">
                       <Monitor className="h-4 w-4 mr-2" />
                       View Sessions
                     </Button>
@@ -1469,7 +1524,7 @@ export default function AdminProfilePage() {
                     </p>
                   </div>
                   <Button
-                    variant="outline"
+                    className="bg-primary hover:bg-primary/90 text-white"
                     onClick={() => setIsChangePasswordModalOpen(true)}
                   >
                     <Lock className="h-4 w-4 mr-2" />
@@ -1480,7 +1535,7 @@ export default function AdminProfilePage() {
             </Card>
 
             {/* Delete Account */}
-            <Card className="border-destructive/50">
+            <Card className="border-destructive/50 bg-destructive/5">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>

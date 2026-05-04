@@ -83,24 +83,6 @@ export const bulkPromotionTableColumns = ({
 }: BulkPromotionTableOptions): TableColumn<ProductDetailResponseModel>[] => {
   return [
     {
-      key: "checkbox",
-      label: "",
-      width: "50px",
-      minWidth: "10px",
-      maxWidth: "120px",
-      className: "pl-4",
-      render: (product) => (
-        <CustomCheckbox
-          checked={selectedProductIds.has(product.id)}
-          onCheckedChange={() => onSelectProduct(product.id)}
-          disabled={isLoading}
-          size="lg"
-          variant="default"
-          ariaLabel={`Select ${product.name}`}
-        />
-      ),
-    },
-    {
       key: "index",
       label: "#",
       width: "50px",
@@ -113,6 +95,39 @@ export const bulkPromotionTableColumns = ({
         </span>
       ),
     },
+    {
+      key: "actions",
+      label: "Actions",
+      minWidth: "10px",
+      maxWidth: "120px",
+      className: "px-2",
+      render: (product) => (
+        <div className="flex items-center gap-2">
+          <CustomCheckbox
+            checked={selectedProductIds.has(product.id)}
+            onCheckedChange={() => onSelectProduct(product.id)}
+            disabled={isLoading}
+            size="lg"
+            variant="default"
+            ariaLabel={`Select ${product.name}`}
+          />
+
+          <ActionButton
+            icon={<Eye className="w-4 h-4" />}
+            tooltip="View Details"
+            onClick={() => onViewDetails?.(product)}
+          />
+          {product?.hasPromotion && (
+            <ActionButton
+              icon={<RotateCcw className="w-4 h-4" />}
+              tooltip="Reset Promotion"
+              onClick={() => onResetPromotion?.(product)}
+            />
+          )}
+        </div>
+      ),
+    },
+
     {
       key: "image",
       label: "Image",
@@ -137,31 +152,27 @@ export const bulkPromotionTableColumns = ({
     },
 
     {
-      key: "sku",
-      label: "SKU",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
+      key: "pricing",
+      label: "Price",
+      minWidth: "100px",
+      maxWidth: "200px",
       className: "px-4",
-      render: (product) => (
-        <span className="text-xs text-muted-foreground font-mono">
-          {product?.sku || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "barcode",
-      label: "Barcode",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      className: "px-4",
-      render: (product) => (
-        <span className="text-xs text-muted-foreground font-mono">
-          {product?.barcode || "---"}
-        </span>
-      ),
+      render: (product) => {
+        return (
+          <div className="space-y-1">
+            <span className="text-xs font-semibold text-foreground">
+              ${Number(product.displayPrice || 0).toFixed(2)}
+            </span>
+            {product.displayOriginPrice &&
+              product.displayPrice <
+                Number(product.displayOriginPrice || 0) && (
+                <div className="text-xs text-muted-foreground line-through">
+                  ${Number(product.displayOriginPrice).toFixed(2)}
+                </div>
+              )}
+          </div>
+        );
+      },
     },
     {
       key: "sizes",
@@ -171,13 +182,11 @@ export const bulkPromotionTableColumns = ({
       className: "px-4",
       render: (product) => {
         if (!product.hasSizes || !product.sizes || product.sizes.length === 0) {
-          return (
-            <span className="text-xs text-muted-foreground">No sizes</span>
-          );
+          return <span className="text-xs text-muted-foreground">- - -</span>;
         }
 
         return (
-          <div className="flex flex-row gap-1.5 items-center flex-nowrap overflow-hidden">
+          <div className="flex flex-row gap-1.5 items-center flex-nowrap overflow-x-auto pb-2">
             {product.sizes.map((size) => {
               const isSelected =
                 selectedSizes.get(product.id)?.has(size.id) || false;
@@ -209,14 +218,11 @@ export const bulkPromotionTableColumns = ({
 
                   {/* Size Promotion Status Badge */}
                   {hasPromotion && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-green-100/70 text-green-700 border-green-300/40 text-xs h-fit px-1"
-                    >
+                    <span className="bg-red-100/70 text-red-700 text-xs h-fit px-1 py-0.5 rounded inline-block font-semibold">
                       {size.promotionType === "PERCENTAGE"
                         ? `${size.promotionValue}%`
                         : `$${size.promotionValue}`}
-                    </Badge>
+                    </span>
                   )}
                 </label>
               );
@@ -225,44 +231,32 @@ export const bulkPromotionTableColumns = ({
         );
       },
     },
+
     {
-      key: "promotionStatus",
-      label: "Promotion Status",
+      key: "sku",
+      label: "SKU",
       minWidth: "10px",
       maxWidth: "120px",
-      className: "px-4",
-      render: (product) => {
-        if (!product.hasPromotion) {
-          return <span className="text-sm text-foreground">No Promotion</span>;
-        }
-
-        return (
-          <span className="text-sm font-medium text-green-600">Active</span>
-        );
-      },
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      minWidth: "10px",
-      maxWidth: "250px",
+      truncate: true,
       className: "px-4",
       render: (product) => (
-        <div className="flex items-center gap-2">
-          <ActionButton
-            icon={<Eye className="w-4 h-4" />}
-            tooltip="View Details"
-            onClick={() => onViewDetails?.(product)}
-          />
-          {product?.hasPromotion && (
-            <ActionButton
-              icon={<RotateCcw className="w-4 h-4" />}
-              tooltip="Reset Promotion"
-              onClick={() => onResetPromotion?.(product)}
-              variant="outline"
-            />
-          )}
-        </div>
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.sku || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "barcode",
+      label: "Barcode",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      className: "px-4",
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.barcode || "---"}
+        </span>
       ),
     },
   ];

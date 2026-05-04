@@ -16,11 +16,24 @@ export interface LocationOperations {
   isDeleting: boolean;
 }
 
+export interface LocationPagination {
+  currentPage: number;
+  pageSize: number;
+  hasMore: boolean;
+  isInitialLoaded: boolean;
+}
+
 export interface LocationState {
   data: AllLocationResponseModel | null;
   locations: LocationResponseModel[];
   defaultLocation: LocationResponseModel | null;
-  isLoading: boolean;
+  pagination: LocationPagination;
+  isLoading: {
+    fetch: boolean;
+    create: boolean;
+    update: boolean;
+    delete: boolean;
+  };
   error: string | null;
   operations: LocationOperations;
 }

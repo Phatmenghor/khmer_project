@@ -4,7 +4,7 @@ export interface CartResponseModel {
   totalQuantity?: number;              // Total quantity across all items
   subtotalBeforeDiscount?: number;  // Original price total (currentPrice * qty)
   subtotal: number;                  // Final price total before shipping/fees
-  totalDiscount: number;              // Total discount applied
+  discountAmount: number;              // Total discount applied
   finalTotal: number;                 // Final total (subtotal + shipping/fees)
 }
 
@@ -31,6 +31,8 @@ export interface CartItemModel {
   totalBeforeDiscount?: number;
   discountAmount?: number;
   lastOptimisticTimestamp?: number;
+  sku?: string;  // Product SKU from store master data
+  barcode?: string;  // Product barcode from store master data
 }
 
 // Backward compatible alias

@@ -19,6 +19,13 @@ interface POSCartItemProps {
   hasPromotion?: boolean;
   promotionType?: string | null;
   promotionValue?: number | null;
+  // Customizations/Add-ons
+  customizations?: Array<{
+    id: string;
+    productCustomizationId: string;
+    name: string;
+    priceAdjustment: number;
+  }>;
   // Audit trail fields
   originalPrice?: number;
   hadChangeFromPOS?: boolean;
@@ -39,6 +46,7 @@ export function POSCartItem({
   hasPromotion,
   promotionType,
   promotionValue,
+  customizations,
   originalPrice,
   hadChangeFromPOS,
   auditChangeType,
@@ -86,14 +94,19 @@ export function POSCartItem({
             )}
           </div>
 
-          {/* Size Badge */}
-          {sizeName && (
-            <div className="mb-2">
-              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full inline-block border border-primary/30 whitespace-nowrap">
+          {/* Size & Customizations on same line */}
+          <div className="mb-2 flex items-center gap-2">
+            {sizeName && (
+              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
                 {sizeName}
               </span>
-            </div>
-          )}
+            )}
+            {customizations && customizations.length > 0 && (
+              <span className="text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-full border border-green-200 whitespace-nowrap">
+                Add-ons ×{customizations.length}
+              </span>
+            )}
+          </div>
 
           {/* Price & Quantity Controls */}
           <div className="flex items-center justify-between gap-3">

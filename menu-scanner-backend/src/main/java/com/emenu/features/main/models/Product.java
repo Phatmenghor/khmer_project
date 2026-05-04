@@ -2,8 +2,10 @@ package com.emenu.features.main.models;
 
 import com.emenu.enums.product.ProductStatus;
 import com.emenu.enums.product.PromotionType;
+import com.emenu.enums.product.StockStatus;
 import com.emenu.features.auth.models.Business;
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,12 +36,19 @@ public class Product extends BaseUUIDEntity {
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
     private Business business;
 
-    @Column(name = "category_id", nullable = false)
+    @Column(name = "category_id")
     private UUID categoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
     private Category category;
+
+    @Column(name = "subcategory_id")
+    private UUID subcategoryId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subcategory_id", insertable = false, updatable = false)
+    private Subcategory subCategory;
 
     @Column(name = "brand_id")
     private UUID brandId;
@@ -69,35 +78,19 @@ public class Product extends BaseUUIDEntity {
     private BigDecimal promotionValue;
 
     @Column(name = "promotion_from_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promotionFromDate;
 
     @Column(name = "promotion_to_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promotionToDate;
-
-    @Column(name = "display_price", precision = 10, scale = 2)
-    private BigDecimal displayPrice;
-
-    @Column(name = "display_origin_price", precision = 10, scale = 2)
-    private BigDecimal displayOriginPrice;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "display_promotion_type")
-    private PromotionType displayPromotionType;
-
-    @Column(name = "display_promotion_value", precision = 10, scale = 2)
-    private BigDecimal displayPromotionValue;
-
-    @Column(name = "display_promotion_from_date")
-    private LocalDateTime displayPromotionFromDate;
-
-    @Column(name = "display_promotion_to_date")
-    private LocalDateTime displayPromotionToDate;
 
     @Column(name = "has_sizes", nullable = false)
     private Boolean hasSizes = false;
 
-    @Column(name = "has_active_promotion", nullable = false)
-    private Boolean hasActivePromotion = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "stock_status", nullable = false)
+    private StockStatus stockStatus = StockStatus.ENABLED;
 
     @Column(name = "view_count", nullable = false)
     private Long viewCount = 0L;
@@ -134,80 +127,85 @@ public class Product extends BaseUUIDEntity {
     @OrderBy("price ASC")
     private List<ProductSize> sizes = new ArrayList<>();
 
-    public void syncDisplayFieldsFromSizes() {
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OrderBy("name ASC")
+    private List<ProductCustomization> customizations = new ArrayList<>();
+
+    public ProductSize getDisplaySize() {
         List<ProductSize> activeSizes = (sizes == null) ? List.of() : sizes.stream()
                 .filter(size -> size != null && !size.getIsDeleted())
                 .toList();
 
         if (activeSizes.isEmpty()) {
-            // No active sizes - use product's own fields
-            this.hasSizes = false;
-            this.hasActivePromotion = isPromotionActive();
-            this.displayOriginPrice = this.price;
-            if (this.hasActivePromotion) {
-                this.displayPrice = getFinalPrice();
-                this.displayPromotionType = this.promotionType;
-                this.displayPromotionValue = this.promotionValue;
-                this.displayPromotionFromDate = this.promotionFromDate;
-                this.displayPromotionToDate = this.promotionToDate;
-            } else {
-                this.displayPrice = this.price != null ? this.price : BigDecimal.ZERO;
-                this.displayPromotionType = null;
-                this.displayPromotionValue = null;
-                this.displayPromotionFromDate = null;
-                this.displayPromotionToDate = null;
-            }
-        } else {
-            // Has active sizes - use size fields
-            this.hasSizes = true;
-
-            // hasActivePromotion = true if ANY size has an active promotion
-            this.hasActivePromotion = activeSizes.stream().anyMatch(ProductSize::isPromotionActive);
-
-            // Pick display size: cheapest promoted size first, otherwise cheapest overall
-            ProductSize displaySize = activeSizes.stream()
-                    .filter(ProductSize::isPromotionActive)
-                    .min(Comparator.comparing(ProductSize::getPrice))
-                    .orElseGet(() -> activeSizes.stream()
-                            .min(Comparator.comparing(ProductSize::getPrice))
-                            .orElse(null));
-
-            if (displaySize != null) {
-                this.displayOriginPrice = displaySize.getPrice();
-                if (this.hasActivePromotion) {
-                    this.displayPromotionType = displaySize.getPromotionType();
-                    this.displayPromotionValue = displaySize.getPromotionValue();
-                    this.displayPromotionFromDate = displaySize.getPromotionFromDate();
-                    this.displayPromotionToDate = displaySize.getPromotionToDate();
-                    this.displayPrice = displaySize.getFinalPrice();
-                } else {
-                    this.displayPromotionType = null;
-                    this.displayPromotionValue = null;
-                    this.displayPromotionFromDate = null;
-                    this.displayPromotionToDate = null;
-                    this.displayPrice = displaySize.getPrice();
-                }
-            }
+            return null;
         }
+
+        return activeSizes.stream()
+                .filter(ProductSize::isPromotionActive)
+                .min(Comparator.comparing(ProductSize::getPrice))
+                .orElseGet(() -> activeSizes.stream()
+                        .min(Comparator.comparing(ProductSize::getPrice))
+                        .orElse(null));
     }
 
-    public void initializeDisplayFields() {
-        this.hasSizes = false;
-        this.hasActivePromotion = isPromotionActive();
-        this.displayOriginPrice = this.price;
-        if (this.hasActivePromotion) {
-            this.displayPrice = getFinalPrice();
-            this.displayPromotionType = this.promotionType;
-            this.displayPromotionValue = this.promotionValue;
-            this.displayPromotionFromDate = this.promotionFromDate;
-            this.displayPromotionToDate = this.promotionToDate;
-        } else {
-            this.displayPrice = this.price != null ? this.price : BigDecimal.ZERO;
-            this.displayPromotionType = null;
-            this.displayPromotionValue = null;
-            this.displayPromotionFromDate = null;
-            this.displayPromotionToDate = null;
+    public BigDecimal getDisplayPrice() {
+        ProductSize displaySize = getDisplaySize();
+
+        if (displaySize != null) {
+            return displaySize.getFinalPrice();
         }
+
+        return isPromotionActive() ? getFinalPrice() : (this.price != null ? this.price : BigDecimal.ZERO);
+    }
+
+    public BigDecimal getDisplayOriginPrice() {
+        ProductSize displaySize = getDisplaySize();
+
+        if (displaySize != null) {
+            return displaySize.getPrice();
+        }
+
+        return this.price;
+    }
+
+    public PromotionType getDisplayPromotionType() {
+        ProductSize displaySize = getDisplaySize();
+
+        if (displaySize != null && displaySize.isPromotionActive()) {
+            return displaySize.getPromotionType();
+        }
+
+        return isPromotionActive() ? this.promotionType : null;
+    }
+
+    public BigDecimal getDisplayPromotionValue() {
+        ProductSize displaySize = getDisplaySize();
+
+        if (displaySize != null && displaySize.isPromotionActive()) {
+            return displaySize.getPromotionValue();
+        }
+
+        return isPromotionActive() ? this.promotionValue : null;
+    }
+
+    public LocalDateTime getDisplayPromotionFromDate() {
+        ProductSize displaySize = getDisplaySize();
+
+        if (displaySize != null && displaySize.isPromotionActive()) {
+            return displaySize.getPromotionFromDate();
+        }
+
+        return isPromotionActive() ? this.promotionFromDate : null;
+    }
+
+    public LocalDateTime getDisplayPromotionToDate() {
+        ProductSize displaySize = getDisplaySize();
+
+        if (displaySize != null && displaySize.isPromotionActive()) {
+            return displaySize.getPromotionToDate();
+        }
+
+        return isPromotionActive() ? this.promotionToDate : null;
     }
 
     public BigDecimal getFinalPrice() {
@@ -234,6 +232,12 @@ public class Product extends BaseUUIDEntity {
     }
 
     public boolean isPromotionActive() {
+        // For products with sizes, check if any size has an active promotion
+        if (Boolean.TRUE.equals(hasSizes) && sizes != null && !sizes.isEmpty()) {
+            return sizes.stream().anyMatch(ProductSize::isPromotionActive);
+        }
+
+        // For products without sizes, check product-level promotion
         if (promotionValue == null || promotionType == null) {
             return false;
         }
@@ -277,11 +281,29 @@ public class Product extends BaseUUIDEntity {
         return this.sizes;
     }
 
+    public List<ProductCustomization> getCustomizations() {
+        if (this.customizations == null) {
+            this.customizations = new ArrayList<>();
+        }
+        return this.customizations;
+    }
+
     public boolean isActive() {
         return ProductStatus.ACTIVE.equals(status);
     }
 
     public boolean isAvailable() {
         return ProductStatus.ACTIVE.equals(status) || ProductStatus.OUT_OF_STOCK.equals(status);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void truncatePromotionDates() {
+        if (promotionFromDate != null) {
+            promotionFromDate = promotionFromDate.truncatedTo(ChronoUnit.DAYS);
+        }
+        if (promotionToDate != null) {
+            promotionToDate = promotionToDate.truncatedTo(ChronoUnit.DAYS);
+        }
     }
 }

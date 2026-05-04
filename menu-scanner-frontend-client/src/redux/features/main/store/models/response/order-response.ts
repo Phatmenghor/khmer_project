@@ -1,6 +1,5 @@
 /**
- * Order Response Types
- * Complete type definitions matching backend OrderResponse
+ * Order Response Types - Simplified without audit trail snapshots
  */
 
 import { OrderStatus } from '@/enums/order-status.enum';
@@ -43,23 +42,17 @@ export interface OrderDeliveryOptionDto {
   price: number;
 }
 
-// Pricing snapshot at a point in time (before or after modifications)
-export interface OrderPricingSnapshot {
-  totalItems: number;
-  subtotalBeforeDiscount: number;
-  subtotal: number;
-  totalDiscount: number;
-  deliveryFee: number;
-  taxAmount: number;
-  finalTotal: number;
-}
-
-// Nested pricing with before/after audit trail — matches backend OrderPricingInfo
 export interface OrderPricingInfo {
-  before: OrderPricingSnapshot;
-  hadOrderLevelChangeFromPOS: boolean;
-  after: OrderPricingSnapshot | null;
-  reason: string;
+  totalItems: number;
+  subtotal: number;
+  customizationTotal: number;
+  deliveryFee: number;
+  taxPercentage: number;
+  taxAmount: number;
+  discountAmount: number;
+  discountType?: string;
+  discountReason?: string;
+  finalTotal: number;
 }
 
 export interface OrderPaymentInfo {
@@ -74,31 +67,24 @@ export interface OrderItemProductInfo {
   sizeId: string | null;
   sizeName: string;
   status: "ACTIVE" | "INACTIVE";
+  sku?: string;
+  barcode?: string;
 }
 
-// Pricing snapshot for a single item at a point in time
-export interface OrderItemPricingSnapshot {
-  currentPrice: number;
-  finalPrice: number;
-  hasActivePromotion: boolean;
-  quantity: number;
-  totalBeforeDiscount: number;
-  discountAmount: number;
-  totalPrice: number;
-  promotionType: string | null;
-  promotionValue: number | null;
-  promotionFromDate: string | null;
-  promotionToDate: string | null;
+export interface CustomizationDetail {
+  productCustomizationId: string;
+  name: string;
+  priceAdjustment: number;
 }
 
-// Item with before/after audit trail — matches backend OrderItemResponse
 export interface OrderItemResponse {
   id: string;
   product: OrderItemProductInfo;
-  before: OrderItemPricingSnapshot;
-  hadChangeFromPOS: boolean;
-  after: OrderItemPricingSnapshot | null;
-  reason: string | null;
+  quantity: number;
+  finalPrice: number;
+  totalPrice: number;
+  customizations?: CustomizationDetail[];
+  customizationTotal?: number;
 }
 
 export interface OrderResponse {

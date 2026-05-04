@@ -10,6 +10,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -46,6 +48,9 @@ public class CartItem extends BaseUUIDEntity {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
+    @OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CartItemCustomization> customizations = new ArrayList<>();
+
     // Business Methods - Always get current pricing from product/size
     public BigDecimal getCurrentPrice() {
         if (productSize != null) {
@@ -66,8 +71,16 @@ public class CartItem extends BaseUUIDEntity {
         return getCurrentPrice();
     }
 
+    public BigDecimal getTotalCustomizationPrice() {
+        return customizations.stream()
+                .map(CartItemCustomization::getPriceAdjustmentOrZero)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
     public BigDecimal getTotalPrice() {
-        return getFinalPrice().multiply(BigDecimal.valueOf(quantity));
+        BigDecimal basePrice = getFinalPrice().multiply(BigDecimal.valueOf(quantity));
+        BigDecimal customizationTotal = getTotalCustomizationPrice().multiply(BigDecimal.valueOf(quantity));
+        return basePrice.add(customizationTotal);
     }
 
     public Boolean hasDiscount() {

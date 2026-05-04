@@ -21,6 +21,7 @@ import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
+import { showToast } from "@/components/shared/common/show-toast";
 import { DistrictResponseModel } from "@/redux/features/location/store/models/response/location-response";
 import { fetchDistrictsService } from "@/redux/features/location/store/thunks/public-location-thunks";
 
@@ -140,6 +141,14 @@ export function ComboboxSelectDistrict({
     placeholder ??
     (!provinceCode ? "Select province first" : "Select district...");
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen && !provinceCode) {
+      showToast.info("Please select a province first");
+      return;
+    }
+    setOpen(newOpen);
+  };
+
   return (
     <div className="space-y-1.5 w-full">
       {label && (
@@ -148,19 +157,21 @@ export function ComboboxSelectDistrict({
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
       )}
-      <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between h-9 text-sm",
+              "w-full justify-between h-10 text-sm transition-all duration-200 border-input",
               !dataSelect && "text-muted-foreground",
-              (disabled || !provinceCode) && "opacity-50 cursor-not-allowed",
+              "hover:bg-primary/10 hover:border-primary hover:text-primary",
+              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+              open && "bg-primary/20 border-primary text-primary",
               error && "border-red-500"
             )}
-            disabled={disabled || !provinceCode}
+            disabled={disabled}
           >
             {dataSelect ? dataSelect.districtEn : resolvedPlaceholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -168,7 +179,7 @@ export function ComboboxSelectDistrict({
         </PopoverTrigger>
 
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
+          className="w-[var(--radix-popover-trigger-width)] p-0 shadow-lg border-border"
           align="start"
           side="bottom"
           sideOffset={4}
@@ -189,7 +200,7 @@ export function ComboboxSelectDistrict({
                     value={item.districtCode}
                     onSelect={() => handleSelect(item)}
                     ref={index === data.length - 1 ? ref : null}
-                    className="h-9 text-sm"
+                    className="h-10 text-sm"
                   >
                     <Check
                       className={cn(

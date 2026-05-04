@@ -1,7 +1,5 @@
 package com.emenu.features.order.dto.request;
 
-import com.emenu.features.order.dto.response.OrderItemPricingSnapshot;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -10,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -37,35 +36,26 @@ public class POSCheckoutItemRequest {
     private String sizeName;
     private String status; // ACTIVE
 
-    // ===== AUDIT TRAIL: Before/After snapshots =====
-    // Snapshot BEFORE any POS modifications
-    @Valid
-    private OrderItemPricingSnapshot before;
+    // SKU and barcode (optional - from request, fallback if not in product master data)
+    private String sku;
+    private String barcode;
 
-    // Was the item modified?
-    private Boolean hadChangeFromPOS;
+    // Customizations/Add-ons - full details (only one field, not duplicate)
+    private List<CustomizationDetail> customizations;  // Full details: id, productCustomizationId, name, priceAdjustment
 
-    // Snapshot AFTER POS modifications
-    @Valid
-    private OrderItemPricingSnapshot after;
-
-    // ===== DEPRECATED - Kept for backward compatibility =====
-    // Price history for audit trail
-    private BigDecimal originalPrice;      // Product original price
-    private BigDecimal currentPrice;       // After admin override (if any)
-    private BigDecimal finalPrice;         // After promotions
-    private Boolean hasActivePromotion;    // Has promotion applied
-
-    // Admin override price (optional - if not provided, use product price)
-    private BigDecimal overridePrice;
-
-    // Promotion override (optional)
-    private String promotionType;         // PERCENTAGE or FIXED_AMOUNT
-    private BigDecimal promotionValue;    // The discount amount or percentage
-
-    // Totals for each item
-    private BigDecimal totalBeforeDiscount; // quantity * originalPrice
-    private BigDecimal discountAmount;     // quantity * (originalPrice - finalPrice)
+    // Simplified Pricing
+    private BigDecimal finalPrice;         // Price after promotions
     private BigDecimal totalPrice;         // quantity * finalPrice
+
+    // ─── Customization Detail Nested Class ───
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CustomizationDetail {
+        private UUID productCustomizationId;  // Only one ID, no duplicate
+        private String name;
+        private BigDecimal priceAdjustment;
+    }
 
 }

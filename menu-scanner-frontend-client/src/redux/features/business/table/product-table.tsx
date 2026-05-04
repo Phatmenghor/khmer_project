@@ -5,17 +5,12 @@ import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   AllProductResponseModel,
   ProductDetailResponseModel,
@@ -106,57 +101,6 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   );
 }
 
-/**
- * StatusSelect - Select component for status updates
- */
-function StatusSelect({
-  value,
-  onStatusChange,
-  productId,
-}: {
-  value: string;
-  onStatusChange?: (productId: string, status: string) => void;
-  productId: string;
-}) {
-  const statusOptions = [
-    { value: "ACTIVE", label: "Active" },
-    { value: "INACTIVE", label: "Inactive" },
-    { value: "OUT_OF_STOCK", label: "Out Of Stock" },
-  ];
-
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "Active";
-      case "INACTIVE":
-        return "Inactive";
-      case "OUT_OF_STOCK":
-        return "Out Of Stock";
-      default:
-        return status;
-    }
-  };
-
-  return (
-    <Select
-      value={value}
-      onValueChange={(newStatus) => onStatusChange?.(productId, newStatus)}
-    >
-      <SelectTrigger
-        className={cn("w-36 h-8 text-xs bg-gray-100 text-gray-700")}
-      >
-        <SelectValue>{getStatusDisplay(value)}</SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        {statusOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-}
 
 export const productTableColumns = ({
   data,
@@ -232,80 +176,28 @@ export const productTableColumns = ({
     },
 
     {
-      key: "categoryName",
-      label: "Category",
-      minWidth: "10px",
-      maxWidth: "150px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.categoryName || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "brandName",
-      label: "Brand",
-      minWidth: "10px",
-      maxWidth: "150px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground">
-          {product?.brandName || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "displayPrice",
+      key: "pricing",
       label: "Price",
-      minWidth: "10px",
-      maxWidth: "100px",
-      truncate: true,
+      minWidth: "150px",
+      maxWidth: "250px",
       render: (product) => (
-        <span className="text-xs font-semibold text-foreground">
-          ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
-        </span>
-      ),
-    },
-
-    {
-      key: "hasPromotion",
-      label: "Promotion",
-      minWidth: "10px",
-      maxWidth: "100px",
-      truncate: true,
-      render: (product) => (
-        <div className="flex items-center gap-1">
-          {product?.hasPromotion ? (
-            <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200">
-              <Zap className="w-3 h-3" />
-              Active
-            </Badge>
-          ) : (
-            <Badge variant="secondary" className="gap-1">
-              <Check className="w-3 h-3" />
-              Regular
-            </Badge>
+        <div className="space-y-1">
+          <span className="text-xs font-semibold text-foreground">
+            ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
+          </span>
+          {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
+            <div className="text-xs text-muted-foreground line-through">
+              ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
+            </div>
+          )}
+          {product?.hasPromotion && (
+            <div className="text-xs font-semibold text-red-600">
+              {product.displayPromotionType === "PERCENTAGE"
+                ? `-${product.displayPromotionValue}%`
+                : `-$${product.displayPromotionValue}`}
+            </div>
           )}
         </div>
-      ),
-    },
-
-    {
-      key: "displayOriginPrice",
-      label: "Original Price",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground line-through">
-          $
-          {parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(
-            2,
-          )}
-        </span>
       ),
     },
 
@@ -313,7 +205,7 @@ export const productTableColumns = ({
       key: "sizes",
       label: "Sizes",
       minWidth: "25px",
-      maxWidth: "1000px",
+      maxWidth: "400px",
       render: (product) => <SizesDisplay sizes={product?.sizes} />,
     },
 
@@ -323,11 +215,18 @@ export const productTableColumns = ({
       minWidth: "150px",
       maxWidth: "350px",
       render: (product) => (
-        <StatusSelect
-          value={product?.status || "ACTIVE"}
-          onStatusChange={handleStatusChange}
-          productId={product?.id || ""}
-        />
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={product?.status === "ACTIVE"}
+            onCheckedChange={() => {
+              const newStatus = product?.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+              handleStatusChange?.(product?.id || "", newStatus);
+            }}
+          />
+          <span className="text-xs text-muted-foreground">
+            {product?.status ? formatEnumValue(product.status) : "---"}
+          </span>
+        </div>
       ),
     },
 

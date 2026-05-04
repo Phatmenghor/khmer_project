@@ -63,12 +63,8 @@ export const ORDER_STATUS_ADMIN_FILTER = [
   { value: "ALL", label: "All Status" },
   { value: "PENDING", label: "Pending" },
   { value: "CONFIRMED", label: "Confirmed" },
-  { value: "PREPARING", label: "Preparing" },
-  { value: "READY", label: "Ready" },
-  { value: "IN_TRANSIT", label: "In Transit" },
   { value: "COMPLETED", label: "Completed" },
   { value: "CANCELLED", label: "Cancelled" },
-  { value: "FAILED", label: "Failed" },
 ];
 
 export const PAYMENT_STATUS_ADMIN_FILTER = [
@@ -125,8 +121,8 @@ export const PRODUCT_STATUS_FILTER = [
   { value: ProductStatus.OUT_OF_STOCK, label: "Out of Stock" },
 ];
 
-export const PRODUCT_PROMOTION_FILTER = [
+export const PRODUCT_SIZE_FILTER = [
   { value: "ALL", label: "All Products" },
-  { value: "HAS_PROMOTION", label: "Has Promotion" },
-  { value: "NO_PROMOTION", label: "No Promotion" },
+  { value: "true", label: "Has Sizes" },
+  { value: "false", label: "No Sizes" },
 ];

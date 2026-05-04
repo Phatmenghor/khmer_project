@@ -1,34 +1,26 @@
 package com.emenu.features.order.dto.response;
 
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Pricing and costs breakdown for an order with audit trail
- * Shows before/after snapshots for complete audit trail of all pricing changes
- * Includes: item-level discounts, order-level discounts, delivery fees, taxes
- */
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderPricingInfo {
-    // ===== AUDIT TRAIL: Before/After snapshots =====
-    // Snapshot BEFORE any order-level modifications (after item-level pricing)
-    @Valid
-    private OrderPricingSnapshot before;
-
-    // Was the order total modified from POS? (order-level discount applied)
-    private Boolean hadOrderLevelChangeFromPOS;
-
-    // Snapshot AFTER order-level modifications
-    @Valid
-    private OrderPricingSnapshot after;
-
-    // Reason for change (POS order-level modifications)
-    private String reason;
+    private Integer totalItems;
+    private BigDecimal subtotal;
+    private BigDecimal customizationTotal;      // Total cost of customizations/add-ons
+    private BigDecimal deliveryFee;
+    private BigDecimal taxPercentage;           // Tax rate applied
+    private BigDecimal taxAmount;               // Calculated tax amount
+    private BigDecimal discountAmount;          // Discount applied
+    private String discountType;                // "fixed" or "percentage"
+    private String discountReason;              // Why discount was applied
+    private BigDecimal finalTotal;              // Final amount after all calculations
 }
 

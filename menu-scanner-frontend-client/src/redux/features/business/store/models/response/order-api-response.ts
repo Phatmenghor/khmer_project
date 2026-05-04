@@ -1,22 +1,6 @@
 /**
- * Order API Response Models - Matches Backend DTOs exactly
- * Includes before/after audit trail for complete history
+ * Order API Response Models - Simplified without audit trail snapshots
  */
-
-// Item-level pricing snapshot (before or after POS modification)
-export interface OrderItemPricingSnapshotApi {
-  currentPrice: number;
-  finalPrice: number;
-  hasActivePromotion: boolean;
-  quantity: number;
-  totalBeforeDiscount: number;
-  discountAmount: number;
-  totalPrice: number;
-  promotionType: string | null;
-  promotionValue: number | null;
-  promotionFromDate: string | null;
-  promotionToDate: string | null;
-}
 
 export interface OrderItemApiResponse {
   id: string;
@@ -24,52 +8,61 @@ export interface OrderItemApiResponse {
     id: string;
     name: string;
     imageUrl: string;
+    sku: string;
+    barcode: string;
     sizeId: string | null;
-    sizeName: string | null;
+    sizeName: string;
     status: string;
   };
 
-  // Snapshot BEFORE any POS modifications
-  before: OrderItemPricingSnapshotApi;
+  quantity: number;
+  currentPrice: number;  // Base price before promotion
+  finalPrice: number;    // Price after discount
+  totalPrice: number;
 
-  // Was item modified from POS?
-  hadChangeFromPOS: boolean;
+  // Promotion details snapshot
+  hasPromotion: boolean;
+  promotionType?: 'PERCENTAGE' | 'FIXED_AMOUNT';  // Only present if hasPromotion=true
+  promotionValue?: number;                         // Only present if hasPromotion=true
+  promotionFromDate?: string;                      // Only present if hasPromotion=true
+  promotionToDate?: string;                        // Only present if hasPromotion=true
 
-  // Snapshot AFTER POS modifications (null if no change)
-  after: OrderItemPricingSnapshotApi | null;
-
-  // Reason for the change (if any)
-  reason: string | null;
+  // Customizations
+  customizations: CustomizationDetail[];
+  customizationTotal: number;
 }
 
-// Order-level pricing snapshot (before or after order-level discount)
-export interface OrderPricingSnapshotApi {
+export interface CustomizationDetail {
+  productCustomizationId: string;
+  name: string;
+  priceAdjustment: number;
+}
+
+// Pricing summary
+export interface OrderPricingApiResponse {
   totalItems: number;
-  subtotalBeforeDiscount: number;
   subtotal: number;
-  totalDiscount: number;
+  customizationTotal: number;
   deliveryFee: number;
+  discountAmount: number;
+  discountType?: string;
+  discountReason?: string;
+  taxPercentage: number;
   taxAmount: number;
   finalTotal: number;
-}
-
-// Pricing with before/after audit trail — matches backend OrderPricingInfo
-export interface OrderPricingApiResponse {
-  before: OrderPricingSnapshotApi;
-  hadOrderLevelChangeFromPOS: boolean;
-  after: OrderPricingSnapshotApi | null;
-  reason: string;
 }
 
 export interface OrderApiResponse {
   id: string;
   orderNumber: string;
   orderStatus: string;
+  orderFrom: 'CUSTOMER' | 'BUSINESS';
 
   // Customer info
   customerId: string | null;
   customerName: string | null;
   customerPhone: string | null;
+  customerEmail: string | null;
 
   // Business info
   businessId: string;
@@ -91,7 +84,7 @@ export interface OrderApiResponse {
     name: string;
     description?: string;
     imageUrl?: string;
-    price?: number;
+    price: number;
   };
 
   // Notes
@@ -106,22 +99,16 @@ export interface OrderApiResponse {
     paymentStatus: string;
   };
 
-  statusHistory: {
-    id: string;
-    statusName: string;
-    statusDescription: string | null;
-    note: string | null;
-    changedBy: {
-      userId: string;
-      firstName: string;
-      lastName: string;
-      phoneNumber?: string;
-      businessId?: string;
-      fullName?: string;
-    } | null;
-    changedAt: string;
-  }[];
+  statusHistory: OrderStatusHistoryItem[];
 
   createdAt: string;
   updatedAt: string;
+}
+
+export interface OrderStatusHistoryItem {
+  id: string;
+  orderStatus: string;
+  note: string;
+  changedByName: string;
+  createdAt: string;
 }
