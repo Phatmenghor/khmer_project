@@ -15,6 +15,7 @@ export default function SubcategoriesPage() {
   const {
     data,
     isLoading,
+    error,
     fetchSubcategories,
   } = usePublicSubcategoriesState();
 
@@ -24,8 +25,13 @@ export default function SubcategoriesPage() {
   useScrollRestoration({ enabled: true, restoreOnMount: true, customKey: "subcategories" });
 
   useEffect(() => {
+    console.log("[SubcategoriesPage] Mounted, fetching data...");
     fetchSubcategories({ status: "ACTIVE" });
   }, [fetchSubcategories]);
+
+  useEffect(() => {
+    console.log("[SubcategoriesPage] State updated - isLoading:", isLoading, "data length:", data?.length, "error:", error);
+  }, [isLoading, data, error]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -59,8 +65,18 @@ export default function SubcategoriesPage() {
           </div>
         )}
 
+        {/* Error State */}
+        {error && (
+          <EmptyState
+            icon={LayoutGrid}
+            title="Error loading subcategories"
+            description={error}
+            size="lg"
+          />
+        )}
+
         {/* Empty State */}
-        {!isLoading && totalSubcategories === 0 && (
+        {!isLoading && !error && totalSubcategories === 0 && (
           <EmptyState
             icon={LayoutGrid}
             title="No subcategories found"

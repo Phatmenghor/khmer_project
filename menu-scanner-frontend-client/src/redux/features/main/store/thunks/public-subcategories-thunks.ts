@@ -20,24 +20,39 @@ export const fetchPublicSubcategories = createAsyncThunk<
   { rejectValue: string }
 >("publicSubcategories/fetchAll", async (params, { rejectWithValue }) => {
   const startTime = performance.now();
+  const requestParams = {
+    search: params.search || undefined,
+    status: params.status || "ACTIVE",
+    businessId: AppDefault.BUSINESS_ID,
+  };
+
+  console.log("[Subcategories] Fetching with params:", requestParams);
+
   try {
     const response = await axiosClient.get(
       "/api/v1/public/subcategories/by-category",
-      {
-        params: {
-          search: params.search || undefined,
-          status: params.status || "ACTIVE",
-          businessId: AppDefault.BUSINESS_ID,
-        }
-      }
+      { params: requestParams }
     );
+
     const endTime = performance.now();
     console.log(`[Subcategories] API call took ${(endTime - startTime).toFixed(2)}ms`);
-    return response.data.data.items;
+    console.log("[Subcategories] Response data:", response.data);
+
+    const items = response.data.data?.items;
+    console.log("[Subcategories] Extracted items:", items);
+
+    if (!items) {
+      console.warn("[Subcategories] No items in response");
+      return [];
+    }
+
+    return items;
   } catch (error: any) {
-    console.error("[Subcategories] Error fetching:", error);
+    const endTime = performance.now();
+    console.error("[Subcategories] Error fetching (took ${(endTime - startTime).toFixed(2)}ms):", error);
+    console.error("[Subcategories] Error response:", error.response?.data);
     return rejectWithValue(
-      error.response?.data?.message || "Failed to fetch subcategories"
+      error.response?.data?.message || error.message || "Failed to fetch subcategories"
     );
   }
 });
