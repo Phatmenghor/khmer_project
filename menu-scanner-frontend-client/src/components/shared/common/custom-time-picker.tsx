@@ -152,7 +152,7 @@ export function CustomTimePicker({
           </button>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-72 p-0" align="start">
+      <PopoverContent className="w-96 p-0" align="start">
         {/* Header */}
         <div className="p-3 border-b bg-muted/30 flex items-center justify-between">
           <span className="text-sm font-medium">Select Time</span>
