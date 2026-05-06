@@ -166,7 +166,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
         sizeName: null,
         finalPrice: product.displayPrice,
         currentPrice: product.displayOriginPrice || product.displayPrice,
-        hasPromotion: product.hasActivePromotion,
+        hasPromotion: product.hasPromotion,
         promotionType: product.displayPromotionType || null,
         promotionValue: product.displayPromotionValue || null,
         promotionFromDate: product.displayPromotionFromDate || null,
@@ -389,7 +389,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
 
             <div className="mt-auto">
               <div className="flex flex-col mb-2.5">
-                <span className={cn("text-xs text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
+                <span className={cn("text-xs text-muted-foreground line-through", !product.hasPromotion && "invisible")}>
                   {formatCurrency(product.displayOriginPrice)}
                 </span>
                 <span className="text-base font-bold text-primary">{formatCurrency(product.displayPrice)}</span>
@@ -462,7 +462,7 @@ export const ProductCard = memo(
       // Image URL must not change
       prevProps.product.mainImageUrl === nextProps.product.mainImageUrl &&
       // Promotion status must not change
-      prevProps.product.hasActivePromotion === nextProps.product.hasActivePromotion &&
+      prevProps.product.hasPromotion === nextProps.product.hasPromotion &&
       // Promotion value must not change (for display)
       prevProps.product.displayPromotionValue === nextProps.product.displayPromotionValue &&
       // Promotion type must not change

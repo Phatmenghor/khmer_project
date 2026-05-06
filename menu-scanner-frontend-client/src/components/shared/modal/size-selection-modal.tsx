@@ -374,12 +374,12 @@ export function SizeSelectionModal({
     selectedSize?.finalPrice || displayProduct?.displayPrice || 0;
   const originalPrice = selectedSize?.hasPromotion
     ? selectedSize.price
-    : displayProduct?.hasActivePromotion
+    : displayProduct?.hasPromotion
       ? displayProduct?.displayOriginPrice
       : null;
   const hasDiscount = selectedSize
     ? selectedSize.hasPromotion
-    : displayProduct?.hasActivePromotion;
+    : displayProduct?.hasPromotion;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

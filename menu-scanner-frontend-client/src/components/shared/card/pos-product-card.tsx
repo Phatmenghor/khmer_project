@@ -64,7 +64,7 @@ function POSProductCardComponent({
       className={cn(
         "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover:scale-[1.02]",
         quantity > 0 && "ring-1 ring-primary/30 border-primary/50",
-        product.hasActivePromotion && "ring-1 ring-amber-500/20",
+        product.hasPromotion && "ring-1 ring-amber-500/20",
         isOutOfStock && "opacity-60"
       )}
     >
@@ -91,7 +91,7 @@ function POSProductCardComponent({
         )}
 
         {/* Promotion Badge - Top Left */}
-        {product.hasActivePromotion && (
+        {product.hasPromotion && (
           <div className="absolute top-2 left-2 z-10 pointer-events-none">
             <Badge variant="destructive" className="text-xs font-bold px-2 py-0.5 shadow-md">
               {product.displayPromotionType === "PERCENTAGE"
@@ -138,10 +138,10 @@ function POSProductCardComponent({
         <div className="mt-auto">
           {/* Prices */}
           <div className="flex flex-col mb-2.5">
-            <span className={cn("text-xs text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
+            <span className={cn("text-xs text-muted-foreground line-through", !product.hasPromotion && "invisible")}>
               {formatCurrency(product.displayOriginPrice)}
             </span>
-            <span className={cn("text-base font-bold", product.hasActivePromotion ? "text-red-500" : "text-primary")}>
+            <span className={cn("text-base font-bold", product.hasPromotion ? "text-red-500" : "text-primary")}>
               {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
             </span>
           </div>
