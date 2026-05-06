@@ -141,7 +141,7 @@ function POSProductCardComponent({
             <span className={cn("text-xs text-muted-foreground line-through", !product.hasActivePromotion && "invisible")}>
               {formatCurrency(product.displayOriginPrice)}
             </span>
-            <span className="text-base font-bold text-primary">
+            <span className={cn("text-base font-bold", product.hasActivePromotion ? "text-red-500" : "text-primary")}>
               {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
             </span>
           </div>
@@ -171,7 +171,7 @@ function POSProductCardComponent({
             </div>
           ) : (
             <CustomButton
-              className="w-full gap-1.5 h-8 text-xs font-semibold"
+              className="w-full gap-1.5 h-8 text-xs font-semibold bg-red-500 hover:bg-red-600 text-white"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
