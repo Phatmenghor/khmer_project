@@ -67,19 +67,7 @@ export function SizePickerModal({
     (sizeId: string, customizationIds?: Set<string>) => {
       const mapKey = buildCustomizationMapKey(sizeId, customizationIds);
       const hasCustomizations = customizationIds ? customizationIds.size > 0 : false;
-      const result = getQuantityForCombo(mapKey, sizeId, hasCustomizations, originalQuantities);
-
-      console.log("## getQuantityForSize", {
-        sizeId,
-        customizationIds: customizationIds ? Array.from(customizationIds).sort() : [],
-        mapKey,
-        hasCustomizations,
-        found: result > 0,
-        result,
-        allKeysInMap: Array.from(originalQuantities.keys()),
-      });
-
-      return result;
+      return getQuantityForCombo(mapKey, sizeId, hasCustomizations, originalQuantities);
     },
     [originalQuantities],
   );
@@ -128,28 +116,13 @@ export function SizePickerModal({
 
   // When customizations change for selected size, update display quantity
   useEffect(() => {
-    if (!selectedSize) {
-      console.log("## EFFECT: No selected size");
-      return;
-    }
-
-    console.log("## EFFECT FIRED: Size or customizations changed", {
-      selectedSizeId: selectedSize.id,
-      selectedSizeName: selectedSize.name,
-      currentQuantity: quantity,
-    });
+    if (!selectedSize) return;
 
     const sizeId = selectedSize.id;
     const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
 
     // Look up quantity for this specific combo (with or without customizations)
     const qtyForCombo = getQuantityForSize(sizeId, selectedSizeCustoms);
-
-    console.log("## EFFECT: Found quantity", {
-      sizeId,
-      qtyForCombo,
-      settingQuantityTo: qtyForCombo > 0 ? qtyForCombo : 0,
-    });
 
     if (qtyForCombo > 0) {
       // This combo exists in cart - show its quantity
@@ -165,6 +138,37 @@ export function SizePickerModal({
       setQuantity(0);
     }
   }, [selectedSize, customizationsBySize]);
+
+  // Auto-select customizations when size changes (restore from cart)
+  useEffect(() => {
+    if (!selectedSize || !product?.id) return;
+
+    const sizeId = selectedSize.id;
+
+    // Find cart item with this product and size combination to get its customizations
+    const cartItem = cartItems?.find(
+      item => item.productId === product.id && item.productSizeId === sizeId
+    );
+
+    if (cartItem?.customizations && cartItem.customizations.length > 0) {
+      // Auto-select the customizations from the cart for this size
+      const customIds = new Set(
+        cartItem.customizations.map(c => c.productCustomizationId)
+      );
+      setCustomizationsBySize(prev => {
+        const next = new Map(prev);
+        next.set(sizeId, customIds);
+        return next;
+      });
+    } else {
+      // No customizations for this size - clear them
+      setCustomizationsBySize(prev => {
+        const next = new Map(prev);
+        next.delete(sizeId);
+        return next;
+      });
+    }
+  }, [selectedSize?.id, product?.id, cartItems]);
 
   // When initial customizations are loaded, trigger quantity update
   useEffect(() => {
