@@ -38,6 +38,7 @@ import {
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
+import { buildCustomizationMapKey, buildQuantityMap, applyDiscount } from "@/utils/common/customization-utils";
 import { POSCartItem } from "@/components/pos-custom/pos-cart-item";
 import { POSMoreOptionsModal } from "@/components/pos-custom/pos-more-options-modal";
 import { POSOrderSuccessModal } from "@/components/pos-custom/pos-order-success-modal";
@@ -513,13 +514,19 @@ export default function PosPage() {
   }, [dispatch, addToCart]);
 
   // ─── Get quantity in cart ───
+  // Memoized product quantity lookup (O(1) instead of O(n))
+  const productQuantityMap = useMemo(() => {
+    const map = new Map<string, number>();
+    cartItems.forEach((item) => {
+      const current = map.get(item.productId) ?? 0;
+      map.set(item.productId, current + item.quantity);
+    });
+    return map;
+  }, [cartItems]);
+
   const getProductCartQuantity = useCallback(
-    (productId: string) => {
-      return cartItems
-        .filter((item) => item.productId === productId)
-        .reduce((sum, item) => sum + item.quantity, 0);
-    },
-    [cartItems]
+    (productId: string) => productQuantityMap.get(productId) ?? 0,
+    [productQuantityMap]
   );
 
   // ─── Handle Edit Cart Item for Price/Promotion ───
@@ -1198,17 +1205,7 @@ export default function PosPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold">Total</span>
                   <span className="text-base font-bold text-primary">
-                    {(() => {
-                      let total = cartSummary.finalTotal;
-                      if (orderDiscount) {
-                        if (orderDiscount.type === "fixed") {
-                          total = Math.max(0, total - orderDiscount.value);
-                        } else if (orderDiscount.type === "percentage") {
-                          total = total * (1 - (orderDiscount.value / 100));
-                        }
-                      }
-                      return formatCurrency(total);
-                    })()}
+                    {formatCurrency(applyDiscount(cartSummary.finalTotal, orderDiscount))}
                   </span>
                 </div>
               </div>
@@ -1272,61 +1269,28 @@ export default function PosPage() {
           </div>
         </div>
       </div>
-      {(() => {
-        const initialQties = new Map<string, number>();
+      {useMemo(() => {
+        const initialQties = sizePickerProduct
+          ? buildQuantityMap(cartItems, sizePickerProduct.id)
+          : new Map<string, number>();
+
         let initialCustomIds: string[] = [];
 
-        if (sizePickerProduct && cartItems.length > 0) {
-          // Get all cart items for this product
-          cartItems
-            .filter((item) => item.productId === sizePickerProduct.id)
-            .forEach((item) => {
-              const sizeId = item.productSizeId || "__no_size__";
-
-              // Build key with size and customizations for matching
-              const customKey = item.customizations && item.customizations.length > 0
-                ? `-${item.customizations.map(c => c.productCustomizationId).sort().join("-")}`
-                : "";
-              const mapKey = `${sizeId}${customKey}`;
-
-              // Store quantity mapped to size+customizations combo
-              initialQties.set(mapKey, item.quantity);
-
-              // If this is the item being edited, get its customizations
-              if (editingCartItemId && item.id === editingCartItemId && item.customizations) {
-                initialCustomIds = item.customizations.map((c) => c.productCustomizationId);
-              }
-            });
+        // If editing, get customizations from the existing item
+        if (editingCartItemId && sizePickerProduct) {
+          const editingItem = cartItems.find((item) => item.id === editingCartItemId);
+          if (editingItem && editingItem.customizations) {
+            initialCustomIds = editingItem.customizations.map((c) => c.productCustomizationId);
+          }
         }
 
-        // If not editing and no customizations found, use last stored customizations for this product
+        // If not editing and no customizations found, use last stored customizations
         if (!editingCartItemId && initialCustomIds.length === 0 && sizePickerProduct) {
           const storedCustomIds = lastSelectedCustomizations?.[sizePickerProduct.id];
           if (storedCustomIds && storedCustomIds.length > 0) {
             initialCustomIds = storedCustomIds;
           }
         }
-
-        console.log("## Modal Initialization - Size+Customization Quantities", {
-          productId: sizePickerProduct?.id,
-          productName: sizePickerProduct?.name,
-          totalCartItems: cartItems.length,
-          cartItemsForProduct: cartItems
-            .filter((item) => item.productId === sizePickerProduct?.id)
-            .map(item => ({
-              cartId: item.id,
-              sizeId: item.productSizeId,
-              sizeName: item.sizeName,
-              quantity: item.quantity,
-              customizationIds: item.customizations?.map(c => c.productCustomizationId).sort(),
-            })),
-          initialQuantitiesMap: Array.from(initialQties.entries()).map(([key, qty]) => ({
-            mapKey: key,
-            quantity: qty,
-          })),
-          initialCustomizationIds: initialCustomIds,
-          isEditing: !!editingCartItemId,
-        });
 
         return (
           <SizePickerModal
@@ -1349,7 +1313,7 @@ export default function PosPage() {
             initialCustomizations={initialCustomIds}
           />
         );
-      })()}
+      }, [cartItems, sizePickerProduct?.id, editingCartItemId, lastSelectedCustomizations])}
 
       <POSOrderSuccessModal
         open={!!successOrder}

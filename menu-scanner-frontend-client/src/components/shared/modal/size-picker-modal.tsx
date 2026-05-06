@@ -1,7 +1,8 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { Check, Package, X, Trash2 } from "lucide-react";
+import { buildCustomizationMapKey, getQuantityForCombo } from "@/utils/common/customization-utils";
 import {
   Dialog,
   DialogContent,
@@ -64,35 +65,9 @@ export function SizePickerModal({
   // Get original quantity for a size, accounting for customizations
   const getQuantityForSize = useCallback(
     (sizeId: string, customizationIds?: Set<string>) => {
-      // Build the same key pattern used in POS page
-      const customArray = customizationIds ? Array.from(customizationIds).sort() : [];
-      const customKey = customArray.length > 0
-        ? `-${customArray.join("-")}`
-        : "";
-      const mapKey = `${sizeId}${customKey}`;
-
-      // Try exact combo match first
-      const exactMatch = originalQuantities.get(mapKey);
-
-      // Only fallback to size-only if NO customizations selected
-      // If customizations ARE selected but combo not found, return 0
-      const sizeOnlyMatch = customArray.length === 0 ? originalQuantities.get(sizeId) : undefined;
-
-      const result = exactMatch ?? sizeOnlyMatch ?? 0;
-
-      console.log("## getQuantityForSize - Matching Logic", {
-        sizeId,
-        customizationArray: customArray,
-        hasCustomizations: customArray.length > 0,
-        exactMapKey: mapKey,
-        exactMatchFound: exactMatch !== undefined,
-        exactMatchQuantity: exactMatch,
-        sizeOnlyMatchFound: sizeOnlyMatch !== undefined,
-        sizeOnlyMatchQuantity: sizeOnlyMatch,
-        finalQuantity: result,
-      });
-
-      return result;
+      const mapKey = buildCustomizationMapKey(sizeId, customizationIds);
+      const hasCustomizations = customizationIds ? customizationIds.size > 0 : false;
+      return getQuantityForCombo(mapKey, sizeId, hasCustomizations, originalQuantities);
     },
     [originalQuantities],
   );
@@ -141,44 +116,16 @@ export function SizePickerModal({
 
   // When customizations change for selected size, update display quantity
   useEffect(() => {
-    if (!selectedSize) {
-      console.log("## Quantity Update Effect - No size selected");
-      return;
-    }
+    if (!selectedSize) return;
 
     const sizeId = selectedSize.id;
     const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
-    const customArray = Array.from(selectedSizeCustoms).sort();
-
-    console.log("## SIZE CHANGED - Checking Quantity", {
-      newSizeId: sizeId,
-      newSizeName: selectedSize.name,
-      customizationsForThisSize: customArray,
-      allCustomizationsBySize: Array.from(customizationsBySize.entries()).map(([id, customs]) => ({
-        sizeId: id,
-        customizations: Array.from(customs),
-      })),
-    });
 
     // Look up quantity for this specific combo (with or without customizations)
     const qtyForCombo = getQuantityForSize(sizeId, selectedSizeCustoms);
 
-    console.log("## Quantity Sync Debug - Size+Customization", {
-      productId: product?.id,
-      sizeId,
-      sizeLabel: selectedSize.name,
-      customizationIds: customArray,
-      customizationCount: selectedSizeCustoms.size,
-      quantityFound: qtyForCombo,
-      allQuantitiesInMap: Array.from(originalQuantities.entries()).map(([key, qty]) => ({
-        mapKey: key,
-        quantity: qty,
-      })),
-    });
-
     if (qtyForCombo > 0) {
       // This combo exists in cart - show its quantity
-      console.log("## Setting quantity to found value", { qtyForCombo });
       setQuantity(qtyForCombo);
       // Clear pending edits since we're showing the actual cart quantity
       setPendingQuantities((prev) => {
@@ -188,7 +135,6 @@ export function SizePickerModal({
       });
     } else {
       // This combo doesn't exist in cart - reset to 0 for new item
-      console.log("## Setting quantity to 0 (not found in cart)");
       setQuantity(0);
     }
   }, [customizationsBySize, selectedSize?.id, product?.id, originalQuantities]);
