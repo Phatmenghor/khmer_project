@@ -196,17 +196,34 @@ export function SizePickerModal({
       const hasSizes = product.sizes && product.sizes.length > 0;
       const hasCustomizations = product.customizations && product.customizations.length > 0;
 
+      // When editing, find the current item to get its size
+      let editingItem = null;
+      if (isEditing && editingId) {
+        editingItem = cartItems?.find((item) => item.id === editingId);
+      }
+
       if (hasSizes) {
         // Product has sizes - use normal flow
-        setSelectedSize(product.sizes![0]);
+        // When editing, pre-select the size of the current item
+        let selectedSizeForInit = product.sizes![0];
+        if (editingItem && editingItem.productSizeId) {
+          const editingSizeId = editingItem.productSizeId;
+          const editingSize = product.sizes!.find((s) => s.id === editingSizeId);
+          if (editingSize) {
+            selectedSizeForInit = editingSize;
+          }
+        }
+
+        setSelectedSize(selectedSizeForInit);
         setPendingQuantities(new Map());
         setModifiedSizes(new Set());
 
         // Initialize customizations per size from prop if editing, otherwise empty
         const customsBySize = new Map<string, Set<string>>();
         if (initialCustomizations && initialCustomizations.length > 0) {
-          // When editing, customizations apply to first size
-          customsBySize.set(product.sizes![0].id, new Set(initialCustomizations));
+          // When editing, set customizations to the current item's size
+          const targetSizeId = editingItem?.productSizeId || selectedSizeForInit.id;
+          customsBySize.set(targetSizeId, new Set(initialCustomizations));
         }
         setCustomizationsBySize(customsBySize);
 
@@ -215,16 +232,16 @@ export function SizePickerModal({
         setOriginalQuantities(origQties);
 
         // Set initial quantity - use the one for selected customizations, or fallback to size
-        let firstSizeQty = 0;
-        const firstSize = product.sizes![0];
+        let sizeQty = 0;
+        const selectedSizeId = selectedSizeForInit.id;
         if (initialCustomizations && initialCustomizations.length > 0) {
           const customKey = `-${[...initialCustomizations].sort().join("-")}`;
-          const mapKey = `${firstSize.id}${customKey}`;
-          firstSizeQty = initialQuantities?.get(mapKey) ?? 0;
+          const mapKey = `${selectedSizeId}${customKey}`;
+          sizeQty = initialQuantities?.get(mapKey) ?? 0;
         } else {
-          firstSizeQty = initialQuantities?.get(firstSize.id) ?? 0;
+          sizeQty = initialQuantities?.get(selectedSizeId) ?? 0;
         }
-        setQuantity(firstSizeQty);
+        setQuantity(sizeQty);
       } else if (hasCustomizations) {
         // No sizes but has customizations - use "__no_size__" as a placeholder
         const noSizeId = "__no_size__";
@@ -263,7 +280,7 @@ export function SizePickerModal({
       setOriginalQuantities(new Map());
       setCustomizationsBySize(new Map());
     }
-  }, [open, product?.id, initialQuantities, initialCustomizations]);
+  }, [open, product?.id, initialQuantities, initialCustomizations, isEditing, editingId, cartItems]);
 
   // Handle quantity change - update pending and track if modified
   const handleQuantityChange = useCallback(

@@ -531,8 +531,13 @@ export default function PosPage() {
 
   // ─── Handle Edit Cart Item for Price/Promotion ───
   const handleEditPriceItem = useCallback((item: PosPageCartItem) => {
-    setEditingItemForPrice(item);
-  }, []);
+    // Open the size/customization modal for full editing
+    const product = products.find((p) => p.id === item.productId);
+    if (product) {
+      dispatch(setSizePickerProduct(product));
+      dispatch(setEditingCartItemId(item.id));
+    }
+  }, [products, dispatch]);
 
   // ─── Save Cart Item Price Changes ───
   const handleSaveItemChanges = useCallback((editData: any) => {
