@@ -580,7 +580,7 @@ export function SizePickerModal({
             <h4 className="font-semibold mb-3 text-sm">Quantity</h4>
             <div className="flex items-center gap-2">
               <QuantitySelector
-                value={currentQuantity}
+                value={quantity}
                 onChange={handleQuantityChange}
                 min={0}
                 size="sm"
