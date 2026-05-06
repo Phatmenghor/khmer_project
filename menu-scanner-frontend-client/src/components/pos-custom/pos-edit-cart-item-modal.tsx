@@ -146,7 +146,10 @@ export function POSEditCartItemModal({
     ? item.customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0)
     : 0;
 
-  const calculatedTotal = calculatedFinalPrice * calculatedQuantity;
+  // Price with add-ons (unit price before quantity)
+  const priceWithAddons = calculatedFinalPrice + addonsTotal;
+
+  const calculatedTotal = priceWithAddons * calculatedQuantity;
 
   // Check if form is dirty (with null safety)
   const isDirty = !item ? false : (
@@ -352,13 +355,19 @@ export function POSEditCartItemModal({
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Unit Price:</span>
+                <span className="text-muted-foreground">Original Unit Price:</span>
                 <span className="font-semibold">{formatCurrency(calculatedFinalPrice)}</span>
               </div>
               {addonsTotal > 0 && (
                 <div className="flex justify-between text-green-700">
                   <span className="text-muted-foreground">Add-ons Total:</span>
                   <span className="font-semibold">+{formatCurrency(addonsTotal)}</span>
+                </div>
+              )}
+              {addonsTotal > 0 && (
+                <div className="flex justify-between font-semibold border-t pt-2">
+                  <span className="text-muted-foreground">Price with Add-ons:</span>
+                  <span className="text-primary">{formatCurrency(priceWithAddons)}</span>
                 </div>
               )}
               <div className="flex justify-between">
