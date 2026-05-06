@@ -239,18 +239,8 @@ export default function PosPage() {
     );
   }, [debouncedSearch, selectedCategory, selectedBrand, selectedSubcategory, promotionFilter, dispatch]);
 
-  // Calculate skeleton count dynamically based on screen width (matches grid columns)
-  const getSkeletonCount = useCallback(() => {
-    if (typeof window === "undefined") return 6;
-    const width = window.innerWidth;
-    if (width < 640) return 2;      // sm: 2 cols
-    if (width < 768) return 3;      // md: 3 cols
-    if (width < 1024) return 4;     // lg: 4 cols
-    if (width < 1280) return 5;     // xl: 5 cols
-    return 6;                        // 2xl: 6 cols
-  }, []);
-
-  const skeletonCount = useMemo(() => getSkeletonCount(), [getSkeletonCount]);
+  // Use constant skeleton count to avoid hydration mismatch
+  const skeletonCount = 4;
 
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
