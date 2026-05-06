@@ -171,7 +171,7 @@ export function SizePickerModal({
       // This combo doesn't exist in cart - reset to 0 for new item
       setQuantity(0);
     }
-  }, [customizationsBySize, selectedSize?.id, getQuantityForSize, product?.id, originalQuantities]);
+  }, [customizationsBySize, selectedSize?.id, product?.id, originalQuantities]);
 
   // When initial customizations are loaded, trigger quantity update
   useEffect(() => {
@@ -187,7 +187,7 @@ export function SizePickerModal({
     if (qtyForCustoms > 0) {
       setQuantity(qtyForCustoms);
     }
-  }, [selectedSize, initialCustomizations, getQuantityForSize, originalQuantities]);
+  }, [selectedSize, initialCustomizations, originalQuantities]);
 
   // Initialize when modal opens
   useEffect(() => {
