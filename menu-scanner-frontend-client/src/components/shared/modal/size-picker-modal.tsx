@@ -168,7 +168,7 @@ export function SizePickerModal({
         let firstSizeQty = 0;
         const firstSize = product.sizes![0];
         if (initialCustomizations && initialCustomizations.length > 0) {
-          const customKey = `-${initialCustomizations.sort().join("-")}`;
+          const customKey = `-${[...initialCustomizations].sort().join("-")}`;
           const mapKey = `${firstSize.id}${customKey}`;
           firstSizeQty = initialQuantities?.get(mapKey) ?? 0;
         } else {
@@ -196,7 +196,7 @@ export function SizePickerModal({
         // Set initial quantity - use the one for selected customizations, or fallback to base
         let initialQty = 0;
         if (initialCustomizations && initialCustomizations.length > 0) {
-          const customKey = `-${initialCustomizations.sort().join("-")}`;
+          const customKey = `-${[...initialCustomizations].sort().join("-")}`;
           const mapKey = `${noSizeId}${customKey}`;
           initialQty = initialQuantities?.get(mapKey) ?? 0;
         } else {
