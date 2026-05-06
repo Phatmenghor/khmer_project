@@ -125,6 +125,9 @@ export function SizePickerModal({
     const sizeId = selectedSize.id;
     const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
 
+    // Only update if customizations are actually selected
+    if (selectedSizeCustoms.size === 0) return;
+
     // Look up quantity for this specific customization combo
     const qtyForCustoms = getQuantityForSize(sizeId, selectedSizeCustoms);
 
@@ -139,6 +142,20 @@ export function SizePickerModal({
       });
     }
   }, [customizationsBySize, selectedSize, getQuantityForSize]);
+
+  // When initial customizations are loaded, trigger quantity update
+  useEffect(() => {
+    if (!selectedSize || !initialCustomizations || initialCustomizations.length === 0) return;
+
+    const sizeId = selectedSize.id;
+    // Build customization set from initialCustomizations
+    const initialCustomSet = new Set(initialCustomizations);
+    const qtyForCustoms = getQuantityForSize(sizeId, initialCustomSet);
+
+    if (qtyForCustoms > 0) {
+      setQuantity(qtyForCustoms);
+    }
+  }, [selectedSize, initialCustomizations, getQuantityForSize]);
 
   // Initialize when modal opens
   useEffect(() => {
