@@ -118,6 +118,28 @@ export function SizePickerModal({
     });
   }, [selectedSize]);
 
+  // When customizations change for selected size, update display quantity
+  useEffect(() => {
+    if (!selectedSize) return;
+
+    const sizeId = selectedSize.id;
+    const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
+
+    // Look up quantity for this specific customization combo
+    const qtyForCustoms = getQuantityForSize(sizeId, selectedSizeCustoms);
+
+    // If this combo exists in cart, show its quantity
+    if (qtyForCustoms > 0) {
+      setQuantity(qtyForCustoms);
+      // Clear pending edits since we're showing the actual cart quantity
+      setPendingQuantities((prev) => {
+        const next = new Map(prev);
+        next.delete(sizeId);
+        return next;
+      });
+    }
+  }, [customizationsBySize, selectedSize, getQuantityForSize]);
+
   // Initialize when modal opens
   useEffect(() => {
     if (open && product) {
