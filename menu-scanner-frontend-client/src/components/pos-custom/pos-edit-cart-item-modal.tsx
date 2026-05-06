@@ -55,7 +55,7 @@ interface POSEditCartItemModalProps {
     sizeName: string | null;
     currentPrice: number;
     quantity: number;
-    hasActivePromotion: boolean;
+    hasPromotion: boolean;
     promotionType: string | null;
     promotionValue: number | null;
     customizations?: Array<{

@@ -1338,7 +1338,7 @@ export default function PosPage() {
             sizeName: editingItemForPrice.sizeName,
             currentPrice: editingItemForPrice.currentPrice,
             quantity: editingItemForPrice.quantity,
-            hasActivePromotion: false,
+            hasPromotion: false,
             promotionType: null,
             promotionValue: null,
             customizations: editingItemForPrice.customizations || [],
