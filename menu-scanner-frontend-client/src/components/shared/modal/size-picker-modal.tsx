@@ -128,13 +128,28 @@ export function SizePickerModal({
 
   // When customizations change for selected size, update display quantity
   useEffect(() => {
-    if (!selectedSize) return;
+    if (!selectedSize) {
+      console.log("## EFFECT: No selected size");
+      return;
+    }
+
+    console.log("## EFFECT FIRED: Size or customizations changed", {
+      selectedSizeId: selectedSize.id,
+      selectedSizeName: selectedSize.name,
+      currentQuantity: quantity,
+    });
 
     const sizeId = selectedSize.id;
     const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
 
     // Look up quantity for this specific combo (with or without customizations)
     const qtyForCombo = getQuantityForSize(sizeId, selectedSizeCustoms);
+
+    console.log("## EFFECT: Found quantity", {
+      sizeId,
+      qtyForCombo,
+      settingQuantityTo: qtyForCombo > 0 ? qtyForCombo : 0,
+    });
 
     if (qtyForCombo > 0) {
       // This combo exists in cart - show its quantity
