@@ -73,15 +73,18 @@ export function SizePickerModal({
 
       console.log("## getQuantityForSize lookup", {
         sizeId,
+        sizeIdEmpty: sizeId === "",
+        sizeIdType: typeof sizeId,
         customizationIds: customizationIds ? Array.from(customizationIds) : undefined,
         mapKey,
         qtyFound: qty,
         allKeys: Array.from(originalQuantities.keys()),
+        selectedSizeState: selectedSize ? { id: selectedSize.id, name: selectedSize.name } : null,
       });
 
       return qty;
     },
-    [originalQuantities],
+    [originalQuantities, selectedSize],
   );
 
   // Get display quantity - shows pending edits if any, otherwise original
@@ -237,7 +240,14 @@ export function SizePickerModal({
       } else if (hasCustomizations) {
         // No sizes but has customizations - use "__no_size__" as a placeholder
         const noSizeId = "__no_size__";
-        setSelectedSize({ id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as ProductSize);
+        const newSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as ProductSize;
+        console.log("## Setting selectedSize (no sizes case)", {
+          newSizeId: newSize.id,
+          newSizeName: newSize.name,
+          hasSizes,
+          hasCustomizations,
+        });
+        setSelectedSize(newSize);
         setPendingQuantities(new Map());
         setModifiedSizes(new Set([noSizeId]));
 
