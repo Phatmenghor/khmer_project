@@ -1108,6 +1108,9 @@ export default function PosPage() {
                       currentPrice={item.currentPrice}
                       finalPrice={item.finalPrice}
                       quantity={item.quantity}
+                      hasPromotion={item.hasPromotion}
+                      promotionType={item.promotionType}
+                      promotionValue={item.promotionValue}
                       customizations={item.customizations}
                       onQuantityChange={(delta) => updateQuantity(item.id, delta)}
                       onRemove={() => removeItem(item.id)}
