@@ -199,11 +199,6 @@ export function SizePickerModal({
         // No sizes but has customizations - use "__no_size__" as a placeholder
         const noSizeId = "__no_size__";
         const newSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as ProductSize;
-          newSizeId: newSize.id,
-          newSizeName: newSize.name,
-          hasSizes,
-          hasCustomizations,
-        });
         setSelectedSize(newSize);
         setPendingQuantities(new Map());
         setModifiedSizes(new Set([noSizeId]));
