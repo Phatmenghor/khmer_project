@@ -1341,6 +1341,7 @@ export default function PosPage() {
             hasActivePromotion: false,
             promotionType: null,
             promotionValue: null,
+            customizations: editingItemForPrice.customizations || [],
           } : null
         }
         onSave={handleSaveItemChanges}

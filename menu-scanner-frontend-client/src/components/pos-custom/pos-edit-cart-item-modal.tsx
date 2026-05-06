@@ -58,6 +58,10 @@ interface POSEditCartItemModalProps {
     hasActivePromotion: boolean;
     promotionType: string | null;
     promotionValue: number | null;
+    customizations?: Array<{
+      name: string;
+      priceAdjustment: number;
+    }>;
   } | null;
   onSave: (data: CartItemEditData) => void;
 }
@@ -178,6 +182,20 @@ export function POSEditCartItemModal({
                 <p className="text-xs text-muted-foreground mb-2">
                   Size: <span className="font-medium">{item.sizeName}</span>
                 </p>
+              )}
+              {item.customizations && item.customizations.length > 0 && (
+                <div className="mb-2">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Add-ons: <span className="font-medium">{item.customizations.length}</span>
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {item.customizations.map((custom, idx) => (
+                      <span key={idx} className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200 font-medium">
+                        {custom.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               )}
               <p className="text-xs text-muted-foreground">
                 Original Price: <span className="font-semibold text-primary">{formatCurrency(item.currentPrice)}</span>
