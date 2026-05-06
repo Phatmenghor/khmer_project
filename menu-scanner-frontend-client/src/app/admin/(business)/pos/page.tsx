@@ -46,7 +46,6 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { POSProductCard } from "@/components/shared/card/pos-product-card";
 import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
-import { POSEditCartItemModal } from "@/components/pos-custom/pos-edit-cart-item-modal";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useAppDispatch } from "@/redux/store";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -182,8 +181,6 @@ export default function PosPage() {
 
   // ─── Debounce search ───
   const debouncedSearch = useDebounce(searchTerm, 400);
-  // ─── Edit Cart Item for Price/Promotion ───
-  const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
 
   // ─── Order-Level Discount ───
   const [orderDiscount, setOrderDiscount] = useState<{
@@ -539,27 +536,6 @@ export default function PosPage() {
     }
   }, [products, dispatch]);
 
-  // ─── Save Cart Item Price Changes ───
-  const handleSaveItemChanges = useCallback((editData: any) => {
-    if (!editingItemForPrice) return;
-
-    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.currentPrice;
-    const newQuantity = parseInt(editData.newQuantity) || editingItemForPrice.quantity;
-
-    let finalPrice = newPrice;
-    // Note: Promotional calculations removed as we simplified pricing model
-
-    const updatedItem: PosPageCartItem = {
-      ...editingItemForPrice,
-      quantity: newQuantity,
-      currentPrice: newPrice,
-      finalPrice,
-      totalPrice: finalPrice * newQuantity,
-    };
-
-    dispatch(updateCartItem(updatedItem));
-    showToast.success("Item updated successfully");
-  }, [dispatch, editingItemForPrice]);
 
   // ─── Handle Order-Level Discount ───
   const handleDiscountApply = (discount: {
@@ -1330,23 +1306,6 @@ export default function PosPage() {
 
 
       {/* Edit Cart Item Modal for Price/Promotion */}
-      <POSEditCartItemModal
-        open={!!editingItemForPrice}
-        onOpenChange={(open) => {
-          if (!open) setEditingItemForPrice(null);
-        }}
-        item={
-          editingItemForPrice ? {
-            id: editingItemForPrice.id,
-            productName: editingItemForPrice.productName,
-            productImageUrl: editingItemForPrice.productImageUrl,
-            sizeName: editingItemForPrice.sizeName,
-            currentPrice: editingItemForPrice.currentPrice,
-            quantity: editingItemForPrice.quantity,
-          } : null
-        }
-        onSave={handleSaveItemChanges}
-      />
       <POSMoreOptionsModal
         open={showOrderDetailsModal}
         onOpenChange={(open) => dispatch(setShowOrderDetailsModal(open))}
