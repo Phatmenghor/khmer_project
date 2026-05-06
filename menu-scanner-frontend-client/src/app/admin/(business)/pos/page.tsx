@@ -1274,6 +1274,12 @@ export default function PosPage() {
           ? buildQuantityMap(cartItems, sizePickerProduct.id)
           : new Map<string, number>();
 
+        console.log("## Modal Init - Quantity Map Built", {
+          productId: sizePickerProduct?.id,
+          cartItemsForProduct: cartItems.filter(i => i.productId === sizePickerProduct?.id).length,
+          initialQtiesMap: Array.from(initialQties.entries()).map(([key, qty]) => ({ key, qty })),
+        });
+
         let initialCustomIds: string[] = [];
 
         // If editing, get customizations from the existing item

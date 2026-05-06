@@ -67,7 +67,19 @@ export function SizePickerModal({
     (sizeId: string, customizationIds?: Set<string>) => {
       const mapKey = buildCustomizationMapKey(sizeId, customizationIds);
       const hasCustomizations = customizationIds ? customizationIds.size > 0 : false;
-      return getQuantityForCombo(mapKey, sizeId, hasCustomizations, originalQuantities);
+      const result = getQuantityForCombo(mapKey, sizeId, hasCustomizations, originalQuantities);
+
+      console.log("## getQuantityForSize", {
+        sizeId,
+        customizationIds: customizationIds ? Array.from(customizationIds).sort() : [],
+        mapKey,
+        hasCustomizations,
+        found: result > 0,
+        result,
+        allKeysInMap: Array.from(originalQuantities.keys()),
+      });
+
+      return result;
     },
     [originalQuantities],
   );
