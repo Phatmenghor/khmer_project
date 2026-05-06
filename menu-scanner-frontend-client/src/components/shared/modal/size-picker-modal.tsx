@@ -147,10 +147,6 @@ export function SizePickerModal({
   // When initial customizations are loaded, trigger quantity update
   useEffect(() => {
     if (!selectedSize || !initialCustomizations || initialCustomizations.length === 0) {
-        hasSelectedSize: !!selectedSize,
-        hasInitialCustoms: !!initialCustomizations,
-        customsLength: initialCustomizations?.length ?? 0,
-      });
       return;
     }
 
@@ -158,11 +154,6 @@ export function SizePickerModal({
     // Build customization set from initialCustomizations
     const initialCustomSet = new Set(initialCustomizations);
     const qtyForCustoms = getQuantityForSize(sizeId, initialCustomSet);
-
-      sizeId,
-      initialCustomizations,
-      qtyForCustoms,
-    });
 
     if (qtyForCustoms > 0) {
       setQuantity(qtyForCustoms);
@@ -174,17 +165,6 @@ export function SizePickerModal({
     if (open && product) {
       const hasSizes = product.sizes && product.sizes.length > 0;
       const hasCustomizations = product.customizations && product.customizations.length > 0;
-
-        productId: product.id,
-        productName: product.name,
-        hasSizes,
-        sizesLength: product.sizes?.length ?? 0,
-        hasCustomizations,
-        customizationsLength: product.customizations?.length ?? 0,
-        customizationIds: product.customizations?.map(c => c.id),
-        initialCustomizations,
-        initialQuantitiesKeys: initialQuantities ? Array.from(initialQuantities.keys()) : [],
-      });
 
       if (hasSizes) {
         // Product has sizes - use normal flow
