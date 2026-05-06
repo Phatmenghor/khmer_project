@@ -69,9 +69,17 @@ export function SizePickerModal({
         ? `-${Array.from(customizationIds).sort().join("-")}`
         : "";
       const mapKey = `${sizeId}${customKey}`;
+      const qty = originalQuantities.get(mapKey) ?? originalQuantities.get(sizeId) ?? 0;
+
+      console.log("DEBUG: getQuantityForSize", {
+        sizeId,
+        customizationIds: customizationIds ? Array.from(customizationIds) : undefined,
+        mapKey,
+        result: qty,
+      });
 
       // Try to get with customizations first, then fallback to just size
-      return originalQuantities.get(mapKey) ?? originalQuantities.get(sizeId) ?? 0;
+      return qty;
     },
     [originalQuantities],
   );
@@ -152,10 +160,18 @@ export function SizePickerModal({
     const initialCustomSet = new Set(initialCustomizations);
     const qtyForCustoms = getQuantityForSize(sizeId, initialCustomSet);
 
+    console.log("DEBUG: Initial customizations effect", {
+      sizeId,
+      initialCustomizations,
+      initialCustomSet: Array.from(initialCustomSet),
+      qtyForCustoms,
+      originalQuantitiesKeys: Array.from(originalQuantities.keys()),
+    });
+
     if (qtyForCustoms > 0) {
       setQuantity(qtyForCustoms);
     }
-  }, [selectedSize, initialCustomizations, getQuantityForSize]);
+  }, [selectedSize, initialCustomizations, getQuantityForSize, originalQuantities]);
 
   // Initialize when modal opens
   useEffect(() => {
