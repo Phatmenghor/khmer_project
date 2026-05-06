@@ -70,6 +70,15 @@ export function SizePickerModal({
         : "";
       const mapKey = `${sizeId}${customKey}`;
       const qty = originalQuantities.get(mapKey) ?? originalQuantities.get(sizeId) ?? 0;
+
+      console.log("## getQuantityForSize lookup", {
+        sizeId,
+        customizationIds: customizationIds ? Array.from(customizationIds) : undefined,
+        mapKey,
+        qtyFound: qty,
+        allKeys: Array.from(originalQuantities.keys()),
+      });
+
       return qty;
     },
     [originalQuantities],
@@ -124,15 +133,27 @@ export function SizePickerModal({
     const sizeId = selectedSize.id;
     const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
 
+    console.log("## Customizations changed watcher", {
+      sizeId,
+      selectedCustoms: Array.from(selectedSizeCustoms),
+      customsCount: selectedSizeCustoms.size,
+    });
+
     // Only update if customizations are actually selected
     if (selectedSizeCustoms.size === 0) return;
 
     // Look up quantity for this specific customization combo
     const qtyForCustoms = getQuantityForSize(sizeId, selectedSizeCustoms);
 
+    console.log("## Found quantity for customizations", {
+      sizeId,
+      qtyForCustoms,
+    });
+
     // If this combo exists in cart, show its quantity
     if (qtyForCustoms > 0) {
       setQuantity(qtyForCustoms);
+      console.log("## Setting quantity from cart", { qtyForCustoms });
       // Clear pending edits since we're showing the actual cart quantity
       setPendingQuantities((prev) => {
         const next = new Map(prev);
@@ -144,15 +165,29 @@ export function SizePickerModal({
 
   // When initial customizations are loaded, trigger quantity update
   useEffect(() => {
-    if (!selectedSize || !initialCustomizations || initialCustomizations.length === 0) return;
+    if (!selectedSize || !initialCustomizations || initialCustomizations.length === 0) {
+      console.log("## Initial customizations effect - skipping", {
+        hasSelectedSize: !!selectedSize,
+        hasInitialCustoms: !!initialCustomizations,
+        customsLength: initialCustomizations?.length ?? 0,
+      });
+      return;
+    }
 
     const sizeId = selectedSize.id;
     // Build customization set from initialCustomizations
     const initialCustomSet = new Set(initialCustomizations);
     const qtyForCustoms = getQuantityForSize(sizeId, initialCustomSet);
 
+    console.log("## Initial customizations effect - found quantity", {
+      sizeId,
+      initialCustomizations,
+      qtyForCustoms,
+    });
+
     if (qtyForCustoms > 0) {
       setQuantity(qtyForCustoms);
+      console.log("## Setting initial quantity", { qtyForCustoms });
     }
   }, [selectedSize, initialCustomizations, getQuantityForSize, originalQuantities]);
 
@@ -161,6 +196,14 @@ export function SizePickerModal({
     if (open && product) {
       const hasSizes = product.sizes && product.sizes.length > 0;
       const hasCustomizations = product.customizations && product.customizations.length > 0;
+
+      console.log("DEBUG: Modal initialization", {
+        productId: product.id,
+        hasSizes,
+        hasCustomizations,
+        initialCustomizations,
+        initialQuantitiesKeys: initialQuantities ? Array.from(initialQuantities.keys()) : [],
+      });
 
       if (hasSizes) {
         // Product has sizes - use normal flow

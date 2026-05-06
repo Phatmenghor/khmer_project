@@ -1312,6 +1312,12 @@ export default function PosPage() {
               // Store quantity mapped to size+customizations combo
               initialQties.set(mapKey, item.quantity);
 
+              console.log("## Added to initialQties", {
+                mapKey,
+                quantity: item.quantity,
+                customizations: item.customizations?.map(c => c.productCustomizationId),
+              });
+
               // If this is the item being edited, get its customizations
               if (editingCartItemId && item.id === editingCartItemId && item.customizations) {
                 initialCustomIds = item.customizations.map((c) => c.productCustomizationId);
@@ -1319,11 +1325,29 @@ export default function PosPage() {
             });
         }
 
+        console.log("## Modal props - initialQties and initialCustomIds", {
+          productId: sizePickerProduct?.id,
+          editingCartItemId,
+          initialQtiesMap: Array.from(initialQties.entries()),
+          initialCustomIds,
+          cartItemsForProduct: cartItems
+            .filter((item) => item.productId === sizePickerProduct?.id)
+            .map(item => ({
+              id: item.id,
+              quantity: item.quantity,
+              customizations: item.customizations?.map(c => c.productCustomizationId),
+            })),
+        });
+
         // If not editing and no customizations found, use last stored customizations for this product
         if (!editingCartItemId && initialCustomIds.length === 0 && sizePickerProduct) {
           const storedCustomIds = lastSelectedCustomizations?.[sizePickerProduct.id];
           if (storedCustomIds && storedCustomIds.length > 0) {
             initialCustomIds = storedCustomIds;
+            console.log("## Using lastSelectedCustomizations", {
+              productId: sizePickerProduct.id,
+              storedCustomIds,
+            });
           }
         }
 
