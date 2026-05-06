@@ -1,11 +1,15 @@
+
 -- ============================================================================
 -- COMPREHENSIVE MEGA TEST DATA GENERATION SCRIPT
 -- Complete E-Commerce System with Orders, Stock & 10,000 Products
 -- 2 Businesses, 101+ Users with Full Order History
+
 -- ============================================================================
+
 
 -- ============================================================================
 -- 1. CREATE BUSINESSES
+
 -- ============================================================================
 
 -- Business 1: Mega Store (phatmenghor20@gmail.com owner)
@@ -30,8 +34,10 @@ VALUES (
   'ACTIVE', true, 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
+
 -- ============================================================================
 -- 2. CREATE BUSINESS SETTINGS (ALL FEATURES ENABLED WITH SOCIAL & HOURS)
+
 -- ============================================================================
 
 -- Mega Store Settings
@@ -111,8 +117,10 @@ VALUES
   ('880e9400-e29b-41d4-a716-446655440007', '770e8400-e29b-41d4-a716-446655440003', 'Sunday', '11:00', '20:00', false, 0, false, NOW(), NOW(), 'admin', 'admin')
 ON CONFLICT DO NOTHING;
 
+
 -- ============================================================================
 -- 3. CREATE BANNERS (8 Active, 20 Inactive)
+
 -- ============================================================================
 
 INSERT INTO banners (id, business_id, image_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -127,8 +135,10 @@ SELECT
   NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 28) AS t(i);
 
+
 -- ============================================================================
 -- 3.5. CREATE ROLES
+
 -- ============================================================================
 
 -- NOTE: PLATFORM_OWNER and CUSTOMER roles are created by DataInitializationService
@@ -175,8 +185,10 @@ VALUES (
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
+
 -- ============================================================================
 -- 3.6. CREATE BUSINESS EXCHANGE RATES (18 for Mega Store)
+
 -- ============================================================================
 
 INSERT INTO business_exchange_rates (id, business_id, usd_to_khr_rate, usd_to_cny_rate, usd_to_vnd_rate, status, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -191,8 +203,10 @@ SELECT
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 18) AS t(i);
 
+
 -- ============================================================================
 -- 3.7. CREATE DELIVERY OPTIONS (16 for Mega Store with images)
+
 -- ============================================================================
 
 INSERT INTO delivery_options (id, business_id, name, description, image_url, price, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -207,8 +221,10 @@ SELECT
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 16) AS t(i);
 
+
 -- ============================================================================
 -- 3.8. CREATE PAYMENT OPTIONS (CASH for Mega Store)
+
 -- ============================================================================
 
 INSERT INTO payment_options (id, business_id, name, payment_option_type, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -221,8 +237,10 @@ VALUES (
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
+
 -- ============================================================================
 -- 4. CREATE USERS (101+ for Mega Store)
+
 -- ============================================================================
 
 -- Main User 1: BUSINESS_USER with Business Owner role (phatmenghor20@gmail.com) - Mega Store
@@ -301,6 +319,19 @@ SELECT
 FROM generate_series(1, 3) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'admin' || i || '@fashionhub.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
+
+
+-- CUSTOMER User: phatmenghor21@gmail.com
+INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES (
+  '770e8400-e29b-41d4-a716-446655440010',
+  'phatmenghor21@gmail.com',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
+  'CUSTOMER',
+  'ACTIVE', 'ACTIVE',
+  NULL,
+  0, false, NOW(), NOW(), 'admin', 'admin'
+) ON CONFLICT DO NOTHING;
 -- 10 Staff Users for Fashion Hub
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -314,8 +345,10 @@ SELECT
 FROM generate_series(1, 10) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'staff' || i || '@fashionhub.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
+
 -- ============================================================================
 -- 3b. CREATE USER PROFILES (with emails)
+
 -- ============================================================================
 
 -- Profile for phatmenghor20
@@ -413,8 +446,10 @@ CROSS JOIN generate_series(1, 10) AS t(i)
 WHERE u.user_identifier = 'staff' || i || '@fashionhub.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
+
 -- ============================================================================
 -- 4. CREATE CUSTOMER ADDRESSES (for main users)
+
 -- ============================================================================
 
 -- Addresses for phatmenghor20
@@ -459,8 +494,10 @@ SELECT
   NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 2) AS t(addr_num);
 
+
 -- ============================================================================
 -- 6.5. ASSIGN USER ROLES
+
 -- ============================================================================
 
 -- Assign BUSINESS_OWNER role to main business users
@@ -515,12 +552,32 @@ CROSS JOIN roles r
 WHERE u.user_identifier LIKE 'staff%@megastore.com'
   AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND r.name = 'BUSINESS_EMPLOYEE'
+
   AND r.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+
   AND NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = u.id AND role_id = r.id)
+
 ON CONFLICT DO NOTHING;
 
+
+
 -- ============================================================================
+
+-- Assign CUSTOMER role to CUSTOMER user
+INSERT INTO user_roles (user_id, role_id)
+SELECT
+  u.id,
+  r.id
+FROM users u
+CROSS JOIN roles r
+WHERE u.user_identifier = 'phatmenghor21@gmail.com'
+  AND u.user_type = 'CUSTOMER'
+  AND r.name = 'CUSTOMER'
+  AND r.user_type = 'CUSTOMER'
+  AND NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = u.id AND role_id = r.id)
+ON CONFLICT DO NOTHING;
 -- 7. CREATE CATEGORIES (18 for Mega Store)
+
 -- ============================================================================
 INSERT INTO categories (id, business_id, name, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -535,8 +592,10 @@ SELECT
 FROM generate_series(1, 18) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' AND name = 'Category ' || i);
 
+
 -- ============================================================================
 -- 8. CREATE SUBCATEGORIES (18)
+
 -- ============================================================================
 INSERT INTO subcategories (id, category_id, business_id, name, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -552,8 +611,10 @@ SELECT
 FROM generate_series(1, 18) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM subcategories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' AND name = 'Subcategory ' || i);
 
+
 -- ============================================================================
 -- 9. CREATE BRANDS (18)
+
 -- ============================================================================
 INSERT INTO brands (id, business_id, name, image_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -569,8 +630,10 @@ SELECT
 FROM generate_series(1, 18) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' AND name = 'Brand ' || i);
 
+
 -- ============================================================================
 -- 8. CREATE 10,000 PRODUCTS (555 per category)
+
 -- ============================================================================
 INSERT INTO products (
   id, business_id, category_id, subcategory_id, brand_id, name, description, price,
@@ -610,9 +673,11 @@ SELECT
   CASE WHEN (i % 10) < 4 THEN DATE_TRUNC('day', NOW() + INTERVAL '1 month' * (6 + (i % 19))) ELSE NULL END
 FROM generate_series(1, 10000) AS t(i);
 
+
 -- ============================================================================
 -- 9. CREATE PRODUCT SIZES (34% of products = 3,400 products × 9 sizes = 30,600)
 -- 40% of product sizes have promotions
+
 -- ============================================================================
 INSERT INTO product_sizes (id, product_id, name, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -643,10 +708,12 @@ CROSS JOIN generate_series(0, 8) AS t(size_num)
 WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND p.has_sizes = true;
 
+
 -- ============================================================================
 -- 10. CREATE PRODUCT CUSTOMIZATIONS (Only for 67% of products)
 -- 33% with no sizes (middle third) + 34% with sizes (last third) = 10 customizations each
 -- 40% of products with customizations have promotions
+
 -- ============================================================================
 INSERT INTO product_customizations (id, product_id, name, price_adjustment, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -677,8 +744,10 @@ CROSS JOIN generate_series(1, 10) AS t(custom_num)
 WHERE -- Only create customizations for products in middle 33% (no size) and last 34% (with size)
   (row_num % 100) >= 33;
 
+
 -- ============================================================================
 -- 11. CREATE PRODUCT IMAGES (5 per product = 50,000 total)
+
 -- ============================================================================
 INSERT INTO product_images (id, product_id, image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -692,8 +761,10 @@ FROM products p
 CROSS JOIN generate_series(1, 5) AS t(img_num)
 WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 
+
 -- ============================================================================
 -- 12. CREATE PRODUCT STOCK (Full stock for all products)
+
 -- ============================================================================
 
 -- Stock for all products (base + sizes)
@@ -738,9 +809,11 @@ JOIN product_sizes ps ON ps.product_id = p.id
 WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND p.has_sizes = true;
 
+
 -- ============================================================================
 -- 13. CREATE COMPREHENSIVE ORDERS (30 total: 15 CUSTOMER + 15 BUSINESS)
 -- All fields populated, no NULLs, 5-10 status history entries per order
+
 -- ============================================================================
 
 INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, customer_phone, customer_email, customer_note, business_note, order_status, source, order_from, subtotal, customization_total, delivery_fee, discount_amount, discount_type, discount_reason, tax_percentage, tax_amount, total_amount, payment_method, payment_status, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -792,8 +865,10 @@ FROM (
   FROM generate_series(1, 30) AS t(order_num)
 ) orders_data;
 
+
 -- ============================================================================
 -- 14. CREATE DELIVERY ADDRESSES FOR ALL ORDERS
+
 -- ============================================================================
 INSERT INTO order_delivery_addresses (id, order_id, house_number, street_number, village, commune, district, province, latitude, longitude, note, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -817,8 +892,10 @@ FROM orders o
 WHERE o.created_at >= NOW() - INTERVAL '365 days'
 AND NOT EXISTS (SELECT 1 FROM order_delivery_addresses WHERE order_id = o.id);
 
+
 -- ============================================================================
 -- 15. CREATE DELIVERY OPTIONS FOR ALL ORDERS
+
 -- ============================================================================
 INSERT INTO order_delivery_options (id, order_id, name, description, price, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -835,8 +912,10 @@ FROM orders o
 WHERE o.created_at >= NOW() - INTERVAL '365 days'
 AND NOT EXISTS (SELECT 1 FROM order_delivery_options WHERE order_id = o.id);
 
+
 -- ============================================================================
 -- 16. CREATE ORDER ITEMS WITH PROMOTIONS AND CUSTOMIZATIONS
+
 -- ============================================================================
 INSERT INTO order_items (id, order_id, product_id, product_size_id, product_name, product_image_url, size_name, sku, barcode, quantity, current_price, final_price, unit_price, total_price, has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date, customization_total, customizations, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -903,8 +982,10 @@ CROSS JOIN generate_series(1, 8) AS item(item_row)
 WHERE o.created_at >= NOW() - INTERVAL '365 days'
 AND NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = o.id);
 
+
 -- ============================================================================
 -- 17. CREATE ORDER STATUS HISTORY (5-10 entries per order GUARANTEED)
+
 -- ============================================================================
 INSERT INTO order_status_history (id, order_id, order_status, note, changed_by_user_id, changed_by_name, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -953,8 +1034,10 @@ AND NOT EXISTS (
   SELECT 1 FROM order_status_history WHERE order_id = o.id AND order_status = 'PENDING'
 );
 
+
 -- ============================================================================
 -- FINAL STATISTICS
+
 -- ============================================================================
 -- ✅ BUSINESSES: 2
 --   ├─ Mega Store (phatmenghor20@gmail.com)
@@ -990,10 +1073,13 @@ AND NOT EXISTS (
 -- ✅ ORDER STATUS HISTORY: 180 (initial status)
 --
 -- ✅ TOTAL RECORDS: ~300,000+
+
 -- ============================================================================
+
 
 -- ============================================================================
 -- VERIFICATION QUERIES - Check if data was inserted successfully
+
 -- ============================================================================
 
 -- Check Main Users
