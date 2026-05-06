@@ -1295,23 +1295,23 @@ export default function PosPage() {
       {(() => {
         const initialQties = new Map<string, number>();
         let initialCustomIds: string[] = [];
-        
+
         if (sizePickerProduct && cartItems.length > 0) {
           // Get all cart items for this product
           cartItems
             .filter((item) => item.productId === sizePickerProduct.id)
             .forEach((item) => {
               const sizeId = item.productSizeId || "__no_size__";
-              
+
               // Build key with size and customizations for matching
               const customKey = item.customizations && item.customizations.length > 0
                 ? `-${item.customizations.map(c => c.productCustomizationId).sort().join("-")}`
                 : "";
               const mapKey = `${sizeId}${customKey}`;
-              
+
               // Store quantity mapped to size+customizations combo
               initialQties.set(mapKey, item.quantity);
-              
+
               // If this is the item being edited, get its customizations
               if (editingCartItemId && item.id === editingCartItemId && item.customizations) {
                 initialCustomIds = item.customizations.map((c) => c.productCustomizationId);
@@ -1326,6 +1326,24 @@ export default function PosPage() {
             initialCustomIds = storedCustomIds;
           }
         }
+
+        console.log("DEBUG: Modal initialization", {
+          sizePickerProductId: sizePickerProduct?.id,
+          initialQtiesEntries: Array.from(initialQties.entries()),
+          initialCustomIds,
+          lastSelectedCustomizations,
+          cartItems: cartItems.map(item => ({
+            id: item.id,
+            productId: item.productId,
+            quantity: item.quantity,
+            customizations: item.customizations?.map(c => ({
+              id: c.id,
+              productCustomizationId: c.productCustomizationId,
+              name: c.name
+            })),
+          })),
+        });
+
         return (
           <SizePickerModal
             product={sizePickerProduct}
