@@ -406,10 +406,12 @@ export function POSEditCartItemModal({
           <CancelButton onClick={() => onOpenChange(false)} disabled={isSaving} />
           <SubmitButton
             onClick={handleSave}
-            isLoading={isSaving}
+            isSubmitting={isSaving}
             disabled={!isValid}
-            text="Save Changes"
-            loadingText="Saving..."
+            isDirty={isDirty}
+            isCreate={false}
+            updateText="Save Changes"
+            submittingUpdateText="Saving..."
           />
         </FormFooter>
       </DialogContent>

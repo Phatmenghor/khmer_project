@@ -606,8 +606,8 @@ SELECT
   -- 40% of products have promotions (i % 10 < 4)
   CASE WHEN (i % 10) < 4 THEN CASE WHEN (i % 2) = 0 THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
   CASE WHEN (i % 10) < 4 THEN CASE WHEN (i % 2) = 0 THEN (10 + (i % 40))::numeric ELSE (5 + (i % 20))::numeric END ELSE NULL END,
-  CASE WHEN (i % 10) < 4 THEN DATE_TRUNC('day', NOW() + INTERVAL '1 day' * (FLOOR((i * 7919) % 365))) ELSE NULL END,
-  CASE WHEN (i % 10) < 4 THEN DATE_TRUNC('day', (NOW() + INTERVAL '1 day' * (FLOOR((i * 7919) % 365))) + INTERVAL '1 month' * (6 + (i % 19))) ELSE NULL END
+  CASE WHEN (i % 10) < 4 THEN DATE_TRUNC('day', NOW() - INTERVAL '1 day' * (FLOOR((i * 7919) % 30))) ELSE NULL END,
+  CASE WHEN (i % 10) < 4 THEN DATE_TRUNC('day', NOW() + INTERVAL '1 month' * (6 + (i % 19))) ELSE NULL END
 FROM generate_series(1, 10000) AS t(i);
 
 -- ============================================================================
@@ -633,8 +633,8 @@ SELECT
   -- 40% of sizes have promotions
   CASE WHEN (size_num % 10) < 4 THEN CASE WHEN (size_num % 2 = 0) THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
   CASE WHEN (size_num % 10) < 4 THEN CASE WHEN (size_num % 2 = 0) THEN (15 + (size_num % 20))::numeric ELSE (3 + (size_num % 10))::numeric END ELSE NULL END,
-  CASE WHEN (size_num % 10) < 4 THEN DATE_TRUNC('day', NOW() + INTERVAL '1 day' * (FLOOR((size_num * 13337) % 365))) ELSE NULL END,
-  CASE WHEN (size_num % 10) < 4 THEN DATE_TRUNC('day', (NOW() + INTERVAL '1 day' * (FLOOR((size_num * 13337) % 365))) + INTERVAL '1 month' * (6 + (size_num % 19))) ELSE NULL END,
+  CASE WHEN (size_num % 10) < 4 THEN DATE_TRUNC('day', NOW() - INTERVAL '1 day' * (FLOOR((size_num * 13337) % 30))) ELSE NULL END,
+  CASE WHEN (size_num % 10) < 4 THEN DATE_TRUNC('day', NOW() + INTERVAL '1 month' * (6 + (size_num % 19))) ELSE NULL END,
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
