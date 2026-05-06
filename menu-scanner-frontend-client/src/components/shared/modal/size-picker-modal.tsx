@@ -164,7 +164,7 @@ export function SizePickerModal({
       // This combo doesn't exist in cart - reset to 0 for new item
       setQuantity(0);
     }
-  }, [customizationsBySize, selectedSize?.id, product?.id, originalQuantities]);
+  }, [selectedSize, customizationsBySize]);
 
   // When initial customizations are loaded, trigger quantity update
   useEffect(() => {
