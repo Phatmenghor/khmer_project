@@ -138,17 +138,20 @@ export function SizePickerModal({
         }
         setCustomizationsBySize(customsBySize);
 
-        // Initialize original quantities from prop or default to 0
-        const origQties = new Map<string, number>();
-        product.sizes!.forEach((size) => {
-          // Use initialQuantities if provided (when editing existing item)
-          const initialQty = initialQuantities?.get(size.id) ?? 0;
-          origQties.set(size.id, initialQty);
-        });
+        // Initialize original quantities - store ALL quantity combos from initialQuantities
+        const origQties = new Map(initialQuantities || new Map());
         setOriginalQuantities(origQties);
 
-        // Set initial quantity to first size's existing quantity
-        const firstSizeQty = initialQuantities?.get(product.sizes![0].id) ?? 0;
+        // Set initial quantity - use the one for selected customizations, or fallback to size
+        let firstSizeQty = 0;
+        const firstSize = product.sizes![0];
+        if (initialCustomizations && initialCustomizations.length > 0) {
+          const customKey = `-${initialCustomizations.sort().join("-")}`;
+          const mapKey = `${firstSize.id}${customKey}`;
+          firstSizeQty = initialQuantities?.get(mapKey) ?? 0;
+        } else {
+          firstSizeQty = initialQuantities?.get(firstSize.id) ?? 0;
+        }
         setQuantity(firstSizeQty);
       } else if (hasCustomizations) {
         // No sizes but has customizations - use "__no_size__" as a placeholder
@@ -164,13 +167,19 @@ export function SizePickerModal({
         }
         setCustomizationsBySize(customsBySize);
 
-        // Initialize quantities
-        const origQties = new Map<string, number>();
-        const initialQty = initialQuantities?.get(noSizeId) ?? 0;
-        origQties.set(noSizeId, initialQty);
+        // Initialize quantities - store ALL quantity combos from initialQuantities
+        const origQties = new Map(initialQuantities || new Map());
         setOriginalQuantities(origQties);
 
-        // Set initial quantity
+        // Set initial quantity - use the one for selected customizations, or fallback to base
+        let initialQty = 0;
+        if (initialCustomizations && initialCustomizations.length > 0) {
+          const customKey = `-${initialCustomizations.sort().join("-")}`;
+          const mapKey = `${noSizeId}${customKey}`;
+          initialQty = initialQuantities?.get(mapKey) ?? 0;
+        } else {
+          initialQty = initialQuantities?.get(noSizeId) ?? 0;
+        }
         setQuantity(Math.max(1, initialQty));
       }
     } else if (!open) {
