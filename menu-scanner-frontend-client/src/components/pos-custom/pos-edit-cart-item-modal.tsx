@@ -338,6 +338,18 @@ export function POSEditCartItemModal({
           <div className="space-y-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
             <h4 className="font-semibold text-sm">Summary</h4>
             <div className="space-y-2 text-sm">
+              {item.sizeName && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Size:</span>
+                  <span className="font-semibold">{item.sizeName}</span>
+                </div>
+              )}
+              {item.customizations && item.customizations.length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Add-ons:</span>
+                  <span className="font-semibold text-green-700">{item.customizations.map(c => c.name).join(", ")}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Unit Price:</span>
                 <span className="font-semibold">{formatCurrency(calculatedFinalPrice)}</span>
