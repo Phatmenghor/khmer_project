@@ -355,7 +355,7 @@ export function POSEditCartItemModal({
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Original Unit Price:</span>
+                <span className="text-muted-foreground">Original Price:</span>
                 <span className="font-semibold">{formatCurrency(calculatedFinalPrice)}</span>
               </div>
               {addonsTotal > 0 && (
