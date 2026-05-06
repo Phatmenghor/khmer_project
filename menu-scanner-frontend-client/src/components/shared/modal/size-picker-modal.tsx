@@ -20,6 +20,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/redux/features/business/store/models/response/product-response";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { showToast } from "@/components/shared/common/show-toast";
+import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
 
 interface SizePickerModalProps {
   product: ProductDetailResponseModel | null;
@@ -32,6 +33,8 @@ interface SizePickerModalProps {
   initialQuantities?: Map<string, number>;
   // Initial customizations for editing existing cart item
   initialCustomizations?: string[];
+  // Cart items for looking up customizations per size
+  cartItems?: PosPageCartItem[];
 }
 
 export function SizePickerModal({
@@ -43,6 +46,7 @@ export function SizePickerModal({
   editingId,
   initialQuantities,
   initialCustomizations,
+  cartItems = [],
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);

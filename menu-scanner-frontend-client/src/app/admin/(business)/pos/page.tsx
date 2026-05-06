@@ -1311,6 +1311,7 @@ export default function PosPage() {
             editingId={editingCartItemId || undefined}
             initialQuantities={initialQties}
             initialCustomizations={initialCustomIds}
+            cartItems={cartItems}
           />
         );
       }, [cartItems, sizePickerProduct?.id, editingCartItemId, lastSelectedCustomizations])}
