@@ -140,6 +140,12 @@ export function POSEditCartItemModal({
 
   const calculatedFinalPrice = isNaN(parsedPrice) ? item.currentPrice : parsedPrice;
   const calculatedQuantity = isNaN(parsedQuantity) ? item.quantity : Math.max(1, parsedQuantity);
+
+  // Calculate total add-ons price
+  const addonsTotal = item.customizations && item.customizations.length > 0
+    ? item.customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0)
+    : 0;
+
   const calculatedTotal = calculatedFinalPrice * calculatedQuantity;
 
   // Check if form is dirty (with null safety)
@@ -349,6 +355,12 @@ export function POSEditCartItemModal({
                 <span className="text-muted-foreground">Unit Price:</span>
                 <span className="font-semibold">{formatCurrency(calculatedFinalPrice)}</span>
               </div>
+              {addonsTotal > 0 && (
+                <div className="flex justify-between text-green-700">
+                  <span className="text-muted-foreground">Add-ons Total:</span>
+                  <span className="font-semibold">+{formatCurrency(addonsTotal)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Quantity:</span>
                 <span className="font-semibold">{calculatedQuantity}</span>
