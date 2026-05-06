@@ -587,13 +587,14 @@ SELECT
   (SELECT id FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i-1) / 555 % 18),
   'Product ' || i,
   'High quality product ' || i || ' with premium features and excellent durability',
-  CASE WHEN (i % 10) < 6 THEN NULL ELSE (10 + (i % 200))::numeric END,
+  (10 + (i % 200))::numeric,
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   '1000000000' || LPAD(i::text, 7, '0'),
   'SKU-' || LPAD(i::text, 7, '0'),
   'ACTIVE',
   'ENABLED',
-  (i % 10) < 6,
+  -- 34% of products have sizes (i % 100 >= 66)
+  (i % 100) >= 66,
   (i % 100),
   (i % 50),
   'Category ' || ((i - 1) / 555 + 1),
@@ -602,14 +603,16 @@ SELECT
   0,
   false,
   NOW(), NOW(), 'admin', 'admin',
-  CASE WHEN (i % 10) < 6 THEN NULL ELSE CASE WHEN (i % 2) = 0 THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END END,
-  CASE WHEN (i % 10) < 6 THEN NULL ELSE CASE WHEN (i % 2) = 0 THEN (10 + (i % 40))::numeric ELSE (5 + (i % 20))::numeric END END,
-  CASE WHEN (i % 10) < 6 THEN NULL ELSE DATE_TRUNC('day', NOW() + INTERVAL '1 day' * (FLOOR((i * 7919) % 365))) END,
-  CASE WHEN (i % 10) < 6 THEN NULL ELSE DATE_TRUNC('day', (NOW() + INTERVAL '1 day' * (FLOOR((i * 7919) % 365))) + INTERVAL '1 month' * (6 + (i % 19))) END
+  -- 40% of products have promotions (i % 10 < 4)
+  CASE WHEN (i % 10) < 4 THEN CASE WHEN (i % 2) = 0 THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
+  CASE WHEN (i % 10) < 4 THEN CASE WHEN (i % 2) = 0 THEN (10 + (i % 40))::numeric ELSE (5 + (i % 20))::numeric END ELSE NULL END,
+  CASE WHEN (i % 10) < 4 THEN DATE_TRUNC('day', NOW() + INTERVAL '1 day' * (FLOOR((i * 7919) % 365))) ELSE NULL END,
+  CASE WHEN (i % 10) < 4 THEN DATE_TRUNC('day', (NOW() + INTERVAL '1 day' * (FLOOR((i * 7919) % 365))) + INTERVAL '1 month' * (6 + (i % 19))) ELSE NULL END
 FROM generate_series(1, 10000) AS t(i);
 
 -- ============================================================================
--- 9. CREATE PRODUCT SIZES (60% of products = 6,000 products × 9 sizes = 54,000)
+-- 9. CREATE PRODUCT SIZES (34% of products = 3,400 products × 9 sizes = 30,600)
+-- 40% of product sizes have promotions
 -- ============================================================================
 INSERT INTO product_sizes (id, product_id, name, price, promotion_type, promotion_value, promotion_from_date, promotion_to_date, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -626,11 +629,12 @@ SELECT
     WHEN 7 THEN '4XL'
     WHEN 8 THEN '5XL'
   END,
-  (COALESCE(p.price, 50)::numeric + (size_num * 2))::numeric,
-  CASE WHEN (size_num % 3 = 0) THEN CASE WHEN (size_num % 2 = 0) THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
-  CASE WHEN (size_num % 3 = 0) THEN CASE WHEN (size_num % 2 = 0) THEN (15 + (size_num % 20))::numeric ELSE (3 + (size_num % 10))::numeric END ELSE NULL END,
-  CASE WHEN (size_num % 3 = 0) THEN DATE_TRUNC('day', NOW() + INTERVAL '1 day' * (FLOOR((size_num * 13337) % 365))) ELSE NULL END,
-  CASE WHEN (size_num % 3 = 0) THEN DATE_TRUNC('day', (NOW() + INTERVAL '1 day' * (FLOOR((size_num * 13337) % 365))) + INTERVAL '1 month' * (6 + (size_num % 19))) ELSE NULL END,
+  (p.price::numeric + (size_num * 2))::numeric,
+  -- 40% of sizes have promotions
+  CASE WHEN (size_num % 10) < 4 THEN CASE WHEN (size_num % 2 = 0) THEN 'PERCENTAGE' ELSE 'FIXED_AMOUNT' END ELSE NULL END,
+  CASE WHEN (size_num % 10) < 4 THEN CASE WHEN (size_num % 2 = 0) THEN (15 + (size_num % 20))::numeric ELSE (3 + (size_num % 10))::numeric END ELSE NULL END,
+  CASE WHEN (size_num % 10) < 4 THEN DATE_TRUNC('day', NOW() + INTERVAL '1 day' * (FLOOR((size_num * 13337) % 365))) ELSE NULL END,
+  CASE WHEN (size_num % 10) < 4 THEN DATE_TRUNC('day', (NOW() + INTERVAL '1 day' * (FLOOR((size_num * 13337) % 365))) + INTERVAL '1 month' * (6 + (size_num % 19))) ELSE NULL END,
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
@@ -640,7 +644,9 @@ WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND p.has_sizes = true;
 
 -- ============================================================================
--- 10. CREATE PRODUCT CUSTOMIZATIONS (18 per product = 180,000 total)
+-- 10. CREATE PRODUCT CUSTOMIZATIONS (Only for 67% of products)
+-- 33% with no sizes (middle third) + 34% with sizes (last third) = 10 customizations each
+-- 40% of products with customizations have promotions
 -- ============================================================================
 INSERT INTO product_customizations (id, product_id, name, price_adjustment, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
@@ -648,31 +654,28 @@ SELECT
   p.id,
   'Customization ' || custom_num || ' - ' || CASE custom_num
     WHEN 1 THEN 'Color'
-    WHEN 2 THEN 'Size'
-    WHEN 3 THEN 'Material'
-    WHEN 4 THEN 'Engraving'
-    WHEN 5 THEN 'Packaging'
-    WHEN 6 THEN 'Warranty'
-    WHEN 7 THEN 'Delivery'
-    WHEN 8 THEN 'Installation'
-    WHEN 9 THEN 'Training'
-    WHEN 10 THEN 'Support'
-    WHEN 11 THEN 'Upgrade'
-    WHEN 12 THEN 'Premium'
-    WHEN 13 THEN 'Express'
-    WHEN 14 THEN 'Special'
-    WHEN 15 THEN 'Deluxe'
-    WHEN 16 THEN 'Luxury'
-    WHEN 17 THEN 'Elite'
-    WHEN 18 THEN 'Ultimate'
+    WHEN 2 THEN 'Material'
+    WHEN 3 THEN 'Engraving'
+    WHEN 4 THEN 'Packaging'
+    WHEN 5 THEN 'Warranty'
+    WHEN 6 THEN 'Delivery'
+    WHEN 7 THEN 'Installation'
+    WHEN 8 THEN 'Support'
+    WHEN 9 THEN 'Upgrade'
+    WHEN 10 THEN 'Premium'
   END,
   (0.50 + custom_num * 0.50)::numeric,
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
-FROM products p
-CROSS JOIN generate_series(1, 18) AS t(custom_num)
-WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
+FROM (
+  SELECT p.id, ROW_NUMBER() OVER (ORDER BY p.created_at) as row_num
+  FROM products p
+  WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+) p
+CROSS JOIN generate_series(1, 10) AS t(custom_num)
+WHERE -- Only create customizations for products in middle 33% (no size) and last 34% (with size)
+  (row_num % 100) >= 33;
 
 -- ============================================================================
 -- 11. CREATE PRODUCT IMAGES (5 per product = 50,000 total)
