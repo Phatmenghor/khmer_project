@@ -1341,10 +1341,6 @@ export default function PosPage() {
               dispatch(setSizePickerProduct(null));
               dispatch(setEditingCartItemId(null));
             }}
-            onQuantityRealTimeUpdate={(product, size, qty, customizationIds, edtId) => {
-              // Real-time update as quantity changes in modal
-              addToCart(product, size, edtId, qty, customizationIds);
-            }}
             isEditing={!!editingCartItemId}
             editingId={editingCartItemId || undefined}
             initialQuantities={initialQties}
