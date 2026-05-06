@@ -69,22 +69,9 @@ export function SizePickerModal({
         ? `-${Array.from(customizationIds).sort().join("-")}`
         : "";
       const mapKey = `${sizeId}${customKey}`;
-      const qty = originalQuantities.get(mapKey) ?? originalQuantities.get(sizeId) ?? 0;
-
-      console.log("## getQuantityForSize lookup", {
-        sizeId,
-        sizeIdEmpty: sizeId === "",
-        sizeIdType: typeof sizeId,
-        customizationIds: customizationIds ? Array.from(customizationIds) : undefined,
-        mapKey,
-        qtyFound: qty,
-        allKeys: Array.from(originalQuantities.keys()),
-        selectedSizeState: selectedSize ? { id: selectedSize.id, name: selectedSize.name } : null,
-      });
-
-      return qty;
+      return originalQuantities.get(mapKey) ?? originalQuantities.get(sizeId) ?? 0;
     },
-    [originalQuantities, selectedSize],
+    [originalQuantities],
   );
 
   // Get display quantity - shows pending edits if any, otherwise original
@@ -136,27 +123,15 @@ export function SizePickerModal({
     const sizeId = selectedSize.id;
     const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
 
-    console.log("## Customizations changed watcher", {
-      sizeId,
-      selectedCustoms: Array.from(selectedSizeCustoms),
-      customsCount: selectedSizeCustoms.size,
-    });
-
     // Only update if customizations are actually selected
     if (selectedSizeCustoms.size === 0) return;
 
     // Look up quantity for this specific customization combo
     const qtyForCustoms = getQuantityForSize(sizeId, selectedSizeCustoms);
 
-    console.log("## Found quantity for customizations", {
-      sizeId,
-      qtyForCustoms,
-    });
-
     if (qtyForCustoms > 0) {
       // This combo exists in cart - show its quantity
       setQuantity(qtyForCustoms);
-      console.log("## Setting quantity from cart", { qtyForCustoms });
       // Clear pending edits since we're showing the actual cart quantity
       setPendingQuantities((prev) => {
         const next = new Map(prev);
@@ -166,14 +141,12 @@ export function SizePickerModal({
     } else {
       // This combo doesn't exist in cart - reset to 0 for new item
       setQuantity(0);
-      console.log("## Customization combo not in cart - resetting quantity to 0");
     }
-  }, [customizationsBySize, selectedSize, getQuantityForSize]);
+  }, [customizationsBySize, selectedSize?.id, getQuantityForSize]);
 
   // When initial customizations are loaded, trigger quantity update
   useEffect(() => {
     if (!selectedSize || !initialCustomizations || initialCustomizations.length === 0) {
-      console.log("## Initial customizations effect - skipping", {
         hasSelectedSize: !!selectedSize,
         hasInitialCustoms: !!initialCustomizations,
         customsLength: initialCustomizations?.length ?? 0,
@@ -186,7 +159,6 @@ export function SizePickerModal({
     const initialCustomSet = new Set(initialCustomizations);
     const qtyForCustoms = getQuantityForSize(sizeId, initialCustomSet);
 
-    console.log("## Initial customizations effect - found quantity", {
       sizeId,
       initialCustomizations,
       qtyForCustoms,
@@ -194,7 +166,6 @@ export function SizePickerModal({
 
     if (qtyForCustoms > 0) {
       setQuantity(qtyForCustoms);
-      console.log("## Setting initial quantity", { qtyForCustoms });
     }
   }, [selectedSize, initialCustomizations, getQuantityForSize, originalQuantities]);
 
@@ -204,7 +175,6 @@ export function SizePickerModal({
       const hasSizes = product.sizes && product.sizes.length > 0;
       const hasCustomizations = product.customizations && product.customizations.length > 0;
 
-      console.log("## Modal init - product data", {
         productId: product.id,
         productName: product.name,
         hasSizes,
@@ -218,7 +188,6 @@ export function SizePickerModal({
 
       if (hasSizes) {
         // Product has sizes - use normal flow
-        console.log("## Branch: product has sizes");
         setSelectedSize(product.sizes![0]);
         setPendingQuantities(new Map());
         setModifiedSizes(new Set());
@@ -247,11 +216,9 @@ export function SizePickerModal({
         }
         setQuantity(firstSizeQty);
       } else if (hasCustomizations) {
-        console.log("## BRANCH EXECUTED: else if (hasCustomizations) - NO SIZES CASE");
         // No sizes but has customizations - use "__no_size__" as a placeholder
         const noSizeId = "__no_size__";
         const newSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as ProductSize;
-        console.log("## Setting selectedSize (no sizes case)", {
           newSizeId: newSize.id,
           newSizeName: newSize.name,
           hasSizes,

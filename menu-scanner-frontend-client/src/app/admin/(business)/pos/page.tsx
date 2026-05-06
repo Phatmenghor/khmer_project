@@ -1302,7 +1302,6 @@ export default function PosPage() {
               // Store quantity mapped to size+customizations combo
               initialQties.set(mapKey, item.quantity);
 
-              console.log("## Added to initialQties", {
                 mapKey,
                 quantity: item.quantity,
                 customizations: item.customizations?.map(c => c.productCustomizationId),
@@ -1315,7 +1314,6 @@ export default function PosPage() {
             });
         }
 
-        console.log("## Modal props - initialQties and initialCustomIds", {
           productId: sizePickerProduct?.id,
           editingCartItemId,
           initialQtiesMap: Array.from(initialQties.entries()),
@@ -1334,7 +1332,6 @@ export default function PosPage() {
           const storedCustomIds = lastSelectedCustomizations?.[sizePickerProduct.id];
           if (storedCustomIds && storedCustomIds.length > 0) {
             initialCustomIds = storedCustomIds;
-            console.log("## Using lastSelectedCustomizations", {
               productId: sizePickerProduct.id,
               storedCustomIds,
             });
