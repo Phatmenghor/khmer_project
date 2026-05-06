@@ -141,11 +141,14 @@ export function SizePickerModal({
       // This combo doesn't exist in cart - reset to 0 for new item
       setQuantity(0);
     }
-  }, [selectedSize, customizationsBySize]);
+  }, [selectedSize?.id, customizationsBySize]);
 
   // Auto-select customizations when size changes (restore from cart)
   useEffect(() => {
     if (!selectedSize || !product?.id) return;
+
+    // Only run if product has customizations
+    if (!product.customizations || product.customizations.length === 0) return;
 
     const sizeId = selectedSize.id;
 
@@ -172,7 +175,7 @@ export function SizePickerModal({
         return next;
       });
     }
-  }, [selectedSize?.id, product?.id, cartItems]);
+  }, [selectedSize?.id, product?.id, product?.customizations?.length, cartItems]);
 
   // When initial customizations are loaded, trigger quantity update
   useEffect(() => {
