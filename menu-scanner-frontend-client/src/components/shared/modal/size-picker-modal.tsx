@@ -153,8 +153,10 @@ export function SizePickerModal({
     const sizeId = selectedSize.id;
 
     // Find cart item with this product and size combination to get its customizations
+    // For products with no sizes, match both "__no_size__" (placeholder) and null (actual cart item)
     const cartItem = cartItems?.find(
-      item => item.productId === product.id && item.productSizeId === sizeId
+      item => item.productId === product.id &&
+      (item.productSizeId === sizeId || (sizeId === "__no_size__" && item.productSizeId === null))
     );
 
     if (cartItem?.customizations && cartItem.customizations.length > 0) {
