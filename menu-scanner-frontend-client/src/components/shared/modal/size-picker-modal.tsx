@@ -70,15 +70,6 @@ export function SizePickerModal({
         : "";
       const mapKey = `${sizeId}${customKey}`;
       const qty = originalQuantities.get(mapKey) ?? originalQuantities.get(sizeId) ?? 0;
-
-      console.log("DEBUG: getQuantityForSize", {
-        sizeId,
-        customizationIds: customizationIds ? Array.from(customizationIds) : undefined,
-        mapKey,
-        result: qty,
-      });
-
-      // Try to get with customizations first, then fallback to just size
       return qty;
     },
     [originalQuantities],
@@ -159,14 +150,6 @@ export function SizePickerModal({
     // Build customization set from initialCustomizations
     const initialCustomSet = new Set(initialCustomizations);
     const qtyForCustoms = getQuantityForSize(sizeId, initialCustomSet);
-
-    console.log("DEBUG: Initial customizations effect", {
-      sizeId,
-      initialCustomizations,
-      initialCustomSet: Array.from(initialCustomSet),
-      qtyForCustoms,
-      originalQuantitiesKeys: Array.from(originalQuantities.keys()),
-    });
 
     if (qtyForCustoms > 0) {
       setQuantity(qtyForCustoms);

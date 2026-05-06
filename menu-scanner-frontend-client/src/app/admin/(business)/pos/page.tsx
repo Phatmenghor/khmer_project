@@ -1327,23 +1327,6 @@ export default function PosPage() {
           }
         }
 
-        console.log("DEBUG: Modal initialization", {
-          sizePickerProductId: sizePickerProduct?.id,
-          initialQtiesEntries: Array.from(initialQties.entries()),
-          initialCustomIds,
-          lastSelectedCustomizations,
-          cartItems: cartItems.map(item => ({
-            id: item.id,
-            productId: item.productId,
-            quantity: item.quantity,
-            customizations: item.customizations?.map(c => ({
-              id: c.id,
-              productCustomizationId: c.productCustomizationId,
-              name: c.name
-            })),
-          })),
-        });
-
         return (
           <SizePickerModal
             product={sizePickerProduct}
