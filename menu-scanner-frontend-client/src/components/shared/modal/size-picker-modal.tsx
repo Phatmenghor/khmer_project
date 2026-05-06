@@ -136,11 +136,24 @@ export function SizePickerModal({
 
   // When customizations change for selected size, update display quantity
   useEffect(() => {
-    if (!selectedSize) return;
+    if (!selectedSize) {
+      console.log("## Quantity Update Effect - No size selected");
+      return;
+    }
 
     const sizeId = selectedSize.id;
     const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
     const customArray = Array.from(selectedSizeCustoms).sort();
+
+    console.log("## SIZE CHANGED - Checking Quantity", {
+      newSizeId: sizeId,
+      newSizeName: selectedSize.name,
+      customizationsForThisSize: customArray,
+      allCustomizationsBySize: Array.from(customizationsBySize.entries()).map(([id, customs]) => ({
+        sizeId: id,
+        customizations: Array.from(customs),
+      })),
+    });
 
     // Look up quantity for this specific combo (with or without customizations)
     const qtyForCombo = getQuantityForSize(sizeId, selectedSizeCustoms);
@@ -160,6 +173,7 @@ export function SizePickerModal({
 
     if (qtyForCombo > 0) {
       // This combo exists in cart - show its quantity
+      console.log("## Setting quantity to found value", { qtyForCombo });
       setQuantity(qtyForCombo);
       // Clear pending edits since we're showing the actual cart quantity
       setPendingQuantities((prev) => {
@@ -169,6 +183,7 @@ export function SizePickerModal({
       });
     } else {
       // This combo doesn't exist in cart - reset to 0 for new item
+      console.log("## Setting quantity to 0 (not found in cart)");
       setQuantity(0);
     }
   }, [customizationsBySize, selectedSize?.id, product?.id, originalQuantities]);
