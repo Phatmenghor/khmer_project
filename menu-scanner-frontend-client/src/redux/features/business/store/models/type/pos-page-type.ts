@@ -38,6 +38,11 @@ export interface PosPageCartItem {
   currentPrice: number;
   finalPrice: number;
   totalPrice: number;
+
+  // Promotion info
+  hasPromotion?: boolean;
+  promotionType?: string | null;
+  promotionValue?: number | null;
 }
 
 // ─── Cart Pricing ───

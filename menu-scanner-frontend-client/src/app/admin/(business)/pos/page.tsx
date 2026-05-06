@@ -379,7 +379,6 @@ export default function PosPage() {
 
       // Include customization prices in final price
       finalPrice = finalPrice + customizationTotal;
-
       const newItem: PosPageCartItem = {
         id: cartId,
         productId: product.id,
@@ -394,6 +393,9 @@ export default function PosPage() {
         currentPrice,
         finalPrice,
         totalPrice: finalPrice * quantity,
+        hasPromotion: size ? size.hasPromotion : product.hasPromotion,
+        promotionType: size ? size.promotionType : product.displayPromotionType,
+        promotionValue: size ? size.promotionValue : product.displayPromotionValue,
       };
 
       if (editingId) {
