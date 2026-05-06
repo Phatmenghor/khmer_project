@@ -76,23 +76,25 @@ export function POSCartItem({
             fill
             className="object-cover"
           />
-        </div>
 
-        {/* Product Details */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
-          {/* Name & Badge */}
-          <div className="flex items-center gap-2 min-w-0 mb-2">
-            <h3 className="font-semibold text-sm leading-tight text-slate-900 line-clamp-1">
-              {productName}
-            </h3>
-            {hasPromotion && (
-              <Badge className="text-[10px] px-2 py-0.5 leading-none flex-shrink-0 bg-red-100 text-red-700 border-0 font-semibold">
+          {/* Promotion Badge - Top Left Corner */}
+          {hasPromotion && (
+            <div className="absolute top-1 left-1 z-10 pointer-events-none">
+              <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0.5 shadow-md">
                 {promotionType === "PERCENTAGE"
                   ? `-${promotionValue}%`
                   : `-${formatCurrency(promotionValue || 0)}`}
               </Badge>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
+
+        {/* Product Details */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
+          {/* Name */}
+          <h3 className="font-semibold text-sm leading-tight text-slate-900 line-clamp-1 mb-2">
+            {productName}
+          </h3>
 
           {/* Size & Customizations on same line */}
           <div className="mb-2 flex items-center gap-2">
