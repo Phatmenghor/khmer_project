@@ -71,14 +71,19 @@ export function SizePickerModal({
         : "";
       const mapKey = `${sizeId}${customKey}`;
 
-      // Try exact combo match first, then size-only match
+      // Try exact combo match first
       const exactMatch = originalQuantities.get(mapKey);
-      const sizeOnlyMatch = originalQuantities.get(sizeId);
+
+      // Only fallback to size-only if NO customizations selected
+      // If customizations ARE selected but combo not found, return 0
+      const sizeOnlyMatch = customArray.length === 0 ? originalQuantities.get(sizeId) : undefined;
+
       const result = exactMatch ?? sizeOnlyMatch ?? 0;
 
       console.log("## getQuantityForSize - Matching Logic", {
         sizeId,
         customizationArray: customArray,
+        hasCustomizations: customArray.length > 0,
         exactMapKey: mapKey,
         exactMatchFound: exactMatch !== undefined,
         exactMatchQuantity: exactMatch,
