@@ -153,8 +153,8 @@ export function SizePickerModal({
       qtyForCustoms,
     });
 
-    // If this combo exists in cart, show its quantity
     if (qtyForCustoms > 0) {
+      // This combo exists in cart - show its quantity
       setQuantity(qtyForCustoms);
       console.log("## Setting quantity from cart", { qtyForCustoms });
       // Clear pending edits since we're showing the actual cart quantity
@@ -163,6 +163,10 @@ export function SizePickerModal({
         next.delete(sizeId);
         return next;
       });
+    } else {
+      // This combo doesn't exist in cart - reset to 0 for new item
+      setQuantity(0);
+      console.log("## Customization combo not in cart - resetting quantity to 0");
     }
   }, [customizationsBySize, selectedSize, getQuantityForSize]);
 
