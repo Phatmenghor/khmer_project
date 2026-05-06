@@ -243,6 +243,7 @@ export function SizePickerModal({
         }
         setQuantity(firstSizeQty);
       } else if (hasCustomizations) {
+        console.log("## BRANCH EXECUTED: else if (hasCustomizations) - NO SIZES CASE");
         // No sizes but has customizations - use "__no_size__" as a placeholder
         const noSizeId = "__no_size__";
         const newSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as ProductSize;
