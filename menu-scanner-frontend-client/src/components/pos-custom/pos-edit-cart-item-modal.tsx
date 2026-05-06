@@ -23,6 +23,7 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
+import { showToast } from "@/components/shared/common/show-toast";
 
 interface CartItemEditData {
   id: string;
@@ -91,7 +92,7 @@ export function POSEditCartItemModal({
     // Validate quantity is at least 1
     const qty = parseInt(newQuantity);
     if (qty < 1) {
-      alert("Quantity must be at least 1");
+      showToast.error("Quantity must be at least 1");
       return;
     }
 
@@ -121,7 +122,7 @@ export function POSEditCartItemModal({
       onOpenChange(false);
     } catch (error) {
       console.error("Error saving cart item:", error);
-      alert("Error saving changes. Please try again.");
+      showToast.error("Error saving changes. Please try again.");
     } finally {
       setIsSaving(false);
     }
