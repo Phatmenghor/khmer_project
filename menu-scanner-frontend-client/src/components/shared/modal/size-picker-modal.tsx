@@ -200,16 +200,21 @@ export function SizePickerModal({
       const hasSizes = product.sizes && product.sizes.length > 0;
       const hasCustomizations = product.customizations && product.customizations.length > 0;
 
-      console.log("DEBUG: Modal initialization", {
+      console.log("## Modal init - product data", {
         productId: product.id,
+        productName: product.name,
         hasSizes,
+        sizesLength: product.sizes?.length ?? 0,
         hasCustomizations,
+        customizationsLength: product.customizations?.length ?? 0,
+        customizationIds: product.customizations?.map(c => c.id),
         initialCustomizations,
         initialQuantitiesKeys: initialQuantities ? Array.from(initialQuantities.keys()) : [],
       });
 
       if (hasSizes) {
         // Product has sizes - use normal flow
+        console.log("## Branch: product has sizes");
         setSelectedSize(product.sizes![0]);
         setPendingQuantities(new Map());
         setModifiedSizes(new Set());
