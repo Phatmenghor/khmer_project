@@ -183,25 +183,26 @@ export function POSEditCartItemModal({
                   Size: <span className="font-medium">{item.sizeName}</span>
                 </p>
               )}
-              {item.customizations && item.customizations.length > 0 && (
-                <div className="mb-2">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Add-ons: <span className="font-medium">{item.customizations.length}</span>
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {item.customizations.map((custom, idx) => (
-                      <span key={idx} className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200 font-medium">
-                        {custom.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
               <p className="text-xs text-muted-foreground">
                 Original Price: <span className="font-semibold text-primary">{formatCurrency(item.currentPrice)}</span>
               </p>
             </div>
           </div>
+
+          {/* Add-ons Section */}
+          {item.customizations && item.customizations.length > 0 && (
+            <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
+              <h4 className="font-semibold text-sm text-green-900">Add-ons ({item.customizations.length})</h4>
+              <div className="space-y-2">
+                {item.customizations.map((custom, idx) => (
+                  <div key={idx} className="flex justify-between items-center text-sm">
+                    <span className="text-green-800 font-medium">{custom.name}</span>
+                    <span className="text-green-700 font-semibold">+{formatCurrency(custom.priceAdjustment)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Quantity Section - FIRST */}
           <div className="space-y-3">
@@ -342,12 +343,6 @@ export function POSEditCartItemModal({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Size:</span>
                   <span className="font-semibold">{item.sizeName}</span>
-                </div>
-              )}
-              {item.customizations && item.customizations.length > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Add-ons:</span>
-                  <span className="font-semibold text-green-700">{item.customizations.map(c => c.name).join(", ")}</span>
                 </div>
               )}
               <div className="flex justify-between">
