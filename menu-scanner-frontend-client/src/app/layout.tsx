@@ -57,6 +57,8 @@ export default async function RootLayout({
     >
       <head>
         <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className="antialiased">
         {/* Apply theme colors synchronously BEFORE React renders to prevent color flash */}
         <Script
           id="theme-initializer"
@@ -219,8 +221,6 @@ export default async function RootLayout({
             `,
           }}
         />
-      </head>
-      <body className="antialiased">
         <ThemeInitializer />
         <LocaleProvider initialLocale={locale} initialMessages={messages}>
           <ClientProviders>
