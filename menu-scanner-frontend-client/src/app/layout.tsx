@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { ClientProviders } from "@/context/client-provider";
 import { getMessages } from "next-intl/server";
 import localFont from "next/font/local";
@@ -58,32 +57,21 @@ export default async function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body className="antialiased">
-        {/* Apply theme colors synchronously BEFORE React renders to prevent color flash */}
-        <Script
+      <body className="antialiased" suppressHydrationWarning>
+        <script
           id="theme-initializer"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
+            __html: `(function() {
                 try {
-                  // Get business ID from localStorage, or use default
                   const businessId = localStorage.getItem('businessId') || '550cad56-cafd-4aba-baef-c4dcd53940d0';
-
-                  // Try localStorage FIRST (fast, synchronous) for instant color application
                   const localStorageKey = 'theme_colors_' + businessId;
                   let cachedColors = null;
-
                   try {
                     const localStorageValue = localStorage.getItem(localStorageKey);
                     if (localStorageValue) {
                       cachedColors = JSON.parse(localStorageValue);
                     }
-                  } catch (e) {
-                    // Ignore errors
-                  }
-
-                  // Fall back to cookie if localStorage doesn't have it
+                  } catch (e) {}
                   if (!cachedColors) {
                     const cookieName = 'theme_colors_' + businessId;
                     const cookies = document.cookie.split(';');
@@ -96,24 +84,15 @@ export default async function RootLayout({
                       }
                     }
                   }
-
-                  if (!cachedColors) {
-                    return;
-                  }
-
-                  // Store business data globally for React to access before Redux loads
+                  if (!cachedColors) return;
                   window.__cachedBusinessData = {
                     businessName: cachedColors.businessName,
                     logoBusinessUrl: cachedColors.logoBusinessUrl,
                     primaryColor: cachedColors.primaryColor,
                     taxPercentage: cachedColors.taxPercentage,
                   };
-
-                  // Update page metadata with business data
                   if (cachedColors.businessName) {
                     document.title = cachedColors.businessName;
-
-                    // Update og:title
                     let ogTitle = document.querySelector('meta[property="og:title"]');
                     if (!ogTitle) {
                       ogTitle = document.createElement('meta');
@@ -121,8 +100,6 @@ export default async function RootLayout({
                       document.head.appendChild(ogTitle);
                     }
                     ogTitle.setAttribute('content', cachedColors.businessName);
-
-                    // Update twitter:title
                     let twitterTitle = document.querySelector('meta[name="twitter:title"]');
                     if (!twitterTitle) {
                       twitterTitle = document.createElement('meta');
@@ -131,10 +108,7 @@ export default async function RootLayout({
                     }
                     twitterTitle.setAttribute('content', cachedColors.businessName);
                   }
-
-                  // Update og:description and twitter:description
                   const description = cachedColors.businessName ? cachedColors.businessName + ' - Online Menu and Ordering' : 'Online Menu and Ordering';
-
                   let ogDesc = document.querySelector('meta[property="og:description"]');
                   if (!ogDesc) {
                     ogDesc = document.createElement('meta');
@@ -142,7 +116,6 @@ export default async function RootLayout({
                     document.head.appendChild(ogDesc);
                   }
                   ogDesc.setAttribute('content', description);
-
                   let twitterDesc = document.querySelector('meta[name="twitter:description"]');
                   if (!twitterDesc) {
                     twitterDesc = document.createElement('meta');
@@ -150,8 +123,6 @@ export default async function RootLayout({
                     document.head.appendChild(twitterDesc);
                   }
                   twitterDesc.setAttribute('content', description);
-
-                  // Update og:image and twitter:image with logo URL
                   if (cachedColors.logoBusinessUrl) {
                     let ogImage = document.querySelector('meta[property="og:image"]');
                     if (!ogImage) {
@@ -160,7 +131,6 @@ export default async function RootLayout({
                       document.head.appendChild(ogImage);
                     }
                     ogImage.setAttribute('content', cachedColors.logoBusinessUrl);
-
                     let twitterImage = document.querySelector('meta[name="twitter:image"]');
                     if (!twitterImage) {
                       twitterImage = document.createElement('meta');
@@ -169,56 +139,42 @@ export default async function RootLayout({
                     }
                     twitterImage.setAttribute('content', cachedColors.logoBusinessUrl);
                   }
-
-                  // Convert hex to HSL
                   function hexToHsl(hex) {
                     if (!hex) return '';
                     hex = hex.replace('#', '');
                     const r = parseInt(hex.substring(0, 2), 16) / 255;
                     const g = parseInt(hex.substring(2, 4), 16) / 255;
                     const b = parseInt(hex.substring(4, 6), 16) / 255;
-
                     const max = Math.max(r, g, b);
                     const min = Math.min(r, g, b);
                     let h = 0, s = 0;
                     const l = (max + min) / 2;
-
                     if (max !== min) {
                       const d = max - min;
                       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
                       switch (max) {
                         case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
                         case g: h = ((b - r) / d + 2) / 6; break;
                         case b: h = ((r - g) / d + 4) / 6; break;
                       }
                     }
-
                     const hue = Math.round(h * 360);
                     const saturation = Math.round(s * 100);
                     const lightness = Math.round(l * 100);
                     return hue + ' ' + saturation + '% ' + lightness + '%';
                   }
-
-                  // Apply colors AND business data BEFORE React renders
                   const style = document.createElement('style');
                   style.id = 'theme-colors-sync';
                   let styleText = '';
-
-                  // Apply primary color if available
                   if (cachedColors.primaryColor) {
                     styleText += ':root{--primary:' + hexToHsl(cachedColors.primaryColor) + ';}';
                   }
-
                   style.textContent = styleText;
                   if (styleText) {
                     document.head.insertBefore(style, document.head.firstChild);
                   }
-                } catch (e) {
-                  // Ignore errors
-                }
-              })();
-            `,
+                } catch (e) {}
+              })();`,
           }}
         />
         <ThemeInitializer />
