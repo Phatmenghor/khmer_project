@@ -65,11 +65,29 @@ export function SizePickerModal({
   const getQuantityForSize = useCallback(
     (sizeId: string, customizationIds?: Set<string>) => {
       // Build the same key pattern used in POS page
-      const customKey = customizationIds && customizationIds.size > 0
-        ? `-${Array.from(customizationIds).sort().join("-")}`
+      const customArray = customizationIds ? Array.from(customizationIds).sort() : [];
+      const customKey = customArray.length > 0
+        ? `-${customArray.join("-")}`
         : "";
       const mapKey = `${sizeId}${customKey}`;
-      return originalQuantities.get(mapKey) ?? originalQuantities.get(sizeId) ?? 0;
+
+      // Try exact combo match first, then size-only match
+      const exactMatch = originalQuantities.get(mapKey);
+      const sizeOnlyMatch = originalQuantities.get(sizeId);
+      const result = exactMatch ?? sizeOnlyMatch ?? 0;
+
+      console.log("## getQuantityForSize - Matching Logic", {
+        sizeId,
+        customizationArray: customArray,
+        exactMapKey: mapKey,
+        exactMatchFound: exactMatch !== undefined,
+        exactMatchQuantity: exactMatch,
+        sizeOnlyMatchFound: sizeOnlyMatch !== undefined,
+        sizeOnlyMatchQuantity: sizeOnlyMatch,
+        finalQuantity: result,
+      });
+
+      return result;
     },
     [originalQuantities],
   );
@@ -122,16 +140,27 @@ export function SizePickerModal({
 
     const sizeId = selectedSize.id;
     const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
+    const customArray = Array.from(selectedSizeCustoms).sort();
 
-    // Only update if customizations are actually selected
-    if (selectedSizeCustoms.size === 0) return;
+    // Look up quantity for this specific combo (with or without customizations)
+    const qtyForCombo = getQuantityForSize(sizeId, selectedSizeCustoms);
 
-    // Look up quantity for this specific customization combo
-    const qtyForCustoms = getQuantityForSize(sizeId, selectedSizeCustoms);
+    console.log("## Quantity Sync Debug - Size+Customization", {
+      productId: product?.id,
+      sizeId,
+      sizeLabel: selectedSize.name,
+      customizationIds: customArray,
+      customizationCount: selectedSizeCustoms.size,
+      quantityFound: qtyForCombo,
+      allQuantitiesInMap: Array.from(originalQuantities.entries()).map(([key, qty]) => ({
+        mapKey: key,
+        quantity: qty,
+      })),
+    });
 
-    if (qtyForCustoms > 0) {
+    if (qtyForCombo > 0) {
       // This combo exists in cart - show its quantity
-      setQuantity(qtyForCustoms);
+      setQuantity(qtyForCombo);
       // Clear pending edits since we're showing the actual cart quantity
       setPendingQuantities((prev) => {
         const next = new Map(prev);
@@ -142,7 +171,7 @@ export function SizePickerModal({
       // This combo doesn't exist in cart - reset to 0 for new item
       setQuantity(0);
     }
-  }, [customizationsBySize, selectedSize?.id, getQuantityForSize]);
+  }, [customizationsBySize, selectedSize?.id, getQuantityForSize, product?.id, originalQuantities]);
 
   // When initial customizations are loaded, trigger quantity update
   useEffect(() => {

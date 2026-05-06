@@ -1307,6 +1307,27 @@ export default function PosPage() {
           }
         }
 
+        console.log("## Modal Initialization - Size+Customization Quantities", {
+          productId: sizePickerProduct?.id,
+          productName: sizePickerProduct?.name,
+          totalCartItems: cartItems.length,
+          cartItemsForProduct: cartItems
+            .filter((item) => item.productId === sizePickerProduct?.id)
+            .map(item => ({
+              cartId: item.id,
+              sizeId: item.productSizeId,
+              sizeName: item.sizeName,
+              quantity: item.quantity,
+              customizationIds: item.customizations?.map(c => c.productCustomizationId).sort(),
+            })),
+          initialQuantitiesMap: Array.from(initialQties.entries()).map(([key, qty]) => ({
+            mapKey: key,
+            quantity: qty,
+          })),
+          initialCustomizationIds: initialCustomIds,
+          isEditing: !!editingCartItemId,
+        });
+
         return (
           <SizePickerModal
             product={sizePickerProduct}
