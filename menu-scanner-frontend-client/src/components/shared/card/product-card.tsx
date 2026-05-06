@@ -314,7 +314,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
           className={cn(
             "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover-scale-102 hover-lift",
             isOutOfStock && "opacity-70",
-            product?.hasActivePromotion && "ring-1 ring-amber-500/20",
+            product?.hasPromotion && "ring-1 ring-amber-500/20",
             className,
           )}
         >
@@ -338,7 +338,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
             />
 
             {/* Promo badge */}
-            {product?.hasActivePromotion && (
+            {product?.hasPromotion && (
               <div className="absolute top-2 left-2 z-10 pointer-events-none">
                 <Badge variant="destructive" className="text-xs font-bold px-2 py-0.5 shadow-md">
                   {product.displayPromotionType === "PERCENTAGE"

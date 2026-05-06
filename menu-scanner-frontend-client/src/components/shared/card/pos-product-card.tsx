@@ -9,6 +9,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { CustomButton } from "../button/custom-button";
 import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
 import { selectPOSProductQuantity } from "@/redux/features/business/store/selectors/pos-cart-selectors";
+import { RootState } from "@/redux/store";
 
 interface POSProductCardProps {
   product: ProductDetailResponseModel;
@@ -27,7 +28,7 @@ function POSProductCardComponent({
   // Get quantity from Redux using memoized selector
   // This ensures card only re-renders when THIS product's quantity changes.
   // Returns 0 if productId is missing (should not happen but safe fallback).
-  const quantity = useSelector((state) =>
+  const quantity = useSelector((state: RootState) =>
     selectPOSProductQuantity(state, productId || "")
   );
   const handleIncrement = useCallback((e: React.MouseEvent) => {
