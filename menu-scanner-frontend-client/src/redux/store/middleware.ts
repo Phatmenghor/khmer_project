@@ -108,6 +108,7 @@ export const userLoggingMiddleware: Middleware =
 /**
  * Error logging middleware
  * Logs all rejected/failed actions
+ * Skips logging for expected errors (404, not found, etc.)
  */
 export const errorLoggingMiddleware: Middleware =
   (storeAPI) => (next) => (action: any) => {
@@ -120,8 +121,14 @@ export const errorLoggingMiddleware: Middleware =
     }
 
     const isRejectedAction = action.type.endsWith("/rejected");
+    const isExpectedError =
+      action.type === "location/fetchDefault/rejected" ||
+      action.type.includes("404") ||
+      (typeof action.payload === "string" &&
+       (action.payload.includes("not found") ||
+        action.payload.includes("No default")));
 
-    if (isRejectedAction) {
+    if (isRejectedAction && !isExpectedError) {
       console.error("❌ [ERROR]", action.type, action.payload);
     }
 
