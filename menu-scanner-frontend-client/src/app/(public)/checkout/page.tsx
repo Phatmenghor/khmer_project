@@ -353,7 +353,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <PageContainer className="py-0 pb-20">
+    <PageContainer className="py-0 pb-40 sm:pb-20 lg:pb-8">
       {/* Professional Header - Matches Cart Page */}
       <PageHeader
         title="Checkout"

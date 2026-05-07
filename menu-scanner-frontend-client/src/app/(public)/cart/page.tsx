@@ -193,7 +193,7 @@ export default function CartPage() {
 
   return (
     <>
-      <PageContainer className="py-4 sm:py-8 pb-40 sm:pb-8">
+      <PageContainer className="py-4 sm:py-8 pb-40 sm:pb-16 lg:pb-8">
 
         <PageHeader
           title="Shopping Cart"
