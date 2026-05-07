@@ -329,6 +329,18 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     return sizePickerProduct ? buildQuantityMap(posCartItems, sizePickerProduct.id) : new Map<string, number>();
   }, [sizePickerProduct, posCartItems]);
 
+  // Determine if we're editing (product is already in cart) or adding new
+  const isEditingProduct = useMemo(() => {
+    return sizePickerProduct && totalQuantity > 0;
+  }, [sizePickerProduct, totalQuantity]);
+
+  // Get the first cart item for this product (if editing)
+  const editingCartItemId = useMemo(() => {
+    if (!sizePickerProduct || !posCartItems) return undefined;
+    const cartItem = posCartItems.find((item) => item.productId === sizePickerProduct.id);
+    return cartItem?.id;
+  }, [sizePickerProduct, posCartItems]);
+
   // Handle size picker selection like POS page
   const handleSizeSelect = useCallback(
     (selectedProduct: ProductDetailResponseModel, size: ProductSize | undefined, qty: number | undefined, customizationIds: string[] | undefined) => {
@@ -532,6 +544,8 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
           }
         }}
         onSizeSelect={handleSizeSelect}
+        isEditing={isEditingProduct}
+        editingId={editingCartItemId}
         initialQuantities={initialQuantities}
         cartItems={posCartItems}
       />
