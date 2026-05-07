@@ -421,11 +421,12 @@ public class CartServiceImpl implements CartService {
         entityManager.flush();
         log.info("STEP 7 RESULT: INSERT flushed successfully");
 
-        // Step 8: Add to entity's customizations list for in-memory representation
-        log.info("STEP 8: Adding customizations to CartItem entity");
-        cartItem.getCustomizations().addAll(newCustomizations);
-        log.info("STEP 8 RESULT: Entity now has {} customizations in memory",
-                cartItem.getCustomizations().size());
+        // Step 8: Detach new customizations to prevent Hibernate from re-inserting on final flush
+        log.info("STEP 8: Detaching new customizations to prevent re-insertion");
+        for (CartItemCustomization custom : newCustomizations) {
+            entityManager.detach(custom);
+        }
+        log.info("STEP 8 RESULT: New customizations detached successfully");
 
         log.info("=== CUSTOMIZATION UPDATE COMPLETE === Successfully processed {} customizations",
                 newCustomizations.size());
