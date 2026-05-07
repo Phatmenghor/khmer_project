@@ -41,6 +41,7 @@ import {
   Heart,
   MapPin,
   CarTaxiFront,
+  Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,6 +75,7 @@ const navigationLinks = [
 
 export function Navbar() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
@@ -369,29 +371,40 @@ export function Navbar() {
           ) : (
             /* ── Mobile: compact top bar ── */
             <div className="sm:hidden flex items-center justify-between w-full h-14 gap-2">
-              {businessName && (
-                <button onClick={handleNavigateToHome} className="flex items-center gap-2 shrink-0 group">
-                  <div className="relative">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                      {businessLogoUrl && (
-                        <img
-                          key={businessLogoUrl}
-                          src={businessLogoUrl}
-                          alt={businessName}
-                          className="w-full h-full object-cover rounded"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
-                          }}
-                        />
-                      )}
+              <div className="flex items-center gap-2 shrink-0">
+                {businessName && (
+                  <button onClick={handleNavigateToHome} className="flex items-center gap-2 shrink-0 group">
+                    <div className="relative">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
+                        {businessLogoUrl && (
+                          <img
+                            key={businessLogoUrl}
+                            src={businessLogoUrl}
+                            alt={businessName}
+                            className="w-full h-full object-cover rounded"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+                            }}
+                          />
+                        )}
+                      </div>
+                      <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                    <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <span className="font-bold text-sm text-foreground">
-                    {businessName}
-                  </span>
-                </button>
-              )}
+                    <span className="font-bold text-sm text-foreground hidden xs:inline">
+                      {businessName}
+                    </span>
+                  </button>
+                )}
+                {/* Burger menu for mobile/tablet navigation (shows when desktop nav hides) */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 lg:hidden"
+                  onClick={() => setMenuOpen(!menuOpen)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </div>
 
               <div className="flex items-center gap-0.5">
                 <Button
@@ -448,6 +461,60 @@ export function Navbar() {
                     <User className="h-5 w-5" />
                   </Button>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* ── Mobile: Burger menu dropdown ── */}
+          {menuOpen && (
+            <div className="sm:hidden absolute top-14 left-0 right-0 bg-background/95 backdrop-blur border-b border-border/60 shadow-lg z-50">
+              <div className="flex flex-col py-2">
+                {navigationLinks.map((link) => {
+                  const active =
+                    pathname === link.href ||
+                    (link.href === "/products" &&
+                      pathname.startsWith("/products"));
+
+                  // Special handler for Home link
+                  if (link.name === "Home") {
+                    return (
+                      <button
+                        key={link.name}
+                        onClick={() => {
+                          handleNavigateToHome();
+                          setMenuOpen(false);
+                        }}
+                        className={cn(
+                          "w-full text-left px-4 py-3 text-sm font-medium transition-colors",
+                          active
+                            ? "text-primary bg-primary/10"
+                            : "text-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        {link.name}
+                      </button>
+                    );
+                  }
+
+                  // Other links
+                  return (
+                    <button
+                      key={link.name}
+                      onClick={() => {
+                        handleNavigateToPage(link.href);
+                        setMenuOpen(false);
+                      }}
+                      className={cn(
+                        "w-full text-left px-4 py-3 text-sm font-medium transition-colors",
+                        active
+                          ? "text-primary bg-primary/10"
+                          : "text-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      {link.name}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

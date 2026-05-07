@@ -19,7 +19,6 @@ import { LoginModal } from "../shared/modal/login-modal";
 const tabs = [
   { name: "Home", href: "/", icon: Home },
   { name: "Shop", href: "/products", icon: ShoppingBag },
-  { name: "Categories", href: "/categories", icon: LayoutGrid },
   { name: "Cart", href: "/cart", icon: ShoppingCart },
   { name: "Profile", href: "/profile", icon: User },
 ] as const;
