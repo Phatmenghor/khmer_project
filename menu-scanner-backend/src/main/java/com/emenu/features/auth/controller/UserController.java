@@ -55,7 +55,7 @@ public class UserController {
     @PostMapping("customer-token")
     public ResponseEntity<String> getMyCustomerToken() {
         log.info("Get my customer token");
-        return ResponseEntity.ok("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjIxQGdtYWlsLmNvbSIsInJvbGVzIjoiUk9MRV9DVVNUT01FUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3NzMxMTg0MzIsImV4cCI6MTc4MzExODQzMn0.lrRnOEivbKoGZhxFsetAGM2ejHz_HHXmZ7PO3gboSyNwi709MsIEhkIeNZwF53klOkA52LdsQhBmvcwr8u3vpA");
+        return ResponseEntity.ok("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjIxQGdtYWlsLmNvbSIsInJvbGVzIjoiQ1VTVE9NRVIiLCJ0eXBlIjoiYWNjZXNzIiwidXNlclR5cGUiOiJDVVNUT01FUiIsImlhdCI6MTc3ODE0NzU4OCwiZXhwIjoxNzg4MTQ3NTg4fQ.9P-uwRebNuBdMWEnoaRsUvJ6XmrQZrOJPlZjNA-zurqilaEXUPs1cSnKPJCopGCSNE6UIgDsjh9rXZDtT7Riug");
     }
 
     /**
