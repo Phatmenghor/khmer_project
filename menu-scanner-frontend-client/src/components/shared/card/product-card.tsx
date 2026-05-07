@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { sanitizeImageUrl } from "@/utils/common/common";
 import { CustomButton } from "../button/custom-button";
-import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
+import { ProductDetailResponseModel, ProductSize } from "@/redux/features/business/store/models/response/product-response";
 import { useCartState } from "@/redux/features/main/store/state/cart-state";
 import { toggleFavorite } from "@/redux/features/main/store/thunks/favorite-thunks";
 import { showToast } from "../common/show-toast";
@@ -24,7 +24,7 @@ import {
   addLocalCartItem,
   updateLocalCartItem,
 } from "@/redux/features/main/store/slice/cart-slice";
-import { SizeSelectionModal } from "../modal/size-selection-modal";
+import { UnifiedProductModal } from "../modal/unified-product-modal";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { getProductQuantity } from "@/utils/common/quantity-utils";
 import {
@@ -32,6 +32,7 @@ import {
   selectProductTotalQuantity,
 } from "@/redux/features/main/store/selectors/optimized-cart-selectors";
 import { RootState } from "@/redux/store";
+import { buildCustomizationMapKey } from "@/utils/common/customization-utils";
 
 interface ProductCardProps {
   product: ProductDetailResponseModel;
@@ -42,12 +43,12 @@ interface ProductCardProps {
 const imageLoadedCache = new Set<string>();
 
 function ProductCardComponent({ product, className }: ProductCardProps) {
-  const { dispatch: cartDispatch } = useCartState();
+  const { dispatch: cartDispatch, items: cartItems } = useCartState();
   const { dispatch: favoriteDispatch, items: favoriteItems, loaded: favLoaded } = useFavoriteState();
   const { isAuthenticated } = useAuthState();
 
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showSizeModal, setShowSizeModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
 
   // Use optimized memoized selectors - only subscribe to this product's quantity
   // CRITICAL: This component only re-renders when THIS product's quantity changes,
@@ -67,6 +68,21 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
 
   // Debounced cart API calls
   const { debouncedUpdate } = useCartDebounce(cartDispatch);
+
+  // Build cartItemQuantities map for modal (maps sizeId+customizationIds -> quantity)
+  const cartItemQuantities = useMemo(() => {
+    const map = new Map<string, number>();
+    cartItems
+      .filter((item) => item.productId === product.id)
+      .forEach((item) => {
+        const sizeId = item.productSizeId || null;
+        // For now, we don't have customization IDs in the cart items from API
+        // So we just use the size ID as the key
+        const key = buildCustomizationMapKey(sizeId, []);
+        map.set(key, item.quantity);
+      });
+    return map;
+  }, [cartItems, product.id]);
 
   // Get current cart item for this product (without size)
   // This is used to determine if we show Add to Cart or +/- buttons
@@ -106,8 +122,8 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   /**
    * Add to cart handler
    *
-   * For sized products: Opens size modal where user selects size + quantity
-   * For unsized products: Immediately adds 1 unit with optimistic update
+   * For products with sizes OR customizations: Opens unified modal
+   * For simple products: Immediately adds 1 unit with optimistic update
    *
    * IMPORTANT: When adding for first time, we always use quantity = 1
    * (never use product.quantity from listing, as that's stale/unrelated data)
@@ -127,13 +143,16 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       return;
     }
 
-    // For sized products, open the size selection modal
-    if (product.hasSizes) {
-      setShowSizeModal(true);
+    const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
+    const hasCustomizations = product.customizations && product.customizations.length > 0;
+
+    // For products with sizes OR customizations, open the modal
+    if (hasSizes || hasCustomizations) {
+      setShowProductModal(true);
       return;
     }
 
-    // For non-sized products, add directly to cart
+    // For simple products, add directly to cart
     // If already in cart, this button shouldn't show (+/- buttons show instead)
     // But if it does, treat as increment
     if (isInCart) {
@@ -200,9 +219,12 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    // For sized products, open the size modal to select size
-    if (product.hasSizes) {
-      setShowSizeModal(true);
+    const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
+    const hasCustomizations = product.customizations && product.customizations.length > 0;
+
+    // For products with sizes OR customizations, open the modal
+    if (hasSizes || hasCustomizations) {
+      setShowProductModal(true);
       return;
     }
 
@@ -230,7 +252,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     // Queue API call with debounce (500ms)
     // Multiple rapid clicks get batched into single API call
     debouncedUpdate(key, product.id, null, newQty, ts);
-  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate, setShowSizeModal]);
+  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate]);
 
   /**
    * Decrement quantity by 1, remove if reaches 0
@@ -245,9 +267,12 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    // For sized products, open the size modal to select size
-    if (product.hasSizes) {
-      setShowSizeModal(true);
+    const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
+    const hasCustomizations = product.customizations && product.customizations.length > 0;
+
+    // For products with sizes OR customizations, open the modal
+    if (hasSizes || hasCustomizations) {
+      setShowProductModal(true);
       return;
     }
 
@@ -280,7 +305,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     // Queue API call with debounce
     // Backend receives quantity=0 and deletes the cart item
     debouncedUpdate(key, product.id, null, newQty, ts);
-  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate, setShowSizeModal]);
+  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate]);
 
   // Favorite toggle with optimistic UI update (like Facebook)
   // Updates UI instantly, syncs with API in background
@@ -303,6 +328,58 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
         showToast.error(error?.message || "Failed to update favorites");
       });
   };
+
+  // Modal confirm handler - calls API with size and customizations
+  const handleModalConfirm = useCallback(
+    async (
+      product: ProductDetailResponseModel,
+      size: ProductSize | null,
+      customizations: string[],
+      quantity: number
+    ) => {
+      const timestamp = Date.now();
+      const sizeId = size?.id === "__no_size__" ? null : size?.id || null;
+
+      try {
+        // Dispatch optimistic update to Redux
+        cartDispatch(
+          addLocalCartItem({
+            productId: product.id,
+            productSizeId: sizeId,
+            quantity: quantity,
+            productName: product.name,
+            productImageUrl: product.mainImageUrl,
+            sizeName: size?.name || null,
+            finalPrice: size?.finalPrice || product.displayPrice,
+            currentPrice: size?.price || product.displayOriginPrice || product.displayPrice,
+            hasPromotion: size?.hasPromotion || product.hasPromotion,
+            promotionType: size?.promotionType || product.displayPromotionType || null,
+            promotionValue: size?.promotionValue || product.displayPromotionValue || null,
+            promotionFromDate: size?.promotionFromDate || product.displayPromotionFromDate || null,
+            promotionToDate: size?.promotionToDate || product.displayPromotionToDate || null,
+            optimisticTimestamp: timestamp,
+          })
+        );
+
+        // Call API with customization IDs
+        await cartDispatch(
+          addToCart({
+            productId: product.id,
+            productSizeId: sizeId,
+            customizationIds: customizations,
+            quantity: quantity,
+            optimisticTimestamp: timestamp,
+          })
+        ).unwrap();
+
+        showToast.success("Added to cart");
+      } catch (error: any) {
+        showToast.error(error?.message || "Failed to add to cart");
+        throw error;
+      }
+    },
+    [cartDispatch]
+  );
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";
   const displayQuantity = product.hasSizes ? totalQuantity : quantity;
@@ -443,7 +520,14 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       </Link>
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
-      <SizeSelectionModal open={showSizeModal} onOpenChange={setShowSizeModal} product={product} />
+      <UnifiedProductModal
+        product={product}
+        open={showProductModal}
+        onOpenChange={setShowProductModal}
+        onConfirm={handleModalConfirm}
+        mode="public"
+        cartItemQuantities={cartItemQuantities}
+      />
     </>
   );
 }
@@ -480,6 +564,8 @@ export const ProductCard = memo(
       prevProps.product.status === nextProps.product.status &&
       // Sizes must not change
       prevProps.product.hasSizes === nextProps.product.hasSizes &&
+      // Customizations must not change
+      (prevProps.product.customizations?.length ?? 0) === (nextProps.product.customizations?.length ?? 0) &&
       // className must match (usually doesn't change)
       prevProps.className === nextProps.className
     );
