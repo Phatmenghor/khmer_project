@@ -217,7 +217,19 @@ export default function LocationPage() {
 
   // Empty state
   if (locations.length === 0) {
-    return <LocationEmptyState onAdd={handleAddLocation} />;
+    return (
+      <>
+        <LocationEmptyState onAdd={handleAddLocation} />
+
+        {/* Location Modal - must render even on empty state */}
+        <LocationModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          editData={editingLocation}
+          initialCoords={currentCoords}
+        />
+      </>
+    );
   }
 
   // Locations grid with infinite scroll
