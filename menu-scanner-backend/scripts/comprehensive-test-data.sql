@@ -321,11 +321,11 @@ WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'admin' || i || '@
 
 
 
--- CUSTOMER User: phatmenghor21@gmail.com
+-- CUSTOMER User: customer1@example.com
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '770e8400-e29b-41d4-a716-446655440010',
-  'phatmenghor21@gmail.com',
+  'customer1@example.com',
   '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
   'CUSTOMER',
   'ACTIVE', 'ACTIVE',
@@ -570,7 +570,7 @@ SELECT
   r.id
 FROM users u
 CROSS JOIN roles r
-WHERE u.user_identifier = 'phatmenghor21@gmail.com'
+WHERE u.user_identifier = 'customer1@example.com'
   AND u.user_type = 'CUSTOMER'
   AND r.name = 'CUSTOMER'
   AND r.user_type = 'CUSTOMER'
