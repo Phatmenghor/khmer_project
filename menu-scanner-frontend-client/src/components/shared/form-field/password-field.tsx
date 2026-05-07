@@ -1,11 +1,23 @@
 "use client";
 
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Controller, Control, FieldError } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
-import { PasswordFieldProps } from ".";
+
+interface PasswordFieldProps {
+  name: string;
+  label: string;
+  control: Control<any>;
+  error?: FieldError;
+  disabled?: boolean;
+  required?: boolean;
+  placeholder?: string;
+  showPassword?: boolean;
+  onTogglePassword?: () => void;
+  className?: string;
+}
 
 export function PasswordField({
   name,

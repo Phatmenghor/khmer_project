@@ -1,14 +1,14 @@
 "use client";
 
 import React from "react";
-import { Controller, FieldError } from "react-hook-form";
+import { Controller, FieldError, Control } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface TextFieldProps {
   name: string;
   label: string;
-  control: any;
+  control: Control<any>;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;
@@ -26,9 +26,9 @@ interface TextFieldProps {
   min?: number;
   max?: number;
   step?: number | string;
-  allowZero?: boolean; // New prop: whether 0 is a valid value (default true)
-  pattern?: string; // New prop: regex pattern for input validation
-  onCustomChange?: (value: string) => void; // New prop: custom onChange handler
+  allowZero?: boolean;
+  pattern?: string;
+  onCustomChange?: (value: string) => void;
 }
 
 export function TextField({
