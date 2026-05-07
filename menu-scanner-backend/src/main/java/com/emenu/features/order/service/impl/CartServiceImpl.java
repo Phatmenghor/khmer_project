@@ -414,6 +414,9 @@ public class CartServiceImpl implements CartService {
         // Batch save all new customizations
         cartItemCustomizationRepository.saveAll(newCustomizations);
 
+        // CRITICAL: Flush immediately after INSERT to ensure they're persisted
+        entityManager.flush();
+
         // Add to entity's customizations list for in-memory representation
         cartItem.getCustomizations().addAll(newCustomizations);
 
