@@ -400,9 +400,22 @@ export function SizePickerModal({
         // Get customizations for this specific size
         // When removing (qty=0) in editing mode, use ORIGINAL customizations so backend can find the item to delete
         let sizeCustomizations: string[];
-        if (qty === 0 && isEditing && initialCustomizations) {
-          // Removing in edit mode - send with original customizations to match the original item
-          sizeCustomizations = initialCustomizations;
+        if (qty === 0 && isEditing) {
+          // Removing in edit mode - use original customizations to match the item in cart
+          if (initialCustomizations && initialCustomizations.length > 0) {
+            // Use provided initial customizations
+            sizeCustomizations = initialCustomizations;
+          } else if (editingId && cartItems) {
+            // Fallback: find original item in cart and get its customizations
+            const originalItem = cartItems.find((item) => item.id === editingId);
+            if (originalItem?.customizations) {
+              sizeCustomizations = originalItem.customizations.map((c) => c.productCustomizationId);
+            } else {
+              sizeCustomizations = [];
+            }
+          } else {
+            sizeCustomizations = [];
+          }
         } else {
           // Adding/updating - send with currently selected customizations
           sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
