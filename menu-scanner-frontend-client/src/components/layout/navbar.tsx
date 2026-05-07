@@ -63,7 +63,6 @@ import { PageContainer } from "../shared/common/page-container";
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -487,6 +486,9 @@ export function Navbar() {
           {/* ── Mobile/Tablet: Modern side drawer menu (<lg) ── */}
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetContent side="left" className="w-4/5 sm:w-96 p-0 flex flex-col">
+              {/* Hidden title for accessibility (screen readers only) */}
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+
               {/* Modern drawer header with logo and business info */}
               <div className="border-b border-border/60 px-6 py-4 mt-0 bg-gradient-to-br from-primary/5 to-transparent">
                 <div className="flex items-start gap-3">
