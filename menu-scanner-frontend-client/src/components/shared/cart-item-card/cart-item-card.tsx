@@ -49,24 +49,13 @@ export function CartItemCard({
   showLink = true,
   showControls = true,
 }: CartItemCardProps) {
-  const ImageComponent = (
-    <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm hover:shadow-md transition-shadow">
-      <Image
-        src={sanitizeImageUrl(productImageUrl, appImages.NoImage)}
-        alt={productName}
-        fill
-        className="object-cover"
-      />
-    </div>
-  );
-
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
-      {/* Delete Button - Top Right with lower opacity */}
+    <div className="bg-card border border-border rounded-xl p-4 hover:shadow-lg hover:border-primary/30 transition-all duration-200 relative group">
+      {/* Delete Button - Top Right */}
       <CustomButton
         size="icon"
         variant="outline"
-        className="absolute top-3 right-3 h-8 w-8 shrink-0 text-red-600 hover:bg-red-100"
+        className="absolute top-3 right-3 h-8 w-8 shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive transition-all"
         onClick={onRemove}
         title="Remove item"
       >
@@ -77,10 +66,24 @@ export function CartItemCard({
         {/* Thumbnail */}
         {showLink ? (
           <Link href={`/products/${productId}`} className="flex-shrink-0 group/link">
-            {ImageComponent}
+            <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-muted/30 border border-border flex-shrink-0 shadow-sm hover:shadow-md transition-shadow group-hover:border-primary/30">
+              <Image
+                src={sanitizeImageUrl(productImageUrl, appImages.NoImage)}
+                alt={productName}
+                fill
+                className="object-cover"
+              />
+            </div>
           </Link>
         ) : (
-          ImageComponent
+          <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-muted/30 border border-border flex-shrink-0 shadow-sm hover:shadow-md transition-shadow">
+            <Image
+              src={sanitizeImageUrl(productImageUrl, appImages.NoImage)}
+              alt={productName}
+              fill
+              className="object-cover"
+            />
+          </div>
         )}
 
         {/* Info */}
@@ -89,17 +92,17 @@ export function CartItemCard({
           <div className="flex items-center gap-2 min-w-0 mb-2">
             {showLink ? (
               <Link href={`/products/${productId}`}>
-                <h3 className="font-semibold text-sm leading-tight text-slate-900 hover:text-blue-600 transition-colors line-clamp-1">
+                <h3 className="font-semibold text-sm leading-tight text-foreground hover:text-primary transition-colors line-clamp-1">
                   {productName}
                 </h3>
               </Link>
             ) : (
-              <h3 className="font-semibold text-sm leading-tight text-slate-900 line-clamp-1">
+              <h3 className="font-semibold text-sm leading-tight text-foreground line-clamp-1">
                 {productName}
               </h3>
             )}
             {hasPromotion && (
-              <Badge className="text-[10px] px-2 py-0.5 leading-none flex-shrink-0 bg-red-100 text-red-700 border-0 font-semibold">
+              <Badge variant="destructive" className="text-[10px] px-2 py-0.5 leading-none flex-shrink-0 font-semibold shadow-sm">
                 {promotionType === "PERCENTAGE"
                   ? `-${promotionValue}%`
                   : `-${formatCurrency(promotionValue || 0)}`}
@@ -110,7 +113,7 @@ export function CartItemCard({
           {/* Size Badge */}
           {sizeName && (
             <div className="mb-2">
-              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full flex-shrink-0 whitespace-nowrap inline-block border border-primary/30">
+              <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-full flex-shrink-0 whitespace-nowrap inline-block border border-primary/20">
                 {sizeName}
               </span>
             </div>
@@ -121,9 +124,9 @@ export function CartItemCard({
             <div className="flex items-center justify-between gap-3">
               {/* Price Display - Left Side */}
               <div className="flex items-baseline gap-2">
-                <span className="font-bold text-base text-slate-900">{formatCurrency(finalPrice)}</span>
+                <span className="font-bold text-base text-primary">{formatCurrency(finalPrice)}</span>
                 {hasPromotion && currentPrice > finalPrice && (
-                  <span className="text-xs text-slate-500 line-through font-medium">{formatCurrency(currentPrice)}</span>
+                  <span className="text-xs text-muted-foreground line-through font-medium">{formatCurrency(currentPrice)}</span>
                 )}
               </div>
 
@@ -132,7 +135,7 @@ export function CartItemCard({
                 <CustomButton
                   size="icon"
                   variant="outline"
-                  className="h-8 w-8 shrink-0 text-slate-600 hover:bg-slate-100"
+                  className="h-8 w-8 shrink-0 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all"
                   title="Edit item"
                 >
                   <Edit2 className="h-3.5 w-3.5" />
@@ -141,7 +144,7 @@ export function CartItemCard({
                   <CustomButton
                     size="icon"
                     variant="outline"
-                    className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                    className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-all"
                     onClick={() => {
                       const newQuantity = quantity - 1;
                       if (newQuantity === 0) {
@@ -153,13 +156,13 @@ export function CartItemCard({
                   >
                     <Minus className="h-3 w-3" />
                   </CustomButton>
-                  <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
+                  <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10 transition-all">
                     {quantity}
                   </div>
                   <CustomButton
                     size="icon"
                     variant="outline"
-                    className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                    className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground transition-all"
                     onClick={() => onQuantityChange(quantity + 1)}
                   >
                     <Plus className="h-3 w-3" />
