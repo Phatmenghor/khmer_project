@@ -198,6 +198,18 @@ export function SizePickerModal({
   // Initialize when modal opens
   useEffect(() => {
     if (open && product) {
+      console.log("%c=== MODAL OPENED ===", "background:#ff00ff;color:white;padding:10px;border-radius:3px;font-weight:bold;font-size:14px", {
+        productId: product.id,
+        productName: product.name,
+        isEditing: isEditing,
+        editingId: editingId,
+        hasSizes: product.sizes && product.sizes.length > 0,
+        hasCustomizations: product.customizations && product.customizations.length > 0,
+        initialCustomizations: initialCustomizations,
+        cartItemsCount: cartItems?.length || 0,
+        timestamp: new Date().toLocaleTimeString()
+      });
+
       const hasSizes = product.sizes && product.sizes.length > 0;
       const hasCustomizations = product.customizations && product.customizations.length > 0;
 
@@ -295,6 +307,14 @@ export function SizePickerModal({
       const sizeId = selectedSize.id;
       const originalQty = getQuantityForSize(sizeId);
 
+      console.log("%c📊 QUANTITY CHANGED", "background:#ffc107;color:black;padding:5px;border-radius:3px;font-weight:bold", {
+        sizeId: sizeId,
+        newQuantity: newQuantity,
+        originalQty: originalQty,
+        isRemoval: newQuantity === 0,
+        timestamp: new Date().toLocaleTimeString()
+      });
+
       // Update pending quantity
       setPendingQuantities((prev) => {
         const next = new Map(prev);
@@ -360,6 +380,10 @@ export function SizePickerModal({
 
   // Add to cart - only when sizes are modified
   const handleSelectSize = useCallback(() => {
+    console.log("%c=== CLICKED UPDATE BUTTON ===", "background:#00aa00;color:white;padding:10px;border-radius:3px;font-weight:bold;font-size:14px", {
+      timestamp: new Date().toLocaleTimeString()
+    });
+
     console.log("%c=== SIZE PICKER HANDLE SELECT START ===", "background:#ff6b6b;color:white;padding:8px;border-radius:3px;font-weight:bold");
 
     if (!product || !hasUnsavedChanges) {
