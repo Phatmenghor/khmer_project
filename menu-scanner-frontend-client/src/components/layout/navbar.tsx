@@ -370,24 +370,27 @@ export function Navbar() {
             </form>
           ) : (
             /* ── Mobile/Tablet: Same layout as desktop but with burger menu instead of logo ── */
-            <div className="lg:hidden flex items-center justify-between w-full h-14 gap-2">
-              <div className="flex items-center gap-4">
+            <div className="lg:hidden flex items-center justify-between w-full h-14 gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 {/* Burger menu button replaces logo on mobile/tablet */}
                 <Button
                   variant="ghost"
-                  size="lg"
+                  size="icon"
                   className="h-10 w-10 shrink-0 hover:bg-primary/10 hover:text-primary transition-colors"
                   onClick={() => setMenuOpen(!menuOpen)}
                   title="Menu"
                 >
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-5 w-5" />
                 </Button>
 
-                {/* Business name text (like desktop) */}
+                {/* Business name + subtitle (like desktop) */}
                 {businessName && (
-                  <button onClick={handleNavigateToHome} className="flex items-center gap-2 group">
-                    <span className="font-bold text-sm text-foreground">
+                  <button onClick={handleNavigateToHome} className="flex flex-col gap-0.5 group min-w-0">
+                    <span className="text-foreground font-bold text-sm leading-tight line-clamp-1">
                       {businessName}
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      Shop Online
                     </span>
                   </button>
                 )}
