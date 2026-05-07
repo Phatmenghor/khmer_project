@@ -198,7 +198,7 @@ export function SizePickerModal({
   // Initialize when modal opens
   useEffect(() => {
     if (open && product) {
-      console.log("%c=== MODAL OPENED ===", "background:#ff00ff;color:white;padding:10px;border-radius:3px;font-weight:bold;font-size:14px", {
+      console.log("%c## MODAL OPENED ===", "background:#ff00ff;color:white;padding:10px;border-radius:3px;font-weight:bold;font-size:14px", {
         productId: product.id,
         productName: product.name,
         isEditing: isEditing,
@@ -307,7 +307,7 @@ export function SizePickerModal({
       const sizeId = selectedSize.id;
       const originalQty = getQuantityForSize(sizeId);
 
-      console.log("%c📊 QUANTITY CHANGED", "background:#ffc107;color:black;padding:5px;border-radius:3px;font-weight:bold", {
+      console.log("%c## 📊 QUANTITY CHANGED", "background:#ffc107;color:black;padding:5px;border-radius:3px;font-weight:bold", {
         sizeId: sizeId,
         newQuantity: newQuantity,
         originalQty: originalQty,
@@ -380,18 +380,18 @@ export function SizePickerModal({
 
   // Add to cart - only when sizes are modified
   const handleSelectSize = useCallback(() => {
-    console.log("%c=== CLICKED UPDATE BUTTON ===", "background:#00aa00;color:white;padding:10px;border-radius:3px;font-weight:bold;font-size:14px", {
+    console.log("%c## CLICKED UPDATE BUTTON ===", "background:#00aa00;color:white;padding:10px;border-radius:3px;font-weight:bold;font-size:14px", {
       timestamp: new Date().toLocaleTimeString()
     });
 
-    console.log("%c=== SIZE PICKER HANDLE SELECT START ===", "background:#ff6b6b;color:white;padding:8px;border-radius:3px;font-weight:bold");
+    console.log("%c## SIZE PICKER HANDLE SELECT START ===", "background:#ff6b6b;color:white;padding:8px;border-radius:3px;font-weight:bold");
 
     if (!product || !hasUnsavedChanges) {
-      console.log("❌ Early return - product:", !!product, "hasUnsavedChanges:", hasUnsavedChanges);
+      console.log("## ❌ Early return - product:", !!product, "hasUnsavedChanges:", hasUnsavedChanges);
       return;
     }
 
-    console.log("✓ Product exists and has unsaved changes");
+    console.log("## ✓ Product exists and has unsaved changes");
 
     // Collect all sizes that need to be saved: either quantity was modified OR customizations were added
     const sizesToUpdate = new Set(modifiedSizes);
@@ -410,14 +410,14 @@ export function SizePickerModal({
       const customs = customizationsBySize.get(sizeId) ?? new Set();
       const isModified = modifiedSizes.has(sizeId);
 
-      console.log(`🔍 VALIDATING SIZE: ${sizeId}`, {
+      console.log(`## 🔍 VALIDATING SIZE: ${sizeId}`, {
         customizationCount: customs.size,
         isModified: isModified
       });
 
       // If user explicitly modified the quantity, allow any operation (including removal with qty=0)
       if (isModified) {
-        console.log(`  ✓ Size modified, allowing operation`);
+        console.log(`##  ✓ Size modified, allowing operation`);
         continue;
       }
 
@@ -426,68 +426,68 @@ export function SizePickerModal({
         // User is selecting customizations - need to check if this combo exists
         // Get quantity for this specific size+customization combo
         const qtyForCombo = getQuantityForSize(sizeId, customs);
-        console.log(`  📊 Customizations selected, qtyForCombo: ${qtyForCombo}`);
+        console.log(`##  📊 Customizations selected, qtyForCombo: ${qtyForCombo}`);
         if (qtyForCombo === 0) {
           // Trying to create new combo without setting quantity
-          console.log(`  ❌ VALIDATION ERROR: Trying to add customizations without quantity`);
+          console.log(`##  ❌ VALIDATION ERROR: Trying to add customizations without quantity`);
           showToast.error("Please set quantity greater than 0 to add customizations");
           return;
         }
       }
     }
 
-    console.log("%c✅ VALIDATION PASSED", "background:#51cf66;color:white;padding:5px");
+    console.log("%c## ✅ VALIDATION PASSED", "background:#51cf66;color:white;padding:5px");
 
     // Loop through ALL sizes with changes (quantity or customizations) and add each one to cart
     for (const sizeId of sizesToUpdate) {
       const qty = getDisplayQuantity(sizeId);
 
-      console.log(`\n📤 PROCESSING SIZE: ${sizeId}`, {
+      console.log(`## \n📤 PROCESSING SIZE: ${sizeId}`, {
         quantity: qty,
         isInModifiedSizes: modifiedSizes.has(sizeId)
       });
 
       // Send to backend: quantity > 0 to add, quantity = 0 to remove
       if (qty > 0 || modifiedSizes.has(sizeId)) {
-        console.log(`  ✓ Will send to backend (qty > 0 or modified)`);
+        console.log(`##  ✓ Will send to backend (qty > 0 or modified)`);
 
         // Get customizations for this specific size
         // When removing (qty=0) in editing mode, use ORIGINAL customizations so backend can find the item to delete
         let sizeCustomizations: string[];
         if (qty === 0 && isEditing) {
-          console.log(`  🗑️ REMOVING ITEM (qty=0, isEditing=${isEditing})`);
+          console.log(`##  🗑️ REMOVING ITEM (qty=0, isEditing=${isEditing})`);
 
           // Removing in edit mode - use original customizations to match the item in cart
           if (initialCustomizations && initialCustomizations.length > 0) {
             // Use provided initial customizations
             sizeCustomizations = initialCustomizations;
-            console.log(`    ✓ Using initialCustomizations:`, initialCustomizations);
+            console.log(`##    ✓ Using initialCustomizations:`, initialCustomizations);
           } else if (editingId && cartItems) {
             // Fallback: find original item in cart and get its customizations
             const originalItem = cartItems.find((item) => item.id === editingId);
-            console.log(`    🔎 Looking for original item with editingId: ${editingId}`);
-            console.log(`    📋 cartItems count: ${cartItems.length}`);
+            console.log(`##    🔎 Looking for original item with editingId: ${editingId}`);
+            console.log(`##    📋 cartItems count: ${cartItems.length}`);
             if (originalItem) {
-              console.log(`    ✓ Found original item:`, originalItem);
+              console.log(`##    ✓ Found original item:`, originalItem);
               if (originalItem?.customizations) {
                 sizeCustomizations = originalItem.customizations.map((c) => c.productCustomizationId);
-                console.log(`    ✓ Extracted original customizations:`, sizeCustomizations);
+                console.log(`##    ✓ Extracted original customizations:`, sizeCustomizations);
               } else {
                 sizeCustomizations = [];
-                console.log(`    ℹ️ Original item has no customizations`);
+                console.log(`##    ℹ️ Original item has no customizations`);
               }
             } else {
               sizeCustomizations = [];
-              console.log(`    ❌ Original item NOT found in cartItems`);
+              console.log(`##    ❌ Original item NOT found in cartItems`);
             }
           } else {
             sizeCustomizations = [];
-            console.log(`    ⚠️ No editingId or cartItems, using empty customizations`);
+            console.log(`##    ⚠️ No editingId or cartItems, using empty customizations`);
           }
         } else {
           // Adding/updating - send with currently selected customizations
           sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
-          console.log(`  ➕ Adding/Updating item, customizations:`, sizeCustomizations);
+          console.log(`##  ➕ Adding/Updating item, customizations:`, sizeCustomizations);
         }
 
         // DEBUG: Log customizations being sent
@@ -507,23 +507,23 @@ export function SizePickerModal({
 
         // If this is a no-size product, pass undefined for size
         if (sizeId === "__no_size__") {
-          console.log(`  📞 Calling onSizeSelect (NO SIZE) with qty=${qty}`);
+          console.log(`##  📞 Calling onSizeSelect (NO SIZE) with qty=${qty}`);
           onSizeSelect(product, undefined, qty, sizeCustomizations);
         } else {
           const size = product.sizes?.find((s) => s.id === sizeId);
           if (size) {
-            console.log(`  📞 Calling onSizeSelect with size=${size.name}, qty=${qty}`);
+            console.log(`##  📞 Calling onSizeSelect with size=${size.name}, qty=${qty}`);
             onSizeSelect(product, size, qty, sizeCustomizations);
           } else {
-            console.log(`  ❌ Size not found for sizeId: ${sizeId}`);
+            console.log(`##  ❌ Size not found for sizeId: ${sizeId}`);
           }
         }
       } else {
-        console.log(`  ⏭️ Skipping (qty=0 and not modified)`);
+        console.log(`##  ⏭️ Skipping (qty=0 and not modified)`);
       }
     }
 
-    console.log("%c=== CLOSING MODAL ===", "background:#ff6b6b;color:white;padding:8px;border-radius:3px;font-weight:bold");
+    console.log("%c## CLOSING MODAL ===", "background:#ff6b6b;color:white;padding:8px;border-radius:3px;font-weight:bold");
     onOpenChange(false);
   }, [product, modifiedSizes, customizationsBySize, getDisplayQuantity, onSizeSelect, onOpenChange, isEditing, editingId, cartItems, initialCustomizations]);
 
