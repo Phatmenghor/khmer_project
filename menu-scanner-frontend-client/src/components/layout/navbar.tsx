@@ -146,15 +146,17 @@ export function Navbar() {
     }
   }, [mobileSearchOpen]);
 
-  /**
-   * Clear search when navigating to home page
-   * Happens AFTER navigation completes to avoid API calls
-   */
+  // Auto-close drawer on desktop (lg+)
   useEffect(() => {
-    if (pathname === "/") {
-      setSearchQuery("");
-    }
-  }, [pathname]);
+    const handleResize = () => {
+      if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
 
   /**
@@ -484,13 +486,41 @@ export function Navbar() {
 
           {/* ── Mobile/Tablet: Modern side drawer menu (<lg) ── */}
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-            <SheetContent side="left" className="w-4/5 sm:w-96 p-0">
-              <SheetHeader className="border-b px-6 py-4 mt-0">
-                <SheetTitle className="text-left">Menu</SheetTitle>
-              </SheetHeader>
+            <SheetContent side="left" className="w-4/5 sm:w-96 p-0 flex flex-col">
+              {/* Modern drawer header with logo and business info */}
+              <div className="border-b border-border/60 px-6 py-4 mt-0 bg-gradient-to-br from-primary/5 to-transparent">
+                <div className="flex items-start gap-3">
+                  {/* Logo */}
+                  {businessLogoUrl && (
+                    <div className="relative shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
+                        <img
+                          src={businessLogoUrl}
+                          alt={businessName}
+                          className="w-full h-full object-cover rounded"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Business name and subtitle */}
+                  <div className="flex-1 min-w-0 pt-1">
+                    <h2 className="text-foreground font-bold text-sm leading-tight line-clamp-1">
+                      {businessName}
+                    </h2>
+                    <p className="text-muted-foreground text-xs font-medium">
+                      Shop Online
+                    </p>
+                  </div>
+                </div>
+              </div>
 
               <div className="flex flex-col h-full overflow-y-auto">
-                <nav className="flex flex-col">
+                {/* Navigation menu */}
+                <nav className="flex flex-col py-2">
                   {navigationLinks.map((link, index) => {
                     const active =
                       pathname === link.href ||
@@ -507,15 +537,15 @@ export function Navbar() {
                             setMenuOpen(false);
                           }}
                           className={cn(
-                            "w-full text-left px-6 py-4 text-sm font-medium transition-all duration-200 border-l-4 flex items-center",
+                            "w-full text-left px-4 py-3 mx-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3",
                             active
-                              ? "text-primary bg-primary/8 border-l-primary"
-                              : "text-foreground hover:bg-muted/40 border-l-transparent hover:border-l-primary/30"
+                              ? "text-primary bg-primary/10 shadow-sm"
+                              : "text-foreground hover:bg-muted/50 active:bg-muted/70"
                           )}
                         >
                           <span className="flex-1">{link.name}</span>
                           {active && (
-                            <div className="w-2 h-2 rounded-full bg-primary" />
+                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                           )}
                         </button>
                       );
@@ -530,15 +560,15 @@ export function Navbar() {
                           setMenuOpen(false);
                         }}
                         className={cn(
-                          "w-full text-left px-6 py-4 text-sm font-medium transition-all duration-200 border-l-4 flex items-center",
+                          "w-full text-left px-4 py-3 mx-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3",
                           active
-                            ? "text-primary bg-primary/8 border-l-primary"
-                            : "text-foreground hover:bg-muted/40 border-l-transparent hover:border-l-primary/30"
+                            ? "text-primary bg-primary/10 shadow-sm"
+                            : "text-foreground hover:bg-muted/50 active:bg-muted/70"
                         )}
                       >
                         <span className="flex-1">{link.name}</span>
                         {active && (
-                          <div className="w-2 h-2 rounded-full bg-primary" />
+                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                         )}
                       </button>
                     );
@@ -546,12 +576,12 @@ export function Navbar() {
                 </nav>
 
                 {/* Divider */}
-                <div className="my-4 mx-6 border-t border-border/50" />
+                <div className="my-2 mx-4 border-t border-border/40" />
 
                 {/* User section at bottom */}
                 {isAuthenticated ? (
-                  <div className="px-6 py-4 mt-auto border-t border-border/50">
-                    <div className="flex items-center gap-3 mb-4">
+                  <div className="px-4 py-4 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent">
+                    <div className="flex items-center gap-3 mb-4 p-2 rounded-lg bg-background/50">
                       <CustomAvatar
                         imageUrl={profileImage || profile?.profileImageUrl}
                         name={fullName || profile?.fullName || "User"}
@@ -569,7 +599,7 @@ export function Navbar() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full"
+                      className="w-full transition-all duration-200 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
                       onClick={() => {
                         handleLogout();
                         setMenuOpen(false);
@@ -580,11 +610,11 @@ export function Navbar() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="px-6 py-4 mt-auto border-t border-border/50 flex gap-2">
+                  <div className="px-4 py-4 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 transition-all duration-200"
                       onClick={() => {
                         setIsLoginModalOpen(true);
                         setMenuOpen(false);
@@ -594,7 +624,7 @@ export function Navbar() {
                     </Button>
                     <Button
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 transition-all duration-200"
                       onClick={() => {
                         setIsRegisterModalOpen(true);
                         setMenuOpen(false);
