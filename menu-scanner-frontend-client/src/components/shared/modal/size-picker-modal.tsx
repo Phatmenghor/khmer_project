@@ -362,47 +362,35 @@ export function SizePickerModal({
   const handleSelectSize = useCallback(() => {
     if (!product || !hasUnsavedChanges) return;
 
-    // Check if any modified size has quantity > 0
-    // OR if only customizations are added to an existing size (without quantity change)
-    let hasValidQuantity = false;
-    for (const sizeId of modifiedSizes) {
-      const qty = getDisplayQuantity(sizeId);
-      if (qty > 0) {
-        hasValidQuantity = true;
-        break;
-      }
-    }
-
-    // If only customizations changed (no quantity changes) but selected size has existing quantity
-    const selectedSizeCustomizations = selectedSize ? (customizationsBySize.get(selectedSize.id) ?? new Set()) : new Set();
-    const selectedSizeQty = selectedSize ? getDisplayQuantity(selectedSize.id) : 0;
-
-    if (!hasValidQuantity && selectedSizeCustomizations.size > 0 && selectedSize) {
-      if (selectedSizeQty > 0) {
-        hasValidQuantity = true;
-      }
-    }
-
-    // Allow quantity 0 if user is explicitly clearing/removing (modifying quantity to 0)
-    // Otherwise, require quantity > 0
-    const isRemovingItem = modifiedSizes.size > 0 && selectedSize && modifiedSizes.has(selectedSize.id) && selectedSizeQty === 0;
-
-    if (!hasValidQuantity && !isRemovingItem) {
-      // If customizations are selected but no quantity (and not removing), show error
-      if (selectedSizeCustomizations.size > 0) {
-        showToast.error("Please set quantity greater than 0 to add customizations");
-        return;
-      }
-      // If no valid quantity and no customizations, show error
-      showToast.error("Please set quantity greater than 0");
-      return;
-    }
-
     // Collect all sizes that need to be saved: either quantity was modified OR customizations were added
     const sizesToUpdate = new Set(modifiedSizes);
     customizationsBySize.forEach((_, sizeId) => {
       sizesToUpdate.add(sizeId);
     });
+
+    // Validate each size before saving
+    for (const sizeId of sizesToUpdate) {
+      const qty = getDisplayQuantity(sizeId);
+      const customs = customizationsBySize.get(sizeId) ?? new Set();
+      const isModified = modifiedSizes.has(sizeId);
+
+      // Validation rules:
+      // - If qty = 0 and user explicitly modified it (in modifiedSizes) → allow removal
+      // - If qty = 0 and NOT modified but has customizations → block (can't add customizations with qty 0)
+      // - If qty > 0 → always allow
+      if (qty === 0) {
+        // Allow if user explicitly set quantity to 0 (removal operation)
+        if (isModified) {
+          continue;
+        }
+        // Disallow if trying to add customizations without setting quantity
+        if (customs.size > 0) {
+          showToast.error("Please set quantity greater than 0 to add customizations");
+          return;
+        }
+        continue;
+      }
+    }
 
     // Loop through ALL sizes with changes (quantity or customizations) and add each one to cart
     for (const sizeId of sizesToUpdate) {
@@ -435,7 +423,7 @@ export function SizePickerModal({
     }
 
     onOpenChange(false);
-  }, [product, modifiedSizes, selectedSize, customizationsBySize, getDisplayQuantity, onSizeSelect, onOpenChange]);
+  }, [product, modifiedSizes, customizationsBySize, getDisplayQuantity, onSizeSelect, onOpenChange]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
