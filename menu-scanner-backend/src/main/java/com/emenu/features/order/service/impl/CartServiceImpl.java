@@ -338,13 +338,29 @@ public class CartServiceImpl implements CartService {
     }
 
     private void updateCartItemCustomizations(CartItem cartItem, List<UUID> customizationIds) {
-        // Delete ALL old customizations from database using native query (ensures actual deletion)
-        entityManager.createNativeQuery(
+        // Validate input
+        if (customizationIds != null && !customizationIds.isEmpty()) {
+            // Check for duplicates in the request
+            var uniqueIds = new java.util.HashSet<>(customizationIds);
+            if (uniqueIds.size() != customizationIds.size()) {
+                log.warn("Duplicate customization IDs detected in request for cart item {}: {} -> {}",
+                        cartItem.getId(), customizationIds.size(), uniqueIds.size());
+                customizationIds = new java.util.ArrayList<>(uniqueIds);
+            }
+        }
+
+        // Delete ALL old customizations from database using native query
+        int deletedCount = entityManager.createNativeQuery(
                 "DELETE FROM cart_item_customizations WHERE cart_item_id = :cartItemId")
                 .setParameter("cartItemId", cartItem.getId())
                 .executeUpdate();
 
-        // Clear from session
+        // CRITICAL: Flush the DELETE immediately to ensure it's persisted before any inserts
+        entityManager.flush();
+
+        log.debug("Deleted {} customizations for cart item: {}", deletedCount, cartItem.getId());
+
+        // Clear the customizations list from the entity
         cartItem.getCustomizations().clear();
 
         // If no customizations provided, we're done
@@ -353,6 +369,7 @@ public class CartServiceImpl implements CartService {
         }
 
         // Insert new customizations from request
+        java.util.List<CartItemCustomization> newCustomizations = new java.util.ArrayList<>();
         for (UUID customizationId : customizationIds) {
             ProductCustomization productCustom = productCustomizationRepository.findById(customizationId)
                     .orElseThrow(() -> new NotFoundException("Customization not found: " + customizationId));
@@ -363,11 +380,15 @@ public class CartServiceImpl implements CartService {
                     productCustom.getName(),
                     productCustom.getPriceAdjustment()
             );
-            cartItem.getCustomizations().add(cartItemCustom);
-            cartItemCustomizationRepository.save(cartItemCustom);
+            newCustomizations.add(cartItemCustom);
         }
 
-        log.debug("Updated customizations for cart item: {} with {} customization(s)",
-                cartItem.getId(), customizationIds.size());
+        // Batch save all new customizations
+        cartItemCustomizationRepository.saveAll(newCustomizations);
+
+        // Add to entity's customizations list for in-memory representation
+        cartItem.getCustomizations().addAll(newCustomizations);
+
+        log.debug("Inserted {} new customizations for cart item: {}", newCustomizations.size(), cartItem.getId());
     }
 }
