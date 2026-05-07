@@ -337,6 +337,16 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       const quantity = qty || 1;
       const customizations = customizationIds || [];
 
+      // DEBUG: Log customizations received from modal
+      console.log("%c## PRODUCT CARD - RECEIVED CUSTOMIZATIONS FROM MODAL", "background:#f59e0b;color:white;padding:5px;border-radius:3px;font-weight:bold", {
+        customizationCount: customizations.length,
+        customizationIds: customizations,
+        productId: selectedProduct.id,
+        sizeId: sizeId,
+        quantity: quantity,
+        timestamp: new Date().toLocaleTimeString()
+      });
+
       // Dispatch optimistic update to Redux
       cartDispatch(
         addLocalCartItem({

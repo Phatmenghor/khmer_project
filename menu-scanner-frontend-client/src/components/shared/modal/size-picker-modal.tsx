@@ -409,6 +409,15 @@ export function SizePickerModal({
         // Get customizations for this specific size
         const sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
 
+        // DEBUG: Log customizations being sent
+        console.log("%c## SIZE PICKER - SENDING CUSTOMIZATIONS", "background:#6366f1;color:white;padding:5px;border-radius:3px;font-weight:bold", {
+          sizeId: sizeId,
+          customizationCount: sizeCustomizations.length,
+          customizationIds: sizeCustomizations,
+          quantity: qty,
+          timestamp: new Date().toLocaleTimeString()
+        });
+
         // If this is a no-size product, pass undefined for size
         if (sizeId === "__no_size__") {
           onSizeSelect(product, undefined, qty, sizeCustomizations);
