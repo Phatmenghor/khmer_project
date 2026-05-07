@@ -3,6 +3,7 @@ package com.emenu.features.order.dto.response;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,8 @@ public class CartItemResponse {
     private Boolean hasPromotion;              // Whether has active promotion
     private String promotionType;              // PERCENTAGE or FIXED_AMOUNT
     private BigDecimal promotionValue;         // Discount percentage or fixed amount
+    private LocalDateTime promotionFromDate;   // Promotion start date
+    private LocalDateTime promotionToDate;     // Promotion end date
 
     private Integer quantity;
 

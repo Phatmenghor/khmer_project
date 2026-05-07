@@ -52,13 +52,17 @@ public interface CartMapper {
 
     @AfterMapping
     default void setPromotionInfo(@MappingTarget CartItemResponse response, CartItem cartItem) {
-        // Get promotion type from product size or product
+        // Get promotion info from product size or product
         if (cartItem.getProductSize() != null && cartItem.getProductSize().getPromotionType() != null) {
             response.setPromotionType(cartItem.getProductSize().getPromotionType().name());
             response.setPromotionValue(cartItem.getProductSize().getPromotionValue());
+            response.setPromotionFromDate(cartItem.getProductSize().getPromotionFromDate());
+            response.setPromotionToDate(cartItem.getProductSize().getPromotionToDate());
         } else if (cartItem.getProduct() != null && cartItem.getProduct().getPromotionType() != null) {
             response.setPromotionType(cartItem.getProduct().getPromotionType().name());
             response.setPromotionValue(cartItem.getProduct().getPromotionValue());
+            response.setPromotionFromDate(cartItem.getProduct().getPromotionFromDate());
+            response.setPromotionToDate(cartItem.getProduct().getPromotionToDate());
         }
     }
 
