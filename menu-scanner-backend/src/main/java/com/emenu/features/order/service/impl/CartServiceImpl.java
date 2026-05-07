@@ -56,8 +56,9 @@ public class CartServiceImpl implements CartService {
         User currentUser = securityUtils.getCurrentUser();
         UUID userId = currentUser.getId();
 
-        log.info("Submit cart item - User: {}, Product: {}, Quantity: {}",
-                userId, request.getProductId(), request.getQuantity());
+        log.info("Submit cart item - User: {}, Product: {}, Size: {}, Quantity: {}, Customizations: {}",
+                userId, request.getProductId(), request.getProductSizeId(),
+                request.getQuantity(), request.getCustomizationIds() != null ? request.getCustomizationIds().size() : 0);
 
         // Validate product and derive businessId
         UUID businessId = validateProductAndGetBusinessId(request.getProductId(), request.getProductSizeId());
@@ -328,36 +329,31 @@ public class CartServiceImpl implements CartService {
     }
 
     private void updateCartItemCustomizations(CartItem cartItem, List<UUID> customizationIds) {
+        // CLEAR ALL old customizations from database (like local storage replacement)
+        cartItemCustomizationRepository.deleteByCartItemId(cartItem.getId());
+        cartItem.getCustomizations().clear();
+
+        // If no customizations provided, we're done
         if (customizationIds == null || customizationIds.isEmpty()) {
-            cartItemCustomizationRepository.deleteByCartItemId(cartItem.getId());
-            cartItem.getCustomizations().clear();
             return;
         }
 
-        // Remove old customizations not in the new list
-        cartItem.getCustomizations().removeIf(existing ->
-                !customizationIds.contains(existing.getProductCustomizationId()));
-
-        // Add new customizations
-        java.util.Set<UUID> existingIds = new java.util.HashSet<>();
-        for (CartItemCustomization custom : cartItem.getCustomizations()) {
-            existingIds.add(custom.getProductCustomizationId());
-        }
-
+        // INSERT new customizations from request
         for (UUID customizationId : customizationIds) {
-            if (!existingIds.contains(customizationId)) {
-                ProductCustomization productCustom = productCustomizationRepository.findById(customizationId)
-                        .orElseThrow(() -> new NotFoundException("Customization not found: " + customizationId));
+            ProductCustomization productCustom = productCustomizationRepository.findById(customizationId)
+                    .orElseThrow(() -> new NotFoundException("Customization not found: " + customizationId));
 
-                CartItemCustomization cartItemCustom = new CartItemCustomization(
-                        cartItem.getId(),
-                        customizationId,
-                        productCustom.getName(),
-                        productCustom.getPriceAdjustment()
-                );
-                cartItem.getCustomizations().add(cartItemCustom);
-                cartItemCustomizationRepository.save(cartItemCustom);
-            }
+            CartItemCustomization cartItemCustom = new CartItemCustomization(
+                    cartItem.getId(),
+                    customizationId,
+                    productCustom.getName(),
+                    productCustom.getPriceAdjustment()
+            );
+            cartItem.getCustomizations().add(cartItemCustom);
+            cartItemCustomizationRepository.save(cartItemCustom);
         }
+
+        log.debug("Updated customizations for cart item: {} with {} customization(s)",
+                cartItem.getId(), customizationIds.size());
     }
 }
