@@ -398,7 +398,15 @@ export function SizePickerModal({
       // Send to backend: quantity > 0 to add, quantity = 0 to remove
       if (qty > 0 || modifiedSizes.has(sizeId)) {
         // Get customizations for this specific size
-        const sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
+        // When removing (qty=0) in editing mode, use ORIGINAL customizations so backend can find the item to delete
+        let sizeCustomizations: string[];
+        if (qty === 0 && isEditing && initialCustomizations) {
+          // Removing in edit mode - send with original customizations to match the original item
+          sizeCustomizations = initialCustomizations;
+        } else {
+          // Adding/updating - send with currently selected customizations
+          sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
+        }
 
         // DEBUG: Log customizations being sent
         console.log("%c## SIZE PICKER - SENDING", "background:#6366f1;color:white;padding:5px;border-radius:3px;font-weight:bold", {
@@ -406,6 +414,7 @@ export function SizePickerModal({
           customizationCount: sizeCustomizations.length,
           customizationIds: sizeCustomizations,
           quantity: qty,
+          isRemoving: qty === 0,
           timestamp: new Date().toLocaleTimeString()
         });
 
