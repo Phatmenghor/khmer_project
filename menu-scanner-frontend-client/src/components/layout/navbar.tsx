@@ -552,9 +552,10 @@ export function Navbar() {
               </div>
             </div>
 
+            {/* Search bar - only on desktop (lg+) */}
             <form
               onSubmit={handleSearchSubmit}
-              className="flex flex-1 max-w-xl"
+              className="hidden lg:flex flex-1 max-w-xl"
             >
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -568,7 +569,8 @@ export function Navbar() {
               </div>
             </form>
 
-            <div className="flex items-center gap-2">
+            {/* Action buttons - only on desktop (lg+) */}
+            <div className="hidden lg:flex items-center gap-2">
               <CustomButton
                 variant="ghost"
                 size="icon"
