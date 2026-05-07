@@ -357,30 +357,65 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
         productId: selectedProduct.id,
         sizeId: sizeId,
         quantity: quantity,
+        isEditing: isEditingProduct,
         timestamp: new Date().toLocaleTimeString()
       });
 
-      // Dispatch optimistic update to Redux
-      cartDispatch(
-        addLocalCartItem({
-          productId: selectedProduct.id,
-          productSizeId: sizeId,
-          quantity: quantity,
-          productName: selectedProduct.name,
-          productImageUrl: selectedProduct.mainImageUrl,
-          sizeName: size?.name || null,
-          finalPrice: size?.finalPrice || selectedProduct.displayPrice,
-          currentPrice: size?.price || selectedProduct.displayOriginPrice || selectedProduct.displayPrice,
-          hasPromotion: size?.hasPromotion || selectedProduct.hasPromotion,
-          promotionType: size?.promotionType || selectedProduct.displayPromotionType || null,
-          promotionValue: size?.promotionValue || selectedProduct.displayPromotionValue || null,
-          promotionFromDate: size?.promotionFromDate || selectedProduct.displayPromotionFromDate || null,
-          promotionToDate: size?.promotionToDate || selectedProduct.displayPromotionToDate || null,
-          optimisticTimestamp: timestamp,
-        })
-      );
+      // Optimistic update FIRST for instant UI feedback
+      if (isEditingProduct) {
+        // Update existing item (handles removal when qty=0)
+        console.log("%c## OPTIMISTIC UPDATE (editing)", "background:#3b82f6;color:white;padding:5px", {
+          action: quantity === 0 ? "REMOVE" : "UPDATE",
+          quantity,
+          timestamp: new Date().toLocaleTimeString()
+        });
+        cartDispatch(
+          updateLocalCartItem({
+            productId: selectedProduct.id,
+            productSizeId: sizeId,
+            quantity: quantity,
+            optimisticTimestamp: timestamp,
+          })
+        );
+      } else if (quantity > 0) {
+        // Add new item only if quantity > 0
+        console.log("%c## OPTIMISTIC ADD (new)", "background:#3b82f6;color:white;padding:5px", {
+          quantity,
+          timestamp: new Date().toLocaleTimeString()
+        });
+        cartDispatch(
+          addLocalCartItem({
+            productId: selectedProduct.id,
+            productSizeId: sizeId,
+            quantity: quantity,
+            productName: selectedProduct.name,
+            productImageUrl: selectedProduct.mainImageUrl,
+            sizeName: size?.name || null,
+            finalPrice: size?.finalPrice || selectedProduct.displayPrice,
+            currentPrice: size?.price || selectedProduct.displayOriginPrice || selectedProduct.displayPrice,
+            hasPromotion: size?.hasPromotion || selectedProduct.hasPromotion,
+            promotionType: size?.promotionType || selectedProduct.displayPromotionType || null,
+            promotionValue: size?.promotionValue || selectedProduct.displayPromotionValue || null,
+            promotionFromDate: size?.promotionFromDate || selectedProduct.displayPromotionFromDate || null,
+            promotionToDate: size?.promotionToDate || selectedProduct.displayPromotionToDate || null,
+            optimisticTimestamp: timestamp,
+          })
+        );
+      } else {
+        // qty=0 for new item - do nothing
+        console.log("%c## SKIPPED (qty=0 on new item)", "background:#6b7280;color:white;padding:5px", {
+          timestamp: new Date().toLocaleTimeString()
+        });
+      }
 
-      // Call API with customization IDs
+      // Close modal immediately for instant feedback
+      setSizePickerProduct(null);
+
+      // Call API in background
+      console.log("%c## API CALL IN BACKGROUND", "background:#9333ea;color:white;padding:5px", {
+        action: "addToCart (async)",
+        timestamp: new Date().toLocaleTimeString()
+      });
       cartDispatch(
         addToCart({
           productId: selectedProduct.id,
@@ -390,11 +425,8 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
           optimisticTimestamp: timestamp,
         })
       );
-
-      // Close modal
-      setSizePickerProduct(null);
     },
-    [cartDispatch]
+    [cartDispatch, isEditingProduct]
   );
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";
