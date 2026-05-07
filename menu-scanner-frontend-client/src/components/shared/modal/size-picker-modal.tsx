@@ -597,10 +597,11 @@ export function SizePickerModal({
                 <CustomButton
                   variant="outline"
                   size="sm"
-                  className="h-8 px-2 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
+                  className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors"
                   onClick={handleClearSize}
+                  title="Remove this size and customizations from cart"
                 >
-                  <Trash2 className="h-3.5 w-3.5 mr-1" />
+                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                   Clear
                 </CustomButton>
               )}
@@ -611,9 +612,9 @@ export function SizePickerModal({
           {product?.customizations && product.customizations.length > 0 && (
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-3">
-                <h4 className="font-semibold text-sm">Add-ons</h4>
+                <h4 className="font-semibold text-sm text-green-600">Add-ons</h4>
                 {selectedSizeCustoms.size > 0 && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-300">
                     {selectedSizeCustoms.size} selected
                   </Badge>
                 )}
@@ -627,12 +628,11 @@ export function SizePickerModal({
                       key={customization.id}
                       onClick={() => toggleCustomization(customization.id)}
                       className={cn(
-                        "w-full flex items-center justify-between rounded-lg px-3 py-2.5 transition-all cursor-pointer text-left",
+                        "w-full flex items-center justify-between rounded-lg px-3 py-2.5 transition-all cursor-pointer text-left border",
                         isSelected
-                          ? "bg-blue-50/50"
-                          : "border-2 border-border hover:border-blue-300 hover:bg-muted/30"
+                          ? "bg-green-50 border-green-300"
+                          : "border-border hover:border-green-300 hover:bg-green-50/30"
                       )}
-                      style={isSelected ? { borderWidth: "0.5px", borderColor: "rgb(59, 130, 246)" } : {}}
                     >
                       <div className="flex-1">
                         <div className="font-semibold text-sm text-foreground">
@@ -640,11 +640,11 @@ export function SizePickerModal({
                         </div>
                       </div>
                       <div className="flex items-center gap-3 ml-2">
-                        <span className="text-sm font-semibold text-primary">
+                        <span className="text-sm font-semibold text-green-600">
                           +{formatCurrency(priceAdjustment)}
                         </span>
                         {isSelected && (
-                          <div className="bg-blue-500 text-white rounded-full p-0.5 flex-shrink-0">
+                          <div className="bg-green-500 text-white rounded-full p-0.5 flex-shrink-0">
                             <Check className="h-3 w-3" />
                           </div>
                         )}
