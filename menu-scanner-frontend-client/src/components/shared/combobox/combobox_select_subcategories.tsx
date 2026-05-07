@@ -23,6 +23,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
 import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { fetchAllSubcategories } from "@/redux/features/master-data/store/thunks/subcategories-thunks";
+import { fetchPublicSubcategories } from "@/redux/features/main/store/thunks/public-subcategories-thunks";
 
 interface ComboboxSelectSubcategoriesProps {
   dataSelect: SubcategoriesResponseModel | null;
@@ -34,6 +35,7 @@ interface ComboboxSelectSubcategoriesProps {
   placeholder?: string;
   showAllOption?: boolean;
   error?: string;
+  usePublicApi?: boolean;
 }
 
 const ALL_OPTION: SubcategoriesResponseModel = {
@@ -52,6 +54,7 @@ export function ComboboxSelectSubcategories({
   placeholder = "Select a subcategory...",
   showAllOption = true,
   error,
+  usePublicApi = false,
 }: ComboboxSelectSubcategoriesProps) {
   const dispatch = useAppDispatch();
 
@@ -98,29 +101,65 @@ export function ComboboxSelectSubcategories({
     setLoading(true);
 
     try {
-      const result = await dispatch(
-        fetchAllSubcategories({
-          search,
-          pageNo: newPage,
-          pageSize: 15,
-        })
-      ).unwrap();
+      let result;
 
-      if (!result) return;
+      if (usePublicApi) {
+        // Public API - returns CategoryWithSubcategories[]
+        result = await dispatch(
+          fetchPublicSubcategories({
+            search,
+            status: "ACTIVE",
+          })
+        ).unwrap();
 
-      if (newPage === 1) {
-        const newData = result.content;
-        if (showAllOption && !search) {
-          setData(removeDuplicates([ALL_OPTION, ...newData]));
+        if (!result || !Array.isArray(result)) return;
+
+        // Flatten the structure: extract all subcategories from categories
+        const allSubcategories: SubcategoriesResponseModel[] = [];
+        result.forEach((item: any) => {
+          if (item.subcategories && Array.isArray(item.subcategories)) {
+            allSubcategories.push(...item.subcategories);
+          }
+        });
+
+        if (newPage === 1) {
+          if (showAllOption && !search) {
+            setData(removeDuplicates([ALL_OPTION, ...allSubcategories]));
+          } else {
+            setData(removeDuplicates(allSubcategories));
+          }
         } else {
-          setData(removeDuplicates(newData));
+          setData((prev) => removeDuplicates([...prev, ...allSubcategories]));
         }
-      } else {
-        setData((prev) => removeDuplicates([...prev, ...result.content]));
-      }
 
-      setPage(result.pageNo);
-      setLastPage(result.last);
+        setPage(1);
+        setLastPage(true); // Public API doesn't support pagination
+      } else {
+        // Authenticated API - paginated response
+        result = await dispatch(
+          fetchAllSubcategories({
+            search,
+            pageNo: newPage,
+            pageSize: 15,
+          })
+        ).unwrap();
+
+        if (!result) return;
+
+        if (newPage === 1) {
+          const newData = result.content;
+          if (showAllOption && !search) {
+            setData(removeDuplicates([ALL_OPTION, ...newData]));
+          } else {
+            setData(removeDuplicates(newData));
+          }
+        } else {
+          setData((prev) => removeDuplicates([...prev, ...result.content]));
+        }
+
+        setPage(result.pageNo);
+        setLastPage(result.last);
+      }
     } catch (error) {
       console.error("Error fetching subcategories:", error);
     } finally {

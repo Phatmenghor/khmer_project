@@ -51,9 +51,9 @@ function ProductFiltersComponent({
   const searchParams = useSearchParams();
 
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
-  const [selectedBrand, setSelectedBrand] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<any>(null);
+  const [selectedBrand, setSelectedBrand] = useState<any>(null);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [hasPromotion, setHasPromotion] = useState<boolean>(false);
   const [minPrice, setMinPrice] = useState<string>("");
@@ -211,13 +211,14 @@ function ProductFiltersComponent({
 
       {/* Subcategory - Combobox */}
       <ComboboxSelectSubcategories
-        selectedSubcategory={selectedSubcategory}
-        onChangeSelected={(subcategoryId) =>
-          updateFilter("subcategoryId", subcategoryId)
+        dataSelect={selectedSubcategory}
+        onChangeSelected={(subcategory) =>
+          updateFilter("subcategoryId", subcategory?.id || "")
         }
         label="Subcategory"
         size="md"
         placeholder="All Subcategories"
+        usePublicApi={true}
       />
 
       <Separator />
