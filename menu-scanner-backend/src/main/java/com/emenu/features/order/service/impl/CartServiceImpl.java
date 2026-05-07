@@ -79,8 +79,12 @@ public class CartServiceImpl implements CartService {
                 log.info("Removed cart item: {} for user: {}", item.getId(), userId);
             } else {
                 item.setQuantity(request.getQuantity());
-                updateCartItemCustomizations(item, request.getCustomizationIds());
                 cartItemRepository.save(item);
+
+                // MUST flush before updating customizations to ensure cart item exists in DB
+                entityManager.flush();
+
+                updateCartItemCustomizations(item, request.getCustomizationIds());
                 log.info("Updated cart item quantity to: {} for user: {}", request.getQuantity(), userId);
             }
         } else {
@@ -92,15 +96,20 @@ public class CartServiceImpl implements CartService {
                         request.getQuantity()
                 );
                 CartItem savedItem = cartItemRepository.save(newItem);
+
+                // MUST flush before updating customizations to ensure cart item exists in DB
+                entityManager.flush();
+
                 updateCartItemCustomizations(savedItem, request.getCustomizationIds());
                 log.info("Added new item to cart with quantity: {} for user: {}", request.getQuantity(), userId);
             }
         }
 
-        // Flush pending changes and clear the persistence context so the reload
-        // query populates all lazy relations (product, productSize) from the database
-        // instead of returning cached entities with null associations.
+        // Final flush to ensure all changes are persisted
         entityManager.flush();
+
+        // Clear the persistence context so the reload query populates all lazy relations
+        // (product, productSize) from the database instead of returning cached entities with null associations.
         entityManager.clear();
 
         // Reload cart with items for response (deduplication happens during load)
@@ -329,7 +338,7 @@ public class CartServiceImpl implements CartService {
     }
 
     private void updateCartItemCustomizations(CartItem cartItem, List<UUID> customizationIds) {
-        // CLEAR ALL old customizations from database (like local storage replacement)
+        // Delete ALL old customizations from database first (like local storage replacement)
         cartItemCustomizationRepository.deleteByCartItemId(cartItem.getId());
         cartItem.getCustomizations().clear();
 
@@ -338,7 +347,7 @@ public class CartServiceImpl implements CartService {
             return;
         }
 
-        // INSERT new customizations from request
+        // Insert new customizations from request
         for (UUID customizationId : customizationIds) {
             ProductCustomization productCustom = productCustomizationRepository.findById(customizationId)
                     .orElseThrow(() -> new NotFoundException("Customization not found: " + customizationId));
