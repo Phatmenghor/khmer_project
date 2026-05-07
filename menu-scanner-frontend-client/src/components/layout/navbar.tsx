@@ -60,6 +60,12 @@ import { LoginModal } from "../shared/modal/login-modal";
 import { RegisterModal } from "../shared/modal/register-modal";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
 import { PageContainer } from "../shared/common/page-container";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
 
@@ -476,59 +482,131 @@ export function Navbar() {
             </div>
           )}
 
-          {/* ── Mobile/Tablet: Burger menu dropdown (<lg) ── */}
-          {menuOpen && (
-            <div className="lg:hidden absolute top-14 left-0 right-0 bg-background/98 backdrop-blur-md border-b border-border shadow-xl z-50">
-              <div className="flex flex-col max-h-[calc(100vh-56px)] overflow-y-auto">
-                {navigationLinks.map((link) => {
-                  const active =
-                    pathname === link.href ||
-                    (link.href === "/products" &&
-                      pathname.startsWith("/products"));
+          {/* ── Mobile/Tablet: Modern side drawer menu (<lg) ── */}
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetContent side="left" className="w-4/5 sm:w-96 p-0">
+              <SheetHeader className="border-b px-6 py-4 mt-0">
+                <SheetTitle className="text-left">Menu</SheetTitle>
+              </SheetHeader>
 
-                  // Special handler for Home link
-                  if (link.name === "Home") {
+              <div className="flex flex-col h-full overflow-y-auto">
+                <nav className="flex flex-col">
+                  {navigationLinks.map((link, index) => {
+                    const active =
+                      pathname === link.href ||
+                      (link.href === "/products" &&
+                        pathname.startsWith("/products"));
+
+                    // Special handler for Home link
+                    if (link.name === "Home") {
+                      return (
+                        <button
+                          key={link.name}
+                          onClick={() => {
+                            handleNavigateToHome();
+                            setMenuOpen(false);
+                          }}
+                          className={cn(
+                            "w-full text-left px-6 py-4 text-sm font-medium transition-all duration-200 border-l-4 flex items-center",
+                            active
+                              ? "text-primary bg-primary/8 border-l-primary"
+                              : "text-foreground hover:bg-muted/40 border-l-transparent hover:border-l-primary/30"
+                          )}
+                        >
+                          <span className="flex-1">{link.name}</span>
+                          {active && (
+                            <div className="w-2 h-2 rounded-full bg-primary" />
+                          )}
+                        </button>
+                      );
+                    }
+
+                    // Other links
                     return (
                       <button
                         key={link.name}
                         onClick={() => {
-                          handleNavigateToHome();
+                          handleNavigateToPage(link.href);
                           setMenuOpen(false);
                         }}
                         className={cn(
-                          "w-full text-left px-4 py-4 text-base font-semibold transition-colors active:opacity-70",
+                          "w-full text-left px-6 py-4 text-sm font-medium transition-all duration-200 border-l-4 flex items-center",
                           active
-                            ? "text-primary bg-primary/15 border-l-4 border-primary"
-                            : "text-foreground hover:bg-muted/60 border-l-4 border-transparent"
+                            ? "text-primary bg-primary/8 border-l-primary"
+                            : "text-foreground hover:bg-muted/40 border-l-transparent hover:border-l-primary/30"
                         )}
                       >
-                        {link.name}
+                        <span className="flex-1">{link.name}</span>
+                        {active && (
+                          <div className="w-2 h-2 rounded-full bg-primary" />
+                        )}
                       </button>
                     );
-                  }
+                  })}
+                </nav>
 
-                  // Other links
-                  return (
-                    <button
-                      key={link.name}
+                {/* Divider */}
+                <div className="my-4 mx-6 border-t border-border/50" />
+
+                {/* User section at bottom */}
+                {isAuthenticated ? (
+                  <div className="px-6 py-4 mt-auto border-t border-border/50">
+                    <div className="flex items-center gap-3 mb-4">
+                      <CustomAvatar
+                        imageUrl={profileImage || profile?.profileImageUrl}
+                        name={fullName || profile?.fullName || "User"}
+                        size="md"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold line-clamp-1">
+                          {fullName || profile?.fullName || "User"}
+                        </p>
+                        <p className="text-xs text-muted-foreground line-clamp-1">
+                          {email || profile?.email || ""}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
                       onClick={() => {
-                        handleNavigateToPage(link.href);
+                        handleLogout();
                         setMenuOpen(false);
                       }}
-                      className={cn(
-                        "w-full text-left px-4 py-4 text-base font-semibold transition-colors active:opacity-70",
-                        active
-                          ? "text-primary bg-primary/15 border-l-4 border-primary"
-                          : "text-foreground hover:bg-muted/60 border-l-4 border-transparent"
-                      )}
                     >
-                      {link.name}
-                    </button>
-                  );
-                })}
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="px-6 py-4 mt-auto border-t border-border/50 flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => {
+                        setIsLoginModalOpen(true);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Login
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => {
+                        setIsRegisterModalOpen(true);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Register
+                    </Button>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            </SheetContent>
+          </Sheet>
 
           {/* ── Desktop top bar (≥lg) ── */}
           <div className="hidden lg:flex h-full w-full items-center justify-between gap-4">
