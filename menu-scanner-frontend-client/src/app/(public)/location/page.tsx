@@ -204,7 +204,7 @@ export default function LocationPage() {
   // Loading skeleton
   if (isInitialLoading) {
     return (
-      <PageContainer className="py-4 sm:py-8">
+      <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
         <div className="h-8 w-48 bg-muted rounded mb-6 animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -234,7 +234,7 @@ export default function LocationPage() {
 
   // Locations grid with infinite scroll
   return (
-    <PageContainer className="py-4 sm:py-8">
+    <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
       <PageHeader
         title="My Locations"
         icon={MapPin}
