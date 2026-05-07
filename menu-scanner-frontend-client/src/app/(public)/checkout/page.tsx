@@ -519,9 +519,102 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Card 3: Order Summary - Sticky */}
+        {/* Card 3: Order Summary - Sticky on LG, Full on Mobile */}
         <div className="lg:col-span-1">
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 sticky top-24 space-y-6">
+          {/* Mobile/Tablet: Full width summary above footer */}
+          <div className="lg:hidden bg-gradient-to-b from-card to-card/95 border border-border rounded-t-3xl p-6 sm:p-8 space-y-6 mt-8">
+            <div>
+              <h2 className="text-lg font-bold text-foreground mb-6">Order Summary</h2>
+
+              <div className="space-y-4">
+                {/* Subtotal */}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground font-medium">Subtotal</span>
+                  <span className="font-semibold text-foreground">{formatCurrency(subtotal)}</span>
+                </div>
+
+                {/* Discount */}
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm bg-red-50/50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200/50 dark:border-red-800/30">
+                    <span className="text-red-600 dark:text-red-400 font-semibold">Discount</span>
+                    <span className="font-bold text-red-600 dark:text-red-500">-{formatCurrency(discountAmount)}</span>
+                  </div>
+                )}
+
+                {/* Delivery Fee */}
+                <div className="flex justify-between text-sm pt-2.5 border-t border-border/50">
+                  <span className="text-muted-foreground font-medium">Delivery Fee</span>
+                  <span className="font-semibold text-primary">
+                    {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
+                  </span>
+                </div>
+
+                {/* Tax */}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground font-medium flex items-center gap-1">
+                    Tax
+                    <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium">0%</span>
+                  </span>
+                  <span className="font-semibold text-foreground">{formatCurrency(taxAmount)}</span>
+                </div>
+
+                {/* Total */}
+                <div className="flex justify-between items-center pt-4 border-t-2 border-border">
+                  <span className="font-bold text-lg text-foreground">Total Amount</span>
+                  <div className="text-right">
+                    <span className="text-3xl font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                  </div>
+                </div>
+
+                {discountAmount > 0 && (
+                  <p className="text-xs text-red-600 dark:text-red-400 text-center font-semibold bg-red-50/50 dark:bg-red-950/30 p-2 rounded-lg">
+                    💰 You save {formatCurrency(discountAmount)}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Validation Alert */}
+            {(!checkoutState.selectedAddressId ||
+              !checkoutState.selectedDeliveryOptionId ||
+              !checkoutState.selectedPaymentOptionId) && (
+              <div className="flex gap-3 p-3.5 bg-amber-50/60 dark:bg-amber-950/30 rounded-xl border border-amber-200/60 dark:border-amber-800/40">
+                <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                  Complete all required fields to continue
+                </p>
+              </div>
+            )}
+
+            {/* Checkout Button with Shadow and Margins */}
+            <CustomButton
+              onClick={handleCheckout}
+              disabled={!canCheckout || checkoutState.isProcessing}
+              className={cn(
+                "w-full gap-2 h-12 rounded-xl font-bold text-base shadow-lg hover:shadow-xl transition-all duration-200 mx-0",
+                !canCheckout && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              {checkoutState.isProcessing ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Processing Order
+                </>
+              ) : (
+                <>
+                  <Check className="h-5 w-5" />
+                  Place Order
+                </>
+              )}
+            </CustomButton>
+
+            <p className="text-xs text-muted-foreground text-center font-medium">
+              🔒 Secure & encrypted checkout
+            </p>
+          </div>
+
+          {/* Desktop: Sticky Summary */}
+          <div className="hidden lg:block bg-card border border-border rounded-2xl p-6 sm:p-7 sticky top-24 space-y-6">
             <div>
               <h2 className="text-base font-semibold text-foreground mb-5">Order Summary</h2>
 
