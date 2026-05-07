@@ -14,13 +14,13 @@ import java.util.UUID;
 public interface CartRepository extends JpaRepository<Cart, UUID> {
 
     /**
-     * Finds a non-deleted cart by user ID and business ID with items, products, sizes, customizations, and business eagerly fetched
+     * Finds a non-deleted cart by user ID and business ID with items, products, sizes, and business eagerly fetched
+     * (customizations are batch-loaded via @BatchSize on CartItem)
      */
     @Query("SELECT DISTINCT c FROM Cart c " +
            "LEFT JOIN FETCH c.items ci " +
            "LEFT JOIN FETCH ci.product p " +
            "LEFT JOIN FETCH ci.productSize ps " +
-           "LEFT JOIN FETCH ci.customizations cic " +
            "LEFT JOIN FETCH c.business " +
            "WHERE c.userId = :userId AND c.businessId = :businessId AND c.isDeleted = false")
     Optional<Cart> findByUserIdAndBusinessIdWithItems(@Param("userId") UUID userId, @Param("businessId") UUID businessId);
@@ -31,13 +31,13 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
     Optional<Cart> findByUserIdAndBusinessIdAndIsDeletedFalse(UUID userId, UUID businessId);
 
     /**
-     * Finds the most recently updated non-deleted cart for a user with items, customizations eagerly fetched
+     * Finds the most recently updated non-deleted cart for a user with items eagerly fetched
+     * (customizations are batch-loaded via @BatchSize on CartItem)
      */
     @Query("SELECT DISTINCT c FROM Cart c " +
            "LEFT JOIN FETCH c.items ci " +
            "LEFT JOIN FETCH ci.product p " +
            "LEFT JOIN FETCH ci.productSize ps " +
-           "LEFT JOIN FETCH ci.customizations cic " +
            "LEFT JOIN FETCH c.business " +
            "WHERE c.userId = :userId AND c.isDeleted = false " +
            "ORDER BY c.updatedAt DESC")
