@@ -338,64 +338,33 @@ public class CartServiceImpl implements CartService {
     }
 
     private void updateCartItemCustomizations(CartItem cartItem, List<UUID> customizationIds) {
-        log.info("=== CUSTOMIZATION UPDATE START === cartItemId: {}, incoming customizations: {}",
-                cartItem.getId(), customizationIds != null ? customizationIds.size() : 0);
+        log.info("Updating customizations for cartItem: {}", cartItem.getId());
 
-        // Validate input - MUST deduplicate before processing
+        // Deduplicate request IDs
         if (customizationIds != null && !customizationIds.isEmpty()) {
-            // Check for duplicates in the request
-            var uniqueIds = new java.util.LinkedHashSet<>(customizationIds);
-            if (uniqueIds.size() != customizationIds.size()) {
-                log.warn("DUPLICATE customization IDs detected: {} -> {} unique",
-                        customizationIds.size(), uniqueIds.size());
-                customizationIds = new java.util.ArrayList<>(uniqueIds);
-            }
+            customizationIds = new java.util.ArrayList<>(new java.util.LinkedHashSet<>(customizationIds));
         }
 
-        // Step 1: Delete ALL old customizations from database
-        log.info("STEP 1: Deleting old customizations for cart item: {}", cartItem.getId());
-        int deletedCount = entityManager.createNativeQuery(
-                "DELETE FROM cart_item_customizations WHERE cart_item_id = :cartItemId")
-                .setParameter("cartItemId", cartItem.getId())
-                .executeUpdate();
-        log.info("STEP 1 RESULT: Deleted {} customizations from database", deletedCount);
+        // Delete old customizations directly
+        cartItemCustomizationRepository.deleteByCartItemId(cartItem.getId());
 
-        // Step 2: Flush DELETE to database immediately
-        log.info("STEP 2: Flushing DELETE operation to database");
-        entityManager.flush();
-        log.info("STEP 2 RESULT: DELETE flushed successfully");
-
-        // Step 3: Detach and clear all customizations from the entity
-        log.info("STEP 3: Clearing customizations from entity and session");
-        for (CartItemCustomization custom : cartItem.getCustomizations()) {
-            entityManager.detach(custom);
-        }
+        // Clear the entity's collection to avoid Hibernate tracking issues
         cartItem.getCustomizations().clear();
-        log.info("STEP 3 RESULT: Entity customizations cleared");
 
-        // Step 4: Refresh cart item from database to ensure Hibernate knows what's in DB
-        log.info("STEP 4: Refreshing CartItem from database to sync Hibernate cache");
-        entityManager.refresh(cartItem);
-        log.info("STEP 4 RESULT: CartItem refreshed - customizations in memory: {}",
-                cartItem.getCustomizations().size());
-
-        // If no customizations provided, we're done
+        // Exit early if no customizations to add
         if (customizationIds == null || customizationIds.isEmpty()) {
-            log.info("=== CUSTOMIZATION UPDATE COMPLETE === No customizations to insert");
+            log.info("No customizations to add for cartItem: {}", cartItem.getId());
             return;
         }
 
-        // Step 5: Insert new customizations from request
-        log.info("STEP 5: Creating {} new customization entities", customizationIds.size());
+        // Create and save new customizations
         java.util.List<CartItemCustomization> newCustomizations = new java.util.ArrayList<>();
-        java.util.Set<UUID> processedIds = new java.util.HashSet<>();
+        java.util.Set<UUID> seenIds = new java.util.HashSet<>();
 
         for (UUID customizationId : customizationIds) {
-            if (processedIds.contains(customizationId)) {
-                log.warn("Skipping duplicate customization: {}", customizationId);
-                continue;
+            if (!seenIds.add(customizationId)) {
+                continue; // Skip duplicates
             }
-            processedIds.add(customizationId);
 
             ProductCustomization productCustom = productCustomizationRepository.findById(customizationId)
                     .orElseThrow(() -> new NotFoundException("Customization not found: " + customizationId));
@@ -407,28 +376,12 @@ public class CartServiceImpl implements CartService {
                     productCustom.getPriceAdjustment()
             );
             newCustomizations.add(cartItemCustom);
-            log.debug("Created CartItemCustomization entity: {}", customizationId);
         }
-        log.info("STEP 5 RESULT: Created {} new customization entities", newCustomizations.size());
 
-        // Step 6: Save all new customizations to database
-        log.info("STEP 6: Saving {} customizations to database", newCustomizations.size());
-        cartItemCustomizationRepository.saveAll(newCustomizations);
-        log.info("STEP 6 RESULT: Customizations saved to repository");
-
-        // Step 7: Flush INSERT operations to database immediately
-        log.info("STEP 7: Flushing INSERT operations to database");
-        entityManager.flush();
-        log.info("STEP 7 RESULT: INSERT flushed successfully");
-
-        // Step 8: Detach new customizations to prevent Hibernate from re-inserting on final flush
-        log.info("STEP 8: Detaching new customizations to prevent re-insertion");
-        for (CartItemCustomization custom : newCustomizations) {
-            entityManager.detach(custom);
+        // Save all at once and let the database handle the insert
+        if (!newCustomizations.isEmpty()) {
+            cartItemCustomizationRepository.saveAll(newCustomizations);
+            log.info("Added {} customizations to cartItem: {}", newCustomizations.size(), cartItem.getId());
         }
-        log.info("STEP 8 RESULT: New customizations detached successfully");
-
-        log.info("=== CUSTOMIZATION UPDATE COMPLETE === Successfully processed {} customizations",
-                newCustomizations.size());
     }
 }
