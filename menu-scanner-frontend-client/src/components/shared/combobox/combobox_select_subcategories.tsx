@@ -104,36 +104,31 @@ export function ComboboxSelectSubcategories({
       let result;
 
       if (usePublicApi) {
-        // Public API - returns CategoryWithSubcategories[]
+        // Public API - returns paginated response (same as authenticated API)
         result = await dispatch(
           fetchPublicSubcategories({
             search,
             status: "ACTIVE",
+            pageNo: newPage,
+            pageSize: 15,
           })
         ).unwrap();
 
-        if (!result || !Array.isArray(result)) return;
-
-        // Flatten the structure: extract all subcategories from categories
-        const allSubcategories: SubcategoriesResponseModel[] = [];
-        result.forEach((item: any) => {
-          if (item.subcategories && Array.isArray(item.subcategories)) {
-            allSubcategories.push(...item.subcategories);
-          }
-        });
+        if (!result) return;
 
         if (newPage === 1) {
+          const newData = result.content;
           if (showAllOption && !search) {
-            setData(removeDuplicates([ALL_OPTION, ...allSubcategories]));
+            setData(removeDuplicates([ALL_OPTION, ...newData]));
           } else {
-            setData(removeDuplicates(allSubcategories));
+            setData(removeDuplicates(newData));
           }
         } else {
-          setData((prev) => removeDuplicates([...prev, ...allSubcategories]));
+          setData((prev) => removeDuplicates([...prev, ...result.content]));
         }
 
-        setPage(1);
-        setLastPage(true); // Public API doesn't support pagination
+        setPage(result.pageNo);
+        setLastPage(result.last);
       } else {
         // Authenticated API - paginated response
         result = await dispatch(
