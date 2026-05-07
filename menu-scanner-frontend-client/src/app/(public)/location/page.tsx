@@ -216,7 +216,7 @@ export default function LocationPage() {
 
   // Empty state
   if (locations.length === 0) {
-    return <LocationEmptyState onAddNew={handleAddLocation} />;
+    return <LocationEmptyState onAdd={handleAddLocation} />;
   }
 
   // Locations grid with infinite scroll
