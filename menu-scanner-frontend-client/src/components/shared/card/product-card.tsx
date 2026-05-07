@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingCart, Plus, Minus, Ruler } from "lucide-react";
+import { Heart, ShoppingCart, Plus, Minus, Ruler, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -372,12 +372,21 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
               </CustomButton>
             </div>
 
-            {/* Sizes badge */}
-            {product.hasSizes && (
+            {/* Sizes/Customizations badge */}
+            {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
               <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
                 <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
-                  <Ruler className="h-3 w-3" />
-                  Sizes
+                  {product.hasSizes ? (
+                    <>
+                      <Ruler className="h-3 w-3" />
+                      Sizes
+                    </>
+                  ) : (
+                    <>
+                      <Package className="h-3 w-3" />
+                      Add-ons
+                    </>
+                  )}
                 </Badge>
               </div>
             )}
