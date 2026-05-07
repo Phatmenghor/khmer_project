@@ -349,11 +349,19 @@ public class CartServiceImpl implements CartService {
             }
         }
 
+        // Get existing customizations BEFORE deletion (to evict from session)
+        List<CartItemCustomization> existingCustomizations = new java.util.ArrayList<>(cartItem.getCustomizations());
+
         // Delete ALL old customizations from database using native query
         int deletedCount = entityManager.createNativeQuery(
                 "DELETE FROM cart_item_customizations WHERE cart_item_id = :cartItemId")
                 .setParameter("cartItemId", cartItem.getId())
                 .executeUpdate();
+
+        // CRITICAL: Evict old customizations from session so they don't conflict with inserts
+        for (CartItemCustomization custom : existingCustomizations) {
+            entityManager.detach(custom);
+        }
 
         // CRITICAL: Flush the DELETE immediately to ensure it's persisted before any inserts
         entityManager.flush();
