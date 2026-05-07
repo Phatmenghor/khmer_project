@@ -345,8 +345,13 @@ public class CartServiceImpl implements CartService {
             customizationIds = new java.util.ArrayList<>(new java.util.LinkedHashSet<>(customizationIds));
         }
 
-        // Delete old customizations directly
-        cartItemCustomizationRepository.deleteByCartItemId(cartItem.getId());
+        // Delete old customizations using native query and flush immediately
+        int deletedCount = entityManager.createNativeQuery(
+                "DELETE FROM cart_item_customizations WHERE cart_item_id = :cartItemId")
+                .setParameter("cartItemId", cartItem.getId())
+                .executeUpdate();
+        entityManager.flush();
+        log.info("Deleted {} old customizations from database", deletedCount);
 
         // Clear the entity's collection to avoid Hibernate tracking issues
         cartItem.getCustomizations().clear();
@@ -378,9 +383,10 @@ public class CartServiceImpl implements CartService {
             newCustomizations.add(cartItemCustom);
         }
 
-        // Save all at once and let the database handle the insert
+        // Save all at once and flush immediately
         if (!newCustomizations.isEmpty()) {
             cartItemCustomizationRepository.saveAll(newCustomizations);
+            entityManager.flush();
             log.info("Added {} customizations to cartItem: {}", newCustomizations.size(), cartItem.getId());
         }
     }
