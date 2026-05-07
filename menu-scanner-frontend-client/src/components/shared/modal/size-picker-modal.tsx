@@ -370,25 +370,24 @@ export function SizePickerModal({
 
     // Validate each size before saving
     for (const sizeId of sizesToUpdate) {
-      const qty = getDisplayQuantity(sizeId);
       const customs = customizationsBySize.get(sizeId) ?? new Set();
       const isModified = modifiedSizes.has(sizeId);
 
-      // Validation rules:
-      // - If qty = 0 and user explicitly modified it (in modifiedSizes) → allow removal
-      // - If qty = 0 and NOT modified but has customizations → block (can't add customizations with qty 0)
-      // - If qty > 0 → always allow
-      if (qty === 0) {
-        // Allow if user explicitly set quantity to 0 (removal operation)
-        if (isModified) {
-          continue;
-        }
-        // Disallow if trying to add customizations without setting quantity
-        if (customs.size > 0) {
+      // If user explicitly modified the quantity, allow any operation (including removal with qty=0)
+      if (isModified) {
+        continue;
+      }
+
+      // User didn't change quantity - check if this combo exists or is valid
+      if (customs.size > 0) {
+        // User is selecting customizations - need to check if this combo exists
+        // Get quantity for this specific size+customization combo
+        const qtyForCombo = getQuantityForSize(sizeId, customs);
+        if (qtyForCombo === 0) {
+          // Trying to create new combo without setting quantity
           showToast.error("Please set quantity greater than 0 to add customizations");
           return;
         }
-        continue;
       }
     }
 
