@@ -2,16 +2,22 @@ package com.emenu.security;
 
 import com.emenu.enums.common.Status;
 import com.emenu.enums.user.AccountStatus;
+import com.emenu.enums.user.UserType;
 import com.emenu.exception.custom.*;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.repository.UserRepository;
+import com.emenu.security.jwt.JWTGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +27,28 @@ import java.util.UUID;
 public class SecurityUtils {
 
     private final UserRepository userRepository;
+    private final JWTGenerator jwtGenerator;
+
+    private String extractUserTypeFromToken() {
+        try {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes == null) {
+                return null;
+            }
+
+            HttpServletRequest request = attributes.getRequest();
+            String bearerToken = request.getHeader("Authorization");
+            if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
+                return null;
+            }
+
+            String token = bearerToken.substring(7);
+            return jwtGenerator.getUserTypeFromJWT(token);
+        } catch (Exception e) {
+            log.debug("Could not extract userType from token: {}", e.getMessage());
+            return null;
+        }
+    }
 
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -30,6 +58,18 @@ public class SecurityUtils {
         }
 
         String userIdentifier = authentication.getName();
+        String userTypeStr = extractUserTypeFromToken();
+
+        if (userTypeStr != null) {
+            try {
+                UserType userType = UserType.valueOf(userTypeStr);
+                return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userType)
+                        .orElseThrow(() -> new ValidationException("User not found: " + userIdentifier));
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid userType from token: {}", userTypeStr);
+            }
+        }
+
         return userRepository.findByUserIdentifierAndIsDeletedFalse(userIdentifier)
                 .orElseThrow(() -> new ValidationException("User not found"));
     }
@@ -75,7 +115,20 @@ public class SecurityUtils {
             }
 
             String userIdentifier = authentication.getName();
-            Optional<User> userOpt = userRepository.findByUserIdentifierAndIsDeletedFalse(userIdentifier);
+            String userTypeStr = extractUserTypeFromToken();
+
+            Optional<User> userOpt;
+            if (userTypeStr != null) {
+                try {
+                    UserType userType = UserType.valueOf(userTypeStr);
+                    userOpt = userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userType);
+                } catch (IllegalArgumentException e) {
+                    log.debug("Invalid userType from token: {}", userTypeStr);
+                    userOpt = userRepository.findByUserIdentifierAndIsDeletedFalse(userIdentifier);
+                }
+            } else {
+                userOpt = userRepository.findByUserIdentifierAndIsDeletedFalse(userIdentifier);
+            }
 
             if (userOpt.isEmpty()) {
                 log.warn("Authenticated user not found in database: {}", userIdentifier);
