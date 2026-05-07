@@ -68,16 +68,17 @@ public class AuthServiceImpl implements AuthService {
                 request.getUserIdentifier(), request.getUserType(), request.getBusinessId());
 
         try {
-            // Find user with context-aware lookup
+            // Find user with context-aware lookup (filters by userType + userIdentifier)
             User user = findUserWithContext(request);
 
             // Validate context matches (if provided)
             validateLoginContext(request, user);
 
-            // Authenticate with Spring Security
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUserIdentifier(), request.getPassword())
-            );
+            // Validate password manually (since we need userType-aware lookup)
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                log.warn("Login failed: {} - Invalid password", request.getUserIdentifier());
+                throw new ValidationException("Invalid credentials");
+            }
 
             // Validate account status
             securityUtils.validateAccountStatus(user);
@@ -100,8 +101,11 @@ public class AuthServiceImpl implements AuthService {
                 }
             }
 
-            // Generate access token
-            String accessToken = jwtGenerator.generateAccessToken(authentication);
+            // Generate access token using user's roles
+            List<String> roles = user.getRoles().stream()
+                    .map(Role::getName)
+                    .collect(java.util.stream.Collectors.toList());
+            String accessToken = jwtGenerator.generateAccessTokenFromUsername(user.getUserIdentifier(), roles);
 
             // Generate refresh token
             String ipAddress = getClientIpAddress();
