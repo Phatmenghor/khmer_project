@@ -6,12 +6,13 @@ import { cn } from "@/lib/utils";
 
 export interface CustomButtonProps extends ButtonProps {
   children: React.ReactNode;
+  isLoading?: boolean;
 }
 
 export const CustomButton = React.forwardRef<
   HTMLButtonElement,
   CustomButtonProps
->(({ onClick, className, children, type = "button", ...props }, ref) => {
+>(({ onClick, className, children, type = "button", isLoading, ...props }, ref) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (onClick) {
       onClick(e);
