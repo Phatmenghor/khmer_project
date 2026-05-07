@@ -15,9 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "cart_items", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"cart_id", "product_id", "product_size_id"})
-})
+@Table(name = "cart_items")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
