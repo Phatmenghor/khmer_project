@@ -45,6 +45,21 @@ public interface CartMapper {
             response.setSku(cartItem.getProduct().getSku());
             response.setBarcode(cartItem.getProduct().getBarcode());
         }
+
+        // Set promotion information
+        setPromotionInfo(response, cartItem);
+    }
+
+    @AfterMapping
+    default void setPromotionInfo(@MappingTarget CartItemResponse response, CartItem cartItem) {
+        // Get promotion type from product size or product
+        if (cartItem.getProductSize() != null && cartItem.getProductSize().getPromotionType() != null) {
+            response.setPromotionType(cartItem.getProductSize().getPromotionType().name());
+            response.setPromotionValue(cartItem.getProductSize().getPromotionValue());
+        } else if (cartItem.getProduct() != null && cartItem.getProduct().getPromotionType() != null) {
+            response.setPromotionType(cartItem.getProduct().getPromotionType().name());
+            response.setPromotionValue(cartItem.getProduct().getPromotionValue());
+        }
     }
 
 
