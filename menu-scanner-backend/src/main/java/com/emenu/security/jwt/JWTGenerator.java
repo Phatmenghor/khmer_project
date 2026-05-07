@@ -34,11 +34,37 @@ public class JWTGenerator {
     }
 
     /**
-     * Generate access token from Authentication object
+     * Generate access token from Authentication object (legacy method - kept for backward compatibility)
      *
      * @param authentication the authentication object
+     * @param userType the user type
      * @return JWT access token
      */
+    public String generateAccessToken(Authentication authentication, String userType) {
+        String username = authentication.getName();
+        Date currentDate = new Date();
+        Date expiryDate = new Date(currentDate.getTime() + jwtExpiration);
+
+        String roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        return Jwts.builder()
+                .subject(username)
+                .claim("roles", roles)
+                .claim("type", "access")
+                .claim("userType", userType)
+                .issuedAt(currentDate)
+                .expiration(expiryDate)
+                .signWith(getSigningKey(), Jwts.SIG.HS512)
+                .compact();
+    }
+
+    /**
+     * Generate access token from Authentication object (legacy - kept for backward compatibility)
+     * @deprecated Use generateAccessToken(Authentication, String userType) instead
+     */
+    @Deprecated
     public String generateAccessToken(Authentication authentication) {
         String username = authentication.getName();
         Date currentDate = new Date();
@@ -63,9 +89,10 @@ public class JWTGenerator {
      *
      * @param username the username
      * @param roles list of roles
+     * @param userType the user type (PLATFORM_USER, BUSINESS_USER, CUSTOMER)
      * @return JWT access token
      */
-    public String generateAccessTokenFromUsername(String username, List<String> roles) {
+    public String generateAccessTokenFromUsername(String username, List<String> roles, String userType) {
         Date currentDate = new Date();
         Date expiryDate = new Date(currentDate.getTime() + jwtExpiration);
 
@@ -75,6 +102,7 @@ public class JWTGenerator {
                 .subject(username)
                 .claim("roles", rolesString)
                 .claim("type", "access")
+                .claim("userType", userType)
                 .issuedAt(currentDate)
                 .expiration(expiryDate)
                 .signWith(getSigningKey(), Jwts.SIG.HS512)

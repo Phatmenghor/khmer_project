@@ -101,11 +101,15 @@ public class AuthServiceImpl implements AuthService {
                 }
             }
 
-            // Generate access token using user's roles
+            // Generate access token using user's roles and userType
             List<String> roles = user.getRoles().stream()
                     .map(Role::getName)
                     .collect(java.util.stream.Collectors.toList());
-            String accessToken = jwtGenerator.generateAccessTokenFromUsername(user.getUserIdentifier(), roles);
+            String accessToken = jwtGenerator.generateAccessTokenFromUsername(
+                    user.getUserIdentifier(),
+                    roles,
+                    user.getUserType().name()
+            );
 
             // Generate refresh token
             String ipAddress = getClientIpAddress();
@@ -254,16 +258,17 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String userIdentifier = jwtGenerator.getUsernameFromJWT(token);
+        String userTypeStr = jwtGenerator.getUserTypeFromJWT(token);
+        String businessIdStr = jwtGenerator.getBusinessIdFromJWT(token);
 
         // Blacklist access token
         tokenBlacklistService.blacklistToken(token, userIdentifier, "LOGOUT");
 
-        // Revoke all refresh tokens for the user
-        User user = userRepository.findByUserIdentifierAndIsDeletedFalse(userIdentifier)
-                .orElseThrow(() -> new ValidationException("User not found"));
+        // Find user using context from token (userType-aware)
+        User user = findUserByRefreshTokenContext(userIdentifier, userTypeStr, businessIdStr);
         refreshTokenService.revokeAllUserTokens(user.getId(), "LOGOUT");
 
-        log.info("Logout successful: {}", userIdentifier);
+        log.info("Logout successful: {} (type: {})", userIdentifier, userTypeStr);
     }
 
     /**
@@ -429,8 +434,12 @@ public class AuthServiceImpl implements AuthService {
                 .map(Role::getName)
                 .toList();
 
-        // Generate new access token
-        String newAccessToken = jwtGenerator.generateAccessTokenFromUsername(user.getUserIdentifier(), roles);
+        // Generate new access token with userType
+        String newAccessToken = jwtGenerator.generateAccessTokenFromUsername(
+                user.getUserIdentifier(),
+                roles,
+                user.getUserType().name()
+        );
 
         // Generate a new refresh token (rotate refresh tokens for better security)
         String ipAddress = getClientIpAddress();
