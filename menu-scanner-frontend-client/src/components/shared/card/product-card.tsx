@@ -319,7 +319,8 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   const posCartItems = useMemo(() => {
     return cartItems.map((item) => ({
       ...item,
-      customizations: [], // Public cart API doesn't return customizations yet
+      // Use customizations from API response, or empty array if not present
+      customizations: item.customizations || [],
     })) as PosPageCartItem[];
   }, [cartItems]);
 
