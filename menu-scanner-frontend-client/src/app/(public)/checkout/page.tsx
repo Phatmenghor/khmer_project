@@ -109,8 +109,13 @@ export default function CheckoutPage() {
           }));
         }
       } catch (error: any) {
-        // 404 is expected if no default address exists, don't log as error
-        if (error?.response?.status !== 404) {
+        // "No default address found" is expected - don't log as error
+        const isExpectedError =
+          error?.response?.status === 404 ||
+          (typeof error === "string" && error.includes("No default")) ||
+          (typeof error === "string" && error.includes("not found"));
+
+        if (!isExpectedError) {
           console.error("Failed to fetch default address:", error);
         }
       }
