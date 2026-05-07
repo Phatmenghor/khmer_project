@@ -369,46 +369,32 @@ export function Navbar() {
               </Button>
             </form>
           ) : (
-            /* ── Mobile/Tablet: compact top bar with burger menu ── */
-            <div className="lg:hidden flex items-center justify-between w-full h-14 gap-1">
-              <div className="flex items-center gap-0 shrink-0">
-                {/* Logo - hidden on screens < lg to make room for burger menu */}
-                {businessName && (
-                  <button onClick={handleNavigateToHome} className="hidden md:flex items-center gap-2 shrink-0 group">
-                    <div className="relative">
-                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                        {businessLogoUrl && (
-                          <img
-                            key={businessLogoUrl}
-                            src={businessLogoUrl}
-                            alt={businessName}
-                            className="w-full h-full object-cover rounded"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
-                            }}
-                          />
-                        )}
-                      </div>
-                      <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </div>
-                    <span className="font-bold text-sm text-foreground">
-                      {businessName}
-                    </span>
-                  </button>
-                )}
-                {/* Burger menu - large, prominent on mobile/tablet (<lg) */}
+            /* ── Mobile/Tablet: Same layout as desktop but with burger menu instead of logo ── */
+            <div className="lg:hidden flex items-center justify-between w-full h-14 gap-2">
+              <div className="flex items-center gap-4">
+                {/* Burger menu button replaces logo on mobile/tablet */}
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="h-10 w-10 lg:hidden hover:bg-primary/10 hover:text-primary transition-colors"
+                  className="h-10 w-10 shrink-0 hover:bg-primary/10 hover:text-primary transition-colors"
                   onClick={() => setMenuOpen(!menuOpen)}
                   title="Menu"
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
+
+                {/* Business name text (like desktop) */}
+                {businessName && (
+                  <button onClick={handleNavigateToHome} className="flex items-center gap-2 group">
+                    <span className="font-bold text-sm text-foreground">
+                      {businessName}
+                    </span>
+                  </button>
+                )}
               </div>
 
-              <div className="flex items-center gap-0.5">
+              {/* Right side buttons - same as desktop */}
+              <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="icon"
