@@ -273,13 +273,34 @@ public class CartServiceImpl implements CartService {
     }
 
     private CartSummaryResponse loadCartSummary(UUID userId, UUID businessId) {
+        log.info("## LOAD CART SUMMARY START - userId: {}, businessId: {}", userId, businessId);
+
         Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
         if (cartOpt.isPresent()) {
             Cart loaded = cartOpt.get();
+            log.info("## LOAD: Cart found with {} items", loaded.getItems() != null ? loaded.getItems().size() : 0);
+
+            if (loaded.getItems() != null && !loaded.getItems().isEmpty()) {
+                for (CartItem item : loaded.getItems()) {
+                    log.info("##   Item: {} - ProductId: {}, SizeId: {}, Qty: {}, CustomCount: {}",
+                            item.getId(), item.getProductId(), item.getProductSizeId(), item.getQuantity(),
+                            item.getCustomizations() != null ? item.getCustomizations().size() : 0);
+                }
+            }
+
             deduplicateCartItems(loaded);
+            log.info("## LOAD: After dedup, cart has {} items", loaded.getItems() != null ? loaded.getItems().size() : 0);
+
             filterUnavailableItems(loaded);
-            return cartMapper.toSummaryResponse(loaded);
+            log.info("## LOAD: After filter, cart has {} items", loaded.getItems() != null ? loaded.getItems().size() : 0);
+
+            CartSummaryResponse response = cartMapper.toSummaryResponse(loaded);
+            log.info("## LOAD CART SUMMARY END - Returning {} items, totalItems: {}",
+                    response.getItems() != null ? response.getItems().size() : 0,
+                    response.getTotalItems());
+            return response;
         }
+        log.info("## LOAD: Cart not found, returning empty");
         return emptyCartSummary();
     }
 
