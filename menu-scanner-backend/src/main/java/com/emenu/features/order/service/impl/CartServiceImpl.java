@@ -56,45 +56,65 @@ public class CartServiceImpl implements CartService {
         User currentUser = securityUtils.getCurrentUser();
         UUID userId = currentUser.getId();
 
-        log.info("Submit cart item - User: {}, Product: {}, Size: {}, Quantity: {}, Customizations: {}",
+        log.info("## BACKEND SUBMIT CART ITEM START - User: {}, Product: {}, Size: {}, Quantity: {}, CustomizationCount: {}",
                 userId, request.getProductId(), request.getProductSizeId(),
                 request.getQuantity(), request.getCustomizationIds() != null ? request.getCustomizationIds().size() : 0);
 
+        if (request.getCustomizationIds() != null && !request.getCustomizationIds().isEmpty()) {
+            log.info("## CUSTOMIZATION IDS: {}", request.getCustomizationIds());
+        }
+
         // Validate product and derive businessId
         UUID businessId = validateProductAndGetBusinessId(request.getProductId(), request.getProductSizeId());
+        log.info("## Derived businessId: {}", businessId);
 
         // Get or create cart
         Cart cart = getOrCreateCart(userId, businessId);
+        log.info("## Cart ID: {}", cart.getId());
 
         // Reload cart with items to ensure we have all current cart items
         Optional<Cart> cartWithItems = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
         cart = cartWithItems.orElse(cart);
+        log.info("## Cart has {} items before processing", cart.getItems() != null ? cart.getItems().size() : 0);
 
         // Deduplicate customization IDs
         List<UUID> deduplicatedCustomizations = request.getCustomizationIds() != null && !request.getCustomizationIds().isEmpty()
                 ? new java.util.ArrayList<>(new java.util.LinkedHashSet<>(request.getCustomizationIds()))
                 : new java.util.ArrayList<>();
+        log.info("## Deduplicated customizations count: {}", deduplicatedCustomizations.size());
 
         // Find matching cart item (product + size + customizations must match)
+        log.info("## SEARCHING for matching item: productId={}, sizeId={}, customizations={}",
+                request.getProductId(), request.getProductSizeId(), deduplicatedCustomizations);
+
         Optional<CartItem> matchingItem = findCartItemByProductSizeAndCustomizations(
                 cart, request.getProductId(), request.getProductSizeId(), deduplicatedCustomizations);
 
         if (matchingItem.isPresent()) {
             // Found exact match - update quantity
             CartItem item = matchingItem.get();
+            log.info("## FOUND matching item: {}", item.getId());
+            log.info("## Item details - ProductId: {}, SizeId: {}, CurrentQty: {}, CustomizationCount: {}",
+                    item.getProductId(), item.getProductSizeId(), item.getQuantity(),
+                    item.getCustomizations() != null ? item.getCustomizations().size() : 0);
 
             if (request.getQuantity() == 0) {
+                log.info("## DELETING item: {} (qty=0)", item.getId());
                 cartItemRepository.delete(item);
-                log.info("Removed cart item: {} for user: {}", item.getId(), userId);
+                entityManager.flush();
+                log.info("## ✓ REMOVED cart item: {} for user: {}", item.getId(), userId);
             } else {
+                log.info("## UPDATING item quantity from {} to {}", item.getQuantity(), request.getQuantity());
                 item.setQuantity(request.getQuantity());
                 cartItemRepository.save(item);
                 entityManager.flush();
-                log.info("Updated cart item quantity to: {} for user: {}", request.getQuantity(), userId);
+                log.info("## ✓ UPDATED cart item quantity to: {} for user: {}", request.getQuantity(), userId);
             }
         } else {
             // No exact match - create new item if quantity > 0
+            log.info("## NO matching item found. Quantity: {}", request.getQuantity());
             if (request.getQuantity() > 0) {
+                log.info("## CREATING new item (qty > 0)");
                 CartItem newItem = new CartItem(
                         cart.getId(),
                         request.getProductId(),
@@ -105,8 +125,10 @@ public class CartServiceImpl implements CartService {
                 entityManager.flush();
 
                 updateCartItemCustomizations(savedItem, deduplicatedCustomizations);
-                log.info("Added new item to cart with quantity: {} and {} customizations for user: {}",
+                log.info("## ✓ ADDED new item to cart with quantity: {} and {} customizations for user: {}",
                         request.getQuantity(), deduplicatedCustomizations.size(), userId);
+            } else {
+                log.info("## SKIPPING - no match found and qty=0 (nothing to remove)");
             }
         }
 
@@ -118,7 +140,12 @@ public class CartServiceImpl implements CartService {
         entityManager.clear();
 
         // Reload cart with items for response (deduplication happens during load)
-        return loadCartSummary(userId, businessId);
+        CartSummaryResponse response = loadCartSummary(userId, businessId);
+        log.info("## FINAL CART STATE - Items: {}, Total: {}, FinalTotal: {}",
+                response.getTotalItems(), response.getTotalQuantity(), response.getFinalTotal());
+        log.info("## BACKEND SUBMIT CART ITEM END");
+
+        return response;
     }
 
     @Override
@@ -192,14 +219,31 @@ public class CartServiceImpl implements CartService {
     private Optional<CartItem> findCartItemByProductSizeAndCustomizations(
             Cart cart, UUID productId, UUID productSizeId, List<UUID> customizationIds) {
 
+        log.info("## SEARCH: Looking for item - productId: {}, sizeId: {}, customizations: {}",
+                productId, productSizeId, customizationIds);
+
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            log.info("## SEARCH: Cart has no items");
             return Optional.empty();
         }
 
+        log.info("## SEARCH: Cart has {} items, checking each...", cart.getItems().size());
+
         // Find item matching product, size, AND customizations
         for (CartItem item : cart.getItems()) {
-            if (!item.getProductId().equals(productId)) continue;
-            if (productSizeId != null ? !productSizeId.equals(item.getProductSizeId()) : item.getProductSizeId() != null) continue;
+            log.info("## SEARCH:   Checking item: {} - productId: {}, sizeId: {}, customCount: {}",
+                    item.getId(), item.getProductId(), item.getProductSizeId(),
+                    item.getCustomizations() != null ? item.getCustomizations().size() : 0);
+
+            if (!item.getProductId().equals(productId)) {
+                log.info("##   ✗ Product mismatch: {} != {}", item.getProductId(), productId);
+                continue;
+            }
+
+            if (productSizeId != null ? !productSizeId.equals(item.getProductSizeId()) : item.getProductSizeId() != null) {
+                log.info("##   ✗ Size mismatch: {} != {}", item.getProductSizeId(), productSizeId);
+                continue;
+            }
 
             // Check if customizations match exactly
             List<UUID> itemCustomizationIds = item.getCustomizations() == null
@@ -214,11 +258,17 @@ public class CartServiceImpl implements CartService {
                     : new java.util.ArrayList<>(customizationIds);
             requestCustomizationIds.sort(null);
 
+            log.info("##   Customizations - Item: {}, Request: {}", itemCustomizationIds, requestCustomizationIds);
+
             if (itemCustomizationIds.equals(requestCustomizationIds)) {
+                log.info("## ✓ FOUND MATCH: {}", item.getId());
                 return Optional.of(item);
+            } else {
+                log.info("##   ✗ Customizations don't match");
             }
         }
 
+        log.info("## SEARCH: NO MATCH FOUND");
         return Optional.empty();
     }
 
