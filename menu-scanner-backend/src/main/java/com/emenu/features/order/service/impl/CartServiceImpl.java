@@ -66,13 +66,22 @@ public class CartServiceImpl implements CartService {
         // Get or create cart
         Cart cart = getOrCreateCart(userId, businessId);
 
-        // Check if item already exists in cart (with pessimistic lock to prevent
-        // OptimisticLockException when users rapidly update quantities)
-        Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndProductIdAndSizeIdForUpdate(
-                cart.getId(), request.getProductId(), request.getProductSizeId());
+        // Reload cart with items to ensure we have all current cart items
+        Optional<Cart> cartWithItems = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
+        cart = cartWithItems.orElse(cart);
 
-        if (existingItem.isPresent()) {
-            CartItem item = existingItem.get();
+        // Deduplicate customization IDs
+        List<UUID> deduplicatedCustomizations = request.getCustomizationIds() != null && !request.getCustomizationIds().isEmpty()
+                ? new java.util.ArrayList<>(new java.util.LinkedHashSet<>(request.getCustomizationIds()))
+                : new java.util.ArrayList<>();
+
+        // Find matching cart item (product + size + customizations must match)
+        Optional<CartItem> matchingItem = findCartItemByProductSizeAndCustomizations(
+                cart, request.getProductId(), request.getProductSizeId(), deduplicatedCustomizations);
+
+        if (matchingItem.isPresent()) {
+            // Found exact match - update quantity
+            CartItem item = matchingItem.get();
 
             if (request.getQuantity() == 0) {
                 cartItemRepository.delete(item);
@@ -80,14 +89,11 @@ public class CartServiceImpl implements CartService {
             } else {
                 item.setQuantity(request.getQuantity());
                 cartItemRepository.save(item);
-
-                // MUST flush before updating customizations to ensure cart item exists in DB
                 entityManager.flush();
-
-                updateCartItemCustomizations(item, request.getCustomizationIds());
                 log.info("Updated cart item quantity to: {} for user: {}", request.getQuantity(), userId);
             }
         } else {
+            // No exact match - create new item if quantity > 0
             if (request.getQuantity() > 0) {
                 CartItem newItem = new CartItem(
                         cart.getId(),
@@ -96,12 +102,11 @@ public class CartServiceImpl implements CartService {
                         request.getQuantity()
                 );
                 CartItem savedItem = cartItemRepository.save(newItem);
-
-                // MUST flush before updating customizations to ensure cart item exists in DB
                 entityManager.flush();
 
-                updateCartItemCustomizations(savedItem, request.getCustomizationIds());
-                log.info("Added new item to cart with quantity: {} for user: {}", request.getQuantity(), userId);
+                updateCartItemCustomizations(savedItem, deduplicatedCustomizations);
+                log.info("Added new item to cart with quantity: {} and {} customizations for user: {}",
+                        request.getQuantity(), deduplicatedCustomizations.size(), userId);
             }
         }
 
@@ -183,6 +188,39 @@ public class CartServiceImpl implements CartService {
     }
 
     // ===== PRIVATE HELPER METHODS =====
+
+    private Optional<CartItem> findCartItemByProductSizeAndCustomizations(
+            Cart cart, UUID productId, UUID productSizeId, List<UUID> customizationIds) {
+
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Find item matching product, size, AND customizations
+        for (CartItem item : cart.getItems()) {
+            if (!item.getProductId().equals(productId)) continue;
+            if (productSizeId != null ? !productSizeId.equals(item.getProductSizeId()) : item.getProductSizeId() != null) continue;
+
+            // Check if customizations match exactly
+            List<UUID> itemCustomizationIds = item.getCustomizations() == null
+                    ? new java.util.ArrayList<>()
+                    : item.getCustomizations().stream()
+                        .map(CartItemCustomization::getProductCustomizationId)
+                        .sorted()
+                        .toList();
+
+            List<UUID> requestCustomizationIds = customizationIds == null
+                    ? new java.util.ArrayList<>()
+                    : new java.util.ArrayList<>(customizationIds);
+            requestCustomizationIds.sort(null);
+
+            if (itemCustomizationIds.equals(requestCustomizationIds)) {
+                return Optional.of(item);
+            }
+        }
+
+        return Optional.empty();
+    }
 
     private CartSummaryResponse loadCartSummary(UUID userId, UUID businessId) {
         Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
