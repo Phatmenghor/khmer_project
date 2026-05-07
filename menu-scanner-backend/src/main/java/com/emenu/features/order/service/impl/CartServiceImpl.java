@@ -338,8 +338,13 @@ public class CartServiceImpl implements CartService {
     }
 
     private void updateCartItemCustomizations(CartItem cartItem, List<UUID> customizationIds) {
-        // Delete ALL old customizations from database first (like local storage replacement)
-        cartItemCustomizationRepository.deleteByCartItemId(cartItem.getId());
+        // Delete ALL old customizations from database using native query (ensures actual deletion)
+        entityManager.createNativeQuery(
+                "DELETE FROM cart_item_customizations WHERE cart_item_id = :cartItemId")
+                .setParameter("cartItemId", cartItem.getId())
+                .executeUpdate();
+
+        // Clear from session
         cartItem.getCustomizations().clear();
 
         // If no customizations provided, we're done
