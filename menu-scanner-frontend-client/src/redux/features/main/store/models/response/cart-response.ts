@@ -8,6 +8,13 @@ export interface CartResponseModel {
   finalTotal: number;                 // Final total (subtotal + shipping/fees)
 }
 
+export interface CartItemCustomization {
+  id: string;
+  productCustomizationId: string;
+  name: string;
+  priceAdjustment: number;
+}
+
 export interface CartItemModel {
   id: string;
   productId: string;
@@ -33,6 +40,7 @@ export interface CartItemModel {
   lastOptimisticTimestamp?: number;
   sku?: string;  // Product SKU from store master data
   barcode?: string;  // Product barcode from store master data
+  customizations?: CartItemCustomization[];  // Add-ons for this cart item
 }
 
 // Backward compatible alias
