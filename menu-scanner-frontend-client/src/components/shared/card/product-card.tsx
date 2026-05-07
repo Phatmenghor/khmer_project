@@ -346,7 +346,8 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     (selectedProduct: ProductDetailResponseModel, size: ProductSize | undefined, qty: number | undefined, customizationIds: string[] | undefined) => {
       const timestamp = Date.now();
       const sizeId = size?.id === "__no_size__" ? null : size?.id || null;
-      const quantity = qty || 1;
+      // Use nullish coalescing (??) instead of || to allow qty=0 for removal operations
+      const quantity = qty ?? 1;
       const customizations = customizationIds || [];
 
       // DEBUG: Log customizations received from modal
