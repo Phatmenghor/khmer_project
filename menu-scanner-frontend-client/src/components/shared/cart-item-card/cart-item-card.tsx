@@ -142,7 +142,14 @@ export function CartItemCard({
                     size="icon"
                     variant="outline"
                     className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={() => onQuantityChange(Math.max(0, quantity - 1))}
+                    onClick={() => {
+                      const newQuantity = quantity - 1;
+                      if (newQuantity === 0) {
+                        onRemove();
+                      } else {
+                        onQuantityChange(newQuantity);
+                      }
+                    }}
                   >
                     <Minus className="h-3 w-3" />
                   </CustomButton>
