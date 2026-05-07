@@ -535,7 +535,7 @@ export default function OrderDetailPage() {
                             </p>
                           )}
                         </div>
-                        {item.hasActivePromotion && (
+                        {item.hasPromotion && (
                           <div className="ml-2 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded text-xs font-semibold flex-shrink-0">
                             Sale
                           </div>

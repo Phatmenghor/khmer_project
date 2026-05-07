@@ -27,7 +27,7 @@ public interface CartMapper {
     @Mapping(target = "currentPrice", expression = "java(cartItem.getCurrentPrice())")
     @Mapping(target = "finalPrice", expression = "java(cartItem.getFinalPrice())")
     @Mapping(target = "totalPrice", expression = "java(cartItem.getTotalPrice())")
-    @Mapping(target = "hasActivePromotion", expression = "java(cartItem.hasDiscount())")
+    @Mapping(target = "hasPromotion", expression = "java(cartItem.hasDiscount())")
     CartItemResponse toItemResponse(CartItem cartItem);
 
     @AfterMapping

@@ -24,7 +24,7 @@ public class CartItemRequest {
     // Pricing
     private BigDecimal currentPrice;
     private BigDecimal finalPrice;
-    private Boolean hasActivePromotion;
+    private Boolean hasPromotion;
 
     private Integer quantity;
 

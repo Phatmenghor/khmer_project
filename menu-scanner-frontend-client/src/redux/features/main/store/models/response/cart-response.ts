@@ -25,14 +25,12 @@ export interface CartItemModel {
   status?: string;  // ACTIVE, INACTIVE, OUT_OF_STOCK
   currentPrice: number;
   finalPrice: number;
-  hasActivePromotion?: boolean;
-  hasPromotion?: boolean;  // For backward compatibility
+  hasPromotion?: boolean;
   quantity: number;
   totalPrice: number;
   isAvailable?: boolean;  // Can be derived from status
   promotionType: string | null;
   promotionValue: number | null;
-  promotionEndDate: string | null;
   promotionFromDate: string | null;
   promotionToDate: string | null;
   totalBeforeDiscount?: number;

@@ -233,7 +233,7 @@ export default function CheckoutPage() {
             status: item.status || "",
             currentPrice: item.currentPrice,
             finalPrice: item.finalPrice,
-            hasActivePromotion: item.hasPromotion || false,
+            hasPromotion: item.hasPromotion || false,
             quantity: item.quantity,
             totalBeforeDiscount: item.totalBeforeDiscount || 0,
             discountAmount: item.discountAmount || 0,

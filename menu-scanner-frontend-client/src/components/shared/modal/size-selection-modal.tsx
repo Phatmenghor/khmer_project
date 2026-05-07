@@ -290,7 +290,7 @@ export function SizeSelectionModal({
             : displayProduct.displayOriginPrice || itemFinalPrice;
           const hasDiscount = size
             ? size.hasPromotion
-            : displayProduct.hasActivePromotion;
+            : displayProduct.hasPromotion;
 
           dispatch(
             addLocalCartItem({

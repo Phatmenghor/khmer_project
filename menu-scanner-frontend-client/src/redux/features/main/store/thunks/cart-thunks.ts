@@ -58,11 +58,9 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
     }
 
     // Transform response to ensure frontend compatibility
-    // Map backend hasActivePromotion → hasPromotion for consistent naming
     if (responseData?.items) {
       responseData.items = responseData.items.map((item: any) => ({
         ...item,
-        hasPromotion: item.hasActivePromotion ?? item.hasPromotion ?? false,
         isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
       }));
     }
@@ -116,7 +114,6 @@ export const fetchCart = createApiThunk<CartResponseModel, void>(
     if (responseData?.items) {
       responseData.items = responseData.items.map((item: any) => ({
         ...item,
-        hasPromotion: item.hasActivePromotion ?? item.hasPromotion ?? false,
         isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
       }));
     }

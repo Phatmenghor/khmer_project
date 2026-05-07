@@ -25,7 +25,7 @@ public class CartItemResponse {
     // Current pricing (always real-time from product)
     private BigDecimal currentPrice;           // Base price
     private BigDecimal finalPrice;             // Price with active promotions
-    private Boolean hasActivePromotion;        // Whether has active promotion
+    private Boolean hasPromotion;              // Whether has active promotion
     private String promotionType;              // PERCENTAGE or FIXED_AMOUNT
     private BigDecimal promotionValue;         // Discount percentage or fixed amount
 

@@ -36,7 +36,7 @@ export interface CheckoutPayload {
       status: string;
       currentPrice: number;
       finalPrice: number;
-      hasActivePromotion: boolean;
+      hasPromotion: boolean;
       quantity: number;
       totalBeforeDiscount: number;
       discountAmount: number;
