@@ -341,8 +341,34 @@ export function Navbar() {
     <>
       <nav className="sticky top-0 z-50 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm flex items-center">
         <PageContainer className="max-w-8xl w-full">
-          {/* ── Mobile/Tablet: Use bottom nav for search/actions ── */}
-          {!mobileSearchOpen && (
+          {/* ── Mobile: Search overlay (when clicking search icon) ── */}
+          {mobileSearchOpen ? (
+            <form
+              onSubmit={handleSearchSubmit}
+              className="sm:hidden flex items-center gap-2 w-full h-14"
+            >
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  ref={mobileSearchRef}
+                  type="search"
+                  placeholder={searchPlaceholder}
+                  className="pl-10 w-full h-10 bg-muted/50"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="shrink-0"
+                onClick={() => setMobileSearchOpen(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </form>
+          ) : (
             /* ── Mobile/Tablet: Same layout as desktop but with burger menu instead of logo ── */
             <div className="lg:hidden flex items-center justify-between w-full h-14 gap-3">
               <div className="flex items-center gap-3 min-w-0">
@@ -370,8 +396,18 @@ export function Navbar() {
                 )}
               </div>
 
-              {/* Right side buttons - only on desktop (on mobile/tablet use bottom nav) */}
-              <div className="hidden lg:flex items-center gap-1">
+              {/* Right side buttons - always visible */}
+              <div className="flex items-center gap-1">
+                {/* Search icon on mobile, hidden on tablet+ */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="sm:hidden h-9 w-9"
+                  onClick={() => setMobileSearchOpen(true)}
+                >
+                  <Search className="h-5 w-5" />
+                </Button>
+
                 <Button
                   variant="ghost"
                   size="icon"
@@ -391,6 +427,24 @@ export function Navbar() {
                     </Badge>
                   )}
                 </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative h-10 w-10"
+                  onClick={() => router.push("/cart")}
+                >
+                  <ShoppingCart className="h-7 w-7" />
+                  {cartItemCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 min-w-[20px] max-w-[28px] h-5 px-1 flex items-center justify-center text-xs font-semibold leading-none"
+                    >
+                      {cartItemCount > 99 ? "99+" : cartItemCount}
+                    </Badge>
+                  )}
+                </Button>
+
                 {isAuthenticated ? (
                   <CustomDropdownMenu
                     trigger={
@@ -552,10 +606,10 @@ export function Navbar() {
               </div>
             </div>
 
-            {/* Search bar - only on desktop (lg+) */}
+            {/* Search bar - on tablet and above (sm+) */}
             <form
               onSubmit={handleSearchSubmit}
-              className="hidden lg:flex flex-1 max-w-xl"
+              className="hidden sm:flex flex-1 max-w-xl"
             >
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
