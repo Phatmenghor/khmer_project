@@ -1,14 +1,14 @@
 "use client";
 
 import React from "react";
-import { Controller, FieldError, Control } from "react-hook-form";
+import { Controller, FieldError } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface TextFieldProps {
   name: string;
   label: string;
-  control: Control<any>;
+  control: any;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;

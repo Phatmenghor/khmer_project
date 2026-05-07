@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Controller, Control, FieldError } from "react-hook-form";
+import { Controller, FieldError } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
@@ -9,7 +9,7 @@ import { Eye, EyeOff } from "lucide-react";
 interface PasswordFieldProps {
   name: string;
   label: string;
-  control: Control<any>;
+  control: any;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;
