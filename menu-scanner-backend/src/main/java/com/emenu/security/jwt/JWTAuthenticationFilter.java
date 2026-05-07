@@ -1,5 +1,6 @@
 package com.emenu.security.jwt;
 
+import com.emenu.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ import java.io.IOException;
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTGenerator jwtGenerator;
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
 
     @Override
@@ -42,7 +43,14 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
                 if (jwtGenerator.validateToken(token)) {
                     String username = jwtGenerator.getUsernameFromJWT(token);
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    String userType = jwtGenerator.getUserTypeFromJWT(token);
+
+                    UserDetails userDetails;
+                    if (userType != null) {
+                        userDetails = customUserDetailsService.loadUserByUsernameAndUserType(username, userType);
+                    } else {
+                        userDetails = customUserDetailsService.loadUserByUsername(username);
+                    }
 
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(

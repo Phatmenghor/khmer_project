@@ -1,5 +1,6 @@
 package com.emenu.security;
 
+import com.emenu.enums.user.UserType;
 import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.repository.UserRepository;
@@ -46,6 +47,23 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getPassword(),
                 mapRolesToAuthorities(user.getRoles())
         );
+    }
+
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsernameAndUserType(String userIdentifier, String userTypeStr) throws UsernameNotFoundException {
+        try {
+            UserType userType = UserType.valueOf(userTypeStr);
+            User user = userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userType)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userIdentifier + " (type: " + userType + ")"));
+
+            return new org.springframework.security.core.userdetails.User(
+                    user.getUserIdentifier(),
+                    user.getPassword(),
+                    mapRolesToAuthorities(user.getRoles())
+            );
+        } catch (IllegalArgumentException e) {
+            throw new UsernameNotFoundException("Invalid user type: " + userTypeStr);
+        }
     }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
