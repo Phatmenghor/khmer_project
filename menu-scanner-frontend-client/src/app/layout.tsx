@@ -9,6 +9,8 @@ import { ScrollToTop } from "@/components/shared/common/scroll-to-top";
 import { AuthProvider } from "@/context/auth-provider";
 import { ThemeInitializer } from "@/components/shared/theme/theme-initializer";
 import { defaultLocale, type Locale } from "@/i18n/request";
+import { buildMetadata } from "@/utils/metadata/metadata-builder";
+import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 // Type declaration for global cached business data
 declare global {
@@ -34,10 +36,9 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "Menu Scanner Admin",
-  description: "Admin panel for Menu Scanner application",
-};
+export const metadata: Metadata = buildMetadata(
+  BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
+);
 
 export default async function RootLayout({
   children,

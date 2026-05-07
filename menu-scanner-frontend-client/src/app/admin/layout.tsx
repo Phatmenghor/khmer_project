@@ -1,5 +1,7 @@
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import type { ReactNode } from "react";
+import { buildAdminMetadata } from "@/utils/metadata/metadata-builder";
+import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 // Force all admin routes to use dynamic rendering
 export const dynamic = "force-dynamic";
@@ -8,13 +10,9 @@ interface DashboardGroupLayoutProps {
   children: ReactNode;
 }
 
-export const metadata = {
-  title: {
-    template: "%s | Dashboard",
-    default: "Dashboard",
-  },
-  description: "Menu Scanner Dashboard - Manage your restaurant operations",
-};
+export const metadata = buildAdminMetadata(
+  BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
+);
 
 export default function DashboardGroupLayout({
   children,

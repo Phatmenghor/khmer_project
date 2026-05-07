@@ -1,14 +1,15 @@
 // src/app/(auth)/layout.tsx
 import { ReactNode } from "react";
+import { buildAuthMetadata } from "@/utils/metadata/metadata-builder";
+import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 interface AuthLayoutProps {
   children: ReactNode;
 }
 
-export const metadata = {
-  title: "Authentication",
-  description: "Sign in to your account",
-};
+export const metadata = buildAuthMetadata(
+  BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
+);
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
