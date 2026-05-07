@@ -289,13 +289,21 @@ public class CartServiceImpl implements CartService {
             return;
         }
 
-        // Keep track of (productId, productSizeId) pairs and their IDs
+        // Keep track of (productId, productSizeId, customizations) and their IDs
         java.util.Map<String, java.util.UUID> latestByKey = new java.util.LinkedHashMap<>();
         java.util.Map<String, java.time.LocalDateTime> latestTimeByKey = new java.util.LinkedHashMap<>();
         java.util.List<java.util.UUID> duplicateIds = new java.util.ArrayList<>();
 
         for (CartItem item : cart.getItems()) {
-            String key = item.getProductId() + "|" + item.getProductSizeId();
+            // Create key including customizations to distinguish items with different customization sets
+            List<UUID> customizationIds = item.getCustomizations() == null
+                    ? new java.util.ArrayList<>()
+                    : item.getCustomizations().stream()
+                        .map(CartItemCustomization::getProductCustomizationId)
+                        .sorted()
+                        .toList();
+            String customizationKey = customizationIds.isEmpty() ? "none" : String.join(",", customizationIds.stream().map(UUID::toString).toList());
+            String key = item.getProductId() + "|" + item.getProductSizeId() + "|" + customizationKey;
             java.time.LocalDateTime itemTime = item.getCreatedAt();
 
             if (latestByKey.containsKey(key)) {
