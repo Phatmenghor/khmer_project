@@ -305,12 +305,15 @@ export function SizePickerModal({
       if (!selectedSize) return;
 
       const sizeId = selectedSize.id;
-      const originalQty = getQuantityForSize(sizeId);
+      // Get the customizations for THIS SIZE to look up the correct original quantity
+      const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
+      const originalQty = getQuantityForSize(sizeId, selectedSizeCustoms);
 
       console.log("%c## 📊 QUANTITY CHANGED", "background:#ffc107;color:black;padding:5px;border-radius:3px;font-weight:bold", {
         sizeId: sizeId,
         newQuantity: newQuantity,
         originalQty: originalQty,
+        customizationCount: selectedSizeCustoms.size,
         isRemoval: newQuantity === 0,
         timestamp: new Date().toLocaleTimeString()
       });
@@ -338,7 +341,7 @@ export function SizePickerModal({
       // Update current quantity display
       setQuantity(newQuantity);
     },
-    [selectedSize, getQuantityForSize],
+    [selectedSize, getQuantityForSize, customizationsBySize],
   );
 
   // Clear size - set quantity to 0 and clear customizations
