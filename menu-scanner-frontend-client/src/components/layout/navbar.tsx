@@ -345,7 +345,7 @@ export function Navbar() {
           {mobileSearchOpen ? (
             <form
               onSubmit={handleSearchSubmit}
-              className="md:hidden flex items-center gap-2 w-full h-14"
+              className="lg:hidden flex items-center gap-2 w-full h-14"
             >
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -370,11 +370,11 @@ export function Navbar() {
             </form>
           ) : (
             /* ── Mobile/Tablet: compact top bar with burger menu ── */
-            <div className="md:hidden flex items-center justify-between w-full h-14 gap-1">
+            <div className="lg:hidden flex items-center justify-between w-full h-14 gap-1">
               <div className="flex items-center gap-0 shrink-0">
-                {/* Logo - hidden on small screens to make room for burger menu */}
+                {/* Logo - hidden on screens < lg to make room for burger menu */}
                 {businessName && (
-                  <button onClick={handleNavigateToHome} className="hidden sm:flex items-center gap-2 shrink-0 group">
+                  <button onClick={handleNavigateToHome} className="hidden md:flex items-center gap-2 shrink-0 group">
                     <div className="relative">
                       <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                         {businessLogoUrl && (
@@ -396,11 +396,11 @@ export function Navbar() {
                     </span>
                   </button>
                 )}
-                {/* Burger menu - large, prominent on mobile/tablet */}
+                {/* Burger menu - large, prominent on mobile/tablet (<lg) */}
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="h-10 w-10 md:hidden hover:bg-primary/10 hover:text-primary transition-colors"
+                  className="h-10 w-10 lg:hidden hover:bg-primary/10 hover:text-primary transition-colors"
                   onClick={() => setMenuOpen(!menuOpen)}
                   title="Menu"
                 >
@@ -467,9 +467,9 @@ export function Navbar() {
             </div>
           )}
 
-          {/* ── Mobile/Tablet: Burger menu dropdown ── */}
+          {/* ── Mobile/Tablet: Burger menu dropdown (<lg) ── */}
           {menuOpen && (
-            <div className="md:hidden absolute top-14 left-0 right-0 bg-background/98 backdrop-blur-md border-b border-border shadow-xl z-50">
+            <div className="lg:hidden absolute top-14 left-0 right-0 bg-background/98 backdrop-blur-md border-b border-border shadow-xl z-50">
               <div className="flex flex-col max-h-[calc(100vh-56px)] overflow-y-auto">
                 {navigationLinks.map((link) => {
                   const active =
@@ -521,8 +521,8 @@ export function Navbar() {
             </div>
           )}
 
-          {/* ── Desktop/Tablet top bar ── */}
-          <div className="hidden md:flex h-full w-full items-center justify-between gap-4">
+          {/* ── Desktop top bar (≥lg) ── */}
+          <div className="hidden lg:flex h-full w-full items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               {businessName && (
                 <button onClick={handleNavigateToHome} className="flex items-center gap-2 group">
