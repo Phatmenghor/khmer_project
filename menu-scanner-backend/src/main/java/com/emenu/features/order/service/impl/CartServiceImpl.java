@@ -101,7 +101,14 @@ public class CartServiceImpl implements CartService {
             if (request.getQuantity() == 0) {
                 log.info("## DELETING item: {} (qty=0)", item.getId());
 
-                // Use native DELETE to ensure it's actually deleted from database
+                // First, delete customizations (foreign key constraint)
+                int customDeleted = entityManager.createNativeQuery(
+                        "DELETE FROM cart_item_customizations WHERE cart_item_id = :itemId")
+                        .setParameter("itemId", item.getId())
+                        .executeUpdate();
+                log.info("## Deleted {} customization rows", customDeleted);
+
+                // Then delete the cart item
                 int deletedCount = entityManager.createNativeQuery(
                         "DELETE FROM cart_items WHERE id = :itemId")
                         .setParameter("itemId", item.getId())
@@ -109,7 +116,7 @@ public class CartServiceImpl implements CartService {
 
                 entityManager.flush();
 
-                log.info("## ✓ DELETED {} row(s) from database for item: {}", deletedCount, item.getId());
+                log.info("## ✓ DELETED {} cart item row(s) for item: {}", deletedCount, item.getId());
 
                 if (deletedCount == 0) {
                     log.warn("## ⚠️ DELETE returned 0 rows! Item might not have been in DB");
