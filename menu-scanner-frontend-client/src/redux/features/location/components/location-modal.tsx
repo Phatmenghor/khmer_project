@@ -185,6 +185,11 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
 // Main component
 // ---------------------------------------------------------------------------
 export default function LocationModal({ isOpen, onClose, editData, initialCoords }: LocationModalProps) {
+  // DEBUG: Log modal state
+  useEffect(() => {
+    console.log("🗺️ LocationModal - isOpen:", isOpen, "editData:", editData);
+  }, [isOpen, editData]);
+
   const isCreate = !editData;
   const { create, update, operations, error: reduxError, clearError } = useLocationState();
   const {

@@ -159,6 +159,7 @@ export default function LocationPage() {
 
   // Handlers
   const handleAddLocation = useCallback(() => {
+    console.log("📍 handleAddLocation called, opening modal...");
     setEditingLocation(null);
     setIsModalOpen(true);
   }, []);
