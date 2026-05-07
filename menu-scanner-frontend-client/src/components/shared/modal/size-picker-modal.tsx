@@ -375,21 +375,25 @@ export function SizePickerModal({
 
     // If only customizations changed (no quantity changes) but selected size has existing quantity
     const selectedSizeCustomizations = selectedSize ? (customizationsBySize.get(selectedSize.id) ?? new Set()) : new Set();
+    const selectedSizeQty = selectedSize ? getDisplayQuantity(selectedSize.id) : 0;
+
     if (!hasValidQuantity && selectedSizeCustomizations.size > 0 && selectedSize) {
-      const currentQty = getDisplayQuantity(selectedSize.id);
-      if (currentQty > 0) {
+      if (selectedSizeQty > 0) {
         hasValidQuantity = true;
       }
     }
 
-    // If customizations are selected but no quantity, show error
-    if (selectedSizeCustomizations.size > 0 && !hasValidQuantity) {
-      showToast.error("Please set quantity greater than 0 before adding customizations");
-      return;
-    }
+    // Allow quantity 0 if user is explicitly clearing/removing (modifying quantity to 0)
+    // Otherwise, require quantity > 0
+    const isRemovingItem = modifiedSizes.size > 0 && selectedSize && modifiedSizes.has(selectedSize.id) && selectedSizeQty === 0;
 
-    // If no valid quantity and no customizations, show error
-    if (!hasValidQuantity) {
+    if (!hasValidQuantity && !isRemovingItem) {
+      // If customizations are selected but no quantity (and not removing), show error
+      if (selectedSizeCustomizations.size > 0) {
+        showToast.error("Please set quantity greater than 0 to add customizations");
+        return;
+      }
+      // If no valid quantity and no customizations, show error
       showToast.error("Please set quantity greater than 0");
       return;
     }
@@ -404,13 +408,13 @@ export function SizePickerModal({
     for (const sizeId of sizesToUpdate) {
       const qty = getDisplayQuantity(sizeId);
 
-      // Only add if quantity > 0
-      if (qty > 0) {
+      // Send to backend: quantity > 0 to add, quantity = 0 to remove
+      if (qty > 0 || modifiedSizes.has(sizeId)) {
         // Get customizations for this specific size
         const sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
 
         // DEBUG: Log customizations being sent
-        console.log("%c## SIZE PICKER - SENDING CUSTOMIZATIONS", "background:#6366f1;color:white;padding:5px;border-radius:3px;font-weight:bold", {
+        console.log("%c## SIZE PICKER - SENDING", "background:#6366f1;color:white;padding:5px;border-radius:3px;font-weight:bold", {
           sizeId: sizeId,
           customizationCount: sizeCustomizations.length,
           customizationIds: sizeCustomizations,
