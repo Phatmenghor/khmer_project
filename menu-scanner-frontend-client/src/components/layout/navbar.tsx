@@ -341,34 +341,8 @@ export function Navbar() {
     <>
       <nav className="sticky top-0 z-50 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm flex items-center">
         <PageContainer className="max-w-8xl w-full">
-          {/* ── Mobile/Tablet: expanded search overlay ── */}
-          {mobileSearchOpen ? (
-            <form
-              onSubmit={handleSearchSubmit}
-              className="lg:hidden flex items-center gap-2 w-full h-14"
-            >
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  ref={mobileSearchRef}
-                  type="search"
-                  placeholder={searchPlaceholder}
-                  className="pl-10 w-full h-10 bg-muted/50"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="shrink-0"
-                onClick={() => setMobileSearchOpen(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </form>
-          ) : (
+          {/* ── Mobile/Tablet: Use bottom nav for search/actions ── */}
+          {!mobileSearchOpen && (
             /* ── Mobile/Tablet: Same layout as desktop but with burger menu instead of logo ── */
             <div className="lg:hidden flex items-center justify-between w-full h-14 gap-3">
               <div className="flex items-center gap-3 min-w-0">
@@ -396,16 +370,8 @@ export function Navbar() {
                 )}
               </div>
 
-              {/* Right side buttons - same as desktop */}
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={() => setMobileSearchOpen(true)}
-                >
-                  <Search className="h-5 w-5" />
-                </Button>
+              {/* Right side buttons - only on desktop (on mobile/tablet use bottom nav) */}
+              <div className="hidden lg:flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="icon"
