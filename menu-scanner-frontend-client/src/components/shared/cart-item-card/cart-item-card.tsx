@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Minus, X, Edit2 } from "lucide-react";
+import { Plus, Minus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { formatCurrency } from "@/utils/common/currency-format";
@@ -50,12 +50,12 @@ export function CartItemCard({
   showControls = true,
 }: CartItemCardProps) {
   return (
-    <div className="bg-card border border-border rounded-xl p-4 hover:shadow-lg hover:border-primary/30 transition-all duration-200 relative group">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
       {/* Delete Button - Top Right */}
       <CustomButton
         size="icon"
         variant="outline"
-        className="absolute top-3 right-3 h-8 w-8 shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive transition-all"
+        className="absolute top-3 right-3 h-8 w-8 shrink-0 text-red-600 hover:bg-red-100"
         onClick={onRemove}
         title="Remove item"
       >
@@ -63,111 +63,102 @@ export function CartItemCard({
       </CustomButton>
 
       <div className="flex gap-4">
-        {/* Thumbnail */}
-        {showLink ? (
-          <Link href={`/products/${productId}`} className="flex-shrink-0 group/link">
-            <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-muted/30 border border-border flex-shrink-0 shadow-sm hover:shadow-md transition-shadow group-hover:border-primary/30">
+        {/* Product Image */}
+        <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
+          {showLink ? (
+            <Link href={`/products/${productId}`}>
               <Image
                 src={sanitizeImageUrl(productImageUrl, appImages.NoImage)}
                 alt={productName}
                 fill
                 className="object-cover"
               />
-            </div>
-          </Link>
-        ) : (
-          <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-muted/30 border border-border flex-shrink-0 shadow-sm hover:shadow-md transition-shadow">
+            </Link>
+          ) : (
             <Image
               src={sanitizeImageUrl(productImageUrl, appImages.NoImage)}
               alt={productName}
               fill
               className="object-cover"
             />
-          </div>
-        )}
+          )}
 
-        {/* Info */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
-          {/* Product Name + Promotion Badge */}
-          <div className="flex items-center gap-2 min-w-0 mb-2">
-            {showLink ? (
-              <Link href={`/products/${productId}`}>
-                <h3 className="font-semibold text-sm leading-tight text-foreground hover:text-primary transition-colors line-clamp-1">
-                  {productName}
-                </h3>
-              </Link>
-            ) : (
-              <h3 className="font-semibold text-sm leading-tight text-foreground line-clamp-1">
-                {productName}
-              </h3>
-            )}
-            {hasPromotion && (
-              <Badge variant="destructive" className="text-[10px] px-2 py-0.5 leading-none flex-shrink-0 font-semibold shadow-sm">
+          {/* Promotion Badge - Top Left Corner */}
+          {hasPromotion && (
+            <div className="absolute top-1 left-1 z-10 pointer-events-none">
+              <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0.5 shadow-md">
                 {promotionType === "PERCENTAGE"
                   ? `-${promotionValue}%`
                   : `-${formatCurrency(promotionValue || 0)}`}
               </Badge>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
+
+        {/* Product Details */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
+          {/* Name */}
+          <h3 className="font-semibold text-sm leading-tight text-slate-900 line-clamp-1 mb-2">
+            {productName}
+          </h3>
 
           {/* Size Badge */}
           {sizeName && (
             <div className="mb-2">
-              <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-full flex-shrink-0 whitespace-nowrap inline-block border border-primary/20">
+              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
                 {sizeName}
               </span>
             </div>
           )}
 
-          {/* Price Info + Qty controls */}
+          {/* Price & Quantity Controls */}
           {showControls && (
             <div className="flex items-center justify-between gap-3">
-              {/* Price Display - Left Side */}
+              {/* Price */}
               <div className="flex items-baseline gap-2">
-                <span className="font-bold text-base text-primary">{formatCurrency(finalPrice)}</span>
+                <span className="font-bold text-base text-slate-900">
+                  {formatCurrency(finalPrice)}
+                </span>
                 {hasPromotion && currentPrice > finalPrice && (
-                  <span className="text-xs text-muted-foreground line-through font-medium">{formatCurrency(currentPrice)}</span>
+                  <span className="text-xs text-slate-500 line-through font-medium">
+                    {formatCurrency(currentPrice)}
+                  </span>
                 )}
               </div>
 
-              {/* Edit Icon + Quantity Controls - Right Side */}
-              <div className="flex items-center gap-2">
+              {/* Quantity Controls */}
+              <div className="flex items-center gap-1">
+                {/* Minus Button */}
                 <CustomButton
                   size="icon"
                   variant="outline"
-                  className="h-8 w-8 shrink-0 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all"
-                  title="Edit item"
+                  className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => {
+                    const newQuantity = quantity - 1;
+                    if (newQuantity === 0) {
+                      onRemove();
+                    } else {
+                      onQuantityChange(newQuantity);
+                    }
+                  }}
                 >
-                  <Edit2 className="h-3.5 w-3.5" />
+                  <Minus className="h-3 w-3" />
                 </CustomButton>
-                <div className="flex items-center gap-1">
-                  <CustomButton
-                    size="icon"
-                    variant="outline"
-                    className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-all"
-                    onClick={() => {
-                      const newQuantity = quantity - 1;
-                      if (newQuantity === 0) {
-                        onRemove();
-                      } else {
-                        onQuantityChange(newQuantity);
-                      }
-                    }}
-                  >
-                    <Minus className="h-3 w-3" />
-                  </CustomButton>
-                  <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10 transition-all">
-                    {quantity}
-                  </div>
-                  <CustomButton
-                    size="icon"
-                    variant="outline"
-                    className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground transition-all"
-                    onClick={() => onQuantityChange(quantity + 1)}
-                  >
-                    <Plus className="h-3 w-3" />
-                  </CustomButton>
+
+                {/* Quantity Display */}
+                <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
+                  {quantity}
                 </div>
+
+                {/* Plus Button */}
+                <CustomButton
+                  size="icon"
+                  variant="outline"
+                  className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                  onClick={() => onQuantityChange(quantity + 1)}
+                >
+                  <Plus className="h-3 w-3" />
+                </CustomButton>
               </div>
             </div>
           )}
