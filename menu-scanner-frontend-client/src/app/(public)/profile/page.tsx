@@ -244,7 +244,7 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <PageContainer>
+    <PageContainer className="min-h-screen flex flex-col">
       <div className="flex flex-1 flex-col gap-4 py-4">
         {/* Page Header */}
         <div className="w-full mb-2">

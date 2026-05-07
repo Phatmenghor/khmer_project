@@ -339,7 +339,7 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <PageContainer className="py-16 text-center">
+      <PageContainer className="min-h-screen flex flex-col py-16 text-center">
         <h2 className="text-xl font-bold mb-4">Product Not Found</h2>
         <Button onClick={() => router.back()}>Go Back</Button>
       </PageContainer>
@@ -348,7 +348,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageContainer className="py-4 sm:py-6">
+      <PageContainer className="min-h-screen flex flex-col py-4 sm:py-6">
 
         {/* Back */}
         <CustomButton

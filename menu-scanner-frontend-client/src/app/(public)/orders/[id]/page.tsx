@@ -238,7 +238,7 @@ export default function OrderDetailPage() {
 
   if (state.error || !state.order) {
     return (
-      <PageContainer className="py-6 sm:py-8">
+      <PageContainer className="min-h-screen flex flex-col py-6 sm:py-8">
         <div className="mb-6">
           <CustomButton
             variant="ghost"
@@ -295,7 +295,7 @@ export default function OrderDetailPage() {
     .join(", ");
 
   return (
-    <PageContainer className="py-6 sm:py-8">
+    <PageContainer className="min-h-screen flex flex-col py-6 sm:py-8">
       {/* Back Button */}
       <div className="mb-6">
         <CustomButton
@@ -760,7 +760,7 @@ export default function OrderDetailPage() {
 // Loading Skeleton Component
 function OrderDetailSkeleton() {
   return (
-    <PageContainer className="py-6 sm:py-8">
+    <PageContainer className="min-h-screen flex flex-col py-6 sm:py-8">
       <div className="mb-6 h-10 w-24 bg-muted rounded-lg animate-pulse" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

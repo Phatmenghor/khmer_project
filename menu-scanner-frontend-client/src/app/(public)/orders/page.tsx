@@ -261,7 +261,7 @@ export default function OrdersPage() {
 
   if (!isAuthenticated) {
     return (
-      <PageContainer className="py-12">
+      <PageContainer className="min-h-screen flex flex-col py-12">
         <div className="max-w-sm mx-auto text-center">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="h-8 w-8 text-primary" />
@@ -282,7 +282,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <PageContainer className="py-6 sm:py-8">
+    <PageContainer className="min-h-screen flex flex-col py-6 sm:py-8">
       {/* Header */}
       <PageHeader
         title="My Orders"
@@ -656,7 +656,7 @@ function createOrderTableColumns(
 
 function OrdersPageSkeleton() {
   return (
-    <PageContainer className="py-8">
+    <PageContainer className="min-h-screen flex flex-col py-8">
       <div className="space-y-4">
         <div className="h-12 bg-muted rounded-lg animate-pulse" />
         <div className="h-11 bg-muted rounded-lg animate-pulse" />

@@ -161,7 +161,7 @@ export default function FavoritesPage() {
   // Loading skeleton (also shown on server to prevent hydration mismatch)
   if (!mounted || !authReady || (loading.fetch && !loaded)) {
     return (
-      <PageContainer className="py-4 sm:py-8">
+      <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
         <div className="h-7 w-40 bg-muted rounded mb-4 animate-pulse" />
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -176,7 +176,7 @@ export default function FavoritesPage() {
   if (!isAuthenticated) {
     return (
       <>
-        <PageContainer className="py-12 sm:py-20">
+        <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
           <div className="max-w-sm mx-auto text-center">
             <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-50 mx-auto mb-4">
               <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-red-500" />
@@ -212,7 +212,7 @@ export default function FavoritesPage() {
   // Empty state
   if (items.length === 0) {
     return (
-      <PageContainer className="py-12 sm:py-20">
+      <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
         <div className="max-w-sm mx-auto text-center">
           <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-50 mx-auto mb-4">
             <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-red-500" />
@@ -235,7 +235,7 @@ export default function FavoritesPage() {
 
   // Favorites with infinite scroll
   return (
-    <PageContainer className="py-4 sm:py-8">
+    <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
       <PageHeader
         title="My Favorites"
         icon={Heart}

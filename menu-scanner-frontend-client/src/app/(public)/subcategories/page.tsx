@@ -39,7 +39,7 @@ export default function SubcategoriesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageContainer className="py-4 sm:py-8">
+      <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
         <PageHeader
           title="Subcategories"
           icon={LayoutGrid}
