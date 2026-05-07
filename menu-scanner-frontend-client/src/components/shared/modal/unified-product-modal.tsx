@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Check, Package, X, Trash2, Loader2 } from "lucide-react";
-import { buildCustomizationMapKey, getQuantityForCombo } from "@/utils/common/customization-utils";
+import { buildCustomizationMapKey } from "@/utils/common/customization-utils";
 import {
   Dialog,
   DialogContent,
