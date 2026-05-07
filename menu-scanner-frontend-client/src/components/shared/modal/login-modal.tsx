@@ -78,18 +78,6 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
         }),
       ).unwrap();
 
-      if (result?.userType === "BUSINESS_USER") {
-        showToast.error("❌ Business accounts must use the Admin Login page");
-        const { clearAllTokens, clearAdminTokens } = await import("@/utils/local-storage/token");
-        const { clearUserInfo, clearAdminUserInfo } = await import("@/utils/local-storage/userInfo");
-        clearAllTokens();
-        clearAdminTokens();
-        clearUserInfo();
-        clearAdminUserInfo();
-        loginForm.reset();
-        return;
-      }
-
       showToast.success("Welcome! You've successfully logged in.");
       onOpenChange(false);
       loginForm.reset();
