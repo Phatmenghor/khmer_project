@@ -235,7 +235,17 @@ export function useCartDebounce(dispatch: AppDispatch) {
     // Only unmount aborts.
   }, []);
 
-  return { debouncedUpdate, immediateUpdate, cancelAll };
+  /**
+   * Check if an item is currently being updated (debouncing or API in flight)
+   */
+  const isUpdating = useCallback((key: string): boolean => {
+    return (
+      timersRef.current.has(key) || // Still debouncing
+      isProcessingRef.current.get(key) === true // API call in flight
+    );
+  }, []);
+
+  return { debouncedUpdate, immediateUpdate, cancelAll, isUpdating };
 }
 
 /** Helper to build a debounce key from productId + sizeId */

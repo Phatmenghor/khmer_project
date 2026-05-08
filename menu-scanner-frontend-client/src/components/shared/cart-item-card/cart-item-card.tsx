@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Minus, X } from "lucide-react";
+import { Plus, Minus, X, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { formatCurrency } from "@/utils/common/currency-format";
@@ -29,6 +29,7 @@ export interface CartItemCardProps {
   // Options
   showLink?: boolean;
   showControls?: boolean;
+  isUpdating?: boolean;
 }
 
 export function CartItemCard({
@@ -48,6 +49,7 @@ export function CartItemCard({
   onRemove,
   showLink = true,
   showControls = true,
+  isUpdating = false,
 }: CartItemCardProps) {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
@@ -132,7 +134,8 @@ export function CartItemCard({
                 <CustomButton
                   size="icon"
                   variant="outline"
-                  className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                  disabled={isUpdating}
+                  className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => {
                     const newQuantity = quantity - 1;
                     if (newQuantity === 0) {
@@ -142,11 +145,15 @@ export function CartItemCard({
                     }
                   }}
                 >
-                  <Minus className="h-3 w-3" />
+                  {isUpdating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Minus className="h-3 w-3" />}
                 </CustomButton>
 
                 {/* Quantity Display */}
-                <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
+                <div className={`flex-1 text-center h-8 font-semibold text-sm rounded-lg border flex items-center justify-center w-10 transition-all ${
+                  isUpdating
+                    ? "bg-muted border-muted-foreground/30 text-muted-foreground"
+                    : "bg-primary/10 text-primary border-primary/20"
+                }`}>
                   {quantity}
                 </div>
 
@@ -154,10 +161,11 @@ export function CartItemCard({
                 <CustomButton
                   size="icon"
                   variant="outline"
-                  className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                  disabled={isUpdating}
+                  className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => onQuantityChange(quantity + 1)}
                 >
-                  <Plus className="h-3 w-3" />
+                  {isUpdating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
                 </CustomButton>
               </div>
             </div>
