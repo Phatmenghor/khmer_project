@@ -26,6 +26,7 @@ import { usePaymentOptionsState } from "@/redux/features/master-data/store/state
 import { useDeliveryOptionsState } from "@/redux/features/master-data/store/state/delivery-options-state";
 import { useAppDispatch } from "@/redux/store";
 import { fetchDefaultAddressService } from "@/redux/features/location/store/thunks/location-thunks";
+import { fetchPublicPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
 import { createOrderService, CheckoutPayload } from "@/redux/features/main/store/thunks/order-thunks";
 import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
 import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
@@ -135,6 +136,25 @@ export default function CheckoutPage() {
       }));
     }
   }, [deliveryOptions, checkoutState.selectedDeliveryOptionId]);
+
+  // Fetch payment options for the current business
+  useEffect(() => {
+    if (!mounted) return;
+
+    const fetchPaymentOptions = async () => {
+      try {
+        await dispatch(fetchPublicPaymentOptionsService({
+          businessId: AppDefault.BUSINESS_ID,
+          pageNo: 1,
+          pageSize: 100,
+        })).unwrap();
+      } catch (error) {
+        console.error("Failed to fetch payment options:", error);
+      }
+    };
+
+    fetchPaymentOptions();
+  }, [mounted, dispatch]);
 
   // Set default payment option if available
   useEffect(() => {

@@ -3,13 +3,28 @@
  * Redux thunks for Payment Options CRUD operations
  */
 
-import { axiosClientWithAuth } from "@/utils/axios";
+import { axiosClientWithAuth, axiosClient } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
 import {
   AllPaymentOptionsRequest,
   UpdatePaymentOptionParams,
 } from "../models/request/payment-options-request";
 import { CreatePaymentOptionData } from "../models/schema/payment-options-schema";
+
+/**
+ * Fetch payment options for a specific business (public - no auth required)
+ * Used during checkout to display available payment methods
+ */
+export const fetchPublicPaymentOptionsService = createApiThunk<any, AllPaymentOptionsRequest>(
+  "paymentOptions/fetchPublic",
+  async (params) => {
+    const response = await axiosClient.post(
+      "/api/v1/public/payment-options/all",
+      params
+    );
+    return response.data.data;
+  }
+);
 
 /**
  * Fetch all payment options with filters and pagination
