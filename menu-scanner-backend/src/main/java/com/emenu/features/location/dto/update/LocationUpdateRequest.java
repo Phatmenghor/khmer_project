@@ -10,6 +10,7 @@ import java.util.List;
 
 @Data
 public class LocationUpdateRequest {
+    private String label;
     private String village;
     private String commune;
     private String district;

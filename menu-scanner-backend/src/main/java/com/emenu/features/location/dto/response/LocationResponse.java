@@ -11,6 +11,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class LocationResponse extends BaseAuditResponse {
+    private String label;
     private UUID userId;
     private String village;
     private String commune;

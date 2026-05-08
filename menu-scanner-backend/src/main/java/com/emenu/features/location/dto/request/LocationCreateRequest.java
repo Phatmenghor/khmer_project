@@ -10,7 +10,9 @@ import java.util.List;
 
 @Data
 public class LocationCreateRequest {
-    
+
+    private String label; // Ex: Home, Office, Shop
+
     private String village; // Ex: Phum Svay Dangkum
     private String commune; // Ex: Sangkat Svay Dangkum
     

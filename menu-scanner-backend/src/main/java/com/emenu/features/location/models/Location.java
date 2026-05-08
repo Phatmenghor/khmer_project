@@ -28,6 +28,9 @@ public class Location extends BaseUUIDEntity {
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
+    @Column(name = "label")
+    private String label; // Ex: Home, Office, Shop
+
     @Column(name = "village")
     private String village; // Ex: Phum Svay Dangkum
 
