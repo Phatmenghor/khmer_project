@@ -774,6 +774,40 @@ public class OrderServiceImpl implements OrderService {
         log.debug("✅ [PRICING APPLIED] Order {} updated with pricing details", order.getId());
     }
 
+    private void applyPOSPricingToOrder(Order order, POSCheckoutRequest.PricingInfo pricingInfo) {
+        if (pricingInfo == null) return;
+
+        log.debug("💰 [POS PRICING] Applying POS pricing details to order: {}", order.getId());
+
+        if (pricingInfo.getSubtotal() != null) {
+            order.setSubtotal(pricingInfo.getSubtotal());
+        }
+        if (pricingInfo.getDeliveryFee() != null) {
+            order.setDeliveryFee(pricingInfo.getDeliveryFee());
+        }
+        if (pricingInfo.getTaxPercentage() != null) {
+            order.setTaxPercentage(pricingInfo.getTaxPercentage());
+        }
+        if (pricingInfo.getTaxAmount() != null) {
+            order.setTaxAmount(pricingInfo.getTaxAmount());
+        }
+        if (pricingInfo.getDiscountAmount() != null) {
+            order.setDiscountAmount(pricingInfo.getDiscountAmount());
+        }
+        if (pricingInfo.getDiscountType() != null) {
+            order.setDiscountType(pricingInfo.getDiscountType());
+        }
+        if (pricingInfo.getDiscountReason() != null) {
+            order.setDiscountReason(pricingInfo.getDiscountReason());
+        }
+        if (pricingInfo.getFinalTotal() != null) {
+            order.setTotalAmount(pricingInfo.getFinalTotal());
+        }
+
+        orderRepository.save(order);
+        log.debug("✅ [POS PRICING APPLIED] Order {} updated with POS pricing details", order.getId());
+    }
+
     private void createPaymentRecord(Order order) {
         BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
         BigDecimal discountAmount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
@@ -837,33 +871,18 @@ public class OrderServiceImpl implements OrderService {
             request.getBusinessId(), request.getCart().getItems().size());
 
         User currentUser = securityUtils.getCurrentUser();
-        String createdBy = currentUser != null ? currentUser.getFullName() : "System";
 
         try {
-            // Validate input
-            if (request.getCart() == null || request.getCart().getItems() == null || request.getCart().getItems().isEmpty()) {
-                throw new ValidationException("Order must contain at least one item");
-            }
-
-            log.debug("🔍 [STEP 1/6] Validating delivery option...");
-            // Delivery option is passed as full object, not ID
-            BigDecimal deliveryPrice = request.getDeliveryOption() != null ?
-                request.getDeliveryOption().getPrice() : BigDecimal.ZERO;
-
-            // Create order
-            log.debug("📝 [STEP 2/6] Creating order entity...");
+            log.debug("📋 [STEP 1/6] Creating base order...");
             Order order = new Order();
             order.setBusinessId(request.getBusinessId());
             order.setCustomerId(request.getCustomerId());
-            // Generate per-business order number (ORD-YYYYMMDD-XXXXX)
             order.setOrderNumber(orderNumberGenerator.generateOrderNumber(request.getBusinessId()));
-            order.setOrderStatus(OrderStatus.COMPLETED); // POS orders are always completed
-            order.setSource("POS"); // Mark as POS order
-            // Set orderFrom for POS orders
+            order.setOrderStatus(OrderStatus.COMPLETED);  // POS orders always completed
+            order.setSource("POS");
             order.setOrderFrom(com.emenu.features.order.enums.OrderFromEnum.BUSINESS);
             order.setPaymentMethod(PaymentMethod.CASH);
             order.setPaymentStatus(PaymentStatus.PAID);
-            order.setDeliveryFee(deliveryPrice);
             order.setCustomerNote(request.getCustomerNote());
             order.setBusinessNote(request.getBusinessNote());
 
@@ -877,13 +896,13 @@ public class OrderServiceImpl implements OrderService {
             if (request.getCustomerEmail() != null) {
                 order.setCustomerEmail(request.getCustomerEmail());
             }
-
             if (request.getCustomerAddress() != null) {
                 order.setCustomerAddress(request.getCustomerAddress());
             }
 
-            log.debug("💾 [STEP 3/6] Saving order...");
+            log.debug("💾 [STEP 2/6] Saving order...");
             Order savedOrder = orderRepository.save(order);
+            log.info("✅ [ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
             // Create delivery option snapshot
             if (request.getDeliveryOption() != null) {
@@ -895,163 +914,51 @@ public class OrderServiceImpl implements OrderService {
                 deliveryOption.setPrice(request.getDeliveryOption().getPrice());
                 orderDeliveryOptionRepository.save(deliveryOption);
                 log.debug("✅ [DELIVERY OPTION SNAPSHOT] Created for POS order: {}", savedOrder.getId());
+
+                savedOrder.setDeliveryFee(request.getDeliveryOption().getPrice());
             }
 
-            // Create order items and calculate totals
-            log.debug("📦 [STEP 4/6] Creating order items ({} items)...", request.getCart().getItems().size());
-            BigDecimal subtotal = BigDecimal.ZERO;
-            BigDecimal customizationTotalForOrder = BigDecimal.ZERO;
-            BigDecimal totalDiscount = BigDecimal.ZERO;
-            List<OrderItem> createdItems = new java.util.ArrayList<>();
+            // Create initial order status history
+            log.debug("📋 [STEP 3/6] Creating initial status history...");
+            createInitialOrderStatusHistory(savedOrder, currentUser != null ? currentUser.getId() : UUID.randomUUID());
 
-            for (POSCheckoutItemRequest itemRequest : request.getCart().getItems()) {
-                Product product = productRepository.findById(itemRequest.getProductId())
-                        .orElseThrow(() -> new NotFoundException("Product not found: " + itemRequest.getProductId()));
-
-                OrderItem orderItem = new OrderItem();
-                orderItem.setOrderId(savedOrder.getId());
-                orderItem.setProductId(product.getId());
-                orderItem.setProductSizeId(itemRequest.getProductSizeId());
-                orderItem.setProductName(itemRequest.getProductName() != null ? itemRequest.getProductName() : product.getName());
-                orderItem.setProductImageUrl(itemRequest.getProductImageUrl() != null ? itemRequest.getProductImageUrl() : product.getMainImageUrl());
-                orderItem.setSizeName(itemRequest.getSizeName());
-
-                // Set SKU and barcode: prefer product master data, fallback to request data if not available
-                orderItem.setSku(product.getSku() != null ? product.getSku() : itemRequest.getSku());
-                orderItem.setBarcode(product.getBarcode() != null ? product.getBarcode() : itemRequest.getBarcode());
-
-                orderItem.setQuantity(itemRequest.getQuantity());
-
-                // Use final price from request
-                BigDecimal finalPrice = itemRequest.getFinalPrice() != null ?
-                    itemRequest.getFinalPrice() : product.getPrice();
-                orderItem.setUnitPrice(finalPrice);
-                orderItem.setFinalPrice(finalPrice);
-
-                // Set total price
-                BigDecimal totalPrice = itemRequest.getTotalPrice() != null ?
-                    itemRequest.getTotalPrice() : finalPrice.multiply(new BigDecimal(itemRequest.getQuantity()));
-                orderItem.setTotalPrice(totalPrice);
-
-                // Process customizations for this item
-                if (itemRequest.getCustomizations() != null && !itemRequest.getCustomizations().isEmpty()) {
-                    try {
-                        String customizationsJson = objectMapper.writeValueAsString(itemRequest.getCustomizations());
-                        orderItem.setCustomizations(customizationsJson);
-
-                        // Extract customization IDs as JSON array
-                        List<String> customizationIds = itemRequest.getCustomizations().stream()
-                            .map(c -> c.getProductCustomizationId().toString())
-                            .toList();
-                        String customizationIdsJson = objectMapper.writeValueAsString(customizationIds);
-                        orderItem.setCustomizationIds(customizationIdsJson);
-
-                        // Calculate customization total for this item
-                        BigDecimal itemCustomizationTotal = itemRequest.getCustomizations().stream()
-                            .map(POSCheckoutItemRequest.CustomizationDetail::getPriceAdjustment)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add)
-                            .multiply(new BigDecimal(itemRequest.getQuantity()));
-                        orderItem.setCustomizationTotal(itemCustomizationTotal);
-                        customizationTotalForOrder = customizationTotalForOrder.add(itemCustomizationTotal);
-
-                        log.debug("✅ [CUSTOMIZATIONS] Item {} has {} customizations, total: {}",
-                            itemRequest.getProductId(), itemRequest.getCustomizations().size(), itemCustomizationTotal);
-                    } catch (Exception e) {
-                        log.warn("Failed to serialize customizations for item {}: {}", itemRequest.getProductId(), e.getMessage());
-                        orderItem.setCustomizationTotal(BigDecimal.ZERO);
-                    }
-                } else {
-                    orderItem.setCustomizationTotal(BigDecimal.ZERO);
-                }
-
-                savedOrder.getItems().add(orderItem);
-                createdItems.add(orderItem);
-
-                subtotal = subtotal.add(totalPrice);
+            // Create order items with customizations
+            if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
+                log.info("📦 [STEP 4/6] Processing {} items with customizations", request.getCart().getItems().size());
+                createOrderItemsFromCartSummaryWithCustomizations(savedOrder.getId(), request.getCart());
+            } else {
+                throw new ValidationException("Order must contain at least one item");
             }
 
-            // Save order with items
-            orderRepository.save(savedOrder);
+            // Apply pricing information
+            if (request.getPricing() != null) {
+                log.debug("💰 [PRICING] Applying POS pricing details...");
+                applyPOSPricingToOrder(savedOrder, request.getPricing());
+            }
 
-            // Update order totals
-            log.debug("💰 [STEP 5/6] Calculating totals...");
+            log.debug("💳 [STEP 5/6] Creating payment record...");
+            createPaymentRecord(savedOrder);
 
-            // Use pricing data from request
-            BigDecimal orderSubtotal = request.getPricing().getSubtotal() != null ?
-                request.getPricing().getSubtotal() : subtotal;
-            BigDecimal orderCustomizationTotal = request.getPricing().getCustomizationTotal() != null ?
-                request.getPricing().getCustomizationTotal() : customizationTotalForOrder;
-            BigDecimal orderDeliveryFee = request.getPricing().getDeliveryFee() != null ?
-                request.getPricing().getDeliveryFee() : order.getDeliveryFee();
-            BigDecimal orderTaxPercentage = request.getPricing().getTaxPercentage() != null ?
-                request.getPricing().getTaxPercentage() : BigDecimal.ZERO;
-            BigDecimal orderTaxAmount = request.getPricing().getTaxAmount() != null ?
-                request.getPricing().getTaxAmount() : BigDecimal.ZERO;
-            BigDecimal orderDiscountAmount = request.getPricing().getDiscountAmount() != null ?
-                request.getPricing().getDiscountAmount() : BigDecimal.ZERO;
-            String orderDiscountType = request.getPricing().getDiscountType();
-            String orderDiscountReason = request.getPricing().getDiscountReason();
-            BigDecimal orderFinalTotal = request.getPricing().getFinalTotal() != null ?
-                request.getPricing().getFinalTotal() : BigDecimal.ZERO;
+            log.info("✅ [POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
+            OrderResponse response = getOrderById(savedOrder.getId());
 
-            savedOrder.setSubtotal(orderSubtotal);
-            savedOrder.setCustomizationTotal(orderCustomizationTotal);
-            savedOrder.setDiscountAmount(orderDiscountAmount);
-            savedOrder.setDiscountType(orderDiscountType);
-            savedOrder.setDiscountReason(orderDiscountReason);
-            savedOrder.setTaxPercentage(orderTaxPercentage);
-            savedOrder.setTaxAmount(orderTaxAmount);
-            savedOrder.setDeliveryFee(orderDeliveryFee);
-            savedOrder.setTotalAmount(orderFinalTotal);
-
-            log.debug("💰 [PRICING BREAKDOWN] Subtotal: {}, Customization: {}, Delivery: {}, Tax: {} ({}%), Discount: {} ({}), Final: {}",
-                orderSubtotal, orderCustomizationTotal, orderDeliveryFee, orderTaxAmount, orderTaxPercentage,
-                orderDiscountAmount, orderDiscountType, orderFinalTotal);
-
-            Order updatedOrder = orderRepository.save(savedOrder);
-
-            // Create order payment record
-            log.debug("💳 [STEP 5.5/6] Creating payment record...");
-            OrderPayment payment = new OrderPayment();
-            payment.setOrderId(updatedOrder.getId());
-            payment.setBusinessId(request.getBusinessId());
-            payment.setPaymentMethod(PaymentMethod.valueOf(request.getPayment().getPaymentMethod()));
-            payment.setStatus(PaymentStatus.PAID);
-            payment.setPaymentReference(paymentReferenceGenerator.generateUniqueReference());
-            payment.setSubtotal(updatedOrder.getSubtotal());
-            payment.setCustomizationTotal(updatedOrder.getCustomizationTotal());
-            payment.setDiscountAmount(updatedOrder.getDiscountAmount());
-            payment.setDeliveryFee(updatedOrder.getDeliveryFee());
-            payment.setTaxAmount(updatedOrder.getTaxAmount());
-            payment.setTotalAmount(updatedOrder.getTotalAmount());
-            payment.setCustomerPaymentMethod("Cash");
-            paymentRepository.save(payment);
-            log.debug("✅ [PAYMENT RECORD] Created for order {} with amount: {}", updatedOrder.getOrderNumber(), updatedOrder.getTotalAmount());
-
-            // Create initial status history
-            log.debug("📋 [STEP 6/6] Creating status history...");
-            createInitialOrderStatusHistory(updatedOrder, currentUser != null ? currentUser.getId() : UUID.randomUUID());
-
-            log.info("✅ [POS ORDER CREATED] Order #{} completed with ID: {} - Total: {}",
-                updatedOrder.getOrderNumber(), updatedOrder.getId(), updatedOrder.getTotalAmount());
-
-            // Build response
             return POSCheckoutResponse.builder()
-                    .id(updatedOrder.getId())
-                    .orderNumber(updatedOrder.getOrderNumber())
-                    .subtotal(updatedOrder.getSubtotal())
-                    .customizationTotal(updatedOrder.getCustomizationTotal())
-                    .discountAmount(updatedOrder.getDiscountAmount())
-                    .deliveryFee(updatedOrder.getDeliveryFee())
-                    .taxPercentage(updatedOrder.getTaxPercentage())
-                    .taxAmount(updatedOrder.getTaxAmount())
-                    .totalAmount(updatedOrder.getTotalAmount())
+                    .id(response.getId())
+                    .orderNumber(response.getOrderNumber())
+                    .subtotal(response.getPricing().getSubtotal())
+                    .customizationTotal(response.getPricing().getCustomizationTotal() != null ?
+                        response.getPricing().getCustomizationTotal() : BigDecimal.ZERO)
+                    .discountAmount(response.getPricing().getDiscountAmount())
+                    .deliveryFee(response.getPricing().getDeliveryFee())
+                    .taxPercentage(response.getPricing().getTaxPercentage())
+                    .taxAmount(response.getPricing().getTaxAmount())
+                    .totalAmount(response.getPricing().getFinalTotal())
                     .orderStatus("COMPLETED")
                     .source("POS")
                     .paymentMethod("CASH")
                     .paymentStatus("PAID")
-                    .createdBy(createdBy)
-                    .createdAt(updatedOrder.getCreatedAt())
+                    .createdBy(currentUser != null ? currentUser.getFullName() : "System")
+                    .createdAt(response.getCreatedAt())
                     .customerName(request.getCustomerName())
                     .customerPhone(request.getCustomerPhone())
                     .build();
