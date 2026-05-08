@@ -1152,7 +1152,6 @@ export default function PosPage() {
                     onChangeSelected={(item) => dispatch(setSelectedPaymentOption(item as any))}
                     placeholder="Payment..."
                     label=""
-                    businessId={AppDefault.BUSINESS_ID}
                     statuses={["ACTIVE"]}
                   />
                 </div>
