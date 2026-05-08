@@ -196,6 +196,9 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   /**
    * Increment quantity by 1
    *
+   * For simple products (no sizes/customizations): Just increment quantity
+   * For sized/customizable products: Only open modal if adding new variant (not already in cart)
+   *
    * Optimistic update pattern:
    * 1. Update Redux immediately (UI reflects change instantly)
    * 2. Debounced API call (batches rapid clicks)
@@ -208,14 +211,17 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
     const hasCustomizations = product.customizations && product.customizations.length > 0;
 
-    // For products with sizes OR customizations, open the size picker modal
-    if (hasSizes || hasCustomizations) {
-      setSizePickerProduct(product);
+    // Only allow increment if item is already in cart (isInCart button shown)
+    if (!isInCart) {
       return;
     }
 
-    // Only allow increment if item is already in cart (isInCart button shown)
-    if (!isInCart) {
+    // If product has sizes/customizations AND is already in cart without a size,
+    // just increment the simple variant (don't open modal)
+    // Only open modal if user wants to add a different sized variant
+    if ((hasSizes || hasCustomizations) && quantity === 0) {
+      // No simple variant in cart, open modal to choose size
+      setSizePickerProduct(product);
       return;
     }
 
@@ -243,6 +249,9 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   /**
    * Decrement quantity by 1, remove if reaches 0
    *
+   * For simple products (no sizes/customizations): Just decrement quantity
+   * For sized/customizable products: Just decrement simple variant if in cart
+   *
    * When quantity reaches 0:
    * - Redux removes item immediately
    * - Success message displayed
@@ -252,15 +261,6 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   const handleDecrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
-    const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
-    const hasCustomizations = product.customizations && product.customizations.length > 0;
-
-    // For products with sizes OR customizations, open the size picker modal
-    if (hasSizes || hasCustomizations) {
-      setSizePickerProduct(product);
-      return;
-    }
 
     // Only allow decrement if item is already in cart (isInCart button shown)
     if (!isInCart) {
