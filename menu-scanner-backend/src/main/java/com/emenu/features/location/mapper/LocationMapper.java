@@ -38,7 +38,6 @@ public interface LocationMapper {
         response.setUpdatedAt(image.getUpdatedAt());
         response.setCreatedBy(image.getCreatedBy());
         response.setUpdatedBy(image.getUpdatedBy());
-        response.setVersion(image.getVersion());
         return response;
     }
 
