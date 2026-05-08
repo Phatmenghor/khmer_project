@@ -21,7 +21,7 @@ import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
-import { fetchAllPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
+import { fetchAllPaymentOptionsService, fetchPublicPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
 import { AppDefault } from "@/constants/app-resource/default/default";
 
 interface PaymentOption {
@@ -86,8 +86,10 @@ export function ComboboxSelectPayment({
     if (loadingRef.current || (lastPageRef.current && newPage > 1)) return;
     setLoading(true);
     try {
+      // Use public endpoint when businessId is provided, otherwise use authenticated endpoint
+      const fetchService = businessId ? fetchPublicPaymentOptionsService : fetchAllPaymentOptionsService;
       const result = await dispatch(
-        fetchAllPaymentOptionsService({
+        fetchService({
           search,
           pageNo: newPage,
           pageSize: 15,
@@ -120,7 +122,7 @@ export function ComboboxSelectPayment({
     setData([]);
     fetchData(debouncedSearch, 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch]);
+  }, [debouncedSearch, businessId]);
 
   useEffect(() => {
     if (
