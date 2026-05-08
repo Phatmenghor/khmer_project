@@ -12,6 +12,8 @@ import com.emenu.features.order.dto.helper.OrderItemCreateHelper;
 import com.emenu.features.order.dto.request.OrderCreateRequest;
 import com.emenu.features.order.dto.request.POSCheckoutRequest;
 import com.emenu.features.order.dto.request.POSCheckoutItemRequest;
+import com.emenu.features.order.dto.request.CartSummaryRequest;
+import com.emenu.features.order.dto.request.CartItemRequest;
 import com.emenu.features.order.dto.response.OrderResponse;
 import com.emenu.features.order.dto.response.POSCheckoutResponse;
 import com.emenu.features.order.dto.update.OrderUpdateRequest;
@@ -654,7 +656,6 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setProductName(item.getProductName() != null ? item.getProductName() : product.getName());
             orderItem.setProductImageUrl(item.getProductImageUrl() != null ? item.getProductImageUrl() : product.getMainImageUrl());
             orderItem.setSizeName(item.getSizeName());
-            orderItem.setStatus(item.getStatus());
 
             // Set SKU and barcode: prefer from request, fallback to product master data
             orderItem.setSku(item.getSku() != null ? item.getSku() : product.getSku());
