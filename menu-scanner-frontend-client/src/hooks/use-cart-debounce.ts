@@ -106,6 +106,16 @@ export function useCartDebounce(dispatch: AppDispatch) {
       isProcessingRef.current.set(key, true);
 
       const { productId, productSizeId, quantity, optimisticTimestamp } = args;
+      const apiCallTime = performance.now();
+
+      console.log(`%c[API CALL FIRED] ${apiCallTime.toFixed(2)}ms`, "background:#E91E63;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+        key: key,
+        productId: productId,
+        sizeId: productSizeId,
+        quantity: quantity,
+        optimisticTimestamp: optimisticTimestamp,
+        time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
+      });
 
       // Always use updateCartItem - the backend handles both insert and update
       // (checks if item exists, then adds/updates accordingly)
@@ -124,13 +134,20 @@ export function useCartDebounce(dispatch: AppDispatch) {
       promise
         .unwrap()
         .then(() => {
+          console.log(`%c[API SUCCESS] Key: ${key}, Qty: ${quantity}`, "background:#4CAF50;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+            completedAt: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
+          });
           if (quantity === 0) {
             showToast.success("Removed from cart");
           }
         })
         .catch((error: any) => {
           // Silently ignore aborted/superseded requests
-          if (isAbortError(error)) return;
+          if (isAbortError(error)) {
+            console.log(`%c[API CANCELLED] Key: ${key} (superseded)`, "background:#757575;color:white;font-weight:bold;padding:3px 6px;border-radius:3px");
+            return;
+          }
+          console.error(`%c[API ERROR] Key: ${key}`, "background:#F44336;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", error);
           showToast.error(error?.message || "Failed to update cart");
         })
         .finally(() => {

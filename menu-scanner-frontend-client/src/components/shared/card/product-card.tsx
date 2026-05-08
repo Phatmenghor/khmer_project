@@ -222,6 +222,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
+    const clickTime = performance.now();
     const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
     const hasCustomizations = product.customizations && product.customizations.length > 0;
 
@@ -244,10 +245,24 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
+    console.log(`%c[CLICK +] ${clickTime.toFixed(2)}ms`, "background:#4CAF50;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+      product: product.name,
+      currentQty: displayQuantityValue,
+      newQty: newQty,
+      key: key,
+      time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
+    });
+
     // UPDATE UI FIRST - instant display update
+    const uiUpdateTime = performance.now();
     setLocalQuantity(newQty);
+    console.log(`%c[UI UPDATE] ${(uiUpdateTime - clickTime).toFixed(2)}ms after click`, "background:#2196F3;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+      displayedQuantity: newQty,
+      localQuantity: newQty
+    });
 
     // Then dispatch to Redux in background
+    const reduxTime = performance.now();
     cartDispatch(
       updateLocalCartItem({
         productId: product.id,
@@ -256,10 +271,18 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
         optimisticTimestamp: ts,
       })
     );
+    console.log(`%c[REDUX DISPATCH] ${(reduxTime - clickTime).toFixed(2)}ms after click`, "background:#FF9800;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+      action: 'updateLocalCartItem',
+      quantity: newQty
+    });
 
     // Queue API call with debounce (500ms)
-    // Multiple rapid clicks get batched into single API call
+    const debounceTime = performance.now();
     debouncedUpdate(key, product.id, null, newQty, ts);
+    console.log(`%c[DEBOUNCE QUEUED] ${(debounceTime - clickTime).toFixed(2)}ms after click`, "background:#9C27B0;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+      willCallAPI: 'in ~500ms',
+      batchedWith: 'other clicks in 500ms window'
+    });
   }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
   /**
@@ -278,6 +301,8 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
+    const clickTime = performance.now();
+
     // Only allow decrement if item is already in cart (isInCart button shown)
     if (!isInCart) {
       return;
@@ -288,10 +313,24 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
+    console.log(`%c[CLICK -] ${clickTime.toFixed(2)}ms`, "background:#F44336;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+      product: product.name,
+      currentQty: displayQuantityValue,
+      newQty: newQty,
+      key: key,
+      time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
+    });
+
     // UPDATE UI FIRST - instant display update
+    const uiUpdateTime = performance.now();
     setLocalQuantity(newQty);
+    console.log(`%c[UI UPDATE] ${(uiUpdateTime - clickTime).toFixed(2)}ms after click`, "background:#2196F3;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+      displayedQuantity: newQty,
+      localQuantity: newQty
+    });
 
     // Then dispatch to Redux in background
+    const reduxTime = performance.now();
     cartDispatch(
       updateLocalCartItem({
         productId: product.id,
@@ -300,6 +339,11 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
         optimisticTimestamp: ts,
       })
     );
+    console.log(`%c[REDUX DISPATCH] ${(reduxTime - clickTime).toFixed(2)}ms after click`, "background:#FF9800;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+      action: 'updateLocalCartItem',
+      quantity: newQty,
+      willRemove: newQty === 0
+    });
 
     // Show removal message when reaching 0
     if (newQty === 0) {
@@ -307,8 +351,12 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     }
 
     // Queue API call with debounce
-    // Backend receives quantity=0 and deletes the cart item
+    const debounceTime = performance.now();
     debouncedUpdate(key, product.id, null, newQty, ts);
+    console.log(`%c[DEBOUNCE QUEUED] ${(debounceTime - clickTime).toFixed(2)}ms after click`, "background:#9C27B0;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
+      willCallAPI: 'in ~500ms',
+      batchedWith: 'other clicks in 500ms window'
+    });
   }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
   // Favorite toggle with optimistic UI update (like Facebook)
