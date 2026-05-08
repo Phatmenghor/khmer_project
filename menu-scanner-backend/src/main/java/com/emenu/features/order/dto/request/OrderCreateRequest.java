@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -61,6 +62,7 @@ public class OrderCreateRequest {
     @NotNull(message = "Order source (orderFrom) is required - CUSTOMER or BUSINESS")
     private OrderFromEnum orderFrom;
 
+    @Default
     private OrderStatus orderStatus = OrderStatus.PENDING;
 
     // ─── Nested Classes ───

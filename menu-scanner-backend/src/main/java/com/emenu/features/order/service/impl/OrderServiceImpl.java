@@ -152,7 +152,7 @@ public class OrderServiceImpl implements OrderService {
             // Create order items from cart summary (frontend)
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
                 log.info("📋 [STEP 4/7] Processing {} items from frontend cart summary", request.getCart().getItems().size());
-                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart(), request.getPricing());
+                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart(), null);
             } else {
                 log.info("📋 [STEP 4/7] Processing items from database cart");
                 Cart cart = cartRepository.findByUserIdAndBusinessIdWithItems(customerId, request.getBusinessId())
