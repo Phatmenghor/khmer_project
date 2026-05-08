@@ -21,7 +21,7 @@ import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
-import { fetchAllPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
+import { fetchPublicPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
 
 interface PaymentOption {
   id: string;
@@ -30,7 +30,7 @@ interface PaymentOption {
   [key: string]: any;
 }
 
-interface ComboboxSelectPaymentProps {
+interface ComboboxSelectPaymentPublicProps {
   dataSelect: PaymentOption | null;
   onChangeSelected: (item: PaymentOption | null) => void;
   disabled?: boolean;
@@ -38,10 +38,11 @@ interface ComboboxSelectPaymentProps {
   required?: boolean;
   placeholder?: string;
   error?: string;
+  businessId: string;
   statuses?: string[];
 }
 
-export function ComboboxSelectPayment({
+export function ComboboxSelectPaymentPublic({
   dataSelect,
   onChangeSelected,
   disabled = false,
@@ -49,8 +50,9 @@ export function ComboboxSelectPayment({
   required = false,
   placeholder = "Select payment method...",
   error,
+  businessId,
   statuses = ["ACTIVE"],
-}: ComboboxSelectPaymentProps) {
+}: ComboboxSelectPaymentPublicProps) {
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -84,10 +86,11 @@ export function ComboboxSelectPayment({
     setLoading(true);
     try {
       const result = await dispatch(
-        fetchAllPaymentOptionsService({
+        fetchPublicPaymentOptionsService({
           search,
           pageNo: newPage,
           pageSize: 15,
+          businessId,
           ...(statuses && { statuses }),
         })
       ).unwrap();
@@ -116,7 +119,7 @@ export function ComboboxSelectPayment({
     setData([]);
     fetchData(debouncedSearch, 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch]);
+  }, [debouncedSearch, businessId]);
 
   useEffect(() => {
     if (

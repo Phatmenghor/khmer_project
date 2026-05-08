@@ -40,7 +40,7 @@ import { sanitizeImageUrl } from "@/utils/common/common";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { ComboboxSelectLocation } from "@/components/shared/combobox/combobox-select-location";
 import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
-import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
+import { ComboboxSelectPaymentPublic } from "@/components/shared/combobox/combobox-select-payment-public";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { AppDefault } from "@/constants/app-resource/default/default";
 
@@ -455,7 +455,7 @@ export default function CheckoutPage() {
                   Payment Method
                   <span className="text-red-500">*</span>
                 </label>
-                <ComboboxSelectPayment
+                <ComboboxSelectPaymentPublic
                   dataSelect={selectedPaymentOption as any}
                   onChangeSelected={(item) => {
                     if (item) {
