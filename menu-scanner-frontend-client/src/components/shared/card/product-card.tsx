@@ -430,7 +430,10 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   );
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";
-  const displayQuantity = product.hasSizes ? totalQuantity : quantity;
+  // Display logic for consistency with +/- button updates:
+  // - If simple variant (no size) is in cart: show its quantity (what +/- updates)
+  // - If only sized variants in cart: show total (user must use modal to modify)
+  const displayQuantity = quantity > 0 ? quantity : totalQuantity;
 
   return (
     <>
