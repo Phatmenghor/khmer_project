@@ -12,7 +12,9 @@ import { OrderFromEnum } from "@/enums/order.enum";
 
 export interface CheckoutPayload {
   businessId: string;
-  addressId: string;
+  addressId?: string;
+  customerId?: string;
+  customerAddress?: string;
   deliveryOption: {
     name: string;
     description: string;
@@ -55,11 +57,23 @@ export interface CheckoutPayload {
     discountAmount: number;
     finalTotal: number;
   };
+  // Optional pricing information (for detailed pricing audit trail)
+  pricing?: {
+    subtotal: number;
+    deliveryFee: number;
+    taxPercentage?: number;
+    taxAmount?: number;
+    discountAmount?: number;
+    discountType?: string;
+    discountReason?: string;
+    finalTotal: number;
+  };
   payment: {
     paymentMethod: PaymentOptionType;
     paymentStatus: "PENDING";
   };
   customerNote: string;
+  businessNote?: string;
   orderFrom: OrderFromEnum;
   orderStatus?: OrderStatus;
 }

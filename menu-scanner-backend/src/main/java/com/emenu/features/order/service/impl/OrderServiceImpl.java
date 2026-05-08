@@ -86,14 +86,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
-        log.info("🛍️  [CHECKOUT START] Creating order from cart - Business: {}, Customer: {}",
-            request.getBusinessId(), securityUtils.getCurrentUser().getId());
+        log.info("🛍️  [CHECKOUT START] Creating order - Business: {}, OrderFrom: {}",
+            request.getBusinessId(), request.getOrderFrom());
 
         User currentUser = securityUtils.getCurrentUser();
+        UUID customerId = request.getCustomerId() != null ? request.getCustomerId() : currentUser.getId();
 
         try {
             log.debug("📋 [STEP 1/6] Creating base order...");
-            Order order = createBaseOrder(request, currentUser.getId());
+            Order order = createBaseOrder(request, customerId);
 
             // Set order status - default to PENDING if not specified
             OrderStatus status = request.getOrderStatus() != null ? request.getOrderStatus() : OrderStatus.PENDING;
@@ -123,6 +124,10 @@ public class OrderServiceImpl implements OrderService {
             if (request.getCustomerEmail() != null) {
                 savedOrder.setCustomerEmail(request.getCustomerEmail());
             }
+            // Set customer address (for POS orders without addressId)
+            if (request.getCustomerAddress() != null) {
+                savedOrder.setCustomerAddress(request.getCustomerAddress());
+            }
             // Save customer details
             orderRepository.save(savedOrder);
 
@@ -142,16 +147,15 @@ public class OrderServiceImpl implements OrderService {
 
             // Create initial order status history to track when order was created
             log.debug("📋 [STEP 3.5/6] Creating initial status history...");
-            createInitialOrderStatusHistory(savedOrder, currentUser.getId());
+            createInitialOrderStatusHistory(savedOrder, currentUser != null ? currentUser.getId() : customerId);
 
-            // Create order items from cart summary (frontend) or database cart
+            // Create order items from cart summary (frontend)
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
                 log.info("📋 [STEP 4/7] Processing {} items from frontend cart summary", request.getCart().getItems().size());
-                // Only POSCheckoutRequest has pricing info, OrderCreateRequest doesn't
-                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart(), null);
+                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart(), request.getPricing());
             } else {
                 log.info("📋 [STEP 4/7] Processing items from database cart");
-                Cart cart = cartRepository.findByUserIdAndBusinessIdWithItems(currentUser.getId(), request.getBusinessId())
+                Cart cart = cartRepository.findByUserIdAndBusinessIdWithItems(customerId, request.getBusinessId())
                         .orElseThrow(() -> new ValidationException("Cart is empty or not found"));
 
                 if (cart.getItems() == null || cart.getItems().isEmpty()) {
@@ -161,11 +165,19 @@ public class OrderServiceImpl implements OrderService {
                 createOrderItemsFromCart(savedOrder.getId(), cart);
             }
 
+            // Apply pricing information if provided
+            if (request.getPricing() != null) {
+                log.debug("💰 [PRICING INFO] Applying pricing details from request...");
+                applyPricingToOrder(savedOrder, request.getPricing());
+            }
+
             log.debug("📋 [STEP 5/7] Creating payment record...");
             createPaymentRecord(savedOrder);
 
             log.debug("📋 [STEP 6/7] Clearing cart...");
-            clearCartAfterOrder(currentUser.getId(), request.getBusinessId());
+            if (currentUser != null) {
+                clearCartAfterOrder(customerId, request.getBusinessId());
+            }
 
             log.info("✅ [CHECKOUT SUCCESS] Order created successfully: {} - Fetching full response...", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
@@ -631,6 +643,58 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.save(order);
         log.info("✅ [ORDER ITEMS SAVED] Successfully saved {} items for order: {}", order.getItems().size(), orderId);
+    }
+
+    private void applyPricingToOrder(Order order, OrderCreateRequest.PricingInfo pricingInfo) {
+        if (pricingInfo == null) return;
+
+        log.debug("💰 [PRICING] Applying pricing details to order: {}", order.getId());
+
+        // Apply subtotal
+        if (pricingInfo.getSubtotal() != null) {
+            order.setSubtotal(pricingInfo.getSubtotal());
+            log.debug("   - Subtotal: {}", pricingInfo.getSubtotal());
+        }
+
+        // Apply delivery fee
+        if (pricingInfo.getDeliveryFee() != null) {
+            order.setDeliveryFee(pricingInfo.getDeliveryFee());
+            log.debug("   - Delivery Fee: {}", pricingInfo.getDeliveryFee());
+        }
+
+        // Apply tax information
+        if (pricingInfo.getTaxPercentage() != null) {
+            order.setTaxPercentage(pricingInfo.getTaxPercentage());
+            log.debug("   - Tax Percentage: {}%", pricingInfo.getTaxPercentage());
+        }
+        if (pricingInfo.getTaxAmount() != null) {
+            order.setTaxAmount(pricingInfo.getTaxAmount());
+            log.debug("   - Tax Amount: {}", pricingInfo.getTaxAmount());
+        }
+
+        // Apply discount information
+        if (pricingInfo.getDiscountAmount() != null) {
+            order.setDiscountAmount(pricingInfo.getDiscountAmount());
+            log.debug("   - Discount Amount: {}", pricingInfo.getDiscountAmount());
+        }
+        if (pricingInfo.getDiscountType() != null) {
+            order.setDiscountType(pricingInfo.getDiscountType());
+            log.debug("   - Discount Type: {}", pricingInfo.getDiscountType());
+        }
+        if (pricingInfo.getDiscountReason() != null) {
+            order.setDiscountReason(pricingInfo.getDiscountReason());
+            log.debug("   - Discount Reason: {}", pricingInfo.getDiscountReason());
+        }
+
+        // Apply final total
+        if (pricingInfo.getFinalTotal() != null) {
+            order.setTotalAmount(pricingInfo.getFinalTotal());
+            log.debug("   - Final Total: {}", pricingInfo.getFinalTotal());
+        }
+
+        // Save order with updated pricing
+        orderRepository.save(order);
+        log.debug("✅ [PRICING APPLIED] Order {} updated with pricing details", order.getId());
     }
 
     private void createPaymentRecord(Order order) {

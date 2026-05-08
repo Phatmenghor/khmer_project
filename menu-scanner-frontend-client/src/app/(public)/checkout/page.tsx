@@ -277,6 +277,14 @@ export default function CheckoutPage() {
           discountAmount: discountAmount,
           finalTotal: finalTotal,
         },
+        pricing: {
+          subtotal: subtotal,
+          deliveryFee: deliveryFee,
+          taxPercentage: 0,
+          taxAmount: 0,
+          discountAmount: discountAmount,
+          finalTotal: orderTotal,
+        },
         payment: {
           paymentMethod: selectedPaymentOption.paymentOptionType,
           paymentStatus: "PENDING" as const,
