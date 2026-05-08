@@ -1,18 +1,18 @@
 # ============================================================
-# application.yaml  –  BASE CONFIG (shared across all profiles)
+# application.yaml - BASE CONFIG (shared across all profiles)
 # ============================================================
 # To switch environment:
-#   profiles.active: local   →  localhost DB, debug logging
-#   profiles.active: dev     →  dev server DB
-#   profiles.active: prod    →  production DB, minimal logging
+#   profiles.active: local => localhost DB, debug logging
+#   profiles.active: dev => dev server DB
+#   profiles.active: prod => production DB, minimal logging
 # ============================================================
 spring:
   application:
     name: cambodia-emenu-platform
   profiles:
-    active: prod # ← change to "local" or "dev" as needed
+    active: prod # change to "local" or "dev" as needed
 
-  # JPA  – common settings (ddl-auto overridden per profile)
+  # JPA - common settings (ddl-auto overridden per profile)
   jpa:
     open-in-view: false
     properties:
