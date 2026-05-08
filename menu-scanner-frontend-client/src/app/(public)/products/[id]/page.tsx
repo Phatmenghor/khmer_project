@@ -375,6 +375,7 @@ export default function ProductDetailPage() {
                 src={selectedImage || appImages.NoImage}
                 alt={product.name}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 60vw"
                 className={cn("object-cover transition-opacity duration-300", imageLoaded ? "opacity-100" : "opacity-0")}
                 onLoad={() => setImageLoaded(true)}
                 priority
@@ -435,7 +436,7 @@ export default function ProductDetailPage() {
                         : "opacity-55 hover:opacity-100 hover:ring-2 hover:ring-primary/40 hover:ring-offset-1"
                     )}
                   >
-                    <Image src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)} alt={`View ${i + 1}`} fill className="object-cover" />
+                    <Image src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)} alt={`View ${i + 1}`} fill sizes="80px" className="object-cover" />
                   </button>
                 ))}
               </div>
