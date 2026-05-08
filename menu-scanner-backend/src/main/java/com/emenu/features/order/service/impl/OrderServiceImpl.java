@@ -86,15 +86,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
-        log.info("🛍️  [CHECKOUT START] Creating order - Business: {}, OrderFrom: {}",
-            request.getBusinessId(), request.getOrderFrom());
+        log.info("🛍️  [CHECKOUT START] Creating order from cart - Business: {}", request.getBusinessId());
 
         User currentUser = securityUtils.getCurrentUser();
-        UUID customerId = request.getCustomerId() != null ? request.getCustomerId() : currentUser.getId();
 
         try {
             log.debug("📋 [STEP 1/6] Creating base order...");
-            Order order = createBaseOrder(request, customerId);
+            Order order = createBaseOrder(request, currentUser.getId());
 
             // Set order status - default to PENDING if not specified
             OrderStatus status = request.getOrderStatus() != null ? request.getOrderStatus() : OrderStatus.PENDING;
@@ -105,13 +103,12 @@ public class OrderServiceImpl implements OrderService {
             Order savedOrder = orderRepository.save(order);
             log.info("✅ [ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
-            // Create delivery snapshots from request - fetch address by ID
-            if (request.getAddressId() != null) {
-                OrderDeliveryAddress deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
-                if (deliveryAddress != null) {
-                    orderDeliveryAddressRepository.save(deliveryAddress);
-                    log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for order: {}", savedOrder.getId());
-                }
+            // Create delivery address snapshot from addressId
+            log.debug("📋 [STEP 3.1/6] Creating delivery address snapshot...");
+            OrderDeliveryAddress deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
+            if (deliveryAddress != null) {
+                orderDeliveryAddressRepository.save(deliveryAddress);
+                log.debug("✅ [DELIVERY ADDRESS SNAPSHOT] Created for order: {}", savedOrder.getId());
             }
 
             // Set customer details
@@ -124,13 +121,10 @@ public class OrderServiceImpl implements OrderService {
             if (request.getCustomerEmail() != null) {
                 savedOrder.setCustomerEmail(request.getCustomerEmail());
             }
-            // Set customer address (for POS orders without addressId)
-            if (request.getCustomerAddress() != null) {
-                savedOrder.setCustomerAddress(request.getCustomerAddress());
-            }
             // Save customer details
             orderRepository.save(savedOrder);
 
+            // Create delivery option snapshot
             if (request.getDeliveryOption() != null) {
                 OrderDeliveryOption deliveryOption = new OrderDeliveryOption();
                 deliveryOption.setOrderId(savedOrder.getId());
@@ -147,22 +141,14 @@ public class OrderServiceImpl implements OrderService {
 
             // Create initial order status history to track when order was created
             log.debug("📋 [STEP 3.5/6] Creating initial status history...");
-            createInitialOrderStatusHistory(savedOrder, currentUser != null ? currentUser.getId() : customerId);
+            createInitialOrderStatusHistory(savedOrder, currentUser.getId());
 
-            // Create order items from cart summary (frontend)
+            // Create order items from cart summary with customizations
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
-                log.info("📋 [STEP 4/7] Processing {} items from frontend cart summary", request.getCart().getItems().size());
-                createOrderItemsFromCartSummary(savedOrder.getId(), request.getCart(), null);
+                log.info("📋 [STEP 4/7] Processing {} items from cart with customizations", request.getCart().getItems().size());
+                createOrderItemsFromCartSummaryWithCustomizations(savedOrder.getId(), request.getCart());
             } else {
-                log.info("📋 [STEP 4/7] Processing items from database cart");
-                Cart cart = cartRepository.findByUserIdAndBusinessIdWithItems(customerId, request.getBusinessId())
-                        .orElseThrow(() -> new ValidationException("Cart is empty or not found"));
-
-                if (cart.getItems() == null || cart.getItems().isEmpty()) {
-                    throw new ValidationException("Cannot create order from empty cart");
-                }
-
-                createOrderItemsFromCart(savedOrder.getId(), cart);
+                throw new ValidationException("Cart is empty or not found");
             }
 
             // Apply pricing information if provided
@@ -175,9 +161,7 @@ public class OrderServiceImpl implements OrderService {
             createPaymentRecord(savedOrder);
 
             log.debug("📋 [STEP 6/7] Clearing cart...");
-            if (currentUser != null) {
-                clearCartAfterOrder(customerId, request.getBusinessId());
-            }
+            clearCartAfterOrder(currentUser.getId(), request.getBusinessId());
 
             log.info("✅ [CHECKOUT SUCCESS] Order created successfully: {} - Fetching full response...", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
@@ -643,6 +627,98 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.save(order);
         log.info("✅ [ORDER ITEMS SAVED] Successfully saved {} items for order: {}", order.getItems().size(), orderId);
+    }
+
+    private void createOrderItemsFromCartSummaryWithCustomizations(UUID orderId, CartSummaryRequest cartSummary) {
+        log.debug("🛒 [CART SUMMARY] Processing {} items with customizations for order: {}", cartSummary.getItems().size(), orderId);
+
+        BigDecimal subtotal = cartSummary.getSubtotal() != null ? cartSummary.getSubtotal() : BigDecimal.ZERO;
+        BigDecimal customizationTotal = cartSummary.getCustomizationTotal() != null ? cartSummary.getCustomizationTotal() : BigDecimal.ZERO;
+        BigDecimal discountAmount = cartSummary.getTotalDiscount() != null ? cartSummary.getTotalDiscount() : BigDecimal.ZERO;
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found: " + orderId));
+
+        int itemCount = 0;
+        for (CartItemRequest item : cartSummary.getItems()) {
+            itemCount++;
+
+            // Get product for SKU/barcode
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + item.getProductId()));
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrderId(orderId);
+            orderItem.setProductId(item.getProductId());
+            orderItem.setProductSizeId(item.getProductSizeId());
+            orderItem.setProductName(item.getProductName() != null ? item.getProductName() : product.getName());
+            orderItem.setProductImageUrl(item.getProductImageUrl() != null ? item.getProductImageUrl() : product.getMainImageUrl());
+            orderItem.setSizeName(item.getSizeName());
+            orderItem.setStatus(item.getStatus());
+
+            // Set SKU and barcode: prefer from request, fallback to product master data
+            orderItem.setSku(item.getSku() != null ? item.getSku() : product.getSku());
+            orderItem.setBarcode(item.getBarcode() != null ? item.getBarcode() : product.getBarcode());
+
+            orderItem.setQuantity(item.getQuantity());
+            orderItem.setUnitPrice(item.getFinalPrice());
+            orderItem.setFinalPrice(item.getFinalPrice());
+            orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
+                    item.getFinalPrice().multiply(new BigDecimal(item.getQuantity())));
+
+            // Process customizations
+            if (item.getCustomizations() != null && !item.getCustomizations().isEmpty()) {
+                try {
+                    String customizationsJson = objectMapper.writeValueAsString(item.getCustomizations());
+                    orderItem.setCustomizations(customizationsJson);
+
+                    // Extract customization IDs as JSON array
+                    List<String> customizationIds = item.getCustomizations().stream()
+                        .map(c -> c.getProductCustomizationId().toString())
+                        .toList();
+                    String customizationIdsJson = objectMapper.writeValueAsString(customizationIds);
+                    orderItem.setCustomizationIds(customizationIdsJson);
+
+                    // Calculate customization total for this item
+                    BigDecimal itemCustomizationTotal = item.getCustomizations().stream()
+                        .map(CartItemRequest.CustomizationDetail::getPriceAdjustment)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .multiply(new BigDecimal(item.getQuantity()));
+                    orderItem.setCustomizationTotal(itemCustomizationTotal);
+
+                    log.debug("✅ [CUSTOMIZATIONS] Item {} has {} customizations, total: {}",
+                        item.getProductId(), item.getCustomizations().size(), itemCustomizationTotal);
+                } catch (Exception e) {
+                    log.warn("Failed to serialize customizations for item {}: {}", item.getProductId(), e.getMessage());
+                    orderItem.setCustomizationTotal(BigDecimal.ZERO);
+                }
+            } else {
+                orderItem.setCustomizationTotal(BigDecimal.ZERO);
+            }
+
+            orderItem.setHadChangeFromPOS(false);
+            order.getItems().add(orderItem);
+
+            log.debug("✅ [ITEM {}] Added: {} (qty: {}, price: {}, customization: {})",
+                itemCount, item.getProductName(), item.getQuantity(), item.getFinalPrice(),
+                orderItem.getCustomizationTotal());
+        }
+
+        order.setSubtotal(subtotal);
+        order.setCustomizationTotal(customizationTotal);
+        order.setDiscountAmount(discountAmount);
+        order.setHadOrderLevelChangeFromPOS(false);
+
+        BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
+        BigDecimal taxAmount = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
+        BigDecimal totalAmount = subtotal.add(customizationTotal).add(deliveryFee).add(taxAmount).subtract(discountAmount);
+        order.setTotalAmount(totalAmount);
+
+        log.info("💾 [SAVING ORDER ITEMS] Order ID: {}, Items: {}, Total: {} (Subtotal: {}, Customization: {}, Delivery: {}, Discount: {})",
+            orderId, order.getItems().size(), totalAmount, subtotal, customizationTotal, deliveryFee, discountAmount);
+
+        orderRepository.save(order);
+        log.info("✅ [ORDER ITEMS SAVED] Successfully saved {} items with customizations for order: {}", order.getItems().size(), orderId);
     }
 
     private void applyPricingToOrder(Order order, OrderCreateRequest.PricingInfo pricingInfo) {

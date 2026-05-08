@@ -1,15 +1,23 @@
 package com.emenu.features.order.dto.request;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
- * Cart item for order creation request - clean payload without audit trail fields
+ * Cart item for order creation request - matches POSCheckoutItemRequest structure
+ * Supports customizations for items with add-ons/modifiers
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CartItemRequest {
     private UUID id;
 
@@ -20,6 +28,10 @@ public class CartItemRequest {
     private UUID productSizeId;
     private String sizeName;
     private String status;
+
+    // SKU and barcode
+    private String sku;
+    private String barcode;
 
     // Pricing
     private BigDecimal currentPrice;
@@ -38,4 +50,18 @@ public class CartItemRequest {
     private BigDecimal promotionValue;
     private LocalDateTime promotionFromDate;
     private LocalDateTime promotionToDate;
+
+    // Customizations/Add-ons - matches POSCheckoutItemRequest
+    private List<CustomizationDetail> customizations;
+
+    // ─── Customization Detail Nested Class ───
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CustomizationDetail {
+        private UUID productCustomizationId;
+        private String name;
+        private BigDecimal priceAdjustment;
+    }
 }

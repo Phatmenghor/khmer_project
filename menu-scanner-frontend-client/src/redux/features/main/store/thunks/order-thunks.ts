@@ -12,16 +12,14 @@ import { OrderFromEnum } from "@/enums/order.enum";
 
 export interface CheckoutPayload {
   businessId: string;
-  addressId?: string;
-  customerId?: string;
-  customerAddress?: string;
+  addressId: string;
   deliveryOption: {
     name: string;
     description: string;
     imageUrl: string;
     price: number;
   };
-  // Customer details
+  // Customer details (from authenticated user)
   customerName?: string;
   customerPhone?: string;
   customerEmail?: string;
@@ -36,28 +34,38 @@ export interface CheckoutPayload {
       productSizeId: string | null;
       sizeName: string;
       status: string;
+      sku?: string;
+      barcode?: string;
+      // Pricing
       currentPrice: number;
       finalPrice: number;
       hasPromotion: boolean;
       quantity: number;
+      // Pricing breakdown
       totalBeforeDiscount: number;
       discountAmount: number;
       totalPrice: number;
+      // Promotion details
       promotionType: string;
       promotionValue: number;
       promotionFromDate: string;
       promotionToDate: string;
-      sku?: string;
-      barcode?: string;
+      // Customizations/Add-ons
+      customizations?: Array<{
+        productCustomizationId: string;
+        name: string;
+        priceAdjustment: number;
+      }>;
     }>;
     totalItems: number;
     totalQuantity: number;
     subtotalBeforeDiscount: number;
     subtotal: number;
-    discountAmount: number;
+    customizationTotal: number;  // Total cost of all customizations
+    totalDiscount: number;
     finalTotal: number;
   };
-  // Optional pricing information (for detailed pricing audit trail)
+  // Pricing information with detailed breakdown
   pricing?: {
     subtotal: number;
     deliveryFee: number;
@@ -73,7 +81,6 @@ export interface CheckoutPayload {
     paymentStatus: "PENDING";
   };
   customerNote: string;
-  businessNote?: string;
   orderFrom: OrderFromEnum;
   orderStatus?: OrderStatus;
 }

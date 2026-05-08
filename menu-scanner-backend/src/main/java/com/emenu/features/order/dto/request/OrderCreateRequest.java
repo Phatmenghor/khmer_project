@@ -14,8 +14,9 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
- * Unified checkout request for both public (customer) and POS (admin) orders
- * Matches POSCheckoutRequest pattern for consistency
+ * Unified checkout request following cart request structure
+ * All fields from cart items with customizations support
+ * Address is referenced by ID only (fetched from database)
  */
 @Data
 @Builder
@@ -26,16 +27,14 @@ public class OrderCreateRequest {
     @NotNull(message = "Business ID is required")
     private UUID businessId;
 
-    // Customer info (optional for POS orders)
-    private UUID customerId;
+    // Customer info from authenticated user
     private String customerName;
     private String customerPhone;
     private String customerEmail;
 
-    // Delivery address - use addressId to fetch from database for public checkout
-    // Or use full customerAddress for POS/walk-up orders
+    // Delivery address - ID only (fetches from database)
+    @NotNull(message = "Address ID is required")
     private UUID addressId;
-    private String customerAddress;
 
     // Delivery option (full object with price)
     @Valid
