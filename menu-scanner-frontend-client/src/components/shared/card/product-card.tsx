@@ -50,12 +50,26 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sizePickerProduct, setSizePickerProduct] = useState<ProductDetailResponseModel | null>(null);
+  // Local state for instant UI updates - displays immediately when clicking +/-
+  // Redux and API updates happen in background
+  const [localQuantity, setLocalQuantity] = useState<number | null>(null);
 
   // Use optimized memoized selectors - only subscribe to this product's quantity
   // CRITICAL: This component only re-renders when THIS product's quantity changes,
   // not when any other cart item changes!
   const quantity = useSelector((state: RootState) => selectProductQuantityInCart(state, product.id, null));
   const totalQuantity = useSelector((state: RootState) => selectProductTotalQuantity(state, product.id));
+
+  // Use local quantity if set (for instant UI updates), fallback to Redux quantity
+  const displayQuantityValue = localQuantity !== null ? localQuantity : quantity;
+
+  // Sync local state with Redux when Redux updates
+  useEffect(() => {
+    if (localQuantity !== null && localQuantity === quantity) {
+      // API response confirmed, clear local state override
+      setLocalQuantity(null);
+    }
+  }, [quantity, localQuantity]);
 
   // Derive from the favorites store (authoritative) — falls back to prop when not yet loaded.
   // This fixes the bug where navigating away and back shows stale isFavorited from listing data.
@@ -225,13 +239,15 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       return;
     }
 
-    // Increment the quantity (source of truth: Redux)
-    const newQty = quantity + 1;
+    // Increment the quantity
+    const newQty = (displayQuantityValue) + 1;
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    // Dispatch optimistic update to Redux immediately
-    // User sees +1 instantly, no loading state
+    // UPDATE UI FIRST - instant display update
+    setLocalQuantity(newQty);
+
+    // Then dispatch to Redux in background
     cartDispatch(
       updateLocalCartItem({
         productId: product.id,
@@ -244,7 +260,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     // Queue API call with debounce (500ms)
     // Multiple rapid clicks get batched into single API call
     debouncedUpdate(key, product.id, null, newQty, ts);
-  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate]);
+  }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
   /**
    * Decrement quantity by 1, remove if reaches 0
@@ -268,12 +284,14 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     }
 
     // Decrement the quantity (min 0, which triggers removal)
-    const newQty = Math.max(0, quantity - 1);
+    const newQty = Math.max(0, displayQuantityValue - 1);
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    // Dispatch optimistic update to Redux immediately
-    // If quantity = 0, item is removed from cart state
+    // UPDATE UI FIRST - instant display update
+    setLocalQuantity(newQty);
+
+    // Then dispatch to Redux in background
     cartDispatch(
       updateLocalCartItem({
         productId: product.id,
@@ -284,14 +302,14 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     );
 
     // Show removal message when reaching 0
-    if (quantity === 1) {
+    if (newQty === 0) {
       showToast.success("Removed from cart");
     }
 
     // Queue API call with debounce
     // Backend receives quantity=0 and deletes the cart item
     debouncedUpdate(key, product.id, null, newQty, ts);
-  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate]);
+  }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
   // Favorite toggle with optimistic UI update (like Facebook)
   // Updates UI instantly, syncs with API in background
@@ -430,10 +448,9 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   );
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";
-  // Display logic for consistency with +/- button updates:
-  // - If simple variant (no size) is in cart: show its quantity (what +/- updates)
-  // - If only sized variants in cart: show total (user must use modal to modify)
-  const displayQuantity = quantity > 0 ? quantity : totalQuantity;
+  // Display the quantity that +/- buttons are updating
+  // Uses local state for instant UI updates, falls back to Redux quantity
+  const displayQuantity = displayQuantityValue;
 
   return (
     <>
