@@ -120,7 +120,7 @@ export default function CartPage() {
     loaded,
   } = useCartState();
 
-  const { debouncedUpdate, immediateUpdate, isUpdating } = useCartDebounce(dispatch);
+  const { debouncedUpdate, immediateUpdate } = useCartDebounce(dispatch);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [clearCartModalOpen, setClearCartModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -225,7 +225,6 @@ export default function CartPage() {
             )}
             {items.map((item, index) => {
               const uniqueKey = `cart-${item.id}-${index}`;
-              const itemKey = cartItemKey(item.productId, item.productSizeId);
               return (
               <CartItemCard
                 key={uniqueKey}
@@ -248,7 +247,6 @@ export default function CartPage() {
                 onRemove={() => handleRemoveItem(item.productId, item.productSizeId)}
                 showLink={true}
                 showControls={true}
-                isUpdating={isUpdating(itemKey)}
               />
             );
             })}
