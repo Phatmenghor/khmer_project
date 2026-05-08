@@ -11,6 +11,7 @@ import {
   deletePaymentOptionService,
   fetchAllPaymentOptionsService,
   fetchMyBusinessPaymentOptionsService,
+  fetchPublicPaymentOptionsService,
   fetchPaymentOptionByIdService,
   updatePaymentOptionService,
 } from "../thunks/payment-options-thunks";
@@ -99,6 +100,20 @@ const paymentOptionsSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchMyBusinessPaymentOptionsService.rejected, (state, action) => {
+        state.error = action.payload as string;
+        state.isLoading = false;
+      });
+
+    builder
+      .addCase(fetchPublicPaymentOptionsService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPublicPaymentOptionsService.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchPublicPaymentOptionsService.rejected, (state, action) => {
         state.error = action.payload as string;
         state.isLoading = false;
       });
