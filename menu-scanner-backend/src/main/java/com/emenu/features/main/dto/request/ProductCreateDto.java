@@ -24,8 +24,6 @@ public class ProductCreateDto {
     @NotNull(message = "Category is required")
     private UUID categoryId;
 
-    private UUID subcategoryId;
-
     private UUID brandId;
     
     @DecimalMin(value = "0.0", message = "Price must be non-negative")

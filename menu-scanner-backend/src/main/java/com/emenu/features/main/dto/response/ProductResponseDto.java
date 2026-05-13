@@ -55,9 +55,6 @@ public class ProductResponseDto extends BaseAuditResponse {
     private UUID categoryId;
     private String categoryName;
 
-    private UUID subcategoryId;
-    private String subcategoryName;
-
     private UUID brandId;
     private String brandName;
 
@@ -67,17 +64,11 @@ public class ProductResponseDto extends BaseAuditResponse {
     // Helper method to null out fields based on business settings
     public void applyBusinessSettings(
             Boolean useCategories,
-            Boolean useSubcategories,
             Boolean useBrands) {
 
         if (useCategories == null || !useCategories) {
             this.categoryId = null;
             this.categoryName = null;
-        }
-
-        if (useSubcategories == null || !useSubcategories) {
-            this.subcategoryId = null;
-            this.subcategoryName = null;
         }
 
         if (useBrands == null || !useBrands) {

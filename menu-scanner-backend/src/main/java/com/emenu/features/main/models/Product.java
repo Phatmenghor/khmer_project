@@ -43,13 +43,6 @@ public class Product extends BaseUUIDEntity {
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
     private Category category;
 
-    @Column(name = "subcategory_id")
-    private UUID subcategoryId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subcategory_id", insertable = false, updatable = false)
-    private Subcategory subCategory;
-
     @Column(name = "brand_id")
     private UUID brandId;
 
