@@ -336,10 +336,6 @@ export default function BulkPromotionPage() {
     dispatch(setPageNo(1));
   };
 
-  ) => {
-    dispatch(setPageNo(1));
-  };
-
   const handleProductStatusChange = (status: ProductStatus) => {
     dispatch(selectProductStatus(status));
     dispatch(setPageNo(1));
@@ -879,11 +875,6 @@ export default function BulkPromotionPage() {
                   dataSelect={selectedCategories}
                   onChangeSelected={handleCategoriesChange}
                   placeholder="All Categories"
-                  showAllOption={true}
-                />
-              </div>
-
-              <div className="min-w-0">
                   showAllOption={true}
                 />
               </div>

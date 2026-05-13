@@ -401,9 +401,6 @@ export default function ProductPromotionPage() {
     setSelectedCategories(categories);
   };
 
-  ) => {
-  };
-
   const handleSizeFilterChange = (value: string) => {
     setSizeFilter(value);
   };
@@ -454,9 +451,6 @@ export default function ProductPromotionPage() {
         showAllOption: true,
       },
       {
-        showAllOption: true,
-      },
-      {
         id: "size",
         type: "select",
         label: "Product Size",
@@ -484,6 +478,7 @@ export default function ProductPromotionPage() {
         options: SORT_DIRECTION_OPTIONS,
       },
     ],
+  }), [filters, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
