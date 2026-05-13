@@ -1204,23 +1204,21 @@ export default function PosPage() {
             dispatch(setEditingCartItemId(null));
           }
         }}
-        onSizeSelect={(product, size, qty, customizationIds) => {
+        onSizeSelect={(product, size, qty) => {
           const editingItem = editingCartItemId
             ? cartItems.find((item) => item.id === editingCartItemId)
             : null;
-          const initialCustomIds = editingItem?.customizations?.map((c) => c.productCustomizationId) || lastSelectedCustomizations?.[sizePickerProduct?.id] || [];
-          addToCart(product, size, editingCartItemId || undefined, qty || 1, initialCustomIds);
+          const sizePickerId = sizePickerProduct?.id;
+          const lastCustomIds = sizePickerId && lastSelectedCustomizations ? lastSelectedCustomizations[sizePickerId] : [];
+          const initialCustomIds = editingItem?.customizations?.map((c) => c.productCustomizationId) || lastCustomIds;
+          addToCart(product, sizePickerProduct, editingCartItemId || undefined, qty || 1, initialCustomIds);
           dispatch(setSizePickerProduct(null));
           dispatch(setEditingCartItemId(null));
         }}
         isEditing={!!editingCartItemId}
         editingId={editingCartItemId || undefined}
-        initialQuantities={sizePickerProduct ? buildQuantityMap(cartItems, sizePickerProduct.id) : new Map()}
-        initialCustomizations={
-          editingCartItemId
-            ? cartItems.find((item) => item.id === editingCartItemId)?.customizations?.map((c) => c.productCustomizationId) || []
-            : lastSelectedCustomizations?.[sizePickerProduct?.id] || []
-        }
+        initialQuantities={buildQuantityMap(cartItems, sizePickerProduct?.id)}
+        initialCustomizations={[]}
         cartItems={cartItems}
       />
 
@@ -1266,3 +1264,4 @@ export default function PosPage() {
     </div>
   );
 }
+
