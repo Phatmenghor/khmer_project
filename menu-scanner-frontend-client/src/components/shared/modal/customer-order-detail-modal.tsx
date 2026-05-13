@@ -208,46 +208,64 @@ export function CustomerOrderDetailModal({
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-3">
                   <h4 className="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-3">💰 Pricing Details</h4>
                   <div className="space-y-3">
-                    {/* Before Snapshot */}
+                    {/* Pricing Snapshot */}
                     {(() => {
-                      const before = orderData.pricing?.before;
+                      const pricing = orderData.pricing?.before || orderData.pricing;
+                      const items = orderData.items?.length || 0;
+                      const subtotal = pricing?.subtotal ?? 0;
+                      const customizationTotal = pricing?.customizationTotal ?? 0;
+                      const discountAmount = pricing?.discountAmount ?? 0;
+                      const deliveryFee = pricing?.deliveryFee ?? 0;
+                      const taxAmount = pricing?.taxAmount ?? 0;
+                      const finalTotal = pricing?.finalTotal ?? 0;
+
                       return (
                         <div className="bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-900 rounded p-3 space-y-2">
                           <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 font-bold mb-2">📌 Pricing</h5>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                             <DisplayField
                               label="Items"
-                              value={String(before?.totalItems || 0)}
+                              value={String(items)}
                             />
                             <DisplayField
                               label="Subtotal"
-                              value={formatCurrency(before?.subtotal || 0)}
+                              value={formatCurrency(subtotal)}
                             />
-                            {(before?.discountAmount ?? 0) > 0 && (
+                            {customizationTotal > 0 && (
+                              <DisplayField
+                                label="Customization"
+                                value={
+                                  <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                                    +{formatCurrency(customizationTotal)}
+                                  </span>
+                                }
+                              />
+                            )}
+                            {discountAmount > 0 && (
                               <DisplayField
                                 label="Discount"
                                 value={
                                   <span className="text-red-600 dark:text-red-400 font-semibold">
-                                    -{formatCurrency(before!.discountAmount)}
+                                    -{formatCurrency(discountAmount)}
                                   </span>
                                 }
                               />
                             )}
                             <DisplayField
                               label="Delivery Fee"
-                              value={formatCurrency(before?.deliveryFee || 0)}
+                              value={formatCurrency(deliveryFee)}
                             />
-                            {(before?.taxAmount ?? 0) > 0 && (
+                            {taxAmount > 0 && (
                               <DisplayField
                                 label="Tax"
-                                value={formatCurrency(before!.taxAmount)}
+                                value={formatCurrency(taxAmount)}
                               />
                             )}
                             <DisplayField
                               label="Final Total"
                               value={
                                 <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                                  {formatCurrency(before?.finalTotal || 0)}
+                                  {formatCurrency(finalTotal)}
                                 </span>
                               }
                             />
@@ -293,11 +311,6 @@ export function CustomerOrderDetailModal({
                               <h4 className="font-semibold text-sm">
                                 #{idx + 1} - {item.product?.name || "Unknown"}
                               </h4>
-                              {(item.before?.discountAmount ?? 0) > 0 && (
-                                <span className="text-xs px-2 py-1 bg-red-600 dark:bg-red-700 text-white rounded whitespace-nowrap">
-                                  💰 Discounted
-                                </span>
-                              )}
                             </div>
                             {/* Size and SKU */}
                             {item.product?.sizeName && (
@@ -305,6 +318,15 @@ export function CustomerOrderDetailModal({
                                 Size: <span className="font-medium">{item.product.sizeName}</span>
                               </div>
                             )}
+                            {/* SKU and Barcode */}
+                            <div className="text-xs text-muted-foreground space-x-2">
+                              {item.product?.sku && (
+                                <span>SKU: <span className="font-mono">{item.product.sku}</span></span>
+                              )}
+                              {item.product?.barcode && (
+                                <span>| Barcode: <span className="font-mono">{item.product.barcode}</span></span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -314,21 +336,49 @@ export function CustomerOrderDetailModal({
                         <div className="grid grid-cols-3 gap-3 text-xs">
                           <div>
                             <span className="text-muted-foreground">Quantity:</span>
-                            <p className="font-medium">{item.before?.quantity || 0}</p>
+                            <p className="font-medium">{item.quantity || 0}</p>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Unit Price:</span>
                             <p className="font-medium">
-                              {formatCurrency(item.before?.finalPrice || 0)}
+                              {formatCurrency(item.finalPrice || 0)}
                             </p>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Subtotal:</span>
                             <p className="font-bold text-green-600 dark:text-green-400">
-                              {formatCurrency(item.before?.totalPrice || 0)}
+                              {formatCurrency(item.totalPrice || 0)}
                             </p>
                           </div>
                         </div>
+
+                        {/* Customizations if any */}
+                        {item.customizations && item.customizations.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-border/50">
+                            <p className="text-xs font-semibold text-foreground mb-2">Customizations:</p>
+                            <div className="space-y-1">
+                              {item.customizations.map((customization, cidx) => (
+                                <div
+                                  key={cidx}
+                                  className="flex justify-between text-xs text-muted-foreground"
+                                >
+                                  <span>{customization.name}</span>
+                                  <span className="text-blue-600 dark:text-blue-400 font-medium">
+                                    +{formatCurrency(customization.priceAdjustment)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            {item.customizationTotal && item.customizationTotal > 0 && (
+                              <div className="flex justify-between text-xs font-semibold text-foreground mt-2 pt-2 border-t border-border/30">
+                                <span>Customization Total:</span>
+                                <span className="text-blue-600 dark:text-blue-400">
+                                  +{formatCurrency(item.customizationTotal)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
