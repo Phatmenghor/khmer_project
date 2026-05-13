@@ -7,7 +7,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { POSPageState, PosPageCartItem, OrderPricingWithAuditTrail } from "../models/type/pos-page-type";
 import {
   fetchPOSPageCategoriesService,
-  fetchPOSPageSubcategoriesService,
   fetchPOSPageBrandsService,
   fetchPOSPageProductsService,
   createPOSPageOrderService,
@@ -15,7 +14,6 @@ import {
 import { ProductDetailResponseModel } from "../models/response/product-response";
 import { DeliveryOptionsResponseModel } from "@/redux/features/master-data/store/models/response/delivery-options-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import type { POSFilterState } from "@/utils/persistence/use-pos-persistence";
 
@@ -29,10 +27,8 @@ const initialState: POSPageState = {
   selectedCategory: null,
   selectedBrand: null,
   categories: [],
-  subcategories: [],
   brands: [],
   categoriesLoading: true,
-  subcategoriesLoading: true,
   brandsLoading: true,
   productPage: 1,
   hasMoreProducts: true,
@@ -47,7 +43,6 @@ const initialState: POSPageState = {
   successOrder: null,
   showOrderDetailsModal: false,
   brandOpen: false,
-  subcategoryOpen: false,
   promotionFilter: undefined,
   promotionOpen: false,
 };
@@ -83,24 +78,17 @@ const posPageSlice = createSlice({
     setSelectedCategory: (state, action: PayloadAction<CategoriesResponseModel | null>) => {
       state.selectedCategory = action.payload;
     },
-    },
     setSelectedBrand: (state, action: PayloadAction<BrandResponseModel | null>) => {
       state.selectedBrand = action.payload;
     },
     setCategories: (state, action: PayloadAction<CategoriesResponseModel[]>) => {
       state.categories = action.payload;
     },
-    setSubcategories: (state, action: PayloadAction<SubcategoriesResponseModel[]>) => {
-      state.subcategories = action.payload;
-    },
     setBrands: (state, action: PayloadAction<BrandResponseModel[]>) => {
       state.brands = action.payload;
     },
     setCategoriesLoading: (state, action: PayloadAction<boolean>) => {
       state.categoriesLoading = action.payload;
-    },
-    setSubcategoriesLoading: (state, action: PayloadAction<boolean>) => {
-      state.subcategoriesLoading = action.payload;
     },
     setBrandsLoading: (state, action: PayloadAction<boolean>) => {
       state.brandsLoading = action.payload;
@@ -171,9 +159,6 @@ const posPageSlice = createSlice({
     setBrandOpen: (state, action: PayloadAction<boolean>) => {
       state.brandOpen = action.payload;
     },
-    setSubcategoryOpen: (state, action: PayloadAction<boolean>) => {
-      state.subcategoryOpen = action.payload;
-    },
     setPromotionFilter: (state, action: PayloadAction<boolean | undefined>) => {
       state.promotionFilter = action.payload;
     },
@@ -216,18 +201,6 @@ const posPageSlice = createSlice({
       })
       .addCase(fetchPOSPageCategoriesService.rejected, (state) => {
         state.categoriesLoading = false;
-      });
-
-    builder
-      .addCase(fetchPOSPageSubcategoriesService.pending, (state) => {
-        state.subcategoriesLoading = true;
-      })
-      .addCase(fetchPOSPageSubcategoriesService.fulfilled, (state, action) => {
-        state.subcategories = action.payload;
-        state.subcategoriesLoading = false;
-      })
-      .addCase(fetchPOSPageSubcategoriesService.rejected, (state) => {
-        state.subcategoriesLoading = false;
       });
 
     builder
@@ -298,10 +271,8 @@ export const {
   setSelectedCategory,
   setSelectedBrand,
   setCategories,
-  setSubcategories,
   setBrands,
   setCategoriesLoading,
-  setSubcategoriesLoading,
   setBrandsLoading,
   setProductPage,
   setHasMoreProducts,
@@ -321,7 +292,6 @@ export const {
   setSuccessOrder,
   setShowOrderDetailsModal,
   setBrandOpen,
-  setSubcategoryOpen,
   setPromotionFilter,
   setPromotionOpen,
   loadPersistedFilters,
