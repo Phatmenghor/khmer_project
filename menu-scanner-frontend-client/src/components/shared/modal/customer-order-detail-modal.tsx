@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { useAppDispatch } from "@/redux/store";
 import { fetchOrderDetailsService } from "@/redux/features/main/store/thunks/my-orders-thunks";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
@@ -138,6 +138,14 @@ export function CustomerOrderDetailModal({
                       value={orderData.orderNumber}
                     />
                     <DisplayField
+                      label="Order Type"
+                      value={
+                        orderData.orderFrom === "CUSTOMER"
+                          ? "Customer (Public)"
+                          : "Business (POS)"
+                      }
+                    />
+                    <DisplayField
                       label="Order Status"
                       value={getOrderStatusLabel(orderData.orderStatus)}
                     />
@@ -167,7 +175,7 @@ export function CustomerOrderDetailModal({
                       label="Customer Name"
                       value={
                         <span className="font-semibold text-foreground">
-                          {orderData.customerName || "Customer"}
+                          {orderData.customerName || "Walk-in Customer"}
                         </span>
                       }
                     />
@@ -206,73 +214,88 @@ export function CustomerOrderDetailModal({
 
                 {/* Pricing Details */}
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-3">
-                  <h4 className="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-3">💰 Pricing Details</h4>
+                  <h4 className="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-3">💰 Pricing Breakdown</h4>
                   <div className="space-y-3">
-                    {/* Pricing Snapshot */}
-                    {(() => {
-                      const pricing = orderData.pricing?.before || orderData.pricing;
-                      const items = orderData.items?.length || 0;
-                      const subtotal = pricing?.subtotal ?? 0;
-                      const customizationTotal = pricing?.customizationTotal ?? 0;
-                      const discountAmount = pricing?.discountAmount ?? 0;
-                      const deliveryFee = pricing?.deliveryFee ?? 0;
-                      const taxAmount = pricing?.taxAmount ?? 0;
-                      const finalTotal = pricing?.finalTotal ?? 0;
-
-                      return (
-                        <div className="bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-900 rounded p-3 space-y-2">
-                          <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 font-bold mb-2">📌 Pricing</h5>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                    <div className="bg-white dark:bg-gray-950/30 border border-amber-100 dark:border-amber-900 rounded p-3 space-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                        <DisplayField
+                          label="Items"
+                          value={String(orderData.items?.length || 0)}
+                        />
+                        <DisplayField
+                          label="Subtotal"
+                          value={
+                            <span className="font-semibold">
+                              {formatCurrency(orderData.pricing?.subtotal || 0)}
+                            </span>
+                          }
+                        />
+                        {(orderData.pricing?.customizationTotal ?? 0) > 0 && (
+                          <DisplayField
+                            label="Customizations/Add-ons"
+                            value={
+                              <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                                +{formatCurrency(orderData.pricing!.customizationTotal)}
+                              </span>
+                            }
+                          />
+                        )}
+                        <DisplayField
+                          label="Delivery Fee"
+                          value={formatCurrency(orderData.pricing?.deliveryFee || 0)}
+                        />
+                        {(orderData.pricing?.taxPercentage ?? 0) > 0 && (
+                          <DisplayField
+                            label={`Tax (${orderData.pricing?.taxPercentage}%)`}
+                            value={
+                              <span className="text-green-600 dark:text-green-400 font-semibold">
+                                +{formatCurrency(orderData.pricing?.taxAmount || 0)}
+                              </span>
+                            }
+                          />
+                        )}
+                        {(orderData.pricing?.discountAmount ?? 0) > 0 && (
+                          <>
                             <DisplayField
-                              label="Items"
-                              value={String(items)}
-                            />
-                            <DisplayField
-                              label="Subtotal"
-                              value={formatCurrency(subtotal)}
-                            />
-                            {customizationTotal > 0 && (
-                              <DisplayField
-                                label="Customization"
-                                value={
-                                  <span className="text-blue-600 dark:text-blue-400 font-semibold">
-                                    +{formatCurrency(customizationTotal)}
-                                  </span>
-                                }
-                              />
-                            )}
-                            {discountAmount > 0 && (
-                              <DisplayField
-                                label="Discount"
-                                value={
-                                  <span className="text-red-600 dark:text-red-400 font-semibold">
-                                    -{formatCurrency(discountAmount)}
-                                  </span>
-                                }
-                              />
-                            )}
-                            <DisplayField
-                              label="Delivery Fee"
-                              value={formatCurrency(deliveryFee)}
-                            />
-                            {taxAmount > 0 && (
-                              <DisplayField
-                                label="Tax"
-                                value={formatCurrency(taxAmount)}
-                              />
-                            )}
-                            <DisplayField
-                              label="Final Total"
+                              label="Discount"
                               value={
-                                <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                                  {formatCurrency(finalTotal)}
+                                <span className="text-red-600 dark:text-red-400 font-semibold">
+                                  -{formatCurrency(orderData.pricing!.discountAmount)}
                                 </span>
                               }
                             />
-                          </div>
+                            {orderData.pricing?.discountType && (
+                              <DisplayField
+                                label="Discount Type"
+                                value={
+                                  <span className="font-medium text-orange-600 dark:text-orange-400">
+                                    {orderData.pricing.discountType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
+                                  </span>
+                                }
+                              />
+                            )}
+                            {orderData.pricing?.discountReason && (
+                              <div className="md:col-span-2">
+                                <DisplayField
+                                  label="Discount Reason"
+                                  value={orderData.pricing.discountReason}
+                                />
+                              </div>
+                            )}
+                          </>
+                        )}
+                        <div className="md:col-span-2 border-t border-amber-100 dark:border-amber-900 pt-3 mt-2">
+                          <DisplayField
+                            label="Final Total"
+                            value={
+                              <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                {formatCurrency(orderData.pricing?.finalTotal || 0)}
+                              </span>
+                            }
+                          />
                         </div>
-                      );
-                    })()}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -286,102 +309,122 @@ export function CustomerOrderDetailModal({
                     🛒 Order Items ({orderData.items.length})
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {orderData.items.map((item, idx) => (
-                    <div
-                      key={item.id}
-                      className="p-4 border border-border/50 rounded-lg bg-card"
-                    >
-                      {/* Product Image and Header */}
-                      <div className="mb-3">
-                        <div className="flex items-start gap-3">
-                          {/* Product Image */}
-                          {item.product?.imageUrl && (
-                            <div className="flex-shrink-0 rounded-lg overflow-hidden border border-border">
-                              <img
-                                src={item.product.imageUrl}
-                                alt={item.product.name}
-                                className="w-16 h-16 object-cover"
-                              />
+                <CardContent className="space-y-4 pt-4">
+                  <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-lg p-3">
+                    <h4 className="text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider mb-4">Items List</h4>
+                    <div className="space-y-4">
+                      {orderData.items.map((item, idx) => (
+                        <div
+                          key={item.id}
+                          className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-950/30"
+                        >
+                          {/* Product Image and Header */}
+                          <div className="mb-3">
+                            <div className="flex items-start gap-3">
+                              {/* Product Image */}
+                              {item.product?.imageUrl && (
+                                <div className="flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                                  <img
+                                    src={item.product.imageUrl}
+                                    alt={item.product.name}
+                                    className="w-16 h-16 object-cover"
+                                  />
+                                </div>
+                              )}
+                              {/* Product Name and Details */}
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <h4 className="font-semibold text-sm">
+                                    #{idx + 1} - {item.product?.name || "Unknown"}
+                                  </h4>
+                                  {item.hasPromotion && (
+                                    <span className="inline-flex items-center gap-1 bg-transparent border border-red-500 dark:border-red-400 text-red-600 dark:text-red-400 px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                                      🔥 {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
+                                    </span>
+                                  )}
+                                </div>
+                                {/* Size, SKU, and Barcode */}
+                                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                  {item.product?.sizeName && (
+                                    <span>Size: <span className="font-medium">{item.product.sizeName}</span></span>
+                                  )}
+                                  {item.product?.sku && (
+                                    <span>SKU: <span className="font-mono font-medium text-foreground">{item.product.sku}</span></span>
+                                  )}
+                                  {item.product?.barcode && (
+                                    <span>Barcode: <span className="font-mono font-medium text-foreground">{item.product.barcode}</span></span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Item Pricing Grid */}
+                          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-xs border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
+                            {/* Qty */}
+                            <div className="space-y-1">
+                              <span className="text-muted-foreground text-xs font-medium">Qty:</span>
+                              <p className="font-bold text-lg">{item.quantity}</p>
+                            </div>
+
+                            {/* Original Price */}
+                            {item.hasPromotion && item.currentPrice && (
+                              <div className="space-y-1">
+                                <span className="text-muted-foreground text-xs font-medium">Original Price:</span>
+                                <p className="font-medium line-through text-orange-500 dark:text-orange-400 text-sm">{formatCurrency(item.currentPrice)}</p>
+                              </div>
+                            )}
+
+                            {/* Discount Amount */}
+                            {item.hasPromotion && (
+                              <div className="space-y-1">
+                                <span className="text-muted-foreground text-xs font-medium">Discount:</span>
+                                <p className="font-bold text-red-600 dark:text-red-400 text-sm">-{formatCurrency((item.currentPrice || 0) - (item.finalPrice || 0))}</p>
+                              </div>
+                            )}
+
+                            {/* Unit Price */}
+                            <div className="space-y-1">
+                              <span className="text-muted-foreground text-xs font-medium">Unit Price:</span>
+                              <p className="font-bold text-sm">{formatCurrency(item.finalPrice)}</p>
+                            </div>
+
+                            {/* Item Total */}
+                            <div className="space-y-1">
+                              <span className="text-muted-foreground text-xs font-medium">Item Total:</span>
+                              <p className="font-bold text-green-600 dark:text-green-400 text-sm">{formatCurrency(item.totalPrice)}</p>
+                            </div>
+
+                            {/* Add-ons */}
+                            {(item.customizationTotal ?? 0) > 0 && (
+                              <div className="space-y-1">
+                                <span className="text-muted-foreground text-xs font-medium">Add-ons:</span>
+                                <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">+{formatCurrency(item.customizationTotal)}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Customizations if any */}
+                          {item.customizations && item.customizations.length > 0 && (
+                            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-lg p-3 mt-3">
+                              <h5 className="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase mb-2">✨ Add-ons / Customizations</h5>
+                              <div className="space-y-1">
+                                {item.customizations.map((custom, cidx) => (
+                                  <div
+                                    key={cidx}
+                                    className="flex justify-between text-xs"
+                                  >
+                                    <span className="text-foreground">{custom.name}</span>
+                                    <span className="text-blue-600 dark:text-blue-400 font-semibold">+{formatCurrency(custom.priceAdjustment)}</span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           )}
-                          {/* Product Name and Details */}
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <h4 className="font-semibold text-sm">
-                                #{idx + 1} - {item.product?.name || "Unknown"}
-                              </h4>
-                            </div>
-                            {/* Size and SKU */}
-                            {item.product?.sizeName && (
-                              <div className="text-xs text-muted-foreground">
-                                Size: <span className="font-medium">{item.product.sizeName}</span>
-                              </div>
-                            )}
-                            {/* SKU and Barcode */}
-                            <div className="text-xs text-muted-foreground space-x-2">
-                              {item.product?.sku && (
-                                <span>SKU: <span className="font-mono">{item.product.sku}</span></span>
-                              )}
-                              {item.product?.barcode && (
-                                <span>| Barcode: <span className="font-mono">{item.product.barcode}</span></span>
-                              )}
-                            </div>
-                          </div>
                         </div>
-                      </div>
-
-                      {/* Item Pricing */}
-                      <div className="space-y-2">
-                        <div className="grid grid-cols-3 gap-3 text-xs">
-                          <div>
-                            <span className="text-muted-foreground">Quantity:</span>
-                            <p className="font-medium">{item.quantity || 0}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Unit Price:</span>
-                            <p className="font-medium">
-                              {formatCurrency(item.finalPrice || 0)}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Subtotal:</span>
-                            <p className="font-bold text-green-600 dark:text-green-400">
-                              {formatCurrency(item.totalPrice || 0)}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Customizations if any */}
-                        {item.customizations && item.customizations.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-border/50">
-                            <p className="text-xs font-semibold text-foreground mb-2">Customizations:</p>
-                            <div className="space-y-1">
-                              {item.customizations.map((customization, cidx) => (
-                                <div
-                                  key={cidx}
-                                  className="flex justify-between text-xs text-muted-foreground"
-                                >
-                                  <span>{customization.name}</span>
-                                  <span className="text-blue-600 dark:text-blue-400 font-medium">
-                                    +{formatCurrency(customization.priceAdjustment)}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                            {item.customizationTotal && item.customizationTotal > 0 && (
-                              <div className="flex justify-between text-xs font-semibold text-foreground mt-2 pt-2 border-t border-border/30">
-                                <span>Customization Total:</span>
-                                <span className="text-blue-600 dark:text-blue-400">
-                                  +{formatCurrency(item.customizationTotal)}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -434,9 +477,50 @@ export function CustomerOrderDetailModal({
                           <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">
                             Delivery Note
                           </label>
-                          <p className="text-sm text-foreground">
-                            {orderData.deliveryAddress.note}
-                          </p>
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="text-sm text-foreground flex-1">
+                              {orderData.deliveryAddress.note}
+                            </p>
+                            <div className="flex gap-1 flex-shrink-0">
+                              {/* Copy Button */}
+                              <button
+                                onClick={() => {
+                                  const fullAddress = [
+                                    orderData.deliveryAddress.houseNumber,
+                                    orderData.deliveryAddress.streetNumber,
+                                    orderData.deliveryAddress.village,
+                                    orderData.deliveryAddress.commune,
+                                    orderData.deliveryAddress.district,
+                                    orderData.deliveryAddress.province,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(", ");
+                                  navigator.clipboard.writeText(
+                                    `${fullAddress}\n\nDelivery Note: ${orderData.deliveryAddress.note}`
+                                  );
+                                  showToast.success("✅ Address copied!");
+                                }}
+                                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-950/30 p-2 rounded transition-colors font-semibold"
+                                title="Copy address and note"
+                              >
+                                📋 Copy
+                              </button>
+                              {/* View Google Maps Button */}
+                              {orderData.deliveryAddress.latitude &&
+                                orderData.deliveryAddress.longitude && (
+                                  <button
+                                    onClick={() => {
+                                      const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
+                                      window.open(mapsUrl, "_blank");
+                                    }}
+                                    className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-950/30 p-2 rounded transition-colors font-semibold"
+                                    title="View on Google Maps"
+                                  >
+                                    🗺️ Map
+                                  </button>
+                                )}
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
