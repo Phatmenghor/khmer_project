@@ -561,15 +561,6 @@ export default function ProductModal({
                       </div>
 
                       <div>
-                              shouldDirty: true,
-                            });
-                          }}
-                          disabled={isProcessing}
-                          showAllOption={false}
-                        />
-                      </div>
-
-                      <div>
                         <ComboboxSelectBrand
                           dataSelect={selectedBrand}
                           onChangeSelected={(brand) => {
