@@ -14,7 +14,6 @@ interface FetchProductsParams {
   page: number;
   search?: string;
   categoryId?: string;
-  subcategoryId?: string;
   brandId?: string;
   hasPromotion?: boolean;
   reset?: boolean;
@@ -99,7 +98,6 @@ export const fetchPOSPageProductsService = createAsyncThunk(
       }>("/api/v1/products/admin/pos/all", {
         search: params.search || undefined,
         categoryId: params.categoryId || undefined,
-        subcategoryId: params.subcategoryId || undefined,
         brandId: params.brandId || undefined,
         hasPromotion: params.hasPromotion,
         pageNo: params.page,

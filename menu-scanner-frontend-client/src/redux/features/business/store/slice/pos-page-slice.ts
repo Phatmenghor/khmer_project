@@ -27,7 +27,6 @@ const initialState: POSPageState = {
   productsError: null,
   searchTerm: "",
   selectedCategory: null,
-  selectedSubcategory: null,
   selectedBrand: null,
   categories: [],
   subcategories: [],
@@ -84,8 +83,6 @@ const posPageSlice = createSlice({
     setSelectedCategory: (state, action: PayloadAction<CategoriesResponseModel | null>) => {
       state.selectedCategory = action.payload;
     },
-    setSelectedSubcategory: (state, action: PayloadAction<SubcategoriesResponseModel | null>) => {
-      state.selectedSubcategory = action.payload;
     },
     setSelectedBrand: (state, action: PayloadAction<BrandResponseModel | null>) => {
       state.selectedBrand = action.payload;
@@ -299,7 +296,6 @@ export const {
   setProductsError,
   setSearchTerm,
   setSelectedCategory,
-  setSelectedSubcategory,
   setSelectedBrand,
   setCategories,
   setSubcategories,

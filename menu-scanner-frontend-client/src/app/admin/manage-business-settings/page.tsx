@@ -61,7 +61,6 @@ function convertResponseToFormData(
     contactEmail: response.contactEmail || "",
     businessHours: response.businessHours || [],
     useCategories: response.useCategories ?? true,
-    useSubcategories: response.useSubcategories ?? false,
     useBrands: response.useBrands ?? false,
   };
 }
@@ -88,7 +87,6 @@ export default function BusinessSettingsPage() {
       contactEmail: "",
       businessHours: [],
       useCategories: true,
-      useSubcategories: false,
       useBrands: false,
     },
   });
@@ -218,7 +216,6 @@ export default function BusinessSettingsPage() {
         contactEmail: data.contactEmail,
         businessHours: data.businessHours,
         useCategories: data.useCategories,
-        useSubcategories: data.useSubcategories,
         useBrands: data.useBrands,
       };
 
@@ -465,32 +462,24 @@ export default function BusinessSettingsPage() {
                 </Button>
               </div>
 
-              {/* Subcategories Toggle */}
               <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">Subcategories</h4>
-                    <Badge variant={form.watch("useSubcategories") ? "default" : "secondary"}>
-                      {form.watch("useSubcategories") ? "Enabled" : "Disabled"}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Show subcategories under main categories
                   </p>
                 </div>
                 <Button
                   type="button"
-                  variant={form.watch("useSubcategories") ? "default" : "outline"}
                   size="sm"
                   onClick={() =>
-                    form.setValue("useSubcategories", !form.watch("useSubcategories"), {
                       shouldDirty: true,
                     })
                   }
                   disabled={isSaving}
                   className="ml-4"
                 >
-                  {form.watch("useSubcategories") ? (
                     <>
                       <Eye className="h-4 w-4 mr-2" />
                       Show

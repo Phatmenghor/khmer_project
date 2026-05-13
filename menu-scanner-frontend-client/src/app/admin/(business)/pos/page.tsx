@@ -74,15 +74,10 @@ import {
   setProductsError,
   setSearchTerm,
   setSelectedCategory,
-  setSelectedSubcategory,
   setSelectedBrand,
   setCategories,
-  setSubcategories,
-    subcategories,
   setBrands,
   setCategoriesLoading,
-  setSubcategoriesLoading,
-    subcategoriesLoading,
   setBrandsLoading,
   setProductPage,
   setHasMoreProducts,
@@ -102,13 +97,11 @@ import {
   setSuccessOrder,
   setShowOrderDetailsModal,
   setBrandOpen,
-  setSubcategoryOpen,
   setPromotionFilter,
   setPromotionOpen,
 } from "@/redux/features/business/store/slice/pos-page-slice";
 import {
   fetchPOSPageCategoriesService,
-  fetchPOSPageSubcategoriesService,
   fetchPOSPageBrandsService,
   fetchPOSPageProductsService,
   createPOSCheckoutOrderService,
@@ -136,13 +129,10 @@ export default function PosPage() {
     productsError,
     searchTerm,
     selectedCategory,
-    selectedSubcategory,
     selectedBrand,
     categories,
-    subcategories,
     brands,
     categoriesLoading,
-    subcategoriesLoading,
     brandsLoading,
     productPage,
     hasMoreProducts,
@@ -157,7 +147,6 @@ export default function PosPage() {
     successOrder,
     showOrderDetailsModal,
     brandOpen,
-    subcategoryOpen,
     promotionFilter,
     promotionOpen,
   } = usePOSPageState();
@@ -216,7 +205,6 @@ export default function PosPage() {
   // ─── Initialize Categories, Brands, and Business Settings on Mount ───
   useEffect(() => {
     dispatch(fetchPOSPageCategoriesService());
-    dispatch(fetchPOSPageSubcategoriesService());
     dispatch(fetchPOSPageBrandsService());
     // Fetch business settings from Redux (includes tax percentage, colors, etc)
     dispatch(fetchBusinessSettingsThunk());
@@ -232,13 +220,11 @@ export default function PosPage() {
         page: 1,
         search: debouncedSearch,
         categoryId: selectedCategory?.id,
-        subcategoryId: selectedSubcategory?.id,
         brandId: selectedBrand?.id,
         hasPromotion: promotionFilter,
         reset: true,
       })
     );
-  }, [debouncedSearch, selectedCategory, selectedBrand, selectedSubcategory, promotionFilter, dispatch]);
 
   // Use constant skeleton count to avoid hydration mismatch
   const skeletonCount = 4;
@@ -252,7 +238,6 @@ export default function PosPage() {
         fetchPOSPageProductsService({
           page: nextPage,
           search: debouncedSearch,
-          subcategoryId: selectedSubcategory?.id,
           categoryId: selectedCategory?.id,
           brandId: selectedBrand?.id,
           hasPromotion: promotionFilter,
@@ -760,58 +745,41 @@ export default function PosPage() {
                 </Command>
               </PopoverContent>
             </Popover>
-            {/* Subcategory Filter */}
-            <Popover open={subcategoryOpen} onOpenChange={(open) => dispatch(setSubcategoryOpen(open))}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   role="combobox"
-                  aria-expanded={subcategoryOpen}
                   className="max-md:w-[140px] md:w-[200px] justify-between h-9 text-sm"
                 >
-                  {selectedSubcategory?.name || "All Subcategories"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0">
                 <Command>
-                  <CommandInput placeholder="Search subcategories..." />
-                  <CommandEmpty>No subcategory found.</CommandEmpty>
                   <CommandList>
                     <CommandGroup>
                       <CommandItem
                         value=""
                         onSelect={() => {
-                          dispatch(setSelectedSubcategory(null));
-                          dispatch(setSubcategoryOpen(false));
                         }}
                         className="cursor-pointer"
                       >
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            selectedSubcategory === null ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        All Subcategories
                       </CommandItem>
-                      {subcategories.map((subcategory) => (
                         <CommandItem
-                          key={subcategory.id}
-                          value={subcategory.id}
                           onSelect={() => {
-                            dispatch(setSelectedSubcategory(subcategory));
-                            dispatch(setSubcategoryOpen(false));
                           }}
                           className="cursor-pointer"
                         >
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              selectedSubcategory?.id === subcategory.id ? "opacity-100" : "opacity-0"
                             )}
                           />
-                          {subcategory.name}
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -874,7 +842,6 @@ export default function PosPage() {
               </PopoverContent>
             </Popover>
             {/* Clear All Filter Button */}
-            {(searchTerm || selectedCategory || selectedBrand || selectedSubcategory || promotionFilter !== undefined) && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -883,7 +850,6 @@ export default function PosPage() {
                   dispatch(setSearchTerm(""));
                   dispatch(setSelectedCategory(null));
                   dispatch(setSelectedBrand(null));
-                  dispatch(setSelectedSubcategory(null));
                   dispatch(setPromotionFilter(undefined));
                 }}
                 title="Clear all filters"
@@ -1010,7 +976,6 @@ export default function PosPage() {
                             page: 1,
                             search: debouncedSearch,
                             categoryId: selectedCategory?.id,
-                            subcategoryId: selectedSubcategory?.id,
                             brandId: selectedBrand?.id,
                             hasPromotion: promotionFilter,
                             reset: true,

@@ -10,7 +10,6 @@ const DEFAULT_SOCIAL_IMAGE = 'https://plus.unsplash.com/premium_photo-1673002094
  * - Display social media with fallback images
  * - Handle missing id fields
  * - Add/remove social media items
- * - Support categories and subcategories similarly
  */
 export function BusinessSettingsSocialMediaExample() {
   const { settings } = useBusinessSettingsCache({
@@ -157,8 +156,6 @@ export function BusinessSettingsSocialMediaExample() {
       {/* Render Categories Similarly */}
       <CategoriesExample businessId={settings?.businessId} />
 
-      {/* Render Subcategories Similarly */}
-      <SubcategoriesExample businessId={settings?.businessId} />
     </div>
   )
 }
@@ -227,10 +224,7 @@ function CategoriesExample({ businessId }: { businessId?: string }) {
 }
 
 /**
- * Example: Subcategories with Image and ID handling
  */
-function SubcategoriesExample({ businessId }: { businessId?: string }) {
-  const [subcategories, setSubcategories] = useState<any[]>([
     {
       id: '880e8400-e29b-41d4-a716-446655440001',
       categoryId: '770e8400-e29b-41d4-a716-446655440001',
@@ -245,20 +239,11 @@ function SubcategoriesExample({ businessId }: { businessId?: string }) {
     },
   ])
 
-  const handleRemoveSubcategory = (id: string) => {
-    setSubcategories(subcategories.filter((sub) => sub.id !== id))
   }
 
   return (
-    <section className="subcategories-section">
-      <h3>Subcategories</h3>
-      <div className="subcategories-list">
-        {subcategories.map((subcategory) => (
-          <div key={subcategory.id} className="subcategory-item">
             {/* Status indicator */}
             <div className="status">
-              {subcategory.id ? (
-                <span className="badge success">✓ Saved (ID: {subcategory.id})</span>
               ) : (
                 <span className="badge pending">● Not yet saved</span>
               )}
@@ -267,25 +252,18 @@ function SubcategoriesExample({ businessId }: { businessId?: string }) {
             {/* Item content */}
             <div className="item-content">
               <img
-                src={subcategory.imageUrl || DEFAULT_SOCIAL_IMAGE}
-                alt={subcategory.name}
-                className="subcategory-image"
                 onError={(e) => {
                   ;(e.target as HTMLImageElement).src = DEFAULT_SOCIAL_IMAGE
                 }}
               />
               <div className="item-info">
-                <h5>{subcategory.name}</h5>
-                {!subcategory.imageUrl && (
                   <p className="text-muted">Using default image</p>
                 )}
               </div>
             </div>
 
             {/* Action button */}
-            {subcategory.id && (
               <button
-                onClick={() => handleRemoveSubcategory(subcategory.id)}
                 className="btn-icon"
                 title="Remove"
               >

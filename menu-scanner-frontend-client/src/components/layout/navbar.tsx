@@ -74,7 +74,6 @@ const navigationLinks = [
   { name: "Products", href: "/products" },
   { name: "Promotions", href: "/promotions" },
   { name: "Categories", href: "/categories" },
-  { name: "Subcategories", href: "/subcategories" },
   { name: "Brands", href: "/brands" },
 ];
 

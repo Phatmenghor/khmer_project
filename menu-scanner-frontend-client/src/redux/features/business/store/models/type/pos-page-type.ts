@@ -68,7 +68,6 @@ export interface POSPageState {
   productsError: string | null;
   searchTerm: string;
   selectedCategory: CategoriesResponseModel | null;
-  selectedSubcategory: SubcategoriesResponseModel | null;
   selectedBrand: BrandResponseModel | null;
   categories: CategoriesResponseModel[];
   subcategories: SubcategoriesResponseModel[];

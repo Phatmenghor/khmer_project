@@ -68,9 +68,7 @@ const PROMOTION_FILTER_OPTIONS = [
 ];
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
-import { ComboboxSelectSubcategories } from "@/components/shared/combobox/combobox_select_subcategories";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { ProductStatus } from "@/constants/status/status";
 import { selectProductStatus } from "@/redux/features/business/store/slice/product-slice";
@@ -125,8 +123,6 @@ export default function BulkPromotionPage() {
   );
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
-  const [selectedSubcategories, setSelectedSubcategories] =
-    useState<SubcategoriesResponseModel | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [hasPromotionFilter, setHasPromotionFilter] = useState<string>("ALL");
   const [showResetModal, setShowResetModal] = useState(false);
@@ -192,7 +188,6 @@ export default function BulkPromotionPage() {
           filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
-        subcategoryId: selectedSubcategories?.id,
         hasPromotion:
           hasPromotionFilter === "HAS_PROMOTION"
             ? true
@@ -207,7 +202,6 @@ export default function BulkPromotionPage() {
     filters.status,
     selectedBrand,
     selectedCategories,
-    selectedSubcategories,
     debouncedSearchQuery,
     hasPromotionFilter,
   ]);
@@ -342,10 +336,7 @@ export default function BulkPromotionPage() {
     dispatch(setPageNo(1));
   };
 
-  const handleSubcategoriesChange = (
-    subcategories: SubcategoriesResponseModel | null,
   ) => {
-    setSelectedSubcategories(subcategories);
     dispatch(setPageNo(1));
   };
 
@@ -529,7 +520,6 @@ export default function BulkPromotionPage() {
           filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
-        subcategoryId: selectedSubcategories?.id,
         hasPromotion:
           hasPromotionFilter === "HAS_PROMOTION"
             ? true
@@ -553,7 +543,6 @@ export default function BulkPromotionPage() {
           filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
-        subcategoryId: selectedSubcategories?.id,
         hasPromotion:
           hasPromotionFilter === "HAS_PROMOTION"
             ? true
@@ -672,7 +661,6 @@ export default function BulkPromotionPage() {
             filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
           brandId: selectedBrand?.id,
           categoryId: selectedCategories?.id,
-          subcategoryId: selectedSubcategories?.id,
           hasPromotion:
             hasPromotionFilter === "HAS_PROMOTION"
               ? true
@@ -895,12 +883,7 @@ export default function BulkPromotionPage() {
                 />
               </div>
 
-              {/* Subcategory Filter */}
               <div className="min-w-0">
-                <ComboboxSelectSubcategories
-                  dataSelect={selectedSubcategories}
-                  onChangeSelected={handleSubcategoriesChange}
-                  placeholder="All Subcategories"
                   showAllOption={true}
                 />
               </div>

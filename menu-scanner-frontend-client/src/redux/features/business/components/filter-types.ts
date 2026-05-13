@@ -3,7 +3,6 @@
  * Define all filter types and configurations for dynamic filter panels
  */
 
-export type FilterType = 'select' | 'combobox-brand' | 'combobox-categories' | 'combobox-subcategories' | 'input-number' | 'input-text';
 
 export interface FilterOption {
   value: string;
@@ -35,8 +34,6 @@ export interface ComboboxCategoriesFilterConfig extends BaseFilterConfig {
   showAllOption?: boolean;
 }
 
-export interface ComboboxSubcategoriesFilterConfig extends BaseFilterConfig {
-  type: 'combobox-subcategories';
   showAllOption?: boolean;
 }
 
@@ -54,7 +51,6 @@ export type FilterConfig =
   | SelectFilterConfig
   | ComboboxBrandFilterConfig
   | ComboboxCategoriesFilterConfig
-  | ComboboxSubcategoriesFilterConfig
   | InputNumberFilterConfig
   | InputTextFilterConfig;
 

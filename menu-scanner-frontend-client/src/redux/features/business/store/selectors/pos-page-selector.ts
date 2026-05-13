@@ -23,7 +23,6 @@ export const selectSearchTerm = (state: RootState) => state.posPage.searchTerm;
 export const selectSelectedCategory = (state: RootState) =>
   state.posPage.selectedCategory;
 export const selectSelectedSubcategory = (state: RootState) =>
-  state.posPage.selectedSubcategory;
 export const selectSelectedBrand = (state: RootState) =>
   state.posPage.selectedBrand;
 export const selectCategories = (state: RootState) => state.posPage.categories;
