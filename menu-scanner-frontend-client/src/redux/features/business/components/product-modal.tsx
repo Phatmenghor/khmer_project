@@ -265,8 +265,6 @@ export default function ProductModal({
             } as CategoriesResponseModel);
           }
 
-          }
-
           reset({
             id: data.id,
             name: data.name || "",
