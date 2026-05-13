@@ -102,16 +102,6 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
           />
         );
 
-        return (
-            key={filter.id}
-            onChangeSelected={filter.onChange}
-            showAllOption={(filter as any).showAllOption !== false}
-            label={filter.label}
-            disabled={filter.disabled}
-            size="lg"
-          />
-        );
-
       case "input-number":
         return (
           <div key={filter.id} className="flex flex-col gap-1">
