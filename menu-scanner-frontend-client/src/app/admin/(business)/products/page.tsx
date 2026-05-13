@@ -379,9 +379,6 @@ export default function ProductPage() {
         showAllOption: true,
       },
       {
-        showAllOption: true,
-      },
-      {
         id: "size",
         type: "select",
         label: "Product Size",
@@ -417,6 +414,7 @@ export default function ProductPage() {
         options: SORT_DIRECTION_OPTIONS,
       }
     ],
+  }), [filters, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
