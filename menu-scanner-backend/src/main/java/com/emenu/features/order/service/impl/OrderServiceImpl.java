@@ -900,6 +900,35 @@ public class OrderServiceImpl implements OrderService {
                 order.setCustomerAddress(request.getCustomerAddress());
             }
 
+            // Apply pricing information BEFORE saving (required for NOT NULL constraints)
+            log.debug("💰 [PRICING] Applying POS pricing details before initial save...");
+            if (request.getPricing() != null) {
+                if (request.getPricing().getSubtotal() != null) {
+                    order.setSubtotal(request.getPricing().getSubtotal());
+                }
+                if (request.getPricing().getDeliveryFee() != null) {
+                    order.setDeliveryFee(request.getPricing().getDeliveryFee());
+                }
+                if (request.getPricing().getTaxPercentage() != null) {
+                    order.setTaxPercentage(request.getPricing().getTaxPercentage());
+                }
+                if (request.getPricing().getTaxAmount() != null) {
+                    order.setTaxAmount(request.getPricing().getTaxAmount());
+                }
+                if (request.getPricing().getDiscountAmount() != null) {
+                    order.setDiscountAmount(request.getPricing().getDiscountAmount());
+                }
+                if (request.getPricing().getDiscountType() != null) {
+                    order.setDiscountType(request.getPricing().getDiscountType());
+                }
+                if (request.getPricing().getDiscountReason() != null) {
+                    order.setDiscountReason(request.getPricing().getDiscountReason());
+                }
+                if (request.getPricing().getFinalTotal() != null) {
+                    order.setTotalAmount(request.getPricing().getFinalTotal());
+                }
+            }
+
             log.debug("💾 [STEP 2/6] Saving order...");
             Order savedOrder = orderRepository.save(order);
             log.info("✅ [ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
@@ -928,12 +957,6 @@ public class OrderServiceImpl implements OrderService {
                 createOrderItemsFromCartSummaryWithCustomizations(savedOrder.getId(), request.getCart());
             } else {
                 throw new ValidationException("Order must contain at least one item");
-            }
-
-            // Apply pricing information
-            if (request.getPricing() != null) {
-                log.debug("💰 [PRICING] Applying POS pricing details...");
-                applyPOSPricingToOrder(savedOrder, request.getPricing());
             }
 
             log.debug("💳 [STEP 5/6] Creating payment record...");
