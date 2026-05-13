@@ -462,37 +462,6 @@ export default function BusinessSettingsPage() {
                 </Button>
               </div>
 
-              <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() =>
-                      shouldDirty: true,
-                    })
-                  }
-                  disabled={isSaving}
-                  className="ml-4"
-                >
-                    <>
-                      <Eye className="h-4 w-4 mr-2" />
-                      Show
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="h-4 w-4 mr-2" />
-                      Hide
-                    </>
-                  )}
-                </Button>
-              </div>
-
               {/* Brands Toggle */}
               <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex-1">
