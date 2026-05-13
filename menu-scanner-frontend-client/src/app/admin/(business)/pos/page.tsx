@@ -745,48 +745,6 @@ export default function PosPage() {
                 </Command>
               </PopoverContent>
             </Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="max-md:w-[140px] md:w-[200px] justify-between h-9 text-sm"
-                >
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  <CommandList>
-                    <CommandGroup>
-                      <CommandItem
-                        value=""
-                        onSelect={() => {
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                          )}
-                        />
-                      </CommandItem>
-                        <CommandItem
-                          onSelect={() => {
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
             {/* Promotion Filter */}
             <Popover open={promotionOpen} onOpenChange={(open) => dispatch(setPromotionOpen(open))}>
               <PopoverTrigger asChild>
