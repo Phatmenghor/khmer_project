@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 
 interface SubcategoryCardProps {
@@ -40,7 +40,7 @@ export function SubcategoryCard({ subcategory, categoryId, className }: Subcateg
           className
         )}
       >
-        <CardContent className="p-4 sm:p-5 flex flex-col items-center justify-center gap-3">
+        <CardContent className="p-4 sm:p-5 flex flex-col items-center justify-center gap-2">
           {/* Icon/Image Container - Clean and centered */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
             {!imageError && subcategory.imageUrl ? (
@@ -65,15 +65,10 @@ export function SubcategoryCard({ subcategory, categoryId, className }: Subcateg
           </div>
 
           {/* Text Content */}
-          <div className="text-center space-y-1 flex-1">
+          <div className="text-center w-full">
             <h3 className="font-semibold text-xs sm:text-sm leading-tight line-clamp-2 text-foreground group-hover:text-primary transition-colors duration-300">
               {subcategory.name}
             </h3>
-          </div>
-
-          {/* CTA Arrow - Shows on hover */}
-          <div className="flex items-center justify-center">
-            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
           </div>
         </CardContent>
       </Card>
