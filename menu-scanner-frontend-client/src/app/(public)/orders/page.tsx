@@ -522,17 +522,6 @@ function createOrderTableColumns(
       ),
     },
     {
-      key: "createdAt",
-      label: "Created Date",
-      minWidth: "140px",
-      maxWidth: "170px",
-      render: (order) => (
-        <span className="text-xs text-muted-foreground">
-          {dateTimeFormat(order?.createdAt)}
-        </span>
-      ),
-    },
-    {
       key: "orderNumber",
       label: "Order #",
       minWidth: "100px",
@@ -542,6 +531,61 @@ function createOrderTableColumns(
           {order?.orderNumber || "---"}
         </span>
       ),
+    },
+    {
+      key: "customerName",
+      label: "Customer Info",
+      minWidth: "140px",
+      maxWidth: "180px",
+      truncate: true,
+      render: (order) => (
+        <div className="flex flex-col">
+          <span className="text-xs font-medium">{order?.customerName || "Walk-in"}</span>
+          <span className="text-xs text-muted-foreground">
+            {order?.customerPhone || "No phone"}
+          </span>
+          {order?.customerEmail && (
+            <span className="text-xs text-muted-foreground truncate">
+              {order.customerEmail}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "items",
+      label: "Items",
+      minWidth: "80px",
+      maxWidth: "110px",
+      render: (order) => (
+        <span className="text-xs font-medium">
+          {order?.items?.length || 0}
+        </span>
+      ),
+    },
+    {
+      key: "finalTotal",
+      label: "Total",
+      minWidth: "110px",
+      maxWidth: "140px",
+      render: (order) => {
+        const finalTotal = order?.pricing?.after?.finalTotal ?? order?.pricing?.before?.finalTotal ?? 0;
+        const hadChange = order?.pricing?.hadOrderLevelChangeFromPOS;
+        const beforeTotal = order?.pricing?.before?.finalTotal ?? 0;
+
+        return (
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-green-600 dark:text-green-400">
+              {formatCurrency(finalTotal)}
+            </span>
+            {hadChange && beforeTotal !== finalTotal && (
+              <span className="text-xs text-muted-foreground line-through">
+                {formatCurrency(beforeTotal)}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "orderStatus",
@@ -580,52 +624,52 @@ function createOrderTableColumns(
     },
     {
       key: "paymentStatus",
-      label: "Payment Status",
-      minWidth: "130px",
-      maxWidth: "160px",
+      label: "Payment",
+      minWidth: "110px",
+      maxWidth: "140px",
       render: (order) => {
         const paymentStatus = order?.payment?.paymentStatus || "---";
+        const getPaymentColor = (status: string) => {
+          switch (status) {
+            case "PAID":
+              return "text-green-600 dark:text-green-400 font-medium";
+            case "UNPAID":
+            case "PENDING":
+              return "text-orange-600 dark:text-orange-400 font-medium";
+            case "REFUNDED":
+              return "text-red-600 dark:text-red-400 font-medium";
+            default:
+              return "text-muted-foreground font-medium";
+          }
+        };
         return (
-          <span className="text-xs text-muted-foreground">
+          <span className={`text-xs ${getPaymentColor(paymentStatus)}`}>
             {paymentStatus}
           </span>
         );
       },
     },
     {
-      key: "items",
-      label: "Items",
-      minWidth: "80px",
-      maxWidth: "110px",
+      key: "deliveryOption",
+      label: "Delivery",
+      minWidth: "120px",
+      maxWidth: "150px",
       render: (order) => (
         <span className="text-xs font-medium">
-          {order?.items?.length || 0}
+          {order?.deliveryOption?.name || "---"}
         </span>
       ),
     },
     {
-      key: "finalTotal",
-      label: "Total",
-      minWidth: "110px",
-      maxWidth: "140px",
-      render: (order) => {
-        const finalTotal = order?.pricing?.after?.finalTotal ?? order?.pricing?.before?.finalTotal ?? 0;
-        const hadChange = order?.pricing?.hadOrderLevelChangeFromPOS;
-        const beforeTotal = order?.pricing?.before?.finalTotal ?? 0;
-
-        return (
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-green-600 dark:text-green-400">
-              {formatCurrency(finalTotal)}
-            </span>
-            {hadChange && beforeTotal !== finalTotal && (
-              <span className="text-xs text-muted-foreground line-through">
-                {formatCurrency(beforeTotal)}
-              </span>
-            )}
-          </div>
-        );
-      },
+      key: "createdAt",
+      label: "Created",
+      minWidth: "130px",
+      maxWidth: "160px",
+      render: (order) => (
+        <span className="text-xs text-muted-foreground">
+          {dateTimeFormat(order?.createdAt)}
+        </span>
+      ),
     },
     {
       key: "actions",
