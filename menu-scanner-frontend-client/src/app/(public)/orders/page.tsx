@@ -533,26 +533,6 @@ function createOrderTableColumns(
       ),
     },
     {
-      key: "customerName",
-      label: "Customer Info",
-      minWidth: "140px",
-      maxWidth: "180px",
-      truncate: true,
-      render: (order) => (
-        <div className="flex flex-col">
-          <span className="text-xs font-medium">{order?.customerName || "Walk-in"}</span>
-          <span className="text-xs text-muted-foreground">
-            {order?.customerPhone || "No phone"}
-          </span>
-          {order?.customerEmail && (
-            <span className="text-xs text-muted-foreground truncate">
-              {order.customerEmail}
-            </span>
-          )}
-        </div>
-      ),
-    },
-    {
       key: "items",
       label: "Items",
       minWidth: "80px",
