@@ -19,7 +19,7 @@ import {
   selectSelectedOrder,
   selectOrderAdminIsFetchingDetail,
 } from "../store/selectors/order-admin-selector";
-import { fetchOrderByIdAdminService } from "../store/thunks/order-admin-thunks";
+import { fetchOrderByIdAdminService, updateOrderAdminService } from "../store/thunks/order-admin-thunks";
 import { clearSelectedOrder } from "../store/slice/order-admin-slice";
 
 // Validation schema
@@ -55,7 +55,7 @@ const PAYMENT_METHOD_OPTIONS = [
 const PAYMENT_STATUS_OPTIONS = [
   { label: "Paid", value: "PAID" },
   { label: "Unpaid", value: "UNPAID" },
-  { label: "Pending", value: "PENDING" },
+  { label: "Refunded", value: "REFUNDED" },
 ];
 
 export function OrderUpdateModal({
@@ -80,7 +80,7 @@ export function OrderUpdateModal({
       orderStatus: "PENDING",
       businessNote: "",
       paymentMethod: "CASH",
-      paymentStatus: "PENDING",
+      paymentStatus: "UNPAID",
     },
     mode: "onChange",
   });
@@ -121,26 +121,20 @@ export function OrderUpdateModal({
         },
       };
 
-      const response = await fetch(`/api/v1/orders/${orderId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatePayload),
-      });
+      await dispatch(
+        updateOrderAdminService({
+          orderId,
+          orderData: updatePayload,
+        })
+      ).unwrap();
 
-      if (response.ok) {
-        showToast.success("✅ Order updated successfully!");
-        if (onOrderUpdated) {
-          onOrderUpdated();
-        }
-        handleClose();
-      } else {
-        const error = await response.json();
-        showToast.error(error.message || "Failed to update order");
+      showToast.success("✅ Order updated successfully!");
+      if (onOrderUpdated) {
+        onOrderUpdated();
       }
+      handleClose();
     } catch (error: any) {
-      showToast.error(error?.message || "Error updating order");
+      showToast.error(error || "Error updating order");
       console.error(error);
     } finally {
       setIsSaving(false);
