@@ -590,7 +590,7 @@ export default function PosPage() {
     // Order: before/after pricing + discount metadata
     const payload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
-      customerName: customerName || "Walk-in Customer",
+      customerName: "Walk-in Customer",
       customerPhone: "",
       customerEmail: "",
       customerAddress: "",  // POS address entry
