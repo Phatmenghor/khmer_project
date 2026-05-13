@@ -71,9 +71,7 @@ export const PAYMENT_STATUS_ADMIN_FILTER = [
   { value: "ALL", label: "All Payment" },
   { value: "PAID", label: "Paid" },
   { value: "UNPAID", label: "Unpaid" },
-  { value: "PENDING", label: "Pending" },
   { value: "REFUNDED", label: "Refunded" },
-  { value: "PARTIALLY_PAID", label: "Partially Paid" },
 ];
 
 export const SUBSCRIPTION_PLAN_FILTER = [
