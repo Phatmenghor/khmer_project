@@ -58,7 +58,7 @@ export function StockItemDetailModal({
 
   if (isFetchingDetail) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
         <DialogTitle className="sr-only">Stock Item Details Loading</DialogTitle>
         <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
@@ -70,7 +70,7 @@ export function StockItemDetailModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogTitle className="sr-only">
         Stock Item Details - {item.productName}
       </DialogTitle>

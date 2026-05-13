@@ -243,7 +243,7 @@ export function ProductStockItemManagementModal({
   );
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogTitle className="sr-only">
         Stock Management - {stockItem?.productName}
       </DialogTitle>

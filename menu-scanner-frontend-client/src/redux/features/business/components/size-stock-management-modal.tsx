@@ -261,7 +261,7 @@ export function SizeStockManagementModal({
   if (!product || !product.sizes || product.sizes.length === 0) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogTitle className="sr-only">
         Size Stock Management - {product?.name}
       </DialogTitle>
