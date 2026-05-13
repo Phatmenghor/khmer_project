@@ -309,7 +309,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-                GROUP BY p.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, p.price, p.display_price, p.display_promotion_type, p.display_promotion_value, p.display_promotion_from_date, p.display_promotion_to_date, p.has_active_promotion, p.main_image_url, p.status, p.stock_status, p.created_at, p.updated_at
+                GROUP BY p.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, p.price, p.promotion_type, p.promotion_value, p.promotion_from_date, p.promotion_to_date, p.main_image_url, p.status, p.stock_status, p.created_at, p.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
             UNION ALL
