@@ -31,7 +31,6 @@ export const businessSettingsSchema = z.object({
   ).optional(),
   // Feature Flags
   useCategories: z.boolean().optional(),
-  useSubcategories: z.boolean().optional(),
   useBrands: z.boolean().optional(),
 });
 

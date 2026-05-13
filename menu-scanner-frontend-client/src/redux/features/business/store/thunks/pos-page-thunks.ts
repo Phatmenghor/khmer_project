@@ -6,7 +6,6 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosClientWithAuth } from "@/utils/axios";
 import { ProductDetailResponseModel } from "../models/response/product-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { POSCheckoutRequest, POSCheckoutResponse } from "../models/request/pos-checkout-request";
 
@@ -41,27 +40,6 @@ export const fetchPOSPageCategoriesService = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to load categories"
-      );
-    }
-  }
-);
-
-// ─── Fetch Subcategories ───
-export const fetchPOSPageSubcategoriesService = createAsyncThunk(
-  "posPage/fetchSubcategories",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axiosClientWithAuth.post<{
-        data: { content: SubcategoriesResponseModel[] };
-      }>("/api/v1/subcategories/my-business/all", {
-        pageNo: 1,
-        pageSize: 100,
-        status: "ACTIVE",
-      });
-      return response.data.data.content || [];
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to load subcategories"
       );
     }
   }
