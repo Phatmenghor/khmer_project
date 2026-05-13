@@ -1,0 +1,63 @@
+import { axiosClientWithAuth } from "@/utils/axios";
+
+export interface StockDeductionItem {
+  productId: string;
+  quantity: number;
+  productSizeId?: string;
+}
+
+export interface StockDeductionRequest {
+  orderId: string;
+  items: StockDeductionItem[];
+  reason?: string;
+}
+
+export interface StockDeductionResponse {
+  success: boolean;
+  message: string;
+  deductedItems?: {
+    productId: string;
+    quantityDeducted: number;
+    remainingStock: number;
+  }[];
+}
+
+/**
+ * Deduct stock for order items when order is confirmed or completed
+ * Only deducts from items with 'PENDING' status in the database
+ */
+export const deductOrderStock = async (
+  request: StockDeductionRequest
+): Promise<StockDeductionResponse> => {
+  try {
+    const response = await axiosClientWithAuth.post<{
+      data: StockDeductionResponse;
+    }>("/api/v1/inventory/deduct-order-stock", request);
+
+    return response.data.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Failed to deduct stock"
+    );
+  }
+};
+
+/**
+ * Check if stock management is enabled in business settings
+ */
+export const checkStockManagementEnabled = (enableStock?: string): boolean => {
+  return enableStock === "ENABLED";
+};
+
+/**
+ * Format stock deduction items from order items
+ */
+export const formatStockDeductionItems = (
+  orderItems: any[]
+): StockDeductionItem[] => {
+  return orderItems.map((item) => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    productSizeId: item.productSizeId,
+  }));
+};

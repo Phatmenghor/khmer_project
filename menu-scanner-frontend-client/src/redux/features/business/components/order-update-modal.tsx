@@ -19,8 +19,14 @@ import {
   selectSelectedOrder,
   selectOrderAdminIsFetchingDetail,
 } from "../store/selectors/order-admin-selector";
+import { selectBusinessSettings } from "../store/selectors/business-settings-selector";
 import { fetchOrderByIdAdminService, updateOrderAdminService } from "../store/thunks/order-admin-thunks";
 import { clearSelectedOrder } from "../store/slice/order-admin-slice";
+import {
+  deductOrderStock,
+  checkStockManagementEnabled,
+  formatStockDeductionItems,
+} from "@/services/stock-management-service";
 
 // Validation schema
 const updateOrderSchema = z.object({
@@ -66,8 +72,10 @@ export function OrderUpdateModal({
 }: OrderUpdateModalProps) {
   const dispatch = useAppDispatch();
   const orderData = useAppSelector(selectSelectedOrder);
+  const businessSettings = useAppSelector(selectBusinessSettings);
   const isFetchingDetail = useAppSelector(selectOrderAdminIsFetchingDetail);
   const [isSaving, setIsSaving] = useState(false);
+  const [previousOrderStatus, setPreviousOrderStatus] = useState<string>("");
 
   const {
     control,
@@ -92,11 +100,13 @@ export function OrderUpdateModal({
 
   useEffect(() => {
     if (isOpen && orderData) {
+      const currentStatus = orderData.orderStatus || "PENDING";
+      setPreviousOrderStatus(currentStatus);
       reset({
-        orderStatus: orderData.orderStatus || "PENDING",
+        orderStatus: currentStatus,
         businessNote: orderData.businessNote || "",
         paymentMethod: orderData.payment?.paymentMethod || "CASH",
-        paymentStatus: orderData.payment?.paymentStatus || "PENDING",
+        paymentStatus: orderData.payment?.paymentStatus || "UNPAID",
       });
     }
   }, [isOpen, orderData, reset]);
@@ -108,7 +118,7 @@ export function OrderUpdateModal({
   };
 
   const onSubmit = async (data: UpdateOrderData) => {
-    if (!orderId) return;
+    if (!orderId || !orderData) return;
 
     setIsSaving(true);
     try {
@@ -121,6 +131,18 @@ export function OrderUpdateModal({
         },
       };
 
+      // Check if status is changing to CONFIRMED or COMPLETED
+      const isStatusChanging = previousOrderStatus !== data.orderStatus;
+      const isConfirmedOrCompleted = ["CONFIRMED", "COMPLETED"].includes(
+        data.orderStatus
+      );
+      const shouldDeductStock =
+        isStatusChanging &&
+        isConfirmedOrCompleted &&
+        businessSettings?.enableStock === "ENABLED" &&
+        orderData.items?.length > 0;
+
+      // Update order first
       await dispatch(
         updateOrderAdminService({
           orderId,
@@ -128,7 +150,35 @@ export function OrderUpdateModal({
         })
       ).unwrap();
 
-      showToast.success("✅ Order updated successfully!");
+      // Deduct stock if conditions are met
+      if (shouldDeductStock) {
+        try {
+          const stockItems = formatStockDeductionItems(orderData.items);
+          const stockResult = await deductOrderStock({
+            orderId,
+            items: stockItems,
+            reason: `Order status changed to ${data.orderStatus}`,
+          });
+
+          if (stockResult.success) {
+            showToast.success(
+              `✅ Order updated and stock deducted! ${stockResult.message}`
+            );
+          } else {
+            showToast.warning(
+              `✅ Order updated, but stock deduction had issues: ${stockResult.message}`
+            );
+          }
+        } catch (stockError: any) {
+          console.warn("Stock deduction warning:", stockError.message);
+          showToast.warning(
+            `Order updated, but stock deduction failed: ${stockError.message}`
+          );
+        }
+      } else {
+        showToast.success("✅ Order updated successfully!");
+      }
+
       if (onOrderUpdated) {
         onOrderUpdated();
       }
