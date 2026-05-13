@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { RootState } from "@/redux/store";
-import { fetchPublicSubcategories, FetchPublicSubcategoriesParams } from "../thunks/public-subcategories-thunks";
+import { fetchPublicSubcategoriesByCategory } from "../thunks/public-subcategories-thunks";
 import { resetSubcategories } from "../slice/public-subcategories-slice";
 
 export const usePublicSubcategoriesState = () => {
@@ -10,8 +10,8 @@ export const usePublicSubcategoriesState = () => {
   const isLoading = useAppSelector((state: RootState) => state.publicSubcategories?.isLoading || false);
   const error = useAppSelector((state: RootState) => state.publicSubcategories?.error || null);
 
-  const fetchSubcategories = (params: FetchPublicSubcategoriesParams) => {
-    return dispatch(fetchPublicSubcategories(params));
+  const fetchSubcategories = (params: { search?: string; status?: string }) => {
+    return dispatch(fetchPublicSubcategoriesByCategory(params));
   };
 
   const resetState = () => {

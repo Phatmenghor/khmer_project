@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchPublicSubcategories, CategoryWithSubcategories } from "../thunks/public-subcategories-thunks";
+import { fetchPublicSubcategories, fetchPublicSubcategoriesByCategory, CategoryWithSubcategories } from "../thunks/public-subcategories-thunks";
 
 interface PublicSubcategoriesState {
   data: CategoryWithSubcategories[];
@@ -30,6 +30,19 @@ const publicSubcategoriesSlice = createSlice({
         state.data = action.payload;
       })
       .addCase(fetchPublicSubcategories.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || "Failed to fetch subcategories";
+        state.data = [];
+      })
+      .addCase(fetchPublicSubcategoriesByCategory.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPublicSubcategoriesByCategory.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchPublicSubcategoriesByCategory.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || "Failed to fetch subcategories";
         state.data = [];
