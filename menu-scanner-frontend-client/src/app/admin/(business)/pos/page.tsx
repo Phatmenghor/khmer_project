@@ -1195,52 +1195,34 @@ export default function PosPage() {
           </div>
         </div>
       </div>
-      {useMemo(() => {
-        const initialQties = sizePickerProduct
-          ? buildQuantityMap(cartItems, sizePickerProduct.id)
-          : new Map<string, number>();
-
-        let initialCustomIds: string[] = [];
-
-        // If editing, get customizations from the existing item
-        if (editingCartItemId && sizePickerProduct) {
-          const editingItem = cartItems.find((item) => item.id === editingCartItemId);
-          if (editingItem && editingItem.customizations) {
-            initialCustomIds = editingItem.customizations.map((c) => c.productCustomizationId);
+      <SizePickerModal
+        product={sizePickerProduct}
+        open={!!sizePickerProduct}
+        onOpenChange={(open) => {
+          if (!open) {
+            dispatch(setSizePickerProduct(null));
+            dispatch(setEditingCartItemId(null));
           }
+        }}
+        onSizeSelect={(product, size, qty, customizationIds) => {
+          const editingItem = editingCartItemId
+            ? cartItems.find((item) => item.id === editingCartItemId)
+            : null;
+          const initialCustomIds = editingItem?.customizations?.map((c) => c.productCustomizationId) || lastSelectedCustomizations?.[sizePickerProduct?.id] || [];
+          addToCart(product, size, editingCartItemId || undefined, qty || 1, initialCustomIds);
+          dispatch(setSizePickerProduct(null));
+          dispatch(setEditingCartItemId(null));
+        }}
+        isEditing={!!editingCartItemId}
+        editingId={editingCartItemId || undefined}
+        initialQuantities={sizePickerProduct ? buildQuantityMap(cartItems, sizePickerProduct.id) : new Map()}
+        initialCustomizations={
+          editingCartItemId
+            ? cartItems.find((item) => item.id === editingCartItemId)?.customizations?.map((c) => c.productCustomizationId) || []
+            : lastSelectedCustomizations?.[sizePickerProduct?.id] || []
         }
-
-        // If not editing and no customizations found, use last stored customizations
-        if (!editingCartItemId && initialCustomIds.length === 0 && sizePickerProduct) {
-          const storedCustomIds = lastSelectedCustomizations?.[sizePickerProduct.id];
-          if (storedCustomIds && storedCustomIds.length > 0) {
-            initialCustomIds = storedCustomIds;
-          }
-        }
-
-        return (
-          <SizePickerModal
-            product={sizePickerProduct}
-            open={!!sizePickerProduct}
-            onOpenChange={(open) => {
-              if (!open) {
-                dispatch(setSizePickerProduct(null));
-                dispatch(setEditingCartItemId(null));
-              }
-            }}
-            onSizeSelect={(product, size, qty, customizationIds) => {
-              addToCart(product, size, editingCartItemId || undefined, qty || 1, customizationIds);
-              dispatch(setSizePickerProduct(null));
-              dispatch(setEditingCartItemId(null));
-            }}
-            isEditing={!!editingCartItemId}
-            editingId={editingCartItemId || undefined}
-            initialQuantities={initialQties}
-            initialCustomizations={initialCustomIds}
-            cartItems={cartItems}
-          />
-        );
-      }, [cartItems, sizePickerProduct?.id, editingCartItemId, lastSelectedCustomizations])}
+        cartItems={cartItems}
+      />
 
       <POSOrderSuccessModal
         open={!!successOrder}
