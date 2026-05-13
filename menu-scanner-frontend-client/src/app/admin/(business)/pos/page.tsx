@@ -1195,32 +1195,25 @@ export default function PosPage() {
           </div>
         </div>
       </div>
-      <SizePickerModal
-        product={sizePickerProduct}
-        open={!!sizePickerProduct}
-        onOpenChange={(open) => {
-          if (!open) {
+      {sizePickerProduct && (
+        <SizePickerModal
+          product={sizePickerProduct}
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) {
+              dispatch(setSizePickerProduct(null));
+              dispatch(setEditingCartItemId(null));
+            }
+          }}
+          onSizeSelect={(product, size, qty) => {
+            addToCart(product, size, editingCartItemId, qty || 1);
             dispatch(setSizePickerProduct(null));
             dispatch(setEditingCartItemId(null));
-          }
-        }}
-        onSizeSelect={(product, size, qty) => {
-          const editingItem = editingCartItemId
-            ? cartItems.find((item) => item.id === editingCartItemId)
-            : null;
-          const sizePickerId = sizePickerProduct?.id;
-          const lastCustomIds = sizePickerId && lastSelectedCustomizations ? lastSelectedCustomizations[sizePickerId] : [];
-          const initialCustomIds = editingItem?.customizations?.map((c) => c.productCustomizationId) || lastCustomIds;
-          addToCart(product, sizePickerProduct, editingCartItemId || undefined, qty || 1, initialCustomIds);
-          dispatch(setSizePickerProduct(null));
-          dispatch(setEditingCartItemId(null));
-        }}
-        isEditing={!!editingCartItemId}
-        editingId={editingCartItemId || undefined}
-        initialQuantities={buildQuantityMap(cartItems, sizePickerProduct?.id)}
-        initialCustomizations={[]}
-        cartItems={cartItems}
-      />
+          }}
+          isEditing={!!editingCartItemId}
+          cartItems={cartItems}
+        />
+      )}
 
       <POSOrderSuccessModal
         open={!!successOrder}
