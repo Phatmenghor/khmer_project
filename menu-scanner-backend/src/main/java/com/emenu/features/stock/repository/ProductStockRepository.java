@@ -254,35 +254,38 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                         WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
                             AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
                             AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
-                        THEN p.display_price
+                        THEN CASE
+                            WHEN p.promotion_type = 'PERCENTAGE' THEN (p.price::numeric * (1 - p.promotion_value / 100))::decimal
+                            ELSE (p.price::numeric - p.promotion_value)::decimal
+                        END
                         ELSE p.price
                     END::decimal as display_price,
                     CASE
                         WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
                             AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
                             AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
-                        THEN p.display_promotion_type
+                        THEN p.promotion_type
                         ELSE NULL
                     END::varchar as display_promotion_type,
                     CASE
                         WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
                             AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
                             AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
-                        THEN p.display_promotion_value
+                        THEN p.promotion_value
                         ELSE NULL
                     END::decimal as display_promotion_value,
                     CASE
                         WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
                             AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
                             AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
-                        THEN p.display_promotion_from_date
+                        THEN p.promotion_from_date
                         ELSE NULL
                     END as display_promotion_from_date,
                     CASE
                         WHEN p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
                             AND (p.promotion_from_date IS NULL OR CURRENT_TIMESTAMP >= p.promotion_from_date)
                             AND (p.promotion_to_date IS NULL OR CURRENT_TIMESTAMP <= p.promotion_to_date)
-                        THEN p.display_promotion_to_date
+                        THEN p.promotion_to_date
                         ELSE NULL
                     END as display_promotion_to_date,
                     (p.promotion_value IS NOT NULL AND p.promotion_type IS NOT NULL
