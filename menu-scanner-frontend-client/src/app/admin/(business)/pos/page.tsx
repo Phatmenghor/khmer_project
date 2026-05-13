@@ -814,7 +814,6 @@ export default function PosPage() {
               >
                 <X className="w-4 h-4" />
               </Button>
-            )}
           </div>
 
           {/* Categories Horizontal Scroll */}
