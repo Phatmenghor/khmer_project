@@ -48,6 +48,9 @@ interface CheckoutState {
   selectedAddressId: string | null;
   selectedDeliveryOptionId: string | null;
   selectedPaymentOptionId: string | null;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
   customerNote: string;
   isProcessing: boolean;
 }
@@ -85,6 +88,9 @@ export default function CheckoutPage() {
     selectedAddressId: null,
     selectedDeliveryOptionId: null,
     selectedPaymentOptionId: null,
+    customerName: "",
+    customerPhone: "",
+    customerEmail: "",
     customerNote: "",
     isProcessing: false,
   });
@@ -166,6 +172,18 @@ export default function CheckoutPage() {
     }
   }, [paymentOptions, checkoutState.selectedPaymentOptionId]);
 
+  // Populate customer information from profile on mount
+  useEffect(() => {
+    if (profile && mounted && authReady) {
+      setCheckoutState((prev) => ({
+        ...prev,
+        customerName: prev.customerName || profile?.fullName || "",
+        customerPhone: prev.customerPhone || profile?.phoneNumber || "",
+        customerEmail: prev.customerEmail || profile?.email || "",
+      }));
+    }
+  }, [profile, mounted, authReady]);
+
   const selectedAddress = useMemo(
     () => addresses?.find((addr) => addr.id === checkoutState.selectedAddressId) || defaultAddress,
     [addresses, checkoutState.selectedAddressId, defaultAddress]
@@ -205,7 +223,10 @@ export default function CheckoutPage() {
     items.length > 0 &&
     checkoutState.selectedAddressId &&
     checkoutState.selectedDeliveryOptionId &&
-    checkoutState.selectedPaymentOptionId;
+    checkoutState.selectedPaymentOptionId &&
+    checkoutState.customerName.trim() &&
+    checkoutState.customerPhone.trim() &&
+    checkoutState.customerEmail.trim();
 
   const handleCheckout = async () => {
     if (!canCheckout) {
@@ -242,9 +263,9 @@ export default function CheckoutPage() {
           imageUrl: selectedDeliveryOption.imageUrl || "",
           price: selectedDeliveryOption.price || 0,
         },
-        customerName: profile?.fullName || "",
-        customerPhone: profile?.phoneNumber || "",
-        customerEmail: profile?.email || "",
+        customerName: checkoutState.customerName,
+        customerPhone: checkoutState.customerPhone,
+        customerEmail: checkoutState.customerEmail,
         cart: {
           businessId: AppDefault.BUSINESS_ID,
           businessName: "Default Business",
@@ -425,6 +446,72 @@ export default function CheckoutPage() {
                 error={!checkoutState.selectedAddressId ? "Please select a delivery address" : ""}
                 label=""
               />
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-border/50" />
+
+            {/* Customer Information */}
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold text-foreground">Contact Information</h4>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {/* Customer Name */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-foreground">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={checkoutState.customerName}
+                    onChange={(e) =>
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        customerName: e.target.value,
+                      }))
+                    }
+                    placeholder="Your full name"
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                  />
+                </div>
+
+                {/* Customer Phone */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-foreground">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={checkoutState.customerPhone}
+                    onChange={(e) =>
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        customerPhone: e.target.value,
+                      }))
+                    }
+                    placeholder="Your phone number"
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                  />
+                </div>
+
+                {/* Customer Email */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-foreground">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={checkoutState.customerEmail}
+                    onChange={(e) =>
+                      setCheckoutState((prev) => ({
+                        ...prev,
+                        customerEmail: e.target.value,
+                      }))
+                    }
+                    placeholder="Your email address"
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Divider */}
