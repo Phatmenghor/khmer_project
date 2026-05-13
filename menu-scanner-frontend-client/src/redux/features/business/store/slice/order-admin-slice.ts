@@ -15,6 +15,8 @@ const initialState: OrderAdminState = {
   filters: {
     search: "",
     pageNo: 1,
+    orderStatus: "ALL",
+    paymentStatus: "ALL",
   },
   operations: {
     isUpdating: false,
