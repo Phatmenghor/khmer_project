@@ -67,7 +67,6 @@ export function ProductListPage({
 
   const search = searchParams.get("q");
   const categoryId = searchParams.get("categoryId");
-  const subcategoryId = searchParams.get("subcategoryId");
   const brandId = searchParams.get("brandId");
   const statusParam = searchParams.get("status");
   const statuses = statusParam?.split(",").filter(Boolean) ?? [];
@@ -84,7 +83,6 @@ export function ProductListPage({
           ? true
           : searchParams.get("hasPromotion") === "true",
         categoryId,
-        subcategoryId,
         brandId,
         statuses,
         sortBy,
@@ -97,7 +95,6 @@ export function ProductListPage({
       lockedPromotion,
       searchParams,
       categoryId,
-      subcategoryId,
       brandId,
       statuses,
       sortBy,
@@ -129,7 +126,6 @@ export function ProductListPage({
           ...(search && { search }),
           ...(hasPromotion && { hasPromotion: true }),
           ...(categoryId && { categoryId }),
-          ...(subcategoryId && { subcategoryId }),
           ...(brandId && { brandId }),
           ...(statuses.length > 0 && { statuses }),
           ...(sortBy && { sortBy }),
@@ -145,7 +141,6 @@ export function ProductListPage({
       lockedPromotion,
       searchParams,
       categoryId,
-      subcategoryId,
       brandId,
       statusParam,
       sortBy,

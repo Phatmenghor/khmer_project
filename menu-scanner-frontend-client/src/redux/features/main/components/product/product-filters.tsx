@@ -29,7 +29,6 @@ import { usePublicCategoriesState } from "@/redux/features/main/store/state/publ
 import { usePublicBrandsState } from "@/redux/features/main/store/state/public-brands-state";
 import { ComboboxSelectBrandPublic } from "@/components/shared/combobox/combobox_select_brand_public";
 import { ComboboxSelectCategoriesPublic } from "@/components/shared/combobox/combobox_select_categories_public";
-import { ComboboxSelectSubcategories } from "@/components/shared/combobox/combobox_select_subcategories";
 
 const PRODUCT_STATUSES = [
   { value: "ACTIVE", label: "Active" },
@@ -52,7 +51,6 @@ function ProductFiltersComponent({
 
 
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<any>(null);
   const [selectedBrand, setSelectedBrand] = useState<any>(null);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [hasPromotion, setHasPromotion] = useState<boolean>(false);
@@ -63,7 +61,6 @@ function ProductFiltersComponent({
   // Sync from URL
   useEffect(() => {
     setSelectedCategory(searchParams.get("categoryId") || "");
-    setSelectedSubcategory(searchParams.get("subcategoryId") || "");
     setSelectedBrand(searchParams.get("brandId") || "");
     setSelectedStatuses(
       searchParams.get("status")?.split(",").filter(Boolean) || [],
@@ -136,7 +133,6 @@ function ProductFiltersComponent({
 
   const activeFiltersCount =
     (selectedCategory ? 1 : 0) +
-    (selectedSubcategory ? 1 : 0) +
     (selectedBrand ? 1 : 0) +
     selectedStatuses.length +
     (!lockedPromotion && hasPromotion ? 1 : 0) +
@@ -205,20 +201,6 @@ function ProductFiltersComponent({
         label="Category"
         size="md"
         placeholder="All Categories"
-      />
-
-      <Separator />
-
-      {/* Subcategory - Combobox */}
-      <ComboboxSelectSubcategories
-        dataSelect={selectedSubcategory}
-        onChangeSelected={(subcategory) =>
-          updateFilter("subcategoryId", subcategory?.id || "")
-        }
-        label="Subcategory"
-        size="md"
-        placeholder="All Subcategories"
-        usePublicApi={true}
       />
 
       <Separator />

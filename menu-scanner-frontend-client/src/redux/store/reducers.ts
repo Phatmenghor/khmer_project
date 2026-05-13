@@ -11,7 +11,6 @@ import sessionReducer from "../features/sessions/store/slice/session-slice";
 import bannerReducer from "../features/master-data/store/slice/banner-slice";
 import brandReducer from "../features/master-data/store/slice/brand-slice";
 import categoriesReducer from "../features/master-data/store/slice/categories-slice";
-import subcategoriesReducer from "../features/master-data/store/slice/subcategories-slice";
 import exchangeRateReducer from "../features/master-data/store/slice/exchange-rate-slice";
 import deliveryOptionsReducer from "../features/master-data/store/slice/delivery-options-slice";
 import paymentOptionsReducer from "../features/master-data/store/slice/payment-options-slice";
@@ -36,7 +35,6 @@ import homeReducer from "../features/main/store/slice/home-slice";
 import publicProductReducer from "../features/main/store/slice/public-product-slice";
 import publicBrandsReducer from "../features/main/store/slice/public-brands-slice";
 import publicCategoriesReducer from "../features/main/store/slice/public-categories-slice";
-import publicSubcategoriesReducer from "../features/main/store/slice/public-subcategories-slice";
 import myOrdersReducer from "../features/main/store/slice/my-orders-slice";
 import scrollReducer from "../features/main/store/slice/scroll-slice";
 import cartReducer from "../features/main/store/slice/cart-slice";
@@ -62,7 +60,6 @@ export const reducers = {
   banner: bannerReducer,
   brand: brandReducer,
   categories: categoriesReducer,
-  subcategories: subcategoriesReducer,
   exchangeRate: exchangeRateReducer,
   deliveryOptions: deliveryOptionsReducer,
   paymentOptions: paymentOptionsReducer,
@@ -90,7 +87,6 @@ export const reducers = {
   publicProducts: publicProductReducer,
   publicBrands: publicBrandsReducer,
   publicCategories: publicCategoriesReducer,
-  publicSubcategories: publicSubcategoriesReducer,
   myOrders: myOrdersReducer,
   scroll: scrollReducer,
   favorites: favoritesReducer,
