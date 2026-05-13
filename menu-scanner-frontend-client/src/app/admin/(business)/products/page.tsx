@@ -342,9 +342,6 @@ export default function ProductPage() {
     setSelectedCategories(categories);
   };
 
-  ) => {
-  };
-
   const handleSortByChange = (value: string) => {
     setSortBy(value);
   };
