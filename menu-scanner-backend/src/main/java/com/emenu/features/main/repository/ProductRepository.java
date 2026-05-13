@@ -101,7 +101,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "WHERE p.isDeleted = false " +
            "AND (:businessId IS NULL OR p.businessId = :businessId) " +
            "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
-           "AND (:subcategoryId IS NULL OR p.subcategoryId = :subcategoryId) " +
            "AND (:brandId IS NULL OR p.brandId = :brandId) " +
            "AND (:statuses IS NULL OR p.status IN :statuses) " +
            "AND (:needsPromotion IS NULL OR ((p.hasSizes = false AND p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP)) OR (p.hasSizes = true AND EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +

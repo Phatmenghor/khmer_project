@@ -5,7 +5,6 @@
 
 import { ProductDetailResponseModel } from "../response/product-response";
 import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { SubcategoriesResponseModel } from "@/redux/features/master-data/store/models/response/subcategories-response";
 import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
 import { DeliveryOptionsResponseModel } from "@/redux/features/master-data/store/models/response/delivery-options-response";
 
@@ -70,10 +69,8 @@ export interface POSPageState {
   selectedCategory: CategoriesResponseModel | null;
   selectedBrand: BrandResponseModel | null;
   categories: CategoriesResponseModel[];
-  subcategories: SubcategoriesResponseModel[];
   brands: BrandResponseModel[];
   categoriesLoading: boolean;
-  subcategoriesLoading: boolean;
   brandsLoading: boolean;
   productPage: number;
   hasMoreProducts: boolean;
@@ -96,7 +93,6 @@ export interface POSPageState {
 
   // UI
   brandOpen: boolean;
-  subcategoryOpen: boolean;
   promotionFilter: boolean | undefined;
   promotionOpen: boolean;
 }
