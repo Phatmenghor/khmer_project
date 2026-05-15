@@ -4,7 +4,10 @@ import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.exception.custom.ValidationException;
+import com.emenu.features.auth.enums.StockStatus;
+import com.emenu.features.auth.models.BusinessSetting;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.order.dto.filter.OrderFilterRequest;
 import com.emenu.features.order.dto.helper.OrderPaymentCreateHelper;
 import com.emenu.features.order.dto.helper.OrderCreateHelper;
@@ -85,6 +88,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaginationMapper paginationMapper;
     private final StockServiceImpl stockService;
     private final ObjectMapper objectMapper;
+    private final BusinessSettingRepository businessSettingRepository;
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
@@ -1011,10 +1015,26 @@ public class OrderServiceImpl implements OrderService {
             return;
         }
 
+        BusinessSetting businessSetting = businessSettingRepository
+            .findByBusinessIdAndIsDeletedFalse(order.getBusinessId())
+            .orElse(null);
+
+        if (businessSetting == null || businessSetting.getEnableStock() != StockStatus.ENABLED) {
+            log.info("[STOCK DEDUCTION SKIPPED] Order: {}, Business stock tracking is not enabled", order.getOrderNumber());
+            return;
+        }
+
         log.info("[STOCK DEDUCTION START] Order: {}, Business ID: {}, Processing {} items",
             order.getOrderNumber(), order.getBusinessId(), order.getItems().size());
 
         for (OrderItem item : order.getItems()) {
+            Product product = productRepository.findById(item.getProductId()).orElse(null);
+            if (product == null || product.getStockStatus() != com.emenu.enums.product.StockStatus.ENABLED) {
+                log.info("[STOCK DEDUCTION SKIPPED] Order: {}, Product ID: {}, product stock tracking is not enabled",
+                    order.getOrderNumber(), item.getProductId());
+                continue;
+            }
+
             log.debug("[STOCK DEDUCTION ITEM] Order: {}, Product ID: {}, Product Name: {}, Size ID: {}, Quantity: {}",
                 order.getOrderNumber(), item.getProductId(), item.getProductName(), item.getProductSizeId(), item.getQuantity());
             try {
