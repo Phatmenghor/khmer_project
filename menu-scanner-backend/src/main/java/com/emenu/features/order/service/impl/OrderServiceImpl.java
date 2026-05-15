@@ -1005,11 +1005,12 @@ public class OrderServiceImpl implements OrderService {
             return;
         }
 
-        log.info("[STOCK DEDUCTION START] Processing {} items for order {}", order.getItems().size(), order.getOrderNumber());
+        log.info("[STOCK DEDUCTION START] Order: {}, Business ID: {}, Processing {} items",
+            order.getOrderNumber(), order.getBusinessId(), order.getItems().size());
 
         for (OrderItem item : order.getItems()) {
-            log.debug("[STOCK DEDUCTION ITEM] Product ID: {}, Size ID: {}, Quantity: {}",
-                item.getProductId(), item.getProductSizeId(), item.getQuantity());
+            log.debug("[STOCK DEDUCTION ITEM] Order: {}, Product ID: {}, Product Name: {}, Size ID: {}, Quantity: {}",
+                order.getOrderNumber(), item.getProductId(), item.getProductName(), item.getProductSizeId(), item.getQuantity());
             try {
                 stockService.deductStockFIFO(
                     order.getBusinessId(),
@@ -1019,15 +1020,15 @@ public class OrderServiceImpl implements OrderService {
                     order.getId(),
                     "Order confirmed: " + order.getOrderNumber()
                 );
-                log.debug("[STOCK DEDUCTION SUCCESS] Successfully deducted {} units of product {}",
-                    item.getQuantity(), item.getProductId());
+                log.info("[STOCK DEDUCTION SUCCESS] Order: {}, Product ID: {}, Successfully deducted {} units",
+                    order.getOrderNumber(), item.getProductId(), item.getQuantity());
             } catch (Exception e) {
-                log.warn("[STOCK DEDUCTION ERROR] Failed to deduct stock for product {} in order {}: {}",
-                    item.getProductId(), order.getOrderNumber(), e.getMessage(), e);
+                log.warn("[STOCK DEDUCTION ERROR] Order: {}, Product ID: {}, Failed to deduct {} units: {}",
+                    order.getOrderNumber(), item.getProductId(), item.getQuantity(), e.getMessage(), e);
             }
         }
 
-        log.info("[STOCK DEDUCTION COMPLETE] All items processed for order: {}", order.getOrderNumber());
+        log.info("[STOCK DEDUCTION COMPLETE] Order: {}, All items processed", order.getOrderNumber());
     }
 
     /**
