@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
 import {
   Search,
   Trash2,
@@ -18,7 +17,6 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
@@ -35,10 +33,9 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { buildCustomizationMapKey, buildQuantityMap, applyDiscount } from "@/utils/common/customization-utils";
+import { applyDiscount } from "@/utils/common/customization-utils";
 import { POSCartItem } from "@/components/pos-custom/pos-cart-item";
 import { POSMoreOptionsModal } from "@/components/pos-custom/pos-more-options-modal";
 import { POSOrderSuccessModal } from "@/components/pos-custom/pos-order-success-modal";
@@ -49,7 +46,6 @@ import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
 import { POSEditCartItemModal } from "@/components/pos-custom/pos-edit-cart-item-modal";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useAppDispatch } from "@/redux/store";
-import { ROUTES } from "@/constants/app-routes/routes";
 import {
   ProductDetailResponseModel,
   ProductSize,
@@ -112,9 +108,76 @@ import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thun
 import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
 import { useSelector } from "react-redux";
 
+// ─── Type Definitions ───
+type OrderDiscountType = {
+  type: "fixed" | "percentage";
+  value: number;
+  reason: string;
+  beforeTotal: number;
+  afterTotal: number;
+  discountAmount: number;
+  appliedAt: string;
+} | null;
+
+type POSCheckoutPayload = {
+  businessId: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  customerAddress: string;
+  deliveryOption: {
+    name: string;
+    description: string;
+    imageUrl: string;
+    price: number;
+  };
+  cart: {
+    businessId: string;
+    businessName: string;
+    items: Array<{
+      productId: string;
+      productName: string;
+      productImageUrl: string;
+      productSizeId: string | null;
+      sizeName: string | null;
+      quantity: number;
+      customizations: Array<{
+        productCustomizationId: string;
+        name: string;
+        priceAdjustment: number;
+      }>;
+      finalPrice: number;
+      totalPrice: number;
+      sku: string;
+      barcode: string;
+    }>;
+    totalItems: number;
+    totalQuantity: number;
+    subtotal: number;
+    customizationTotal: number;
+    finalTotal: number;
+  };
+  pricing: {
+    subtotal: number;
+    customizationTotal: number;
+    deliveryFee: number;
+    taxPercentage: number;
+    taxAmount: number;
+    discountAmount: number;
+    discountType: "fixed" | "percentage" | null;
+    discountReason: string | null;
+    finalTotal: number;
+  };
+  payment: {
+    paymentMethod: string;
+    paymentStatus: string;
+  };
+  customerNote: string;
+  businessNote: string;
+  orderStatus: string;
+};
 
 export default function PosPage() {
-  const router = useRouter();
   const dispatch = useAppDispatch() as AppDispatch;
 
   // ─── Business Settings from Redux (for tax percentage, colors, etc) ───
@@ -137,13 +200,11 @@ export default function PosPage() {
     productPage,
     hasMoreProducts,
     cartItems,
-    cartPricing,
     showCart,
     customerNote,
     isSubmitting,
     sizePickerProduct,
     editingCartItemId,
-    lastSelectedCustomizations,
     successOrder,
     showOrderDetailsModal,
     brandOpen,
@@ -175,16 +236,7 @@ export default function PosPage() {
   const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
 
   // ─── Order-Level Discount ───
-  const [orderDiscount, setOrderDiscount] = useState<{
-    type: "fixed" | "percentage";
-    value: number;
-    reason: string;
-    // ✅ AUDIT TRAIL: Complete before/after snapshot
-    beforeTotal: number;           // Order total BEFORE discount
-    afterTotal: number;            // Order total AFTER discount
-    discountAmount: number;        // Actual discount amount applied
-    appliedAt: string;             // ISO timestamp of when applied
-  } | null>(null);
+  const [orderDiscount, setOrderDiscount] = useState<OrderDiscountType>(null);
 
   // Mobile responsive zoom
   useEffect(() => {
@@ -210,6 +262,9 @@ export default function PosPage() {
     dispatch(fetchBusinessSettingsThunk());
   }, [dispatch]);
 
+  // ─── Use constant skeleton count to avoid hydration mismatch ───
+  const skeletonCount = 4;
+
   // ─── Fetch Products when filters/search change ───
   useEffect(() => {
     dispatch(setProductPage(1));
@@ -225,9 +280,7 @@ export default function PosPage() {
         reset: true,
       })
     );
-
-  // Use constant skeleton count to avoid hydration mismatch
-  const skeletonCount = 4;
+  }, [debouncedSearch, selectedCategory, selectedBrand, promotionFilter, dispatch]);
 
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
@@ -500,33 +553,17 @@ export default function PosPage() {
     addToCart(product, undefined, undefined, 1);
   }, [dispatch, addToCart]);
 
-  // ─── Get quantity in cart ───
-  // Memoized product quantity lookup (O(1) instead of O(n))
-  const productQuantityMap = useMemo(() => {
-    const map = new Map<string, number>();
-    cartItems.forEach((item) => {
-      const current = map.get(item.productId) ?? 0;
-      map.set(item.productId, current + item.quantity);
-    });
-    return map;
-  }, [cartItems]);
-
-  const getProductCartQuantity = useCallback(
-    (productId: string) => productQuantityMap.get(productId) ?? 0,
-    [productQuantityMap]
-  );
-
   // ─── Handle Edit Cart Item for Price/Promotion ───
   const handleEditPriceItem = useCallback((item: PosPageCartItem) => {
     setEditingItemForPrice(item);
   }, []);
 
   // ─── Save Cart Item Price Changes ───
-  const handleSaveItemChanges = useCallback((editData: any) => {
+  const handleSaveItemChanges = useCallback((editData: { newPrice: string; newQuantity: string }) => {
     if (!editingItemForPrice) return;
 
     const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.currentPrice;
-    const newQuantity = parseInt(editData.newQuantity) || editingItemForPrice.quantity;
+    const newQuantity = parseInt(editData.newQuantity, 10) || editingItemForPrice.quantity;
 
     let finalPrice = newPrice;
 
@@ -544,16 +581,7 @@ export default function PosPage() {
   }, [dispatch, editingItemForPrice]);
 
   // ─── Handle Order-Level Discount ───
-  const handleDiscountApply = (discount: {
-    type: "fixed" | "percentage";
-    value: number;
-    reason: string;
-    // ✅ AUDIT TRAIL: Complete before/after snapshot
-    beforeTotal: number;
-    afterTotal: number;
-    discountAmount: number;
-    appliedAt: string;
-  }) => {
+  const handleDiscountApply = (discount: Exclude<OrderDiscountType, null>) => {
     setOrderDiscount(discount);
     showToast.success(`✅ Discount applied: Before: $${discount.beforeTotal.toFixed(2)} → After: $${discount.afterTotal.toFixed(2)} (Saved: $${discount.discountAmount.toFixed(2)})`);
   };
@@ -573,7 +601,7 @@ export default function PosPage() {
     // Build POSCheckoutRequest payload with complete audit trail
     // Items: before/after snapshots + metadata for each change
     // Order: before/after pricing + discount metadata
-    const payload = {
+    const payload: POSCheckoutPayload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
       customerName: "Walk-in Customer",
       customerPhone: "",
@@ -645,7 +673,7 @@ export default function PosPage() {
 
     dispatch(setIsSubmitting(true));
     try {
-      const result = await dispatch(createPOSCheckoutOrderService(payload) as any);
+      const result = await dispatch(createPOSCheckoutOrderService(payload));
       if (result.payload) {
         const order = result.payload;
         dispatch(setSuccessOrder({ orderNumber: order.orderNumber, total: order.totalAmount }));
@@ -1237,9 +1265,9 @@ export default function PosPage() {
             sizeName: editingItemForPrice.sizeName,
             currentPrice: editingItemForPrice.currentPrice,
             quantity: editingItemForPrice.quantity,
-            hasPromotion: false,
-            promotionType: null,
-            promotionValue: null,
+            hasPromotion: editingItemForPrice.hasPromotion,
+            promotionType: editingItemForPrice.promotionType,
+            promotionValue: editingItemForPrice.promotionValue,
             customizations: editingItemForPrice.customizations || [],
           } : null
         }
