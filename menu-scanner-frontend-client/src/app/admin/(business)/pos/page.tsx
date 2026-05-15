@@ -109,6 +109,20 @@ import { selectBusinessSettings } from "@/redux/features/business/store/selector
 import { useSelector } from "react-redux";
 
 // ─── Type Definitions ───
+type CartItemEditData = {
+  id: string;
+  productName: string;
+  productImageUrl: string;
+  sizeName: string | null;
+  originalPrice: number;
+  originalQuantity: number;
+  originalPromotion: { type: string | null; value: number | null };
+  newPrice: number;
+  newQuantity: number;
+  newPromotion: { type: string | null; value: number | null };
+  reason: string;
+};
+
 type OrderDiscountType = {
   type: "fixed" | "percentage";
   value: number;
@@ -402,9 +416,10 @@ export default function PosPage() {
         : product.displayPrice || parseFloat(String(product.price || 0));
 
       const customizations = customizationIds && customizationIds.length > 0
-        ? customizationIds.map((customId) => {
+        ? customizationIds.map((customId, index) => {
             const custom = product.customizations?.find((c) => c.id === customId);
             return {
+              id: `${cartId}-custom-${index}`,
               productCustomizationId: customId,
               name: custom?.name || "",
               priceAdjustment: custom?.priceAdjustment || 0,
@@ -559,20 +574,15 @@ export default function PosPage() {
   }, []);
 
   // ─── Save Cart Item Price Changes ───
-  const handleSaveItemChanges = useCallback((editData: { newPrice: string; newQuantity: string }) => {
+  const handleSaveItemChanges = useCallback((editData: CartItemEditData) => {
     if (!editingItemForPrice) return;
-
-    const newPrice = parseFloat(editData.newPrice) || editingItemForPrice.currentPrice;
-    const newQuantity = parseInt(editData.newQuantity, 10) || editingItemForPrice.quantity;
-
-    let finalPrice = newPrice;
 
     const updatedItem: PosPageCartItem = {
       ...editingItemForPrice,
-      quantity: newQuantity,
-      currentPrice: newPrice,
-      finalPrice,
-      totalPrice: finalPrice * newQuantity,
+      quantity: editData.newQuantity,
+      currentPrice: editData.newPrice,
+      finalPrice: editData.newPrice,
+      totalPrice: editData.newPrice * editData.newQuantity,
     };
 
     dispatch(updateCartItem(updatedItem));
@@ -675,8 +685,8 @@ export default function PosPage() {
     try {
       const result = await dispatch(createPOSCheckoutOrderService(payload));
       if (result.payload) {
-        const order = result.payload;
-        dispatch(setSuccessOrder({ orderNumber: order.orderNumber, total: order.totalAmount }));
+        const order = result.payload as { orderNumber: string; totalAmount?: number; total?: number };
+        dispatch(setSuccessOrder({ orderNumber: order.orderNumber, total: order.total ?? order.totalAmount ?? 0 }));
         dispatch(clearCartItems());
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
@@ -1265,10 +1275,13 @@ export default function PosPage() {
             sizeName: editingItemForPrice.sizeName,
             currentPrice: editingItemForPrice.currentPrice,
             quantity: editingItemForPrice.quantity,
-            hasPromotion: editingItemForPrice.hasPromotion,
-            promotionType: editingItemForPrice.promotionType,
-            promotionValue: editingItemForPrice.promotionValue,
-            customizations: editingItemForPrice.customizations || [],
+            hasPromotion: editingItemForPrice.hasPromotion ?? false,
+            promotionType: editingItemForPrice.promotionType ?? null,
+            promotionValue: editingItemForPrice.promotionValue ?? null,
+            customizations: editingItemForPrice.customizations?.map(c => ({
+              name: c.name,
+              priceAdjustment: c.priceAdjustment,
+            })) || [],
           } : null
         }
         onSave={handleSaveItemChanges}
