@@ -135,15 +135,8 @@ export const orderAdminTableColumns = ({
       render: (order) => (
         <div className="flex flex-col">
           <span className="text-xs font-bold text-green-600">
-            {formatCurrency(
-              order?.pricing?.after?.finalTotal ?? order?.pricing?.before?.finalTotal ?? 0
-            )}
+            {formatCurrency(order?.pricing?.finalTotal ?? 0)}
           </span>
-          {order?.pricing?.hadOrderLevelChangeFromPOS && (
-            <span className="text-xs text-muted-foreground line-through">
-              {formatCurrency(order?.pricing?.before?.finalTotal ?? 0)}
-            </span>
-          )}
         </div>
       ),
     },

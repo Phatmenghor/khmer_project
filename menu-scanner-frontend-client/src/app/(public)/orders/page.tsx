@@ -548,24 +548,11 @@ function createOrderTableColumns(
       label: "Total",
       minWidth: "110px",
       maxWidth: "140px",
-      render: (order) => {
-        const finalTotal = order?.pricing?.after?.finalTotal ?? order?.pricing?.before?.finalTotal ?? 0;
-        const hadChange = order?.pricing?.hadOrderLevelChangeFromPOS;
-        const beforeTotal = order?.pricing?.before?.finalTotal ?? 0;
-
-        return (
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-green-600 dark:text-green-400">
-              {formatCurrency(finalTotal)}
-            </span>
-            {hadChange && beforeTotal !== finalTotal && (
-              <span className="text-xs text-muted-foreground line-through">
-                {formatCurrency(beforeTotal)}
-              </span>
-            )}
-          </div>
-        );
-      },
+      render: (order) => (
+        <span className="text-xs font-bold text-green-600 dark:text-green-400">
+          {formatCurrency(order?.pricing?.finalTotal ?? 0)}
+        </span>
+      ),
     },
     {
       key: "orderStatus",
