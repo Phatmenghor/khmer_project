@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, Printer, RotateCcw } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { formatCurrency } from "@/utils/common/currency-format";
 
@@ -21,6 +21,7 @@ export function POSOrderSuccessModal({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="w-full sm:max-w-[480px] p-0 gap-0">
+        <DialogTitle className="sr-only">Order Confirmed</DialogTitle>
         {/* Success Content */}
         <div className="p-8 text-center space-y-6">
           {/* Success Icon */}
