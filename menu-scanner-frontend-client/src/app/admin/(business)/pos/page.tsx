@@ -399,7 +399,7 @@ export default function PosPage() {
 
   // ─── Cart Logic ───
   const addToCart = useCallback(
-    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string, quantity: number = 1, customizationIds?: string[]) => {
+    (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string | null, quantity: number = 1, customizationIds?: string[]) => {
       // Generate unique cart ID including customizations
       const customizationKey = customizationIds && customizationIds.length > 0
         ? `-${customizationIds.sort().join("-")}`
