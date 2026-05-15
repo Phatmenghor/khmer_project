@@ -963,7 +963,13 @@ public class OrderServiceImpl implements OrderService {
             createPaymentRecord(savedOrder);
 
             log.debug("[STEP 6/6] Deducting stock for POS order...");
-            deductStockForOrder(savedOrder);
+            // CRITICAL FIX: Reload order from database to get the items that were just created
+            Order orderWithItems = orderRepository.findById(savedOrder.getId())
+                .orElseThrow(() -> new NotFoundException("Order not found after item creation"));
+            log.debug("[ORDER RELOADED] Order {} reloaded with {} items", orderWithItems.getOrderNumber(),
+                orderWithItems.getItems() != null ? orderWithItems.getItems().size() : 0);
+
+            deductStockForOrder(orderWithItems);
 
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
