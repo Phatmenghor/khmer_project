@@ -962,6 +962,9 @@ public class OrderServiceImpl implements OrderService {
             log.debug("💳 [STEP 5/6] Creating payment record...");
             createPaymentRecord(savedOrder);
 
+            log.debug("📦 [STEP 6/6] Deducting stock for POS order...");
+            deductStockForOrder(savedOrder);
+
             log.info("✅ [POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
 
