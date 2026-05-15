@@ -162,6 +162,8 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         SELECT ps.* FROM product_stock ps
         LEFT JOIN products p ON ps.product_id = p.id
         WHERE ps.business_id = :businessId
+            AND ps.quantity_on_hand > 0
+            AND ps.is_expired = false
             AND (CAST(:productId AS uuid) IS NULL OR ps.product_id = :productId)
             AND (CAST(:productSizeId AS uuid) IS NULL OR ps.product_size_id = :productSizeId)
             AND (CAST(:status AS text) IS NULL OR p.status = :status)
@@ -174,6 +176,8 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         SELECT COUNT(*) FROM product_stock ps
         LEFT JOIN products p ON ps.product_id = p.id
         WHERE ps.business_id = :businessId
+            AND ps.quantity_on_hand > 0
+            AND ps.is_expired = false
             AND (CAST(:productId AS uuid) IS NULL OR ps.product_id = :productId)
             AND (CAST(:productSizeId AS uuid) IS NULL OR ps.product_size_id = :productSizeId)
             AND (CAST(:status AS text) IS NULL OR p.status = :status)
