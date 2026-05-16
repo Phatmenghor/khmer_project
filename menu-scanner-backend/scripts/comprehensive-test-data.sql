@@ -42,7 +42,7 @@ VALUES (
 
 -- Mega Store Settings
 INSERT INTO business_settings (
-  id, business_id, use_categories, use_subcategories, use_brands, tax_percentage,
+  id, business_id, use_categories, use_brands, tax_percentage,
   business_name, logo_business_url, enable_stock, primary_color, contact_address,
   contact_phone, contact_email, version, is_deleted,
   created_at, updated_at, created_by, updated_by
@@ -50,7 +50,7 @@ INSERT INTO business_settings (
 VALUES (
   '770e8400-e29b-41d4-a716-446655440002',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  true, true, true, 10.0, 'Mega Store',
+  true, true, 10.0, 'Mega Store',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ENABLED', '#FF6B6B',
   'Phnom Penh, Cambodia', '+855-12-345-678', 'megastore@example.com',
@@ -81,7 +81,7 @@ ON CONFLICT DO NOTHING;
 
 -- Fashion Hub Settings
 INSERT INTO business_settings (
-  id, business_id, use_categories, use_subcategories, use_brands, tax_percentage,
+  id, business_id, use_categories, use_brands, tax_percentage,
   business_name, logo_business_url, enable_stock, primary_color, contact_address,
   contact_phone, contact_email, version, is_deleted,
   created_at, updated_at, created_by, updated_by
@@ -89,7 +89,7 @@ INSERT INTO business_settings (
 VALUES (
   '770e8400-e29b-41d4-a716-446655440003',
   '660cad56-cafd-4aba-baef-c4dcd53940d0',
-  true, true, true, 10.0, 'Fashion Hub',
+  true, true, 10.0, 'Fashion Hub',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ENABLED', '#6B6BFF',
   'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com',
@@ -594,26 +594,7 @@ WHERE NOT EXISTS (SELECT 1 FROM categories WHERE business_id = '550cad56-cafd-4a
 
 
 -- ============================================================================
--- 8. CREATE SUBCATEGORIES (18)
-
--- ============================================================================
-INSERT INTO subcategories (id, category_id, business_id, name, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  (SELECT id FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i-1) % 18),
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  'Subcategory ' || i,
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
-  'ACTIVE',
-  0,
-  false,
-  NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 18) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM subcategories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' AND name = 'Subcategory ' || i);
-
-
--- ============================================================================
--- 9. CREATE BRANDS (18)
+-- 8. CREATE BRANDS (18)
 
 -- ============================================================================
 INSERT INTO brands (id, business_id, name, image_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -636,7 +617,7 @@ WHERE NOT EXISTS (SELECT 1 FROM brands WHERE business_id = '550cad56-cafd-4aba-b
 
 -- ============================================================================
 INSERT INTO products (
-  id, business_id, category_id, subcategory_id, brand_id, name, description, price,
+  id, business_id, category_id, brand_id, name, description, price,
   main_image_url, barcode, sku, status, stock_status, has_sizes,
   view_count, favorite_count, category_name, brand_name, business_name, version, is_deleted,
   created_at, updated_at, created_by, updated_by, promotion_type, promotion_value,
@@ -646,7 +627,6 @@ SELECT
   gen_random_uuid(),
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   (SELECT id FROM categories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i-1) / 555),
-  (SELECT id FROM subcategories WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i-1) % 18),
   (SELECT id FROM brands WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0' ORDER BY created_at LIMIT 1 OFFSET (i-1) / 555 % 18),
   'Product ' || i,
   'High quality product ' || i || ' with premium features and excellent durability',
@@ -1100,7 +1080,6 @@ SELECT '=== DATA COUNTS ===' as info;
 SELECT
   (SELECT COUNT(*) FROM users) as total_users,
   (SELECT COUNT(*) FROM categories) as categories,
-  (SELECT COUNT(*) FROM subcategories) as subcategories,
   (SELECT COUNT(*) FROM brands) as brands,
   (SELECT COUNT(*) FROM products) as products,
   (SELECT COUNT(*) FROM product_sizes) as product_sizes,
