@@ -42,7 +42,7 @@ VALUES (
 
 -- Mega Store Settings
 INSERT INTO business_settings (
-  id, business_id, use_categories, use_brands, tax_percentage,
+  id, business_id, use_categories, use_subcategories, use_brands, tax_percentage,
   business_name, logo_business_url, enable_stock, primary_color, contact_address,
   contact_phone, contact_email, version, is_deleted,
   created_at, updated_at, created_by, updated_by
@@ -50,7 +50,7 @@ INSERT INTO business_settings (
 VALUES (
   '770e8400-e29b-41d4-a716-446655440002',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  true, true, 10.0, 'Mega Store',
+  true, false, true, 10.0, 'Mega Store',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ENABLED', '#FF6B6B',
   'Phnom Penh, Cambodia', '+855-12-345-678', 'megastore@example.com',
@@ -81,7 +81,7 @@ ON CONFLICT DO NOTHING;
 
 -- Fashion Hub Settings
 INSERT INTO business_settings (
-  id, business_id, use_categories, use_brands, tax_percentage,
+  id, business_id, use_categories, use_subcategories, use_brands, tax_percentage,
   business_name, logo_business_url, enable_stock, primary_color, contact_address,
   contact_phone, contact_email, version, is_deleted,
   created_at, updated_at, created_by, updated_by
@@ -89,7 +89,7 @@ INSERT INTO business_settings (
 VALUES (
   '770e8400-e29b-41d4-a716-446655440003',
   '660cad56-cafd-4aba-baef-c4dcd53940d0',
-  true, true, 10.0, 'Fashion Hub',
+  true, false, true, 10.0, 'Fashion Hub',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ENABLED', '#6B6BFF',
   'Siem Reap, Cambodia', '+855-87-654-321', 'fashionhub@example.com',
