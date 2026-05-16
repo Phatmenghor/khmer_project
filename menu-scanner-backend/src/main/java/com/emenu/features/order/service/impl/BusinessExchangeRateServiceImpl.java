@@ -71,7 +71,23 @@ public class BusinessExchangeRateServiceImpl implements BusinessExchangeRateServ
     public PaginationResponse<BusinessExchangeRateResponse> getAllBusinessExchangeRates(BusinessExchangeRateFilterRequest filter) {
         log.info("Fetching all business exchange rates with filters");
 
-        UUID businessId = determineBusinessId(filter.getBusinessId());
+        UUID businessId = filter.getBusinessId();
+        if (businessId == null) {
+            try {
+                User currentUser = securityUtils.getCurrentUser();
+                businessId = currentUser.getBusinessId();
+            } catch (Exception e) {
+                log.warn("Could not resolve business ID for exchange rate query: {}", e.getMessage());
+            }
+        }
+        if (businessId == null) {
+            log.warn("No business ID available, returning empty exchange rate list");
+            return com.emenu.shared.dto.PaginationResponse.<BusinessExchangeRateResponse>builder()
+                    .content(java.util.Collections.emptyList())
+                    .pageNo(1).pageSize(15).totalElements(0).totalPages(0)
+                    .first(true).last(true).hasNext(false).hasPrevious(false)
+                    .build();
+        }
         filter.setBusinessId(businessId);
 
         Pageable pageable = PaginationUtils.createPageable(
