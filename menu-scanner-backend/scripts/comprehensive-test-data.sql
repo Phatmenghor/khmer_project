@@ -192,16 +192,16 @@ VALUES (
 -- ============================================================================
 
 INSERT INTO business_exchange_rates (id, business_id, usd_to_khr_rate, usd_to_cny_rate, usd_to_vnd_rate, status, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
+VALUES (
   gen_random_uuid(),
   '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
-  (4000 + (i * 5))::double precision,
-  (6.5 + (i * 0.01))::double precision,
-  (23000 + (i * 50))::double precision,
+  4100.0,
+  7.2,
+  25000.0,
   'ACTIVE',
-  'Exchange rate option ' || i || ' for currency conversion',
+  'Current exchange rate for currency conversion',
   0, false, NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 18) AS t(i);
+);
 
 
 -- ============================================================================
@@ -216,7 +216,7 @@ SELECT
   'Delivery Option ' || i,
   'Delivery option ' || i || ' - Standard delivery with ' || (i * 30) || ' minute estimate',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
-  (5000 + (i * 500))::numeric(10,2),
+  ROUND(((i - 1)::numeric * 10 / 15), 2),
   'ACTIVE',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM generate_series(1, 16) AS t(i);
