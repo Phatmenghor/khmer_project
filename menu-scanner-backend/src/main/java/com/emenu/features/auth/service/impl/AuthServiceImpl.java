@@ -61,13 +61,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequestData) {
-        log.info("LOGIN_INITIATED: identifier={}, type={}", loginRequestData.getUserIdentifier(), loginRequestData.getUserType());
+        log.info("User login initiated: identifier={}, type={}", loginRequestData.getUserIdentifier(), loginRequestData.getUserType());
 
         User userEntity = findUserWithContext(loginRequestData);
         validateLoginContext(loginRequestData, userEntity);
 
         if (!passwordEncoder.matches(loginRequestData.getPassword(), userEntity.getPassword())) {
-            log.warn("LOGIN_FAILED_INVALID_PASSWORD: identifier={}", loginRequestData.getUserIdentifier());
+            log.warn("User login failed - invalid password: identifier={}", loginRequestData.getUserIdentifier());
             throw new ValidationException("Invalid credentials");
         }
 
@@ -107,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
             }
         }
 
-        log.info("LOGIN_SUCCESS: identifier={}, type={}, user_id={}", userEntity.getUserIdentifier(), userEntity.getUserType(), userEntity.getId());
+        log.info("User logged in successfully: identifier={}, type={}, user_id={}", userEntity.getUserIdentifier(), userEntity.getUserType(), userEntity.getId());
         return loginResponse;
     }
 

@@ -45,7 +45,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponse createRole(RoleCreateRequest request) {
-        log.info("ROLE_CREATE_INITIATED: name={}, type={}, business_id={}",
+        log.info("Role creation initiated: name={}, type={}, business_id={}",
                 request.getName(), request.getUserType(), request.getBusinessId());
 
         String normalizedName = EnumUtils.normalize(request.getName());
@@ -54,17 +54,17 @@ public class RoleServiceImpl implements RoleService {
         if (request.getBusinessId() != null) {
             businessRepository.findByIdAndIsDeletedFalse(request.getBusinessId())
                     .orElseThrow(() -> {
-                        log.warn("ROLE_CREATE_FAILED_BUSINESS_NOT_FOUND: business_id={}", request.getBusinessId());
+                        log.warn("Role creation failed - business not found: business_id={}", request.getBusinessId());
                         return new ValidationException("Business not found");
                     });
 
             if (roleRepository.existsByNameAndBusinessIdAndIsDeletedFalse(normalizedName, request.getBusinessId())) {
-                log.warn("ROLE_CREATE_FAILED_DUPLICATE: name={}, business_id={}", normalizedName, request.getBusinessId());
+                log.warn("Role creation failed - duplicate name: name={}, business_id={}", normalizedName, request.getBusinessId());
                 throw new ValidationException("Role with this name already exists for this business");
             }
         } else {
             if (roleRepository.existsByNameAndBusinessIdIsNullAndIsDeletedFalse(normalizedName)) {
-                log.warn("ROLE_CREATE_FAILED_DUPLICATE: name={}", normalizedName);
+                log.warn("Role creation failed - duplicate platform role: name={}", normalizedName);
                 throw new ValidationException("Platform role with this name already exists");
             }
         }
@@ -74,7 +74,7 @@ public class RoleServiceImpl implements RoleService {
         role.setUserType(normalizedUserType);
 
         Role savedRole = roleRepository.save(role);
-        log.info("ROLE_CREATE_SUCCESS: id={}, name={}, type={}", savedRole.getId(), savedRole.getName(), savedRole.getUserType());
+        log.info("Role created successfully: id={}, name={}, type={}", savedRole.getId(), savedRole.getName(), savedRole.getUserType());
 
         return roleMapper.toResponse(savedRole);
     }
@@ -108,7 +108,7 @@ public class RoleServiceImpl implements RoleService {
             responses.add(0, buildAllRolesResponse(request.getBusinessId()));
         }
 
-        log.info("ROLES_LIST_FETCHED: count={}, page={}/{}", responses.size(), rolesPage.getNumber() + 1, rolesPage.getTotalPages());
+        log.info("Roles fetched successfully: count={}, page={}/{}", responses.size(), rolesPage.getNumber() + 1, rolesPage.getTotalPages());
 
         return PaginationResponse.<RoleResponse>builder()
                 .content(responses)
@@ -146,7 +146,7 @@ public class RoleServiceImpl implements RoleService {
             responses.add(0, buildAllRolesResponse(request.getBusinessId()));
         }
 
-        log.info("ROLES_LIST_FETCHED: count={}", responses.size());
+        log.info("Roles fetched successfully: count={}", responses.size());
         return responses;
     }
 
@@ -155,7 +155,7 @@ public class RoleServiceImpl implements RoleService {
     public RoleDetailResponse getRoleById(UUID roleId) {
         Role role = roleRepository.findByIdAndIsDeletedFalse(roleId)
                 .orElseThrow(() -> {
-                    log.warn("ROLE_NOT_FOUND: id={}", roleId);
+                    log.warn("Role not found: id={}", roleId);
                     return new ResourceNotFoundException("Role not found");
                 });
 
@@ -165,22 +165,22 @@ public class RoleServiceImpl implements RoleService {
                     .ifPresent(business -> response.setBusinessName(business.getName()));
         }
 
-        log.info("ROLE_DETAIL_RETRIEVED: id={}", roleId);
+        log.info("Role details retrieved successfully: id={}", roleId);
         return response;
     }
 
     @Override
     public RoleResponse updateRole(UUID roleId, RoleUpdateRequest request) {
-        log.info("ROLE_UPDATE_INITIATED: id={}, name={}", roleId, request.getName());
+        log.info("Role update initiated: id={}, name={}", roleId, request.getName());
 
         Role role = roleRepository.findByIdAndIsDeletedFalse(roleId)
                 .orElseThrow(() -> {
-                    log.warn("ROLE_UPDATE_FAILED_NOT_FOUND: id={}", roleId);
+                    log.warn("Role not found for update: id={}", roleId);
                     return new ResourceNotFoundException("Role not found");
                 });
 
         if (isSystemRole(role.getName())) {
-            log.warn("ROLE_UPDATE_FAILED_SYSTEM_ROLE: name={}", role.getName());
+            log.warn("Role update failed - system role: name={}", role.getName());
             throw new ValidationException("Cannot modify system roles");
         }
 
@@ -194,7 +194,7 @@ public class RoleServiceImpl implements RoleService {
 
         roleMapper.updateEntity(request, role);
         Role savedRole = roleRepository.save(role);
-        log.info("ROLE_UPDATE_SUCCESS: id={}, name={}", savedRole.getId(), savedRole.getName());
+        log.info("Role updated successfully: id={}, name={}", savedRole.getId(), savedRole.getName());
 
         return roleMapper.toResponse(savedRole);
     }
@@ -202,12 +202,12 @@ public class RoleServiceImpl implements RoleService {
     private void validateRoleNameUniqueness(String normalizedName, Role role) {
         if (role.getBusinessId() != null) {
             if (roleRepository.existsByNameAndBusinessIdAndIsDeletedFalse(normalizedName, role.getBusinessId())) {
-                log.warn("ROLE_UPDATE_FAILED_DUPLICATE: name={}, business_id={}", normalizedName, role.getBusinessId());
+                log.warn("Role update failed - duplicate name: name={}, business_id={}", normalizedName, role.getBusinessId());
                 throw new ValidationException("Role with this name already exists for this business");
             }
         } else {
             if (roleRepository.existsByNameAndBusinessIdIsNullAndIsDeletedFalse(normalizedName)) {
-                log.warn("ROLE_UPDATE_FAILED_DUPLICATE: name={}", normalizedName);
+                log.warn("Role update failed - duplicate platform role: name={}", normalizedName);
                 throw new ValidationException("Platform role with this name already exists");
             }
         }
@@ -215,16 +215,16 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponse deleteRole(UUID roleId) {
-        log.info("ROLE_DELETE_INITIATED: id={}", roleId);
+        log.info("Role deletion initiated: id={}", roleId);
 
         Role role = roleRepository.findByIdAndIsDeletedFalse(roleId)
                 .orElseThrow(() -> {
-                    log.warn("ROLE_DELETE_FAILED_NOT_FOUND: id={}", roleId);
+                    log.warn("Role not found for deletion: id={}", roleId);
                     return new ResourceNotFoundException("Role not found");
                 });
 
         if (isSystemRole(role.getName())) {
-            log.warn("ROLE_DELETE_FAILED_SYSTEM_ROLE: name={}", role.getName());
+            log.warn("Role deletion failed - system role: name={}", role.getName());
             throw new ValidationException("Cannot delete system roles");
         }
 
@@ -232,7 +232,7 @@ public class RoleServiceImpl implements RoleService {
         role.setDeletedAt(LocalDateTime.now());
         Role deletedRole = roleRepository.save(role);
 
-        log.info("ROLE_DELETE_SUCCESS: id={}, name={}", deletedRole.getId(), deletedRole.getName());
+        log.info("Role deleted successfully: id={}, name={}", deletedRole.getId(), deletedRole.getName());
         return roleMapper.toResponse(deletedRole);
     }
 

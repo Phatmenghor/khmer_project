@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserCreateRequest requestData) {
-        log.info("USER_CREATE_INITIATED: identifier={}, type={}, business_id={}, ip_context=create_endpoint",
+        log.info("User creation initiated: identifier={}, type={}, business_id={}",
                 requestData.getUserIdentifier(), requestData.getUserType(), requestData.getBusinessId());
 
         validateUserCreationRequest(requestData);
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         enrichUserWithRelatedEntities(requestData, savedUserEntity);
 
         savedUserEntity = userRepository.save(savedUserEntity);
-        log.info("USER_CREATE_SUCCESS: id={}, identifier={}, type={}, total_related_records={}",
+        log.info("User created successfully: id={}, identifier={}, type={}, total_related_records={}",
                 savedUserEntity.getId(), savedUserEntity.getUserIdentifier(),
                 savedUserEntity.getUserType(),
                 countTotalRelatedRecords(savedUserEntity));
@@ -95,26 +95,26 @@ public class UserServiceImpl implements UserService {
 
     private void validateUserCreationRequest(UserCreateRequest req) {
         if (userRepository.existsByUserIdentifierAndIsDeletedFalse(req.getUserIdentifier())) {
-            log.warn("USER_CREATE_FAILED_DUPLICATE: identifier={}", req.getUserIdentifier());
+            log.warn("User creation failed - duplicate identifier: identifier={}", req.getUserIdentifier());
             throw new ValidationException("User identifier already exists");
         }
 
         if (req.getUserType() == UserType.BUSINESS_USER && req.getBusinessId() == null) {
-            log.warn("USER_CREATE_FAILED_MISSING_BUSINESS_ID");
+            log.warn("User creation failed - missing business ID");
             throw new ValidationException("Business ID is required for BUSINESS_USER type");
         }
 
         if (req.getBusinessId() != null) {
             businessRepository.findByIdAndIsDeletedFalse(req.getBusinessId())
                     .orElseThrow(() -> {
-                        log.warn("USER_CREATE_FAILED_BUSINESS_NOT_FOUND: business_id={}", req.getBusinessId());
+                        log.warn("User creation failed - business not found: business_id={}", req.getBusinessId());
                         return new ValidationException("Business not found");
                     });
         }
 
         List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
         if (roles.size() != req.getRoles().size()) {
-            log.warn("USER_CREATE_FAILED_INVALID_ROLES");
+            log.warn("User creation failed - invalid roles");
             throw new ValidationException("One or more roles not found");
         }
         validateRoleUserTypeCompatibility(roles, req.getUserType());
@@ -182,7 +182,7 @@ public class UserServiceImpl implements UserService {
                 filterCriteria.getBusinessId(), filterUserTypes, filterAccountStatuses,
                 filterRoles, filterCriteria.getSearch(), pageableRequest);
 
-        log.info("USER_LIST_FETCHED: count={}, page={}/{}, business_id={}, requested_by={}",
+        log.info("Users fetched successfully: count={}, page={}/{}, business_id={}, requested_by={}",
                 userPageData.getNumberOfElements(), userPageData.getNumber() + 1, userPageData.getTotalPages(),
                 filterCriteria.getBusinessId(), currentUserContext.getId());
 
@@ -195,11 +195,11 @@ public class UserServiceImpl implements UserService {
         UserDetailResponse userDetailsResponse = userMapper.toDetailResponse(
                 userRepository.findByIdAndIsDeletedFalse(userEntityId)
                 .orElseThrow(() -> {
-                    log.warn("USER_NOT_FOUND: id={}", userEntityId);
+                    log.warn("User not found: id={}", userEntityId);
                     return new ValidationException("User not found");
                 }));
 
-        log.info("USER_DETAIL_RETRIEVED: id={}, type={}", userEntityId,
+        log.info("User details retrieved successfully: id={}, type={}", userEntityId,
                 userDetailsResponse.getUserType() != null ? userDetailsResponse.getUserType() : "UNKNOWN");
 
         return userDetailsResponse;
@@ -207,11 +207,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(UUID userEntityId, UserUpdateRequest updateRequestData) {
-        log.info("USER_UPDATE_INITIATED: id={}, modified_by={}", userEntityId, securityUtils.getCurrentUserId());
+        log.info("User update initiated: id={}, modified_by={}", userEntityId, securityUtils.getCurrentUserId());
 
         User userEntity = userRepository.findByIdAndIsDeletedFalse(userEntityId)
                 .orElseThrow(() -> {
-                    log.warn("USER_NOT_FOUND_FOR_UPDATE: id={}", userEntityId);
+                    log.warn("User not found for update: id={}", userEntityId);
                     return new ValidationException("User not found");
                 });
 
@@ -222,7 +222,7 @@ public class UserServiceImpl implements UserService {
         updateUserRelatedEntities(userEntity, updateRequestData);
 
         User updatedUserEntity = userRepository.save(userEntity);
-        log.info("USER_UPDATE_SUCCESS: id={}, identifier={}, total_changes={}",
+        log.info("User updated successfully: id={}, identifier={}, total_changes={}",
                 updatedUserEntity.getId(), updatedUserEntity.getUserIdentifier(),
                 countTotalRelatedRecords(updatedUserEntity));
 
@@ -235,7 +235,7 @@ public class UserServiceImpl implements UserService {
 
             businessRepository.findByIdAndIsDeletedFalse(updateRequestData.getBusinessId())
                     .orElseThrow(() -> {
-                        log.warn("BUSINESS_ASSIGNMENT_FAILED: business_id={}, user_id={}",
+                        log.warn("Business assignment failed: business_id={}, user_id={}",
                                 updateRequestData.getBusinessId(), userEntity.getId());
                         return new ValidationException("Business not found");
                     });
@@ -249,7 +249,7 @@ public class UserServiceImpl implements UserService {
             List<Role> assignedRoles = roleRepository.findByNameInAndIsDeletedFalse(updateRequestData.getRoles());
 
             if (assignedRoles.size() != updateRequestData.getRoles().size()) {
-                log.warn("ROLE_ASSIGNMENT_FAILED: invalid_roles={}, user_id={}",
+                log.warn("Role assignment failed - invalid roles: invalid_roles={}, user_id={}",
                         updateRequestData.getRoles(), userEntity.getId());
                 throw new ValidationException("One or more roles not found");
             }
@@ -316,23 +316,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse deleteUser(UUID userEntityId) {
-        log.info("USER_DELETE_INITIATED: id={}, requested_by={}", userEntityId, securityUtils.getCurrentUserId());
+        log.info("User deletion initiated: id={}, requested_by={}", userEntityId, securityUtils.getCurrentUserId());
 
         User userEntity = userRepository.findByIdAndIsDeletedFalse(userEntityId)
                 .orElseThrow(() -> {
-                    log.warn("USER_NOT_FOUND_FOR_DELETE: id={}", userEntityId);
+                    log.warn("User not found for deletion: id={}", userEntityId);
                     return new ValidationException("User not found");
                 });
 
         User currentUserContext = securityUtils.getCurrentUser();
         if (userEntity.getId().equals(currentUserContext.getId())) {
-            log.warn("USER_DELETE_SELF_ATTEMPT: id={}, username={}", userEntityId, userEntity.getUserIdentifier());
+            log.warn("User deletion failed - self delete attempt: id={}, username={}", userEntityId, userEntity.getUserIdentifier());
             throw new ValidationException("You cannot delete your own account");
         }
 
         userEntity.softDelete();
         userRepository.save(userEntity);
-        log.info("USER_DELETE_SUCCESS: id={}, identifier={}", userEntity.getId(), userEntity.getUserIdentifier());
+        log.info("User deleted successfully: id={}, identifier={}", userEntity.getId(), userEntity.getUserIdentifier());
 
         return userMapper.toResponse(userEntity);
     }
@@ -341,7 +341,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
         User currentUserContext = securityUtils.getCurrentUser();
-        log.info("CURRENT_USER_RETRIEVED: id={}", currentUserContext.getId());
+        log.info("Current user retrieved successfully: id={}", currentUserContext.getId());
         return userMapper.toResponse(currentUserContext);
     }
 
@@ -349,7 +349,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse updateCurrentUser(UserUpdateRequest profileUpdateRequest) {
         User currentUserContext = securityUtils.getCurrentUser();
-        log.info("CURRENT_USER_SELF_UPDATE: id={}", currentUserContext.getId());
+        log.info("Current user profile update initiated: id={}", currentUserContext.getId());
         return updateUser(currentUserContext.getId(), profileUpdateRequest);
     }
 
@@ -359,7 +359,7 @@ public class UserServiceImpl implements UserService {
     private void validateRoleUserTypeCompatibility(List<Role> assignedRoles, UserType userType) {
         assignedRoles.forEach(roleAssignment -> {
             if (!roleAssignment.isCompatibleWithUserType(userType)) {
-                log.warn("INCOMPATIBLE_ROLE_ASSIGNMENT: role={}, type={}", roleAssignment.getName(), userType);
+                log.warn("Incompatible role assignment: role={}, type={}", roleAssignment.getName(), userType);
                 throw new ValidationException(String.format(
                         "Role '%s' is not compatible with user type '%s'.", roleAssignment.getName(), userType));
             }

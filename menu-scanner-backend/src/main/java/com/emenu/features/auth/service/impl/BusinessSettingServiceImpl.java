@@ -32,7 +32,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
 
     @Override
     public BusinessSettingResponse createBusinessSetting(BusinessSettingCreateRequest request) {
-        log.info("BUSINESS_SETTING_CREATE_INITIATED: business_id={}", request.getBusinessId());
+        log.info("Business setting creation initiated: business_id={}", request.getBusinessId());
 
         Business business = businessRepository.findByIdAndIsDeletedFalse(request.getBusinessId())
                 .orElseThrow(() -> new ValidationException("Business not found"));
@@ -44,7 +44,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
         BusinessSetting businessSetting = businessSettingMapper.toEntity(request);
         BusinessSetting savedSetting = businessSettingRepository.save(businessSetting);
 
-        log.info("BUSINESS_SETTING_CREATE_SUCCESS: business_id={}", business.getId());
+        log.info("Business setting created successfully: business_id={}", business.getId());
         return businessSettingMapper.toResponse(savedSetting);
     }
 
@@ -58,7 +58,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
 
     @Override
     public BusinessSettingResponse updateBusinessSetting(UUID businessId, BusinessSettingUpdateRequest request) {
-        log.info("BUSINESS_SETTING_UPDATE_INITIATED: business_id={}", businessId);
+        log.info("Business setting update initiated: business_id={}", businessId);
 
         BusinessSetting businessSetting = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new ValidationException("Business setting not found"));
@@ -66,7 +66,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
         businessSettingMapper.updateEntity(request, businessSetting);
         BusinessSetting updatedSetting = businessSettingRepository.save(businessSetting);
 
-        log.info("BUSINESS_SETTING_UPDATE_SUCCESS: business_id={}", businessId);
+        log.info("Business setting updated successfully: business_id={}", businessId);
         return businessSettingMapper.toResponse(updatedSetting);
     }
 
@@ -77,7 +77,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
 
         businessSetting.softDelete();
         businessSettingRepository.save(businessSetting);
-        log.info("BUSINESS_SETTING_DELETE_SUCCESS: business_id={}", businessId);
+        log.info("Business setting deleted successfully: business_id={}", businessId);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
             throw new ValidationException("User is not associated with any business");
         }
 
-        log.info("BUSINESS_SETTING_SELF_UPDATE_INITIATED: user_id={}, business_id={}", currentUser.getId(), currentUser.getBusinessId());
+        log.info("Business setting self-update initiated: user_id={}, business_id={}", currentUser.getId(), currentUser.getBusinessId());
         return updateBusinessSetting(currentUser.getBusinessId(), request);
     }
 }
