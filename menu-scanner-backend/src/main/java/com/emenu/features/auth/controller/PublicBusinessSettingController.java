@@ -21,6 +21,7 @@ public class PublicBusinessSettingController {
     @GetMapping("/{businessId}")
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> getBusinessSetting(
             @PathVariable UUID businessId) {
+        log.info("Endpoint: public/business-settings - business setting retrieval request received: business_id={}", businessId);
         BusinessSettingResponse publicSettingResponse = businessSettingService.getBusinessSettingByBusinessId(businessId);
         return ResponseEntity.ok(ApiResponse.success("Business setting retrieved", publicSettingResponse));
     }
