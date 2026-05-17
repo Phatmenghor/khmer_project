@@ -70,22 +70,22 @@ public class AuthController {
     @PostMapping("/social/sync")
     public ResponseEntity<ApiResponse<SocialSyncResponse>> syncSocialAccount(
             @Valid @RequestBody SocialAuthRequest request) {
-        log.info("## [SYNC] ▶ Received sync request: provider={}, userType={}", request.getProvider(), request.getUserType());
+        log.info("Syncing social account: provider={}, userType={}", request.getProvider(), request.getUserType());
 
         SocialSyncResponse response = socialAuthService.syncSocialAccount(request);
 
-        log.info("## [SYNC] ✓ Sync completed: provider={}, telegramId={}, username={}",
+        log.info("Social account synced: provider={}, telegramId={}, username={}",
                 response.getProvider(), response.getTelegramId(), response.getTelegramUsername());
         return ResponseEntity.ok(ApiResponse.success("Social account synced successfully", response));
     }
 
     @DeleteMapping("/social/sync/{provider}")
     public ResponseEntity<ApiResponse<SocialSyncResponse>> unsyncSocialAccount(@PathVariable String provider) {
-        log.info("## [UNSYNC] ▶ Received unsync request: provider={}", provider);
+        log.info("Unsyncing social account: provider={}", provider);
 
         SocialSyncResponse response = socialAuthService.unsyncSocialAccount(provider);
 
-        log.info("## [UNSYNC] ✓ Unsync completed: provider={}", provider);
+        log.info("Social account unsynced: provider={}", provider);
         return ResponseEntity.ok(ApiResponse.success("Social account unsynced successfully", response));
     }
 
