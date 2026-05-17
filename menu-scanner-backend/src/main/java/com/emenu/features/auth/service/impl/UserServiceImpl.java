@@ -8,7 +8,10 @@ import com.emenu.features.auth.dto.request.*;
 import com.emenu.features.auth.dto.response.UserDetailResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
+import com.emenu.features.auth.mapper.UserEmploymentMapper;
 import com.emenu.features.auth.mapper.UserMapper;
+import com.emenu.features.auth.mapper.UserNestedEntitiesMapper;
+import com.emenu.features.auth.mapper.UserProfileMapper;
 import com.emenu.features.auth.models.*;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
@@ -46,6 +49,9 @@ public class UserServiceImpl implements UserService {
     private final BusinessRepository businessRepository;
     private final BusinessService businessService;
     private final UserMapper userMapper;
+    private final UserProfileMapper userProfileMapper;
+    private final UserEmploymentMapper userEmploymentMapper;
+    private final UserNestedEntitiesMapper userNestedEntitiesMapper;
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtils securityUtils;
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
@@ -74,54 +80,31 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         User saved = userRepository.save(user);
 
-        // Profile
-        UserProfile profile = new UserProfile();
-        profile.setUser(saved);
-        profile.setEmail(req.getEmail());
-        profile.setFirstName(req.getFirstName());
-        profile.setLastName(req.getLastName());
-        profile.setNickname(req.getNickname());
-        profile.setGender(req.getGender());
-        profile.setDateOfBirth(req.getDateOfBirth());
-        profile.setPhoneNumber(req.getPhoneNumber());
-        profile.setProfileImageUrl(req.getProfileImageUrl());
+        UserProfile profile = userProfileMapper.createFromRequest(req, saved);
         saved.setProfile(profile);
 
-        // Employment
         if (hasEmploymentData(req)) {
-            UserEmployment emp = new UserEmployment();
-            emp.setUser(saved);
-            emp.setEmployeeId(req.getEmployeeId());
-            emp.setPosition(req.getPosition());
-            emp.setDepartment(req.getDepartment());
-            emp.setEmploymentType(req.getEmploymentType());
-            emp.setJoinDate(req.getJoinDate());
-            emp.setLeaveDate(req.getLeaveDate());
-            emp.setShift(req.getShift());
+            UserEmployment emp = userEmploymentMapper.createFromRequest(req, saved);
             saved.setEmployment(emp);
         }
 
         // Use a final reference for use inside lambdas (saved is reassigned below)
         final User savedRef = saved;
 
-        // Addresses
         if (req.getAddresses() != null) {
-            req.getAddresses().forEach(r -> savedRef.getAddresses().add(buildAddress(r, savedRef)));
+            req.getAddresses().forEach(r -> savedRef.getAddresses().add(userNestedEntitiesMapper.createAddress(r, savedRef)));
         }
 
-        // Emergency contacts
         if (req.getEmergencyContacts() != null) {
-            req.getEmergencyContacts().forEach(r -> savedRef.getEmergencyContacts().add(buildContact(r, savedRef)));
+            req.getEmergencyContacts().forEach(r -> savedRef.getEmergencyContacts().add(userNestedEntitiesMapper.createContact(r, savedRef)));
         }
 
-        // Documents
         if (req.getDocuments() != null) {
-            req.getDocuments().forEach(r -> savedRef.getDocuments().add(buildDocument(r, savedRef)));
+            req.getDocuments().forEach(r -> savedRef.getDocuments().add(userNestedEntitiesMapper.createDocument(r, savedRef)));
         }
 
-        // Educations
         if (req.getEducations() != null) {
-            req.getEducations().forEach(r -> savedRef.getEducations().add(buildEducation(r, savedRef)));
+            req.getEducations().forEach(r -> savedRef.getEducations().add(userNestedEntitiesMapper.createEducation(r, savedRef)));
         }
 
         saved = userRepository.save(savedRef);
@@ -177,40 +160,32 @@ public class UserServiceImpl implements UserService {
 
         userMapper.updateEntity(req, user);
 
-        // Profile
         UserProfile profile = user.getProfile();
-        if (profile == null) { profile = new UserProfile(); profile.setUser(user); user.setProfile(profile); }
-        if (req.getEmail() != null) profile.setEmail(req.getEmail());
-        if (req.getFirstName() != null) profile.setFirstName(req.getFirstName());
-        if (req.getLastName() != null) profile.setLastName(req.getLastName());
-        if (req.getNickname() != null) profile.setNickname(req.getNickname());
-        if (req.getGender() != null) profile.setGender(req.getGender());
-        if (req.getDateOfBirth() != null) profile.setDateOfBirth(req.getDateOfBirth());
-        if (req.getPhoneNumber() != null) profile.setPhoneNumber(req.getPhoneNumber());
-        if (req.getProfileImageUrl() != null) profile.setProfileImageUrl(req.getProfileImageUrl());
+        if (profile == null) {
+            profile = new UserProfile();
+            profile.setUser(user);
+            user.setProfile(profile);
+        }
+        userProfileMapper.updateFromRequest(req, profile);
 
-        // Employment
         if (hasEmploymentUpdateData(req)) {
             UserEmployment emp = user.getEmployment();
-            if (emp == null) { emp = new UserEmployment(); emp.setUser(user); user.setEmployment(emp); }
-            if (req.getEmployeeId() != null) emp.setEmployeeId(req.getEmployeeId());
-            if (req.getPosition() != null) emp.setPosition(req.getPosition());
-            if (req.getDepartment() != null) emp.setDepartment(req.getDepartment());
-            if (req.getEmploymentType() != null) emp.setEmploymentType(req.getEmploymentType());
-            if (req.getJoinDate() != null) emp.setJoinDate(req.getJoinDate());
-            if (req.getLeaveDate() != null) emp.setLeaveDate(req.getLeaveDate());
-            if (req.getShift() != null) emp.setShift(req.getShift());
+            if (emp == null) {
+                emp = new UserEmployment();
+                emp.setUser(user);
+                user.setEmployment(emp);
+            }
+            userEmploymentMapper.updateFromRequest(req, emp);
         }
 
-        // null = no change | [] = remove all | items = merge (update by id / create new / delete missing)
         if (req.getAddresses() != null) mergeList(req.getAddresses(), user.getAddresses(),
-                AddressRequest::getId, this::applyAddressFields, r -> buildAddress(r, user));
+                AddressRequest::getId, userNestedEntitiesMapper::updateAddress, r -> userNestedEntitiesMapper.createAddress(r, user));
         if (req.getEmergencyContacts() != null) mergeList(req.getEmergencyContacts(), user.getEmergencyContacts(),
-                EmergencyContactRequest::getId, this::applyContactFields, r -> buildContact(r, user));
+                EmergencyContactRequest::getId, userNestedEntitiesMapper::updateContact, r -> userNestedEntitiesMapper.createContact(r, user));
         if (req.getDocuments() != null) mergeList(req.getDocuments(), user.getDocuments(),
-                DocumentRequest::getId, this::applyDocumentFields, r -> buildDocument(r, user));
+                DocumentRequest::getId, userNestedEntitiesMapper::updateDocument, r -> userNestedEntitiesMapper.createDocument(r, user));
         if (req.getEducations() != null) mergeList(req.getEducations(), user.getEducations(),
-                EducationRequest::getId, this::applyEducationFields, r -> buildEducation(r, user));
+                EducationRequest::getId, userNestedEntitiesMapper::updateEducation, r -> userNestedEntitiesMapper.createEducation(r, user));
 
         User updated = userRepository.save(user);
         log.info("User updated: {}", updated.getUserIdentifier());
@@ -303,64 +278,4 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private UserAddress buildAddress(AddressRequest req, User user) {
-        UserAddress a = new UserAddress();
-        a.setUser(user);
-        applyAddressFields(req, a);
-        return a;
-    }
-
-    private void applyAddressFields(AddressRequest req, UserAddress a) {
-        if (req.getAddressType() != null) a.setAddressType(req.getAddressType());
-        if (req.getHouseNo() != null) a.setHouseNo(req.getHouseNo());
-        if (req.getStreet() != null) a.setStreet(req.getStreet());
-        if (req.getVillage() != null) a.setVillage(req.getVillage());
-        if (req.getCommune() != null) a.setCommune(req.getCommune());
-        if (req.getDistrict() != null) a.setDistrict(req.getDistrict());
-        if (req.getProvince() != null) a.setProvince(req.getProvince());
-        if (req.getCountry() != null) a.setCountry(req.getCountry());
-    }
-
-    private UserEmergencyContact buildContact(EmergencyContactRequest req, User user) {
-        UserEmergencyContact c = new UserEmergencyContact();
-        c.setUser(user);
-        applyContactFields(req, c);
-        return c;
-    }
-
-    private void applyContactFields(EmergencyContactRequest req, UserEmergencyContact c) {
-        if (req.getName() != null) c.setName(req.getName());
-        if (req.getPhone() != null) c.setPhone(req.getPhone());
-        if (req.getRelationship() != null) c.setRelationship(req.getRelationship());
-    }
-
-    private UserDocument buildDocument(DocumentRequest req, User user) {
-        UserDocument d = new UserDocument();
-        d.setUser(user);
-        applyDocumentFields(req, d);
-        return d;
-    }
-
-    private void applyDocumentFields(DocumentRequest req, UserDocument d) {
-        if (req.getType() != null) d.setType(req.getType());
-        if (req.getNumber() != null) d.setNumber(req.getNumber());
-        if (req.getFileUrl() != null) d.setFileUrl(req.getFileUrl());
-    }
-
-    private UserEducation buildEducation(EducationRequest req, User user) {
-        UserEducation e = new UserEducation();
-        e.setUser(user);
-        applyEducationFields(req, e);
-        return e;
-    }
-
-    private void applyEducationFields(EducationRequest req, UserEducation e) {
-        if (req.getLevel() != null) e.setLevel(req.getLevel());
-        if (req.getSchoolName() != null) e.setSchoolName(req.getSchoolName());
-        if (req.getFieldOfStudy() != null) e.setFieldOfStudy(req.getFieldOfStudy());
-        if (req.getStartYear() != null) e.setStartYear(req.getStartYear());
-        if (req.getEndYear() != null) e.setEndYear(req.getEndYear());
-        if (req.getIsGraduated() != null) e.setIsGraduated(req.getIsGraduated());
-        if (req.getCertificateUrl() != null) e.setCertificateUrl(req.getCertificateUrl());
-    }
 }
