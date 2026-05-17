@@ -58,58 +58,96 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserCreateRequest req) {
-        log.info("Creating user: {}", req.getUserIdentifier());
+        log.info("Creating new user: identifier={}, type={}, business={}",
+                req.getUserIdentifier(), req.getUserType(), req.getBusinessId());
 
+        validateUserCreationRequest(req);
+        log.debug("User creation request validation passed");
+
+        User user = buildUserEntity(req);
+        User saved = userRepository.save(user);
+        log.debug("User entity persisted: id={}, identifier={}", saved.getId(), saved.getUserIdentifier());
+
+        enrichUserWithProfile(req, saved);
+        enrichUserWithEmployment(req, saved);
+        enrichUserWithRelatedEntities(req, saved);
+
+        saved = userRepository.save(saved);
+        log.info("User created successfully: id={}, identifier={}, type={}",
+                saved.getId(), saved.getUserIdentifier(), saved.getUserType());
+
+        return userMapper.toResponse(saved);
+    }
+
+    private void validateUserCreationRequest(UserCreateRequest req) {
         if (userRepository.existsByUserIdentifierAndIsDeletedFalse(req.getUserIdentifier())) {
+            log.warn("User creation failed - identifier already exists: {}", req.getUserIdentifier());
             throw new ValidationException("User identifier already exists");
         }
+
         if (req.getUserType() == UserType.BUSINESS_USER && req.getBusinessId() == null) {
+            log.warn("User creation failed - BUSINESS_USER requires businessId");
             throw new ValidationException("Business ID is required for BUSINESS_USER type");
         }
+
         if (req.getBusinessId() != null) {
             businessRepository.findByIdAndIsDeletedFalse(req.getBusinessId())
-                    .orElseThrow(() -> new ValidationException("Business not found"));
+                    .orElseThrow(() -> {
+                        log.warn("User creation failed - business not found: {}", req.getBusinessId());
+                        return new ValidationException("Business not found");
+                    });
         }
 
         List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
-        if (roles.size() != req.getRoles().size()) throw new ValidationException("One or more roles not found");
+        if (roles.size() != req.getRoles().size()) {
+            log.warn("User creation failed - invalid roles requested");
+            throw new ValidationException("One or more roles not found");
+        }
         validateRoleUserTypeCompatibility(roles, req.getUserType());
+    }
 
+    private User buildUserEntity(UserCreateRequest req) {
         User user = userMapper.toEntity(req);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
+        List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
         user.setRoles(roles);
-        User saved = userRepository.save(user);
+        return user;
+    }
 
-        UserProfile profile = userProfileMapper.createFromRequest(req, saved);
-        saved.setProfile(profile);
+    private void enrichUserWithProfile(UserCreateRequest req, User user) {
+        UserProfile profile = userProfileMapper.createFromRequest(req, user);
+        user.setProfile(profile);
+        log.debug("User profile created for user: {}", user.getId());
+    }
 
+    private void enrichUserWithEmployment(UserCreateRequest req, User user) {
         if (hasEmploymentData(req)) {
-            UserEmployment emp = userEmploymentMapper.createFromRequest(req, saved);
-            saved.setEmployment(emp);
+            UserEmployment emp = userEmploymentMapper.createFromRequest(req, user);
+            user.setEmployment(emp);
+            log.debug("User employment created for user: {}", user.getId());
+        }
+    }
+
+    private void enrichUserWithRelatedEntities(UserCreateRequest req, User user) {
+        if (req.getAddresses() != null && !req.getAddresses().isEmpty()) {
+            req.getAddresses().forEach(r -> user.getAddresses().add(userNestedEntitiesMapper.createAddress(r, user)));
+            log.debug("Added {} addresses to user: {}", req.getAddresses().size(), user.getId());
         }
 
-        // Use a final reference for use inside lambdas (saved is reassigned below)
-        final User savedRef = saved;
-
-        if (req.getAddresses() != null) {
-            req.getAddresses().forEach(r -> savedRef.getAddresses().add(userNestedEntitiesMapper.createAddress(r, savedRef)));
+        if (req.getEmergencyContacts() != null && !req.getEmergencyContacts().isEmpty()) {
+            req.getEmergencyContacts().forEach(r -> user.getEmergencyContacts().add(userNestedEntitiesMapper.createContact(r, user)));
+            log.debug("Added {} emergency contacts to user: {}", req.getEmergencyContacts().size(), user.getId());
         }
 
-        if (req.getEmergencyContacts() != null) {
-            req.getEmergencyContacts().forEach(r -> savedRef.getEmergencyContacts().add(userNestedEntitiesMapper.createContact(r, savedRef)));
+        if (req.getDocuments() != null && !req.getDocuments().isEmpty()) {
+            req.getDocuments().forEach(r -> user.getDocuments().add(userNestedEntitiesMapper.createDocument(r, user)));
+            log.debug("Added {} documents to user: {}", req.getDocuments().size(), user.getId());
         }
 
-        if (req.getDocuments() != null) {
-            req.getDocuments().forEach(r -> savedRef.getDocuments().add(userNestedEntitiesMapper.createDocument(r, savedRef)));
+        if (req.getEducations() != null && !req.getEducations().isEmpty()) {
+            req.getEducations().forEach(r -> user.getEducations().add(userNestedEntitiesMapper.createEducation(r, user)));
+            log.debug("Added {} education records to user: {}", req.getEducations().size(), user.getId());
         }
-
-        if (req.getEducations() != null) {
-            req.getEducations().forEach(r -> savedRef.getEducations().add(userNestedEntitiesMapper.createEducation(r, savedRef)));
-        }
-
-        saved = userRepository.save(savedRef);
-        log.info("User created: {} type={}", saved.getUserIdentifier(), saved.getUserType());
-        return userMapper.toResponse(saved);
     }
 
     @Override
@@ -119,6 +157,11 @@ public class UserServiceImpl implements UserService {
         if (currentUser.isBusinessUser() && request.getBusinessId() == null) {
             request.setBusinessId(currentUser.getBusinessId());
         }
+
+        log.debug("Fetching users - business: {}, types: {}, statuses: {}, page: {}/{}",
+                request.getBusinessId(), request.getUserTypes(), request.getAccountStatuses(),
+                request.getPageNo(), request.getPageSize());
+
         Pageable pageable = PaginationUtils.createPageable(
                 request.getPageNo(), request.getPageSize(), request.getSortBy(), request.getSortDirection());
 
@@ -128,36 +171,72 @@ public class UserServiceImpl implements UserService {
 
         Page<User> page = userRepository.searchUsers(
                 request.getBusinessId(), userTypes, accountStatuses, roles, request.getSearch(), pageable);
+
+        log.info("Retrieved {} users (page {}/{})", page.getNumberOfElements(), page.getNumber() + 1, page.getTotalPages());
         return userMapper.toPaginationResponse(page, paginationMapper);
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserDetailResponse getUserById(UUID userId) {
-        return userMapper.toDetailResponse(userRepository.findByIdAndIsDeletedFalse(userId)
-                .orElseThrow(() -> new ValidationException("User not found")));
+        log.debug("Fetching user details: {}", userId);
+        UserDetailResponse response = userMapper.toDetailResponse(userRepository.findByIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> {
+                    log.warn("User not found: {}", userId);
+                    return new ValidationException("User not found");
+                }));
+        log.debug("User details retrieved: {}", userId);
+        return response;
     }
 
     @Override
     public UserResponse updateUser(UUID userId, UserUpdateRequest req) {
         log.info("Updating user: {}", userId);
-        User user = userRepository.findByIdAndIsDeletedFalse(userId)
-                .orElseThrow(() -> new ValidationException("User not found"));
 
+        User user = userRepository.findByIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> {
+                    log.warn("User update failed - user not found: {}", userId);
+                    return new ValidationException("User not found");
+                });
+
+        updateBusinessAssignment(user, req);
+        updateUserRoles(user, req);
+        updateUserProfile(user, req);
+        updateUserEmployment(user, req);
+        updateUserRelatedEntities(user, req);
+
+        User updated = userRepository.save(user);
+        log.info("User updated successfully: id={}, identifier={}", updated.getId(), updated.getUserIdentifier());
+        return userMapper.toResponse(updated);
+    }
+
+    private void updateBusinessAssignment(User user, UserUpdateRequest req) {
         if (req.getBusinessId() != null && !req.getBusinessId().equals(user.getBusinessId())) {
             businessRepository.findByIdAndIsDeletedFalse(req.getBusinessId())
-                    .orElseThrow(() -> new ValidationException("Business not found"));
+                    .orElseThrow(() -> {
+                        log.warn("Business assignment failed - business not found: {}", req.getBusinessId());
+                        return new ValidationException("Business not found");
+                    });
             user.setBusinessId(req.getBusinessId());
+            log.debug("User business assignment updated: {}", req.getBusinessId());
         }
+    }
 
+    private void updateUserRoles(User user, UserUpdateRequest req) {
         if (req.getRoles() != null && !req.getRoles().isEmpty()) {
             List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
-            if (roles.size() != req.getRoles().size()) throw new ValidationException("One or more roles not found");
+            if (roles.size() != req.getRoles().size()) {
+                log.warn("Role update failed - invalid roles: {}", req.getRoles());
+                throw new ValidationException("One or more roles not found");
+            }
             validateRoleUserTypeCompatibility(roles, user.getUserType());
             user.getRoles().clear();
             user.getRoles().addAll(roles);
+            log.debug("User roles updated: count={}", roles.size());
         }
+    }
 
+    private void updateUserProfile(User user, UserUpdateRequest req) {
         userMapper.updateEntity(req, user);
 
         UserProfile profile = user.getProfile();
@@ -165,59 +244,84 @@ public class UserServiceImpl implements UserService {
             profile = new UserProfile();
             profile.setUser(user);
             user.setProfile(profile);
+            log.debug("User profile created");
         }
         userProfileMapper.updateFromRequest(req, profile);
+    }
 
+    private void updateUserEmployment(User user, UserUpdateRequest req) {
         if (hasEmploymentUpdateData(req)) {
             UserEmployment emp = user.getEmployment();
             if (emp == null) {
                 emp = new UserEmployment();
                 emp.setUser(user);
                 user.setEmployment(emp);
+                log.debug("User employment created");
             }
             userEmploymentMapper.updateFromRequest(req, emp);
         }
+    }
 
-        if (req.getAddresses() != null) mergeList(req.getAddresses(), user.getAddresses(),
-                AddressRequest::getId, userNestedEntitiesMapper::updateAddress, r -> userNestedEntitiesMapper.createAddress(r, user));
-        if (req.getEmergencyContacts() != null) mergeList(req.getEmergencyContacts(), user.getEmergencyContacts(),
-                EmergencyContactRequest::getId, userNestedEntitiesMapper::updateContact, r -> userNestedEntitiesMapper.createContact(r, user));
-        if (req.getDocuments() != null) mergeList(req.getDocuments(), user.getDocuments(),
-                DocumentRequest::getId, userNestedEntitiesMapper::updateDocument, r -> userNestedEntitiesMapper.createDocument(r, user));
-        if (req.getEducations() != null) mergeList(req.getEducations(), user.getEducations(),
-                EducationRequest::getId, userNestedEntitiesMapper::updateEducation, r -> userNestedEntitiesMapper.createEducation(r, user));
+    private void updateUserRelatedEntities(User user, UserUpdateRequest req) {
+        if (req.getAddresses() != null) {
+            mergeList(req.getAddresses(), user.getAddresses(),
+                    AddressRequest::getId, userNestedEntitiesMapper::updateAddress, r -> userNestedEntitiesMapper.createAddress(r, user));
+            log.debug("User addresses updated: count={}", user.getAddresses().size());
+        }
 
-        User updated = userRepository.save(user);
-        log.info("User updated: {}", updated.getUserIdentifier());
-        return userMapper.toResponse(updated);
+        if (req.getEmergencyContacts() != null) {
+            mergeList(req.getEmergencyContacts(), user.getEmergencyContacts(),
+                    EmergencyContactRequest::getId, userNestedEntitiesMapper::updateContact, r -> userNestedEntitiesMapper.createContact(r, user));
+            log.debug("User emergency contacts updated: count={}", user.getEmergencyContacts().size());
+        }
+
+        if (req.getDocuments() != null) {
+            mergeList(req.getDocuments(), user.getDocuments(),
+                    DocumentRequest::getId, userNestedEntitiesMapper::updateDocument, r -> userNestedEntitiesMapper.createDocument(r, user));
+            log.debug("User documents updated: count={}", user.getDocuments().size());
+        }
+
+        if (req.getEducations() != null) {
+            mergeList(req.getEducations(), user.getEducations(),
+                    EducationRequest::getId, userNestedEntitiesMapper::updateEducation, r -> userNestedEntitiesMapper.createEducation(r, user));
+            log.debug("User educations updated: count={}", user.getEducations().size());
+        }
     }
 
     @Override
     public UserResponse deleteUser(UUID userId) {
+        log.info("Deleting user: {}", userId);
+
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
-                .orElseThrow(() -> new ValidationException("User not found"));
+                .orElseThrow(() -> {
+                    log.warn("User deletion failed - user not found: {}", userId);
+                    return new ValidationException("User not found");
+                });
+
         if (user.getId().equals(securityUtils.getCurrentUser().getId())) {
+            log.warn("User deletion failed - attempting to delete own account: {}", userId);
             throw new ValidationException("You cannot delete your own account");
         }
+
         user.softDelete();
-        log.info("User deleted: {}", user.getUserIdentifier());
-        return userMapper.toResponse(userRepository.save(user));
+        userRepository.save(user);
+        log.info("User deleted successfully: id={}, identifier={}", user.getId(), user.getUserIdentifier());
+        return userMapper.toResponse(user);
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
-        return userMapper.toResponse(securityUtils.getCurrentUser());
+        User currentUser = securityUtils.getCurrentUser();
+        log.debug("Retrieving current user: {}", currentUser.getId());
+        return userMapper.toResponse(currentUser);
     }
 
-    /**
-     * Updates the current authenticated user's profile.
-     * Convenience method that extracts the current user ID and calls updateUser.
-     */
     @Override
     @Transactional
     public UserResponse updateCurrentUser(UserUpdateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
+        log.info("Updating current user profile: {}", currentUser.getId());
         return updateUser(currentUser.getId(), request);
     }
 
