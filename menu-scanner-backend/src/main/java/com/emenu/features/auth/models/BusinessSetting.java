@@ -1,6 +1,6 @@
 package com.emenu.features.auth.models;
 
-import com.emenu.features.auth.enums.StockStatus;
+import com.emenu.enums.common.StockStatus;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

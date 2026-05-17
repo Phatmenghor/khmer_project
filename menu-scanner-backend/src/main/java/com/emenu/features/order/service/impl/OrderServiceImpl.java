@@ -4,7 +4,7 @@ import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.exception.custom.ValidationException;
-import com.emenu.features.auth.enums.StockStatus;
+import com.emenu.enums.common.StockStatus;
 import com.emenu.features.auth.models.BusinessSetting;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.repository.BusinessSettingRepository;

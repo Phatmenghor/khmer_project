@@ -1,6 +1,6 @@
 package com.emenu.features.auth.dto.response;
 
-import com.emenu.features.auth.enums.StockStatus;
+import com.emenu.enums.common.StockStatus;
 import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
