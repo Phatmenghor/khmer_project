@@ -1,7 +1,5 @@
 package com.emenu.features.auth.dto.request;
 
-import com.emenu.features.auth.dto.request.SocialMediaRequest;
-import com.emenu.features.auth.dto.request.BusinessHoursRequest;
 import com.emenu.enums.common.StockStatus;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
