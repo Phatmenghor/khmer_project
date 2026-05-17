@@ -17,6 +17,8 @@ import com.emenu.features.auth.mapper.BusinessOwnerMapper;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.models.UserEmployment;
+import com.emenu.features.auth.models.UserProfile;
 import com.emenu.features.auth.repository.BusinessOwnerRepository;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
@@ -38,7 +40,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -63,38 +67,32 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
      * Creates a new business owner with associated business, owner user, subscription, and optional payment
      */
     @Override
-    public BusinessOwnerCreateResponse createBusinessOwner(BusinessOwnerCreateRequest request) {
-        log.info("Creating business owner: {}", request.getBusinessName());
+    public BusinessOwnerCreateResponse createBusinessOwner(BusinessOwnerCreateRequest creationRequestData) {
+        log.info("BUSINESS_OWNER_CREATE_INITIATED: business_name={}, owner_email={}",
+                creationRequestData.getBusinessName(), creationRequestData.getOwnerEmail());
 
-        validateBusinessOwnerCreation(request);
+        validateBusinessOwnerCreation(creationRequestData);
 
-        Business business = createBusiness(request);
-        log.info("Business created: {}", business.getName());
+        Business businessEntity = createBusiness(creationRequestData);
+        User ownerUserEntity = createOwnerUser(creationRequestData, businessEntity.getId());
 
-        User owner = createOwnerUser(request, business.getId());
-        log.info("Owner created: {}", owner.getUserIdentifier());
+        businessEntity.setOwnerId(ownerUserEntity.getId());
+        businessRepository.save(businessEntity);
 
-        business.setOwnerId(owner.getId());
-        businessRepository.save(business);
+        Subscription subscriptionRecord = createSubscription(businessEntity.getId(), creationRequestData);
 
-        Subscription subscription = createSubscription(business.getId(), request);
-        log.info("Subscription created");
-
-        Payment payment = request.hasPaymentInfo() && request.isPaymentInfoComplete()
-                ? createPayment(subscription, request)
+        Payment paymentRecord = creationRequestData.hasPaymentInfo() && creationRequestData.isPaymentInfoComplete()
+                ? createPayment(subscriptionRecord, creationRequestData)
                 : null;
 
-        if (payment != null) {
-            log.info("Payment created: ${}", payment.getAmount());
-        }
+        businessEntity.activateSubscription();
+        businessRepository.save(businessEntity);
 
-        business.activateSubscription();
-        businessRepository.save(business);
+        BusinessOwnerCreateResponse response = mapper.toCreateResponse(ownerUserEntity, businessEntity, subscriptionRecord, paymentRecord);
+        response.setCreatedComponents(buildCreatedComponentsList(paymentRecord != null));
 
-        BusinessOwnerCreateResponse response = mapper.toCreateResponse(owner, business, subscription, payment);
-        response.setCreatedComponents(buildCreatedComponentsList(payment != null));
-
-        log.info("Business owner created successfully: {}", owner.getFullName());
+        log.info("BUSINESS_OWNER_CREATE_SUCCESS: owner_id={}, business_id={}, subscription_id={}, has_payment={}",
+                ownerUserEntity.getId(), businessEntity.getId(), subscriptionRecord.getId(), paymentRecord != null);
         return response;
     }
 
@@ -103,53 +101,51 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
      */
     @Override
     @Transactional(readOnly = true)
-    public PaginationResponse<BusinessOwnerDetailResponse> getAllBusinessOwners(BusinessOwnerFilterRequest filter) {
-        log.info("Getting all business owners with filters");
-
-        Pageable pageable = PaginationUtils.createPageable(
-                filter.getPageNo(),
-                filter.getPageSize(),
-                filter.getSortBy(),
-                filter.getSortDirection()
+    public PaginationResponse<BusinessOwnerDetailResponse> getAllBusinessOwners(BusinessOwnerFilterRequest filterCriteria) {
+        Pageable pageableRequest = PaginationUtils.createPageable(
+                filterCriteria.getPageNo(),
+                filterCriteria.getPageSize(),
+                filterCriteria.getSortBy(),
+                filterCriteria.getSortDirection()
         );
 
-        // Convert empty lists to null for PostgreSQL compatibility
-        List<AccountStatus> ownerStatuses = (filter.getOwnerAccountStatuses() != null && !filter.getOwnerAccountStatuses().isEmpty())
-                ? filter.getOwnerAccountStatuses() : null;
-        List<BusinessStatus> businessStatuses = (filter.getBusinessStatuses() != null && !filter.getBusinessStatuses().isEmpty())
-                ? filter.getBusinessStatuses() : null;
-        List<SubscriptionStatus> subscriptionStatuses = (filter.getSubscriptionStatuses() != null && !filter.getSubscriptionStatuses().isEmpty())
-                ? filter.getSubscriptionStatuses() : null;
-        List<PaymentStatus> paymentStatuses = (filter.getPaymentStatuses() != null && !filter.getPaymentStatuses().isEmpty())
-                ? filter.getPaymentStatuses() : null;
+        List<AccountStatus> filterOwnerStatuses = (filterCriteria.getOwnerAccountStatuses() != null && !filterCriteria.getOwnerAccountStatuses().isEmpty())
+                ? filterCriteria.getOwnerAccountStatuses() : null;
+        List<BusinessStatus> filterBusinessStatuses = (filterCriteria.getBusinessStatuses() != null && !filterCriteria.getBusinessStatuses().isEmpty())
+                ? filterCriteria.getBusinessStatuses() : null;
+        List<SubscriptionStatus> filterSubscriptionStatuses = (filterCriteria.getSubscriptionStatuses() != null && !filterCriteria.getSubscriptionStatuses().isEmpty())
+                ? filterCriteria.getSubscriptionStatuses() : null;
+        List<PaymentStatus> filterPaymentStatuses = (filterCriteria.getPaymentStatuses() != null && !filterCriteria.getPaymentStatuses().isEmpty())
+                ? filterCriteria.getPaymentStatuses() : null;
 
-        // Parse subscription statuses
-        boolean hasActive = subscriptionStatuses != null && subscriptionStatuses.contains(SubscriptionStatus.ACTIVE);
-        boolean hasExpired = subscriptionStatuses != null && subscriptionStatuses.contains(SubscriptionStatus.EXPIRED);
-        boolean hasExpiringSoon = subscriptionStatuses != null && subscriptionStatuses.contains(SubscriptionStatus.EXPIRING_SOON);
+        boolean hasActiveSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.ACTIVE);
+        boolean hasExpiredSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.EXPIRED);
+        boolean hasExpiringSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.EXPIRING_SOON);
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expiryThreshold = now.plusDays(filter.getExpiringSoonDays());
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime expiryThreshold = currentDateTime.plusDays(filterCriteria.getExpiringSoonDays());
 
         Page<User> ownerPage = businessOwnerRepository.findAllBusinessOwnersWithFilters(
-                ownerStatuses,
-                businessStatuses,
-                subscriptionStatuses,
-                hasActive,
-                hasExpired,
-                hasExpiringSoon,
-                now,
+                filterOwnerStatuses,
+                filterBusinessStatuses,
+                filterSubscriptionStatuses,
+                hasActiveSubscription,
+                hasExpiredSubscription,
+                hasExpiringSubscription,
+                currentDateTime,
                 expiryThreshold,
-                filter.getAutoRenew(),
-                paymentStatuses,
-                filter.getSearch(),
-                pageable
+                filterCriteria.getAutoRenew(),
+                filterPaymentStatuses,
+                filterCriteria.getSearch(),
+                pageableRequest
         );
 
-        // Map and enrich responses
         List<BusinessOwnerDetailResponse> enrichedResponses = ownerPage.getContent().stream()
                 .map(this::buildEnrichedDetailResponse)
                 .toList();
+
+        log.info("BUSINESS_OWNERS_FETCHED: count={}, page={}/{}, total={}",
+                enrichedResponses.size(), ownerPage.getNumber() + 1, ownerPage.getTotalPages(), ownerPage.getTotalElements());
 
         return PaginationResponse.<BusinessOwnerDetailResponse>builder()
                 .content(enrichedResponses)
@@ -164,433 +160,429 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 .build();
     }
 
-    /**
-     * Retrieves detailed information for a specific business owner
-     */
     @Override
     @Transactional(readOnly = true)
     public BusinessOwnerDetailResponse getBusinessOwnerDetail(UUID ownerId) {
-        log.info("Getting business owner detail: {}", ownerId);
+        User ownerEntity = businessOwnerRepository.findBusinessOwnerById(ownerId)
+                .orElseThrow(() -> {
+                    log.warn("BUSINESS_OWNER_NOT_FOUND_FOR_DETAIL: owner_id={}", ownerId);
+                    return new NotFoundException("Business owner not found: " + ownerId);
+                });
 
-        User owner = businessOwnerRepository.findBusinessOwnerById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Business owner not found: " + ownerId));
-
-        return buildEnrichedDetailResponse(owner);
+        log.info("BUSINESS_OWNER_DETAIL_RETRIEVED: owner_id={}", ownerId);
+        return buildEnrichedDetailResponse(ownerEntity);
     }
 
-    /**
-     * Renews the subscription for a business owner with optional plan change and payment
-     */
     @Override
-    public BusinessOwnerDetailResponse renewSubscription(UUID ownerId, BusinessOwnerSubscriptionRenewRequest request) {
-        log.info("Renewing subscription for business owner: {}", ownerId);
+    public BusinessOwnerDetailResponse renewSubscription(UUID ownerId, BusinessOwnerSubscriptionRenewRequest renewRequestData) {
+        log.info("SUBSCRIPTION_RENEW_INITIATED: owner_id={}", ownerId);
 
-        User owner = getOwnerOrThrow(ownerId);
-        Business business = owner.getBusiness();
-        Subscription currentSubscription = getCurrentSubscription(business.getId());
+        User ownerEntity = getOwnerOrThrow(ownerId);
+        Business businessEntity = ownerEntity.getBusiness();
+        Subscription currentSubscriptionRecord = getCurrentSubscription(businessEntity.getId());
 
-        SubscriptionPlan planToUse = request.getNewPlanId() != null
-                ? getPlanOrThrow(request.getNewPlanId())
-                : currentSubscription.getPlan();
+        SubscriptionPlan planToUse = renewRequestData.getNewPlanId() != null
+                ? getPlanOrThrow(renewRequestData.getNewPlanId())
+                : currentSubscriptionRecord.getPlan();
 
-        // Update subscription
-        currentSubscription.setPlan(planToUse);
-        currentSubscription.renew();
-        subscriptionRepository.save(currentSubscription);
+        currentSubscriptionRecord.setPlan(planToUse);
+        currentSubscriptionRecord.renew();
+        subscriptionRepository.save(currentSubscriptionRecord);
 
-        // Create payment if requested
-        if (request.hasPaymentInfo() && request.isPaymentInfoComplete()) {
-            createPaymentForSubscription(currentSubscription, request.getPaymentAmount(),
-                    request.getPaymentMethod(), request.getPaymentReference(), request.getPaymentNotes());
+        if (renewRequestData.hasPaymentInfo() && renewRequestData.isPaymentInfoComplete()) {
+            createPaymentForSubscription(currentSubscriptionRecord, renewRequestData.getPaymentAmount(),
+                    renewRequestData.getPaymentMethod(), renewRequestData.getPaymentReference(), renewRequestData.getPaymentNotes());
         }
 
-        log.info("Subscription renewed for business owner: {}", ownerId);
-        return buildEnrichedDetailResponse(owner);
+        log.info("SUBSCRIPTION_RENEW_SUCCESS: owner_id={}, subscription_id={}", ownerId, currentSubscriptionRecord.getId());
+        return buildEnrichedDetailResponse(ownerEntity);
     }
 
-    /**
-     * Changes the subscription plan for a business owner
-     */
     @Override
-    public BusinessOwnerDetailResponse changePlan(UUID ownerId, BusinessOwnerChangePlanRequest request) {
-        log.info("Changing plan for business owner: {}", ownerId);
+    public BusinessOwnerDetailResponse changePlan(UUID ownerId, BusinessOwnerChangePlanRequest changePlanRequestData) {
+        log.info("PLAN_CHANGE_INITIATED: owner_id={}, new_plan_id={}", ownerId, changePlanRequestData.getNewPlanId());
 
-        User owner = getOwnerOrThrow(ownerId);
-        Business business = owner.getBusiness();
-        Subscription currentSubscription = getCurrentSubscription(business.getId());
-        SubscriptionPlan newPlan = getPlanOrThrow(request.getNewPlanId());
+        User ownerEntity = getOwnerOrThrow(ownerId);
+        Business businessEntity = ownerEntity.getBusiness();
+        Subscription currentSubscriptionRecord = getCurrentSubscription(businessEntity.getId());
+        SubscriptionPlan newPlanEntity = getPlanOrThrow(changePlanRequestData.getNewPlanId());
 
-        currentSubscription.setPlan(newPlan);
+        currentSubscriptionRecord.setPlan(newPlanEntity);
 
-        if (!request.shouldKeepCurrentEndDate()) {
-            LocalDateTime newEndDate = currentSubscription.getStartDate().plusDays(newPlan.getDurationDays());
-            currentSubscription.setEndDate(newEndDate);
+        if (!changePlanRequestData.shouldKeepCurrentEndDate()) {
+            LocalDateTime newEndDate = currentSubscriptionRecord.getStartDate().plusDays(newPlanEntity.getDurationDays());
+            currentSubscriptionRecord.setEndDate(newEndDate);
         }
 
-        subscriptionRepository.save(currentSubscription);
+        subscriptionRepository.save(currentSubscriptionRecord);
 
-        if (request.hasPaymentInfo() && request.isPaymentInfoComplete()) {
-            createPaymentForSubscription(currentSubscription, request.getPaymentAmount(),
-                    request.getPaymentMethod(), request.getPaymentReference(), request.getPaymentNotes());
+        if (changePlanRequestData.hasPaymentInfo() && changePlanRequestData.isPaymentInfoComplete()) {
+            createPaymentForSubscription(currentSubscriptionRecord, changePlanRequestData.getPaymentAmount(),
+                    changePlanRequestData.getPaymentMethod(), changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
         }
 
-        log.info("Plan changed for business owner: {}", ownerId);
-        return buildEnrichedDetailResponse(owner);
+        log.info("PLAN_CHANGE_SUCCESS: owner_id={}, subscription_id={}, new_plan_id={}",
+                ownerId, currentSubscriptionRecord.getId(), changePlanRequestData.getNewPlanId());
+        return buildEnrichedDetailResponse(ownerEntity);
     }
 
-    /**
-     * Cancels the subscription for a business owner with optional refund
-     */
     @Override
-    public BusinessOwnerDetailResponse cancelSubscription(UUID ownerId, BusinessOwnerSubscriptionCancelRequest request) {
-        log.info("Cancelling subscription for business owner: {}", ownerId);
+    public BusinessOwnerDetailResponse cancelSubscription(UUID ownerId, BusinessOwnerSubscriptionCancelRequest cancelRequestData) {
+        log.info("SUBSCRIPTION_CANCEL_INITIATED: owner_id={}", ownerId);
 
-        User owner = getOwnerOrThrow(ownerId);
-        Business business = owner.getBusiness();
-        Subscription currentSubscription = getCurrentSubscription(business.getId());
+        User ownerEntity = getOwnerOrThrow(ownerId);
+        Business businessEntity = ownerEntity.getBusiness();
+        Subscription currentSubscriptionRecord = getCurrentSubscription(businessEntity.getId());
 
-        // Cancel subscription
-        currentSubscription.cancel();
-        subscriptionRepository.save(currentSubscription);
+        currentSubscriptionRecord.cancel();
+        subscriptionRepository.save(currentSubscriptionRecord);
 
-        // Cancel pending payments
-        List<Payment> pendingPayments = paymentRepository.findBySubscriptionIdAndStatusAndIsDeletedFalse(
-                currentSubscription.getId(), PaymentStatus.PENDING);
+        List<Payment> pendingPaymentRecords = paymentRepository.findBySubscriptionIdAndStatusAndIsDeletedFalse(
+                currentSubscriptionRecord.getId(), PaymentStatus.PENDING);
 
-        pendingPayments.forEach(payment -> {
-            payment.setStatus(PaymentStatus.CANCELLED);
-            payment.setNotes("Cancelled: " + request.getReason());
-            paymentRepository.save(payment);
+        pendingPaymentRecords.forEach(paymentRecord -> {
+            paymentRecord.setStatus(PaymentStatus.CANCELLED);
+            paymentRecord.setNotes("Cancelled: " + cancelRequestData.getReason());
+            paymentRepository.save(paymentRecord);
         });
 
-        // Deactivate business subscription
-        business.deactivateSubscription();
-        businessRepository.save(business);
+        businessEntity.deactivateSubscription();
+        businessRepository.save(businessEntity);
 
-        // Create refund if requested
-        if (request.hasRefundAmount()) {
-            createRefundPayment(currentSubscription, request);
+        if (cancelRequestData.hasRefundAmount()) {
+            createRefundPayment(currentSubscriptionRecord, cancelRequestData);
         }
 
-        log.info("Subscription cancelled for business owner: {}", ownerId);
-        return buildEnrichedDetailResponse(owner);
+        log.info("SUBSCRIPTION_CANCEL_SUCCESS: owner_id={}, subscription_id={}, refund_issued={}",
+                ownerId, currentSubscriptionRecord.getId(), cancelRequestData.hasRefundAmount());
+        return buildEnrichedDetailResponse(ownerEntity);
     }
 
-    /**
-     * Soft deletes a business owner and all associated data
-     */
     @Override
     public BusinessOwnerDetailResponse deleteBusinessOwner(UUID ownerId) {
-        log.info("Deleting business owner: {}", ownerId);
+        log.info("BUSINESS_OWNER_DELETE_INITIATED: owner_id={}", ownerId);
 
-        User owner = getOwnerOrThrow(ownerId);
-        Business business = owner.getBusiness();
+        User ownerEntity = getOwnerOrThrow(ownerId);
+        Business businessEntity = ownerEntity.getBusiness();
 
-        // Soft delete subscriptions
-        List<Subscription> subscriptions = subscriptionRepository.findByBusinessIdAndIsDeletedFalse(business.getId());
-        subscriptions.forEach(subscription -> {
-            subscription.softDelete();
-            subscriptionRepository.save(subscription);
+        List<Subscription> subscriptionRecords = subscriptionRepository.findByBusinessIdAndIsDeletedFalse(businessEntity.getId());
+        subscriptionRecords.forEach(subscriptionRecord -> {
+            subscriptionRecord.softDelete();
+            subscriptionRepository.save(subscriptionRecord);
         });
 
-        // Soft delete business
-        business.softDelete();
-        businessRepository.save(business);
+        businessEntity.softDelete();
+        businessRepository.save(businessEntity);
 
-        // Soft delete owner
-        owner.softDelete();
-        businessOwnerRepository.save(owner);
+        ownerEntity.softDelete();
+        businessOwnerRepository.save(ownerEntity);
 
-        log.info("Business owner deleted: {}", ownerId);
-        return buildEnrichedDetailResponse(owner);
+        log.info("BUSINESS_OWNER_DELETE_SUCCESS: owner_id={}, business_id={}, subscriptions_deleted={}",
+                ownerId, businessEntity.getId(), subscriptionRecords.size());
+        return buildEnrichedDetailResponse(ownerEntity);
     }
 
-    // ============================================
-    // PRIVATE HELPER METHODS
-    // ============================================
-
-    private void validateBusinessOwnerCreation(BusinessOwnerCreateRequest request) {
-        if (businessOwnerRepository.existsBusinessOwnerByEmail(request.getOwnerEmail())) {
-            throw new ValidationException("Email already exists: " + request.getOwnerEmail());
+    private void validateBusinessOwnerCreation(BusinessOwnerCreateRequest creationRequestData) {
+        if (businessOwnerRepository.existsBusinessOwnerByEmail(creationRequestData.getOwnerEmail())) {
+            log.warn("BUSINESS_OWNER_CREATE_FAILED_DUPLICATE_EMAIL: email={}", creationRequestData.getOwnerEmail());
+            throw new ValidationException("Email already exists: " + creationRequestData.getOwnerEmail());
         }
 
-        if (businessRepository.existsByEmailAndIsDeletedFalse(request.getBusinessEmail())) {
-            throw new ValidationException("Business email already exists: " + request.getBusinessEmail());
+        if (businessRepository.existsByEmailAndIsDeletedFalse(creationRequestData.getBusinessEmail())) {
+            log.warn("BUSINESS_OWNER_CREATE_FAILED_DUPLICATE_BUSINESS_EMAIL: business_email={}", creationRequestData.getBusinessEmail());
+            throw new ValidationException("Business email already exists: " + creationRequestData.getBusinessEmail());
         }
 
-        if (!planRepository.existsById(request.getPlanId())) {
-            throw new NotFoundException("Plan not found: " + request.getPlanId());
+        if (!planRepository.existsById(creationRequestData.getPlanId())) {
+            log.warn("BUSINESS_OWNER_CREATE_FAILED_PLAN_NOT_FOUND: plan_id={}", creationRequestData.getPlanId());
+            throw new NotFoundException("Plan not found: " + creationRequestData.getPlanId());
         }
     }
 
-    private Business createBusiness(BusinessOwnerCreateRequest request) {
-        Business business = new Business();
-        business.setName(request.getBusinessName());
-        business.setEmail(request.getBusinessEmail());
-        business.setPhone(request.getBusinessPhone());
-        business.setAddress(request.getBusinessAddress());
-        business.setStatus(BusinessStatus.PENDING);
-        return businessRepository.save(business);
+    private Business createBusiness(BusinessOwnerCreateRequest creationRequestData) {
+        Business businessEntity = new Business();
+        businessEntity.setName(creationRequestData.getBusinessName());
+        businessEntity.setEmail(creationRequestData.getBusinessEmail());
+        businessEntity.setPhone(creationRequestData.getBusinessPhone());
+        businessEntity.setAddress(creationRequestData.getBusinessAddress());
+        businessEntity.setStatus(BusinessStatus.PENDING);
+        return businessRepository.save(businessEntity);
     }
 
-    private User createOwnerUser(BusinessOwnerCreateRequest request, UUID businessId) {
-        Role ownerRole = roleRepository.findByNameAndIsDeletedFalse("BUSINESS_OWNER")
-                .orElseThrow(() -> new NotFoundException("Business owner role not found"));
+    private User createOwnerUser(BusinessOwnerCreateRequest creationRequestData, UUID businessId) {
+        Role ownerRoleEntity = roleRepository.findByNameAndIsDeletedFalse("BUSINESS_OWNER")
+                .orElseThrow(() -> {
+                    log.warn("BUSINESS_OWNER_CREATE_FAILED_ROLE_NOT_FOUND");
+                    return new NotFoundException("Business owner role not found");
+                });
 
-        // Validate role is compatible with BUSINESS_USER type
-        if (!ownerRole.isCompatibleWithUserType(UserType.BUSINESS_USER)) {
+        if (!ownerRoleEntity.isCompatibleWithUserType(UserType.BUSINESS_USER)) {
+            log.warn("BUSINESS_OWNER_CREATE_FAILED_ROLE_INCOMPATIBLE");
             throw new ValidationException("BUSINESS_OWNER role is not properly configured for BUSINESS_USER type");
         }
 
-        User owner = new User();
-        owner.setUserIdentifier(request.getOwnerUserIdentifier());
-        owner.setPassword(passwordEncoder.encode(request.getOwnerPassword()));
-        owner.setUserType(UserType.BUSINESS_USER);
-        owner.setAccountStatus(AccountStatus.ACTIVE);
-        owner.setBusinessId(businessId);
-        owner.setRoles(List.of(ownerRole));
+        User ownerUserEntity = new User();
+        ownerUserEntity.setUserIdentifier(creationRequestData.getOwnerUserIdentifier());
+        ownerUserEntity.setPassword(passwordEncoder.encode(creationRequestData.getOwnerPassword()));
+        ownerUserEntity.setUserType(UserType.BUSINESS_USER);
+        ownerUserEntity.setAccountStatus(AccountStatus.ACTIVE);
+        ownerUserEntity.setBusinessId(businessId);
+        ownerUserEntity.setRoles(List.of(ownerRoleEntity));
 
-        owner = businessOwnerRepository.save(owner);
+        ownerUserEntity = businessOwnerRepository.save(ownerUserEntity);
 
-        // Build profile
-        String[] nameParts = request.getOwnerFullName() != null ? request.getOwnerFullName().split(" ", 2) : new String[]{"", ""};
-        com.emenu.features.auth.models.UserProfile profile = new com.emenu.features.auth.models.UserProfile();
-        profile.setUser(owner);
-        profile.setEmail(request.getOwnerEmail());
-        profile.setFirstName(nameParts[0]);
-        profile.setLastName(nameParts.length > 1 ? nameParts[1] : "");
-        profile.setPhoneNumber(request.getOwnerPhone());
-        owner.setProfile(profile);
+        String[] nameParts = creationRequestData.getOwnerFullName() != null
+                ? creationRequestData.getOwnerFullName().split(" ", 2)
+                : new String[]{"", ""};
 
-        // Build employment
-        com.emenu.features.auth.models.UserEmployment employment = new com.emenu.features.auth.models.UserEmployment();
-        employment.setUser(owner);
-        employment.setPosition("Owner");
-        owner.setEmployment(employment);
+        UserProfile profileEntity = new UserProfile();
+        profileEntity.setUser(ownerUserEntity);
+        profileEntity.setEmail(creationRequestData.getOwnerEmail());
+        profileEntity.setFirstName(nameParts[0]);
+        profileEntity.setLastName(nameParts.length > 1 ? nameParts[1] : "");
+        profileEntity.setPhoneNumber(creationRequestData.getOwnerPhone());
+        ownerUserEntity.setProfile(profileEntity);
 
-        return businessOwnerRepository.save(owner);
+        UserEmployment employmentEntity = new UserEmployment();
+        employmentEntity.setUser(ownerUserEntity);
+        employmentEntity.setPosition("Owner");
+        ownerUserEntity.setEmployment(employmentEntity);
+
+        return businessOwnerRepository.save(ownerUserEntity);
     }
 
-    private Subscription createSubscription(UUID businessId, BusinessOwnerCreateRequest request) {
-        SubscriptionPlan plan = planRepository.findById(request.getPlanId())
-                .orElseThrow(() -> new NotFoundException("Plan not found"));
+    private Subscription createSubscription(UUID businessId, BusinessOwnerCreateRequest creationRequestData) {
+        SubscriptionPlan planEntity = planRepository.findById(creationRequestData.getPlanId())
+                .orElseThrow(() -> {
+                    log.warn("SUBSCRIPTION_CREATE_FAILED_PLAN_NOT_FOUND: plan_id={}", creationRequestData.getPlanId());
+                    return new NotFoundException("Plan not found");
+                });
 
-        Subscription subscription = new Subscription();
-        subscription.setBusinessId(businessId);
-        subscription.setPlanId(request.getPlanId());
+        Subscription subscriptionRecord = new Subscription();
+        subscriptionRecord.setBusinessId(businessId);
+        subscriptionRecord.setPlanId(creationRequestData.getPlanId());
 
-        LocalDateTime startDate = LocalDateTime.now();
-        subscription.setStartDate(startDate);
+        LocalDateTime startDateTime = LocalDateTime.now();
+        subscriptionRecord.setStartDate(startDateTime);
 
-        Integer duration = request.getCustomDurationDays() != null
-                ? request.getCustomDurationDays()
-                : plan.getDurationDays();
-        subscription.setEndDate(startDate.plusDays(duration));
+        Integer durationDays = creationRequestData.getCustomDurationDays() != null
+                ? creationRequestData.getCustomDurationDays()
+                : planEntity.getDurationDays();
+        subscriptionRecord.setEndDate(startDateTime.plusDays(durationDays));
 
-        subscription.setAutoRenew(false);
+        subscriptionRecord.setAutoRenew(false);
 
-        return subscriptionRepository.save(subscription);
+        return subscriptionRepository.save(subscriptionRecord);
     }
 
-    private Payment createPayment(Subscription subscription, BusinessOwnerCreateRequest request) {
-        Payment payment = new Payment();
-        payment.setBusinessId(subscription.getBusinessId());
-        payment.setPlanId(subscription.getPlanId());
-        payment.setSubscriptionId(subscription.getId());
-        payment.setAmount(request.getPaymentAmount());
-        payment.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()));
-        payment.setPaymentType(PaymentType.SUBSCRIPTION);
-        payment.setStatus(PaymentStatus.COMPLETED);
-        payment.setReferenceNumber(request.getPaymentReference());
-        payment.setNotes(request.getPaymentNotes());
-        return paymentRepository.save(payment);
+    private Payment createPayment(Subscription subscriptionRecord, BusinessOwnerCreateRequest creationRequestData) {
+        Payment paymentRecord = new Payment();
+        paymentRecord.setBusinessId(subscriptionRecord.getBusinessId());
+        paymentRecord.setPlanId(subscriptionRecord.getPlanId());
+        paymentRecord.setSubscriptionId(subscriptionRecord.getId());
+        paymentRecord.setAmount(creationRequestData.getPaymentAmount());
+        paymentRecord.setPaymentMethod(PaymentMethod.valueOf(creationRequestData.getPaymentMethod()));
+        paymentRecord.setPaymentType(PaymentType.SUBSCRIPTION);
+        paymentRecord.setStatus(PaymentStatus.COMPLETED);
+        paymentRecord.setReferenceNumber(creationRequestData.getPaymentReference());
+        paymentRecord.setNotes(creationRequestData.getPaymentNotes());
+        return paymentRepository.save(paymentRecord);
     }
 
-    private void createPaymentForSubscription(Subscription subscription, java.math.BigDecimal amount,
+    private void createPaymentForSubscription(Subscription subscriptionRecord, BigDecimal amount,
                                              String method, String reference, String notes) {
-        Payment payment = new Payment();
-        payment.setBusinessId(subscription.getBusinessId());
-        payment.setPlanId(subscription.getPlanId());
-        payment.setSubscriptionId(subscription.getId());
-        payment.setAmount(amount);
-        payment.setPaymentMethod(PaymentMethod.valueOf(method));
-        payment.setPaymentType(PaymentType.SUBSCRIPTION);
-        payment.setStatus(PaymentStatus.COMPLETED);
-        payment.setReferenceNumber(reference);
-        payment.setNotes(notes);
-        paymentRepository.save(payment);
+        Payment paymentRecord = new Payment();
+        paymentRecord.setBusinessId(subscriptionRecord.getBusinessId());
+        paymentRecord.setPlanId(subscriptionRecord.getPlanId());
+        paymentRecord.setSubscriptionId(subscriptionRecord.getId());
+        paymentRecord.setAmount(amount);
+        paymentRecord.setPaymentMethod(PaymentMethod.valueOf(method));
+        paymentRecord.setPaymentType(PaymentType.SUBSCRIPTION);
+        paymentRecord.setStatus(PaymentStatus.COMPLETED);
+        paymentRecord.setReferenceNumber(reference);
+        paymentRecord.setNotes(notes);
+        paymentRepository.save(paymentRecord);
     }
 
-    private void createRefundPayment(Subscription subscription, BusinessOwnerSubscriptionCancelRequest request) {
-        Payment refund = new Payment();
-        refund.setBusinessId(subscription.getBusinessId());
-        refund.setPlanId(subscription.getPlanId());
-        refund.setSubscriptionId(subscription.getId());
-        refund.setAmount(request.getRefundAmount().negate());
-        refund.setPaymentMethod(PaymentMethod.valueOf(request.getRefundMethod()));
-        refund.setPaymentType(PaymentType.REFUND);
-        refund.setStatus(PaymentStatus.COMPLETED);
-        refund.setReferenceNumber(request.getRefundReference());
-        refund.setNotes("Refund: " + request.getReason());
-        paymentRepository.save(refund);
+    private void createRefundPayment(Subscription subscriptionRecord, BusinessOwnerSubscriptionCancelRequest cancelRequestData) {
+        Payment refundRecord = new Payment();
+        refundRecord.setBusinessId(subscriptionRecord.getBusinessId());
+        refundRecord.setPlanId(subscriptionRecord.getPlanId());
+        refundRecord.setSubscriptionId(subscriptionRecord.getId());
+        refundRecord.setAmount(cancelRequestData.getRefundAmount().negate());
+        refundRecord.setPaymentMethod(PaymentMethod.valueOf(cancelRequestData.getRefundMethod()));
+        refundRecord.setPaymentType(PaymentType.REFUND);
+        refundRecord.setStatus(PaymentStatus.COMPLETED);
+        refundRecord.setReferenceNumber(cancelRequestData.getRefundReference());
+        refundRecord.setNotes("Refund: " + cancelRequestData.getReason());
+        paymentRepository.save(refundRecord);
     }
 
-    private BusinessOwnerDetailResponse buildEnrichedDetailResponse(User owner) {
-        BusinessOwnerDetailResponse response = mapper.toDetailResponse(owner);
+    private BusinessOwnerDetailResponse buildEnrichedDetailResponse(User ownerEntity) {
+        BusinessOwnerDetailResponse detailResponse = mapper.toDetailResponse(ownerEntity);
 
-        if (owner.getBusiness() != null) {
-            enrichDetailResponse(response, owner.getBusiness());
+        if (ownerEntity.getBusiness() != null) {
+            enrichDetailResponse(detailResponse, ownerEntity.getBusiness());
         }
 
-        return response;
+        return detailResponse;
     }
 
-    private void enrichDetailResponse(BusinessOwnerDetailResponse response, Business business) {
-        if (business == null) return;
+    private void enrichDetailResponse(BusinessOwnerDetailResponse detailResponse, Business businessEntity) {
+        if (businessEntity == null) return;
 
-        enrichSubscriptionData(response, business.getId());
+        enrichSubscriptionData(detailResponse, businessEntity.getId());
 
-        if (response.getCurrentSubscriptionId() != null) {
-            enrichPaymentData(response, response.getCurrentSubscriptionId());
+        if (detailResponse.getCurrentSubscriptionId() != null) {
+            enrichPaymentData(detailResponse, detailResponse.getCurrentSubscriptionId());
         }
     }
 
-    private void enrichSubscriptionData(BusinessOwnerDetailResponse response, UUID businessId) {
+    private void enrichSubscriptionData(BusinessOwnerDetailResponse detailResponse, UUID businessId) {
         subscriptionRepository.findCurrentActiveByBusinessId(businessId, LocalDateTime.now())
                 .ifPresentOrElse(
-                        subscription -> populateSubscriptionInfo(response, subscription),
-                        () -> response.setSubscriptionStatus(SubscriptionStatus.EXPIRED)
+                        subscriptionRecord -> populateSubscriptionInfo(detailResponse, subscriptionRecord),
+                        () -> detailResponse.setSubscriptionStatus(SubscriptionStatus.EXPIRED)
                 );
     }
 
-    private void populateSubscriptionInfo(BusinessOwnerDetailResponse response, Subscription subscription) {
-        response.setCurrentSubscriptionId(subscription.getId());
-        response.setCurrentPlanName(subscription.getPlan().getName());
-        response.setCurrentPlanPrice(subscription.getPlan().getPrice());
-        response.setCurrentPlanDurationDays(subscription.getPlan().getDurationDays());
-        response.setSubscriptionStartDate(subscription.getStartDate());
-        response.setSubscriptionEndDate(subscription.getEndDate());
-        response.setDaysRemaining(calculateDaysRemaining(subscription.getEndDate()));
-        response.setDaysActive(calculateDaysActive(subscription.getStartDate()));
-        response.setSubscriptionStatus(determineSubscriptionStatus(subscription));
-        response.setAutoRenew(subscription.getAutoRenew());
-        response.setIsExpiringSoon(subscription.isExpiringSoon(7));
+    private void populateSubscriptionInfo(BusinessOwnerDetailResponse detailResponse, Subscription subscriptionRecord) {
+        detailResponse.setCurrentSubscriptionId(subscriptionRecord.getId());
+        detailResponse.setCurrentPlanName(subscriptionRecord.getPlan().getName());
+        detailResponse.setCurrentPlanPrice(subscriptionRecord.getPlan().getPrice());
+        detailResponse.setCurrentPlanDurationDays(subscriptionRecord.getPlan().getDurationDays());
+        detailResponse.setSubscriptionStartDate(subscriptionRecord.getStartDate());
+        detailResponse.setSubscriptionEndDate(subscriptionRecord.getEndDate());
+        detailResponse.setDaysRemaining(calculateDaysRemaining(subscriptionRecord.getEndDate()));
+        detailResponse.setDaysActive(calculateDaysActive(subscriptionRecord.getStartDate()));
+        detailResponse.setSubscriptionStatus(determineSubscriptionStatus(subscriptionRecord));
+        detailResponse.setAutoRenew(subscriptionRecord.getAutoRenew());
+        detailResponse.setIsExpiringSoon(subscriptionRecord.isExpiringSoon(7));
     }
 
-    private void enrichPaymentData(BusinessOwnerDetailResponse response, UUID subscriptionId) {
-        List<Payment> payments = paymentRepository.findBySubscriptionIdAndIsDeletedFalse(subscriptionId);
+    private void enrichPaymentData(BusinessOwnerDetailResponse detailResponse, UUID subscriptionId) {
+        List<Payment> paymentRecords = paymentRepository.findBySubscriptionIdAndIsDeletedFalse(subscriptionId);
 
-        if (payments.isEmpty()) {
-            setDefaultPaymentData(response);
+        if (paymentRecords.isEmpty()) {
+            setDefaultPaymentData(detailResponse);
             return;
         }
 
-        java.math.BigDecimal totalPaid = payments.stream()
+        BigDecimal totalPaidAmount = paymentRecords.stream()
                 .filter(p -> p.getStatus() == PaymentStatus.COMPLETED)
                 .map(Payment::getAmount)
-                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        java.math.BigDecimal totalPending = payments.stream()
+        BigDecimal totalPendingAmount = paymentRecords.stream()
                 .filter(p -> p.getStatus() == PaymentStatus.PENDING)
                 .map(Payment::getAmount)
-                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        long completedCount = payments.stream()
+        long completedPaymentCount = paymentRecords.stream()
                 .filter(p -> p.getStatus() == PaymentStatus.COMPLETED)
                 .count();
 
-        long pendingCount = payments.stream()
+        long pendingPaymentCount = paymentRecords.stream()
                 .filter(p -> p.getStatus() == PaymentStatus.PENDING)
                 .count();
 
-        LocalDateTime lastPaymentDate = payments.stream()
+        LocalDateTime lastPaymentDateTime = paymentRecords.stream()
                 .filter(p -> p.getStatus() == PaymentStatus.COMPLETED)
                 .map(Payment::getCreatedAt)
                 .max(LocalDateTime::compareTo)
                 .orElse(null);
 
-        response.setTotalPaid(totalPaid);
-        response.setTotalPending(totalPending);
-        response.setTotalPayments(payments.size());
-        response.setCompletedPayments((int) completedCount);
-        response.setPendingPayments((int) pendingCount);
-        response.setPaymentStatus(determinePaymentStatus(totalPaid, totalPending, response.getCurrentPlanPrice()));
-        response.setLastPaymentDate(lastPaymentDate);
+        detailResponse.setTotalPaid(totalPaidAmount);
+        detailResponse.setTotalPending(totalPendingAmount);
+        detailResponse.setTotalPayments(paymentRecords.size());
+        detailResponse.setCompletedPayments((int) completedPaymentCount);
+        detailResponse.setPendingPayments((int) pendingPaymentCount);
+        detailResponse.setPaymentStatus(determinePaymentStatus(totalPaidAmount, totalPendingAmount, detailResponse.getCurrentPlanPrice()));
+        detailResponse.setLastPaymentDate(lastPaymentDateTime);
     }
 
-    private void setDefaultPaymentData(BusinessOwnerDetailResponse response) {
-        response.setTotalPaid(java.math.BigDecimal.ZERO);
-        response.setTotalPending(java.math.BigDecimal.ZERO);
-        response.setTotalPayments(0);
-        response.setCompletedPayments(0);
-        response.setPendingPayments(0);
-        response.setPaymentStatus("UNPAID");
-        response.setLastPaymentDate(null);
+    private void setDefaultPaymentData(BusinessOwnerDetailResponse detailResponse) {
+        detailResponse.setTotalPaid(BigDecimal.ZERO);
+        detailResponse.setTotalPending(BigDecimal.ZERO);
+        detailResponse.setTotalPayments(0);
+        detailResponse.setCompletedPayments(0);
+        detailResponse.setPendingPayments(0);
+        detailResponse.setPaymentStatus("UNPAID");
+        detailResponse.setLastPaymentDate(null);
     }
 
     private Long calculateDaysRemaining(LocalDateTime endDate) {
         if (endDate == null) return 0L;
         LocalDateTime now = LocalDateTime.now();
         if (now.isAfter(endDate)) return 0L;
-        return java.time.temporal.ChronoUnit.DAYS.between(now, endDate);
+        return ChronoUnit.DAYS.between(now, endDate);
     }
 
     private Long calculateDaysActive(LocalDateTime startDate) {
         if (startDate == null) return 0L;
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(startDate)) return 0L;
-        return java.time.temporal.ChronoUnit.DAYS.between(startDate, now);
+        return ChronoUnit.DAYS.between(startDate, now);
     }
 
-    private SubscriptionStatus determineSubscriptionStatus(Subscription subscription) {
-        if (subscription.isExpired()) {
+    private SubscriptionStatus determineSubscriptionStatus(Subscription subscriptionRecord) {
+        if (subscriptionRecord.isExpired()) {
             return SubscriptionStatus.EXPIRED;
         }
-        if (subscription.isExpiringSoon(7)) {
+        if (subscriptionRecord.isExpiringSoon(7)) {
             return SubscriptionStatus.EXPIRING_SOON;
         }
         return SubscriptionStatus.ACTIVE;
     }
 
-    private String determinePaymentStatus(java.math.BigDecimal totalPaid, java.math.BigDecimal totalPending, java.math.BigDecimal planPrice) {
+    private String determinePaymentStatus(BigDecimal totalPaidAmount, BigDecimal totalPendingAmount, BigDecimal planPrice) {
         if (planPrice == null) {
             return "UNKNOWN";
         }
 
-        if (totalPaid.compareTo(planPrice) >= 0) {
+        if (totalPaidAmount.compareTo(planPrice) >= 0) {
             return "PAID";
-        } else if (totalPaid.compareTo(java.math.BigDecimal.ZERO) > 0) {
+        } else if (totalPaidAmount.compareTo(BigDecimal.ZERO) > 0) {
             return "PARTIALLY_PAID";
-        } else if (totalPending.compareTo(java.math.BigDecimal.ZERO) > 0) {
+        } else if (totalPendingAmount.compareTo(BigDecimal.ZERO) > 0) {
             return "PENDING";
         }
 
         return "UNPAID";
     }
 
-    private List<String> buildCreatedComponentsList(boolean hasPayment) {
-        List<String> components = new ArrayList<>();
-        components.add("Owner User");
-        components.add("Business Profile");
-        components.add("Subscription");
-        if (hasPayment) {
-            components.add("Payment");
+    private List<String> buildCreatedComponentsList(boolean hasPaymentRecord) {
+        List<String> componentsList = new ArrayList<>();
+        componentsList.add("Owner User");
+        componentsList.add("Business Profile");
+        componentsList.add("Subscription");
+        if (hasPaymentRecord) {
+            componentsList.add("Payment");
         }
-        return components;
+        return componentsList;
     }
 
     private User getOwnerOrThrow(UUID ownerId) {
         return businessOwnerRepository.findBusinessOwnerById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Business owner not found: " + ownerId));
+                .orElseThrow(() -> {
+                    log.warn("BUSINESS_OWNER_NOT_FOUND: owner_id={}", ownerId);
+                    return new NotFoundException("Business owner not found: " + ownerId);
+                });
     }
 
     private Subscription getCurrentSubscription(UUID businessId) {
         return subscriptionRepository.findCurrentActiveByBusinessId(businessId, LocalDateTime.now())
-                .orElseThrow(() -> new NotFoundException("No active subscription found"));
+                .orElseThrow(() -> {
+                    log.warn("ACTIVE_SUBSCRIPTION_NOT_FOUND: business_id={}", businessId);
+                    return new NotFoundException("No active subscription found");
+                });
     }
 
     private SubscriptionPlan getPlanOrThrow(UUID planId) {
         return planRepository.findById(planId)
-                .orElseThrow(() -> new NotFoundException("Plan not found: " + planId));
+                .orElseThrow(() -> {
+                    log.warn("PLAN_NOT_FOUND: plan_id={}", planId);
+                    return new NotFoundException("Plan not found: " + planId);
+                });
     }
 }
