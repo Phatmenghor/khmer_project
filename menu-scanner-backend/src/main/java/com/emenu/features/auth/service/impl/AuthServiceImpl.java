@@ -60,351 +60,366 @@ public class AuthServiceImpl implements AuthService {
     private final UserValidationService userValidationService;
 
     @Override
-    public LoginResponse login(LoginRequest request) {
-        log.info("Login attempt for user: {} (type: {})", request.getUserIdentifier(), request.getUserType());
+    public LoginResponse login(LoginRequest loginRequestData) {
+        log.info("LOGIN_INITIATED: identifier={}, type={}", loginRequestData.getUserIdentifier(), loginRequestData.getUserType());
 
-        User user = findUserWithContext(request);
-        validateLoginContext(request, user);
+        User userEntity = findUserWithContext(loginRequestData);
+        validateLoginContext(loginRequestData, userEntity);
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            log.warn("Login failed - Invalid password for user: {}", request.getUserIdentifier());
+        if (!passwordEncoder.matches(loginRequestData.getPassword(), userEntity.getPassword())) {
+            log.warn("LOGIN_FAILED_INVALID_PASSWORD: identifier={}", loginRequestData.getUserIdentifier());
             throw new ValidationException("Invalid credentials");
         }
 
-        securityUtils.validateAccountStatus(user);
+        securityUtils.validateAccountStatus(userEntity);
 
-        if (user.isBusinessUser() && user.getBusinessId() != null) {
-            validateBusinessLoginContext(user);
+        if (userEntity.isBusinessUser() && userEntity.getBusinessId() != null) {
+            validateBusinessLoginContext(userEntity);
         }
 
-        List<String> roles = user.getRoles().stream()
+        List<String> roleNames = userEntity.getRoles().stream()
                 .map(Role::getName)
                 .toList();
 
-        String accessToken = jwtGenerator.generateAccessTokenFromUsername(
-                user.getUserIdentifier(),
-                roles,
-                user.getUserType().name()
+        String accessTokenString = jwtGenerator.generateAccessTokenFromUsername(
+                userEntity.getUserIdentifier(),
+                roleNames,
+                userEntity.getUserType().name()
         );
 
-        String ipAddress = getClientIpAddress();
-        String deviceInfo = getDeviceInfo();
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, ipAddress, deviceInfo);
+        String clientIpAddress = getClientIpAddress();
+        String clientDeviceInfo = getDeviceInfo();
+        RefreshToken refreshTokenEntity = refreshTokenService.createRefreshToken(userEntity, clientIpAddress, clientDeviceInfo);
 
         HttpServletRequest httpRequest = getHttpServletRequest();
         if (httpRequest != null) {
-            userSessionService.createSession(user, refreshToken, httpRequest);
+            userSessionService.createSession(userEntity, refreshTokenEntity, httpRequest);
         }
 
-        LoginResponse response = userMapper.toLoginResponse(user, accessToken);
-        response.setRefreshToken(refreshToken.getToken());
+        LoginResponse loginResponse = userMapper.toLoginResponse(userEntity, accessTokenString);
+        loginResponse.setRefreshToken(refreshTokenEntity.getToken());
 
-        if (user.isBusinessUser() && user.getBusinessId() != null) {
-            Business business = businessRepository.findById(user.getBusinessId()).orElse(null);
-            if (business != null) {
-                response.setBusinessStatus(business.getStatus().toString());
-                response.setIsSubscriptionActive(business.hasActiveSubscription());
+        if (userEntity.isBusinessUser() && userEntity.getBusinessId() != null) {
+            Business businessEntity = businessRepository.findById(userEntity.getBusinessId()).orElse(null);
+            if (businessEntity != null) {
+                loginResponse.setBusinessStatus(businessEntity.getStatus().toString());
+                loginResponse.setIsSubscriptionActive(businessEntity.hasActiveSubscription());
             }
         }
 
-        log.info("Login successful for user: {} (type: {})", user.getUserIdentifier(), user.getUserType());
-        return response;
+        log.info("LOGIN_SUCCESS: identifier={}, type={}, user_id={}", userEntity.getUserIdentifier(), userEntity.getUserType(), userEntity.getId());
+        return loginResponse;
     }
 
-    private void validateBusinessLoginContext(User user) {
-        Business business = businessRepository.findById(user.getBusinessId())
-                .orElseThrow(() -> new ValidationException("Business not found"));
+    private void validateBusinessLoginContext(User userEntity) {
+        Business businessEntity = businessRepository.findById(userEntity.getBusinessId())
+                .orElseThrow(() -> {
+                    log.warn("LOGIN_FAILED_BUSINESS_NOT_FOUND: business_id={}", userEntity.getBusinessId());
+                    return new ValidationException("Business not found");
+                });
 
-        if (!business.isActive()) {
-            log.warn("Login denied - Business inactive: {} (status: {})", user.getBusinessId(), business.getStatus());
-            throw new ValidationException("Your business account is currently " + business.getStatus() + ". Please contact support.");
+        if (!businessEntity.isActive()) {
+            log.warn("LOGIN_FAILED_BUSINESS_INACTIVE: business_id={}, status={}", userEntity.getBusinessId(), businessEntity.getStatus());
+            throw new ValidationException("Your business account is currently " + businessEntity.getStatus() + ". Please contact support.");
         }
 
-        if (!business.hasActiveSubscription()) {
-            log.warn("Login denied - No active subscription for business: {}", user.getBusinessId());
+        if (!businessEntity.hasActiveSubscription()) {
+            log.warn("LOGIN_FAILED_NO_ACTIVE_SUBSCRIPTION: business_id={}", userEntity.getBusinessId());
             throw new ValidationException("Your business subscription has expired. Please renew your subscription to continue.");
         }
     }
 
-    /**
-     * Find user with context-aware lookup based on userType and businessId.
-     * UserType is REQUIRED to disambiguate which user account to authenticate.
-     */
-    private User findUserWithContext(LoginRequest request) {
-        String userIdentifier = request.getUserIdentifier();
-        UserType userType = request.getUserType();
-        UUID businessId = request.getBusinessId();
+    private User findUserWithContext(LoginRequest loginRequestData) {
+        String userIdentifier = loginRequestData.getUserIdentifier();
+        UserType userTypeEnum = loginRequestData.getUserType();
+        UUID businessIdValue = loginRequestData.getBusinessId();
 
-        // Validate userType is provided (should be caught by @NotNull, but double-check)
-        if (userType == null) {
+        if (userTypeEnum == null) {
+            log.warn("LOGIN_FAILED_MISSING_USER_TYPE");
             throw new ValidationException(
                     "User type is required. Please specify whether you are logging in as CUSTOMER, PLATFORM_USER, or BUSINESS_USER."
             );
         }
 
-        // Case 1: BUSINESS_USER - requires businessId
-        if (userType == UserType.BUSINESS_USER) {
-            if (businessId == null) {
+        if (userTypeEnum == UserType.BUSINESS_USER) {
+            if (businessIdValue == null) {
+                log.warn("LOGIN_FAILED_MISSING_BUSINESS_ID: identifier={}", userIdentifier);
                 throw new ValidationException(
                         "Business ID is required for business user login. Please provide businessId in your login request."
                 );
             }
 
-            log.debug("Looking up business user: {} in business: {}", userIdentifier, businessId);
-            return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessId)
-                    .orElseThrow(() -> new ValidationException(
-                            "User '" + userIdentifier + "' not found in the specified business"
-                    ));
+            return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessIdValue)
+                    .orElseThrow(() -> {
+                        log.warn("LOGIN_FAILED_USER_NOT_FOUND_IN_BUSINESS: identifier={}, business_id={}", userIdentifier, businessIdValue);
+                        return new ValidationException(
+                                "User '" + userIdentifier + "' not found in the specified business"
+                        );
+                    });
         }
 
-        // Case 2: CUSTOMER or PLATFORM_USER - global uniqueness per type
-        log.debug("Looking up {} user: {}", userType, userIdentifier);
-        return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userType)
-                .orElseThrow(() -> new ValidationException(
-                        "User '" + userIdentifier + "' not found as " + userType.name().toLowerCase().replace("_", " ")
-                ));
+        return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userTypeEnum)
+                .orElseThrow(() -> {
+                    log.warn("LOGIN_FAILED_USER_NOT_FOUND: identifier={}, type={}", userIdentifier, userTypeEnum);
+                    return new ValidationException(
+                            "User '" + userIdentifier + "' not found as " + userTypeEnum.name().toLowerCase().replace("_", " ")
+                    );
+                });
     }
 
-    /**
-     * Validate that the found user matches the requested context.
-     * This is a safety check - the findUserWithContext method should already ensure correct user.
-     */
-    private void validateLoginContext(LoginRequest request, User user) {
-        // Validate userType matches
-        if (!request.getUserType().equals(user.getUserType())) {
+    private void validateLoginContext(LoginRequest loginRequestData, User userEntity) {
+        if (!loginRequestData.getUserType().equals(userEntity.getUserType())) {
+            log.warn("LOGIN_FAILED_USER_TYPE_MISMATCH: expected={}, found={}", loginRequestData.getUserType(), userEntity.getUserType());
             throw new ValidationException(
-                    "User type mismatch. Expected: " + request.getUserType() +
-                            ", Found: " + user.getUserType()
+                    "User type mismatch. Expected: " + loginRequestData.getUserType() +
+                            ", Found: " + userEntity.getUserType()
             );
         }
 
-        // Validate businessId for business users
-        if (request.getUserType() == UserType.BUSINESS_USER) {
-            if (user.getBusinessId() == null) {
+        if (loginRequestData.getUserType() == UserType.BUSINESS_USER) {
+            if (userEntity.getBusinessId() == null) {
+                log.warn("LOGIN_FAILED_USER_NO_BUSINESS: user_id={}", userEntity.getId());
                 throw new ValidationException("User is not associated with any business");
             }
-            if (!request.getBusinessId().equals(user.getBusinessId())) {
+            if (!loginRequestData.getBusinessId().equals(userEntity.getBusinessId())) {
+                log.warn("LOGIN_FAILED_BUSINESS_MISMATCH: user_id={}, expected_business={}, user_business={}",
+                        userEntity.getId(), loginRequestData.getBusinessId(), userEntity.getBusinessId());
                 throw new ValidationException("User does not belong to the specified business");
             }
         }
     }
 
-    /**
-     * Registers a new customer user
-     */
     @Override
-    public UserResponse registerCustomer(RegisterRequest request) {
-        log.info("Customer registration: {}", request.getUserIdentifier());
+    public UserResponse registerCustomer(RegisterRequest registrationRequestData) {
+        log.info("CUSTOMER_REGISTRATION_INITIATED: identifier={}", registrationRequestData.getUserIdentifier());
 
-        // Validate username uniqueness for CUSTOMER type (global uniqueness among customers)
         userValidationService.validateUsernameUniqueness(
-                request.getUserIdentifier(),
+                registrationRequestData.getUserIdentifier(),
                 UserType.CUSTOMER,
                 null
         );
 
-        User user = userMapper.toEntity(request);
-        user.setUserType(UserType.CUSTOMER);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        User userEntity = userMapper.toEntity(registrationRequestData);
+        userEntity.setUserType(UserType.CUSTOMER);
+        userEntity.setPassword(passwordEncoder.encode(registrationRequestData.getPassword()));
 
-        Role customerRole = roleRepository.findByNameAndIsDeletedFalse("CUSTOMER")
-                .orElseThrow(() -> new ValidationException("Customer role not found"));
+        Role customerRoleEntity = roleRepository.findByNameAndIsDeletedFalse("CUSTOMER")
+                .orElseThrow(() -> {
+                    log.warn("CUSTOMER_REGISTRATION_FAILED_ROLE_NOT_FOUND");
+                    return new ValidationException("Customer role not found");
+                });
 
-        // Validate role is compatible with CUSTOMER user type
-        if (!customerRole.isCompatibleWithUserType(UserType.CUSTOMER)) {
+        if (!customerRoleEntity.isCompatibleWithUserType(UserType.CUSTOMER)) {
+            log.warn("CUSTOMER_REGISTRATION_FAILED_ROLE_INCOMPATIBLE");
             throw new ValidationException("CUSTOMER role is not properly configured for CUSTOMER user type");
         }
 
-        user.setRoles(List.of(customerRole));
+        userEntity.setRoles(List.of(customerRoleEntity));
 
-        User savedUser = userRepository.save(user);
+        User savedUserEntity = userRepository.save(userEntity);
 
-        log.info("Customer registered: {}", savedUser.getUserIdentifier());
-        return userMapper.toResponse(savedUser);
+        log.info("CUSTOMER_REGISTRATION_SUCCESS: identifier={}, user_id={}", savedUserEntity.getUserIdentifier(), savedUserEntity.getId());
+        return userMapper.toResponse(savedUserEntity);
     }
 
     @Override
     public void logout(String authorizationHeader) {
-        String token = TokenUtils.extractTokenFromAuthHeader(authorizationHeader);
+        String accessTokenString = TokenUtils.extractTokenFromAuthHeader(authorizationHeader);
 
-        if (token == null || !jwtGenerator.validateToken(token)) {
+        if (accessTokenString == null || !jwtGenerator.validateToken(accessTokenString)) {
+            log.warn("LOGOUT_FAILED_INVALID_TOKEN");
             throw new ValidationException("Invalid token");
         }
 
-        String userIdentifier = jwtGenerator.getUsernameFromJWT(token);
-        String userTypeStr = jwtGenerator.getUserTypeFromJWT(token);
-        String businessIdStr = jwtGenerator.getBusinessIdFromJWT(token);
+        String userIdentifier = jwtGenerator.getUsernameFromJWT(accessTokenString);
+        String userTypeString = jwtGenerator.getUserTypeFromJWT(accessTokenString);
+        String businessIdString = jwtGenerator.getBusinessIdFromJWT(accessTokenString);
 
-        tokenBlacklistService.blacklistToken(token, userIdentifier, AuthConstants.SESSION_REASON_LOGOUT);
-        User user = findUserByRefreshTokenContext(userIdentifier, userTypeStr, businessIdStr);
-        refreshTokenService.revokeAllUserTokens(user.getId(), AuthConstants.SESSION_REASON_LOGOUT);
+        tokenBlacklistService.blacklistToken(accessTokenString, userIdentifier, AuthConstants.SESSION_REASON_LOGOUT);
+        User userEntity = findUserByRefreshTokenContext(userIdentifier, userTypeString, businessIdString);
+        refreshTokenService.revokeAllUserTokens(userEntity.getId(), AuthConstants.SESSION_REASON_LOGOUT);
 
-        log.info("Logout successful for user: {} (type: {})", userIdentifier, userTypeStr);
+        log.info("LOGOUT_SUCCESS: identifier={}, type={}, user_id={}", userIdentifier, userTypeString, userEntity.getId());
     }
 
     @Override
-    public UserResponse changePassword(PasswordChangeRequest request) {
-        User currentUser = securityUtils.getCurrentUser();
+    public UserResponse changePassword(PasswordChangeRequest passwordChangeRequestData) {
+        User currentUserEntity = securityUtils.getCurrentUser();
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), currentUser.getPassword())) {
+        if (!passwordEncoder.matches(passwordChangeRequestData.getCurrentPassword(), currentUserEntity.getPassword())) {
+            log.warn("PASSWORD_CHANGE_FAILED_INCORRECT_CURRENT: user_id={}", currentUserEntity.getId());
             throw new ValidationException("Current password is incorrect");
         }
 
-        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+        if (!passwordChangeRequestData.getNewPassword().equals(passwordChangeRequestData.getConfirmPassword())) {
+            log.warn("PASSWORD_CHANGE_FAILED_MISMATCH: user_id={}", currentUserEntity.getId());
             throw new ValidationException("Password confirmation does not match");
         }
 
-        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        User savedUser = userRepository.save(currentUser);
+        currentUserEntity.setPassword(passwordEncoder.encode(passwordChangeRequestData.getNewPassword()));
+        User savedUserEntity = userRepository.save(currentUserEntity);
 
-        tokenBlacklistService.blacklistAllUserTokens(currentUser.getUserIdentifier(), AuthConstants.SESSION_REASON_PASSWORD_CHANGE);
-        refreshTokenService.revokeAllUserTokens(currentUser.getId(), AuthConstants.SESSION_REASON_PASSWORD_CHANGE);
+        tokenBlacklistService.blacklistAllUserTokens(currentUserEntity.getUserIdentifier(), AuthConstants.SESSION_REASON_PASSWORD_CHANGE);
+        refreshTokenService.revokeAllUserTokens(currentUserEntity.getId(), AuthConstants.SESSION_REASON_PASSWORD_CHANGE);
 
-        log.info("Password changed for user: {}", currentUser.getUserIdentifier());
+        log.info("PASSWORD_CHANGE_SUCCESS: user_id={}, identifier={}", currentUserEntity.getId(), currentUserEntity.getUserIdentifier());
 
-        return userMapper.toResponse(savedUser);
+        return userMapper.toResponse(savedUserEntity);
     }
 
     @Override
-    public UserResponse adminResetPassword(AdminPasswordResetRequest request) {
-        User user = userRepository.findByIdAndIsDeletedFalse(request.getUserId())
-                .orElseThrow(() -> new ValidationException("User not found"));
+    public UserResponse adminResetPassword(AdminPasswordResetRequest adminResetRequestData) {
+        User userEntity = userRepository.findByIdAndIsDeletedFalse(adminResetRequestData.getUserId())
+                .orElseThrow(() -> {
+                    log.warn("ADMIN_PASSWORD_RESET_FAILED_USER_NOT_FOUND: user_id={}", adminResetRequestData.getUserId());
+                    return new ValidationException("User not found");
+                });
 
-        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+        if (!adminResetRequestData.getNewPassword().equals(adminResetRequestData.getConfirmPassword())) {
+            log.warn("ADMIN_PASSWORD_RESET_FAILED_MISMATCH: user_id={}", adminResetRequestData.getUserId());
             throw new ValidationException("Password confirmation does not match");
         }
 
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        User savedUser = userRepository.save(user);
+        userEntity.setPassword(passwordEncoder.encode(adminResetRequestData.getNewPassword()));
+        User savedUserEntity = userRepository.save(userEntity);
 
-        tokenBlacklistService.blacklistAllUserTokens(user.getUserIdentifier(), AuthConstants.SESSION_REASON_ADMIN_PASSWORD_RESET);
-        refreshTokenService.revokeAllUserTokens(user.getId(), AuthConstants.SESSION_REASON_ADMIN_PASSWORD_RESET);
+        tokenBlacklistService.blacklistAllUserTokens(userEntity.getUserIdentifier(), AuthConstants.SESSION_REASON_ADMIN_PASSWORD_RESET);
+        refreshTokenService.revokeAllUserTokens(userEntity.getId(), AuthConstants.SESSION_REASON_ADMIN_PASSWORD_RESET);
 
-        log.info("Admin password reset for user: {}", user.getUserIdentifier());
+        log.info("ADMIN_PASSWORD_RESET_SUCCESS: user_id={}, identifier={}", userEntity.getId(), userEntity.getUserIdentifier());
 
-        return userMapper.toResponse(savedUser);
+        return userMapper.toResponse(savedUserEntity);
     }
 
     private HttpServletRequest getHttpServletRequest() {
         try {
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (attributes != null) {
-                return attributes.getRequest();
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (requestAttributes != null) {
+                return requestAttributes.getRequest();
             }
         } catch (Exception e) {
-            log.warn("Failed to get HttpServletRequest", e);
+            log.warn("FAILED_TO_GET_HTTP_REQUEST: error={}", e.getMessage());
         }
         return null;
     }
 
     private String getClientIpAddress() {
-        HttpServletRequest request = getHttpServletRequest();
-        if (request != null) {
-            String xForwardedFor = request.getHeader("X-Forwarded-For");
-            if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-                return xForwardedFor.split(",")[0].trim();
+        HttpServletRequest httpRequest = getHttpServletRequest();
+        if (httpRequest != null) {
+            String xForwardedForHeader = httpRequest.getHeader("X-Forwarded-For");
+            if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty()) {
+                return xForwardedForHeader.split(",")[0].trim();
             }
-            return request.getRemoteAddr();
+            return httpRequest.getRemoteAddr();
         }
         return AuthConstants.UNKNOWN_IP;
     }
 
     private String getDeviceInfo() {
-        HttpServletRequest request = getHttpServletRequest();
-        if (request != null) {
-            return request.getHeader("User-Agent");
+        HttpServletRequest httpRequest = getHttpServletRequest();
+        if (httpRequest != null) {
+            return httpRequest.getHeader("User-Agent");
         }
         return AuthConstants.UNKNOWN_DEVICE;
     }
 
     @Override
-    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
-        String refreshTokenString = request.getRefreshToken();
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest refreshTokenRequestData) {
+        String refreshTokenString = refreshTokenRequestData.getRefreshToken();
 
         if (!jwtGenerator.validateToken(refreshTokenString)) {
+            log.warn("TOKEN_REFRESH_FAILED_INVALID_TOKEN");
             throw new ValidationException("Invalid refresh token");
         }
 
         String userIdentifier = jwtGenerator.getUsernameFromJWT(refreshTokenString);
-        String userTypeStr = jwtGenerator.getUserTypeFromJWT(refreshTokenString);
-        String businessIdStr = jwtGenerator.getBusinessIdFromJWT(refreshTokenString);
+        String userTypeString = jwtGenerator.getUserTypeFromJWT(refreshTokenString);
+        String businessIdString = jwtGenerator.getBusinessIdFromJWT(refreshTokenString);
 
-        RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(refreshTokenString)
-                .orElseThrow(() -> new ValidationException("Invalid or expired refresh token"));
+        RefreshToken refreshTokenEntity = refreshTokenService.verifyRefreshToken(refreshTokenString)
+                .orElseThrow(() -> {
+                    log.warn("TOKEN_REFRESH_FAILED_INVALID_OR_EXPIRED: identifier={}", userIdentifier);
+                    return new ValidationException("Invalid or expired refresh token");
+                });
 
-        User user = findUserByRefreshTokenContext(userIdentifier, userTypeStr, businessIdStr);
+        User userEntity = findUserByRefreshTokenContext(userIdentifier, userTypeString, businessIdString);
 
-        if (!user.getId().equals(refreshToken.getUserId())) {
-            log.error("Security violation - User ID mismatch on refresh token");
+        if (!userEntity.getId().equals(refreshTokenEntity.getUserId())) {
+            log.error("TOKEN_REFRESH_FAILED_SECURITY_VIOLATION: user_id_mismatch");
             throw new ValidationException("Invalid refresh token");
         }
 
-        securityUtils.validateAccountStatus(user);
+        securityUtils.validateAccountStatus(userEntity);
 
-        if (user.isBusinessUser() && user.getBusinessId() != null) {
-            validateBusinessLoginContext(user);
+        if (userEntity.isBusinessUser() && userEntity.getBusinessId() != null) {
+            validateBusinessLoginContext(userEntity);
         }
 
-        List<String> roles = user.getRoles().stream()
+        List<String> roleNames = userEntity.getRoles().stream()
                 .map(Role::getName)
                 .toList();
 
-        String newAccessToken = jwtGenerator.generateAccessTokenFromUsername(
-                user.getUserIdentifier(),
-                roles,
-                user.getUserType().name()
+        String newAccessTokenString = jwtGenerator.generateAccessTokenFromUsername(
+                userEntity.getUserIdentifier(),
+                roleNames,
+                userEntity.getUserType().name()
         );
 
-        String ipAddress = getClientIpAddress();
-        String deviceInfo = getDeviceInfo();
-        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user, ipAddress, deviceInfo);
+        String clientIpAddress = getClientIpAddress();
+        String clientDeviceInfo = getDeviceInfo();
+        RefreshToken newRefreshTokenEntity = refreshTokenService.createRefreshToken(userEntity, clientIpAddress, clientDeviceInfo);
 
         HttpServletRequest httpRequest = getHttpServletRequest();
         if (httpRequest != null) {
-            userSessionService.createSession(user, newRefreshToken, httpRequest);
+            userSessionService.createSession(userEntity, newRefreshTokenEntity, httpRequest);
         }
 
         refreshTokenService.revokeRefreshToken(refreshTokenString, AuthConstants.SESSION_REASON_TOKEN_REFRESH);
 
-        log.info("Token refreshed for user: {}", user.getUserIdentifier());
+        log.info("TOKEN_REFRESH_SUCCESS: identifier={}, user_id={}", userEntity.getUserIdentifier(), userEntity.getId());
 
-        return refreshTokenResponseMapper.toResponse(newAccessToken, newRefreshToken.getToken());
+        return refreshTokenResponseMapper.toResponse(newAccessTokenString, newRefreshTokenEntity.getToken());
     }
 
-    /**
-     * Find user by refresh token context (userIdentifier, userType, businessId)
-     */
-    private User findUserByRefreshTokenContext(String userIdentifier, String userTypeStr, String businessIdStr) {
-        if (userTypeStr == null) {
+    private User findUserByRefreshTokenContext(String userIdentifier, String userTypeString, String businessIdString) {
+        if (userTypeString == null) {
+            log.warn("REFRESH_TOKEN_CONTEXT_FAILED_MISSING_USER_TYPE: identifier={}", userIdentifier);
             throw new ValidationException("Invalid refresh token: missing user type");
         }
 
-        UserType userType;
+        UserType userTypeEnum;
         try {
-            userType = UserType.valueOf(userTypeStr);
+            userTypeEnum = UserType.valueOf(userTypeString);
         } catch (IllegalArgumentException e) {
+            log.warn("REFRESH_TOKEN_CONTEXT_FAILED_INVALID_USER_TYPE: type_string={}", userTypeString);
             throw new ValidationException("Invalid refresh token: invalid user type");
         }
 
-        // For BUSINESS_USER, businessId is required
-        if (userType == UserType.BUSINESS_USER) {
-            if (businessIdStr == null) {
+        if (userTypeEnum == UserType.BUSINESS_USER) {
+            if (businessIdString == null) {
+                log.warn("REFRESH_TOKEN_CONTEXT_FAILED_MISSING_BUSINESS_ID: identifier={}", userIdentifier);
                 throw new ValidationException("Invalid refresh token: missing business ID for business user");
             }
 
-            UUID businessId;
+            UUID businessIdValue;
             try {
-                businessId = UUID.fromString(businessIdStr);
+                businessIdValue = UUID.fromString(businessIdString);
             } catch (IllegalArgumentException e) {
+                log.warn("REFRESH_TOKEN_CONTEXT_FAILED_INVALID_BUSINESS_ID: business_id_string={}", businessIdString);
                 throw new ValidationException("Invalid refresh token: invalid business ID format");
             }
 
-            return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessId)
-                    .orElseThrow(() -> new ValidationException("User not found for refresh token context"));
+            return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessIdValue)
+                    .orElseThrow(() -> {
+                        log.warn("REFRESH_TOKEN_CONTEXT_FAILED_USER_NOT_FOUND: identifier={}, business_id={}", userIdentifier, businessIdValue);
+                        return new ValidationException("User not found for refresh token context");
+                    });
         }
 
-        // For CUSTOMER and PLATFORM_USER
-        return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userType)
-                .orElseThrow(() -> new ValidationException("User not found for refresh token context"));
+        return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userTypeEnum)
+                .orElseThrow(() -> {
+                    log.warn("REFRESH_TOKEN_CONTEXT_FAILED_USER_NOT_FOUND: identifier={}, type={}", userIdentifier, userTypeEnum);
+                    return new ValidationException("User not found for refresh token context");
+                });
     }
 }
