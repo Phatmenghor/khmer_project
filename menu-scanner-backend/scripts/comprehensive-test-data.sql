@@ -243,6 +243,10 @@ VALUES (
 
 -- ============================================================================
 
+-- Remove any app-registered rows with null business_id so the correct rows below are inserted
+DELETE FROM users WHERE user_identifier = 'phatmenghor20@gmail.com' AND business_id IS NULL;
+DELETE FROM users WHERE user_identifier = 'phatmenghor21@gmail.com' AND business_id IS NULL;
+
 -- Main User 1: BUSINESS_USER with Business Owner role (phatmenghor20@gmail.com) - Mega Store
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
@@ -253,7 +257,11 @@ VALUES (
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT DO NOTHING;
+) ON CONFLICT (id) DO UPDATE SET
+  business_id = EXCLUDED.business_id,
+  account_status = EXCLUDED.account_status,
+  status = EXCLUDED.status,
+  updated_at = NOW();
 
 -- Main User 2: BUSINESS_USER with Business Owner role (phatmenghor21@gmail.com) - Fashion Hub
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -265,7 +273,11 @@ VALUES (
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT DO NOTHING;
+) ON CONFLICT (id) DO UPDATE SET
+  business_id = EXCLUDED.business_id,
+  account_status = EXCLUDED.account_status,
+  status = EXCLUDED.status,
+  updated_at = NOW();
 
 -- 5 Admin Users for Mega Store
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
