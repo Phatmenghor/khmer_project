@@ -31,6 +31,7 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<ApiResponse<RoleResponse>> createRole(
             @Valid @RequestBody RoleCreateRequest createRequestData) {
+        log.info("Endpoint: create-role - role creation request received: name={}, business_id={}", createRequestData.getName(), createRequestData.getBusinessId());
         RoleResponse createdRoleResponse = roleService.createRole(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Role created successfully", createdRoleResponse));
@@ -39,6 +40,7 @@ public class RoleController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<RoleResponse>>> getAllRoles(
             @Valid @RequestBody RoleFilterRequest filterRequestData) {
+        log.info("Endpoint: all - roles list retrieval request received: business_id={}, page={}", filterRequestData.getBusinessId(), filterRequestData.getPageNo());
         PaginationResponse<RoleResponse> rolesResponse = roleService.getAllRoles(filterRequestData);
         return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", rolesResponse));
     }
@@ -46,6 +48,7 @@ public class RoleController {
     @PostMapping("/all-list")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRolesList(
             @Valid @RequestBody RoleFilterRequest filterRequestData) {
+        log.info("Endpoint: all-list - roles list retrieval request received: business_id={}", filterRequestData.getBusinessId());
         List<RoleResponse> rolesListResponse = roleService.getAllRolesList(filterRequestData);
         return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", rolesListResponse));
     }
@@ -53,6 +56,7 @@ public class RoleController {
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<RoleResponse>>> getMyBusinessRoles(
             @Valid @RequestBody RoleFilterRequest filterRequestData) {
+        log.info("Endpoint: my-business/all - business roles list retrieval request received: page={}", filterRequestData.getPageNo());
         UUID businessIdContext = securityUtils.getCurrentUserBusinessId();
         filterRequestData.setBusinessId(businessIdContext);
         PaginationResponse<RoleResponse> businessRolesResponse = roleService.getAllRoles(filterRequestData);
@@ -62,6 +66,7 @@ public class RoleController {
     @PostMapping("/my-business/all-list")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getMyBusinessRolesList(
             @Valid @RequestBody RoleFilterRequest filterRequestData) {
+        log.info("Endpoint: my-business/all-list - business roles list retrieval request received");
         UUID businessIdContext = securityUtils.getCurrentUserBusinessId();
         filterRequestData.setBusinessId(businessIdContext);
         List<RoleResponse> businessRolesListResponse = roleService.getAllRolesList(filterRequestData);
@@ -71,6 +76,7 @@ public class RoleController {
     @GetMapping("/{roleId}")
     public ResponseEntity<ApiResponse<RoleDetailResponse>> getRoleById(
             @PathVariable UUID roleId) {
+        log.info("Endpoint: getRoleById - role details retrieval request received: role_id={}", roleId);
         RoleDetailResponse roleDetailResponse = roleService.getRoleById(roleId);
         return ResponseEntity.ok(ApiResponse.success("Role retrieved", roleDetailResponse));
     }
@@ -79,6 +85,7 @@ public class RoleController {
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
             @PathVariable UUID roleId,
             @Valid @RequestBody RoleUpdateRequest updateRequestData) {
+        log.info("Endpoint: updateRole - role update request received: role_id={}", roleId);
         RoleResponse updatedRoleResponse = roleService.updateRole(roleId, updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Role updated successfully", updatedRoleResponse));
     }
@@ -86,6 +93,7 @@ public class RoleController {
     @DeleteMapping("/{roleId}")
     public ResponseEntity<ApiResponse<RoleResponse>> deleteRole(
             @PathVariable UUID roleId) {
+        log.info("Endpoint: deleteRole - role deletion request received: role_id={}", roleId);
         RoleResponse deletedRoleResponse = roleService.deleteRole(roleId);
         return ResponseEntity.ok(ApiResponse.success("Role deleted successfully", deletedRoleResponse));
     }

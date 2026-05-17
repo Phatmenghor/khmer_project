@@ -35,6 +35,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
+        log.info("Endpoint: profile - current user profile retrieval request received");
         UserResponse userResponse = userService.getCurrentUser();
         return ResponseEntity.ok(ApiResponse.success("User profile retrieved", userResponse));
     }
@@ -42,6 +43,7 @@ public class UserController {
     @PutMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponse>> updateCurrentUser(
             @Valid @RequestBody UserUpdateRequest updateRequestData) {
+        log.info("Endpoint: profile - current user profile update request received");
         UserResponse updatedUserResponse = userService.updateCurrentUser(updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Profile updated", updatedUserResponse));
     }
@@ -49,6 +51,7 @@ public class UserController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<UserResponse>>> getAllUsers(
             @Valid @RequestBody UserFilterRequest filterRequestData) {
+        log.info("Endpoint: all - users list retrieval request received: page={}", filterRequestData.getPageNo());
         PaginationResponse<UserResponse> userListResponse = userService.getAllUsers(filterRequestData);
         return ResponseEntity.ok(ApiResponse.success("Users retrieved", userListResponse));
     }
@@ -56,6 +59,7 @@ public class UserController {
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<UserResponse>>> getMyBusinessUsers(
             @Valid @RequestBody UserFilterRequest filterRequestData) {
+        log.info("Endpoint: my-business/all - business users list retrieval request received: page={}", filterRequestData.getPageNo());
         UUID businessIdContext = securityUtils.getCurrentUserBusinessId();
         filterRequestData.setBusinessId(businessIdContext);
         PaginationResponse<UserResponse> businessUsersResponse = userService.getAllUsers(filterRequestData);
@@ -64,6 +68,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserDetailResponse>> getUserById(@PathVariable UUID userId) {
+        log.info("Endpoint: getUserById - user details retrieval request received: user_id={}", userId);
         UserDetailResponse userDetailResponse = userService.getUserById(userId);
         return ResponseEntity.ok(ApiResponse.success("User retrieved", userDetailResponse));
     }
@@ -71,6 +76,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponse>> createUser(
             @Valid @RequestBody UserCreateRequest createRequestData) {
+        log.info("Endpoint: create-user - user creation request received: identifier={}, type={}", createRequestData.getEmail(), createRequestData.getUserType());
         UserResponse createdUserResponse = userService.createUser(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("User created", createdUserResponse));
@@ -80,12 +86,14 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable UUID userId,
             @Valid @RequestBody UserUpdateRequest updateRequestData) {
+        log.info("Endpoint: updateUser - user update request received: user_id={}", userId);
         UserResponse updatedResponse = userService.updateUser(userId, updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("User updated", updatedResponse));
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> deleteUser(@PathVariable UUID userId) {
+        log.info("Endpoint: deleteUser - user deletion request received: user_id={}", userId);
         UserResponse deletedUserResponse = userService.deleteUser(userId);
         return ResponseEntity.ok(ApiResponse.success("User deleted", deletedUserResponse));
     }
@@ -93,6 +101,7 @@ public class UserController {
     @PostMapping("/admin/reset-password")
     public ResponseEntity<ApiResponse<UserResponse>> adminResetPassword(
             @Valid @RequestBody AdminPasswordResetRequest resetRequestData) {
+        log.info("Endpoint: admin/reset-password - admin password reset request received: user_id={}", resetRequestData.getUserId());
         UserResponse resetUserResponse = authService.adminResetPassword(resetRequestData);
         return ResponseEntity.ok(ApiResponse.success("Password reset successful", resetUserResponse));
     }
@@ -100,12 +109,14 @@ public class UserController {
     @PostMapping("/change-password")
     public ResponseEntity<ApiResponse<UserResponse>> changePassword(
             @Valid @RequestBody PasswordChangeRequest changeRequestData) {
+        log.info("Endpoint: change-password - password change request received");
         UserResponse changedPasswordResponse = authService.changePassword(changeRequestData);
         return ResponseEntity.ok(ApiResponse.success("Password changed successfully", changedPasswordResponse));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String authHeader) {
+        log.info("Endpoint: logout - user logout request received");
         authService.logout(authHeader);
         return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
     }

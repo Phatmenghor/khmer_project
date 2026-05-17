@@ -25,12 +25,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequestData) {
+        log.info("Endpoint: login - user login request received: identifier={}", loginRequestData.getUserIdentifier());
         LoginResponse loginResponse = authService.login(loginRequestData);
         return ResponseEntity.ok(ApiResponse.success("Login successful", loginResponse));
     }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest registrationRequestData) {
+        log.info("Endpoint: register - customer registration request received: email={}, user_type={}", registrationRequestData.getEmail(), registrationRequestData.getUserType());
         UserResponse registeredUserResponse = authService.registerCustomer(registrationRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Customer registration successful", registeredUserResponse));
@@ -38,6 +40,7 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<RefreshTokenResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequestData) {
+        log.info("Endpoint: refresh - token refresh request received: user_id={}", refreshTokenRequestData.getUserId());
         RefreshTokenResponse refreshedTokenResponse = authService.refreshToken(refreshTokenRequestData);
         return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", refreshedTokenResponse));
     }
@@ -46,6 +49,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<SocialAuthResponse>> authenticateSocial(
             @Valid @RequestBody SocialAuthRequest socialAuthRequestData,
             HttpServletRequest httpRequest) {
+        log.info("Endpoint: social/authenticate - social authentication request received: provider={}", socialAuthRequestData.getProvider());
         socialAuthRequestData.setIpAddress(ClientIpUtils.getClientIp(httpRequest));
         socialAuthRequestData.setDeviceInfo(ClientIpUtils.getUserAgent(httpRequest));
         SocialAuthResponse socialAuthResponse = socialAuthService.authenticate(socialAuthRequestData);
@@ -55,12 +59,14 @@ public class AuthController {
     @PostMapping("/social/sync")
     public ResponseEntity<ApiResponse<SocialSyncResponse>> syncSocialAccount(
             @Valid @RequestBody SocialAuthRequest syncRequestData) {
+        log.info("Endpoint: social/sync - social account sync request received: provider={}", syncRequestData.getProvider());
         SocialSyncResponse syncResponse = socialAuthService.syncSocialAccount(syncRequestData);
         return ResponseEntity.ok(ApiResponse.success("Social account synced successfully", syncResponse));
     }
 
     @DeleteMapping("/social/sync/{provider}")
     public ResponseEntity<ApiResponse<SocialSyncResponse>> unsyncSocialAccount(@PathVariable String provider) {
+        log.info("Endpoint: social/sync - social account unsync request received: provider={}", provider);
         SocialSyncResponse unsyncResponse = socialAuthService.unsyncSocialAccount(provider);
         return ResponseEntity.ok(ApiResponse.success("Social account unsynced successfully", unsyncResponse));
     }

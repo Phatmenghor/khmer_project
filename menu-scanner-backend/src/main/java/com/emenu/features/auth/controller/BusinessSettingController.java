@@ -24,6 +24,7 @@ public class BusinessSettingController {
 
     @GetMapping("/current")
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> getCurrentBusinessSetting() {
+        log.info("Endpoint: current - current business setting retrieval request received");
         BusinessSettingResponse currentSettingResponse = businessSettingService.getCurrentBusinessSetting();
         return ResponseEntity.ok(ApiResponse.success("Business setting retrieved", currentSettingResponse));
     }
@@ -31,6 +32,7 @@ public class BusinessSettingController {
     @PutMapping
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> updateCurrentBusinessSetting(
             @Valid @RequestBody BusinessSettingUpdateRequest updateRequestData) {
+        log.info("Endpoint: updateCurrentBusinessSetting - current business setting update request received");
         BusinessSettingResponse updatedSettingResponse = businessSettingService.updateCurrentBusinessSetting(updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Business setting updated", updatedSettingResponse));
     }
@@ -38,6 +40,7 @@ public class BusinessSettingController {
     @GetMapping("/business/{businessId}")
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> getBusinessSettingByBusinessId(
             @PathVariable UUID businessId) {
+        log.info("Endpoint: getBusinessSettingByBusinessId - business setting retrieval request received: business_id={}", businessId);
         BusinessSettingResponse settingResponse = businessSettingService.getBusinessSettingByBusinessId(businessId);
         return ResponseEntity.ok(ApiResponse.success("Business setting retrieved", settingResponse));
     }
@@ -45,6 +48,7 @@ public class BusinessSettingController {
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> createBusinessSetting(
             @Valid @RequestBody BusinessSettingCreateRequest createRequestData) {
+        log.info("Endpoint: createBusinessSetting - business setting creation request received: business_id={}", createRequestData.getBusinessId());
         BusinessSettingResponse createdSettingResponse = businessSettingService.createBusinessSetting(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Business setting created", createdSettingResponse));
@@ -54,12 +58,14 @@ public class BusinessSettingController {
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> updateBusinessSetting(
             @PathVariable UUID businessId,
             @Valid @RequestBody BusinessSettingUpdateRequest updateRequestData) {
+        log.info("Endpoint: updateBusinessSetting - business setting update request received: business_id={}", businessId);
         BusinessSettingResponse updatedResponse = businessSettingService.updateBusinessSetting(businessId, updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Business setting updated", updatedResponse));
     }
 
     @DeleteMapping("/business/{businessId}")
     public ResponseEntity<ApiResponse<Void>> deleteBusinessSetting(@PathVariable UUID businessId) {
+        log.info("Endpoint: deleteBusinessSetting - business setting deletion request received: business_id={}", businessId);
         businessSettingService.deleteBusinessSetting(businessId);
         return ResponseEntity.ok(ApiResponse.success("Business setting deleted", null));
     }

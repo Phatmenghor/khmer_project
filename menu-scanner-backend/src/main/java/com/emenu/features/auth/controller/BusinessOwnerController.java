@@ -28,6 +28,7 @@ public class BusinessOwnerController {
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> createBusinessOwner(
             @Valid @RequestBody BusinessOwnerCreateRequest createRequestData) {
+        log.info("Endpoint: create-business-owner - business owner creation request received: name={}, owner_id={}", createRequestData.getName(), createRequestData.getOwnerId());
         BusinessOwnerCreateResponse ownerCreateResponse = businessOwnerService.createBusinessOwner(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
@@ -39,6 +40,7 @@ public class BusinessOwnerController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BusinessOwnerDetailResponse>>> getAllBusinessOwners(
             @Valid @RequestBody BusinessOwnerFilterRequest filterRequestData) {
+        log.info("Endpoint: all - business owners list retrieval request received: page={}", filterRequestData.getPageNo());
         PaginationResponse<BusinessOwnerDetailResponse> ownersResponse = businessOwnerService.getAllBusinessOwners(filterRequestData);
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Found %d business owners (Page %d of %d)",
@@ -50,6 +52,7 @@ public class BusinessOwnerController {
     @GetMapping("/{ownerId}")
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> getBusinessOwnerDetail(
             @PathVariable UUID ownerId) {
+        log.info("Endpoint: getBusinessOwnerDetail - business owner details retrieval request received: owner_id={}", ownerId);
         BusinessOwnerDetailResponse ownerDetailResponse = businessOwnerService.getBusinessOwnerDetail(ownerId);
         return ResponseEntity.ok(ApiResponse.success(
                 "Business owner details retrieved successfully",
@@ -61,6 +64,7 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> renewSubscription(
             @PathVariable UUID ownerId,
             @Valid @RequestBody BusinessOwnerSubscriptionRenewRequest renewRequestData) {
+        log.info("Endpoint: renew - subscription renewal request received: owner_id={}", ownerId);
         BusinessOwnerDetailResponse renewResponse = businessOwnerService.renewSubscription(ownerId, renewRequestData);
         String message = renewRequestData.getNewPlanId() != null
                 ? "Subscription renewed with plan change"
@@ -72,6 +76,7 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> changePlan(
             @PathVariable UUID ownerId,
             @Valid @RequestBody BusinessOwnerChangePlanRequest changePlanRequestData) {
+        log.info("Endpoint: change-plan - plan change request received: owner_id={}", ownerId);
         BusinessOwnerDetailResponse planChangeResponse = businessOwnerService.changePlan(ownerId, changePlanRequestData);
         return ResponseEntity.ok(ApiResponse.success("Subscription plan changed successfully", planChangeResponse));
     }
@@ -80,6 +85,7 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> cancelSubscription(
             @PathVariable UUID ownerId,
             @Valid @RequestBody BusinessOwnerSubscriptionCancelRequest cancelRequestData) {
+        log.info("Endpoint: cancel - subscription cancellation request received: owner_id={}", ownerId);
         BusinessOwnerDetailResponse cancelResponse = businessOwnerService.cancelSubscription(ownerId, cancelRequestData);
         String message = cancelRequestData.hasRefundAmount()
                 ? "Subscription cancelled with refund processed"
@@ -90,6 +96,7 @@ public class BusinessOwnerController {
     @DeleteMapping("/{ownerId}")
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> deleteBusinessOwner(
             @PathVariable UUID ownerId) {
+        log.info("Endpoint: deleteBusinessOwner - business owner deletion request received: owner_id={}", ownerId);
         BusinessOwnerDetailResponse deleteResponse = businessOwnerService.deleteBusinessOwner(ownerId);
         return ResponseEntity.ok(ApiResponse.success(
                 "Business owner and related data deleted successfully",
