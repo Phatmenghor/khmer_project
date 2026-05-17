@@ -243,13 +243,20 @@ VALUES (
 
 -- ============================================================================
 
--- Remove any app-registered rows with null business_id so the correct rows below are inserted
-DELETE FROM users WHERE user_identifier = 'phatmenghor20@gmail.com' AND business_id IS NULL;
-DELETE FROM users WHERE user_identifier = 'phatmenghor21@gmail.com' AND business_id IS NULL;
+-- If user registered via app with null business_id, patch it to the correct business
+UPDATE users
+SET business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    account_status = 'ACTIVE', status = 'ACTIVE', updated_at = NOW()
+WHERE user_identifier = 'phatmenghor20@gmail.com' AND business_id IS NULL;
+
+UPDATE users
+SET business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    account_status = 'ACTIVE', status = 'ACTIVE', updated_at = NOW()
+WHERE user_identifier = 'phatmenghor21@gmail.com' AND business_id IS NULL;
 
 -- Main User 1: BUSINESS_USER with Business Owner role (phatmenghor20@gmail.com) - Mega Store
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
+SELECT
   '660e8400-e29b-41d4-a716-446655440001',
   'phatmenghor20@gmail.com',
   '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
@@ -257,15 +264,11 @@ VALUES (
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT (id) DO UPDATE SET
-  business_id = EXCLUDED.business_id,
-  account_status = EXCLUDED.account_status,
-  status = EXCLUDED.status,
-  updated_at = NOW();
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'phatmenghor20@gmail.com');
 
 -- Main User 2: BUSINESS_USER with Business Owner role (phatmenghor21@gmail.com) - Fashion Hub
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
+SELECT
   '660e8400-e29b-41d4-a716-446655440002',
   'phatmenghor21@gmail.com',
   '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
@@ -273,11 +276,7 @@ VALUES (
   'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT (id) DO UPDATE SET
-  business_id = EXCLUDED.business_id,
-  account_status = EXCLUDED.account_status,
-  status = EXCLUDED.status,
-  updated_at = NOW();
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'phatmenghor21@gmail.com');
 
 -- 5 Admin Users for Mega Store
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
