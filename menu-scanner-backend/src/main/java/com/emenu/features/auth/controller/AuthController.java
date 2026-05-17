@@ -40,7 +40,7 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<RefreshTokenResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequestData) {
-        log.info("Endpoint: refresh - token refresh request received: user_id={}", refreshTokenRequestData.getUserId());
+        log.info("Endpoint: refresh - token refresh request received");
         RefreshTokenResponse refreshedTokenResponse = authService.refreshToken(refreshTokenRequestData);
         return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", refreshedTokenResponse));
     }

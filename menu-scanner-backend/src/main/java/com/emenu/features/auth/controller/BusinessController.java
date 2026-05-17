@@ -41,7 +41,7 @@ public class BusinessController {
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessResponse>> createBusiness(
             @Valid @RequestBody BusinessCreateRequest createRequestData) {
-        log.info("Endpoint: create-business - business creation request received: name={}, owner_id={}", createRequestData.getName(), createRequestData.getOwnerId());
+        log.info("Endpoint: create-business - business creation request received: name={}", createRequestData.getName());
         BusinessResponse createdBusinessResponse = businessService.createBusiness(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Business created", createdBusinessResponse));

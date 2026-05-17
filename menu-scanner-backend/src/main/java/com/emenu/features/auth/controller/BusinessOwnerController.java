@@ -28,7 +28,7 @@ public class BusinessOwnerController {
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> createBusinessOwner(
             @Valid @RequestBody BusinessOwnerCreateRequest createRequestData) {
-        log.info("Endpoint: create-business-owner - business owner creation request received: name={}, owner_id={}", createRequestData.getName(), createRequestData.getOwnerId());
+        log.info("Endpoint: create-business-owner - business owner creation request received: owner_name={}, business_name={}", createRequestData.getOwnerFullName(), createRequestData.getBusinessName());
         BusinessOwnerCreateResponse ownerCreateResponse = businessOwnerService.createBusinessOwner(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
