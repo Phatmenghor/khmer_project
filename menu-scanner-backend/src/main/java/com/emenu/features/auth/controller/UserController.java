@@ -10,8 +10,10 @@ import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.features.auth.service.AuthService;
 import com.emenu.features.auth.service.UserService;
 import com.emenu.security.SecurityUtils;
+import com.emenu.shared.constants.AuthConstants;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.utils.TokenUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,36 +33,6 @@ public class UserController {
     private final AuthService authService;
     private final SecurityUtils securityUtils;
 
-    /**
-     * Retrieves a test admin token for development purposes
-     */
-    @PostMapping("admin-token")
-    public ResponseEntity<String> getMyAdminToken() {
-        log.info("Get my admin token");
-        return ResponseEntity.ok("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjE5QGdtYWlsLmNvbSIsInJvbGVzIjoiUk9MRV9QTEFURk9STV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3NzMxMTgzMTMsImV4cCI6MTc4MzExODMxM30.PO2yMdaf19selSkF6OEnNz2By45iEdOmV0fZKOAYcSA9LTtD_QP4t7X5IjsPTh5DCBDyEvA449GuAoidwPTQnw");
-    }
-
-    /**
-     * Retrieves a test business owner token for development purposes
-     */
-    @PostMapping("business-token")
-    public ResponseEntity<String> getMyBusinessToken() {
-        log.info("Get my business token");
-        return ResponseEntity.ok("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjIwQGdtYWlsLmNvbSIsInJvbGVzIjoiUk9MRV9CVVNJTkVTU19BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3NzMxMTg0MDQsImV4cCI6MTc4MzExODQwNH0.YwU5olhCcnrys0nWji0gdYk9eG6pEwH0iZFwpyBtpPxIr8d9WrXNdDi3S9Lskz643aJGhnjc3irdEHmyFQUMzw");
-    }
-
-    /**
-     * Retrieves a test business owner token for development purposes
-     */
-    @PostMapping("customer-token")
-    public ResponseEntity<String> getMyCustomerToken() {
-        log.info("Get my customer token");
-        return ResponseEntity.ok("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjIxQGdtYWlsLmNvbSIsInJvbGVzIjoiQ1VTVE9NRVIiLCJ0eXBlIjoiYWNjZXNzIiwidXNlclR5cGUiOiJDVVNUT01FUiIsImlhdCI6MTc3ODE0NzU4OCwiZXhwIjoxNzg4MTQ3NTg4fQ.9P-uwRebNuBdMWEnoaRsUvJ6XmrQZrOJPlZjNA-zurqilaEXUPs1cSnKPJCopGCSNE6UIgDsjh9rXZDtT7Riug");
-    }
-
-    /**
-     * Retrieves the current authenticated user's profile
-     */
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
         log.info("Get current user profile");
@@ -170,13 +142,9 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("Password changed successfully", response));
     }
 
-    /**
-     * Logs out the current user by invalidating their token
-     */
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        authService.logout(token);
+        authService.logout(authHeader);
         return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
     }
 

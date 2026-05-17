@@ -25,12 +25,11 @@ import com.emenu.features.auth.service.UserValidationService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.jwt.TokenBlacklistService;
+import com.emenu.shared.constants.AuthConstants;
+import com.emenu.shared.utils.TokenUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,92 +58,70 @@ public class AuthServiceImpl implements AuthService {
     private final UserSessionService userSessionService;
     private final UserValidationService userValidationService;
 
-    /**
-     * Authenticates a user and generates a JWT token with context-aware user lookup
-     */
     @Override
     public LoginResponse login(LoginRequest request) {
-        log.info("Login attempt: {} (userType: {}, businessId: {})",
-                request.getUserIdentifier(), request.getUserType(), request.getBusinessId());
+        log.info("Login attempt for user: {} (type: {})", request.getUserIdentifier(), request.getUserType());
 
-        try {
-            // Find user with context-aware lookup (filters by userType + userIdentifier)
-            User user = findUserWithContext(request);
+        User user = findUserWithContext(request);
+        validateLoginContext(request, user);
 
-            // Validate context matches (if provided)
-            validateLoginContext(request, user);
-
-            // Validate password manually (since we need userType-aware lookup)
-            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                log.warn("Login failed: {} - Invalid password", request.getUserIdentifier());
-                throw new ValidationException("Invalid credentials");
-            }
-
-            // Validate account status
-            securityUtils.validateAccountStatus(user);
-
-            // Validate business subscription and status for business users
-            if (user.isBusinessUser() && user.getBusinessId() != null) {
-                Business business = businessRepository.findById(user.getBusinessId())
-                        .orElseThrow(() -> new ValidationException("Business not found"));
-
-                // Check if business is active
-                if (!business.isActive()) {
-                    log.warn("Login denied: Business is not active - {}", business.getStatus());
-                    throw new ValidationException("Your business account is currently " + business.getStatus() + ". Please contact support.");
-                }
-
-                // Check if business has active subscription
-                if (!business.hasActiveSubscription()) {
-                    log.warn("Login denied: Business subscription is not active");
-                    throw new ValidationException("Your business subscription has expired. Please renew your subscription to continue.");
-                }
-            }
-
-            // Generate access token using user's roles and userType
-            List<String> roles = user.getRoles().stream()
-                    .map(Role::getName)
-                    .collect(java.util.stream.Collectors.toList());
-            String accessToken = jwtGenerator.generateAccessTokenFromUsername(
-                    user.getUserIdentifier(),
-                    roles,
-                    user.getUserType().name()
-            );
-
-            // Generate refresh token
-            String ipAddress = getClientIpAddress();
-            String deviceInfo = getDeviceInfo();
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, ipAddress, deviceInfo);
-
-            // Create user session for device tracking
-            HttpServletRequest httpRequest = getHttpServletRequest();
-            if (httpRequest != null) {
-                userSessionService.createSession(user, refreshToken, httpRequest);
-            }
-
-            // Build login response
-            LoginResponse response = userMapper.toLoginResponse(user, accessToken);
-            response.setRefreshToken(refreshToken.getToken());
-
-            // Add business subscription info for business users
-            if (user.isBusinessUser() && user.getBusinessId() != null) {
-                Business business = businessRepository.findById(user.getBusinessId()).orElse(null);
-                if (business != null) {
-                    response.setBusinessStatus(business.getStatus().toString());
-                    response.setIsSubscriptionActive(business.hasActiveSubscription());
-                }
-            }
-
-            log.info("Login successful: {} (type: {}, businessId: {})",
-                    user.getUserIdentifier(), user.getUserType(), user.getBusinessId());
-            return response;
-
-        } catch (ValidationException e) {
-            log.warn("Login failed: {} - Reason: {}", request.getUserIdentifier(), e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.warn("Login failed: {} - Error: {}", request.getUserIdentifier(), e.getMessage());
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            log.warn("Login failed - Invalid password for user: {}", request.getUserIdentifier());
             throw new ValidationException("Invalid credentials");
+        }
+
+        securityUtils.validateAccountStatus(user);
+
+        if (user.isBusinessUser() && user.getBusinessId() != null) {
+            validateBusinessLoginContext(user);
+        }
+
+        List<String> roles = user.getRoles().stream()
+                .map(Role::getName)
+                .toList();
+
+        String accessToken = jwtGenerator.generateAccessTokenFromUsername(
+                user.getUserIdentifier(),
+                roles,
+                user.getUserType().name()
+        );
+
+        String ipAddress = getClientIpAddress();
+        String deviceInfo = getDeviceInfo();
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, ipAddress, deviceInfo);
+
+        HttpServletRequest httpRequest = getHttpServletRequest();
+        if (httpRequest != null) {
+            userSessionService.createSession(user, refreshToken, httpRequest);
+        }
+
+        LoginResponse response = userMapper.toLoginResponse(user, accessToken);
+        response.setRefreshToken(refreshToken.getToken());
+
+        if (user.isBusinessUser() && user.getBusinessId() != null) {
+            Business business = businessRepository.findById(user.getBusinessId()).orElse(null);
+            if (business != null) {
+                response.setBusinessStatus(business.getStatus().toString());
+                response.setIsSubscriptionActive(business.hasActiveSubscription());
+            }
+        }
+
+        log.info("Login successful for user: {} (type: {})", user.getUserIdentifier(), user.getUserType());
+        return response;
+    }
+
+    private void validateBusinessLoginContext(User user) {
+        Business business = businessRepository.findById(user.getBusinessId())
+                .orElseThrow(() -> new ValidationException("Business not found"));
+
+        if (!business.isActive()) {
+            log.warn("Login denied - Business inactive: {} (status: {})", user.getBusinessId(), business.getStatus());
+            throw new ValidationException("Your business account is currently " + business.getStatus() + ". Please contact support.");
+        }
+
+        if (!business.hasActiveSubscription()) {
+            log.warn("Login denied - No active subscription for business: {}", user.getBusinessId());
+            throw new ValidationException("Your business subscription has expired. Please renew your subscription to continue.");
         }
     }
 
@@ -245,13 +222,9 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toResponse(savedUser);
     }
 
-    /**
-     * Logs out a user by blacklisting their JWT token and revoking refresh token
-     */
     @Override
     public void logout(String authorizationHeader) {
-        log.info("Processing logout");
-        String token = extractToken(authorizationHeader);
+        String token = TokenUtils.extractTokenFromAuthHeader(authorizationHeader);
 
         if (token == null || !jwtGenerator.validateToken(token)) {
             throw new ValidationException("Invalid token");
@@ -261,19 +234,13 @@ public class AuthServiceImpl implements AuthService {
         String userTypeStr = jwtGenerator.getUserTypeFromJWT(token);
         String businessIdStr = jwtGenerator.getBusinessIdFromJWT(token);
 
-        // Blacklist access token
-        tokenBlacklistService.blacklistToken(token, userIdentifier, "LOGOUT");
-
-        // Find user using context from token (userType-aware)
+        tokenBlacklistService.blacklistToken(token, userIdentifier, AuthConstants.SESSION_REASON_LOGOUT);
         User user = findUserByRefreshTokenContext(userIdentifier, userTypeStr, businessIdStr);
-        refreshTokenService.revokeAllUserTokens(user.getId(), "LOGOUT");
+        refreshTokenService.revokeAllUserTokens(user.getId(), AuthConstants.SESSION_REASON_LOGOUT);
 
-        log.info("Logout successful: {} (type: {})", userIdentifier, userTypeStr);
+        log.info("Logout successful for user: {} (type: {})", userIdentifier, userTypeStr);
     }
 
-    /**
-     * Changes the password for the currently authenticated user
-     */
     @Override
     public UserResponse changePassword(PasswordChangeRequest request) {
         User currentUser = securityUtils.getCurrentUser();
@@ -289,24 +256,16 @@ public class AuthServiceImpl implements AuthService {
         currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         User savedUser = userRepository.save(currentUser);
 
-        // Blacklist all access tokens
-        tokenBlacklistService.blacklistAllUserTokens(currentUser.getUserIdentifier(), "PASSWORD_CHANGE");
+        tokenBlacklistService.blacklistAllUserTokens(currentUser.getUserIdentifier(), AuthConstants.SESSION_REASON_PASSWORD_CHANGE);
+        refreshTokenService.revokeAllUserTokens(currentUser.getId(), AuthConstants.SESSION_REASON_PASSWORD_CHANGE);
 
-        // Revoke all refresh tokens
-        refreshTokenService.revokeAllUserTokens(currentUser.getId(), "PASSWORD_CHANGE");
-
-        log.info("Password changed: {}", currentUser.getUserIdentifier());
+        log.info("Password changed for user: {}", currentUser.getUserIdentifier());
 
         return userMapper.toResponse(savedUser);
     }
 
-    /**
-     * Resets a user's password (admin function)
-     */
     @Override
     public UserResponse adminResetPassword(AdminPasswordResetRequest request) {
-        log.info("Admin password reset: {}", request.getUserId());
-
         User user = userRepository.findByIdAndIsDeletedFalse(request.getUserId())
                 .orElseThrow(() -> new ValidationException("User not found"));
 
@@ -317,27 +276,14 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         User savedUser = userRepository.save(user);
 
-        // Blacklist all access tokens
-        tokenBlacklistService.blacklistAllUserTokens(user.getUserIdentifier(), "ADMIN_PASSWORD_RESET");
+        tokenBlacklistService.blacklistAllUserTokens(user.getUserIdentifier(), AuthConstants.SESSION_REASON_ADMIN_PASSWORD_RESET);
+        refreshTokenService.revokeAllUserTokens(user.getId(), AuthConstants.SESSION_REASON_ADMIN_PASSWORD_RESET);
 
-        // Revoke all refresh tokens
-        refreshTokenService.revokeAllUserTokens(user.getId(), "ADMIN_PASSWORD_RESET");
-
-        log.info("Admin password reset: {}", user.getUserIdentifier());
+        log.info("Admin password reset for user: {}", user.getUserIdentifier());
 
         return userMapper.toResponse(savedUser);
     }
 
-    private String extractToken(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7).trim();
-        }
-        return null;
-    }
-
-    /**
-     * Get HttpServletRequest from RequestContextHolder
-     */
     private HttpServletRequest getHttpServletRequest() {
         try {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -350,9 +296,6 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
-    /**
-     * Get client IP address from request
-     */
     private String getClientIpAddress() {
         HttpServletRequest request = getHttpServletRequest();
         if (request != null) {
@@ -362,101 +305,67 @@ public class AuthServiceImpl implements AuthService {
             }
             return request.getRemoteAddr();
         }
-        return "Unknown";
+        return AuthConstants.UNKNOWN_IP;
     }
 
-    /**
-     * Get device info from request
-     */
     private String getDeviceInfo() {
         HttpServletRequest request = getHttpServletRequest();
         if (request != null) {
             return request.getHeader("User-Agent");
         }
-        return "Unknown";
+        return AuthConstants.UNKNOWN_DEVICE;
     }
 
-    /**
-     * Refresh access token using refresh token
-     */
     @Override
     public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
         String refreshTokenString = request.getRefreshToken();
 
-        // Verify refresh token JWT structure first
         if (!jwtGenerator.validateToken(refreshTokenString)) {
             throw new ValidationException("Invalid refresh token");
         }
 
-        // Extract user context from refresh token JWT
         String userIdentifier = jwtGenerator.getUsernameFromJWT(refreshTokenString);
         String userTypeStr = jwtGenerator.getUserTypeFromJWT(refreshTokenString);
         String businessIdStr = jwtGenerator.getBusinessIdFromJWT(refreshTokenString);
 
-        log.info("Refresh token context: userIdentifier={}, userType={}, businessId={}",
-                userIdentifier, userTypeStr, businessIdStr);
-
-        // Verify refresh token exists in database and is valid
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(refreshTokenString)
                 .orElseThrow(() -> new ValidationException("Invalid or expired refresh token"));
 
-        // Find user using context from refresh token JWT
         User user = findUserByRefreshTokenContext(userIdentifier, userTypeStr, businessIdStr);
 
-        // Validate that the found user matches the refresh token's userId
         if (!user.getId().equals(refreshToken.getUserId())) {
-            log.error("Security: User ID mismatch! Token userId={}, Found userId={}",
-                    refreshToken.getUserId(), user.getId());
+            log.error("Security violation - User ID mismatch on refresh token");
             throw new ValidationException("Invalid refresh token");
         }
 
-        // Validate account status
         securityUtils.validateAccountStatus(user);
 
-        // Validate business subscription and status for business users
         if (user.isBusinessUser() && user.getBusinessId() != null) {
-            Business business = businessRepository.findById(user.getBusinessId())
-                    .orElseThrow(() -> new ValidationException("Business not found"));
-
-            if (!business.isActive()) {
-                log.warn("Refresh denied: Business is not active - {}", business.getStatus());
-                throw new ValidationException("Your business account is currently " + business.getStatus() + ". Please contact support.");
-            }
-
-            if (!business.hasActiveSubscription()) {
-                log.warn("Refresh denied: Business subscription is not active");
-                throw new ValidationException("Your business subscription has expired. Please renew your subscription to continue.");
-            }
+            validateBusinessLoginContext(user);
         }
 
-        // Get user roles
         List<String> roles = user.getRoles().stream()
                 .map(Role::getName)
                 .toList();
 
-        // Generate new access token with userType
         String newAccessToken = jwtGenerator.generateAccessTokenFromUsername(
                 user.getUserIdentifier(),
                 roles,
                 user.getUserType().name()
         );
 
-        // Generate a new refresh token (rotate refresh tokens for better security)
         String ipAddress = getClientIpAddress();
         String deviceInfo = getDeviceInfo();
         RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user, ipAddress, deviceInfo);
 
-        // Create/update user session for device tracking
         HttpServletRequest httpRequest = getHttpServletRequest();
         if (httpRequest != null) {
             userSessionService.createSession(user, newRefreshToken, httpRequest);
         }
 
-        // Revoke old refresh token
-        refreshTokenService.revokeRefreshToken(refreshTokenString, "TOKEN_REFRESH");
+        refreshTokenService.revokeRefreshToken(refreshTokenString, AuthConstants.SESSION_REASON_TOKEN_REFRESH);
 
-        log.info("Token refresh successful: {} (type: {}, businessId: {})",
-                user.getUserIdentifier(), user.getUserType(), user.getBusinessId());
+        log.info("Token refreshed for user: {}", user.getUserIdentifier());
 
         return new RefreshTokenResponse(newAccessToken, newRefreshToken.getToken());
     }

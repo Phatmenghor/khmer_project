@@ -14,9 +14,11 @@ import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.service.RoleService;
-import com.emenu.features.auth.util.EnumNormalizer;
+import com.emenu.shared.constants.AuthConstants;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
+import com.emenu.shared.utils.EnumUtils;
+import com.emenu.shared.utils.FilterUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,25 +43,16 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponse createRole(RoleCreateRequest request) {
-        log.info("Creating role: {}", request.getName());
+        String normalizedName = EnumUtils.normalize(request.getName());
+        UserType normalizedUserType = EnumUtils.parseEnum(request.getUserType().toString(), UserType.class, "user type");
 
-        // Normalize role name
-        String normalizedName = EnumNormalizer.normalizeString(request.getName());
-
-        // Normalize and validate user type
-        UserType normalizedUserType = EnumNormalizer.normalizeUserType(request.getUserType());
-
-        // Check for duplicate role
         if (request.getBusinessId() != null) {
-            // Business-specific role
+            businessRepository.findByIdAndIsDeletedFalse(request.getBusinessId())
+                    .orElseThrow(() -> new ValidationException("Business not found"));
             if (roleRepository.existsByNameAndBusinessIdAndIsDeletedFalse(normalizedName, request.getBusinessId())) {
                 throw new ValidationException("Role with this name already exists for this business");
             }
-            // Validate business exists
-            businessRepository.findByIdAndIsDeletedFalse(request.getBusinessId())
-                    .orElseThrow(() -> new ValidationException("Business not found"));
         } else {
-            // Platform-level role
             if (roleRepository.existsByNameAndBusinessIdIsNullAndIsDeletedFalse(normalizedName)) {
                 throw new ValidationException("Platform role with this name already exists");
             }
@@ -70,7 +63,7 @@ public class RoleServiceImpl implements RoleService {
         role.setUserType(normalizedUserType);
 
         Role savedRole = roleRepository.save(role);
-        log.info("Role created: {} with ID: {}", savedRole.getName(), savedRole.getId());
+        log.info("Role created: {}", savedRole.getName());
 
         return roleMapper.toResponse(savedRole);
     }
@@ -78,8 +71,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<RoleResponse> getAllRoles(RoleFilterRequest request) {
-        log.debug("Getting all roles with filters and pagination");
-
         Pageable pageable = PaginationUtils.createPageable(
                 request.getPageNo(),
                 request.getPageSize(),
@@ -87,11 +78,8 @@ public class RoleServiceImpl implements RoleService {
                 request.getSortDirection()
         );
 
-        // Convert empty list to null to skip filtering
-        List<UserType> userTypes = (request.getUserTypes() != null && !request.getUserTypes().isEmpty())
-                ? request.getUserTypes() : null;
-
-        Boolean includeAll = request.getIncludeAll() != null ? request.getIncludeAll() : false;
+        List<UserType> userTypes = FilterUtils.nullIfEmpty(request.getUserTypes());
+        Boolean includeAll = request.getIncludeAll() != null && request.getIncludeAll();
 
         Page<Role> rolesPage = roleRepository.findAllWithFilters(
                 request.getBusinessId(),
@@ -105,20 +93,8 @@ public class RoleServiceImpl implements RoleService {
                 .map(roleMapper::toResponse)
                 .toList());
 
-        // Add ALL_ROLES item at top if includeAll is true and on first page
         if (includeAll && rolesPage.getNumber() == 0) {
-            RoleResponse allRoles = new RoleResponse();
-            allRoles.setId(null);
-            allRoles.setName("ALL_ROLES");
-            allRoles.setDescription("All Roles");
-            allRoles.setBusinessId(request.getBusinessId());
-            allRoles.setUserType(UserType.BUSINESS_USER);
-            allRoles.setCreatedAt(null);
-            allRoles.setUpdatedAt(null);
-            allRoles.setCreatedBy(null);
-            allRoles.setUpdatedBy(null);
-
-            responses.add(0, allRoles);
+            responses.add(0, buildAllRolesResponse(request.getBusinessId()));
         }
 
         return PaginationResponse.<RoleResponse>builder()
@@ -132,16 +108,21 @@ public class RoleServiceImpl implements RoleService {
                 .build();
     }
 
+    private RoleResponse buildAllRolesResponse(UUID businessId) {
+        RoleResponse response = new RoleResponse();
+        response.setId(null);
+        response.setName("ALL_ROLES");
+        response.setDescription("All Roles");
+        response.setBusinessId(businessId);
+        response.setUserType(UserType.BUSINESS_USER);
+        return response;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<RoleResponse> getAllRolesList(RoleFilterRequest request) {
-        log.debug("Getting all roles as list with filters");
-
-        // Convert empty list to null to skip filtering
-        List<UserType> userTypes = (request.getUserTypes() != null && !request.getUserTypes().isEmpty())
-                ? request.getUserTypes() : null;
-
-        Boolean includeAll = request.getIncludeAll() != null ? request.getIncludeAll() : false;
+        List<UserType> userTypes = FilterUtils.nullIfEmpty(request.getUserTypes());
+        Boolean includeAll = request.getIncludeAll() != null && request.getIncludeAll();
 
         List<Role> roles = roleRepository.findAllListWithFilters(
                 request.getBusinessId(),
@@ -154,20 +135,8 @@ public class RoleServiceImpl implements RoleService {
                 .map(roleMapper::toResponse)
                 .toList());
 
-        // Add ALL_ROLES item at top if includeAll is true
         if (includeAll) {
-            RoleResponse allRoles = new RoleResponse();
-            allRoles.setId(null);
-            allRoles.setName("ALL_ROLES");
-            allRoles.setDescription("All Roles");
-            allRoles.setBusinessId(request.getBusinessId());
-            allRoles.setUserType(UserType.BUSINESS_USER);
-            allRoles.setCreatedAt(null);
-            allRoles.setUpdatedAt(null);
-            allRoles.setCreatedBy(null);
-            allRoles.setUpdatedBy(null);
-
-            responses.add(0, allRoles);
+            responses.add(0, buildAllRolesResponse(request.getBusinessId()));
         }
 
         return responses;
@@ -190,39 +159,38 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponse updateRole(UUID roleId, RoleUpdateRequest request) {
-        log.info("Updating role: {}", roleId);
-
         Role role = roleRepository.findByIdAndIsDeletedFalse(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-        // Check if trying to update a system role
         if (isSystemRole(role.getName())) {
             throw new ValidationException("Cannot modify system roles");
         }
 
-        // Validate name uniqueness if changing name
         if (request.getName() != null && !request.getName().isEmpty()) {
-            String normalizedName = EnumNormalizer.normalizeString(request.getName());
+            String normalizedName = EnumUtils.normalize(request.getName());
             if (!normalizedName.equals(role.getName())) {
-                if (role.getBusinessId() != null) {
-                    if (roleRepository.existsByNameAndBusinessIdAndIsDeletedFalse(normalizedName, role.getBusinessId())) {
-                        throw new ValidationException("Role with this name already exists for this business");
-                    }
-                } else {
-                    if (roleRepository.existsByNameAndBusinessIdIsNullAndIsDeletedFalse(normalizedName)) {
-                        throw new ValidationException("Platform role with this name already exists");
-                    }
-                }
+                validateRoleNameUniqueness(normalizedName, role);
                 role.setName(normalizedName);
             }
         }
 
         roleMapper.updateEntity(request, role);
-
         Role savedRole = roleRepository.save(role);
         log.info("Role updated: {}", savedRole.getName());
 
         return roleMapper.toResponse(savedRole);
+    }
+
+    private void validateRoleNameUniqueness(String normalizedName, Role role) {
+        if (role.getBusinessId() != null) {
+            if (roleRepository.existsByNameAndBusinessIdAndIsDeletedFalse(normalizedName, role.getBusinessId())) {
+                throw new ValidationException("Role with this name already exists for this business");
+            }
+        } else {
+            if (roleRepository.existsByNameAndBusinessIdIsNullAndIsDeletedFalse(normalizedName)) {
+                throw new ValidationException("Platform role with this name already exists");
+            }
+        }
     }
 
     @Override
@@ -248,6 +216,10 @@ public class RoleServiceImpl implements RoleService {
     }
 
     private boolean isSystemRole(String roleName) {
-        return List.of("PLATFORM_OWNER", "BUSINESS_OWNER", "CUSTOMER").contains(roleName);
+        return List.of(
+                AuthConstants.ROLE_PLATFORM_OWNER,
+                AuthConstants.ROLE_BUSINESS_OWNER,
+                AuthConstants.ROLE_CUSTOMER
+        ).contains(roleName);
     }
 }
