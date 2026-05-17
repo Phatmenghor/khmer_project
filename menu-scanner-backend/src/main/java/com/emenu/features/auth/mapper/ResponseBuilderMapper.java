@@ -10,14 +10,13 @@ import java.util.UUID;
 @Mapper(componentModel = "spring")
 public interface ResponseBuilderMapper {
 
-    @Mapping(target = "id", constant = "null")
-    @Mapping(target = "name", constant = "ALL_ROLES")
-    @Mapping(target = "description", constant = "All Roles")
-    @Mapping(target = "businessId", source = "businessId")
-    @Mapping(target = "userType", expression = "java(UserType.BUSINESS_USER)")
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    RoleResponse buildAllRolesResponse(UUID businessId);
+    default RoleResponse buildAllRolesResponse(UUID businessId) {
+        RoleResponse response = new RoleResponse();
+        response.setId(null);
+        response.setName("ALL_ROLES");
+        response.setDescription("All Roles");
+        response.setBusinessId(businessId);
+        response.setUserType(UserType.BUSINESS_USER);
+        return response;
+    }
 }

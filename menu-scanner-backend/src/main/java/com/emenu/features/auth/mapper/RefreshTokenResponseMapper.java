@@ -8,9 +8,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface RefreshTokenResponseMapper {
 
-    @Mapping(target = "accessToken", ignore = true)
-    @Mapping(target = "refreshToken", source = "token")
-    RefreshTokenResponse toResponse(RefreshToken refreshToken, String accessToken);
+    default RefreshTokenResponse toResponse(RefreshToken refreshToken, String accessToken) {
+        return new RefreshTokenResponse(accessToken, refreshToken.getToken());
+    }
 
     default RefreshTokenResponse toResponse(String accessToken, String refreshToken) {
         return new RefreshTokenResponse(accessToken, refreshToken);

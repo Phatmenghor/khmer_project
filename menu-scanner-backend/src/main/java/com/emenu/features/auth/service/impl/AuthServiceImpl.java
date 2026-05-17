@@ -52,7 +52,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final RefreshTokenResponseMapper refreshTokenResponseMapper;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final JWTGenerator jwtGenerator;
     private final SecurityUtils securityUtils;
     private final TokenBlacklistService tokenBlacklistService;
