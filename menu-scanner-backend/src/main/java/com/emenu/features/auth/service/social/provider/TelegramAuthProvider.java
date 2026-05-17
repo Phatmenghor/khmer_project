@@ -26,7 +26,7 @@ public class TelegramAuthProvider {
 
     public SocialUserInfo getUserInfo(String authData) {
         try {
-            log.info("## [TELEGRAM PROVIDER] ▶ Parsing Telegram auth data");
+            log.debug("Parsing Telegram auth data");
             JsonNode data = objectMapper.readTree(authData);
 
             String id = data.get("id").asText();
@@ -35,16 +35,16 @@ public class TelegramAuthProvider {
             String lastName = data.has("last_name") ? data.get("last_name").asText() : null;
             String photoUrl = data.has("photo_url") ? data.get("photo_url").asText() : null;
 
-            log.info("## [TELEGRAM PROVIDER] Parsed fields: id={}, username={}, firstName={}, lastName={}, hasPhoto={}",
+            log.debug("Parsed Telegram fields: id={}, username={}, firstName={}, lastName={}, hasPhoto={}",
                     id, username, firstName, lastName, photoUrl != null);
 
             String hash = data.has("hash") ? data.get("hash").asText() : null;
             if (hash != null && !botToken.isEmpty()) {
-                log.info("## [TELEGRAM PROVIDER] ▶ Verifying hash...");
+                log.debug("Verifying Telegram hash");
                 verifyTelegramAuth(data, hash);
-                log.info("## [TELEGRAM PROVIDER] ✓ Hash verified successfully");
+                log.debug("Telegram hash verified successfully");
             } else {
-                log.warn("## [TELEGRAM PROVIDER] ⚠ Hash verification skipped: hash={}, botTokenConfigured={}",
+                log.warn("Telegram hash verification skipped: hash={}, botTokenConfigured={}",
                         hash != null, !botToken.isEmpty());
             }
 
@@ -57,7 +57,7 @@ public class TelegramAuthProvider {
                     .photoUrl(photoUrl)
                     .build();
         } catch (Exception e) {
-            log.error("## [TELEGRAM PROVIDER] ✗ Failed to parse Telegram auth data: {}", e.getMessage(), e);
+            log.error("Failed to parse Telegram auth data: {}", e.getMessage(), e);
             throw new ValidationException("Invalid Telegram authentication data");
         }
     }
