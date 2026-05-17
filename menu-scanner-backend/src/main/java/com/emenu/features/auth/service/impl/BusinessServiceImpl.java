@@ -11,6 +11,7 @@ import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
+import com.emenu.shared.utils.FilterUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,13 +32,8 @@ public class BusinessServiceImpl implements BusinessService {
     private final BusinessMapper businessMapper;
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
 
-    /**
-     * Creates a new business
-     */
     @Override
     public BusinessResponse createBusiness(BusinessCreateRequest request) {
-        log.info("Creating business: {}", request.getName());
-
         if (businessRepository.existsByNameAndIsDeletedFalse(request.getName())) {
             throw new ValidationException("Business name already exists");
         }
@@ -49,23 +45,17 @@ public class BusinessServiceImpl implements BusinessService {
         return businessMapper.toResponse(savedBusiness);
     }
 
-    /**
-     * Retrieves all businesses with filtering and pagination support
-     */
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<BusinessResponse> getAllBusinesses(BusinessFilterRequest request) {
-        log.info("Getting all businesses with filters");
-
         Pageable pageable = PaginationUtils.createPageable(
                 request.getPageNo(),
-                request.getPageSize(), 
-                request.getSortBy(), 
+                request.getPageSize(),
+                request.getSortBy(),
                 request.getSortDirection()
         );
 
-        List<BusinessStatus> businessStatuses = (request.getStatus() != null && !request.getStatus().isEmpty())
-                ? request.getStatus() : null;
+        List<BusinessStatus> businessStatuses = FilterUtils.nullIfEmpty(request.getStatus());
 
         Page<Business> businessPage = businessRepository.searchBusinesses(
                 businessStatuses,
@@ -77,26 +67,18 @@ public class BusinessServiceImpl implements BusinessService {
         return businessMapper.toPaginationResponse(businessPage, paginationMapper);
     }
 
-    /**
-     * Retrieves a business by ID
-     */
     @Override
     @Transactional(readOnly = true)
     public BusinessResponse getBusinessById(UUID businessId) {
         Business business = businessRepository.findByIdAndIsDeletedFalse(businessId)
-                .orElseThrow(() -> new RuntimeException("Business not found"));
+                .orElseThrow(() -> new ValidationException("Business not found"));
         return businessMapper.toResponse(business);
     }
 
-    /**
-     * Updates an existing business
-     */
     @Override
     public BusinessResponse updateBusiness(UUID businessId, BusinessCreateRequest request) {
-        log.info("Updating business: {}", businessId);
-
         Business business = businessRepository.findByIdAndIsDeletedFalse(businessId)
-                .orElseThrow(() -> new RuntimeException("Business not found"));
+                .orElseThrow(() -> new ValidationException("Business not found"));
 
         business.setName(request.getName());
         business.setEmail(request.getEmail());
@@ -110,13 +92,10 @@ public class BusinessServiceImpl implements BusinessService {
         return businessMapper.toResponse(updatedBusiness);
     }
 
-    /**
-     * Soft deletes a business
-     */
     @Override
     public void deleteBusiness(UUID businessId) {
         Business business = businessRepository.findByIdAndIsDeletedFalse(businessId)
-                .orElseThrow(() -> new RuntimeException("Business not found"));
+                .orElseThrow(() -> new ValidationException("Business not found"));
 
         business.softDelete();
         businessRepository.save(business);

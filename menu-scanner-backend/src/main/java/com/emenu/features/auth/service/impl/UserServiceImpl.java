@@ -18,6 +18,7 @@ import com.emenu.features.auth.service.UserService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
+import com.emenu.shared.utils.FilterUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -138,9 +139,9 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PaginationUtils.createPageable(
                 request.getPageNo(), request.getPageSize(), request.getSortBy(), request.getSortDirection());
 
-        List<UserType> userTypes = nullIfEmpty(request.getUserTypes());
-        List<AccountStatus> accountStatuses = nullIfEmpty(request.getAccountStatuses());
-        List<String> roles = nullIfEmpty(request.getRoles());
+        List<UserType> userTypes = FilterUtils.nullIfEmpty(request.getUserTypes());
+        List<AccountStatus> accountStatuses = FilterUtils.nullIfEmpty(request.getAccountStatuses());
+        List<String> roles = FilterUtils.nullIfEmpty(request.getRoles());
 
         Page<User> page = userRepository.searchUsers(
                 request.getBusinessId(), userTypes, accountStatuses, roles, request.getSearch(), pageable);
@@ -151,14 +152,14 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserDetailResponse getUserById(UUID userId) {
         return userMapper.toDetailResponse(userRepository.findByIdAndIsDeletedFalse(userId)
-                .orElseThrow(() -> new RuntimeException("User not found")));
+                .orElseThrow(() -> new ValidationException("User not found")));
     }
 
     @Override
     public UserResponse updateUser(UUID userId, UserUpdateRequest req) {
         log.info("Updating user: {}", userId);
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ValidationException("User not found"));
 
         if (req.getBusinessId() != null && !req.getBusinessId().equals(user.getBusinessId())) {
             businessRepository.findByIdAndIsDeletedFalse(req.getBusinessId())
@@ -219,11 +220,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse deleteUser(UUID userId) {
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ValidationException("User not found"));
         if (user.getId().equals(securityUtils.getCurrentUser().getId())) {
             throw new ValidationException("You cannot delete your own account");
         }
         user.softDelete();
+        log.info("User deleted: {}", user.getUserIdentifier());
         return userMapper.toResponse(userRepository.save(user));
     }
 
@@ -254,10 +256,6 @@ public class UserServiceImpl implements UserService {
                         "Role '%s' is not compatible with user type '%s'.", r.getName(), userType));
             }
         });
-    }
-
-    private <T> List<T> nullIfEmpty(List<T> list) {
-        return (list != null && !list.isEmpty()) ? list : null;
     }
 
     private boolean hasEmploymentData(UserCreateRequest r) {
