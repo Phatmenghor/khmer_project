@@ -29,7 +29,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public RefreshToken createRefreshToken(User userEntity, String ipAddress, String deviceInfo) {
-        log.info("REFRESH_TOKEN_CREATE_INITIATED: user_id={}, type={}, business_id={}",
+        log.info("Refresh token creation initiated: user_id={}, type={}, business_id={}",
                 userEntity.getId(), userEntity.getUserType(), userEntity.getBusinessId());
 
         String tokenString = jwtGenerator.generateRefreshToken(
@@ -51,7 +51,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         RefreshToken refreshTokenEntity = refreshTokenMapper.createFromHelper(tokenCreateHelper);
         RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshTokenEntity);
-        log.info("REFRESH_TOKEN_CREATE_SUCCESS: user_id={}", userEntity.getId());
+        log.info("Refresh token created successfully: user_id={}", userEntity.getId());
 
         return savedRefreshToken;
     }
@@ -60,38 +60,38 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional(readOnly = true)
     public Optional<RefreshToken> verifyRefreshToken(String token) {
         if (!jwtGenerator.validateToken(token)) {
-            log.warn("REFRESH_TOKEN_VERIFY_FAILED_INVALID_JWT");
+            log.warn("Refresh token verification failed - invalid JWT format");
             return Optional.empty();
         }
 
         if (jwtGenerator.isTokenExpired(token)) {
-            log.warn("REFRESH_TOKEN_VERIFY_FAILED_EXPIRED_JWT");
+            log.warn("Refresh token verification failed - token expired");
             return Optional.empty();
         }
 
         Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByTokenAndIsValidTrue(token);
 
         if (refreshTokenOpt.isEmpty()) {
-            log.warn("REFRESH_TOKEN_VERIFY_FAILED_NOT_FOUND_IN_DB");
+            log.warn("Refresh token verification failed - token not found in database");
             return Optional.empty();
         }
 
         RefreshToken refreshTokenEntity = refreshTokenOpt.get();
 
         if (!refreshTokenEntity.isValid()) {
-            log.warn("REFRESH_TOKEN_VERIFY_FAILED_INVALID_STATE: expired={}, revoked={}, deleted={}",
+            log.warn("Refresh token verification failed - invalid state: expired={}, revoked={}, deleted={}",
                     refreshTokenEntity.isExpired(), refreshTokenEntity.getIsRevoked(), refreshTokenEntity.getIsDeleted());
             return Optional.empty();
         }
 
-        log.info("REFRESH_TOKEN_VERIFY_SUCCESS");
+        log.info("Refresh token verified successfully");
         return Optional.of(refreshTokenEntity);
     }
 
     @Override
     @Transactional
     public void revokeRefreshToken(String token, String revocationReason) {
-        log.info("REFRESH_TOKEN_REVOKE_INITIATED: reason={}", revocationReason);
+        log.info("Refresh token revocation initiated: reason={}", revocationReason);
 
         Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByToken(token);
 
@@ -99,16 +99,16 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             RefreshToken refreshTokenEntity = refreshTokenOpt.get();
             refreshTokenEntity.revoke(revocationReason);
             refreshTokenRepository.save(refreshTokenEntity);
-            log.info("REFRESH_TOKEN_REVOKE_SUCCESS");
+            log.info("Refresh token revoked successfully");
         } else {
-            log.warn("REFRESH_TOKEN_REVOKE_FAILED_NOT_FOUND");
+            log.warn("Refresh token revocation failed - token not found");
         }
     }
 
     @Override
     @Transactional
     public void revokeAllUserTokens(UUID userId, String revocationReason) {
-        log.info("REFRESH_TOKENS_REVOKE_ALL_INITIATED: user_id={}, reason={}", userId, revocationReason);
+        log.info("All refresh tokens revocation initiated: user_id={}, reason={}", userId, revocationReason);
 
         int revokedTokenCount = refreshTokenRepository.revokeAllByUserId(
                 userId,
@@ -116,6 +116,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 revocationReason
         );
 
-        log.info("REFRESH_TOKENS_REVOKE_ALL_SUCCESS: user_id={}, revoked_count={}", userId, revokedTokenCount);
+        log.info("All refresh tokens revoked successfully: user_id={}, revoked_count={}", userId, revokedTokenCount);
     }
 }

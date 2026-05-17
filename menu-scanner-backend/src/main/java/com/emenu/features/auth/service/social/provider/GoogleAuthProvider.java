@@ -48,7 +48,7 @@ public class GoogleAuthProvider {
                     .lastName(familyName)
                     .build();
         } catch (Exception e) {
-            log.warn("GOOGLE_USERINFO_FETCH_FAILED: error={}", e.getMessage());
+            log.warn("Google user information fetch failed: error={}", e.getMessage());
             throw new ValidationException("Invalid Google access token");
         }
     }

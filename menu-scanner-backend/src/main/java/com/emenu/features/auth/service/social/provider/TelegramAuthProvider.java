@@ -38,7 +38,7 @@ public class TelegramAuthProvider {
             if (hash != null && !botToken.isEmpty()) {
                 verifyTelegramAuth(data, hash);
             } else {
-                log.warn("TELEGRAM_HASH_VERIFICATION_SKIPPED: hash_present={}, bot_token_configured={}",
+                log.warn("Telegram hash verification skipped: hash_present={}, bot_token_configured={}",
                         hash != null, !botToken.isEmpty());
             }
 
@@ -51,7 +51,7 @@ public class TelegramAuthProvider {
                     .photoUrl(photoUrl)
                     .build();
         } catch (Exception e) {
-            log.warn("TELEGRAM_AUTH_DATA_PARSE_FAILED: error={}", e.getMessage());
+            log.warn("Telegram authentication data parsing failed: error={}", e.getMessage());
             throw new ValidationException("Invalid Telegram authentication data");
         }
     }
@@ -77,7 +77,7 @@ public class TelegramAuthProvider {
                 throw new ValidationException("Invalid Telegram authentication hash");
             }
         } catch (Exception e) {
-            log.warn("TELEGRAM_AUTH_VERIFICATION_FAILED: error={}", e.getMessage());
+            log.warn("Telegram authentication verification failed: error={}", e.getMessage());
             throw new ValidationException("Failed to verify Telegram authentication");
         }
     }

@@ -47,7 +47,7 @@ public class SocialAuthServiceImpl implements SocialAuthService {
 
     @Override
     public SocialAuthResponse authenticate(SocialAuthRequest authRequestData) {
-        log.info("SOCIAL_AUTH_INITIATED: provider={}, user_type={}", authRequestData.getProvider(), authRequestData.getUserType());
+        log.info("Social authentication initiated: provider={}, user_type={}", authRequestData.getProvider(), authRequestData.getUserType());
 
         SocialAuthProvider authProviderEnum = SocialAuthProvider.fromProviderKey(authRequestData.getProvider());
         SocialUserInfo socialUserInfo = fetchUserInfo(authProviderEnum, authRequestData.getAccessToken());
@@ -65,7 +65,7 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         String refreshTokenString = refreshTokenService.createRefreshToken(
                 userEntity, authRequestData.getIpAddress(), authRequestData.getDeviceInfo()).getToken();
 
-        log.info("SOCIAL_AUTH_SUCCESS: identifier={}, provider={}, user_id={}", userEntity.getUserIdentifier(), authProviderEnum, userEntity.getId());
+        log.info("Social authentication completed successfully: identifier={}, provider={}, user_id={}", userEntity.getUserIdentifier(), authProviderEnum, userEntity.getId());
 
         return socialAuthResponseMapper.toResponse(userEntity, accessTokenString, refreshTokenString, authProviderEnum, socialUserInfo);
     }
@@ -73,11 +73,11 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     @Override
     public SocialSyncResponse syncSocialAccount(SocialAuthRequest syncRequestData) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.info("SOCIAL_ACCOUNT_SYNC_INITIATED: user_id={}, provider={}", currentUserId, syncRequestData.getProvider());
+        log.info("Social account synchronization initiated: user_id={}, provider={}", currentUserId, syncRequestData.getProvider());
 
         User userEntity = userRepository.findByIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> {
-                    log.warn("SOCIAL_ACCOUNT_SYNC_FAILED_USER_NOT_FOUND: user_id={}", currentUserId);
+                    log.warn("Social account synchronization failed - user not found: user_id={}", currentUserId);
                     return new ValidationException("User not found");
                 });
 
@@ -87,7 +87,7 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         syncSocialData(userEntity, socialProvider, fetchedUserInfo);
         userRepository.save(userEntity);
 
-        log.info("SOCIAL_ACCOUNT_SYNC_SUCCESS: user_id={}, provider={}", currentUserId, socialProvider);
+        log.info("Social account synchronized successfully: user_id={}, provider={}", currentUserId, socialProvider);
 
         return socialSyncResponseMapper.toResponse(userEntity, socialProvider);
     }
@@ -95,11 +95,11 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     @Override
     public SocialSyncResponse unsyncSocialAccount(String providerKey) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.info("SOCIAL_ACCOUNT_UNSYNC_INITIATED: user_id={}, provider={}", currentUserId, providerKey);
+        log.info("Social account desynchronization initiated: user_id={}, provider={}", currentUserId, providerKey);
 
         User userEntity = userRepository.findByIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> {
-                    log.warn("SOCIAL_ACCOUNT_UNSYNC_FAILED_USER_NOT_FOUND: user_id={}", currentUserId);
+                    log.warn("Social account desynchronization failed - user not found: user_id={}", currentUserId);
                     return new ValidationException("User not found");
                 });
 
@@ -108,13 +108,13 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         switch (socialProvider) {
             case TELEGRAM -> userEntity.unsyncTelegram();
             default -> {
-                log.warn("SOCIAL_ACCOUNT_UNSYNC_FAILED_UNSUPPORTED: user_id={}, provider={}", currentUserId, socialProvider);
+                log.warn("Social account desynchronization failed - unsupported provider: user_id={}, provider={}", currentUserId, socialProvider);
                 throw new ValidationException("Unsupported provider: " + socialProvider);
             }
         }
 
         userRepository.save(userEntity);
-        log.info("SOCIAL_ACCOUNT_UNSYNC_SUCCESS: user_id={}, provider={}", currentUserId, socialProvider);
+        log.info("Social account desynchronized successfully: user_id={}, provider={}", currentUserId, socialProvider);
 
         return socialSyncResponseMapper.toUnsyncResponse(socialProvider);
     }
@@ -123,7 +123,7 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         if (authProviderEnum == SocialAuthProvider.TELEGRAM) {
             return telegramAuthProvider.getUserInfo(accessTokenString);
         }
-        log.warn("FETCH_USER_INFO_FAILED_UNSUPPORTED: provider={}", authProviderEnum);
+        log.warn("User information fetch failed - unsupported provider: provider={}", authProviderEnum);
         throw new ValidationException("Unsupported provider: " + authProviderEnum);
     }
 
@@ -131,7 +131,7 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         return switch (authProviderEnum) {
             case TELEGRAM -> findOrCreateByTelegram(socialUserInfo, userTypeEnum, businessIdValue);
             default -> {
-                log.warn("FIND_OR_CREATE_USER_FAILED_UNSUPPORTED: provider={}", authProviderEnum);
+                log.warn("User creation failed - unsupported social provider: provider={}", authProviderEnum);
                 throw new ValidationException("Unsupported provider: " + authProviderEnum);
             }
         };
@@ -154,12 +154,12 @@ public class SocialAuthServiceImpl implements SocialAuthService {
 
         Role defaultRoleEntity = roleRepository.findByNameAndIsDeletedFalse(defaultRoleName)
                 .orElseThrow(() -> {
-                    log.warn("CREATE_NEW_USER_FAILED_ROLE_NOT_FOUND: role_name={}, user_type={}", defaultRoleName, userTypeEnum);
+                    log.warn("User creation failed - default role not found: role_name={}, user_type={}", defaultRoleName, userTypeEnum);
                     return new ValidationException("Default role not found: " + defaultRoleName);
                 });
 
         if (!defaultRoleEntity.isCompatibleWithUserType(userTypeEnum)) {
-            log.warn("CREATE_NEW_USER_FAILED_ROLE_INCOMPATIBLE: role={}, user_type={}", defaultRoleName, userTypeEnum);
+            log.warn("User creation failed - role incompatible with user type: role={}, user_type={}", defaultRoleName, userTypeEnum);
             throw new ValidationException(
                     String.format("Role '%s' is not properly configured for '%s'", defaultRoleName, userTypeEnum));
         }

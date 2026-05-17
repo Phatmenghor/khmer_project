@@ -26,14 +26,14 @@ public class UserValidationService {
             case BUSINESS_USER:
                 // For business users, check uniqueness within the specific business
                 if (businessId == null) {
-                    log.warn("USERNAME_VALIDATION_FAILED_MISSING_BUSINESS_ID");
+                    log.warn("Username validation failed - missing business ID for business user");
                     throw new IllegalArgumentException("Business ID is required for BUSINESS_USER type");
                 }
                 boolean existsInBusiness = userRepository.existsByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessId);
                 return !existsInBusiness;
 
             default:
-                log.warn("USERNAME_VALIDATION_FAILED_UNKNOWN_TYPE: type={}", userType);
+                log.warn("Username validation failed - unknown user type: type={}", userType);
                 throw new IllegalArgumentException("Unknown user type: " + userType);
         }
     }

@@ -65,7 +65,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
     @Override
     public BusinessOwnerCreateResponse createBusinessOwner(BusinessOwnerCreateRequest creationRequestData) {
-        log.info("BUSINESS_OWNER_CREATE_INITIATED: business_name={}, owner_email={}",
+        log.info("Business owner creation initiated: business_name={}, owner_email={}",
                 creationRequestData.getBusinessName(), creationRequestData.getOwnerEmail());
 
         validateBusinessOwnerCreation(creationRequestData);
@@ -88,7 +88,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         BusinessOwnerCreateResponse response = mapper.toCreateResponse(ownerUserEntity, businessEntity, subscriptionRecord, paymentRecord);
         response.setCreatedComponents(buildCreatedComponentsList(paymentRecord != null));
 
-        log.info("BUSINESS_OWNER_CREATE_SUCCESS: owner_id={}, business_id={}, subscription_id={}, has_payment={}",
+        log.info("Business owner created successfully: owner_id={}, business_id={}, subscription_id={}, has_payment={}",
                 ownerUserEntity.getId(), businessEntity.getId(), subscriptionRecord.getId(), paymentRecord != null);
         return response;
     }
@@ -138,7 +138,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 .map(this::buildEnrichedDetailResponse)
                 .toList();
 
-        log.info("BUSINESS_OWNERS_FETCHED: count={}, page={}/{}, total={}",
+        log.info("Business owners fetched successfully: count={}, page={}/{}, total={}",
                 enrichedResponses.size(), ownerPage.getNumber() + 1, ownerPage.getTotalPages(), ownerPage.getTotalElements());
 
         return PaginationResponse.<BusinessOwnerDetailResponse>builder()
@@ -159,17 +159,17 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     public BusinessOwnerDetailResponse getBusinessOwnerDetail(UUID ownerId) {
         User ownerEntity = businessOwnerRepository.findBusinessOwnerById(ownerId)
                 .orElseThrow(() -> {
-                    log.warn("BUSINESS_OWNER_NOT_FOUND_FOR_DETAIL: owner_id={}", ownerId);
+                    log.warn("Business owner not found: owner_id={}", ownerId);
                     return new NotFoundException("Business owner not found: " + ownerId);
                 });
 
-        log.info("BUSINESS_OWNER_DETAIL_RETRIEVED: owner_id={}", ownerId);
+        log.info("Business owner details retrieved successfully: owner_id={}", ownerId);
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
     @Override
     public BusinessOwnerDetailResponse renewSubscription(UUID ownerId, BusinessOwnerSubscriptionRenewRequest renewRequestData) {
-        log.info("SUBSCRIPTION_RENEW_INITIATED: owner_id={}", ownerId);
+        log.info("Subscription renewal initiated: owner_id={}", ownerId);
 
         User ownerEntity = getOwnerOrThrow(ownerId);
         Business businessEntity = ownerEntity.getBusiness();
@@ -188,13 +188,13 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                     renewRequestData.getPaymentMethod(), renewRequestData.getPaymentReference(), renewRequestData.getPaymentNotes());
         }
 
-        log.info("SUBSCRIPTION_RENEW_SUCCESS: owner_id={}, subscription_id={}", ownerId, currentSubscriptionRecord.getId());
+        log.info("Subscription renewed successfully: owner_id={}, subscription_id={}", ownerId, currentSubscriptionRecord.getId());
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
     @Override
     public BusinessOwnerDetailResponse changePlan(UUID ownerId, BusinessOwnerChangePlanRequest changePlanRequestData) {
-        log.info("PLAN_CHANGE_INITIATED: owner_id={}, new_plan_id={}", ownerId, changePlanRequestData.getNewPlanId());
+        log.info("Subscription plan change initiated: owner_id={}, new_plan_id={}", ownerId, changePlanRequestData.getNewPlanId());
 
         User ownerEntity = getOwnerOrThrow(ownerId);
         Business businessEntity = ownerEntity.getBusiness();
@@ -215,14 +215,14 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                     changePlanRequestData.getPaymentMethod(), changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
         }
 
-        log.info("PLAN_CHANGE_SUCCESS: owner_id={}, subscription_id={}, new_plan_id={}",
+        log.info("Subscription plan changed successfully: owner_id={}, subscription_id={}, new_plan_id={}",
                 ownerId, currentSubscriptionRecord.getId(), changePlanRequestData.getNewPlanId());
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
     @Override
     public BusinessOwnerDetailResponse cancelSubscription(UUID ownerId, BusinessOwnerSubscriptionCancelRequest cancelRequestData) {
-        log.info("SUBSCRIPTION_CANCEL_INITIATED: owner_id={}", ownerId);
+        log.info("Subscription cancellation initiated: owner_id={}", ownerId);
 
         User ownerEntity = getOwnerOrThrow(ownerId);
         Business businessEntity = ownerEntity.getBusiness();
@@ -247,14 +247,14 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
             createRefundPayment(currentSubscriptionRecord, cancelRequestData);
         }
 
-        log.info("SUBSCRIPTION_CANCEL_SUCCESS: owner_id={}, subscription_id={}, refund_issued={}",
+        log.info("Subscription cancelled successfully: owner_id={}, subscription_id={}, refund_issued={}",
                 ownerId, currentSubscriptionRecord.getId(), cancelRequestData.hasRefundAmount());
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
     @Override
     public BusinessOwnerDetailResponse deleteBusinessOwner(UUID ownerId) {
-        log.info("BUSINESS_OWNER_DELETE_INITIATED: owner_id={}", ownerId);
+        log.info("Business owner deletion initiated: owner_id={}", ownerId);
 
         User ownerEntity = getOwnerOrThrow(ownerId);
         Business businessEntity = ownerEntity.getBusiness();
@@ -271,24 +271,24 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         ownerEntity.softDelete();
         businessOwnerRepository.save(ownerEntity);
 
-        log.info("BUSINESS_OWNER_DELETE_SUCCESS: owner_id={}, business_id={}, subscriptions_deleted={}",
+        log.info("Business owner deleted successfully: owner_id={}, business_id={}, subscriptions_deleted={}",
                 ownerId, businessEntity.getId(), subscriptionRecords.size());
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
     private void validateBusinessOwnerCreation(BusinessOwnerCreateRequest creationRequestData) {
         if (businessOwnerRepository.existsBusinessOwnerByEmail(creationRequestData.getOwnerEmail())) {
-            log.warn("BUSINESS_OWNER_CREATE_FAILED_DUPLICATE_EMAIL: email={}", creationRequestData.getOwnerEmail());
+            log.warn("Business owner creation failed - duplicate email: email={}", creationRequestData.getOwnerEmail());
             throw new ValidationException("Email already exists: " + creationRequestData.getOwnerEmail());
         }
 
         if (businessRepository.existsByEmailAndIsDeletedFalse(creationRequestData.getBusinessEmail())) {
-            log.warn("BUSINESS_OWNER_CREATE_FAILED_DUPLICATE_BUSINESS_EMAIL: business_email={}", creationRequestData.getBusinessEmail());
+            log.warn("Business owner creation failed - duplicate business email: business_email={}", creationRequestData.getBusinessEmail());
             throw new ValidationException("Business email already exists: " + creationRequestData.getBusinessEmail());
         }
 
         if (!planRepository.existsById(creationRequestData.getPlanId())) {
-            log.warn("BUSINESS_OWNER_CREATE_FAILED_PLAN_NOT_FOUND: plan_id={}", creationRequestData.getPlanId());
+            log.warn("Business owner creation failed - plan not found: plan_id={}", creationRequestData.getPlanId());
             throw new NotFoundException("Plan not found: " + creationRequestData.getPlanId());
         }
     }
@@ -306,12 +306,12 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private User createOwnerUser(BusinessOwnerCreateRequest creationRequestData, UUID businessId) {
         Role ownerRoleEntity = roleRepository.findByNameAndIsDeletedFalse("BUSINESS_OWNER")
                 .orElseThrow(() -> {
-                    log.warn("BUSINESS_OWNER_CREATE_FAILED_ROLE_NOT_FOUND");
+                    log.warn("Business owner creation failed - business owner role not found");
                     return new NotFoundException("Business owner role not found");
                 });
 
         if (!ownerRoleEntity.isCompatibleWithUserType(UserType.BUSINESS_USER)) {
-            log.warn("BUSINESS_OWNER_CREATE_FAILED_ROLE_INCOMPATIBLE");
+            log.warn("Business owner creation failed - business owner role not compatible with user type");
             throw new ValidationException("BUSINESS_OWNER role is not properly configured for BUSINESS_USER type");
         }
 
@@ -348,7 +348,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private Subscription createSubscription(UUID businessId, BusinessOwnerCreateRequest creationRequestData) {
         SubscriptionPlan planEntity = planRepository.findById(creationRequestData.getPlanId())
                 .orElseThrow(() -> {
-                    log.warn("SUBSCRIPTION_CREATE_FAILED_PLAN_NOT_FOUND: plan_id={}", creationRequestData.getPlanId());
+                    log.warn("Subscription creation failed - plan not found: plan_id={}", creationRequestData.getPlanId());
                     return new NotFoundException("Plan not found");
                 });
 
@@ -559,7 +559,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private User getOwnerOrThrow(UUID ownerId) {
         return businessOwnerRepository.findBusinessOwnerById(ownerId)
                 .orElseThrow(() -> {
-                    log.warn("BUSINESS_OWNER_NOT_FOUND: owner_id={}", ownerId);
+                    log.warn("Business owner not found: owner_id={}", ownerId);
                     return new NotFoundException("Business owner not found: " + ownerId);
                 });
     }
@@ -567,7 +567,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private Subscription getCurrentSubscription(UUID businessId) {
         return subscriptionRepository.findCurrentActiveByBusinessId(businessId, LocalDateTime.now())
                 .orElseThrow(() -> {
-                    log.warn("ACTIVE_SUBSCRIPTION_NOT_FOUND: business_id={}", businessId);
+                    log.warn("Active subscription not found: business_id={}", businessId);
                     return new NotFoundException("No active subscription found");
                 });
     }
@@ -575,7 +575,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private SubscriptionPlan getPlanOrThrow(UUID planId) {
         return planRepository.findById(planId)
                 .orElseThrow(() -> {
-                    log.warn("PLAN_NOT_FOUND: plan_id={}", planId);
+                    log.warn("Subscription plan not found: plan_id={}", planId);
                     return new NotFoundException("Plan not found: " + planId);
                 });
     }

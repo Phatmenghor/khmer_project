@@ -82,7 +82,7 @@ public class UserSessionServiceImpl implements UserSessionService {
         userEntity.setActiveSessionsCount(sessionRepository.countActiveSessionsByUserId(userEntity.getId()).intValue());
         userRepository.save(userEntity);
 
-        log.info("SESSION_CREATE_SUCCESS: user_id={}, device={}, location={}", userEntity.getId(), sessionEntity.getDeviceDisplayName(), locationDisplay);
+        log.info("Session created successfully: user_id={}, device={}, location={}", userEntity.getId(), sessionEntity.getDeviceDisplayName(), locationDisplay);
         return sessionMapper.toResponse(sessionEntity);
     }
 
@@ -90,10 +90,10 @@ public class UserSessionServiceImpl implements UserSessionService {
     public AdminSessionResponse getSessionById(UUID sessionId) {
         UserSession sessionEntity = sessionRepository.findByIdWithUser(sessionId)
                 .orElseThrow(() -> {
-                    log.warn("SESSION_NOT_FOUND: session_id={}", sessionId);
+                    log.warn("Session not found: session_id={}", sessionId);
                     return new ResourceNotFoundException("Session not found");
                 });
-        log.info("SESSION_RETRIEVED: session_id={}", sessionId);
+        log.info("Session retrieved successfully: session_id={}", sessionId);
         return sessionMapper.toAdminResponse(sessionEntity);
     }
 
@@ -101,18 +101,18 @@ public class UserSessionServiceImpl implements UserSessionService {
     @Transactional(readOnly = true)
     public List<UserSessionResponse> getAllSessions(UUID userId) {
         List<UserSessionResponse> sessionResponses = sessionMapper.toResponseList(sessionRepository.findAllSessionsByUserId(userId));
-        log.info("ALL_SESSIONS_RETRIEVED: user_id={}, session_count={}", userId, sessionResponses.size());
+        log.info("All sessions retrieved successfully: user_id={}, session_count={}", userId, sessionResponses.size());
         return sessionResponses;
     }
 
     @Override
     @Transactional
     public UserSessionResponse logoutSession(UUID sessionId, UUID userId) {
-        log.info("SESSION_LOGOUT_INITIATED: session_id={}, user_id={}", sessionId, userId);
+        log.info("Session logout initiated: session_id={}, user_id={}", sessionId, userId);
 
         UserSession sessionEntity = sessionRepository.findByIdAndUserIdAndIsDeletedFalse(sessionId, userId)
                 .orElseThrow(() -> {
-                    log.warn("SESSION_LOGOUT_FAILED_NOT_FOUND: session_id={}, user_id={}", sessionId, userId);
+                    log.warn("Session logout failed - session not found: session_id={}, user_id={}", sessionId, userId);
                     return new ResourceNotFoundException("Session not found");
                 });
 
@@ -120,14 +120,14 @@ public class UserSessionServiceImpl implements UserSessionService {
         sessionRepository.save(sessionEntity);
         updateActiveSessionsCount(userId);
 
-        log.info("SESSION_LOGOUT_SUCCESS: session_id={}, user_id={}", sessionId, userId);
+        log.info("Session logged out successfully: session_id={}, user_id={}", sessionId, userId);
         return sessionMapper.toResponse(sessionEntity);
     }
 
     @Override
     @Transactional
     public List<UserSessionResponse> logoutOtherSessions(UUID userId, UUID currentSessionId) {
-        log.info("SESSIONS_LOGOUT_OTHER_INITIATED: user_id={}, current_session_id={}", userId, currentSessionId);
+        log.info("Other sessions logout initiated: user_id={}, current_session_id={}", userId, currentSessionId);
 
         List<UserSession> activeSessionRecords = sessionRepository.findActiveSessionsByUserId(userId);
         List<UserSession> loggedOutSessionRecords = new ArrayList<>();
@@ -141,7 +141,7 @@ public class UserSessionServiceImpl implements UserSessionService {
         }
 
         updateActiveSessionsCount(userId);
-        log.info("SESSIONS_LOGOUT_OTHER_SUCCESS: user_id={}, logged_out_count={}", userId, loggedOutSessionRecords.size());
+        log.info("Other sessions logged out successfully: user_id={}, logged_out_count={}", userId, loggedOutSessionRecords.size());
         return sessionMapper.toResponseList(loggedOutSessionRecords);
     }
 
@@ -159,18 +159,18 @@ public class UserSessionServiceImpl implements UserSessionService {
                 filterCriteria.getUserId(), filterStatuses, filterDeviceTypes, filterCriteria.getSearch(), pageableRequest
         );
 
-        log.info("SESSIONS_FETCHED_ADMIN: count={}, page={}/{}", sessionPage.getNumberOfElements(), sessionPage.getNumber() + 1, sessionPage.getTotalPages());
+        log.info("Sessions fetched successfully: count={}, page={}/{}", sessionPage.getNumberOfElements(), sessionPage.getNumber() + 1, sessionPage.getTotalPages());
         return sessionMapper.toPaginationResponse(sessionPage, paginationMapper);
     }
 
     @Override
     @Transactional
     public AdminSessionResponse logoutSessionAdmin(UUID sessionId) {
-        log.info("SESSION_LOGOUT_ADMIN_INITIATED: session_id={}", sessionId);
+        log.info("Admin session logout initiated: session_id={}", sessionId);
 
         UserSession sessionEntity = sessionRepository.findByIdWithUser(sessionId)
                 .orElseThrow(() -> {
-                    log.warn("SESSION_LOGOUT_ADMIN_FAILED_NOT_FOUND: session_id={}", sessionId);
+                    log.warn("Admin session logout failed - session not found: session_id={}", sessionId);
                     return new ResourceNotFoundException("Session not found");
                 });
 
@@ -178,7 +178,7 @@ public class UserSessionServiceImpl implements UserSessionService {
             sessionEntity.logout("Admin logged out");
             sessionRepository.save(sessionEntity);
             updateActiveSessionsCount(sessionEntity.getUserId());
-            log.info("SESSION_LOGOUT_ADMIN_SUCCESS: session_id={}, user_id={}", sessionId, sessionEntity.getUserId());
+            log.info("Admin session logged out successfully: session_id={}, user_id={}", sessionId, sessionEntity.getUserId());
         }
 
         return sessionMapper.toAdminResponse(sessionEntity);
@@ -187,7 +187,7 @@ public class UserSessionServiceImpl implements UserSessionService {
     @Override
     @Transactional
     public List<AdminSessionResponse> logoutAllSessionsAdmin(UUID userId) {
-        log.info("SESSIONS_LOGOUT_ALL_ADMIN_INITIATED: user_id={}", userId);
+        log.info("All sessions admin logout initiated: user_id={}", userId);
 
         List<UserSession> activeSessionRecords = sessionRepository.findActiveSessionsByUserId(userId);
 
@@ -197,7 +197,7 @@ public class UserSessionServiceImpl implements UserSessionService {
         }
 
         updateActiveSessionsCount(userId);
-        log.info("SESSIONS_LOGOUT_ALL_ADMIN_SUCCESS: user_id={}, logged_out_count={}", userId, activeSessionRecords.size());
+        log.info("All sessions logged out by admin successfully: user_id={}, logged_out_count={}", userId, activeSessionRecords.size());
         return sessionMapper.toAdminResponseList(activeSessionRecords);
     }
 
@@ -226,7 +226,7 @@ public class UserSessionServiceImpl implements UserSessionService {
             IpGeolocationService.GeoLocation geoLocation = geolocationService.getLocation(clientIpAddress);
             return geoLocation.getLocationDisplay();
         } catch (Exception e) {
-            log.warn("GEOLOCATION_LOOKUP_FAILED: ip={}, error={}", clientIpAddress, e.getMessage());
+            log.warn("Geolocation lookup failed: ip={}, error={}", clientIpAddress, e.getMessage());
             return "Unknown";
         }
     }

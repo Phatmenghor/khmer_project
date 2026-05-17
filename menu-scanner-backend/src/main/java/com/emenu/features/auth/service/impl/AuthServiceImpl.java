@@ -114,17 +114,17 @@ public class AuthServiceImpl implements AuthService {
     private void validateBusinessLoginContext(User userEntity) {
         Business businessEntity = businessRepository.findById(userEntity.getBusinessId())
                 .orElseThrow(() -> {
-                    log.warn("LOGIN_FAILED_BUSINESS_NOT_FOUND: business_id={}", userEntity.getBusinessId());
+                    log.warn("User login failed - business not found: business_id={}", userEntity.getBusinessId());
                     return new ValidationException("Business not found");
                 });
 
         if (!businessEntity.isActive()) {
-            log.warn("LOGIN_FAILED_BUSINESS_INACTIVE: business_id={}, status={}", userEntity.getBusinessId(), businessEntity.getStatus());
+            log.warn("User login failed - business inactive: business_id={}, status={}", userEntity.getBusinessId(), businessEntity.getStatus());
             throw new ValidationException("Your business account is currently " + businessEntity.getStatus() + ". Please contact support.");
         }
 
         if (!businessEntity.hasActiveSubscription()) {
-            log.warn("LOGIN_FAILED_NO_ACTIVE_SUBSCRIPTION: business_id={}", userEntity.getBusinessId());
+            log.warn("User login failed - no active subscription: business_id={}", userEntity.getBusinessId());
             throw new ValidationException("Your business subscription has expired. Please renew your subscription to continue.");
         }
     }
@@ -135,7 +135,7 @@ public class AuthServiceImpl implements AuthService {
         UUID businessIdValue = loginRequestData.getBusinessId();
 
         if (userTypeEnum == null) {
-            log.warn("LOGIN_FAILED_MISSING_USER_TYPE");
+            log.warn("User login failed - missing user type");
             throw new ValidationException(
                     "User type is required. Please specify whether you are logging in as CUSTOMER, PLATFORM_USER, or BUSINESS_USER."
             );
@@ -143,7 +143,7 @@ public class AuthServiceImpl implements AuthService {
 
         if (userTypeEnum == UserType.BUSINESS_USER) {
             if (businessIdValue == null) {
-                log.warn("LOGIN_FAILED_MISSING_BUSINESS_ID: identifier={}", userIdentifier);
+                log.warn("User login failed - missing business ID: identifier={}", userIdentifier);
                 throw new ValidationException(
                         "Business ID is required for business user login. Please provide businessId in your login request."
                 );
@@ -151,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
 
             return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessIdValue)
                     .orElseThrow(() -> {
-                        log.warn("LOGIN_FAILED_USER_NOT_FOUND_IN_BUSINESS: identifier={}, business_id={}", userIdentifier, businessIdValue);
+                        log.warn("User login failed - user not found in business: identifier={}, business_id={}", userIdentifier, businessIdValue);
                         return new ValidationException(
                                 "User '" + userIdentifier + "' not found in the specified business"
                         );
@@ -160,7 +160,7 @@ public class AuthServiceImpl implements AuthService {
 
         return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userTypeEnum)
                 .orElseThrow(() -> {
-                    log.warn("LOGIN_FAILED_USER_NOT_FOUND: identifier={}, type={}", userIdentifier, userTypeEnum);
+                    log.warn("User login failed - user not found: identifier={}, type={}", userIdentifier, userTypeEnum);
                     return new ValidationException(
                             "User '" + userIdentifier + "' not found as " + userTypeEnum.name().toLowerCase().replace("_", " ")
                     );
@@ -169,7 +169,7 @@ public class AuthServiceImpl implements AuthService {
 
     private void validateLoginContext(LoginRequest loginRequestData, User userEntity) {
         if (!loginRequestData.getUserType().equals(userEntity.getUserType())) {
-            log.warn("LOGIN_FAILED_USER_TYPE_MISMATCH: expected={}, found={}", loginRequestData.getUserType(), userEntity.getUserType());
+            log.warn("User login failed - user type mismatch: expected={}, found={}", loginRequestData.getUserType(), userEntity.getUserType());
             throw new ValidationException(
                     "User type mismatch. Expected: " + loginRequestData.getUserType() +
                             ", Found: " + userEntity.getUserType()
@@ -178,11 +178,11 @@ public class AuthServiceImpl implements AuthService {
 
         if (loginRequestData.getUserType() == UserType.BUSINESS_USER) {
             if (userEntity.getBusinessId() == null) {
-                log.warn("LOGIN_FAILED_USER_NO_BUSINESS: user_id={}", userEntity.getId());
+                log.warn("User login failed - user not associated with business: user_id={}", userEntity.getId());
                 throw new ValidationException("User is not associated with any business");
             }
             if (!loginRequestData.getBusinessId().equals(userEntity.getBusinessId())) {
-                log.warn("LOGIN_FAILED_BUSINESS_MISMATCH: user_id={}, expected_business={}, user_business={}",
+                log.warn("User login failed - business mismatch: user_id={}, expected_business={}, user_business={}",
                         userEntity.getId(), loginRequestData.getBusinessId(), userEntity.getBusinessId());
                 throw new ValidationException("User does not belong to the specified business");
             }
@@ -191,7 +191,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponse registerCustomer(RegisterRequest registrationRequestData) {
-        log.info("CUSTOMER_REGISTRATION_INITIATED: identifier={}", registrationRequestData.getUserIdentifier());
+        log.info("Customer registration initiated: identifier={}", registrationRequestData.getUserIdentifier());
 
         userValidationService.validateUsernameUniqueness(
                 registrationRequestData.getUserIdentifier(),
@@ -205,12 +205,12 @@ public class AuthServiceImpl implements AuthService {
 
         Role customerRoleEntity = roleRepository.findByNameAndIsDeletedFalse("CUSTOMER")
                 .orElseThrow(() -> {
-                    log.warn("CUSTOMER_REGISTRATION_FAILED_ROLE_NOT_FOUND");
+                    log.warn("Customer registration failed - customer role not found");
                     return new ValidationException("Customer role not found");
                 });
 
         if (!customerRoleEntity.isCompatibleWithUserType(UserType.CUSTOMER)) {
-            log.warn("CUSTOMER_REGISTRATION_FAILED_ROLE_INCOMPATIBLE");
+            log.warn("Customer registration failed - customer role not compatible with user type");
             throw new ValidationException("CUSTOMER role is not properly configured for CUSTOMER user type");
         }
 
@@ -218,7 +218,7 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUserEntity = userRepository.save(userEntity);
 
-        log.info("CUSTOMER_REGISTRATION_SUCCESS: identifier={}, user_id={}", savedUserEntity.getUserIdentifier(), savedUserEntity.getId());
+        log.info("Customer registration completed successfully: identifier={}, user_id={}", savedUserEntity.getUserIdentifier(), savedUserEntity.getId());
         return userMapper.toResponse(savedUserEntity);
     }
 
@@ -227,7 +227,7 @@ public class AuthServiceImpl implements AuthService {
         String accessTokenString = TokenUtils.extractTokenFromAuthHeader(authorizationHeader);
 
         if (accessTokenString == null || !jwtGenerator.validateToken(accessTokenString)) {
-            log.warn("LOGOUT_FAILED_INVALID_TOKEN");
+            log.warn("User logout failed - invalid token");
             throw new ValidationException("Invalid token");
         }
 
@@ -239,7 +239,7 @@ public class AuthServiceImpl implements AuthService {
         User userEntity = findUserByRefreshTokenContext(userIdentifier, userTypeString, businessIdString);
         refreshTokenService.revokeAllUserTokens(userEntity.getId(), AuthConstants.SESSION_REASON_LOGOUT);
 
-        log.info("LOGOUT_SUCCESS: identifier={}, type={}, user_id={}", userIdentifier, userTypeString, userEntity.getId());
+        log.info("User logged out successfully: identifier={}, type={}, user_id={}", userIdentifier, userTypeString, userEntity.getId());
     }
 
     @Override
@@ -247,12 +247,12 @@ public class AuthServiceImpl implements AuthService {
         User currentUserEntity = securityUtils.getCurrentUser();
 
         if (!passwordEncoder.matches(passwordChangeRequestData.getCurrentPassword(), currentUserEntity.getPassword())) {
-            log.warn("PASSWORD_CHANGE_FAILED_INCORRECT_CURRENT: user_id={}", currentUserEntity.getId());
+            log.warn("Password change failed - incorrect current password: user_id={}", currentUserEntity.getId());
             throw new ValidationException("Current password is incorrect");
         }
 
         if (!passwordChangeRequestData.getNewPassword().equals(passwordChangeRequestData.getConfirmPassword())) {
-            log.warn("PASSWORD_CHANGE_FAILED_MISMATCH: user_id={}", currentUserEntity.getId());
+            log.warn("Password change failed - password confirmation mismatch: user_id={}", currentUserEntity.getId());
             throw new ValidationException("Password confirmation does not match");
         }
 
@@ -262,7 +262,7 @@ public class AuthServiceImpl implements AuthService {
         tokenBlacklistService.blacklistAllUserTokens(currentUserEntity.getUserIdentifier(), AuthConstants.SESSION_REASON_PASSWORD_CHANGE);
         refreshTokenService.revokeAllUserTokens(currentUserEntity.getId(), AuthConstants.SESSION_REASON_PASSWORD_CHANGE);
 
-        log.info("PASSWORD_CHANGE_SUCCESS: user_id={}, identifier={}", currentUserEntity.getId(), currentUserEntity.getUserIdentifier());
+        log.info("Password changed successfully: user_id={}, identifier={}", currentUserEntity.getId(), currentUserEntity.getUserIdentifier());
 
         return userMapper.toResponse(savedUserEntity);
     }
@@ -271,12 +271,12 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse adminResetPassword(AdminPasswordResetRequest adminResetRequestData) {
         User userEntity = userRepository.findByIdAndIsDeletedFalse(adminResetRequestData.getUserId())
                 .orElseThrow(() -> {
-                    log.warn("ADMIN_PASSWORD_RESET_FAILED_USER_NOT_FOUND: user_id={}", adminResetRequestData.getUserId());
+                    log.warn("Admin password reset failed - user not found: user_id={}", adminResetRequestData.getUserId());
                     return new ValidationException("User not found");
                 });
 
         if (!adminResetRequestData.getNewPassword().equals(adminResetRequestData.getConfirmPassword())) {
-            log.warn("ADMIN_PASSWORD_RESET_FAILED_MISMATCH: user_id={}", adminResetRequestData.getUserId());
+            log.warn("Admin password reset failed - password confirmation mismatch: user_id={}", adminResetRequestData.getUserId());
             throw new ValidationException("Password confirmation does not match");
         }
 
@@ -286,7 +286,7 @@ public class AuthServiceImpl implements AuthService {
         tokenBlacklistService.blacklistAllUserTokens(userEntity.getUserIdentifier(), AuthConstants.SESSION_REASON_ADMIN_PASSWORD_RESET);
         refreshTokenService.revokeAllUserTokens(userEntity.getId(), AuthConstants.SESSION_REASON_ADMIN_PASSWORD_RESET);
 
-        log.info("ADMIN_PASSWORD_RESET_SUCCESS: user_id={}, identifier={}", userEntity.getId(), userEntity.getUserIdentifier());
+        log.info("Admin password reset successfully: user_id={}, identifier={}", userEntity.getId(), userEntity.getUserIdentifier());
 
         return userMapper.toResponse(savedUserEntity);
     }
@@ -298,7 +298,7 @@ public class AuthServiceImpl implements AuthService {
                 return requestAttributes.getRequest();
             }
         } catch (Exception e) {
-            log.warn("FAILED_TO_GET_HTTP_REQUEST: error={}", e.getMessage());
+            log.warn("Failed to retrieve HTTP request: error={}", e.getMessage());
         }
         return null;
     }
@@ -338,14 +338,14 @@ public class AuthServiceImpl implements AuthService {
 
         RefreshToken refreshTokenEntity = refreshTokenService.verifyRefreshToken(refreshTokenString)
                 .orElseThrow(() -> {
-                    log.warn("TOKEN_REFRESH_FAILED_INVALID_OR_EXPIRED: identifier={}", userIdentifier);
+                    log.warn("Token refresh failed - invalid or expired refresh token: identifier={}", userIdentifier);
                     return new ValidationException("Invalid or expired refresh token");
                 });
 
         User userEntity = findUserByRefreshTokenContext(userIdentifier, userTypeString, businessIdString);
 
         if (!userEntity.getId().equals(refreshTokenEntity.getUserId())) {
-            log.error("TOKEN_REFRESH_FAILED_SECURITY_VIOLATION: user_id_mismatch");
+            log.error("Token refresh failed - security violation: user ID mismatch");
             throw new ValidationException("Invalid refresh token");
         }
 
@@ -376,14 +376,14 @@ public class AuthServiceImpl implements AuthService {
 
         refreshTokenService.revokeRefreshToken(refreshTokenString, AuthConstants.SESSION_REASON_TOKEN_REFRESH);
 
-        log.info("TOKEN_REFRESH_SUCCESS: identifier={}, user_id={}", userEntity.getUserIdentifier(), userEntity.getId());
+        log.info("Token refresh completed successfully: identifier={}, user_id={}", userEntity.getUserIdentifier(), userEntity.getId());
 
         return refreshTokenResponseMapper.toResponse(newAccessTokenString, newRefreshTokenEntity.getToken());
     }
 
     private User findUserByRefreshTokenContext(String userIdentifier, String userTypeString, String businessIdString) {
         if (userTypeString == null) {
-            log.warn("REFRESH_TOKEN_CONTEXT_FAILED_MISSING_USER_TYPE: identifier={}", userIdentifier);
+            log.warn("Refresh token validation failed - missing user type: identifier={}", userIdentifier);
             throw new ValidationException("Invalid refresh token: missing user type");
         }
 
@@ -391,13 +391,13 @@ public class AuthServiceImpl implements AuthService {
         try {
             userTypeEnum = UserType.valueOf(userTypeString);
         } catch (IllegalArgumentException e) {
-            log.warn("REFRESH_TOKEN_CONTEXT_FAILED_INVALID_USER_TYPE: type_string={}", userTypeString);
+            log.warn("Refresh token validation failed - invalid user type: type_string={}", userTypeString);
             throw new ValidationException("Invalid refresh token: invalid user type");
         }
 
         if (userTypeEnum == UserType.BUSINESS_USER) {
             if (businessIdString == null) {
-                log.warn("REFRESH_TOKEN_CONTEXT_FAILED_MISSING_BUSINESS_ID: identifier={}", userIdentifier);
+                log.warn("Refresh token validation failed - missing business ID: identifier={}", userIdentifier);
                 throw new ValidationException("Invalid refresh token: missing business ID for business user");
             }
 
@@ -405,20 +405,20 @@ public class AuthServiceImpl implements AuthService {
             try {
                 businessIdValue = UUID.fromString(businessIdString);
             } catch (IllegalArgumentException e) {
-                log.warn("REFRESH_TOKEN_CONTEXT_FAILED_INVALID_BUSINESS_ID: business_id_string={}", businessIdString);
+                log.warn("Refresh token validation failed - invalid business ID format: business_id_string={}", businessIdString);
                 throw new ValidationException("Invalid refresh token: invalid business ID format");
             }
 
             return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessIdValue)
                     .orElseThrow(() -> {
-                        log.warn("REFRESH_TOKEN_CONTEXT_FAILED_USER_NOT_FOUND: identifier={}, business_id={}", userIdentifier, businessIdValue);
+                        log.warn("Refresh token validation failed - user not found: identifier={}, business_id={}", userIdentifier, businessIdValue);
                         return new ValidationException("User not found for refresh token context");
                     });
         }
 
         return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userTypeEnum)
                 .orElseThrow(() -> {
-                    log.warn("REFRESH_TOKEN_CONTEXT_FAILED_USER_NOT_FOUND: identifier={}, type={}", userIdentifier, userTypeEnum);
+                    log.warn("Refresh token validation failed - user not found: identifier={}, type={}", userIdentifier, userTypeEnum);
                     return new ValidationException("User not found for refresh token context");
                 });
     }
