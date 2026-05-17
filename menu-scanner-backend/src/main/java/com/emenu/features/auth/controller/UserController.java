@@ -71,7 +71,6 @@ public class UserController {
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponse>> createUser(
             @Valid @RequestBody UserCreateRequest createRequestData) {
-        log.info("USER_CREATE_ENDPOINT: identifier={}", createRequestData.getUserIdentifier());
         UserResponse createdUserResponse = userService.createUser(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("User created", createdUserResponse));
@@ -87,7 +86,6 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> deleteUser(@PathVariable UUID userId) {
-        log.info("USER_DELETE_ENDPOINT: user_id={}", userId);
         UserResponse deletedUserResponse = userService.deleteUser(userId);
         return ResponseEntity.ok(ApiResponse.success("User deleted", deletedUserResponse));
     }
@@ -95,7 +93,6 @@ public class UserController {
     @PostMapping("/admin/reset-password")
     public ResponseEntity<ApiResponse<UserResponse>> adminResetPassword(
             @Valid @RequestBody AdminPasswordResetRequest resetRequestData) {
-        log.info("ADMIN_PASSWORD_RESET_ENDPOINT: user_id={}", resetRequestData.getUserId());
         UserResponse resetUserResponse = authService.adminResetPassword(resetRequestData);
         return ResponseEntity.ok(ApiResponse.success("Password reset successful", resetUserResponse));
     }
@@ -103,14 +100,12 @@ public class UserController {
     @PostMapping("/change-password")
     public ResponseEntity<ApiResponse<UserResponse>> changePassword(
             @Valid @RequestBody PasswordChangeRequest changeRequestData) {
-        log.info("USER_PASSWORD_CHANGE_ENDPOINT");
         UserResponse changedPasswordResponse = authService.changePassword(changeRequestData);
         return ResponseEntity.ok(ApiResponse.success("Password changed successfully", changedPasswordResponse));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String authHeader) {
-        log.info("USER_LOGOUT_ENDPOINT");
         authService.logout(authHeader);
         return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
     }

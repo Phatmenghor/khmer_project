@@ -31,7 +31,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest registrationRequestData) {
-        log.info("CUSTOMER_REGISTRATION_ENDPOINT: identifier={}", registrationRequestData.getUserIdentifier());
         UserResponse registeredUserResponse = authService.registerCustomer(registrationRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Customer registration successful", registeredUserResponse));
@@ -56,14 +55,12 @@ public class AuthController {
     @PostMapping("/social/sync")
     public ResponseEntity<ApiResponse<SocialSyncResponse>> syncSocialAccount(
             @Valid @RequestBody SocialAuthRequest syncRequestData) {
-        log.info("SOCIAL_SYNC_ENDPOINT: provider={}", syncRequestData.getProvider());
         SocialSyncResponse syncResponse = socialAuthService.syncSocialAccount(syncRequestData);
         return ResponseEntity.ok(ApiResponse.success("Social account synced successfully", syncResponse));
     }
 
     @DeleteMapping("/social/sync/{provider}")
     public ResponseEntity<ApiResponse<SocialSyncResponse>> unsyncSocialAccount(@PathVariable String provider) {
-        log.info("SOCIAL_UNSYNC_ENDPOINT: provider={}", provider);
         SocialSyncResponse unsyncResponse = socialAuthService.unsyncSocialAccount(provider);
         return ResponseEntity.ok(ApiResponse.success("Social account unsynced successfully", unsyncResponse));
     }

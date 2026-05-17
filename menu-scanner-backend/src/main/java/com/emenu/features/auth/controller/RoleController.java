@@ -31,7 +31,6 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<ApiResponse<RoleResponse>> createRole(
             @Valid @RequestBody RoleCreateRequest createRequestData) {
-        log.info("ROLE_CREATE_ENDPOINT: role_name={}", createRequestData.getName());
         RoleResponse createdRoleResponse = roleService.createRole(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Role created successfully", createdRoleResponse));
@@ -80,7 +79,6 @@ public class RoleController {
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
             @PathVariable UUID roleId,
             @Valid @RequestBody RoleUpdateRequest updateRequestData) {
-        log.info("ROLE_UPDATE_ENDPOINT: role_id={}", roleId);
         RoleResponse updatedRoleResponse = roleService.updateRole(roleId, updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Role updated successfully", updatedRoleResponse));
     }
@@ -88,7 +86,6 @@ public class RoleController {
     @DeleteMapping("/{roleId}")
     public ResponseEntity<ApiResponse<RoleResponse>> deleteRole(
             @PathVariable UUID roleId) {
-        log.info("ROLE_DELETE_ENDPOINT: role_id={}", roleId);
         RoleResponse deletedRoleResponse = roleService.deleteRole(roleId);
         return ResponseEntity.ok(ApiResponse.success("Role deleted successfully", deletedRoleResponse));
     }

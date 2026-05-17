@@ -26,7 +26,6 @@ public class TelegramAuthProvider {
 
     public SocialUserInfo getUserInfo(String authData) {
         try {
-            log.debug("Parsing Telegram auth data");
             JsonNode data = objectMapper.readTree(authData);
 
             String id = data.get("id").asText();
@@ -35,16 +34,11 @@ public class TelegramAuthProvider {
             String lastName = data.has("last_name") ? data.get("last_name").asText() : null;
             String photoUrl = data.has("photo_url") ? data.get("photo_url").asText() : null;
 
-            log.debug("Parsed Telegram fields: id={}, username={}, firstName={}, lastName={}, hasPhoto={}",
-                    id, username, firstName, lastName, photoUrl != null);
-
             String hash = data.has("hash") ? data.get("hash").asText() : null;
             if (hash != null && !botToken.isEmpty()) {
-                log.debug("Verifying Telegram hash");
                 verifyTelegramAuth(data, hash);
-                log.debug("Telegram hash verified successfully");
             } else {
-                log.warn("Telegram hash verification skipped: hash={}, botTokenConfigured={}",
+                log.warn("TELEGRAM_HASH_VERIFICATION_SKIPPED: hash_present={}, bot_token_configured={}",
                         hash != null, !botToken.isEmpty());
             }
 
@@ -57,7 +51,7 @@ public class TelegramAuthProvider {
                     .photoUrl(photoUrl)
                     .build();
         } catch (Exception e) {
-            log.error("Failed to parse Telegram auth data: {}", e.getMessage(), e);
+            log.warn("TELEGRAM_AUTH_DATA_PARSE_FAILED: error={}", e.getMessage());
             throw new ValidationException("Invalid Telegram authentication data");
         }
     }
@@ -66,24 +60,24 @@ public class TelegramAuthProvider {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] secretKey = digest.digest(botToken.getBytes(StandardCharsets.UTF_8));
-            
+
             StringBuilder checkString = new StringBuilder();
             data.fields().forEachRemaining(entry -> {
                 if (!"hash".equals(entry.getKey())) {
                     checkString.append(entry.getKey()).append("=").append(entry.getValue().asText()).append("\n");
                 }
             });
-            
+
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(secretKey, "HmacSHA256"));
             byte[] hmac = mac.doFinal(checkString.toString().getBytes(StandardCharsets.UTF_8));
             String computedHash = bytesToHex(hmac);
-            
+
             if (!computedHash.equals(hash)) {
                 throw new ValidationException("Invalid Telegram authentication hash");
             }
         } catch (Exception e) {
-            log.error("Failed to verify Telegram auth", e);
+            log.warn("TELEGRAM_AUTH_VERIFICATION_FAILED: error={}", e.getMessage());
             throw new ValidationException("Failed to verify Telegram authentication");
         }
     }

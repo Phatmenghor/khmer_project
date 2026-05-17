@@ -41,7 +41,6 @@ public class SessionController {
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<ApiResponse<UserSessionResponse>> logoutSession(@PathVariable UUID sessionId) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.info("SESSION_LOGOUT_ENDPOINT: session_id={}, user_id={}", sessionId, currentUserId);
         UserSessionResponse logoutResponse = sessionService.logoutSession(sessionId, currentUserId);
         return ResponseEntity.ok(ApiResponse.success("Session logged out successfully", logoutResponse));
     }
@@ -49,7 +48,6 @@ public class SessionController {
     @PostMapping("/logout-others")
     public ResponseEntity<ApiResponse<List<UserSessionResponse>>> logoutOtherSessions(@RequestParam UUID currentSessionId) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.info("SESSIONS_LOGOUT_OTHER_ENDPOINT: user_id={}, current_session_id={}", currentUserId, currentSessionId);
         List<UserSessionResponse> loggedOutSessionList = sessionService.logoutOtherSessions(currentUserId, currentSessionId);
         return ResponseEntity.ok(ApiResponse.success("Other sessions logged out successfully", loggedOutSessionList));
     }
@@ -63,14 +61,12 @@ public class SessionController {
 
     @DeleteMapping("/admin/{sessionId}")
     public ResponseEntity<ApiResponse<AdminSessionResponse>> logoutSessionAdmin(@PathVariable UUID sessionId) {
-        log.info("SESSION_LOGOUT_ADMIN_ENDPOINT: session_id={}", sessionId);
         AdminSessionResponse adminLogoutResponse = sessionService.logoutSessionAdmin(sessionId);
         return ResponseEntity.ok(ApiResponse.success("Session logged out successfully", adminLogoutResponse));
     }
 
     @PostMapping("/admin/logout-all/{userId}")
     public ResponseEntity<ApiResponse<List<AdminSessionResponse>>> logoutAllSessionsAdmin(@PathVariable UUID userId) {
-        log.info("SESSIONS_LOGOUT_ALL_ADMIN_ENDPOINT: user_id={}", userId);
         List<AdminSessionResponse> allLoggedOutSessions = sessionService.logoutAllSessionsAdmin(userId);
         return ResponseEntity.ok(ApiResponse.success("All sessions logged out successfully", allLoggedOutSessions));
     }

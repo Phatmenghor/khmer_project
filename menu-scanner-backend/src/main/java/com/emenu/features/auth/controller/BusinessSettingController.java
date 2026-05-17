@@ -31,7 +31,6 @@ public class BusinessSettingController {
     @PutMapping
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> updateCurrentBusinessSetting(
             @Valid @RequestBody BusinessSettingUpdateRequest updateRequestData) {
-        log.info("BUSINESS_SETTING_UPDATE_CURRENT_ENDPOINT");
         BusinessSettingResponse updatedSettingResponse = businessSettingService.updateCurrentBusinessSetting(updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Business setting updated", updatedSettingResponse));
     }
@@ -46,7 +45,6 @@ public class BusinessSettingController {
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> createBusinessSetting(
             @Valid @RequestBody BusinessSettingCreateRequest createRequestData) {
-        log.info("BUSINESS_SETTING_CREATE_ENDPOINT: business_id={}", createRequestData.getBusinessId());
         BusinessSettingResponse createdSettingResponse = businessSettingService.createBusinessSetting(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Business setting created", createdSettingResponse));
@@ -56,14 +54,12 @@ public class BusinessSettingController {
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> updateBusinessSetting(
             @PathVariable UUID businessId,
             @Valid @RequestBody BusinessSettingUpdateRequest updateRequestData) {
-        log.info("BUSINESS_SETTING_UPDATE_ENDPOINT: business_id={}", businessId);
         BusinessSettingResponse updatedResponse = businessSettingService.updateBusinessSetting(businessId, updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Business setting updated", updatedResponse));
     }
 
     @DeleteMapping("/business/{businessId}")
     public ResponseEntity<ApiResponse<Void>> deleteBusinessSetting(@PathVariable UUID businessId) {
-        log.info("BUSINESS_SETTING_DELETE_ENDPOINT: business_id={}", businessId);
         businessSettingService.deleteBusinessSetting(businessId);
         return ResponseEntity.ok(ApiResponse.success("Business setting deleted", null));
     }

@@ -39,7 +39,6 @@ public class BusinessController {
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessResponse>> createBusiness(
             @Valid @RequestBody BusinessCreateRequest createRequestData) {
-        log.info("BUSINESS_CREATE_ENDPOINT: business_name={}", createRequestData.getName());
         BusinessResponse createdBusinessResponse = businessService.createBusiness(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Business created", createdBusinessResponse));
@@ -49,14 +48,12 @@ public class BusinessController {
     public ResponseEntity<ApiResponse<BusinessResponse>> updateBusiness(
             @PathVariable UUID businessId,
             @Valid @RequestBody BusinessCreateRequest updateRequestData) {
-        log.info("BUSINESS_UPDATE_ENDPOINT: business_id={}", businessId);
         BusinessResponse updatedBusinessResponse = businessService.updateBusiness(businessId, updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Business updated", updatedBusinessResponse));
     }
 
     @DeleteMapping("/{businessId}")
     public ResponseEntity<ApiResponse<Void>> deleteBusiness(@PathVariable UUID businessId) {
-        log.info("BUSINESS_DELETE_ENDPOINT: business_id={}", businessId);
         businessService.deleteBusiness(businessId);
         return ResponseEntity.ok(ApiResponse.success("Business deleted", null));
     }

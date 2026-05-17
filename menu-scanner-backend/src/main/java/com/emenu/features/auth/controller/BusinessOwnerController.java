@@ -28,7 +28,6 @@ public class BusinessOwnerController {
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> createBusinessOwner(
             @Valid @RequestBody BusinessOwnerCreateRequest createRequestData) {
-        log.info("BUSINESS_OWNER_CREATE_ENDPOINT: business_name={}", createRequestData.getBusinessName());
         BusinessOwnerCreateResponse ownerCreateResponse = businessOwnerService.createBusinessOwner(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
@@ -62,7 +61,6 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> renewSubscription(
             @PathVariable UUID ownerId,
             @Valid @RequestBody BusinessOwnerSubscriptionRenewRequest renewRequestData) {
-        log.info("SUBSCRIPTION_RENEW_ENDPOINT: owner_id={}", ownerId);
         BusinessOwnerDetailResponse renewResponse = businessOwnerService.renewSubscription(ownerId, renewRequestData);
         String message = renewRequestData.getNewPlanId() != null
                 ? "Subscription renewed with plan change"
@@ -74,7 +72,6 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> changePlan(
             @PathVariable UUID ownerId,
             @Valid @RequestBody BusinessOwnerChangePlanRequest changePlanRequestData) {
-        log.info("PLAN_CHANGE_ENDPOINT: owner_id={}", ownerId);
         BusinessOwnerDetailResponse planChangeResponse = businessOwnerService.changePlan(ownerId, changePlanRequestData);
         return ResponseEntity.ok(ApiResponse.success("Subscription plan changed successfully", planChangeResponse));
     }
@@ -83,7 +80,6 @@ public class BusinessOwnerController {
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> cancelSubscription(
             @PathVariable UUID ownerId,
             @Valid @RequestBody BusinessOwnerSubscriptionCancelRequest cancelRequestData) {
-        log.info("SUBSCRIPTION_CANCEL_ENDPOINT: owner_id={}", ownerId);
         BusinessOwnerDetailResponse cancelResponse = businessOwnerService.cancelSubscription(ownerId, cancelRequestData);
         String message = cancelRequestData.hasRefundAmount()
                 ? "Subscription cancelled with refund processed"
@@ -94,7 +90,6 @@ public class BusinessOwnerController {
     @DeleteMapping("/{ownerId}")
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> deleteBusinessOwner(
             @PathVariable UUID ownerId) {
-        log.info("BUSINESS_OWNER_DELETE_ENDPOINT: owner_id={}", ownerId);
         BusinessOwnerDetailResponse deleteResponse = businessOwnerService.deleteBusinessOwner(ownerId);
         return ResponseEntity.ok(ApiResponse.success(
                 "Business owner and related data deleted successfully",

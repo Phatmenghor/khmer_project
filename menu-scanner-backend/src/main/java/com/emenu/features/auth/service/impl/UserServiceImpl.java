@@ -95,26 +95,26 @@ public class UserServiceImpl implements UserService {
 
     private void validateUserCreationRequest(UserCreateRequest req) {
         if (userRepository.existsByUserIdentifierAndIsDeletedFalse(req.getUserIdentifier())) {
-            log.warn("User creation failed - identifier already exists: {}", req.getUserIdentifier());
+            log.warn("USER_CREATE_FAILED_DUPLICATE: identifier={}", req.getUserIdentifier());
             throw new ValidationException("User identifier already exists");
         }
 
         if (req.getUserType() == UserType.BUSINESS_USER && req.getBusinessId() == null) {
-            log.warn("User creation failed - BUSINESS_USER requires businessId");
+            log.warn("USER_CREATE_FAILED_MISSING_BUSINESS_ID");
             throw new ValidationException("Business ID is required for BUSINESS_USER type");
         }
 
         if (req.getBusinessId() != null) {
             businessRepository.findByIdAndIsDeletedFalse(req.getBusinessId())
                     .orElseThrow(() -> {
-                        log.warn("User creation failed - business not found: {}", req.getBusinessId());
+                        log.warn("USER_CREATE_FAILED_BUSINESS_NOT_FOUND: business_id={}", req.getBusinessId());
                         return new ValidationException("Business not found");
                     });
         }
 
         List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
         if (roles.size() != req.getRoles().size()) {
-            log.warn("User creation failed - invalid roles requested");
+            log.warn("USER_CREATE_FAILED_INVALID_ROLES");
             throw new ValidationException("One or more roles not found");
         }
         validateRoleUserTypeCompatibility(roles, req.getUserType());
