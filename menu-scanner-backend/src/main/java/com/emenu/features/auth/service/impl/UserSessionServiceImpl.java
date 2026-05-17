@@ -14,7 +14,6 @@ import com.emenu.features.auth.repository.UserSessionRepository;
 import com.emenu.features.auth.service.UserSessionService;
 import com.emenu.shared.constants.SecurityConstants;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.ClientIpUtils;
 import com.emenu.shared.utils.FilterUtils;
@@ -41,7 +40,6 @@ public class UserSessionServiceImpl implements UserSessionService {
     private final UserSessionRepository sessionRepository;
     private final UserRepository userRepository;
     private final UserSessionMapper sessionMapper;
-    private final PaginationMapper paginationMapper;
     private final IpGeolocationService geolocationService;
 
     @Override
