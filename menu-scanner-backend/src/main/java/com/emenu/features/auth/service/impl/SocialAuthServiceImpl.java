@@ -46,148 +46,164 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     private final SocialSyncResponseMapper socialSyncResponseMapper;
 
     @Override
-    public SocialAuthResponse authenticate(SocialAuthRequest request) {
-        log.info("Social authentication: provider={}, userType={}", request.getProvider(), request.getUserType());
+    public SocialAuthResponse authenticate(SocialAuthRequest authRequestData) {
+        log.info("SOCIAL_AUTH_INITIATED: provider={}, user_type={}", authRequestData.getProvider(), authRequestData.getUserType());
 
-        SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(request.getProvider());
-        SocialUserInfo userInfo = fetchUserInfo(provider, request.getAccessToken());
+        SocialAuthProvider authProviderEnum = SocialAuthProvider.fromProviderKey(authRequestData.getProvider());
+        SocialUserInfo socialUserInfo = fetchUserInfo(authProviderEnum, authRequestData.getAccessToken());
 
-        User user = findOrCreateUser(userInfo, provider, request.getUserType(), request.getBusinessId());
-        syncSocialData(user, provider, userInfo);
-        userRepository.save(user);
+        User userEntity = findOrCreateUser(socialUserInfo, authProviderEnum, authRequestData.getUserType(), authRequestData.getBusinessId());
+        syncSocialData(userEntity, authProviderEnum, socialUserInfo);
+        userRepository.save(userEntity);
 
-        List<String> roles = user.getRoles().stream().map(Role::getName).toList();
-        String accessToken = jwtGenerator.generateAccessTokenFromUsername(
-                user.getUserIdentifier(),
-                roles,
-                user.getUserType().name()
+        List<String> roleNames = userEntity.getRoles().stream().map(Role::getName).toList();
+        String accessTokenString = jwtGenerator.generateAccessTokenFromUsername(
+                userEntity.getUserIdentifier(),
+                roleNames,
+                userEntity.getUserType().name()
         );
-        String refreshToken = refreshTokenService.createRefreshToken(
-                user, request.getIpAddress(), request.getDeviceInfo()).getToken();
+        String refreshTokenString = refreshTokenService.createRefreshToken(
+                userEntity, authRequestData.getIpAddress(), authRequestData.getDeviceInfo()).getToken();
 
-        log.info("Social authentication successful: user={}, provider={}", user.getUserIdentifier(), provider);
+        log.info("SOCIAL_AUTH_SUCCESS: identifier={}, provider={}, user_id={}", userEntity.getUserIdentifier(), authProviderEnum, userEntity.getId());
 
-        return socialAuthResponseMapper.toResponse(user, accessToken, refreshToken, provider, userInfo);
+        return socialAuthResponseMapper.toResponse(userEntity, accessTokenString, refreshTokenString, authProviderEnum, socialUserInfo);
     }
 
     @Override
-    public SocialSyncResponse syncSocialAccount(SocialAuthRequest request) {
+    public SocialSyncResponse syncSocialAccount(SocialAuthRequest syncRequestData) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.info("Social account sync: userId={}, provider={}", currentUserId, request.getProvider());
+        log.info("SOCIAL_ACCOUNT_SYNC_INITIATED: user_id={}, provider={}", currentUserId, syncRequestData.getProvider());
 
-        User user = userRepository.findByIdAndIsDeletedFalse(currentUserId)
-                .orElseThrow(() -> new ValidationException("User not found"));
+        User userEntity = userRepository.findByIdAndIsDeletedFalse(currentUserId)
+                .orElseThrow(() -> {
+                    log.warn("SOCIAL_ACCOUNT_SYNC_FAILED_USER_NOT_FOUND: user_id={}", currentUserId);
+                    return new ValidationException("User not found");
+                });
 
-        SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(request.getProvider());
-        SocialUserInfo userInfo = fetchUserInfo(provider, request.getAccessToken());
+        SocialAuthProvider socialProvider = SocialAuthProvider.fromProviderKey(syncRequestData.getProvider());
+        SocialUserInfo fetchedUserInfo = fetchUserInfo(socialProvider, syncRequestData.getAccessToken());
 
-        syncSocialData(user, provider, userInfo);
-        userRepository.save(user);
+        syncSocialData(userEntity, socialProvider, fetchedUserInfo);
+        userRepository.save(userEntity);
 
-        log.info("Social account synced: userId={}, provider={}", currentUserId, provider);
+        log.info("SOCIAL_ACCOUNT_SYNC_SUCCESS: user_id={}, provider={}", currentUserId, socialProvider);
 
-        return socialSyncResponseMapper.toResponse(user, provider);
+        return socialSyncResponseMapper.toResponse(userEntity, socialProvider);
     }
 
     @Override
     public SocialSyncResponse unsyncSocialAccount(String providerKey) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.info("Social account unsync: userId={}, provider={}", currentUserId, providerKey);
+        log.info("SOCIAL_ACCOUNT_UNSYNC_INITIATED: user_id={}, provider={}", currentUserId, providerKey);
 
-        User user = userRepository.findByIdAndIsDeletedFalse(currentUserId)
-                .orElseThrow(() -> new ValidationException("User not found"));
+        User userEntity = userRepository.findByIdAndIsDeletedFalse(currentUserId)
+                .orElseThrow(() -> {
+                    log.warn("SOCIAL_ACCOUNT_UNSYNC_FAILED_USER_NOT_FOUND: user_id={}", currentUserId);
+                    return new ValidationException("User not found");
+                });
 
-        SocialAuthProvider provider = SocialAuthProvider.fromProviderKey(providerKey);
+        SocialAuthProvider socialProvider = SocialAuthProvider.fromProviderKey(providerKey);
 
-        switch (provider) {
-            case TELEGRAM -> user.unsyncTelegram();
-            default -> throw new ValidationException("Unsupported provider: " + provider);
+        switch (socialProvider) {
+            case TELEGRAM -> userEntity.unsyncTelegram();
+            default -> {
+                log.warn("SOCIAL_ACCOUNT_UNSYNC_FAILED_UNSUPPORTED: user_id={}, provider={}", currentUserId, socialProvider);
+                throw new ValidationException("Unsupported provider: " + socialProvider);
+            }
         }
 
-        userRepository.save(user);
-        log.info("Social account unsynced: userId={}, provider={}", currentUserId, provider);
+        userRepository.save(userEntity);
+        log.info("SOCIAL_ACCOUNT_UNSYNC_SUCCESS: user_id={}, provider={}", currentUserId, socialProvider);
 
-        return socialSyncResponseMapper.toUnsyncResponse(provider);
+        return socialSyncResponseMapper.toUnsyncResponse(socialProvider);
     }
 
-    private SocialUserInfo fetchUserInfo(SocialAuthProvider provider, String accessToken) {
-        if (provider == SocialAuthProvider.TELEGRAM) {
-            return telegramAuthProvider.getUserInfo(accessToken);
+    private SocialUserInfo fetchUserInfo(SocialAuthProvider authProviderEnum, String accessTokenString) {
+        if (authProviderEnum == SocialAuthProvider.TELEGRAM) {
+            return telegramAuthProvider.getUserInfo(accessTokenString);
         }
-        throw new ValidationException("Unsupported provider: " + provider);
+        log.warn("FETCH_USER_INFO_FAILED_UNSUPPORTED: provider={}", authProviderEnum);
+        throw new ValidationException("Unsupported provider: " + authProviderEnum);
     }
 
-    private User findOrCreateUser(SocialUserInfo userInfo, SocialAuthProvider provider, UserType userType, UUID businessId) {
-        return switch (provider) {
-            case TELEGRAM -> findOrCreateByTelegram(userInfo, userType, businessId);
-            default -> throw new ValidationException("Unsupported provider: " + provider);
+    private User findOrCreateUser(SocialUserInfo socialUserInfo, SocialAuthProvider authProviderEnum, UserType userTypeEnum, UUID businessIdValue) {
+        return switch (authProviderEnum) {
+            case TELEGRAM -> findOrCreateByTelegram(socialUserInfo, userTypeEnum, businessIdValue);
+            default -> {
+                log.warn("FIND_OR_CREATE_USER_FAILED_UNSUPPORTED: provider={}", authProviderEnum);
+                throw new ValidationException("Unsupported provider: " + authProviderEnum);
+            }
         };
     }
 
-    private User findOrCreateByTelegram(SocialUserInfo userInfo, UserType userType, UUID businessId) {
-        Long telegramId = Long.parseLong(userInfo.getId());
-        return userRepository.findByTelegramIdAndIsDeletedFalse(telegramId)
-                .orElseGet(() -> createNewUser(userInfo, userType, businessId));
+    private User findOrCreateByTelegram(SocialUserInfo socialUserInfo, UserType userTypeEnum, UUID businessIdValue) {
+        Long telegramIdValue = Long.parseLong(socialUserInfo.getId());
+        return userRepository.findByTelegramIdAndIsDeletedFalse(telegramIdValue)
+                .orElseGet(() -> createNewUser(socialUserInfo, userTypeEnum, businessIdValue));
     }
 
-    private User createNewUser(SocialUserInfo userInfo, UserType userType, UUID businessId) {
-        String userIdentifier = generateUserIdentifier(userInfo, userType);
+    private User createNewUser(SocialUserInfo socialUserInfo, UserType userTypeEnum, UUID businessIdValue) {
+        String generatedUserIdentifier = generateUserIdentifier(socialUserInfo, userTypeEnum);
 
-        String defaultRole = switch (userType) {
+        String defaultRoleName = switch (userTypeEnum) {
             case PLATFORM_USER -> "PLATFORM_OWNER";
             case BUSINESS_USER -> "BUSINESS_OWNER";
             case CUSTOMER -> "CUSTOMER";
         };
 
-        Role role = roleRepository.findByNameAndIsDeletedFalse(defaultRole)
-                .orElseThrow(() -> new ValidationException("Default role not found: " + defaultRole));
+        Role defaultRoleEntity = roleRepository.findByNameAndIsDeletedFalse(defaultRoleName)
+                .orElseThrow(() -> {
+                    log.warn("CREATE_NEW_USER_FAILED_ROLE_NOT_FOUND: role_name={}, user_type={}", defaultRoleName, userTypeEnum);
+                    return new ValidationException("Default role not found: " + defaultRoleName);
+                });
 
-        if (!role.isCompatibleWithUserType(userType)) {
+        if (!defaultRoleEntity.isCompatibleWithUserType(userTypeEnum)) {
+            log.warn("CREATE_NEW_USER_FAILED_ROLE_INCOMPATIBLE: role={}, user_type={}", defaultRoleName, userTypeEnum);
             throw new ValidationException(
-                    String.format("Role '%s' is not properly configured for '%s'", defaultRole, userType));
+                    String.format("Role '%s' is not properly configured for '%s'", defaultRoleName, userTypeEnum));
         }
 
-        User user = new User();
-        user.setUserIdentifier(userIdentifier);
-        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-        user.setUserType(userType);
-        user.setAccountStatus(AccountStatus.ACTIVE);
-        user.setBusinessId(businessId);
-        user.setRoles(List.of(role));
+        User newUserEntity = new User();
+        newUserEntity.setUserIdentifier(generatedUserIdentifier);
+        newUserEntity.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        newUserEntity.setUserType(userTypeEnum);
+        newUserEntity.setAccountStatus(AccountStatus.ACTIVE);
+        newUserEntity.setBusinessId(businessIdValue);
+        newUserEntity.setRoles(List.of(defaultRoleEntity));
 
-        // Create profile with social info
-        UserProfile profile = new UserProfile();
-        profile.setUser(user);
-        profile.setEmail(userInfo.getEmail());
-        profile.setFirstName(userInfo.getFirstName());
-        profile.setLastName(userInfo.getLastName());
-        user.setProfile(profile);
+        UserProfile profileEntity = new UserProfile();
+        profileEntity.setUser(newUserEntity);
+        profileEntity.setEmail(socialUserInfo.getEmail());
+        profileEntity.setFirstName(socialUserInfo.getFirstName());
+        profileEntity.setLastName(socialUserInfo.getLastName());
+        newUserEntity.setProfile(profileEntity);
 
-        return userRepository.save(user);
+        return userRepository.save(newUserEntity);
     }
 
-    private void syncSocialData(User user, SocialAuthProvider provider, SocialUserInfo userInfo) {
-        if (provider == SocialAuthProvider.TELEGRAM) {
-            user.syncTelegram(
-                    Long.parseLong(userInfo.getId()),
-                    userInfo.getUsername(),
-                    userInfo.getFirstName(),
-                    userInfo.getLastName(),
-                    userInfo.getPhotoUrl()
+    private void syncSocialData(User userEntity, SocialAuthProvider authProviderEnum, SocialUserInfo socialUserInfo) {
+        if (authProviderEnum == SocialAuthProvider.TELEGRAM) {
+            userEntity.syncTelegram(
+                    Long.parseLong(socialUserInfo.getId()),
+                    socialUserInfo.getUsername(),
+                    socialUserInfo.getFirstName(),
+                    socialUserInfo.getLastName(),
+                    socialUserInfo.getPhotoUrl()
             );
         }
     }
 
-    private String generateUserIdentifier(SocialUserInfo userInfo, UserType userType) {
-        String base = userInfo.getUsername() != null ? userInfo.getUsername() :
-                      userInfo.getEmail() != null ? userInfo.getEmail().split("@")[0] :
-                      "user" + userInfo.getId().substring(0, 8);
-        String identifier = base.toLowerCase().replaceAll("[^a-z0-9_]", "");
-        int suffix = 1;
-        String candidate = identifier;
-        while (userRepository.existsByUserIdentifierAndUserTypeAndIsDeletedFalse(candidate, userType)) {
-            candidate = identifier + suffix++;
+    private String generateUserIdentifier(SocialUserInfo socialUserInfo, UserType userTypeEnum) {
+        String baseIdentifier = socialUserInfo.getUsername() != null ? socialUserInfo.getUsername() :
+                      socialUserInfo.getEmail() != null ? socialUserInfo.getEmail().split("@")[0] :
+                      "user" + socialUserInfo.getId().substring(0, 8);
+        String normalizedIdentifier = baseIdentifier.toLowerCase().replaceAll("[^a-z0-9_]", "");
+        int suffixCounter = 1;
+        String candidateIdentifier = normalizedIdentifier;
+        while (userRepository.existsByUserIdentifierAndUserTypeAndIsDeletedFalse(candidateIdentifier, userTypeEnum)) {
+            candidateIdentifier = normalizedIdentifier + suffixCounter++;
         }
-        return candidate;
+        return candidateIdentifier;
     }
 }
