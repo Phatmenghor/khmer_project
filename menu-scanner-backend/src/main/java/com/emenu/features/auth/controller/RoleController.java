@@ -19,11 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Role Management Controller
- * Provides CRUD endpoints for role management.
- * Supports filtering by businessId, userTypes, search, and includeAll (soft-deleted).
- */
 @RestController
 @RequestMapping("/api/v1/roles")
 @RequiredArgsConstructor
@@ -33,104 +28,68 @@ public class RoleController {
     private final RoleService roleService;
     private final SecurityUtils securityUtils;
 
-    /**
-     * Create a new role (platform-level or business-specific)
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<RoleResponse>> createRole(
-            @Valid @RequestBody RoleCreateRequest request) {
-        log.info("Create role request: {}", request.getName());
-        RoleResponse response = roleService.createRole(request);
+            @Valid @RequestBody RoleCreateRequest createRequestData) {
+        log.info("ROLE_CREATE_ENDPOINT: role_name={}", createRequestData.getName());
+        RoleResponse createdRoleResponse = roleService.createRole(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Role created successfully", response));
+                .body(ApiResponse.success("Role created successfully", createdRoleResponse));
     }
 
-    /**
-     * Get all roles with filtering and pagination
-     * Filter options: businessId, userTypes, search, includeAll
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<RoleResponse>>> getAllRoles(
-            @Valid @RequestBody RoleFilterRequest request) {
-        log.info("Get all roles with filters and pagination");
-        PaginationResponse<RoleResponse> response = roleService.getAllRoles(request);
-        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", response));
+            @Valid @RequestBody RoleFilterRequest filterRequestData) {
+        PaginationResponse<RoleResponse> rolesResponse = roleService.getAllRoles(filterRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", rolesResponse));
     }
 
-    /**
-     * Get all roles as list with filtering (no pagination)
-     * Filter options: businessId, userTypes, search, includeAll
-     */
     @PostMapping("/all-list")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRolesList(
-            @Valid @RequestBody RoleFilterRequest request) {
-        log.info("Get all roles as list with filters");
-        List<RoleResponse> response = roleService.getAllRolesList(request);
-        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", response));
+            @Valid @RequestBody RoleFilterRequest filterRequestData) {
+        List<RoleResponse> rolesListResponse = roleService.getAllRolesList(filterRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", rolesListResponse));
     }
 
-    /**
-     * Get current business roles with pagination - Business ID extracted from token
-     * Security: No businessId parameter needed, extracted from authenticated user's context
-     */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<RoleResponse>>> getMyBusinessRoles(
-            @Valid @RequestBody RoleFilterRequest request) {
-        log.info("Get my business roles");
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        request.setBusinessId(businessId);
-        PaginationResponse<RoleResponse> response = roleService.getAllRoles(request);
-        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", response));
+            @Valid @RequestBody RoleFilterRequest filterRequestData) {
+        UUID businessIdContext = securityUtils.getCurrentUserBusinessId();
+        filterRequestData.setBusinessId(businessIdContext);
+        PaginationResponse<RoleResponse> businessRolesResponse = roleService.getAllRoles(filterRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", businessRolesResponse));
     }
 
-    /**
-     * Get current business roles as list - Business ID extracted from token
-     * Security: No businessId parameter needed, extracted from authenticated user's context
-     */
     @PostMapping("/my-business/all-list")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getMyBusinessRolesList(
-            @Valid @RequestBody RoleFilterRequest request) {
-        log.info("Get my business roles as list");
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        request.setBusinessId(businessId);
-        List<RoleResponse> response = roleService.getAllRolesList(request);
-        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", response));
+            @Valid @RequestBody RoleFilterRequest filterRequestData) {
+        UUID businessIdContext = securityUtils.getCurrentUserBusinessId();
+        filterRequestData.setBusinessId(businessIdContext);
+        List<RoleResponse> businessRolesListResponse = roleService.getAllRolesList(filterRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Roles retrieved successfully", businessRolesListResponse));
     }
 
-    /**
-     * Get a role by ID
-     */
     @GetMapping("/{roleId}")
     public ResponseEntity<ApiResponse<RoleDetailResponse>> getRoleById(
             @PathVariable UUID roleId) {
-        log.info("Get role by ID: {}", roleId);
-        RoleDetailResponse response = roleService.getRoleById(roleId);
-        return ResponseEntity.ok(ApiResponse.success("Role retrieved", response));
+        RoleDetailResponse roleDetailResponse = roleService.getRoleById(roleId);
+        return ResponseEntity.ok(ApiResponse.success("Role retrieved", roleDetailResponse));
     }
 
-    /**
-     * Update a role
-     * Cannot update system roles (PLATFORM_OWNER, BUSINESS_OWNER, CUSTOMER)
-     */
     @PutMapping("/{roleId}")
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
             @PathVariable UUID roleId,
-            @Valid @RequestBody RoleUpdateRequest request) {
-        log.info("Update role: {}", roleId);
-        RoleResponse response = roleService.updateRole(roleId, request);
-        return ResponseEntity.ok(ApiResponse.success("Role updated successfully", response));
+            @Valid @RequestBody RoleUpdateRequest updateRequestData) {
+        log.info("ROLE_UPDATE_ENDPOINT: role_id={}", roleId);
+        RoleResponse updatedRoleResponse = roleService.updateRole(roleId, updateRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Role updated successfully", updatedRoleResponse));
     }
 
-    /**
-     * Delete a role (soft delete)
-     * Cannot delete system roles
-     * Does not affect current users - owners can update users themselves
-     */
     @DeleteMapping("/{roleId}")
     public ResponseEntity<ApiResponse<RoleResponse>> deleteRole(
             @PathVariable UUID roleId) {
-        log.info("Delete role: {}", roleId);
-        RoleResponse response = roleService.deleteRole(roleId);
-        return ResponseEntity.ok(ApiResponse.success("Role deleted successfully", response));
+        log.info("ROLE_DELETE_ENDPOINT: role_id={}", roleId);
+        RoleResponse deletedRoleResponse = roleService.deleteRole(roleId);
+        return ResponseEntity.ok(ApiResponse.success("Role deleted successfully", deletedRoleResponse));
     }
 }
