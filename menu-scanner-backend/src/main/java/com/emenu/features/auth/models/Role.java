@@ -35,12 +35,9 @@ public class Role extends BaseUUIDEntity {
         return "CUSTOMER".equals(name);
     }
 
-    /**
-     * Check if this role is compatible with the given user type
-     */
     public boolean isCompatibleWithUserType(UserType targetUserType) {
         if (userType == null || targetUserType == null) {
-            return true; // Allow null for backward compatibility
+            return true;
         }
         return userType == targetUserType;
     }

@@ -12,14 +12,12 @@ import java.util.UUID;
 @Data
 public class UserUpdateRequest {
 
-    // Account
     private AccountStatus accountStatus;
     private Status status;
     private UUID businessId;
     private List<String> roles;
     private String remark;
 
-    // Personal
     private String email;
     private String firstName;
     private String lastName;
@@ -29,7 +27,6 @@ public class UserUpdateRequest {
     private String phoneNumber;
     private String profileImageUrl;
 
-    // Employment
     private String employeeId;
     private String position;
     private String department;
@@ -38,7 +35,6 @@ public class UserUpdateRequest {
     private LocalDate leaveDate;
     private String shift;
 
-    // Related (null = no change, non-null = full replace)
     private List<AddressRequest> addresses;
     private List<EmergencyContactRequest> emergencyContacts;
     private List<DocumentRequest> documents;

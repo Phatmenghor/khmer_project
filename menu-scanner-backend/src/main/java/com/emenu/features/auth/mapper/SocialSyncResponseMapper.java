@@ -3,7 +3,6 @@ package com.emenu.features.auth.mapper;
 import com.emenu.enums.social.SocialAuthProvider;
 import com.emenu.features.auth.dto.response.SocialSyncResponse;
 import com.emenu.features.auth.models.User;
-import com.emenu.features.auth.models.UserTelegram;
 import org.mapstruct.*;
 
 import java.time.LocalDateTime;

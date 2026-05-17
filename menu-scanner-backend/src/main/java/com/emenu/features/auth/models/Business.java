@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +18,6 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Slf4j
 public class Business extends BaseUUIDEntity {
 
     @Column(name = "name", nullable = false)
@@ -65,13 +63,11 @@ public class Business extends BaseUUIDEntity {
     }
 
     public void activateSubscription() {
-        log.info("Activating subscription for business: {}", this.getId());
         this.isSubscriptionActive = true;
         this.status = BusinessStatus.ACTIVE;
     }
 
     public void deactivateSubscription() {
-        log.info("Deactivating subscription for business: {}", this.getId());
         this.isSubscriptionActive = false;
         this.status = BusinessStatus.SUSPENDED;
     }

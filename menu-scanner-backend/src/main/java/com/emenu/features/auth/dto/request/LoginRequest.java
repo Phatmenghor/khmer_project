@@ -7,9 +7,6 @@ import lombok.Data;
 
 import java.util.UUID;
 
-/**
- * Login request with context for dynamic username uniqueness.
- */
 @Data
 public class LoginRequest {
 

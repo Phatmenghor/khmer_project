@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Data
 public class DocumentRequest {
-    private UUID id;  // present = update existing, absent = create new
+    private UUID id;
     private DocumentType type;
     private String number;
     private String fileUrl;

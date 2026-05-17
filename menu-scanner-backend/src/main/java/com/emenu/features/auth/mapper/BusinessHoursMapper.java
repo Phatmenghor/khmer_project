@@ -6,11 +6,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-/**
- * Business Hours Mapper
- * Maps between BusinessHours entity and BusinessHoursResponse DTO
- * Handles field name mapping: openingTime -> openTime, closingTime -> closeTime
- */
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BusinessHoursMapper {
 

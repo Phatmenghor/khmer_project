@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Data
 public class EducationRequest {
-    private UUID id;  // present = update existing, absent = create new
+    private UUID id;
     private EducationLevel level;
     private String schoolName;
     private String fieldOfStudy;

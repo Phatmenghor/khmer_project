@@ -13,9 +13,6 @@ public interface BusinessSettingMapper {
     @Mapping(target = "businessName", source = "businessName")
     BusinessSettingResponse toResponse(BusinessSetting businessSetting);
 
-    /**
-     * Apply default values to BusinessSettingResponse if fields are null
-     */
     @AfterMapping
     default void applyDefaultsAfterResponse(@MappingTarget BusinessSettingResponse response) {
         if (response.getBusinessName() == null || response.getBusinessName().isEmpty()) {

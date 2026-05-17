@@ -3,7 +3,6 @@ package com.emenu.features.auth.mapper;
 import com.emenu.enums.user.UserType;
 import com.emenu.features.auth.dto.response.RoleResponse;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.UUID;
 

@@ -9,10 +9,6 @@ import lombok.Data;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Business Settings Create Request DTO
- * Contains only essential fields for creating business settings
- */
 @Data
 public class BusinessSettingCreateRequest {
 
@@ -33,13 +29,11 @@ public class BusinessSettingCreateRequest {
 
     private String primaryColor;
 
-    // Contact Information
     private String contactAddress;
 
     private String contactPhone;
 
     private String contactEmail;
 
-    // Business Hours
     private List<BusinessHoursRequest> businessHours;
 }

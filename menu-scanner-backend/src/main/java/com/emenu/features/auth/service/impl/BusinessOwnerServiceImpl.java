@@ -63,9 +63,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private final BusinessOwnerMapper mapper;
     private final UserValidationService userValidationService;
 
-    /**
-     * Creates a new business owner with associated business, owner user, subscription, and optional payment
-     */
     @Override
     public BusinessOwnerCreateResponse createBusinessOwner(BusinessOwnerCreateRequest creationRequestData) {
         log.info("BUSINESS_OWNER_CREATE_INITIATED: business_name={}, owner_email={}",
@@ -96,9 +93,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         return response;
     }
 
-    /**
-     * Retrieves all business owners with filtering and pagination support
-     */
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<BusinessOwnerDetailResponse> getAllBusinessOwners(BusinessOwnerFilterRequest filterCriteria) {

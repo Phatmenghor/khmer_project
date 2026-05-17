@@ -13,7 +13,6 @@ import java.util.UUID;
 @Data
 public class UserCreateRequest {
 
-    // Account
     @NotBlank(message = "User identifier is required")
     private String userIdentifier;
 
@@ -32,7 +31,6 @@ public class UserCreateRequest {
 
     private String remark;
 
-    // Personal
     private String email;
     private String firstName;
     private String lastName;
@@ -42,7 +40,6 @@ public class UserCreateRequest {
     private String phoneNumber;
     private String profileImageUrl;
 
-    // Employment
     private String employeeId;
     private String position;
     private String department;
@@ -51,7 +48,6 @@ public class UserCreateRequest {
     private LocalDate leaveDate;
     private String shift;
 
-    // Related
     private List<AddressRequest> addresses;
     private List<EmergencyContactRequest> emergencyContacts;
     private List<DocumentRequest> documents;

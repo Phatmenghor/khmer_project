@@ -9,10 +9,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * Business Settings Update Request DTO
- * Contains only essential fields for business settings update
- */
 @Data
 public class BusinessSettingUpdateRequest {
 
@@ -30,13 +26,11 @@ public class BusinessSettingUpdateRequest {
 
     private String primaryColor;
 
-    // Contact Information
     private String contactAddress;
 
     private String contactPhone;
 
     private String contactEmail;
 
-    // Business Hours
     private List<BusinessHoursRequest> businessHours;
 }

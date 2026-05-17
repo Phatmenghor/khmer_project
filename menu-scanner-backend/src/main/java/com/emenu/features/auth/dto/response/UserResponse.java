@@ -15,7 +15,6 @@ import java.util.UUID;
 @Data
 public class UserResponse extends BaseAuditResponse {
 
-    // ── Account ────────────────────────────────────────────────────────────
     private String userIdentifier;
     private UserType userType;
     private AccountStatus accountStatus;
@@ -25,7 +24,6 @@ public class UserResponse extends BaseAuditResponse {
     private String businessName;
     private String remark;
 
-    // ── Personal (from user_profiles) ─────────────────────────────────────
     private String email;
     private String firstName;
     private String lastName;
@@ -36,7 +34,6 @@ public class UserResponse extends BaseAuditResponse {
     private String phoneNumber;
     private String profileImageUrl;
 
-    // ── Employment (from user_employments) ────────────────────────────────
     private String employeeId;
     private String position;
     private String department;
@@ -45,7 +42,6 @@ public class UserResponse extends BaseAuditResponse {
     private LocalDate leaveDate;
     private String shift;
 
-    // ── Telegram (from user_telegrams) ────────────────────────────────────
     private Long telegramId;
     private String telegramUsername;
     private String telegramFirstName;
@@ -54,6 +50,5 @@ public class UserResponse extends BaseAuditResponse {
     private LocalDateTime telegramSyncedAt;
     private boolean telegramSynced;
 
-    // ── Session ────────────────────────────────────────────────────────────
     private LocalDateTime lastLoginAt;
 }

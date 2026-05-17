@@ -8,7 +8,6 @@ import com.emenu.features.auth.models.User;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -37,9 +36,6 @@ public interface CustomerMapper {
     @Mapping(target = "accountStatus", ignore = true)
     void updateEntity(UserUpdateRequest request, @MappingTarget User user);
 
-    /**
-     * Restricted update for current customer profile - only allows safe fields
-     */
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "userType", ignore = true)
@@ -49,15 +45,15 @@ public interface CustomerMapper {
 
     @Named("rolesToRoleEnums")
     default List<String> rolesToRoleEnums(List<Role> roles) {
-if (roles == null) {
-    return null;
-}
-return roles.stream()
-        .map(Role::getName)
-        .collect(Collectors.toList());
+        if (roles == null) {
+            return null;
+        }
+        return roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
     }
 
     default PaginationResponse<UserResponse> toPaginationResponse(Page<User> customerPage, PaginationMapper paginationMapper) {
-return paginationMapper.toPaginationResponse(customerPage, this::toResponseList);
+        return paginationMapper.toPaginationResponse(customerPage, this::toResponseList);
     }
 }

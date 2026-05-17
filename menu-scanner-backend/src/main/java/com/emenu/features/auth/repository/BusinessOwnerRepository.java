@@ -19,10 +19,6 @@ import java.util.UUID;
 
 @Repository
 public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
-
-    /**
-     * Find business owner by ID with relationships
-     */
     @Query("""
         SELECT DISTINCT u FROM User u
         LEFT JOIN FETCH u.business b
@@ -33,9 +29,6 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
     """)
     Optional<User> findBusinessOwnerById(@Param("ownerId") UUID ownerId);
 
-    /**
-     * Find all business owners with comprehensive filtering
-     */
     @Query("""
         SELECT DISTINCT u FROM User u
         LEFT JOIN u.profile p
@@ -85,9 +78,6 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
             Pageable pageable
     );
 
-    /**
-     * Check if business owner exists by email
-     */
     @Query("""
         SELECT COUNT(u) > 0 FROM User u
         JOIN u.profile p

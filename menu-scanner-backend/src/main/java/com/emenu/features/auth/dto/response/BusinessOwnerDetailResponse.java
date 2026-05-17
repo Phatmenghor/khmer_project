@@ -13,8 +13,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class BusinessOwnerDetailResponse extends BaseAuditResponse {
-    
-    // Owner Information
+
     private UUID ownerId;
     private String ownerUserIdentifier;
     private String ownerEmail;
@@ -22,8 +21,7 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private String ownerPhone;
     private String ownerAccountStatus;
     private String ownerProfileImageUrl;
-    
-    // Business Information
+
     private UUID businessId;
     private String businessName;
     private String businessEmail;
@@ -32,8 +30,7 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private BusinessStatus businessStatus;
     private Boolean isSubscriptionActive;
     private LocalDateTime businessCreatedAt;
-    
-    // Current Subscription Information
+
     private UUID currentSubscriptionId;
     private String currentPlanName;
     private BigDecimal currentPlanPrice;
@@ -42,11 +39,10 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private LocalDateTime subscriptionEndDate;
     private Long daysRemaining;
     private Long daysActive;
-    private SubscriptionStatus subscriptionStatus;  // Changed from String to enum
+    private SubscriptionStatus subscriptionStatus;
     private Boolean autoRenew;
     private Boolean isExpiringSoon;
-    
-    // Payment Summary
+
     private BigDecimal totalPaid;
     private BigDecimal totalPending;
     private Integer totalPayments;
@@ -55,5 +51,3 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private String paymentStatus;
     private LocalDateTime lastPaymentDate;
 }
-
-

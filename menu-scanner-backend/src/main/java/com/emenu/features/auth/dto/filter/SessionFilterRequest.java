@@ -11,6 +11,6 @@ import java.util.UUID;
 @Data
 public class SessionFilterRequest extends BaseFilterRequest {
     private UUID userId;
-    private List<String> statuses;  // ACTIVE, EXPIRED, REVOKED, LOGGED_OUT
-    private List<String> deviceTypes;  // WEB, MOBILE, TABLET, DESKTOP
+    private List<String> statuses;
+    private List<String> deviceTypes;
 }

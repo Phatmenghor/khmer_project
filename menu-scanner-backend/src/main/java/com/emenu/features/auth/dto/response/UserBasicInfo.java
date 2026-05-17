@@ -20,7 +20,6 @@ public class UserBasicInfo {
     private String phoneNumber;
     private String profileImageUrl;
 
-    // Telegram
     private Long telegramId;
     private String telegramUsername;
     private LocalDateTime telegramSyncedAt;

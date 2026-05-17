@@ -16,7 +16,6 @@ import java.util.UUID;
 
 @Repository
 public interface UserSessionRepository extends JpaRepository<UserSession, UUID> {
-
     Optional<UserSession> findByIdAndUserIdAndIsDeletedFalse(UUID id, UUID userId);
 
     @Query("SELECT s FROM UserSession s LEFT JOIN FETCH s.user WHERE s.id = :id AND s.isDeleted = false")

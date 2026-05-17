@@ -16,13 +16,11 @@ public class AdminSessionResponse {
 
     private UUID id;
 
-    // User info
     private UUID userId;
     private String userIdentifier;
     private String userFullName;
     private String userType;
 
-    // Device info
     private String deviceId;
     private String deviceName;
     private String deviceType;
@@ -30,11 +28,9 @@ public class AdminSessionResponse {
     private String browser;
     private String operatingSystem;
 
-    // Location info
     private String ipAddress;
     private String location;
 
-    // Session info
     private String status;
     private LocalDateTime loginAt;
     private LocalDateTime lastActiveAt;

@@ -4,12 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Response DTO for refresh token operation.
- *
- * @author Cambodia E-Menu Platform
- * @version 1.0.0
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

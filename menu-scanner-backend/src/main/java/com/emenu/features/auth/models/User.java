@@ -23,8 +23,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class User extends BaseUUIDEntity {
 
-    // ── Core ──────────────────────────────────────────────────────────────────
-
     @Column(name = "user_identifier", nullable = false)
     private String userIdentifier;
 
@@ -39,7 +37,6 @@ public class User extends BaseUUIDEntity {
     @Column(name = "account_status", nullable = false)
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
-    // Platform-level enable/disable (managed by platform admin)
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;
@@ -62,8 +59,6 @@ public class User extends BaseUUIDEntity {
     @Column(name = "remark", columnDefinition = "TEXT")
     private String remark;
 
-    // ── Profile & Employment & Telegram (separate tables) ────────────────────
-
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile profile;
 
@@ -72,8 +67,6 @@ public class User extends BaseUUIDEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserTelegram telegram;
-
-    // ── Related Lists ─────────────────────────────────────────────────────────
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserAddress> addresses = new ArrayList<>();
@@ -87,8 +80,6 @@ public class User extends BaseUUIDEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserEducation> educations = new ArrayList<>();
 
-    // ── Session Tracking ──────────────────────────────────────────────────────
-
     @Column(name = "last_login_at")
     private java.time.LocalDateTime lastLoginAt;
 
@@ -97,8 +88,6 @@ public class User extends BaseUUIDEntity {
 
     @Column(name = "active_sessions_count")
     private Integer activeSessionsCount = 0;
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     public String getFullName() {
         if (profile != null) {
@@ -111,8 +100,6 @@ public class User extends BaseUUIDEntity {
     public boolean isActive() { return AccountStatus.ACTIVE.equals(accountStatus); }
     public boolean isBusinessUser() { return UserType.BUSINESS_USER.equals(userType); }
     public boolean isCustomer() { return UserType.CUSTOMER.equals(userType); }
-
-    // ── Telegram Sync ─────────────────────────────────────────────────────────
 
     public void syncTelegram(Long telegramId, String username, String firstName, String lastName, String photoUrl) {
         if (this.telegram == null) {
@@ -128,6 +115,6 @@ public class User extends BaseUUIDEntity {
     }
 
     public void unsyncTelegram() {
-        this.telegram = null; // orphanRemoval deletes the row
+        this.telegram = null;
     }
 }

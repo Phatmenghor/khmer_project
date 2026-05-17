@@ -42,7 +42,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "primary_color")
     private String primaryColor;
 
-    // Contact Information
     @Column(name = "contact_address", length = 500)
     private String contactAddress;
 
@@ -68,7 +67,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     )
     private List<BusinessHours> businessHours;
 
-    // Feature Visibility Flags
     @Column(name = "use_categories", nullable = false)
     private Boolean useCategories = true;
 

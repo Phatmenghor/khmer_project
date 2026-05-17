@@ -15,26 +15,13 @@ import java.util.UUID;
 
 @Repository
 public interface BusinessRepository extends JpaRepository<Business, UUID> {
-
-    /**
-     * Finds a non-deleted business by ID
-     */
     Optional<Business> findByIdAndIsDeletedFalse(UUID id);
 
-    /**
-     * Checks if a non-deleted business exists with the given name
-     */
     boolean existsByNameAndIsDeletedFalse(String name);
 
-    /**
-     * Finds a non-deleted business by owner ID
-     */
     @Query("SELECT b FROM Business b WHERE b.ownerId = :ownerId AND b.isDeleted = false")
     Optional<Business> findByOwnerIdAndIsDeletedFalse(@Param("ownerId") UUID ownerId);
 
-    /**
-     * Searches businesses with filters for status, subscription status, and text search across multiple fields
-     */
     @Query("SELECT b FROM Business b " +
            "WHERE b.isDeleted = false " +
             "AND (:status IS NULL OR b.status IN :status) " +
@@ -50,16 +37,9 @@ public interface BusinessRepository extends JpaRepository<Business, UUID> {
             Pageable pageable
     );
 
-    /**
-     * Check if business exists by email
-     */
     @Query("SELECT COUNT(b) > 0 FROM Business b WHERE b.email = :email AND b.isDeleted = false")
     boolean existsByEmailAndIsDeletedFalse(@Param("email") String email);
 
-    /**
-     * Find business by email
-     */
     @Query("SELECT b FROM Business b WHERE b.email = :email AND b.isDeleted = false")
     Optional<Business> findByEmailAndIsDeletedFalse(@Param("email") String email);
-
 }

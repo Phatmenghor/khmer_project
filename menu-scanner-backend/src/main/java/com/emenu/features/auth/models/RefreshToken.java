@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * RefreshToken entity for managing long-lived refresh tokens.
- */
 @Entity
 @Table(name = "refresh_tokens")
 @Data

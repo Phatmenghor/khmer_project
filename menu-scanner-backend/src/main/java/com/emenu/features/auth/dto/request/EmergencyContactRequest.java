@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Data
 public class EmergencyContactRequest {
-    private UUID id;  // present = update existing, absent = create new
+    private UUID id;
     private String name;
     private String phone;
     private String relationship;

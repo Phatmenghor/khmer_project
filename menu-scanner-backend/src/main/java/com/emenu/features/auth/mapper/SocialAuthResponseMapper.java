@@ -7,8 +7,6 @@ import com.emenu.features.auth.service.social.provider.SocialUserInfo;
 import org.mapstruct.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface SocialAuthResponseMapper {

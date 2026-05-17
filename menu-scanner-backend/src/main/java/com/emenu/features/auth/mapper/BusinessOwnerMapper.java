@@ -18,9 +18,6 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {PaginationMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BusinessOwnerMapper {
 
-    /**
-     * Map to create response (used when creating new business owner)
-     */
     @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "ownerUserIdentifier", source = "owner.userIdentifier")
     @Mapping(target = "ownerEmail", source = "owner.profile.email")
@@ -48,9 +45,6 @@ public interface BusinessOwnerMapper {
             Payment payment
     );
 
-    /**
-     * Map to detail response - base mapping
-     */
     @Mapping(target = "ownerId", source = "id")
     @Mapping(target = "ownerUserIdentifier", source = "userIdentifier")
     @Mapping(target = "ownerEmail", source = "profile.email")
@@ -68,14 +62,8 @@ public interface BusinessOwnerMapper {
     @Mapping(target = "businessCreatedAt", source = "business.createdAt")
     BusinessOwnerDetailResponse toDetailResponse(User owner);
 
-    /**
-     * Map list to detail responses
-     */
     List<BusinessOwnerDetailResponse> toDetailResponseList(List<User> owners);
 
-    /**
-     * Pagination response
-     */
     default PaginationResponse<BusinessOwnerDetailResponse> toPaginationResponse(Page<User> page, PaginationMapper paginationMapper) {
         return paginationMapper.toPaginationResponse(page, this::toDetailResponseList);
     }

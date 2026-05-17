@@ -3,7 +3,6 @@ package com.emenu.features.auth.mapper;
 import com.emenu.features.auth.dto.response.RefreshTokenResponse;
 import com.emenu.features.auth.models.RefreshToken;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface RefreshTokenResponseMapper {

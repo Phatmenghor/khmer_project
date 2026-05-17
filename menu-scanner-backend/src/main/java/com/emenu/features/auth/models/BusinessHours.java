@@ -9,11 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-/**
- * BusinessHours Entity
- * Represents business hours for each day of the week
- * Has automatic audit fields: createdAt, updatedAt, createdBy, updatedBy, isDeleted
- */
 @Entity
 @Table(name = "business_hours")
 @Data

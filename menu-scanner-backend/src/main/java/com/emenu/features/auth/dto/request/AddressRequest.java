@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Data
 public class AddressRequest {
-    private UUID id;  // present = update existing, absent = create new
+    private UUID id;
     private AddressType addressType;
     private String houseNo;
     private String street;

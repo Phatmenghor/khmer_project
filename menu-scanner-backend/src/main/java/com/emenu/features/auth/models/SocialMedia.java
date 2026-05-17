@@ -9,11 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-/**
- * SocialMedia Entity
- * Represents a social media account linked to business settings
- * Has automatic audit fields: createdAt, updatedAt, createdBy, updatedBy, isDeleted
- */
 @Entity
 @Table(name = "social_media")
 @Data

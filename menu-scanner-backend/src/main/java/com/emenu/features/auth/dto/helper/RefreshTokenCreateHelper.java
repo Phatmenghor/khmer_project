@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Helper DTO for creating RefreshToken via MapStruct
- */
 @Data
 @Builder
 @NoArgsConstructor

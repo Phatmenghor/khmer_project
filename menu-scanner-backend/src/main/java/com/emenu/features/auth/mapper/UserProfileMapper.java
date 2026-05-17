@@ -13,15 +13,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface UserProfileMapper {
 
-    @Mapping(target = "user", source = ".")
-    @Mapping(target = "email", source = "email")
-    @Mapping(target = "firstName", source = "firstName")
-    @Mapping(target = "lastName", source = "lastName")
-    @Mapping(target = "nickname", source = "nickname")
-    @Mapping(target = "gender", source = "gender")
-    @Mapping(target = "dateOfBirth", source = "dateOfBirth")
-    @Mapping(target = "phoneNumber", source = "phoneNumber")
-    @Mapping(target = "profileImageUrl", source = "profileImageUrl")
     default UserProfile createFromRequest(UserCreateRequest request, User user) {
         UserProfile profile = new UserProfile();
         profile.setUser(user);

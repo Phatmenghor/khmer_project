@@ -28,7 +28,6 @@ public class UserSession extends BaseUUIDEntity {
     @Column(name = "refresh_token_id")
     private UUID refreshTokenId;
 
-    // Device Information
     @Column(name = "device_id", length = 255)
     private String deviceId;
 
@@ -47,18 +46,15 @@ public class UserSession extends BaseUUIDEntity {
     @Column(name = "operating_system", length = 100)
     private String operatingSystem;
 
-    // Location Information
     @Column(name = "ip_address", length = 45)
     private String ipAddress;
 
     @Column(name = "location", length = 255)
     private String location;
 
-    // Session Status
     @Column(name = "status", length = 50, nullable = false)
     private String status;
 
-    // Timestamps
     @Column(name = "login_at", nullable = false)
     private LocalDateTime loginAt;
 
@@ -71,7 +67,6 @@ public class UserSession extends BaseUUIDEntity {
     @Column(name = "logged_out_at")
     private LocalDateTime loggedOutAt;
 
-    // Metadata
     @Column(name = "is_current_session")
     private Boolean isCurrentSession = false;
 
