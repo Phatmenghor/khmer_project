@@ -91,20 +91,20 @@ export default function BusinessSettingsPage() {
     },
   });
 
-  // Fetch business settings (with cache support - stale-while-revalidate pattern)
+  // On mount: apply cached colors instantly, then fetch fresh data from API
   useEffect(() => {
-    if (!reduxBusinessSettings) {
-      fetchBusinessSettings();
-      return;
+    if (reduxBusinessSettings?.businessId) {
+      const cachedColors = getCachedThemeColors(reduxBusinessSettings.businessId);
+      if (cachedColors) {
+        applyThemeColors(cachedColors.primaryColor);
+      }
     }
+    fetchBusinessSettings();
+  }, []);
 
-    // STEP 1: Check cache first for instant color application
-    const cachedColors = getCachedThemeColors(reduxBusinessSettings.businessId);
-    if (cachedColors) {
-      applyThemeColors(cachedColors.primaryColor);
-    }
-
-    // Then reset form with latest data
+  // Sync form whenever Redux store updates (after fetch or after save)
+  useEffect(() => {
+    if (!reduxBusinessSettings) return;
     const formData = convertResponseToFormData(reduxBusinessSettings);
     form.reset(formData);
     setIsLoading(false);
@@ -241,6 +241,9 @@ export default function BusinessSettingsPage() {
         if (result.primaryColor) {
           applyThemeColors(result.primaryColor);
         }
+
+        // Sync form immediately with saved response so all fields (including Select) reflect the latest value
+        form.reset(convertResponseToFormData(result));
 
         showToast.success("Business settings updated successfully");
       } else {
