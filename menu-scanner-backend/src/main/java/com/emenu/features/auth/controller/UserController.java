@@ -35,115 +35,82 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
-        log.info("Get current user profile");
-        UserResponse response = userService.getCurrentUser();
-        return ResponseEntity.ok(ApiResponse.success("User profile retrieved", response));
+        UserResponse userResponse = userService.getCurrentUser();
+        return ResponseEntity.ok(ApiResponse.success("User profile retrieved", userResponse));
     }
 
-    /**
-     * Updates the current authenticated user's profile
-     */
     @PutMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponse>> updateCurrentUser(
-            @Valid @RequestBody UserUpdateRequest request) {
-        log.info("Update current user profile");
-        UserResponse response = userService.updateCurrentUser(request);
-        return ResponseEntity.ok(ApiResponse.success("Profile updated", response));
+            @Valid @RequestBody UserUpdateRequest updateRequestData) {
+        UserResponse updatedUserResponse = userService.updateCurrentUser(updateRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Profile updated", updatedUserResponse));
     }
 
-    /**
-     * Retrieves all users with pagination and filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<UserResponse>>> getAllUsers(
-            @Valid @RequestBody UserFilterRequest request) {
-        log.info("Get all users");
-        PaginationResponse<UserResponse> response = userService.getAllUsers(request);
-        return ResponseEntity.ok(ApiResponse.success("Users retrieved", response));
+            @Valid @RequestBody UserFilterRequest filterRequestData) {
+        PaginationResponse<UserResponse> userListResponse = userService.getAllUsers(filterRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Users retrieved", userListResponse));
     }
 
-    /**
-     * Retrieves current business users with pagination - Business ID extracted from token
-     * Security: No businessId parameter needed, extracted from authenticated user's context
-     */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<UserResponse>>> getMyBusinessUsers(
-            @Valid @RequestBody UserFilterRequest request) {
-        log.info("Get my business users");
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        request.setBusinessId(businessId);
-        PaginationResponse<UserResponse> response = userService.getAllUsers(request);
-        return ResponseEntity.ok(ApiResponse.success("Users retrieved", response));
+            @Valid @RequestBody UserFilterRequest filterRequestData) {
+        UUID businessIdContext = securityUtils.getCurrentUserBusinessId();
+        filterRequestData.setBusinessId(businessIdContext);
+        PaginationResponse<UserResponse> businessUsersResponse = userService.getAllUsers(filterRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Users retrieved", businessUsersResponse));
     }
 
-    /**
-     * Retrieves a user by their ID with full details
-     */
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserDetailResponse>> getUserById(@PathVariable UUID userId) {
-        log.info("Get user: {}", userId);
-        UserDetailResponse response = userService.getUserById(userId);
-        return ResponseEntity.ok(ApiResponse.success("User retrieved", response));
+        UserDetailResponse userDetailResponse = userService.getUserById(userId);
+        return ResponseEntity.ok(ApiResponse.success("User retrieved", userDetailResponse));
     }
 
-    /**
-     * Creates a new user
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponse>> createUser(
-            @Valid @RequestBody UserCreateRequest request) {
-        log.info("Create user: {}", request.getUserIdentifier());
-        UserResponse response = userService.createUser(request);
+            @Valid @RequestBody UserCreateRequest createRequestData) {
+        log.info("USER_CREATE_ENDPOINT: identifier={}", createRequestData.getUserIdentifier());
+        UserResponse createdUserResponse = userService.createUser(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("User created", response));
+                .body(ApiResponse.success("User created", createdUserResponse));
     }
 
-    /**
-     * Updates an existing user
-     */
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable UUID userId,
-            @Valid @RequestBody UserUpdateRequest request) {
-        log.info("Update user: {}", userId);
-        UserResponse response = userService.updateUser(userId, request);
-        return ResponseEntity.ok(ApiResponse.success("User updated", response));
+            @Valid @RequestBody UserUpdateRequest updateRequestData) {
+        UserResponse updatedResponse = userService.updateUser(userId, updateRequestData);
+        return ResponseEntity.ok(ApiResponse.success("User updated", updatedResponse));
     }
 
-    /**
-     * Deletes a user by their ID
-     */
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> deleteUser(@PathVariable UUID userId) {
-        log.info("Delete user: {}", userId);
-        UserResponse response = userService.deleteUser(userId);
-        return ResponseEntity.ok(ApiResponse.success("User deleted", response));
+        log.info("USER_DELETE_ENDPOINT: user_id={}", userId);
+        UserResponse deletedUserResponse = userService.deleteUser(userId);
+        return ResponseEntity.ok(ApiResponse.success("User deleted", deletedUserResponse));
     }
 
-    /**
-     * Allows an admin to reset a user's password
-     */
     @PostMapping("/admin/reset-password")
     public ResponseEntity<ApiResponse<UserResponse>> adminResetPassword(
-            @Valid @RequestBody AdminPasswordResetRequest request) {
-        log.info("Admin password reset: {}", request.getUserId());
-        UserResponse response = authService.adminResetPassword(request);
-        return ResponseEntity.ok(ApiResponse.success("Password reset successful", response));
+            @Valid @RequestBody AdminPasswordResetRequest resetRequestData) {
+        log.info("ADMIN_PASSWORD_RESET_ENDPOINT: user_id={}", resetRequestData.getUserId());
+        UserResponse resetUserResponse = authService.adminResetPassword(resetRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Password reset successful", resetUserResponse));
     }
 
-    /**
-     * Allows a user to change their own password
-     */
     @PostMapping("/change-password")
     public ResponseEntity<ApiResponse<UserResponse>> changePassword(
-            @Valid @RequestBody PasswordChangeRequest request) {
-        log.info("Password change request");
-        UserResponse response = authService.changePassword(request);
-        return ResponseEntity.ok(ApiResponse.success("Password changed successfully", response));
+            @Valid @RequestBody PasswordChangeRequest changeRequestData) {
+        log.info("USER_PASSWORD_CHANGE_ENDPOINT");
+        UserResponse changedPasswordResponse = authService.changePassword(changeRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully", changedPasswordResponse));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String authHeader) {
+        log.info("USER_LOGOUT_ENDPOINT");
         authService.logout(authHeader);
         return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
     }
