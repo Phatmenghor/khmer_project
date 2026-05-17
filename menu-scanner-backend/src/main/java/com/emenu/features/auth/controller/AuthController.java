@@ -23,70 +23,49 @@ public class AuthController {
     private final AuthService authService;
     private final SocialAuthService socialAuthService;
 
-    /**
-     * Authenticates a user with their credentials
-     */
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
-        log.info("Login request: {}", request.getUserIdentifier());
-        LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequestData) {
+        LoginResponse loginResponse = authService.login(loginRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Login successful", loginResponse));
     }
 
-    /**
-     * Registers a new customer account
-     */
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        log.info("Customer registration: {}", request.getUserIdentifier());
-        UserResponse response = authService.registerCustomer(request);
+    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest registrationRequestData) {
+        log.info("CUSTOMER_REGISTRATION_ENDPOINT: identifier={}", registrationRequestData.getUserIdentifier());
+        UserResponse registeredUserResponse = authService.registerCustomer(registrationRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Customer registration successful", response));
+                .body(ApiResponse.success("Customer registration successful", registeredUserResponse));
     }
 
-    /**
-     * Refresh access token using refresh token
-     */
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<RefreshTokenResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
-        log.info("Refresh token request");
-        RefreshTokenResponse response = authService.refreshToken(request);
-        return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", response));
+    public ResponseEntity<ApiResponse<RefreshTokenResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequestData) {
+        RefreshTokenResponse refreshedTokenResponse = authService.refreshToken(refreshTokenRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", refreshedTokenResponse));
     }
 
     @PostMapping("/social/authenticate")
     public ResponseEntity<ApiResponse<SocialAuthResponse>> authenticateSocial(
-            @Valid @RequestBody SocialAuthRequest request,
+            @Valid @RequestBody SocialAuthRequest socialAuthRequestData,
             HttpServletRequest httpRequest) {
-        log.info("Social authentication: provider={}, userType={}", request.getProvider(), request.getUserType());
-
-        request.setIpAddress(ClientIpUtils.getClientIp(httpRequest));
-        request.setDeviceInfo(ClientIpUtils.getUserAgent(httpRequest));
-
-        SocialAuthResponse response = socialAuthService.authenticate(request);
-        return ResponseEntity.ok(ApiResponse.success("Authentication successful", response));
+        socialAuthRequestData.setIpAddress(ClientIpUtils.getClientIp(httpRequest));
+        socialAuthRequestData.setDeviceInfo(ClientIpUtils.getUserAgent(httpRequest));
+        SocialAuthResponse socialAuthResponse = socialAuthService.authenticate(socialAuthRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Authentication successful", socialAuthResponse));
     }
 
     @PostMapping("/social/sync")
     public ResponseEntity<ApiResponse<SocialSyncResponse>> syncSocialAccount(
-            @Valid @RequestBody SocialAuthRequest request) {
-        log.info("Syncing social account: provider={}, userType={}", request.getProvider(), request.getUserType());
-
-        SocialSyncResponse response = socialAuthService.syncSocialAccount(request);
-
-        log.info("Social account synced: provider={}, telegramId={}, username={}",
-                response.getProvider(), response.getTelegramId(), response.getTelegramUsername());
-        return ResponseEntity.ok(ApiResponse.success("Social account synced successfully", response));
+            @Valid @RequestBody SocialAuthRequest syncRequestData) {
+        log.info("SOCIAL_SYNC_ENDPOINT: provider={}", syncRequestData.getProvider());
+        SocialSyncResponse syncResponse = socialAuthService.syncSocialAccount(syncRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Social account synced successfully", syncResponse));
     }
 
     @DeleteMapping("/social/sync/{provider}")
     public ResponseEntity<ApiResponse<SocialSyncResponse>> unsyncSocialAccount(@PathVariable String provider) {
-        log.info("Unsyncing social account: provider={}", provider);
-
-        SocialSyncResponse response = socialAuthService.unsyncSocialAccount(provider);
-
-        log.info("Social account unsynced: provider={}", provider);
-        return ResponseEntity.ok(ApiResponse.success("Social account unsynced successfully", response));
+        log.info("SOCIAL_UNSYNC_ENDPOINT: provider={}", provider);
+        SocialSyncResponse unsyncResponse = socialAuthService.unsyncSocialAccount(provider);
+        return ResponseEntity.ok(ApiResponse.success("Social account unsynced successfully", unsyncResponse));
     }
 
 }
