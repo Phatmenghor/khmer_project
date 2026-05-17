@@ -17,6 +17,7 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.ClientIpUtils;
+import com.emenu.shared.utils.FilterUtils;
 import com.emenu.shared.utils.IpGeolocationService;
 import com.emenu.shared.utils.UserAgentParser;
 import jakarta.servlet.http.HttpServletRequest;
@@ -138,8 +139,8 @@ public class UserSessionServiceImpl implements UserSessionService {
                 request.getPageNo(), request.getPageSize(), request.getSortBy(), request.getSortDirection()
         );
 
-        List<String> statuses = (request.getStatuses() != null && !request.getStatuses().isEmpty()) ? request.getStatuses() : null;
-        List<String> deviceTypes = (request.getDeviceTypes() != null && !request.getDeviceTypes().isEmpty()) ? request.getDeviceTypes() : null;
+        List<String> statuses = FilterUtils.nullIfEmpty(request.getStatuses());
+        List<String> deviceTypes = FilterUtils.nullIfEmpty(request.getDeviceTypes());
 
         Page<UserSession> page = sessionRepository.findAllWithFilters(
                 request.getUserId(), statuses, deviceTypes, request.getSearch(), pageable
