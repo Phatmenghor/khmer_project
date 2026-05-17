@@ -6,7 +6,6 @@ import com.emenu.features.auth.dto.response.UserSessionResponse;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.models.UserSession;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -15,7 +14,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {PaginationMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserSessionMapper {
 
     UserSession createFromHelper(UserSessionCreateHelper helper);
@@ -53,7 +52,18 @@ public interface UserSessionMapper {
         return user != null && user.getUserType() != null ? user.getUserType().name() : null;
     }
 
-    default PaginationResponse<AdminSessionResponse> toPaginationResponse(Page<UserSession> page, PaginationMapper paginationMapper) {
-        return paginationMapper.toPaginationResponse(page, this::toAdminResponseList);
+    default PaginationResponse<AdminSessionResponse> toPaginationResponse(Page<UserSession> page) {
+        List<AdminSessionResponse> content = toAdminResponseList(page.getContent());
+        return PaginationResponse.<AdminSessionResponse>builder()
+                .content(content)
+                .pageNo(page.getNumber() + 1)
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .hasNext(page.hasNext())
+                .hasPrevious(page.hasPrevious())
+                .build();
     }
 }

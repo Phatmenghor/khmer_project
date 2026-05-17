@@ -6,14 +6,13 @@ import com.emenu.features.auth.dto.response.*;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.features.auth.models.*;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.*;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", uses = {PaginationMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
     @Mapping(target = "fullName", expression = "java(user.getFullName())")
@@ -149,7 +148,18 @@ public interface UserMapper {
         return rolesToStrings(roles);
     }
 
-    default PaginationResponse<UserResponse> toPaginationResponse(Page<User> page, PaginationMapper paginationMapper) {
-        return paginationMapper.toPaginationResponse(page, this::toResponseList);
+    default PaginationResponse<UserResponse> toPaginationResponse(Page<User> page) {
+        List<UserResponse> content = toResponseList(page.getContent());
+        return PaginationResponse.<UserResponse>builder()
+                .content(content)
+                .pageNo(page.getNumber() + 1)
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .hasNext(page.hasNext())
+                .hasPrevious(page.hasPrevious())
+                .build();
     }
 }

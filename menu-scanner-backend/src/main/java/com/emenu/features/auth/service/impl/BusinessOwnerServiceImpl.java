@@ -141,17 +141,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         log.info("Business owners fetched successfully: count={}, page={}/{}, total={}",
                 enrichedResponses.size(), ownerPage.getNumber() + 1, ownerPage.getTotalPages(), ownerPage.getTotalElements());
 
-        return PaginationResponse.<BusinessOwnerDetailResponse>builder()
-                .content(enrichedResponses)
-                .pageNo(ownerPage.getNumber() + 1)
-                .pageSize(ownerPage.getSize())
-                .totalElements(ownerPage.getTotalElements())
-                .totalPages(ownerPage.getTotalPages())
-                .first(ownerPage.isFirst())
-                .last(ownerPage.isLast())
-                .hasNext(ownerPage.hasNext())
-                .hasPrevious(ownerPage.hasPrevious())
-                .build();
+        return mapper.toPaginationResponseWithContent(ownerPage, enrichedResponses);
     }
 
     @Override

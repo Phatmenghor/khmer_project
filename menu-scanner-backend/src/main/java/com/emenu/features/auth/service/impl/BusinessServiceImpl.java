@@ -30,7 +30,6 @@ public class BusinessServiceImpl implements BusinessService {
 
     private final BusinessRepository businessRepository;
     private final BusinessMapper businessMapper;
-    private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
 
     @Override
     public BusinessResponse createBusiness(BusinessCreateRequest request) {
@@ -68,7 +67,7 @@ public class BusinessServiceImpl implements BusinessService {
         );
 
         log.info("Businesses fetched successfully: count={}, page={}/{}", businessPage.getNumberOfElements(), businessPage.getNumber() + 1, businessPage.getTotalPages());
-        return businessMapper.toPaginationResponse(businessPage, paginationMapper);
+        return businessMapper.toPaginationResponse(businessPage);
     }
 
     @Override

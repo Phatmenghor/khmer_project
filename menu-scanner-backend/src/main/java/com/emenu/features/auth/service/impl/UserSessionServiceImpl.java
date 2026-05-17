@@ -160,7 +160,7 @@ public class UserSessionServiceImpl implements UserSessionService {
         );
 
         log.info("Sessions fetched successfully: count={}, page={}/{}", sessionPage.getNumberOfElements(), sessionPage.getNumber() + 1, sessionPage.getTotalPages());
-        return sessionMapper.toPaginationResponse(sessionPage, paginationMapper);
+        return sessionMapper.toPaginationResponse(sessionPage);
     }
 
     @Override

@@ -21,7 +21,6 @@ import com.emenu.features.auth.service.UserService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import com.emenu.shared.dto.PaginationResponse;
-import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.FilterUtils;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +56,6 @@ public class UserServiceImpl implements UserService {
     private final UserNestedEntitiesMapper userNestedEntitiesMapper;
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtils securityUtils;
-    private final PaginationMapper paginationMapper;
 
     @Override
     public UserResponse createUser(UserCreateRequest requestData) {
@@ -186,7 +184,7 @@ public class UserServiceImpl implements UserService {
                 userPageData.getNumberOfElements(), userPageData.getNumber() + 1, userPageData.getTotalPages(),
                 filterCriteria.getBusinessId(), currentUserContext.getId());
 
-        return userMapper.toPaginationResponse(userPageData, paginationMapper);
+        return userMapper.toPaginationResponse(userPageData);
     }
 
     @Override

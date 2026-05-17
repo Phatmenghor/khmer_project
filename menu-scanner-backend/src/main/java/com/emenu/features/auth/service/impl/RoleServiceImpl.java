@@ -100,25 +100,14 @@ public class RoleServiceImpl implements RoleService {
                 pageable
         );
 
-        List<RoleResponse> responses = new ArrayList<>(rolesPage.getContent().stream()
-                .map(roleMapper::toResponse)
-                .toList());
+        log.info("Roles fetched successfully: count={}, page={}/{}", rolesPage.getNumberOfElements(), rolesPage.getNumber() + 1, rolesPage.getTotalPages());
 
-        if (includeAll && rolesPage.getNumber() == 0) {
-            responses.add(0, buildAllRolesResponse(request.getBusinessId()));
+        if (includeAll) {
+            RoleResponse allRolesResponse = buildAllRolesResponse(request.getBusinessId());
+            return roleMapper.toPaginationResponseWithAllRoles(rolesPage, allRolesResponse, rolesPage.getNumber() == 0);
         }
 
-        log.info("Roles fetched successfully: count={}, page={}/{}", responses.size(), rolesPage.getNumber() + 1, rolesPage.getTotalPages());
-
-        return PaginationResponse.<RoleResponse>builder()
-                .content(responses)
-                .pageNo(rolesPage.getNumber() + 1)
-                .pageSize(rolesPage.getSize())
-                .totalElements(includeAll && rolesPage.getNumber() == 0 ? rolesPage.getTotalElements() + 1 : rolesPage.getTotalElements())
-                .totalPages(rolesPage.getTotalPages())
-                .last(rolesPage.isLast())
-                .first(rolesPage.isFirst())
-                .build();
+        return roleMapper.toPaginationResponse(rolesPage);
     }
 
     private RoleResponse buildAllRolesResponse(UUID businessId) {
