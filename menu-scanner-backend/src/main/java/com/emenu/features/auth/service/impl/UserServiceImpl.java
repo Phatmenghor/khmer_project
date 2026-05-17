@@ -19,7 +19,9 @@ import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.service.UserService;
 import com.emenu.security.SecurityUtils;
+import com.emenu.shared.domain.BaseUUIDEntity;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.FilterUtils;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -54,29 +57,40 @@ public class UserServiceImpl implements UserService {
     private final UserNestedEntitiesMapper userNestedEntitiesMapper;
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtils securityUtils;
-    private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
+    private final PaginationMapper paginationMapper;
 
     @Override
-    public UserResponse createUser(UserCreateRequest req) {
-        log.info("Creating new user: identifier={}, type={}, business={}",
-                req.getUserIdentifier(), req.getUserType(), req.getBusinessId());
+    public UserResponse createUser(UserCreateRequest requestData) {
+        log.info("USER_CREATE_INITIATED: identifier={}, type={}, business_id={}, ip_context=create_endpoint",
+                requestData.getUserIdentifier(), requestData.getUserType(), requestData.getBusinessId());
 
-        validateUserCreationRequest(req);
-        log.debug("User creation request validation passed");
+        validateUserCreationRequest(requestData);
 
-        User user = buildUserEntity(req);
-        User saved = userRepository.save(user);
-        log.debug("User entity persisted: id={}, identifier={}", saved.getId(), saved.getUserIdentifier());
+        User userEntity = buildUserEntity(requestData);
+        User savedUserEntity = userRepository.save(userEntity);
 
-        enrichUserWithProfile(req, saved);
-        enrichUserWithEmployment(req, saved);
-        enrichUserWithRelatedEntities(req, saved);
+        enrichUserWithProfile(requestData, savedUserEntity);
+        enrichUserWithEmployment(requestData, savedUserEntity);
+        enrichUserWithRelatedEntities(requestData, savedUserEntity);
 
-        saved = userRepository.save(saved);
-        log.info("User created successfully: id={}, identifier={}, type={}",
-                saved.getId(), saved.getUserIdentifier(), saved.getUserType());
+        savedUserEntity = userRepository.save(savedUserEntity);
+        log.info("USER_CREATE_SUCCESS: id={}, identifier={}, type={}, total_related_records={}",
+                savedUserEntity.getId(), savedUserEntity.getUserIdentifier(),
+                savedUserEntity.getUserType(),
+                countTotalRelatedRecords(savedUserEntity));
 
-        return userMapper.toResponse(saved);
+        return userMapper.toResponse(savedUserEntity);
+    }
+
+    private int countTotalRelatedRecords(User userEntity) {
+        int profileCount = userEntity.getProfile() != null ? 1 : 0;
+        int employmentCount = userEntity.getEmployment() != null ? 1 : 0;
+        int addressCount = userEntity.getAddresses() != null ? userEntity.getAddresses().size() : 0;
+        int contactCount = userEntity.getEmergencyContacts() != null ? userEntity.getEmergencyContacts().size() : 0;
+        int documentCount = userEntity.getDocuments() != null ? userEntity.getDocuments().size() : 0;
+        int educationCount = userEntity.getEducations() != null ? userEntity.getEducations().size() : 0;
+
+        return profileCount + employmentCount + addressCount + contactCount + documentCount + educationCount;
     }
 
     private void validateUserCreationRequest(UserCreateRequest req) {
@@ -114,270 +128,294 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    private void enrichUserWithProfile(UserCreateRequest req, User user) {
-        UserProfile profile = userProfileMapper.createFromRequest(req, user);
-        user.setProfile(profile);
-        log.debug("User profile created for user: {}", user.getId());
+    private void enrichUserWithProfile(UserCreateRequest requestData, User userEntity) {
+        UserProfile userProfileData = userProfileMapper.createFromRequest(requestData, userEntity);
+        userEntity.setProfile(userProfileData);
     }
 
-    private void enrichUserWithEmployment(UserCreateRequest req, User user) {
-        if (hasEmploymentData(req)) {
-            UserEmployment emp = userEmploymentMapper.createFromRequest(req, user);
-            user.setEmployment(emp);
-            log.debug("User employment created for user: {}", user.getId());
-        }
-    }
-
-    private void enrichUserWithRelatedEntities(UserCreateRequest req, User user) {
-        if (req.getAddresses() != null && !req.getAddresses().isEmpty()) {
-            req.getAddresses().forEach(r -> user.getAddresses().add(userNestedEntitiesMapper.createAddress(r, user)));
-            log.debug("Added {} addresses to user: {}", req.getAddresses().size(), user.getId());
-        }
-
-        if (req.getEmergencyContacts() != null && !req.getEmergencyContacts().isEmpty()) {
-            req.getEmergencyContacts().forEach(r -> user.getEmergencyContacts().add(userNestedEntitiesMapper.createContact(r, user)));
-            log.debug("Added {} emergency contacts to user: {}", req.getEmergencyContacts().size(), user.getId());
-        }
-
-        if (req.getDocuments() != null && !req.getDocuments().isEmpty()) {
-            req.getDocuments().forEach(r -> user.getDocuments().add(userNestedEntitiesMapper.createDocument(r, user)));
-            log.debug("Added {} documents to user: {}", req.getDocuments().size(), user.getId());
-        }
-
-        if (req.getEducations() != null && !req.getEducations().isEmpty()) {
-            req.getEducations().forEach(r -> user.getEducations().add(userNestedEntitiesMapper.createEducation(r, user)));
-            log.debug("Added {} education records to user: {}", req.getEducations().size(), user.getId());
+    private void enrichUserWithEmployment(UserCreateRequest requestData, User userEntity) {
+        if (hasEmploymentData(requestData)) {
+            UserEmployment userEmploymentData = userEmploymentMapper.createFromRequest(requestData, userEntity);
+            userEntity.setEmployment(userEmploymentData);
         }
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public PaginationResponse<UserResponse> getAllUsers(UserFilterRequest request) {
-        User currentUser = securityUtils.getCurrentUser();
-        if (currentUser.isBusinessUser() && request.getBusinessId() == null) {
-            request.setBusinessId(currentUser.getBusinessId());
+    private void enrichUserWithRelatedEntities(UserCreateRequest requestData, User userEntity) {
+        if (requestData.getAddresses() != null && !requestData.getAddresses().isEmpty()) {
+            requestData.getAddresses().forEach(addressData ->
+                    userEntity.getAddresses().add(userNestedEntitiesMapper.createAddress(addressData, userEntity)));
         }
 
-        log.debug("Fetching users - business: {}, types: {}, statuses: {}, page: {}/{}",
-                request.getBusinessId(), request.getUserTypes(), request.getAccountStatuses(),
-                request.getPageNo(), request.getPageSize());
+        if (requestData.getEmergencyContacts() != null && !requestData.getEmergencyContacts().isEmpty()) {
+            requestData.getEmergencyContacts().forEach(contactData ->
+                    userEntity.getEmergencyContacts().add(userNestedEntitiesMapper.createContact(contactData, userEntity)));
+        }
 
-        Pageable pageable = PaginationUtils.createPageable(
-                request.getPageNo(), request.getPageSize(), request.getSortBy(), request.getSortDirection());
+        if (requestData.getDocuments() != null && !requestData.getDocuments().isEmpty()) {
+            requestData.getDocuments().forEach(documentData ->
+                    userEntity.getDocuments().add(userNestedEntitiesMapper.createDocument(documentData, userEntity)));
+        }
 
-        List<UserType> userTypes = FilterUtils.nullIfEmpty(request.getUserTypes());
-        List<AccountStatus> accountStatuses = FilterUtils.nullIfEmpty(request.getAccountStatuses());
-        List<String> roles = FilterUtils.nullIfEmpty(request.getRoles());
-
-        Page<User> page = userRepository.searchUsers(
-                request.getBusinessId(), userTypes, accountStatuses, roles, request.getSearch(), pageable);
-
-        log.info("Retrieved {} users (page {}/{})", page.getNumberOfElements(), page.getNumber() + 1, page.getTotalPages());
-        return userMapper.toPaginationResponse(page, paginationMapper);
+        if (requestData.getEducations() != null && !requestData.getEducations().isEmpty()) {
+            requestData.getEducations().forEach(educationData ->
+                    userEntity.getEducations().add(userNestedEntitiesMapper.createEducation(educationData, userEntity)));
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetailResponse getUserById(UUID userId) {
-        log.debug("Fetching user details: {}", userId);
-        UserDetailResponse response = userMapper.toDetailResponse(userRepository.findByIdAndIsDeletedFalse(userId)
+    public PaginationResponse<UserResponse> getAllUsers(UserFilterRequest filterCriteria) {
+        User currentUserContext = securityUtils.getCurrentUser();
+        if (currentUserContext.isBusinessUser() && filterCriteria.getBusinessId() == null) {
+            filterCriteria.setBusinessId(currentUserContext.getBusinessId());
+        }
+
+        Pageable pageableRequest = PaginationUtils.createPageable(
+                filterCriteria.getPageNo(), filterCriteria.getPageSize(),
+                filterCriteria.getSortBy(), filterCriteria.getSortDirection());
+
+        List<UserType> filterUserTypes = FilterUtils.nullIfEmpty(filterCriteria.getUserTypes());
+        List<AccountStatus> filterAccountStatuses = FilterUtils.nullIfEmpty(filterCriteria.getAccountStatuses());
+        List<String> filterRoles = FilterUtils.nullIfEmpty(filterCriteria.getRoles());
+
+        Page<User> userPageData = userRepository.searchUsers(
+                filterCriteria.getBusinessId(), filterUserTypes, filterAccountStatuses,
+                filterRoles, filterCriteria.getSearch(), pageableRequest);
+
+        log.info("USER_LIST_FETCHED: count={}, page={}/{}, business_id={}, requested_by={}",
+                userPageData.getNumberOfElements(), userPageData.getNumber() + 1, userPageData.getTotalPages(),
+                filterCriteria.getBusinessId(), currentUserContext.getId());
+
+        return userMapper.toPaginationResponse(userPageData, paginationMapper);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetailResponse getUserById(UUID userEntityId) {
+        UserDetailResponse userDetailsResponse = userMapper.toDetailResponse(
+                userRepository.findByIdAndIsDeletedFalse(userEntityId)
                 .orElseThrow(() -> {
-                    log.warn("User not found: {}", userId);
+                    log.warn("USER_NOT_FOUND: id={}", userEntityId);
                     return new ValidationException("User not found");
                 }));
-        log.debug("User details retrieved: {}", userId);
-        return response;
+
+        log.info("USER_DETAIL_RETRIEVED: id={}, type={}", userEntityId,
+                userDetailsResponse.getUserType() != null ? userDetailsResponse.getUserType() : "UNKNOWN");
+
+        return userDetailsResponse;
     }
 
     @Override
-    public UserResponse updateUser(UUID userId, UserUpdateRequest req) {
-        log.info("Updating user: {}", userId);
+    public UserResponse updateUser(UUID userEntityId, UserUpdateRequest updateRequestData) {
+        log.info("USER_UPDATE_INITIATED: id={}, modified_by={}", userEntityId, securityUtils.getCurrentUserId());
 
-        User user = userRepository.findByIdAndIsDeletedFalse(userId)
+        User userEntity = userRepository.findByIdAndIsDeletedFalse(userEntityId)
                 .orElseThrow(() -> {
-                    log.warn("User update failed - user not found: {}", userId);
+                    log.warn("USER_NOT_FOUND_FOR_UPDATE: id={}", userEntityId);
                     return new ValidationException("User not found");
                 });
 
-        updateBusinessAssignment(user, req);
-        updateUserRoles(user, req);
-        updateUserProfile(user, req);
-        updateUserEmployment(user, req);
-        updateUserRelatedEntities(user, req);
+        updateBusinessAssignment(userEntity, updateRequestData);
+        updateUserRoles(userEntity, updateRequestData);
+        updateUserProfile(userEntity, updateRequestData);
+        updateUserEmployment(userEntity, updateRequestData);
+        updateUserRelatedEntities(userEntity, updateRequestData);
 
-        User updated = userRepository.save(user);
-        log.info("User updated successfully: id={}, identifier={}", updated.getId(), updated.getUserIdentifier());
-        return userMapper.toResponse(updated);
+        User updatedUserEntity = userRepository.save(userEntity);
+        log.info("USER_UPDATE_SUCCESS: id={}, identifier={}, total_changes={}",
+                updatedUserEntity.getId(), updatedUserEntity.getUserIdentifier(),
+                countTotalRelatedRecords(updatedUserEntity));
+
+        return userMapper.toResponse(updatedUserEntity);
     }
 
-    private void updateBusinessAssignment(User user, UserUpdateRequest req) {
-        if (req.getBusinessId() != null && !req.getBusinessId().equals(user.getBusinessId())) {
-            businessRepository.findByIdAndIsDeletedFalse(req.getBusinessId())
+    private void updateBusinessAssignment(User userEntity, UserUpdateRequest updateRequestData) {
+        if (updateRequestData.getBusinessId() != null &&
+                !updateRequestData.getBusinessId().equals(userEntity.getBusinessId())) {
+
+            businessRepository.findByIdAndIsDeletedFalse(updateRequestData.getBusinessId())
                     .orElseThrow(() -> {
-                        log.warn("Business assignment failed - business not found: {}", req.getBusinessId());
+                        log.warn("BUSINESS_ASSIGNMENT_FAILED: business_id={}, user_id={}",
+                                updateRequestData.getBusinessId(), userEntity.getId());
                         return new ValidationException("Business not found");
                     });
-            user.setBusinessId(req.getBusinessId());
-            log.debug("User business assignment updated: {}", req.getBusinessId());
+
+            userEntity.setBusinessId(updateRequestData.getBusinessId());
         }
     }
 
-    private void updateUserRoles(User user, UserUpdateRequest req) {
-        if (req.getRoles() != null && !req.getRoles().isEmpty()) {
-            List<Role> roles = roleRepository.findByNameInAndIsDeletedFalse(req.getRoles());
-            if (roles.size() != req.getRoles().size()) {
-                log.warn("Role update failed - invalid roles: {}", req.getRoles());
+    private void updateUserRoles(User userEntity, UserUpdateRequest updateRequestData) {
+        if (updateRequestData.getRoles() != null && !updateRequestData.getRoles().isEmpty()) {
+            List<Role> assignedRoles = roleRepository.findByNameInAndIsDeletedFalse(updateRequestData.getRoles());
+
+            if (assignedRoles.size() != updateRequestData.getRoles().size()) {
+                log.warn("ROLE_ASSIGNMENT_FAILED: invalid_roles={}, user_id={}",
+                        updateRequestData.getRoles(), userEntity.getId());
                 throw new ValidationException("One or more roles not found");
             }
-            validateRoleUserTypeCompatibility(roles, user.getUserType());
-            user.getRoles().clear();
-            user.getRoles().addAll(roles);
-            log.debug("User roles updated: count={}", roles.size());
+
+            validateRoleUserTypeCompatibility(assignedRoles, userEntity.getUserType());
+            userEntity.getRoles().clear();
+            userEntity.getRoles().addAll(assignedRoles);
         }
     }
 
-    private void updateUserProfile(User user, UserUpdateRequest req) {
-        userMapper.updateEntity(req, user);
+    private void updateUserProfile(User userEntity, UserUpdateRequest updateRequestData) {
+        userMapper.updateEntity(updateRequestData, userEntity);
 
-        UserProfile profile = user.getProfile();
-        if (profile == null) {
-            profile = new UserProfile();
-            profile.setUser(user);
-            user.setProfile(profile);
-            log.debug("User profile created");
+        UserProfile userProfileEntity = userEntity.getProfile();
+        if (userProfileEntity == null) {
+            userProfileEntity = new UserProfile();
+            userProfileEntity.setUser(userEntity);
+            userEntity.setProfile(userProfileEntity);
         }
-        userProfileMapper.updateFromRequest(req, profile);
+        userProfileMapper.updateFromRequest(updateRequestData, userProfileEntity);
     }
 
-    private void updateUserEmployment(User user, UserUpdateRequest req) {
-        if (hasEmploymentUpdateData(req)) {
-            UserEmployment emp = user.getEmployment();
-            if (emp == null) {
-                emp = new UserEmployment();
-                emp.setUser(user);
-                user.setEmployment(emp);
-                log.debug("User employment created");
+    private void updateUserEmployment(User userEntity, UserUpdateRequest updateRequestData) {
+        if (hasEmploymentUpdateData(updateRequestData)) {
+            UserEmployment userEmploymentEntity = userEntity.getEmployment();
+            if (userEmploymentEntity == null) {
+                userEmploymentEntity = new UserEmployment();
+                userEmploymentEntity.setUser(userEntity);
+                userEntity.setEmployment(userEmploymentEntity);
             }
-            userEmploymentMapper.updateFromRequest(req, emp);
+            userEmploymentMapper.updateFromRequest(updateRequestData, userEmploymentEntity);
         }
     }
 
-    private void updateUserRelatedEntities(User user, UserUpdateRequest req) {
-        if (req.getAddresses() != null) {
-            mergeList(req.getAddresses(), user.getAddresses(),
-                    AddressRequest::getId, userNestedEntitiesMapper::updateAddress, r -> userNestedEntitiesMapper.createAddress(r, user));
-            log.debug("User addresses updated: count={}", user.getAddresses().size());
+    private void updateUserRelatedEntities(User userEntity, UserUpdateRequest updateRequestData) {
+        if (updateRequestData.getAddresses() != null) {
+            syncEntityCollection(updateRequestData.getAddresses(), userEntity.getAddresses(),
+                    AddressRequest::getId,
+                    (requestItem, existingItem) -> userNestedEntitiesMapper.updateAddress(requestItem, existingItem),
+                    requestItem -> userNestedEntitiesMapper.createAddress(requestItem, userEntity));
         }
 
-        if (req.getEmergencyContacts() != null) {
-            mergeList(req.getEmergencyContacts(), user.getEmergencyContacts(),
-                    EmergencyContactRequest::getId, userNestedEntitiesMapper::updateContact, r -> userNestedEntitiesMapper.createContact(r, user));
-            log.debug("User emergency contacts updated: count={}", user.getEmergencyContacts().size());
+        if (updateRequestData.getEmergencyContacts() != null) {
+            syncEntityCollection(updateRequestData.getEmergencyContacts(), userEntity.getEmergencyContacts(),
+                    EmergencyContactRequest::getId,
+                    (requestItem, existingItem) -> userNestedEntitiesMapper.updateContact(requestItem, existingItem),
+                    requestItem -> userNestedEntitiesMapper.createContact(requestItem, userEntity));
         }
 
-        if (req.getDocuments() != null) {
-            mergeList(req.getDocuments(), user.getDocuments(),
-                    DocumentRequest::getId, userNestedEntitiesMapper::updateDocument, r -> userNestedEntitiesMapper.createDocument(r, user));
-            log.debug("User documents updated: count={}", user.getDocuments().size());
+        if (updateRequestData.getDocuments() != null) {
+            syncEntityCollection(updateRequestData.getDocuments(), userEntity.getDocuments(),
+                    DocumentRequest::getId,
+                    (requestItem, existingItem) -> userNestedEntitiesMapper.updateDocument(requestItem, existingItem),
+                    requestItem -> userNestedEntitiesMapper.createDocument(requestItem, userEntity));
         }
 
-        if (req.getEducations() != null) {
-            mergeList(req.getEducations(), user.getEducations(),
-                    EducationRequest::getId, userNestedEntitiesMapper::updateEducation, r -> userNestedEntitiesMapper.createEducation(r, user));
-            log.debug("User educations updated: count={}", user.getEducations().size());
+        if (updateRequestData.getEducations() != null) {
+            syncEntityCollection(updateRequestData.getEducations(), userEntity.getEducations(),
+                    EducationRequest::getId,
+                    (requestItem, existingItem) -> userNestedEntitiesMapper.updateEducation(requestItem, existingItem),
+                    requestItem -> userNestedEntitiesMapper.createEducation(requestItem, userEntity));
         }
     }
 
     @Override
-    public UserResponse deleteUser(UUID userId) {
-        log.info("Deleting user: {}", userId);
+    public UserResponse deleteUser(UUID userEntityId) {
+        log.info("USER_DELETE_INITIATED: id={}, requested_by={}", userEntityId, securityUtils.getCurrentUserId());
 
-        User user = userRepository.findByIdAndIsDeletedFalse(userId)
+        User userEntity = userRepository.findByIdAndIsDeletedFalse(userEntityId)
                 .orElseThrow(() -> {
-                    log.warn("User deletion failed - user not found: {}", userId);
+                    log.warn("USER_NOT_FOUND_FOR_DELETE: id={}", userEntityId);
                     return new ValidationException("User not found");
                 });
 
-        if (user.getId().equals(securityUtils.getCurrentUser().getId())) {
-            log.warn("User deletion failed - attempting to delete own account: {}", userId);
+        User currentUserContext = securityUtils.getCurrentUser();
+        if (userEntity.getId().equals(currentUserContext.getId())) {
+            log.warn("USER_DELETE_SELF_ATTEMPT: id={}, username={}", userEntityId, userEntity.getUserIdentifier());
             throw new ValidationException("You cannot delete your own account");
         }
 
-        user.softDelete();
-        userRepository.save(user);
-        log.info("User deleted successfully: id={}, identifier={}", user.getId(), user.getUserIdentifier());
-        return userMapper.toResponse(user);
+        userEntity.softDelete();
+        userRepository.save(userEntity);
+        log.info("USER_DELETE_SUCCESS: id={}, identifier={}", userEntity.getId(), userEntity.getUserIdentifier());
+
+        return userMapper.toResponse(userEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
-        User currentUser = securityUtils.getCurrentUser();
-        log.debug("Retrieving current user: {}", currentUser.getId());
-        return userMapper.toResponse(currentUser);
+        User currentUserContext = securityUtils.getCurrentUser();
+        log.info("CURRENT_USER_RETRIEVED: id={}", currentUserContext.getId());
+        return userMapper.toResponse(currentUserContext);
     }
 
     @Override
     @Transactional
-    public UserResponse updateCurrentUser(UserUpdateRequest request) {
-        User currentUser = securityUtils.getCurrentUser();
-        log.info("Updating current user profile: {}", currentUser.getId());
-        return updateUser(currentUser.getId(), request);
+    public UserResponse updateCurrentUser(UserUpdateRequest profileUpdateRequest) {
+        User currentUserContext = securityUtils.getCurrentUser();
+        log.info("CURRENT_USER_SELF_UPDATE: id={}", currentUserContext.getId());
+        return updateUser(currentUserContext.getId(), profileUpdateRequest);
     }
 
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private void validateRoleUserTypeCompatibility(List<Role> roles, UserType userType) {
-        roles.forEach(r -> {
-            if (!r.isCompatibleWithUserType(userType)) {
+    private void validateRoleUserTypeCompatibility(List<Role> assignedRoles, UserType userType) {
+        assignedRoles.forEach(roleAssignment -> {
+            if (!roleAssignment.isCompatibleWithUserType(userType)) {
+                log.warn("INCOMPATIBLE_ROLE_ASSIGNMENT: role={}, type={}", roleAssignment.getName(), userType);
                 throw new ValidationException(String.format(
-                        "Role '%s' is not compatible with user type '%s'.", r.getName(), userType));
+                        "Role '%s' is not compatible with user type '%s'.", roleAssignment.getName(), userType));
             }
         });
     }
 
-    private boolean hasEmploymentData(UserCreateRequest r) {
-        return r.getEmployeeId() != null || r.getPosition() != null || r.getDepartment() != null
-                || r.getEmploymentType() != null || r.getJoinDate() != null || r.getShift() != null;
+    private boolean hasEmploymentData(UserCreateRequest creationRequest) {
+        return creationRequest.getEmployeeId() != null ||
+                creationRequest.getPosition() != null ||
+                creationRequest.getDepartment() != null ||
+                creationRequest.getEmploymentType() != null ||
+                creationRequest.getJoinDate() != null ||
+                creationRequest.getShift() != null;
     }
 
-    private boolean hasEmploymentUpdateData(UserUpdateRequest r) {
-        return r.getEmployeeId() != null || r.getPosition() != null || r.getDepartment() != null
-                || r.getEmploymentType() != null || r.getJoinDate() != null || r.getShift() != null;
+    private boolean hasEmploymentUpdateData(UserUpdateRequest updateRequest) {
+        return updateRequest.getEmployeeId() != null ||
+                updateRequest.getPosition() != null ||
+                updateRequest.getDepartment() != null ||
+                updateRequest.getEmploymentType() != null ||
+                updateRequest.getJoinDate() != null ||
+                updateRequest.getShift() != null;
     }
 
-    /**
-     * Merge a request list into an existing entity collection.
-     * - [] → clears all (orphanRemoval deletes)
-     * - item with id present in collection → update fields
-     * - item with no id → create new
-     * - existing item whose id is absent from request list → removed (orphanRemoval deletes)
-     */
-    private <REQ, ENTITY extends com.emenu.shared.domain.BaseUUIDEntity> void mergeList(
-            List<REQ> requests,
-            List<ENTITY> existing,
-            Function<REQ, UUID> idExtractor,
-            java.util.function.BiConsumer<REQ, ENTITY> updater,
-            Function<REQ, ENTITY> creator) {
+    private <RequestItem, EntityItem extends BaseUUIDEntity> void syncEntityCollection(
+            List<RequestItem> requestDataList,
+            List<EntityItem> existingEntityList,
+            Function<RequestItem, UUID> extractEntityId,
+            BiConsumer<RequestItem, EntityItem> updateEntityOperation,
+            Function<RequestItem, EntityItem> createEntityOperation) {
 
-        if (requests.isEmpty()) { existing.clear(); return; }
+        if (requestDataList.isEmpty()) {
+            existingEntityList.clear();
+            return;
+        }
 
-        Map<UUID, ENTITY> existingById = existing.stream()
-                .filter(e -> e.getId() != null)
-                .collect(Collectors.toMap(com.emenu.shared.domain.BaseUUIDEntity::getId, Function.identity()));
+        Map<UUID, EntityItem> existingEntityMap = existingEntityList.stream()
+                .filter(entity -> entity.getId() != null)
+                .collect(Collectors.toMap(BaseUUIDEntity::getId, Function.identity()));
 
-        Set<UUID> keepIds = requests.stream()
-                .map(idExtractor).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<UUID> requestedEntityIds = requestDataList.stream()
+                .map(extractEntityId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
-        existing.removeIf(e -> !keepIds.contains(e.getId()));
+        existingEntityList.removeIf(entity -> !requestedEntityIds.contains(entity.getId()));
 
-        for (REQ req : requests) {
-            UUID id = idExtractor.apply(req);
-            if (id != null && existingById.containsKey(id)) {
-                updater.accept(req, existingById.get(id));
-            } else if (id == null) {
-                existing.add(creator.apply(req));
+        for (RequestItem requestData : requestDataList) {
+            UUID requestedEntityId = extractEntityId.apply(requestData);
+
+            if (requestedEntityId != null && existingEntityMap.containsKey(requestedEntityId)) {
+                EntityItem existingEntity = existingEntityMap.get(requestedEntityId);
+                updateEntityOperation.accept(requestData, existingEntity);
+            } else if (requestedEntityId == null) {
+                EntityItem newEntity = createEntityOperation.apply(requestData);
+                existingEntityList.add(newEntity);
             }
         }
     }
