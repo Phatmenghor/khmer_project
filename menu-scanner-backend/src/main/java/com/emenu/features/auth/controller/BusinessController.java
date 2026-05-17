@@ -23,57 +23,40 @@ public class BusinessController {
 
     private final BusinessService businessService;
 
-    /**
-     * Retrieves all businesses with pagination and filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BusinessResponse>>> getAllBusinesses(
-            @Valid @RequestBody BusinessFilterRequest request) {
-        log.info("Get all businesses");
-        PaginationResponse<BusinessResponse> response = businessService.getAllBusinesses(request);
-        return ResponseEntity.ok(ApiResponse.success("Businesses retrieved", response));
+            @Valid @RequestBody BusinessFilterRequest filterRequestData) {
+        PaginationResponse<BusinessResponse> businessListResponse = businessService.getAllBusinesses(filterRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Businesses retrieved", businessListResponse));
     }
 
-    /**
-     * Retrieves a business by its ID
-     */
     @GetMapping("/{businessId}")
     public ResponseEntity<ApiResponse<BusinessResponse>> getBusinessById(@PathVariable UUID businessId) {
-        log.info("Get business: {}", businessId);
-        BusinessResponse response = businessService.getBusinessById(businessId);
-        return ResponseEntity.ok(ApiResponse.success("Business retrieved", response));
+        BusinessResponse businessResponse = businessService.getBusinessById(businessId);
+        return ResponseEntity.ok(ApiResponse.success("Business retrieved", businessResponse));
     }
 
-    /**
-     * Creates a new business
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessResponse>> createBusiness(
-            @Valid @RequestBody BusinessCreateRequest request) {
-        log.info("Create business: {}", request.getName());
-        BusinessResponse response = businessService.createBusiness(request);
+            @Valid @RequestBody BusinessCreateRequest createRequestData) {
+        log.info("BUSINESS_CREATE_ENDPOINT: business_name={}", createRequestData.getName());
+        BusinessResponse createdBusinessResponse = businessService.createBusiness(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Business created", response));
+                .body(ApiResponse.success("Business created", createdBusinessResponse));
     }
 
-    /**
-     * Updates an existing business
-     */
     @PutMapping("/{businessId}")
     public ResponseEntity<ApiResponse<BusinessResponse>> updateBusiness(
             @PathVariable UUID businessId,
-            @Valid @RequestBody BusinessCreateRequest request) {
-        log.info("Update business: {}", businessId);
-        BusinessResponse response = businessService.updateBusiness(businessId, request);
-        return ResponseEntity.ok(ApiResponse.success("Business updated", response));
+            @Valid @RequestBody BusinessCreateRequest updateRequestData) {
+        log.info("BUSINESS_UPDATE_ENDPOINT: business_id={}", businessId);
+        BusinessResponse updatedBusinessResponse = businessService.updateBusiness(businessId, updateRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Business updated", updatedBusinessResponse));
     }
 
-    /**
-     * Deletes a business by its ID
-     */
     @DeleteMapping("/{businessId}")
     public ResponseEntity<ApiResponse<Void>> deleteBusiness(@PathVariable UUID businessId) {
-        log.info("Delete business: {}", businessId);
+        log.info("BUSINESS_DELETE_ENDPOINT: business_id={}", businessId);
         businessService.deleteBusiness(businessId);
         return ResponseEntity.ok(ApiResponse.success("Business deleted", null));
     }

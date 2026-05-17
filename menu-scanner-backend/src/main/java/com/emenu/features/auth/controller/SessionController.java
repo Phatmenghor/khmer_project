@@ -25,66 +25,53 @@ public class SessionController {
     private final UserSessionService sessionService;
     private final SecurityUtils securityUtils;
 
-    // ========== User Endpoints ==========
-
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserSessionResponse>>> getAllSessions() {
-        UUID userId = securityUtils.getCurrentUserId();
-        log.debug("Retrieving all sessions for user: {}", userId);
-        List<UserSessionResponse> allSessions = sessionService.getAllSessions(userId);
-        log.info("Retrieved {} sessions for user: {}", allSessions.size(), userId);
-        return ResponseEntity.ok(ApiResponse.success("Sessions retrieved successfully", allSessions));
+        UUID currentUserId = securityUtils.getCurrentUserId();
+        List<UserSessionResponse> userSessions = sessionService.getAllSessions(currentUserId);
+        return ResponseEntity.ok(ApiResponse.success("Sessions retrieved successfully", userSessions));
     }
 
     @GetMapping("/{sessionId}")
-    public ResponseEntity<ApiResponse<AdminSessionResponse>> getSessionById(
-            @PathVariable UUID sessionId) {
-        log.debug("Retrieving session details: {}", sessionId);
-        AdminSessionResponse response = sessionService.getSessionById(sessionId);
-        log.info("Session details retrieved: {}", sessionId);
-        return ResponseEntity.ok(ApiResponse.success("Session retrieved successfully", response));
+    public ResponseEntity<ApiResponse<AdminSessionResponse>> getSessionById(@PathVariable UUID sessionId) {
+        AdminSessionResponse sessionResponse = sessionService.getSessionById(sessionId);
+        return ResponseEntity.ok(ApiResponse.success("Session retrieved successfully", sessionResponse));
     }
 
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<ApiResponse<UserSessionResponse>> logoutSession(@PathVariable UUID sessionId) {
-        UUID userId = securityUtils.getCurrentUserId();
-        log.info("Logging out session: {} for user: {}", sessionId, userId);
-        UserSessionResponse response = sessionService.logoutSession(sessionId, userId);
-        log.info("Session logged out successfully: {}", sessionId);
-        return ResponseEntity.ok(ApiResponse.success("Session logged out successfully", response));
+        UUID currentUserId = securityUtils.getCurrentUserId();
+        log.info("SESSION_LOGOUT_ENDPOINT: session_id={}, user_id={}", sessionId, currentUserId);
+        UserSessionResponse logoutResponse = sessionService.logoutSession(sessionId, currentUserId);
+        return ResponseEntity.ok(ApiResponse.success("Session logged out successfully", logoutResponse));
     }
 
     @PostMapping("/logout-others")
     public ResponseEntity<ApiResponse<List<UserSessionResponse>>> logoutOtherSessions(@RequestParam UUID currentSessionId) {
-        UUID userId = securityUtils.getCurrentUserId();
-        log.info("Logging out all other sessions for user: {}", userId);
-        List<UserSessionResponse> loggedOutSessions = sessionService.logoutOtherSessions(userId, currentSessionId);
-        log.info("Logged out {} other sessions for user: {}", loggedOutSessions.size(), userId);
-        return ResponseEntity.ok(ApiResponse.success("Other sessions logged out successfully", loggedOutSessions));
+        UUID currentUserId = securityUtils.getCurrentUserId();
+        log.info("SESSIONS_LOGOUT_OTHER_ENDPOINT: user_id={}, current_session_id={}", currentUserId, currentSessionId);
+        List<UserSessionResponse> loggedOutSessionList = sessionService.logoutOtherSessions(currentUserId, currentSessionId);
+        return ResponseEntity.ok(ApiResponse.success("Other sessions logged out successfully", loggedOutSessionList));
     }
 
     @PostMapping("/admin/all")
     public ResponseEntity<ApiResponse<PaginationResponse<AdminSessionResponse>>> getAllSessionsAdmin(
-            @RequestBody SessionFilterRequest request) {
-        log.debug("Retrieving all sessions with filters - page: {}, size: {}", request.getPageNo(), request.getPageSize());
-        PaginationResponse<AdminSessionResponse> response = sessionService.getAllSessionsAdmin(request);
-        log.info("Retrieved {} sessions (page {}/{})", response.getContent().size(), response.getPageNo(), response.getTotalPages());
-        return ResponseEntity.ok(ApiResponse.success("Sessions retrieved successfully", response));
+            @RequestBody SessionFilterRequest filterRequestData) {
+        PaginationResponse<AdminSessionResponse> sessionsResponse = sessionService.getAllSessionsAdmin(filterRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Sessions retrieved successfully", sessionsResponse));
     }
 
     @DeleteMapping("/admin/{sessionId}")
     public ResponseEntity<ApiResponse<AdminSessionResponse>> logoutSessionAdmin(@PathVariable UUID sessionId) {
-        log.info("Admin logging out session: {}", sessionId);
-        AdminSessionResponse response = sessionService.logoutSessionAdmin(sessionId);
-        log.info("Session logged out by admin: {}", sessionId);
-        return ResponseEntity.ok(ApiResponse.success("Session logged out successfully", response));
+        log.info("SESSION_LOGOUT_ADMIN_ENDPOINT: session_id={}", sessionId);
+        AdminSessionResponse adminLogoutResponse = sessionService.logoutSessionAdmin(sessionId);
+        return ResponseEntity.ok(ApiResponse.success("Session logged out successfully", adminLogoutResponse));
     }
 
     @PostMapping("/admin/logout-all/{userId}")
     public ResponseEntity<ApiResponse<List<AdminSessionResponse>>> logoutAllSessionsAdmin(@PathVariable UUID userId) {
-        log.info("Admin logging out all sessions for user: {}", userId);
-        List<AdminSessionResponse> loggedOutSessions = sessionService.logoutAllSessionsAdmin(userId);
-        log.info("Logged out {} sessions for user: {} by admin", loggedOutSessions.size(), userId);
-        return ResponseEntity.ok(ApiResponse.success("All sessions logged out successfully", loggedOutSessions));
+        log.info("SESSIONS_LOGOUT_ALL_ADMIN_ENDPOINT: user_id={}", userId);
+        List<AdminSessionResponse> allLoggedOutSessions = sessionService.logoutAllSessionsAdmin(userId);
+        return ResponseEntity.ok(ApiResponse.success("All sessions logged out successfully", allLoggedOutSessions));
     }
 }

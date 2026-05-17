@@ -22,68 +22,48 @@ public class BusinessSettingController {
 
     private final BusinessSettingService businessSettingService;
 
-    /**
-     * Retrieves the current authenticated user's business settings
-     */
     @GetMapping("/current")
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> getCurrentBusinessSetting() {
-        log.info("Get current business setting");
-        BusinessSettingResponse response = businessSettingService.getCurrentBusinessSetting();
-        return ResponseEntity.ok(ApiResponse.success("Business setting retrieved", response));
+        BusinessSettingResponse currentSettingResponse = businessSettingService.getCurrentBusinessSetting();
+        return ResponseEntity.ok(ApiResponse.success("Business setting retrieved", currentSettingResponse));
     }
 
-    /**
-     * Updates the current authenticated user's business settings
-     */
     @PutMapping
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> updateCurrentBusinessSetting(
-            @Valid @RequestBody BusinessSettingUpdateRequest request) {
-        log.info("Update current business setting");
-        BusinessSettingResponse response = businessSettingService.updateCurrentBusinessSetting(request);
-        return ResponseEntity.ok(ApiResponse.success("Business setting updated", response));
+            @Valid @RequestBody BusinessSettingUpdateRequest updateRequestData) {
+        log.info("BUSINESS_SETTING_UPDATE_CURRENT_ENDPOINT");
+        BusinessSettingResponse updatedSettingResponse = businessSettingService.updateCurrentBusinessSetting(updateRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Business setting updated", updatedSettingResponse));
     }
 
-    /**
-     * Retrieves business settings for a specific business
-     */
     @GetMapping("/business/{businessId}")
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> getBusinessSettingByBusinessId(
             @PathVariable UUID businessId) {
-        log.info("Get business setting for: {}", businessId);
-        BusinessSettingResponse response = businessSettingService.getBusinessSettingByBusinessId(businessId);
-        return ResponseEntity.ok(ApiResponse.success("Business setting retrieved", response));
+        BusinessSettingResponse settingResponse = businessSettingService.getBusinessSettingByBusinessId(businessId);
+        return ResponseEntity.ok(ApiResponse.success("Business setting retrieved", settingResponse));
     }
 
-    /**
-     * Creates new business settings
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> createBusinessSetting(
-            @Valid @RequestBody BusinessSettingCreateRequest request) {
-        log.info("Create business setting");
-        BusinessSettingResponse response = businessSettingService.createBusinessSetting(request);
+            @Valid @RequestBody BusinessSettingCreateRequest createRequestData) {
+        log.info("BUSINESS_SETTING_CREATE_ENDPOINT: business_id={}", createRequestData.getBusinessId());
+        BusinessSettingResponse createdSettingResponse = businessSettingService.createBusinessSetting(createRequestData);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Business setting created", response));
+                .body(ApiResponse.success("Business setting created", createdSettingResponse));
     }
 
-    /**
-     * Updates business settings for a specific business
-     */
     @PutMapping("/business/{businessId}")
     public ResponseEntity<ApiResponse<BusinessSettingResponse>> updateBusinessSetting(
             @PathVariable UUID businessId,
-            @Valid @RequestBody BusinessSettingUpdateRequest request) {
-        log.info("Update business setting: {}", businessId);
-        BusinessSettingResponse response = businessSettingService.updateBusinessSetting(businessId, request);
-        return ResponseEntity.ok(ApiResponse.success("Business setting updated", response));
+            @Valid @RequestBody BusinessSettingUpdateRequest updateRequestData) {
+        log.info("BUSINESS_SETTING_UPDATE_ENDPOINT: business_id={}", businessId);
+        BusinessSettingResponse updatedResponse = businessSettingService.updateBusinessSetting(businessId, updateRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Business setting updated", updatedResponse));
     }
 
-    /**
-     * Deletes business settings for a specific business
-     */
     @DeleteMapping("/business/{businessId}")
     public ResponseEntity<ApiResponse<Void>> deleteBusinessSetting(@PathVariable UUID businessId) {
-        log.info("Delete business setting: {}", businessId);
+        log.info("BUSINESS_SETTING_DELETE_ENDPOINT: business_id={}", businessId);
         businessSettingService.deleteBusinessSetting(businessId);
         return ResponseEntity.ok(ApiResponse.success("Business setting deleted", null));
     }
