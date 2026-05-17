@@ -8,6 +8,7 @@ import com.emenu.features.auth.dto.request.RoleCreateRequest;
 import com.emenu.features.auth.dto.response.RoleDetailResponse;
 import com.emenu.features.auth.dto.response.RoleResponse;
 import com.emenu.features.auth.dto.update.RoleUpdateRequest;
+import com.emenu.features.auth.mapper.ResponseBuilderMapper;
 import com.emenu.features.auth.mapper.RoleMapper;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.Role;
@@ -40,6 +41,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final BusinessRepository businessRepository;
     private final RoleMapper roleMapper;
+    private final ResponseBuilderMapper responseBuilderMapper;
 
     @Override
     public RoleResponse createRole(RoleCreateRequest request) {
@@ -109,13 +111,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     private RoleResponse buildAllRolesResponse(UUID businessId) {
-        RoleResponse response = new RoleResponse();
-        response.setId(null);
-        response.setName("ALL_ROLES");
-        response.setDescription("All Roles");
-        response.setBusinessId(businessId);
-        response.setUserType(UserType.BUSINESS_USER);
-        return response;
+        return responseBuilderMapper.buildAllRolesResponse(businessId);
     }
 
     @Override
