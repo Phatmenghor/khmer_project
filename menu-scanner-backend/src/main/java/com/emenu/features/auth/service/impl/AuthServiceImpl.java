@@ -10,6 +10,7 @@ import com.emenu.features.auth.dto.request.RegisterRequest;
 import com.emenu.features.auth.dto.response.LoginResponse;
 import com.emenu.features.auth.dto.response.RefreshTokenResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
+import com.emenu.features.auth.mapper.RefreshTokenResponseMapper;
 import com.emenu.features.auth.mapper.UserMapper;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.RefreshToken;
@@ -49,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final BusinessRepository businessRepository;
     private final UserMapper userMapper;
+    private final RefreshTokenResponseMapper refreshTokenResponseMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTGenerator jwtGenerator;
@@ -367,7 +369,7 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Token refreshed for user: {}", user.getUserIdentifier());
 
-        return new RefreshTokenResponse(newAccessToken, newRefreshToken.getToken());
+        return refreshTokenResponseMapper.toResponse(newAccessToken, newRefreshToken.getToken());
     }
 
     /**
