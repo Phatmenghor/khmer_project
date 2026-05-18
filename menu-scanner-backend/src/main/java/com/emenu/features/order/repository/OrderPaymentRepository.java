@@ -19,19 +19,10 @@ import java.util.UUID;
 @Repository
 public interface OrderPaymentRepository extends JpaRepository<OrderPayment, UUID> {
 
-    /**
-     * Finds a non-deleted business order payment by ID
-     */
     Optional<OrderPayment> findByIdAndIsDeletedFalse(UUID id);
 
-    /**
-     * Finds a non-deleted business order payment by order ID
-     */
     Optional<OrderPayment> findByOrderIdAndIsDeletedFalse(UUID orderId);
 
-    /**
-     * Finds a non-deleted business order payment by ID with business, order, and customer details eagerly fetched
-     */
     @Query("SELECT bop FROM OrderPayment bop " +
            "LEFT JOIN FETCH bop.business " +
            "LEFT JOIN FETCH bop.order o " +
@@ -39,32 +30,17 @@ public interface OrderPaymentRepository extends JpaRepository<OrderPayment, UUID
            "WHERE bop.id = :id AND bop.isDeleted = false")
     Optional<OrderPayment> findByIdWithDetails(@Param("id") UUID id);
 
-    /**
-     * Finds all non-deleted business order payments by business ID, ordered by creation date descending
-     */
     @Query("SELECT bop FROM OrderPayment bop WHERE bop.businessId = :businessId AND bop.isDeleted = false ORDER BY bop.createdAt DESC")
     List<OrderPayment> findByBusinessIdOrderByCreatedAtDesc(@Param("businessId") UUID businessId);
 
-    /**
-     * Checks if a non-deleted business order payment exists with the given payment reference
-     */
     boolean existsByPaymentReferenceAndIsDeletedFalse(String paymentReference);
 
-    /**
-     * Calculates total revenue for a business from completed payments
-     */
     @Query("SELECT SUM(bop.totalAmount) FROM OrderPayment bop WHERE bop.businessId = :businessId AND bop.status = 'COMPLETED' AND bop.isDeleted = false")
     BigDecimal getTotalRevenue(@Param("businessId") UUID businessId);
 
-    /**
-     * Calculates revenue for a business within a date range from completed payments
-     */
     @Query("SELECT SUM(bop.totalAmount) FROM OrderPayment bop WHERE bop.businessId = :businessId AND bop.status = 'COMPLETED' AND bop.createdAt >= :fromDate AND bop.createdAt <= :toDate AND bop.isDeleted = false")
     BigDecimal getRevenueByDateRange(@Param("businessId") UUID businessId, @Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
 
-    /**
-     * Find all business order payments with dynamic filtering
-     */
     @Query("SELECT bop FROM OrderPayment bop " +
            "WHERE bop.isDeleted = false " +
            "AND (:businessId IS NULL OR bop.businessId = :businessId) " +
@@ -86,3 +62,4 @@ public interface OrderPaymentRepository extends JpaRepository<OrderPayment, UUID
         Pageable pageable
     );
 }
+

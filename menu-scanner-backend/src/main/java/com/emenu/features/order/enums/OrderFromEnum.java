@@ -1,10 +1,5 @@
 package com.emenu.features.order.enums;
 
-/**
- * Enum to identify the source of the order
- * CUSTOMER: Order created from public checkout page
- * BUSINESS: Order created from admin/POS system
- */
 public enum OrderFromEnum {
     CUSTOMER("Customer"),      // From public checkout page
     BUSINESS("Business");      // From admin/POS system
@@ -30,3 +25,4 @@ public enum OrderFromEnum {
         }
     }
 }
+

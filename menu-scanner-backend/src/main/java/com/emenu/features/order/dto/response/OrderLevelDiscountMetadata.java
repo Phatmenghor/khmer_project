@@ -9,10 +9,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Metadata for order-level discounts applied via POS system
- * Tracks complete before/after audit trail of discount application
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -39,3 +35,4 @@ public class OrderLevelDiscountMetadata {
     // Timestamp of when discount was applied
     private LocalDateTime appliedAt;
 }
+

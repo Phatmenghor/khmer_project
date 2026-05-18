@@ -29,15 +29,11 @@ public class PublicProductController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getAllPublicProducts(
             @Valid @RequestBody ProductFilterDto filter) {
-
-        log.info("Public get all - Page: {}, Size: {}, BusinessId: {}, CategoryId: {}, BrandId: {}",
-                filter.getPageNo(), filter.getPageSize(), filter.getBusinessId(),
-                filter.getCategoryId(), filter.getBrandId());
+        log.info("Endpoint: public-search-products - public products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
 
         UUID businessId = filter.getBusinessId();
 
         if (businessId != null && filter.getCategoryId() != null && !productConditionalService.businessUsesCategories(businessId)) {
-            log.info("Business {} does not use categories - returning empty product list", businessId);
             PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
             emptyResponse.setContent(new ArrayList<>());
             emptyResponse.setTotalElements(0L);
@@ -46,7 +42,6 @@ public class PublicProductController {
         }
 
         if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
-            log.info("Business {} does not use brands - returning empty product list", businessId);
             PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
             emptyResponse.setContent(new ArrayList<>());
             emptyResponse.setTotalElements(0L);
@@ -65,19 +60,15 @@ public class PublicProductController {
     @PostMapping("/all-data")
     public ResponseEntity<ApiResponse<List<ProductListDto>>> getAllDataPublicProducts(
             @Valid @RequestBody ProductFilterDto filter) {
-
-        log.info("Public get all data is fetching - BusinessId: {}, CategoryId: {}, BrandId: {}",
-                filter.getBusinessId(), filter.getCategoryId(), filter.getBrandId());
+        log.info("Endpoint: public-search-all-products - public all products retrieval: business_id={}", filter.getBusinessId());
 
         UUID businessId = filter.getBusinessId();
 
         if (businessId != null && filter.getCategoryId() != null && !productConditionalService.businessUsesCategories(businessId)) {
-            log.info("Business {} does not use categories - returning empty product list", businessId);
             return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", new ArrayList<>()));
         }
 
         if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
-            log.info("Business {} does not use brands - returning empty product list", businessId);
             return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", new ArrayList<>()));
         }
 
@@ -91,10 +82,8 @@ public class PublicProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> getPublicProductById(@PathVariable UUID id) {
-        log.info("Get public product: {}", id);
-
+        log.info("Endpoint: public-get-product - public product detail: id={}", id);
         ProductDetailDto product = productService.getProductByIdPublic(id);
-
         return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", product));
     }
 }

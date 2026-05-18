@@ -7,5 +7,4 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ProvinceFilterRequest extends BaseFilterRequest {
-    // Inherits: search, pageNo, pageSize, sortBy, sortDirection
 }

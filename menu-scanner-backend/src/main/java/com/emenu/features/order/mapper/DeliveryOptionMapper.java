@@ -24,8 +24,4 @@ public interface DeliveryOptionMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(DeliveryOptionUpdateRequest request, @MappingTarget DeliveryOption deliveryOption);
-
-    default PaginationResponse<DeliveryOptionResponse> toPaginationResponse(Page<DeliveryOption> deliveryOptionPage, PaginationMapper paginationMapper) {
-return paginationMapper.toPaginationResponse(deliveryOptionPage, this::toResponseList);
-    }
 }

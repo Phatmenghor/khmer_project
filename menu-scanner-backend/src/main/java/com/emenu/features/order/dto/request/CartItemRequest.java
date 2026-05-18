@@ -10,10 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Cart item for order creation request - matches POSCheckoutItemRequest structure
- * Supports customizations for items with add-ons/modifiers
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -65,3 +61,4 @@ public class CartItemRequest {
         private BigDecimal priceAdjustment;
     }
 }
+

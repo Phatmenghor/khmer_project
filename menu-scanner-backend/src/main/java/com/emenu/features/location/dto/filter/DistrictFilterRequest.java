@@ -7,5 +7,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class DistrictFilterRequest extends BaseFilterRequest {
-    private String provinceCode;  // Filter by province code
+    private String provinceCode;
 }

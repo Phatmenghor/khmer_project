@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,68 +25,49 @@ public class WorkScheduleController {
 
     private final WorkScheduleService service;
 
-    /**
-     * Creates a new work schedule
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<WorkScheduleResponse>> create(
             @Valid @RequestBody WorkScheduleCreateRequest request) {
-        log.info("Creating work schedule: {}", request.getName());
+        log.info("Endpoint: create-work-schedule - work schedule creation: name={}", request.getName());
         WorkScheduleResponse response = service.create(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Work schedule created", response));
     }
 
-    /**
-     * Retrieves a work schedule by its ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkScheduleResponse>> getById(@PathVariable UUID id) {
-        log.info("Get work schedule: {}", id);
+        log.info("Endpoint: get-work-schedule - work schedule detail: id={}", id);
         WorkScheduleResponse response = service.getById(id);
         return ResponseEntity.ok(ApiResponse.success("Work schedule retrieved", response));
     }
 
-    /**
-     * Retrieves all work schedules with pagination and filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<WorkScheduleResponse>>> getAll(
             @Valid @RequestBody WorkScheduleFilterRequest filter) {
-        log.info("Get all work schedules");
+        log.info("Endpoint: search-work-schedules - work schedules retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<WorkScheduleResponse> response = service.getAll(filter);
         return ResponseEntity.ok(ApiResponse.success("Work schedules retrieved", response));
     }
 
-    /**
-     * Retrieves all work schedules for a specific user
-     */
     @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<WorkScheduleResponse>>> getByUserId(
-            @PathVariable UUID userId) {
-        log.info("Get work schedules for user: {}", userId);
+    public ResponseEntity<ApiResponse<List<WorkScheduleResponse>>> getByUserId(@PathVariable UUID userId) {
+        log.info("Endpoint: get-work-schedules-by-user - work schedules retrieval: userId={}", userId);
         List<WorkScheduleResponse> responses = service.getByUserId(userId);
         return ResponseEntity.ok(ApiResponse.success("Work schedules retrieved", responses));
     }
 
-    /**
-     * Updates a work schedule
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkScheduleResponse>> update(
             @PathVariable UUID id,
             @Valid @RequestBody WorkScheduleUpdateRequest request) {
-        log.info("Update work schedule: {}", id);
+        log.info("Endpoint: update-work-schedule - work schedule update: id={}", id);
         WorkScheduleResponse response = service.update(id, request);
         return ResponseEntity.ok(ApiResponse.success("Work schedule updated", response));
     }
 
-    /**
-     * Deletes a work schedule
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkScheduleResponse>> delete(@PathVariable UUID id) {
-        log.info("Delete work schedule: {}", id);
+        log.info("Endpoint: delete-work-schedule - work schedule deletion: id={}", id);
         WorkScheduleResponse response = service.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Work schedule deleted", response));
     }

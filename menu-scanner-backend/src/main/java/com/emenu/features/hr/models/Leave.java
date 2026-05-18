@@ -57,7 +57,6 @@ public class Leave extends BaseUUIDEntity {
     @Builder.Default
     private LeaveStatusEnum status = LeaveStatusEnum.PENDING;
 
-    // Action tracking (for both approval and rejection)
     @Column(name = "action_by")
     private UUID actionBy;
 

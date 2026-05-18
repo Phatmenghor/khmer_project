@@ -27,76 +27,55 @@ public class LocationController {
     private final LocationService addressService;
     private final SecurityUtils securityUtils;
 
-    /**
-     * Create new address
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<LocationResponse>> createAddress(@Valid @RequestBody LocationCreateRequest request) {
-        log.info("Creating new address");
+        log.info("Endpoint: create-location - location creation: district={}, province={}", request.getDistrict(), request.getProvince());
         LocationResponse address = addressService.createAddress(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Address created successfully", address));
     }
 
-    /**
-     * Get all addresses with filtering and pagination
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<LocationResponse>>> getAllAddresses(@Valid @RequestBody LocationFilterRequest filter) {
-        log.info("Getting all addresses for current user");
+        log.info("Endpoint: search-locations - locations retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<LocationResponse> addresses = addressService.getAllAddresses(filter);
         return ResponseEntity.ok(ApiResponse.success("Addresses retrieved successfully", addresses));
     }
 
-    /**
-     * Get my addresses with filtering and pagination
-     */
     @PostMapping("/my-addresses/all")
     public ResponseEntity<ApiResponse<PaginationResponse<LocationResponse>>> getMyAddresses(@Valid @RequestBody LocationFilterRequest filter) {
-        log.info("Getting my addresses for current user");
+        log.info("Endpoint: search-my-locations - my locations retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         User currentUser = securityUtils.getCurrentUser();
         filter.setUserId(currentUser.getId());
         PaginationResponse<LocationResponse> addresses = addressService.getAllAddresses(filter);
         return ResponseEntity.ok(ApiResponse.success("My addresses retrieved successfully", addresses));
     }
 
-    /**
-     * Get address by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<LocationResponse>> getAddressById(@PathVariable UUID id) {
-        log.info("Get address by id: {}", id);
+        log.info("Endpoint: get-location - location detail: id={}", id);
         LocationResponse address = addressService.getAddressById(id);
         return ResponseEntity.ok(ApiResponse.success("Address retrieved successfully", address));
     }
 
-    /**
-     * Update address
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<LocationResponse>> updateAddress(
             @PathVariable UUID id, @Valid @RequestBody LocationUpdateRequest request) {
-        log.info("Update address: {}", id);
+        log.info("Endpoint: update-location - location update: id={}", id);
         LocationResponse address = addressService.updateAddress(id, request);
         return ResponseEntity.ok(ApiResponse.success("Address updated successfully", address));
     }
 
-    /**
-     * Delete address
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<LocationResponse>> deleteAddress(@PathVariable UUID id) {
-        log.info("Delete address: {}", id);
+        log.info("Endpoint: delete-location - location deletion: id={}", id);
         LocationResponse address = addressService.deleteAddress(id);
         return ResponseEntity.ok(ApiResponse.success("Address deleted successfully", address));
     }
 
-    /**
-     * Get default address
-     */
     @GetMapping("/default")
     public ResponseEntity<ApiResponse<LocationResponse>> getDefaultAddress() {
-        log.info("Get default address");
+        log.info("Endpoint: get-default-location - default location retrieval");
         LocationResponse address = addressService.getDefaultAddress();
         return ResponseEntity.ok(ApiResponse.success("Default address retrieved successfully", address));
     }

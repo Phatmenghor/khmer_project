@@ -31,10 +31,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
 
     // ========== Batch Queries (for FIFO) ==========
 
-    /**
-     * Get all active, non-expired batches for a product+size ordered by dateIn ASC (oldest first).
-     * Used for FIFO stock deduction when an order is placed.
-     */
     @Query("""
         SELECT ps FROM ProductStock ps
         WHERE ps.productId = :productId
@@ -51,9 +47,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         @Param("businessId") UUID businessId
     );
 
-    /**
-     * Get total available quantity across all non-expired batches for a product+size.
-     */
     @Query("""
         SELECT COALESCE(SUM(ps.quantityAvailable), 0)
         FROM ProductStock ps
@@ -69,9 +62,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         @Param("businessId") UUID businessId
     );
 
-    /**
-     * Get total quantity on hand across all non-expired batches for a product+size.
-     */
     @Query("""
         SELECT COALESCE(SUM(ps.quantityOnHand), 0)
         FROM ProductStock ps
@@ -87,10 +77,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         @Param("businessId") UUID businessId
     );
 
-    /**
-     * Get total quantity on hand per product for a list of product IDs (for product listing enrichment).
-     * Returns Object[] where [0] = productId (UUID), [1] = totalStock (Long).
-     */
     @Query("""
         SELECT ps.productId, COALESCE(SUM(ps.quantityOnHand), 0)
         FROM ProductStock ps
@@ -101,9 +87,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     """)
     List<Object[]> sumOnHandQuantityByProductIds(@Param("productIds") List<UUID> productIds);
 
-    /**
-     * Get total quantity on hand for a specific product size ID (for size-level stock enrichment).
-     */
     @Query("""
         SELECT COALESCE(SUM(ps.quantityOnHand), 0)
         FROM ProductStock ps
@@ -187,11 +170,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
             AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
     """,
     nativeQuery = true)
-    /**
-     * Find product stocks with filtering and sorting.
-     * Pagination and sorting are handled by Spring Data Pageable (no hardcoded ORDER BY).
-     * Supports sorting by: date_in, created_at, updated_at, quantity_on_hand, etc.
-     */
     Page<ProductStock> findWithFilters(
         @Param("businessId") UUID businessId,
         @Param("productId") UUID productId,
@@ -230,13 +208,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
     Long countByBusinessIdAndIsExpiredTrue(UUID businessId);
 
     // ========== Product Stock Items (Flat List) Query ==========
-    /**
-     * Get flattened product stock items for listing (products and sizes as separate items).
-     * Returns a flat list where:
-     * - Products without sizes: 1 item per product (type=PRODUCT, sizeName=null)
-     * - Products with sizes: 1 item per size (type=SIZE, sizeName=size name)
-     * Each item contains aggregated stock data (summed from all batches of that product/size).
-     */
     @Query(value = """
         SELECT * FROM (
             (
@@ -446,11 +417,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         ) AS count_result
     """,
     nativeQuery = true)
-    /**
-     * Find product stock items with filtering and sorting.
-     * Wrapped in subquery to allow Spring Data Pageable to properly apply ORDER BY and pagination.
-     * Supports sorting by: product_name, total_stock, status, stock_status, sku, barcode, created_at, updated_at
-     */
     Page<Object[]> findProductStockItems(
         @Param("businessId") UUID businessId,
         @Param("search") String search,
@@ -461,3 +427,4 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
         Pageable pageable
     );
 }
+

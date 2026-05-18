@@ -9,9 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Helper DTO for creating OrderItem via MapStruct
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -45,3 +42,4 @@ public class OrderItemCreateHelper {
     // Customer instructions
     private String specialInstructions;
 }
+

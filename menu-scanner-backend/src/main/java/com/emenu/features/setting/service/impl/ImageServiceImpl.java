@@ -10,6 +10,7 @@ import com.emenu.features.setting.repository.ImageRepository;
 import com.emenu.features.setting.service.ImageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ImageServiceImpl implements ImageService {
     
     private final ImageRepository imageRepository;
@@ -25,18 +27,18 @@ public class ImageServiceImpl implements ImageService {
     @Override
     @Transactional
     public ImageDto uploadImage(ImageUploadRequest request) {
-        // Normalize the type field - add "image/" prefix if it doesn't have it
         if (!request.getType().contains("/")) {
             request.setType("image/" + request.getType());
         }
 
         ImageEntity image = imageMapper.toEntity(request);
         ImageEntity savedImage = imageRepository.save(image);
+        log.info("Image uploaded successfully: id={}, type={}", savedImage.getId(), savedImage.getType());
         return imageMapper.toDto(savedImage);
     }
     
     @Override
-    @Transactional()
+    @Transactional
     public ImageResponse getImageById(UUID id) {
         ImageEntity image = imageRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Image not found with id: " + id));
@@ -51,5 +53,6 @@ public class ImageServiceImpl implements ImageService {
             throw new NotFoundException("Image not found with id: " + id);
         }
         imageRepository.deleteById(id);
+        log.info("Image deleted successfully: id={}", id);
     }
 }

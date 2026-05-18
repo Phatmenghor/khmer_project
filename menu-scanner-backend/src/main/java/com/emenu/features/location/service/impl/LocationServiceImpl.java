@@ -44,28 +44,19 @@ public class LocationServiceImpl implements LocationService {
         Location address = addressMapper.toEntity(request);
         address.setUserId(currentUser.getId());
 
-        // If this is set as default or no default exists, make it default
         if (request.getIsDefault() || !hasDefaultAddress(currentUser.getId())) {
             clearDefaultForUser(currentUser.getId());
             address.setAsDefault();
         }
 
         Location savedAddress = addressRepository.save(address);
+        addLocationImages(savedAddress, request.getLocationImages());
 
-        // Handle location images - the location reference manages the foreign key
         if (request.getLocationImages() != null && !request.getLocationImages().isEmpty()) {
-            for (var imageRequest : request.getLocationImages()) {
-                var locationImage = new LocationImage();
-                locationImage.setLocation(savedAddress);
-                locationImage.setImageUrl(imageRequest.getImageUrl());
-                savedAddress.getLocationImages().add(locationImage);
-            }
-            // Save again with images
             savedAddress = addressRepository.save(savedAddress);
         }
 
-        log.info("Address created for user: {}", currentUser.getUserIdentifier());
-
+        log.info("Location created successfully: id={}, userId={}", savedAddress.getId(), currentUser.getId());
         return addressMapper.toResponse(savedAddress);
     }
 
@@ -97,76 +88,36 @@ public class LocationServiceImpl implements LocationService {
     @Transactional(readOnly = true)
     public LocationResponse getAddressById(UUID id) {
         User currentUser = securityUtils.getCurrentUser();
-        Location address = addressRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new NotFoundException("Address not found"));
-        
-        if (!address.getUserId().equals(currentUser.getId())) {
-            throw new ValidationException("You can only access your own addresses");
-        }
-        
+        Location address = findLocationById(id);
+        validateOwnership(address, currentUser, "access");
         return addressMapper.toResponse(address);
     }
 
     @Override
     public LocationResponse updateAddress(UUID id, LocationUpdateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
-        Location address = addressRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new NotFoundException("Address not found"));
+        Location address = findLocationById(id);
+        validateOwnership(address, currentUser, "update");
 
-        if (!address.getUserId().equals(currentUser.getId())) {
-            throw new ValidationException("You can only update your own addresses");
-        }
-
-        // Update fields from request
         addressMapper.updateEntity(request, address);
+        updateLocationImages(address, request.getLocationImages());
+        handleDefaultAddressLogic(address, request.getIsDefault(), currentUser);
 
-        // Handle location images - the location reference manages the foreign key
-        if (request.getLocationImages() != null && !request.getLocationImages().isEmpty()) {
-            // Clear existing images (cascade delete via JPA)
-            address.getLocationImages().clear();
-
-            // Create new LocationImage entities with location reference
-            for (var imageRequest : request.getLocationImages()) {
-                var locationImage = new LocationImage();
-                locationImage.setLocation(address);
-                locationImage.setImageUrl(imageRequest.getImageUrl());
-                address.getLocationImages().add(locationImage);
-            }
-        }
-
-        // Handle default address logic
-        if (Boolean.TRUE.equals(request.getIsDefault())) {
-            // Clear default for all other addresses first
-            clearDefaultForUser(currentUser.getId());
-            // Set this address as default
-            address.setAsDefault();
-            log.info("Setting address {} as default for user: {}", id, currentUser.getUserIdentifier());
-        } else if (Boolean.FALSE.equals(request.getIsDefault())) {
-            // Explicitly set as non-default if requested
-            address.unsetDefault();
-        }
-
-        // Save the updated address
         Location updatedAddress = addressRepository.save(address);
-        log.info("Address {} updated for user: {}", id, currentUser.getUserIdentifier());
-
+        log.info("Location updated successfully: id={}, userId={}", id, currentUser.getId());
         return addressMapper.toResponse(updatedAddress);
     }
 
     @Override
     public LocationResponse deleteAddress(UUID id) {
         User currentUser = securityUtils.getCurrentUser();
-        Location address = addressRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new NotFoundException("Address not found"));
-        
-        if (!address.getUserId().equals(currentUser.getId())) {
-            throw new ValidationException("You can only delete your own addresses");
-        }
-        
+        Location address = findLocationById(id);
+        validateOwnership(address, currentUser, "delete");
+
         address.softDelete();
         addressRepository.save(address);
-        
-        log.info("Address deleted for user: {}", currentUser.getUserIdentifier());
+
+        log.info("Location deleted successfully: id={}, userId={}", id, currentUser.getId());
         return addressMapper.toResponse(address);
     }
 
@@ -177,14 +128,54 @@ public class LocationServiceImpl implements LocationService {
         Location defaultAddress = addressRepository
                 .findByUserIdAndIsDefaultTrueAndIsDeletedFalse(currentUser.getId())
                 .orElseThrow(() -> new NotFoundException("No default address found"));
-        
         return addressMapper.toResponse(defaultAddress);
     }
-    
+
+    private Location findLocationById(UUID id) {
+        return addressRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new NotFoundException("Address not found"));
+    }
+
+    private void validateOwnership(Location address, User currentUser, String action) {
+        if (!address.getUserId().equals(currentUser.getId())) {
+            throw new ValidationException("You can only " + action + " your own addresses");
+        }
+    }
+
+    private void addLocationImages(Location location, List<com.emenu.features.location.dto.request.LocationImageRequest> imageRequests) {
+        if (imageRequests == null || imageRequests.isEmpty()) return;
+        for (var imageRequest : imageRequests) {
+            var locationImage = new LocationImage();
+            locationImage.setLocation(location);
+            locationImage.setImageUrl(imageRequest.getImageUrl());
+            location.getLocationImages().add(locationImage);
+        }
+    }
+
+    private void updateLocationImages(Location address, List<com.emenu.features.location.dto.request.LocationImageRequest> imageRequests) {
+        if (imageRequests == null || imageRequests.isEmpty()) return;
+        address.getLocationImages().clear();
+        for (var imageRequest : imageRequests) {
+            var locationImage = new LocationImage();
+            locationImage.setLocation(address);
+            locationImage.setImageUrl(imageRequest.getImageUrl());
+            address.getLocationImages().add(locationImage);
+        }
+    }
+
+    private void handleDefaultAddressLogic(Location address, Boolean isDefault, User currentUser) {
+        if (Boolean.TRUE.equals(isDefault)) {
+            clearDefaultForUser(currentUser.getId());
+            address.setAsDefault();
+        } else if (Boolean.FALSE.equals(isDefault)) {
+            address.unsetDefault();
+        }
+    }
+
     private boolean hasDefaultAddress(UUID userId) {
         return addressRepository.findByUserIdAndIsDefaultTrueAndIsDeletedFalse(userId).isPresent();
     }
-    
+
     private void clearDefaultForUser(UUID userId) {
         addressRepository.clearDefaultForUser(userId);
     }

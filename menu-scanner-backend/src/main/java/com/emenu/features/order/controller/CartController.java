@@ -23,7 +23,7 @@ public class CartController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CartSummaryResponse>> submitCartItem(@Valid @RequestBody CartItemCreateRequest request) {
-        log.info("Submit cart item - product: {}, qty: {} (0=remove, >0=add/update)", request.getProductId(), request.getQuantity());
+        log.info("Endpoint: submit-cart-item - cart item submission: product_id={}, qty={}", request.getProductId(), request.getQuantity());
         CartSummaryResponse cart = cartService.submitCartItem(request);
         return ResponseEntity.ok(ApiResponse.success("Cart updated successfully", cart));
     }
@@ -31,13 +31,11 @@ public class CartController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<CartSummaryResponse>> getCart(
             @Valid @RequestBody GetCartRequest request) {
-        log.info("Getting full cart for business: {}", request.getBusinessId());
-        // Get all cart items without pagination - return complete cart data
+        log.info("Endpoint: get-cart - full cart retrieval: business_id={}", request.getBusinessId());
         CartSummaryResponse cart = cartService.getCartPaginated(request.getBusinessId(), 1, 1000);
         return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", cart));
     }
 
-    // Simple request class for getting full cart (no pagination)
     @Data
     public static class GetCartRequest {
         @jakarta.validation.constraints.NotNull(message = "Business ID is required")
@@ -46,7 +44,7 @@ public class CartController {
 
     @DeleteMapping("/{businessId}/clear")
     public ResponseEntity<ApiResponse<CartSummaryResponse>> clearCart(@PathVariable UUID businessId) {
-        log.info("Clearing cart for business: {}", businessId);
+        log.info("Endpoint: clear-cart - cart clearing: business_id={}", businessId);
         CartSummaryResponse cart = cartService.clearCart(businessId);
         return ResponseEntity.ok(ApiResponse.success("Cart cleared", cart));
     }

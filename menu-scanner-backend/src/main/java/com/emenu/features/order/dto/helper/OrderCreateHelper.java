@@ -10,10 +10,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-/**
- * Helper DTO for creating Order via MapStruct
- * Uses proper fields instead of JSON snapshots
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -49,3 +45,4 @@ public class OrderCreateHelper {
     private BigDecimal subtotal;
     private BigDecimal totalAmount;
 }
+

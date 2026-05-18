@@ -47,6 +47,6 @@ public interface LocationMapper {
     }
 
     default PaginationResponse<LocationResponse> toPaginationResponse(Page<Location> addresses, PaginationMapper paginationMapper) {
-return paginationMapper.toPaginationResponse(addresses, this::toResponseList);
+        return paginationMapper.toPaginationResponse(addresses, this::toResponseList);
     }
 }

@@ -45,23 +45,10 @@ public interface OrderMapper {
 
     List<OrderResponse> toResponseList(List<Order> orders);
 
-    default PaginationResponse<OrderResponse> toPaginationResponse(Page<Order> orderPage, PaginationMapper paginationMapper) {
-        return paginationMapper.toPaginationResponse(orderPage, this::toResponseList);
-    }
-
-    /**
-     * Create order from helper DTO - pure MapStruct mapping
-     */
     Order createFromHelper(OrderCreateHelper helper);
 
-    /**
-     * Create order item from helper DTO - pure MapStruct mapping
-     */
     OrderItem createOrderItemFromHelper(OrderItemCreateHelper helper);
 
-    /**
-     * Helper to build OrderCreateHelper for checkout order
-     */
     default OrderCreateHelper buildOrderHelper(OrderCreateRequest request, UUID customerId, String orderNumber) {
         var builder = OrderCreateHelper.builder()
                 .orderNumber(orderNumber)
@@ -91,9 +78,6 @@ public interface OrderMapper {
         return builder.build();
     }
 
-    /**
-     * Helper to build OrderItemCreateHelper from cart item
-     */
     default OrderItemCreateHelper buildOrderItemHelperFromCartItem(CartItem cartItem, UUID orderId) {
         // Get promotion details from product or productSize
         String promotionType = null;
@@ -130,9 +114,6 @@ public interface OrderMapper {
                 .build();
     }
 
-    /**
-     * Map delivery address from OrderDeliveryAddress snapshot entity to DTO
-     */
     default com.emenu.features.order.dto.response.OrderDeliveryAddressDto mapDeliveryAddress(Order order) {
         if (order == null || order.getDeliveryAddress() == null) {
             return null;
@@ -164,9 +145,6 @@ public interface OrderMapper {
                 .build();
     }
 
-    /**
-     * Map delivery option from OrderDeliveryOption snapshot entity to DTO
-     */
     default com.emenu.features.order.dto.response.OrderDeliveryOptionDto mapDeliveryOption(Order order) {
         if (order == null || order.getDeliveryOption() == null) {
             return null;
@@ -189,9 +167,6 @@ public interface OrderMapper {
     }
 
 
-    /**
-     * Calculate total number of items in the order
-     */
     default Integer calculateTotalItems(Order order) {
         if (order.getItems() == null || order.getItems().isEmpty()) {
             return 0;
@@ -201,10 +176,6 @@ public interface OrderMapper {
                 .sum();
     }
 
-    /**
-     * Map order status history to response DTOs
-     * Returns empty list if no history exists (order just created)
-     */
     default List<OrderStatusHistoryResponse> mapStatusHistory(Order order) {
         if (order.getStatusHistory() == null || order.getStatusHistory().isEmpty()) {
             // Return empty list instead of null for consistency with client expectations
@@ -223,9 +194,6 @@ public interface OrderMapper {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Map user details from status history
-     */
     default OrderStatusHistoryUserInfo mapStatusHistoryUserInfo(OrderStatusHistory history) {
         if (history.getChangedByUser() == null) {
             return null;
@@ -242,9 +210,6 @@ public interface OrderMapper {
                 .build();
     }
 
-    /**
-     * Map pricing details to nested pricing info object with complete breakdown
-     */
     default OrderPricingInfo mapPricingInfo(Order order) {
         if (order == null) {
             return null;
@@ -264,9 +229,6 @@ public interface OrderMapper {
                 .build();
     }
 
-    /**
-     * Calculate sum of item-level discounts
-     */
     default BigDecimal calculateItemLevelDiscounts(Order order) {
         if (order == null || order.getItems() == null || order.getItems().isEmpty()) {
             return BigDecimal.ZERO;
@@ -283,9 +245,6 @@ public interface OrderMapper {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /**
-     * Calculate subtotal before any discounts by summing items at original price (currentPrice * quantity)
-     */
     default BigDecimal calculateSubtotalBeforeDiscount(Order order) {
         if (order == null || order.getItems() == null || order.getItems().isEmpty()) {
             return BigDecimal.ZERO;
@@ -301,9 +260,6 @@ public interface OrderMapper {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /**
-     * Map payment method and status to nested payment info object
-     */
     default OrderPaymentInfo mapPaymentInfo(Order order) {
         if (order == null) {
             return null;
@@ -315,3 +271,5 @@ public interface OrderMapper {
                 .build();
     }
 }
+
+

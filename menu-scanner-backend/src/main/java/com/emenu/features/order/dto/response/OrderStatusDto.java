@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Current status snapshot with full user details who set it
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,3 +23,4 @@ public class OrderStatusDto {
 
     private LocalDateTime createdAt;  // When this status was set
 }
+

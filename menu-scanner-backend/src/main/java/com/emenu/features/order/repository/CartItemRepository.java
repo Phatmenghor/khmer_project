@@ -19,75 +19,41 @@ import java.util.UUID;
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
 
-    /**
-     * Finds a non-deleted cart item by ID
-     */
     Optional<CartItem> findByIdAndIsDeletedFalse(UUID id);
 
-    /**
-     * Finds a non-deleted cart item by cart ID, product ID, and optional product size ID
-     * Returns first result if duplicates exist (should not happen with proper constraints).
-     */
     @Query("SELECT ci FROM CartItem ci WHERE ci.cartId = :cartId AND ci.productId = :productId AND ((:productSizeId IS NULL AND ci.productSizeId IS NULL) OR (:productSizeId IS NOT NULL AND ci.productSizeId = :productSizeId)) AND ci.isDeleted = false ORDER BY ci.createdAt DESC LIMIT 1")
     Optional<CartItem> findByCartIdAndProductIdAndSizeId(@Param("cartId") UUID cartId,
                                                           @Param("productId") UUID productId,
                                                           @Param("productSizeId") UUID productSizeId);
 
-    /**
-     * Finds a non-deleted cart item with pessimistic write lock (FOR UPDATE) to prevent
-     * concurrent modification race conditions when users rapidly update quantities.
-     * Returns first result if duplicates exist (should not happen with proper constraints).
-     */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT ci FROM CartItem ci WHERE ci.cartId = :cartId AND ci.productId = :productId AND ((:productSizeId IS NULL AND ci.productSizeId IS NULL) OR (:productSizeId IS NOT NULL AND ci.productSizeId = :productSizeId)) AND ci.isDeleted = false ORDER BY ci.createdAt DESC LIMIT 1")
     Optional<CartItem> findByCartIdAndProductIdAndSizeIdForUpdate(@Param("cartId") UUID cartId,
                                                                     @Param("productId") UUID productId,
                                                                     @Param("productSizeId") UUID productSizeId);
 
-    /**
-     * Permanently deletes cart items for deleted products
-     */
     @Modifying
     @Query("DELETE FROM CartItem ci WHERE ci.productId IN (SELECT p.id FROM Product p WHERE p.isDeleted = true)")
     int deleteCartItemsForDeletedProducts();
 
-    /**
-     * Permanently deletes cart items for inactive products
-     */
     @Modifying
     @Query("DELETE FROM CartItem ci WHERE ci.productId IN (SELECT p.id FROM Product p WHERE p.status != 'ACTIVE')")
     int deleteCartItemsForInactiveProducts();
 
-    /**
-     * Permanently deletes cart items for deleted product sizes
-     */
     @Modifying
     @Query("DELETE FROM CartItem ci WHERE ci.productSizeId IN (SELECT ps.id FROM ProductSize ps WHERE ps.isDeleted = true)")
     int deleteCartItemsForDeletedProductSizes();
 
-    /**
-     * Permanently deletes cart items older than the specified cutoff date
-     */
     @Modifying
     @Query("DELETE FROM CartItem ci WHERE ci.createdAt < :cutoffDate")
     int deleteOldCartItems(@Param("cutoffDate") LocalDateTime cutoffDate);
 
-    /**
-     * Counts all non-deleted cart items
-     */
     @Query("SELECT COUNT(ci) FROM CartItem ci WHERE ci.isDeleted = false")
     long countActiveCartItems();
 
-    /**
-     * Counts cart items older than the specified cutoff date
-     */
     @Query("SELECT COUNT(ci) FROM CartItem ci WHERE ci.createdAt < :cutoffDate")
     long countOldCartItems(@Param("cutoffDate") LocalDateTime cutoffDate);
 
-    /**
-     * Get total quantities for products in user's cart for a specific business.
-     * Uses interface projection for reliable field mapping with Hibernate 6.
-     */
     @Query("""
             SELECT ci.productId as productId, SUM(ci.quantity) as totalQuantity
             FROM CartItem ci
@@ -103,10 +69,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
                                                              @Param("businessId") UUID businessId,
                                                              @Param("productIds") List<UUID> productIds);
 
-    /**
-     * Get total quantities for products in user's cart across all businesses.
-     * Uses interface projection for reliable field mapping with Hibernate 6.
-     */
     @Query("""
             SELECT ci.productId as productId, SUM(ci.quantity) as totalQuantity
             FROM CartItem ci
@@ -120,10 +82,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
     List<CartQuantityProjection> getProductQuantitiesInCartAllBusinesses(@Param("userId") UUID userId,
                                                                           @Param("productIds") List<UUID> productIds);
 
-    /**
-     * Get per-size quantities for a specific product in user's cart.
-     * Uses interface projection for reliable field mapping with Hibernate 6.
-     */
     @Query("""
             SELECT ci.productSizeId as productSizeId, ci.quantity as quantity
             FROM CartItem ci
@@ -137,3 +95,4 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
     List<SizeCartQuantityProjection> getSizeQuantitiesInCart(@Param("userId") UUID userId,
                                                               @Param("productId") UUID productId);
 }
+

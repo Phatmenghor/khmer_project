@@ -7,10 +7,6 @@ import jakarta.validation.constraints.Min;
 import lombok.*;
 import java.util.UUID;
 
-/**
- * Type-safe request DTO for product stock items listing with filtering and sorting.
- * Provides sensible defaults and easy-to-understand field names.
- */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -50,3 +46,4 @@ public class ProductStockItemsFilterRequest {
     // Filter by product sizes: true = only products with sizes, false = only products without sizes, null = all
     private Boolean hasSizes;
 }
+

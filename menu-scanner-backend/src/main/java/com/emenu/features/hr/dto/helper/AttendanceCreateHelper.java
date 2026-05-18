@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/**
- * Helper DTO for creating Attendance via MapStruct
- */
 @Data
 @Builder
 @NoArgsConstructor

@@ -49,18 +49,8 @@ public interface PaymentMapper {
     @Mapping(target = "amountKhr", ignore = true)
     void updateEntity(PaymentUpdateRequest request, @MappingTarget Payment payment);
 
-    default PaginationResponse<PaymentResponse> toPaginationResponse(Page<Payment> paymentPage, PaginationMapper paginationMapper) {
-return paginationMapper.toPaginationResponse(paymentPage, this::toResponseList);
-    }
-
-    /**
-     * Create payment from helper DTO - pure MapStruct mapping
-     */
     Payment createFromHelper(PaymentCreateHelper helper);
 
-    /**
-     * Helper method to build PaymentCreateHelper for subscription renewal
-     */
     default PaymentCreateHelper buildSubscriptionPaymentHelper(Subscription subscription, SubscriptionRenewRequest request) {
         return PaymentCreateHelper.builder()
                 .businessId(subscription.getBusinessId())
@@ -74,9 +64,6 @@ return paginationMapper.toPaginationResponse(paymentPage, this::toResponseList);
                 .build();
     }
 
-    /**
-     * Helper method to build PaymentCreateHelper for subscription refund
-     */
     default PaymentCreateHelper buildSubscriptionRefundHelper(Subscription subscription, SubscriptionCancelRequest request) {
         return PaymentCreateHelper.builder()
                 .businessId(subscription.getBusinessId())
@@ -90,9 +77,6 @@ return paginationMapper.toPaginationResponse(paymentPage, this::toResponseList);
                 .build();
     }
 
-    /**
-     * Helper method to build PaymentCreateHelper with subscription relationship
-     */
     default PaymentCreateHelper buildPaymentHelper(UUID businessId, UUID planId, UUID subscriptionId,
                                                      BigDecimal amount, PaymentMethod method,
                                                      PaymentType type, String notes) {
@@ -108,11 +92,9 @@ return paginationMapper.toPaginationResponse(paymentPage, this::toResponseList);
                 .build();
     }
 
-    /**
-     * Update payment with subscription relationship
-     */
     @Mapping(source = "subscription.businessId", target = "businessId")
     @Mapping(source = "subscription.planId", target = "planId")
     @Mapping(source = "subscription.id", target = "subscriptionId")
     void updateWithSubscription(@MappingTarget Payment payment, Subscription subscription);
 }
+

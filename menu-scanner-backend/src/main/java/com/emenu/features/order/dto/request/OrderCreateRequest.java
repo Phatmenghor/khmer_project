@@ -13,11 +13,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-/**
- * Unified checkout request following cart request structure
- * All fields from cart items with customizations support
- * Address is referenced by ID only (fetched from database)
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -87,3 +82,4 @@ public class OrderCreateRequest {
         private BigDecimal finalTotal;
     }
 }
+

@@ -105,7 +105,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Transactional(readOnly = true)
     public PaginationResponse<SubscriptionResponse> getCurrentUserBusinessSubscriptions(SubscriptionFilterRequest filter) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.debug("Getting subscriptions for current user: {}", currentUserId);
         Business business = businessRepository.findByOwnerIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> new RuntimeException("No business found for current user"));
         filter.setBusinessId(business.getId());
@@ -115,7 +114,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional(readOnly = true)
     public SubscriptionResponse getSubscriptionById(UUID subscriptionId) {
-        log.debug("Getting subscription by ID: {}", subscriptionId);
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         return subscriptionMapper.toResponse(subscription);
@@ -189,7 +187,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     private void createPaymentForSubscription(Subscription subscription, SubscriptionRenewRequest request) {
-        log.debug("Creating payment for subscription: {}", subscription.getId());
         // Build helper DTO, then use pure MapStruct mapping
         com.emenu.features.order.dto.helper.PaymentCreateHelper helper =
             paymentMapper.buildSubscriptionPaymentHelper(subscription, request);
@@ -199,7 +196,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     private void createRefundForSubscription(Subscription subscription, SubscriptionCancelRequest request) {
-        log.debug("Creating refund for subscription: {}", subscription.getId());
         // Build helper DTO, then use pure MapStruct mapping
         com.emenu.features.order.dto.helper.PaymentCreateHelper helper =
             paymentMapper.buildSubscriptionRefundHelper(subscription, request);

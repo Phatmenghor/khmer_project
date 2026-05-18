@@ -39,14 +39,11 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public BrandResponse createBrand(BrandCreateRequest request) {
-        log.info("Creating brand: {}", request.getName());
-
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser.getBusinessId() == null) {
             throw new ValidationException("User is not associated with any business");
         }
 
-        // Check if brand name already exists for this business
         if (brandRepository.existsByNameAndBusinessIdAndIsDeletedFalse(
                 request.getName(), currentUser.getBusinessId())) {
             throw new ValidationException("Brand name already exists in your business");
@@ -57,8 +54,7 @@ public class BrandServiceImpl implements BrandService {
 
         Brand savedBrand = brandRepository.save(brand);
 
-        log.info("Brand created successfully: {} for business: {}",
-                savedBrand.getName(), currentUser.getBusinessId());
+        log.info("Brand created successfully: id={}, name={}", savedBrand.getId(), savedBrand.getName());
         return brandMapper.toResponse(savedBrand);
     }
 
@@ -92,32 +88,25 @@ public class BrandServiceImpl implements BrandService {
                 pageable
         );
 
-        // Get all brand IDs from the page
         List<UUID> brandIds = brandPage.getContent().stream()
                 .map(Brand::getId)
                 .toList();
 
-        // Fetch all product counts (total and active) in a single query (batch query - optimized)
         List<Object[]> productCountData = brandRepository.countTotalAndActiveProductsForBrands(brandIds);
 
-        // Build maps from brand ID to product counts
         java.util.Map<UUID, Long> totalProductCountMap = new java.util.HashMap<>();
         java.util.Map<UUID, Long> activeProductCountMap = new java.util.HashMap<>();
         for (Object[] data : productCountData) {
             UUID brandId = (UUID) data[0];
-            Long totalCount = ((Number) data[1]).longValue();
-            Long activeCount = ((Number) data[2]).longValue();
-            totalProductCountMap.put(brandId, totalCount);
-            activeProductCountMap.put(brandId, activeCount);
+            totalProductCountMap.put(brandId, ((Number) data[1]).longValue());
+            activeProductCountMap.put(brandId, ((Number) data[2]).longValue());
         }
 
-        // Map brands to response with product counts
         List<BrandWithProductCountResponse> responses = brandPage.getContent().stream()
                 .map(brand -> {
                     BrandWithProductCountResponse response = new BrandWithProductCountResponse();
                     BrandResponse baseResponse = brandMapper.toResponse(brand);
 
-                    // Copy base response fields
                     response.setId(baseResponse.getId());
                     response.setCreatedAt(baseResponse.getCreatedAt());
                     response.setUpdatedAt(baseResponse.getUpdatedAt());
@@ -130,11 +119,8 @@ public class BrandServiceImpl implements BrandService {
                     response.setDescription(baseResponse.getDescription());
                     response.setStatus(baseResponse.getStatus());
 
-                    // Get product counts from maps (optimized - no N+1 query)
-                    long totalProductCount = totalProductCountMap.getOrDefault(brand.getId(), 0L);
-                    long activeProductCount = activeProductCountMap.getOrDefault(brand.getId(), 0L);
-                    response.setTotalProducts(totalProductCount);
-                    response.setActiveProducts(activeProductCount);
+                    response.setTotalProducts(totalProductCountMap.getOrDefault(brand.getId(), 0L));
+                    response.setActiveProducts(activeProductCountMap.getOrDefault(brand.getId(), 0L));
 
                     return response;
                 })
@@ -177,7 +163,6 @@ public class BrandServiceImpl implements BrandService {
     public BrandResponse updateBrand(UUID id, BrandUpdateRequest request) {
         Brand brand = findBrandById(id);
 
-        // Check if new name already exists (if name is being changed)
         if (request.getName() != null && !request.getName().equals(brand.getName())) {
             if (brandRepository.existsByNameAndBusinessIdAndIsDeletedFalse(
                     request.getName(), brand.getBusinessId())) {
@@ -188,7 +173,7 @@ public class BrandServiceImpl implements BrandService {
         brandMapper.updateEntity(request, brand);
         Brand updatedBrand = brandRepository.save(brand);
 
-        log.info("Brand updated successfully: {}", id);
+        log.info("Brand updated successfully: id={}", id);
         return brandMapper.toResponse(updatedBrand);
     }
 
@@ -196,7 +181,6 @@ public class BrandServiceImpl implements BrandService {
     public BrandResponse deleteBrand(UUID id) {
         Brand brand = findBrandById(id);
 
-        // Check if brand is used by any products
         long productCount = brandRepository.countByBusinessId(brand.getId());
         if (productCount > 0) {
             throw new ValidationException("Cannot delete brand that is used by products");
@@ -205,11 +189,10 @@ public class BrandServiceImpl implements BrandService {
         brand.softDelete();
         brand = brandRepository.save(brand);
 
-        log.info("Brand deleted successfully: {}", id);
+        log.info("Brand deleted successfully: id={}", id);
         return brandMapper.toResponse(brand);
     }
 
-    // Private helper methods
     private Brand findBrandById(UUID id) {
         return brandRepository.findByIdWithBusiness(id)
                 .orElseThrow(() -> new NotFoundException("Brand not found"));

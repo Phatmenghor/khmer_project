@@ -39,13 +39,8 @@ public class LeaveServiceImpl implements LeaveService {
     private final PaginationMapper paginationMapper;
     private final UserMapper userMapper;
 
-    /**
-     * Creates a new leave request for an employee
-     */
     @Override
     public LeaveResponse create(LeaveCreateRequest request, UUID userId, UUID businessId) {
-        log.info("Creating leave request for user: {}", userId);
-
         double totalDays = ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate()) + 1;
 
         Leave leave = mapper.toEntity(request);
@@ -55,47 +50,33 @@ public class LeaveServiceImpl implements LeaveService {
         leave.setStatus(LeaveStatusEnum.PENDING);
 
         Leave savedLeave = repository.save(leave);
-        log.info("Leave request created: {}", savedLeave.getId());
+        log.info("Leave request created successfully: id={}, userId={}", savedLeave.getId(), userId);
         return enrichWithUserInfo(mapper.toResponse(savedLeave), savedLeave);
     }
 
-    /**
-     * Retrieves a leave request by ID
-     */
     @Override
     @Transactional(readOnly = true)
     public LeaveResponse getById(UUID id) {
-        Leave leave = repository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave not found"));
+        Leave leave = findLeaveById(id);
         return enrichWithUserInfo(mapper.toResponse(leave), leave);
     }
 
-    /**
-     * Retrieves all leave requests with filtering and pagination support
-     */
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<LeaveResponse> getAll(LeaveFilterRequest filter) {
         Pageable pageable = PaginationUtils.createPageable(
-                filter.getPageNo(),
-                filter.getPageSize(),
-                filter.getSortBy(),
-                filter.getSortDirection()
+                filter.getPageNo(), filter.getPageSize(),
+                filter.getSortBy(), filter.getSortDirection()
         );
 
-        // Convert empty lists to null to skip filtering
-        List<LeaveStatusEnum> leaveStatusEnums = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
+        List<LeaveStatusEnum> statuses = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
                 ? filter.getStatuses() : null;
 
         Page<Leave> page = repository.findWithFilters(
-                filter.getBusinessId(),
-                filter.getUserId(),
-                filter.getLeaveTypeEnum(),
-                leaveStatusEnums,
-                filter.getStartDate(),
-                filter.getEndDate(),
-                filter.getSearch(),
-                pageable
+                filter.getBusinessId(), filter.getUserId(),
+                filter.getLeaveTypeEnum(), statuses,
+                filter.getStartDate(), filter.getEndDate(),
+                filter.getSearch(), pageable
         );
 
         return paginationMapper.toPaginationResponse(page,
@@ -104,13 +85,9 @@ public class LeaveServiceImpl implements LeaveService {
                         .toList());
     }
 
-    /**
-     * Updates a pending leave request
-     */
     @Override
     public LeaveResponse update(UUID id, LeaveUpdateRequest request) {
-        Leave leave = repository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave not found"));
+        Leave leave = findLeaveById(id);
 
         if (!leave.getStatus().isPending()) {
             throw new BusinessValidationException("Cannot update leave that is not pending");
@@ -124,16 +101,13 @@ public class LeaveServiceImpl implements LeaveService {
         }
 
         Leave updatedLeave = repository.save(leave);
+        log.info("Leave request updated successfully: id={}", id);
         return enrichWithUserInfo(mapper.toResponse(updatedLeave), updatedLeave);
     }
 
-    /**
-     * Approves or rejects a leave request
-     */
     @Override
     public LeaveResponse approve(UUID id, LeaveApprovalRequest request, UUID actionBy) {
-        Leave leave = repository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave not found"));
+        Leave leave = findLeaveById(id);
 
         if (!leave.getStatus().isPending()) {
             throw new BusinessValidationException("Leave is not pending approval");
@@ -145,20 +119,22 @@ public class LeaveServiceImpl implements LeaveService {
         leave.setActionNote(request.getActionNote());
 
         Leave processedLeave = repository.save(leave);
-        log.info("Leave {} {} by user: {}", id, request.getStatus(), actionBy);
+        log.info("Leave request processed successfully: id={}, status={}, actionBy={}", id, request.getStatus(), actionBy);
         return enrichWithUserInfo(mapper.toResponse(processedLeave), processedLeave);
     }
 
-    /**
-     * Soft deletes a leave request
-     */
     @Override
     public LeaveResponse delete(UUID id) {
-        Leave leave = repository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave not found"));
+        Leave leave = findLeaveById(id);
         leave.softDelete();
         leave = repository.save(leave);
+        log.info("Leave request deleted successfully: id={}", id);
         return enrichWithUserInfo(mapper.toResponse(leave), leave);
+    }
+
+    private Leave findLeaveById(UUID id) {
+        return repository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave not found"));
     }
 
     private LeaveResponse enrichWithUserInfo(LeaveResponse response, Leave leave) {

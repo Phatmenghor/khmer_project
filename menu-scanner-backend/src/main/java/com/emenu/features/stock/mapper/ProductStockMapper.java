@@ -43,8 +43,5 @@ public interface ProductStockMapper {
     void updateEntityFromRequest(ProductStockUpdateRequest request, @MappingTarget ProductStock productStock);
 
     List<ProductStockDto> toDtoList(List<ProductStock> productStocks);
-
-    default PaginationResponse<ProductStockDto> toPaginationResponse(Page<ProductStock> page, PaginationMapper paginationMapper) {
-        return paginationMapper.toPaginationResponse(page, this::toDtoList);
-    }
 }
+

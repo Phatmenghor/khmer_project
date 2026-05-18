@@ -48,34 +48,23 @@ public class BusinessExchangeRate extends BaseUUIDEntity {
     // BUSINESS METHODS
     // ================================
 
-    /**
-     * Check if this rate is currently active
-     */
     public boolean isActive() {
         return status == ExchangeRateStatus.ACTIVE;
     }
 
-    /**
-     * Activate this exchange rate
-     */
     public void activate() {
         this.status = ExchangeRateStatus.ACTIVE;
     }
 
-    /**
-     * Deactivate this exchange rate
-     */
     public void deactivate() {
         this.status = ExchangeRateStatus.INACTIVE;
     }
 
 
-    /**
-     * Enum for exchange rate status
-     */
     public enum ExchangeRateStatus {
         ACTIVE, INACTIVE
     }
 }
+
 
 

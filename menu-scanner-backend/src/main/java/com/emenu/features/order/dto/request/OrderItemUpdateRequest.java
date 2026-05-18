@@ -6,10 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Item update for order update request - clean payload for modifying order items
- * Follows checkout style structure for consistency with order creation
- */
 @Data
 public class OrderItemUpdateRequest {
     private UUID productId;
@@ -36,3 +32,4 @@ public class OrderItemUpdateRequest {
 
     private Integer quantity;
 }
+

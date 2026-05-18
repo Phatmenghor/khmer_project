@@ -53,22 +53,10 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public AttendanceResponse checkIn(AttendanceCheckInRequest request, UUID userId, UUID businessId) {
-        log.info("Processing check-in for user: {}, type: {}", userId, request.getCheckInType());
-
-        WorkSchedule schedule = workScheduleRepository.findByIdAndIsDeletedFalse(request.getWorkScheduleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Work schedule not found"));
-
-        if (!schedule.getUserId().equals(userId)) {
-            throw new BusinessValidationException("Work schedule does not belong to user");
-        }
+        WorkSchedule schedule = findAndValidateSchedule(request.getWorkScheduleId(), userId);
+        validateWorkDay(schedule);
 
         LocalDate today = LocalDate.now();
-        DayOfWeek dayOfWeek = today.getDayOfWeek();
-
-        if (!schedule.getWorkDays().contains(dayOfWeek)) {
-            throw new BusinessValidationException("Today is not a working day according to your schedule");
-        }
-
         Attendance attendance = attendanceRepository
                 .findByUserIdAndAttendanceDateAndIsDeletedFalse(userId, today)
                 .orElseGet(() -> createNewAttendance(userId, businessId, request.getWorkScheduleId(), today));
@@ -93,10 +81,76 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
 
         attendance = attendanceRepository.save(attendance);
-        log.info("Check-in successful for user: {}, type: {}, status: {}",
+        log.info("Attendance check-in recorded successfully: userId={}, type={}, status={}",
                 userId, request.getCheckInType(), attendance.getStatus());
 
         return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AttendanceResponse getById(UUID id) {
+        Attendance attendance = findAttendanceById(id);
+        return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginationResponse<AttendanceResponse> getAll(AttendanceFilterRequest filter) {
+        Pageable pageable = PaginationUtils.createPageable(
+                filter.getPageNo(), filter.getPageSize(),
+                filter.getSortBy(), filter.getSortDirection()
+        );
+
+        Page<Attendance> page = attendanceRepository.findWithFilters(
+                filter.getBusinessId(), filter.getUserId(),
+                filter.getStartDate(), filter.getEndDate(),
+                filter.getSearch(), pageable
+        );
+
+        return paginationMapper.toPaginationResponse(page,
+                attendances -> attendances.stream()
+                        .map(att -> enrichWithUserInfo(mapper.toResponse(att), att))
+                        .toList());
+    }
+
+    @Override
+    public AttendanceResponse update(UUID id, AttendanceUpdateRequest request) {
+        Attendance attendance = findAttendanceById(id);
+        mapper.updateEntity(request, attendance);
+        attendance = attendanceRepository.save(attendance);
+        log.info("Attendance updated successfully: id={}", id);
+        return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
+    }
+
+    @Override
+    public AttendanceResponse delete(UUID id) {
+        Attendance attendance = findAttendanceById(id);
+        attendance.softDelete();
+        attendance = attendanceRepository.save(attendance);
+        log.info("Attendance deleted successfully: id={}", id);
+        return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
+    }
+
+    private Attendance findAttendanceById(UUID id) {
+        return attendanceRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
+    }
+
+    private WorkSchedule findAndValidateSchedule(UUID workScheduleId, UUID userId) {
+        WorkSchedule schedule = workScheduleRepository.findByIdAndIsDeletedFalse(workScheduleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Work schedule not found"));
+        if (!schedule.getUserId().equals(userId)) {
+            throw new BusinessValidationException("Work schedule does not belong to user");
+        }
+        return schedule;
+    }
+
+    private void validateWorkDay(WorkSchedule schedule) {
+        DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
+        if (!schedule.getWorkDays().contains(dayOfWeek)) {
+            throw new BusinessValidationException("Today is not a working day according to your schedule");
+        }
     }
 
     private Attendance createNewAttendance(UUID userId, UUID businessId, UUID workScheduleId, LocalDate date) {
@@ -107,29 +161,23 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .attendanceDate(date)
                 .status(AttendanceStatusEnum.ABSENT)
                 .build();
-
-        Attendance newAttendance = mapper.createFromHelper(helper);
-        return attendanceRepository.save(newAttendance);
+        return attendanceRepository.save(mapper.createFromHelper(helper));
     }
 
     private void validateCheckInSequence(Attendance attendance, CheckInType requestedType) {
         int currentCount = attendance.getCheckIns().size();
-
         boolean checkInExists = attendance.getCheckIns().stream()
                 .anyMatch(c -> c.getCheckInType() == requestedType);
 
         if (checkInExists) {
             throw new BusinessValidationException("Already checked in for type: " + requestedType);
         }
-
         if (currentCount == 0 && requestedType != CheckInType.START) {
             throw new BusinessValidationException("Must clock in (START) first");
         }
-
         if (currentCount == 1 && requestedType != CheckInType.END) {
             throw new BusinessValidationException("Can only clock out (END) after clocking in");
         }
-
         if (currentCount >= 2) {
             throw new BusinessValidationException("Already completed check-in for today");
         }
@@ -149,22 +197,15 @@ public class AttendanceServiceImpl implements AttendanceService {
         LocalDateTime startTime = startCheckIn.getCheckInTime();
         LocalDateTime endTime = endCheckIn.getCheckInTime();
         LocalDateTime expectedStart = LocalDateTime.of(attendance.getAttendanceDate(), schedule.getStartTime());
-
         boolean isLate = startTime.isAfter(expectedStart);
 
         long totalWorkMinutes = DateTimeUtils.calculateDurationMinutes(startTime, endTime);
+        long expectedWorkMinutes = Duration.between(schedule.getStartTime(), schedule.getEndTime()).toMinutes();
 
         if (schedule.getBreakStartTime() != null && schedule.getBreakEndTime() != null) {
-            Duration breakDuration = Duration.between(schedule.getBreakStartTime(), schedule.getBreakEndTime());
-            totalWorkMinutes -= breakDuration.toMinutes();
-        }
-
-        Duration expectedWorkDuration = Duration.between(schedule.getStartTime(), schedule.getEndTime());
-        long expectedWorkMinutes = expectedWorkDuration.toMinutes();
-
-        if (schedule.getBreakStartTime() != null && schedule.getBreakEndTime() != null) {
-            Duration breakDuration = Duration.between(schedule.getBreakStartTime(), schedule.getBreakEndTime());
-            expectedWorkMinutes -= breakDuration.toMinutes();
+            long breakMinutes = Duration.between(schedule.getBreakStartTime(), schedule.getBreakEndTime()).toMinutes();
+            totalWorkMinutes -= breakMinutes;
+            expectedWorkMinutes -= breakMinutes;
         }
 
         double workPercentage = DateTimeUtils.calculateWorkPercentage(totalWorkMinutes, expectedWorkMinutes);
@@ -177,62 +218,9 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendance.setStatus(AttendanceStatusEnum.PRESENT);
         }
 
-        log.info("Calculated attendance status: {}, worked: {} minutes, expected: {} minutes, percentage: {}",
+        log.info("Attendance status calculated: status={}, worked={}min, expected={}min, percentage={}",
                 attendance.getStatus(), totalWorkMinutes, expectedWorkMinutes,
                 StringFormatUtils.formatPercentage(workPercentage));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public AttendanceResponse getById(UUID id) {
-        Attendance attendance = attendanceRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
-        return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PaginationResponse<AttendanceResponse> getAll(AttendanceFilterRequest filter) {
-        Pageable pageable = PaginationUtils.createPageable(
-                filter.getPageNo(),
-                filter.getPageSize(),
-                filter.getSortBy(),
-                filter.getSortDirection()
-        );
-
-        Page<Attendance> page = attendanceRepository.findWithFilters(
-                filter.getBusinessId(),
-                filter.getUserId(),
-                filter.getStartDate(),
-                filter.getEndDate(),
-                filter.getSearch(),
-                pageable
-        );
-
-        return paginationMapper.toPaginationResponse(page,
-                attendances -> attendances.stream()
-                        .map(att -> enrichWithUserInfo(mapper.toResponse(att), att))
-                        .toList());
-    }
-
-    @Override
-    public AttendanceResponse update(UUID id, AttendanceUpdateRequest request) {
-        Attendance attendance = attendanceRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
-
-        mapper.updateEntity(request, attendance);
-        attendance = attendanceRepository.save(attendance);
-
-        return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
-    }
-
-    @Override
-    public AttendanceResponse delete(UUID id) {
-        Attendance attendance = attendanceRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
-        attendance.softDelete();
-        attendance = attendanceRepository.save(attendance);
-        return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
     }
 
     private AttendanceResponse enrichWithUserInfo(AttendanceResponse response, Attendance attendance) {

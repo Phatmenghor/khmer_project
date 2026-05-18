@@ -27,15 +27,11 @@ public class PublicBrandController {
     private final BrandService brandService;
     private final ProductConditionalService productConditionalService;
 
-    /**
-     * Get my business brands
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BrandResponse>>> getMyBusinessBrands(@Valid @RequestBody BrandFilterRequest filter) {
-        log.info("Getting brands for current user's business - BusinessId: {}", filter.getBusinessId());
+        log.info("Endpoint: public-search-brands - public brands retrieval: page={}, size={}, business_id={}", filter.getPageNo(), filter.getPageSize(), filter.getBusinessId());
 
         if (filter.getBusinessId() != null && !productConditionalService.businessUsesBrands(filter.getBusinessId())) {
-            log.info("Business {} does not use brands - returning empty list", filter.getBusinessId());
             PaginationResponse<BrandResponse> emptyResponse = new PaginationResponse<>();
             emptyResponse.setContent(Collections.emptyList());
             emptyResponse.setTotalElements(0L);
@@ -47,15 +43,11 @@ public class PublicBrandController {
         return ResponseEntity.ok(ApiResponse.success("Business brands retrieved successfully", brands));
     }
 
-    /**
-     * Get my business brands
-     */
     @PostMapping("/all-data")
     public ResponseEntity<ApiResponse<List<BrandResponse>>> getAllBrands(@Valid @RequestBody BrandAllFilterRequest filter) {
-        log.info("Getting all brands for current user's business - BusinessId: {}", filter.getBusinessId());
+        log.info("Endpoint: public-search-all-brands - public all brands retrieval: business_id={}", filter.getBusinessId());
 
         if (filter.getBusinessId() != null && !productConditionalService.businessUsesBrands(filter.getBusinessId())) {
-            log.info("Business {} does not use brands - returning empty list", filter.getBusinessId());
             return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", Collections.emptyList()));
         }
 

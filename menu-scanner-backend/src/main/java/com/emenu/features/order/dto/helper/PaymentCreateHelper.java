@@ -11,9 +11,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-/**
- * Helper DTO for creating Payment via MapStruct
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -28,3 +25,4 @@ public class PaymentCreateHelper {
     private PaymentStatus status;
     private String notes;
 }
+

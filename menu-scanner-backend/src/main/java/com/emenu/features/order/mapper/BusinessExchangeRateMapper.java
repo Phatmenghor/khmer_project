@@ -24,8 +24,4 @@ public interface BusinessExchangeRateMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(BusinessExchangeRateUpdateRequest request, @MappingTarget BusinessExchangeRate exchangeRate);
-
-    default PaginationResponse<BusinessExchangeRateResponse> toPaginationResponse(Page<BusinessExchangeRate> exchangeRatePage, PaginationMapper paginationMapper) {
-return paginationMapper.toPaginationResponse(exchangeRatePage, this::toResponseList);
-    }
 }

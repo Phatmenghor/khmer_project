@@ -15,74 +15,56 @@ public class ProductStockDto {
 
     // ========== Identity ==========
 
-    /** Unique ID of this stock batch record */
     private UUID id;
 
-    /** ID of the business that owns this stock */
     private UUID businessId;
 
-    /** ID of the product this stock belongs to */
     private UUID productId;
 
-    /** ID of the product size variant (null if product has no sizes) */
     private UUID productSizeId;
 
     // ========== Product Info ==========
 
-    /** Display name of the product */
     private String productName;
 
-    /** Display name of the size variant (null if product has no sizes) */
     private String sizeName;
 
     // ========== Stock Quantities ==========
 
-    /** Total physical units in this batch */
     private Integer quantityOnHand;
 
-    /** Units reserved for pending orders (not yet fulfilled) */
     private Integer quantityReserved;
 
-    /** Units available to sell = quantityOnHand - quantityReserved */
     private Integer quantityAvailable;
 
     // ========== Pricing ==========
 
-    /** Cost price — how much you paid per unit for this batch */
     private BigDecimal priceIn;
 
     // ========== Dates ==========
 
-    /** Date and time when this batch was received */
     private LocalDateTime dateIn;
 
-    /** Expiry date/time of this batch (null if product does not expire) */
     private LocalDateTime expiryDate;
 
-    /** Physical storage location (e.g. "Shelf A1", "Warehouse B") */
     private String location;
 
     // ========== Status ==========
 
-    /** Current status of this stock record (ACTIVE, INACTIVE, EXPIRED) */
     private ProductStatus status;
 
-    /** True if the stock has passed its expiry date */
     private Boolean isExpired;
 
-    /** True when quantityOnHand <= 0 — this batch is empty */
     private Boolean isOutOfStock;
 
     // ========== Financial Summary ==========
 
-    /** Total cost value of this batch = quantityOnHand × priceIn */
     private BigDecimal inventoryValue;
 
     // ========== Audit ==========
 
-    /** Timestamp when this stock record was created */
     private LocalDateTime createdAt;
 
-    /** Timestamp when this stock record was last updated */
     private LocalDateTime updatedAt;
 }
+

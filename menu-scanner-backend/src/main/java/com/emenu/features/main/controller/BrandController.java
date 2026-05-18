@@ -31,27 +31,19 @@ public class BrandController {
     private final ProductConditionalService productConditionalService;
     private final SecurityUtils securityUtils;
 
-    /**
-     * Create new brand (uses current user's business from token)
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<BrandResponse>> createBrand(@Valid @RequestBody BrandCreateRequest request) {
-        log.info("Creating brand: {}", request.getName());
+        log.info("Endpoint: create-brand - brand creation: name={}", request.getName());
         BrandResponse brand = brandService.createBrand(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Brand created successfully", brand));
     }
 
-    /**
-     * Get all brands with filtering - respects business settings (useBrands flag)
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BrandResponse>>> getAllBrands(@Valid @RequestBody BrandFilterRequest filter) {
-        log.info("Getting all brands - BusinessId: {}", filter.getBusinessId());
+        log.info("Endpoint: search-brands - brands retrieval: page={}, size={}, business_id={}", filter.getPageNo(), filter.getPageSize(), filter.getBusinessId());
 
-        // Check if business uses brands
         if (filter.getBusinessId() != null && !productConditionalService.businessUsesBrands(filter.getBusinessId())) {
-            log.info("Business {} does not use brands - returning empty list", filter.getBusinessId());
             PaginationResponse<BrandResponse> emptyResponse = new PaginationResponse<>();
             emptyResponse.setContent(Collections.emptyList());
             emptyResponse.setTotalElements(0L);
@@ -63,18 +55,13 @@ public class BrandController {
         return ResponseEntity.ok(ApiResponse.success("Brands retrieved successfully", brands));
     }
 
-    /**
-     * Get my business brands - respects business settings (useBrands flag)
-     */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BrandResponse>>> getMyBusinessBrands(@Valid @RequestBody BrandFilterRequest filter) {
-        log.info("Getting brands for current user's business");
+        log.info("Endpoint: search-my-brands - my brands retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(currentUser.getBusinessId());
 
-        // Check if business uses brands
         if (!productConditionalService.businessUsesBrands(currentUser.getBusinessId())) {
-            log.info("Business {} does not use brands - returning empty list", currentUser.getBusinessId());
             PaginationResponse<BrandResponse> emptyResponse = new PaginationResponse<>();
             emptyResponse.setContent(Collections.emptyList());
             emptyResponse.setTotalElements(0L);
@@ -86,47 +73,34 @@ public class BrandController {
         return ResponseEntity.ok(ApiResponse.success("Business brands retrieved successfully", brands));
     }
 
-    /**
-     * Get my business brands with product count
-     * If businessId is provided in filter, use it; otherwise use current user's business
-     */
     @PostMapping("/my-business/with-product-count")
     public ResponseEntity<ApiResponse<PaginationResponse<BrandWithProductCountResponse>>> getMyBusinessBrandsWithProductCount(@Valid @RequestBody BrandFilterRequest filter) {
-        log.info("Getting brands with product count for current user's business");
+        log.info("Endpoint: search-my-brands-count - my brands with count retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(currentUser.getBusinessId());
         PaginationResponse<BrandWithProductCountResponse> brands = brandService.getBrandsWithProductCount(filter);
         return ResponseEntity.ok(ApiResponse.success("Business brands with product count retrieved successfully", brands));
     }
 
-    /**
-     * Get brand by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BrandResponse>> getBrandById(@PathVariable UUID id) {
-        log.info("Getting brand by ID: {}", id);
+        log.info("Endpoint: get-brand - brand detail: id={}", id);
         BrandResponse brand = brandService.getBrandById(id);
         return ResponseEntity.ok(ApiResponse.success("Brand retrieved successfully", brand));
     }
 
-    /**
-     * Update brand
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<BrandResponse>> updateBrand(
             @PathVariable UUID id,
             @Valid @RequestBody BrandUpdateRequest request) {
-        log.info("Updating brand: {}", id);
+        log.info("Endpoint: update-brand - brand update: id={}", id);
         BrandResponse brand = brandService.updateBrand(id, request);
         return ResponseEntity.ok(ApiResponse.success("Brand updated successfully", brand));
     }
 
-    /**
-     * Delete brand
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<BrandResponse>> deleteBrand(@PathVariable UUID id) {
-        log.info("Deleting brand: {}", id);
+        log.info("Endpoint: delete-brand - brand deletion: id={}", id);
         BrandResponse brand = brandService.deleteBrand(id);
         return ResponseEntity.ok(ApiResponse.success("Brand deleted successfully", brand));
     }

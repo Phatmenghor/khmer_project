@@ -5,7 +5,6 @@ import com.emenu.features.location.dto.request.CommuneRequest;
 import com.emenu.features.location.dto.response.CommuneResponse;
 import com.emenu.shared.dto.PaginationResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface CommuneService {

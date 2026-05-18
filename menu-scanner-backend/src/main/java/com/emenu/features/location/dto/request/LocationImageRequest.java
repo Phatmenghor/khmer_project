@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class LocationImageRequest {
-    private String imageUrl; // Image URL or file path
+    private String imageUrl;
 }

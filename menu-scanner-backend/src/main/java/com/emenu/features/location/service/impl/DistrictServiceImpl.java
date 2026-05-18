@@ -32,62 +32,40 @@ public class DistrictServiceImpl implements DistrictService {
     private final PaginationMapper paginationMapper;
 
     @Override
-    @Transactional  // Keep transaction open during mapping
+    @Transactional
     public DistrictResponse createDistrict(DistrictRequest request) {
-        log.info("Creating district: {}", request.getDistrictCode());
-        
-        if (!provinceRepository.existsByProvinceCodeAndIsDeletedFalse(request.getProvinceCode())) {
-            throw new ValidationException("Province code does not exist: " + request.getProvinceCode());
-        }
-        
-        if (districtRepository.existsByDistrictCodeAndIsDeletedFalse(request.getDistrictCode())) {
-            throw new ValidationException("District code already exists");
-        }
-        
+        validateProvinceExists(request.getProvinceCode());
+        validateDistrictCodeNotDuplicate(request.getDistrictCode());
+
         District district = districtMapper.toEntity(request);
         District savedDistrict = districtRepository.save(district);
-        
-        // Fetch with province loaded
-        District districtWithProvince = districtRepository
-            .findByIdAndIsDeletedFalse(savedDistrict.getId())
-            .orElseThrow(() -> new RuntimeException("District not found"));
-        
-        // Map to response WITHIN transaction
+
+        District districtWithProvince = findDistrictById(savedDistrict.getId());
         DistrictResponse response = districtMapper.toResponse(districtWithProvince);
-        
-        log.info("District created: {} with province: {}", 
-                 districtWithProvince.getDistrictCode(),
-                 districtWithProvince.getProvince() != null ? 
-                 districtWithProvince.getProvince().getProvinceCode() : "null");
-        
+
+        log.info("District created successfully: id={}, code={}", savedDistrict.getId(), districtWithProvince.getDistrictCode());
         return response;
     }
 
     @Override
-    @Transactional(readOnly = true)  // Keep transaction open during mapping
+    @Transactional(readOnly = true)
     public PaginationResponse<DistrictResponse> getAllDistricts(DistrictFilterRequest request) {
-        log.info("Getting all districts with filters");
-        
         Pageable pageable = PaginationUtils.createPageable(
             request.getPageNo(), request.getPageSize(),
             request.getSortBy(), request.getSortDirection()
         );
-        
+
         Page<District> districtPage = districtRepository.searchDistricts(
             request.getProvinceCode(), request.getSearch(), pageable
         );
 
-        // Map WITHIN transaction
         return districtMapper.toPaginationResponse(districtPage, paginationMapper);
     }
 
     @Override
-    @Transactional(readOnly = true)  // Keep transaction open
+    @Transactional(readOnly = true)
     public DistrictResponse getDistrictById(UUID id) {
-        District district = districtRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("District not found"));
-        
-        // Map WITHIN transaction
+        District district = findDistrictById(id);
         return districtMapper.toResponse(district);
     }
 
@@ -118,37 +96,44 @@ public class DistrictServiceImpl implements DistrictService {
     @Override
     @Transactional
     public DistrictResponse updateDistrict(UUID id, DistrictRequest request) {
-        log.info("Updating district: {}", id);
-        
-        District district = districtRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("District not found"));
-        
-        if (request.getProvinceCode() != null && 
+        District district = findDistrictById(id);
+
+        if (request.getProvinceCode() != null &&
             !request.getProvinceCode().equals(district.getProvinceCode())) {
-            if (!provinceRepository.existsByProvinceCodeAndIsDeletedFalse(request.getProvinceCode())) {
-                throw new ValidationException("Province code does not exist: " + request.getProvinceCode());
-            }
+            validateProvinceExists(request.getProvinceCode());
         }
-        
+
         districtMapper.updateEntity(request, district);
         districtRepository.save(district);
-        
-        // Fetch updated district with province
-        District updatedDistrict = districtRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("District not found"));
-        
-        log.info("District updated: {}", updatedDistrict.getDistrictCode());
+
+        District updatedDistrict = findDistrictById(id);
+        log.info("District updated successfully: id={}, code={}", id, updatedDistrict.getDistrictCode());
         return districtMapper.toResponse(updatedDistrict);
     }
 
     @Override
     @Transactional
     public void deleteDistrict(UUID id) {
-        District district = districtRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("District not found"));
-        
+        District district = findDistrictById(id);
         district.softDelete();
         districtRepository.save(district);
-        log.info("District deleted: {}", district.getDistrictCode());
+        log.info("District deleted successfully: id={}, code={}", id, district.getDistrictCode());
+    }
+
+    private District findDistrictById(UUID id) {
+        return districtRepository.findByIdAndIsDeletedFalse(id)
+            .orElseThrow(() -> new RuntimeException("District not found"));
+    }
+
+    private void validateProvinceExists(String provinceCode) {
+        if (!provinceRepository.existsByProvinceCodeAndIsDeletedFalse(provinceCode)) {
+            throw new ValidationException("Province code does not exist: " + provinceCode);
+        }
+    }
+
+    private void validateDistrictCodeNotDuplicate(String districtCode) {
+        if (districtRepository.existsByDistrictCodeAndIsDeletedFalse(districtCode)) {
+            throw new ValidationException("District code already exists");
+        }
     }
 }

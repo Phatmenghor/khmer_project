@@ -30,9 +30,6 @@ public class ExchangeRate extends BaseUUIDEntity {
     // BUSINESS METHODS
     // ================================
 
-    /**
-     * Check if this rate is currently active
-     */
     public boolean isActive() {
         return Boolean.TRUE.equals(isActive);
     }

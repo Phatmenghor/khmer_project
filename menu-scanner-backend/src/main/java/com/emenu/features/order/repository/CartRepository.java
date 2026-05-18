@@ -13,10 +13,6 @@ import java.util.UUID;
 @Repository
 public interface CartRepository extends JpaRepository<Cart, UUID> {
 
-    /**
-     * Finds a non-deleted cart by user ID and business ID with items, products, sizes, and business eagerly fetched
-     * (customizations are batch-loaded via @BatchSize on CartItem)
-     */
     @Query("SELECT DISTINCT c FROM Cart c " +
            "LEFT JOIN FETCH c.items ci " +
            "LEFT JOIN FETCH ci.product p " +
@@ -25,15 +21,8 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
            "WHERE c.userId = :userId AND c.businessId = :businessId AND c.isDeleted = false")
     Optional<Cart> findByUserIdAndBusinessIdWithItems(@Param("userId") UUID userId, @Param("businessId") UUID businessId);
 
-    /**
-     * Finds a non-deleted cart by user ID and business ID
-     */
     Optional<Cart> findByUserIdAndBusinessIdAndIsDeletedFalse(UUID userId, UUID businessId);
 
-    /**
-     * Finds the most recently updated non-deleted cart for a user with items eagerly fetched
-     * (customizations are batch-loaded via @BatchSize on CartItem)
-     */
     @Query("SELECT DISTINCT c FROM Cart c " +
            "LEFT JOIN FETCH c.items ci " +
            "LEFT JOIN FETCH ci.product p " +
@@ -43,9 +32,6 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
            "ORDER BY c.updatedAt DESC")
     List<Cart> findByUserIdWithItems(@Param("userId") UUID userId);
 
-    /**
-     * Counts total quantity of active products in a user's cart for a specific business
-     */
     @Query("SELECT COALESCE(SUM(ci.quantity), 0) FROM Cart c " +
             "JOIN c.items ci " +
             "JOIN ci.product p " +

@@ -32,42 +32,30 @@ public class ProvinceServiceImpl implements ProvinceService {
 
     @Override
     public ProvinceResponse createProvince(ProvinceRequest request) {
-        log.info("Creating province: {}", request.getProvinceCode());
-        
-        if (provinceRepository.existsByProvinceCodeAndIsDeletedFalse(request.getProvinceCode())) {
-            throw new ValidationException("Province code already exists");
-        }
-        
+        validateProvinceCodeNotDuplicate(request.getProvinceCode());
+
         Province province = provinceMapper.toEntity(request);
         Province savedProvince = provinceRepository.save(province);
-        
-        log.info("Province created: {}", savedProvince.getProvinceCode());
+
+        log.info("Province created successfully: id={}, code={}", savedProvince.getId(), savedProvince.getProvinceCode());
         return provinceMapper.toResponse(savedProvince);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProvinceResponse> getAllProvinces(ProvinceFilterRequest request) {
-        log.info("Getting all provinces with filters");
-        
         Pageable pageable = PaginationUtils.createPageable(
-            request.getPageNo(), request.getPageSize(), 
+            request.getPageNo(), request.getPageSize(),
             request.getSortBy(), request.getSortDirection()
         );
-        
-        Page<Province> provincePage = provinceRepository.searchProvinces(
-            request.getSearch(), pageable
-        );
-
+        Page<Province> provincePage = provinceRepository.searchProvinces(request.getSearch(), pageable);
         return provinceMapper.toPaginationResponse(provincePage, paginationMapper);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ProvinceResponse getProvinceById(UUID id) {
-        Province province = provinceRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Province not found"));
-        return provinceMapper.toResponse(province);
+        return provinceMapper.toResponse(findProvinceById(id));
     }
 
     @Override
@@ -96,26 +84,29 @@ public class ProvinceServiceImpl implements ProvinceService {
 
     @Override
     public ProvinceResponse updateProvince(UUID id, ProvinceRequest request) {
-        log.info("Updating province: {}", id);
-        
-        Province province = provinceRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Province not found"));
-        
+        Province province = findProvinceById(id);
         provinceMapper.updateEntity(request, province);
         Province updatedProvince = provinceRepository.save(province);
-        
-        log.info("Province updated: {}", updatedProvince.getProvinceCode());
+        log.info("Province updated successfully: id={}, code={}", id, updatedProvince.getProvinceCode());
         return provinceMapper.toResponse(updatedProvince);
     }
 
     @Override
     public void deleteProvince(UUID id) {
-        Province province = provinceRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Province not found"));
-        
+        Province province = findProvinceById(id);
         province.softDelete();
         provinceRepository.save(province);
-        log.info("Province deleted: {}", province.getProvinceCode());
+        log.info("Province deleted successfully: id={}, code={}", id, province.getProvinceCode());
     }
 
+    private Province findProvinceById(UUID id) {
+        return provinceRepository.findByIdAndIsDeletedFalse(id)
+            .orElseThrow(() -> new RuntimeException("Province not found"));
+    }
+
+    private void validateProvinceCodeNotDuplicate(String provinceCode) {
+        if (provinceRepository.existsByProvinceCodeAndIsDeletedFalse(provinceCode)) {
+            throw new ValidationException("Province code already exists");
+        }
+    }
 }

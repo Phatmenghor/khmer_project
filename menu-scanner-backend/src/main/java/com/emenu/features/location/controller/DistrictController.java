@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,87 +23,63 @@ public class DistrictController {
 
     private final DistrictService districtService;
 
-    /**
-     * Retrieves all districts with pagination and filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<DistrictResponse>>> getAllDistricts(
             @Valid @RequestBody DistrictFilterRequest request) {
-        log.info("Get all districts");
+        log.info("Endpoint: search-districts - districts retrieval: page={}, size={}", request.getPageNo(), request.getPageSize());
         PaginationResponse<DistrictResponse> response = districtService.getAllDistricts(request);
         return ResponseEntity.ok(ApiResponse.success("Districts retrieved", response));
     }
 
-    /**
-     * Retrieves a district by its ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<DistrictResponse>> getDistrictById(@PathVariable UUID id) {
-        log.info("Get district by id: {}", id);
+        log.info("Endpoint: get-district - district detail: id={}", id);
         DistrictResponse response = districtService.getDistrictById(id);
         return ResponseEntity.ok(ApiResponse.success("District retrieved", response));
     }
 
-    /**
-     * Retrieves a district by its code
-     */
     @GetMapping("/code/{code}")
     public ResponseEntity<ApiResponse<DistrictResponse>> getDistrictByCode(@PathVariable String code) {
-        log.info("Get district by code: {}", code);
+        log.info("Endpoint: get-district-by-code - district detail: code={}", code);
         DistrictResponse response = districtService.getDistrictByCode(code);
         return ResponseEntity.ok(ApiResponse.success("District retrieved", response));
     }
 
-    /**
-     * Retrieves a district by its English name
-     */
     @GetMapping("/name-en/{nameEn}")
     public ResponseEntity<ApiResponse<DistrictResponse>> getDistrictByNameEn(@PathVariable String nameEn) {
-        log.info("Get district by EN name: {}", nameEn);
+        log.info("Endpoint: get-district-by-name-en - district detail: nameEn={}", nameEn);
         DistrictResponse response = districtService.getDistrictByNameEn(nameEn);
         return ResponseEntity.ok(ApiResponse.success("District retrieved", response));
     }
 
-    /**
-     * Retrieves a district by its Khmer name
-     */
     @GetMapping("/name-kh/{nameKh}")
     public ResponseEntity<ApiResponse<DistrictResponse>> getDistrictByNameKh(@PathVariable String nameKh) {
-        log.info("Get district by KH name: {}", nameKh);
+        log.info("Endpoint: get-district-by-name-kh - district detail: nameKh={}", nameKh);
         DistrictResponse response = districtService.getDistrictByNameKh(nameKh);
         return ResponseEntity.ok(ApiResponse.success("District retrieved", response));
     }
 
-    /**
-     * Creates a new district
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<DistrictResponse>> createDistrict(
             @Valid @RequestBody DistrictRequest request) {
-        log.info("Create district: {}", request.getDistrictCode());
+        log.info("Endpoint: create-district - district creation: code={}", request.getDistrictCode());
         DistrictResponse response = districtService.createDistrict(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("District created", response));
     }
 
-    /**
-     * Updates an existing district
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DistrictResponse>> updateDistrict(
             @PathVariable UUID id,
             @Valid @RequestBody DistrictRequest request) {
-        log.info("Update district: {}", id);
+        log.info("Endpoint: update-district - district update: id={}", id);
         DistrictResponse response = districtService.updateDistrict(id, request);
         return ResponseEntity.ok(ApiResponse.success("District updated", response));
     }
 
-    /**
-     * Deletes a district by its ID
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteDistrict(@PathVariable UUID id) {
-        log.info("Delete district: {}", id);
+        log.info("Endpoint: delete-district - district deletion: id={}", id);
         districtService.deleteDistrict(id);
         return ResponseEntity.ok(ApiResponse.success("District deleted", null));
     }

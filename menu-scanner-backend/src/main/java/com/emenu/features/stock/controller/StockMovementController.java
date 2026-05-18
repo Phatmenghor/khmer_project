@@ -22,7 +22,7 @@ public class StockMovementController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<StockMovementDto>>> getAllMovements(
             @Valid @RequestBody StockMovementFilterRequest request) {
-        log.info("Get all movements - business: {}", request.getBusinessId());
+        log.info("Endpoint: search-stock-movements - stock movements retrieval: page={}, size={}", request.getPageNo(), request.getPageSize());
         PaginationResponse<StockMovementDto> result = stockService.getAllMovements(request);
         return ResponseEntity.ok(ApiResponse.success("Stock movements retrieved", result));
     }

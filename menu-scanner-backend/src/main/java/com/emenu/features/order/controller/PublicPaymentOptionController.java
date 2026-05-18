@@ -22,22 +22,14 @@ public class PublicPaymentOptionController {
 
     private final PaymentOptionService paymentOptionService;
 
-    /**
-     * Get payment options for a specific business with pagination and filtering
-     * Used during checkout to show available payment methods
-     * Filter can include status to show only active/inactive options
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<PaymentOptionResponse>>> getPaymentOptions(
             @Valid @RequestBody PaymentOptionFilterRequest filter) {
-        log.info("Getting payment options for business: {}", filter.getBusinessId());
-
+        log.info("Endpoint: public-search-payment-options - public payment options retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<PaymentOptionResponse> paymentOptions = paymentOptionService.getAllPaymentOptionsWithFilters(
                 filter.getBusinessId(),
                 filter
         );
-
         return ResponseEntity.ok(ApiResponse.success("Business payment options retrieved successfully", paymentOptions));
     }
 }
-

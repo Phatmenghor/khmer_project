@@ -4,7 +4,6 @@ import com.emenu.features.order.dto.filter.DeliveryOptionAllFilterRequest;
 import com.emenu.features.order.dto.filter.DeliveryOptionFilterRequest;
 import com.emenu.features.order.dto.response.DeliveryOptionResponse;
 import com.emenu.features.order.service.DeliveryOptionService;
-import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import jakarta.validation.Valid;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/public/delivery-options")
@@ -27,29 +25,19 @@ public class PublicDeliveryOptionController {
 
     private final DeliveryOptionService deliveryOptionService;
 
-    /**
-     * Get my business delivery options with filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<DeliveryOptionResponse>>> getDeliveryOptions(
             @Valid @RequestBody DeliveryOptionFilterRequest filter) {
-        log.info("Getting delivery options for current user's business");
-
+        log.info("Endpoint: public-search-delivery-options - public delivery options retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<DeliveryOptionResponse> deliveryOptions = deliveryOptionService.getAllDeliveryOptions(filter);
-
         return ResponseEntity.ok(ApiResponse.success("Business all delivery options retrieved successfully", deliveryOptions));
     }
 
-    /**
-     * Get my business delivery options with filtering
-     */
     @PostMapping("/all-data")
     public ResponseEntity<ApiResponse<List<DeliveryOptionResponse>>> getAllDeliveryOptions(
             @Valid @RequestBody DeliveryOptionAllFilterRequest filter) {
-        log.info("Getting all delivery options for current user's business");
-
+        log.info("Endpoint: public-list-delivery-options - public delivery options list retrieval: business_id={}", filter.getBusinessId());
         List<DeliveryOptionResponse> deliveryOptions = deliveryOptionService.getAllItemDeliveryOptions(filter);
-
         return ResponseEntity.ok(ApiResponse.success("Business all delivery options retrieved successfully", deliveryOptions));
     }
 }
