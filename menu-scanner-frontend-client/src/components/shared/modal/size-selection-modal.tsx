@@ -17,20 +17,20 @@ import { cn } from "@/lib/utils";
 import {
   ProductDetailResponseModel,
   ProductSize,
-} from "@/redux/features/business/store/models/response/product-response";
-import { useCartState } from "@/redux/features/main/store/state/cart-state";
+} from "@/features/business/store/models/response/product-response";
+import { useCartState } from "@/features/main/store/state/cart-state";
 import {
   addToCart,
   updateCartItem,
-} from "@/redux/features/main/store/thunks/cart-thunks";
+} from "@/features/main/store/thunks/cart-thunks";
 import {
   addLocalCartItem,
   updateLocalCartItem,
-} from "@/redux/features/main/store/slice/cart-slice";
+} from "@/features/main/store/slice/cart-slice";
 import { showToast } from "@/components/shared/common/show-toast";
 import { appImages } from "@/constants/app-resource/icons/app-images";
-import { fetchPublicProductById } from "@/redux/features/main/store/thunks/public-product-thunks";
-import { usePublicProductState } from "@/redux/features/main/store/state/public-product-state";
+import { fetchPublicProductById } from "@/features/main/store/thunks/public-product-thunks";
+import { usePublicProductState } from "@/features/main/store/state/public-product-state";
 import { getSizeQuantity } from "@/utils/common/quantity-utils";
 
 interface SizeSelectionModalProps {

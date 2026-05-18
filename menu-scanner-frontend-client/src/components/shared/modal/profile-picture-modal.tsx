@@ -9,7 +9,7 @@ import {
   Download,
   Loader2,
 } from "lucide-react";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface ProfilePictureModalProps {
@@ -82,7 +82,6 @@ export function ProfilePictureModal({
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error("Failed to download image:", error);
       alert("Failed to download image");
     }
   };

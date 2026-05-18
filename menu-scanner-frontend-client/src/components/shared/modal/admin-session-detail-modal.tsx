@@ -28,8 +28,8 @@ import {
   Shield,
   LogOut,
 } from "lucide-react";
-import { AdminSessionResponse } from "@/redux/features/auth/store/models/response/session-response";
-import { DeviceType, SessionStatus } from "@/redux/features/auth/store/models/request/session-request";
+import { AdminSessionResponse } from "@/features/auth/store/models/response/session-response";
+import { DeviceType, SessionStatus } from "@/features/auth/store/models/request/session-request";
 import { format, formatDistanceToNow } from "date-fns";
 
 interface AdminSessionDetailModalProps {

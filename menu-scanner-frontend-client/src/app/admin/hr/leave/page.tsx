@@ -8,28 +8,28 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/redux/store/use-pagination";
+import { usePagination } from "@/hooks/use-pagination";
 import { ModalMode } from "@/constants/status/status";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
-import { useLeaveState } from "@/redux/features/hr/store/state/leave-state";
-import { LeaveResponseModel } from "@/redux/features/hr/store/models/response/leave-response";
+import { useLeaveState } from "@/features/hr/store/state/leave-state";
+import { LeaveResponseModel } from "@/features/hr/store/models/response/leave-response";
 import {
   resetState,
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/hr/store/slice/leave-slice";
+} from "@/features/hr/store/slice/leave-slice";
 import {
   deleteLeaveService,
   fetchAllLeaveService,
-} from "@/redux/features/hr/store/thunks/leave-thunks";
-import { leaveTableColumns } from "@/redux/features/hr/table/leave-table";
-import LeaveModal from "@/redux/features/hr/components/leave-modal";
-import { LeaveDetailModal } from "@/redux/features/hr/components/leave-detail-modal";
-import ApproveRejectLeaveModal from "@/redux/features/hr/components/approve-reject-leave-modal";
+} from "@/features/hr/store/thunks/leave-thunks";
+import { leaveTableColumns } from "@/features/hr/table/leave-table";
+import LeaveModal from "@/features/hr/components/leave-modal";
+import { LeaveDetailModal } from "@/features/hr/components/leave-detail-modal";
+import ApproveRejectLeaveModal from "@/features/hr/components/approve-reject-leave-modal";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 
 export default function LeaveTypePage() {
   useAdminCleanup(resetState);

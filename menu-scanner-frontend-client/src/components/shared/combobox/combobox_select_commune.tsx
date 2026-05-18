@@ -20,10 +20,10 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
+import { useAppDispatch } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
-import { CommuneResponseModel } from "@/redux/features/location/store/models/response/location-response";
-import { fetchCommunesService } from "@/redux/features/location/store/thunks/public-location-thunks";
+import { CommuneResponseModel } from "@/features/location/store/models/response/location-response";
+import { fetchCommunesService } from "@/features/location/store/thunks/public-location-thunks";
 
 interface ComboboxSelectCommuneProps {
   dataSelect: CommuneResponseModel | null;
@@ -103,7 +103,6 @@ export function ComboboxSelectCommune({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (err) {
-      console.error("Error fetching communes:", err);
     } finally {
       setLoading(false);
     }

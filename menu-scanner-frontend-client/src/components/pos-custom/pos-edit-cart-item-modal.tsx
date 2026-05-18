@@ -125,7 +125,6 @@ export function POSEditCartItemModal({
       onSave(editData);
       onOpenChange(false);
     } catch (error) {
-      console.error("Error saving cart item:", error);
       showToast.error("Error saving changes. Please try again.");
     } finally {
       setIsSaving(false);

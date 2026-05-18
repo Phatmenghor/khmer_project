@@ -8,13 +8,11 @@ function setNativeCookie(name: string, value: string): void {
   const expires = new Date();
   expires.setFullYear(expires.getFullYear() + 1); // 1 year expiry
   document.cookie = `${name}=${encodeURIComponent(value)}; path=/; expires=${expires.toUTCString()}`;
-  console.log(`## [COOKIE] Set ${name}`);
 }
 
 function deleteNativeCookie(name: string): void {
   if (typeof window === "undefined") return;
   document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
-  console.log(`## [COOKIE] Deleted ${name}`);
 }
 
 const USER_INFO_KEY = COOKIE_KEYS.USER_INFO;
@@ -37,7 +35,6 @@ export function getUserInfo() {
     try {
       return JSON.parse(userInfo as string);
     } catch (error) {
-      console.error("Failed to parse user info:", error);
       return null;
     }
   }

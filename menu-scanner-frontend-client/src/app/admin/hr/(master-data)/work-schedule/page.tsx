@@ -9,27 +9,27 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/redux/store/use-pagination";
-import { useWorkScheduleState } from "@/redux/features/hr/store/state/work-schedule-state";
+import { usePagination } from "@/hooks/use-pagination";
+import { useWorkScheduleState } from "@/features/hr/store/state/work-schedule-state";
 import { ModalMode } from "@/constants/status/status";
-import { WorkScheduleResponseModel } from "@/redux/features/hr/store/models/response/work-schedule-response";
+import { WorkScheduleResponseModel } from "@/features/hr/store/models/response/work-schedule-response";
 import {
   resetState,
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/hr/store/slice/work-schedule-slice";
+} from "@/features/hr/store/slice/work-schedule-slice";
 import {
   deleteWorkScheduleService,
   fetchAllWorkScheduleService,
-} from "@/redux/features/hr/store/thunks/work-schedule-thunks";
-import { workScheduleTableColumns } from "@/redux/features/hr/table/work-schedule-table";
-import WorkScheduleModal from "@/redux/features/hr/components/work-schedule-modal";
-import { WorkScheduleDetailModal } from "@/redux/features/hr/components/work-schedule-detail-modal";
+} from "@/features/hr/store/thunks/work-schedule-thunks";
+import { workScheduleTableColumns } from "@/features/hr/table/work-schedule-table";
+import WorkScheduleModal from "@/features/hr/components/work-schedule-modal";
+import { WorkScheduleDetailModal } from "@/features/hr/components/work-schedule-detail-modal";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 
 export default function WorkSchedulePage() {
   useAdminCleanup(resetState);

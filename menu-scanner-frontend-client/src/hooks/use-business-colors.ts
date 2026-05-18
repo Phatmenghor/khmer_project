@@ -1,5 +1,5 @@
-import { useAppSelector } from "@/redux/store";
-import { selectBusinessColors } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { useAppSelector } from "@/store";
+import { selectBusinessColors } from "@/features/business/store/selectors/business-settings-selector";
 
 /**
  * Hook to get current business colors (primary, secondary, accent)

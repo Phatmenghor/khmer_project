@@ -17,7 +17,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import {
   ProductDetailResponseModel,
   ProductSize,
-} from "@/redux/features/business/store/models/response/product-response";
+} from "@/features/business/store/models/response/product-response";
 import { showToast } from "@/components/shared/common/show-toast";
 
 interface UnifiedProductModalProps {

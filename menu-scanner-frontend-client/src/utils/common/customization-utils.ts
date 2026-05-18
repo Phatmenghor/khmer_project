@@ -2,7 +2,7 @@
  * Customization and quantity utilities for cart and modal operations
  */
 
-import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
+import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 
 /**
  * Build a consistent map key from size ID and customization IDs

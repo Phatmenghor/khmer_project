@@ -20,10 +20,10 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
+import { useAppDispatch } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
-import { DistrictResponseModel } from "@/redux/features/location/store/models/response/location-response";
-import { fetchDistrictsService } from "@/redux/features/location/store/thunks/public-location-thunks";
+import { DistrictResponseModel } from "@/features/location/store/models/response/location-response";
+import { fetchDistrictsService } from "@/features/location/store/thunks/public-location-thunks";
 
 interface ComboboxSelectDistrictProps {
   dataSelect: DistrictResponseModel | null;
@@ -103,7 +103,6 @@ export function ComboboxSelectDistrict({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (err) {
-      console.error("Error fetching districts:", err);
     } finally {
       setLoading(false);
     }

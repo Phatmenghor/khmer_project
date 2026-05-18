@@ -5,8 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
-import { useAppSelector } from "@/redux/store";
-import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { useAppSelector } from "@/store";
+import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 
 // Type declaration for global cached business data
 declare global {

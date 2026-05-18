@@ -17,7 +17,7 @@ import {
   ProductDetailResponseModel,
   ProductSize,
   Customization,
-} from "@/redux/features/business/store/models/response/product-response";
+} from "@/features/business/store/models/response/product-response";
 import { showToast } from "@/components/shared/common/show-toast";
 
 interface ProductCustomizationModalProps {

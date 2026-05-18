@@ -18,16 +18,16 @@ import {
   fetchHomeCategories,
   fetchHomePromotionProducts,
   fetchHomeFeaturedProducts,
-} from "@/redux/features/main/store/thunks/home-thunks";
+} from "@/features/main/store/thunks/home-thunks";
 
-import { setInitialLoadComplete } from "@/redux/features/main/store/slice/home-slice";
+import { setInitialLoadComplete } from "@/features/main/store/slice/home-slice";
 
-import { useHomeState } from "@/redux/features/main/store/state/home-state";
+import { useHomeState } from "@/features/main/store/state/home-state";
 
-import { BannerSection } from "@/redux/features/main/components/home/banner-section";
-import { CategoriesSection } from "@/redux/features/main/components/home/categories-section";
-import { PromotionsSection } from "@/redux/features/main/components/home/promotions-section";
-import { ProductsSection } from "@/redux/features/main/components/home/products-section";
+import { BannerSection } from "@/features/main/components/home/banner-section";
+import { CategoriesSection } from "@/features/main/components/home/categories-section";
+import { PromotionsSection } from "@/features/main/components/home/promotions-section";
+import { ProductsSection } from "@/features/main/components/home/products-section";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 

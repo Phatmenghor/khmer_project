@@ -4,16 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
-import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
+import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/features/business/components/filter-types";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
-import { usePagination } from "@/redux/store/use-pagination";
-import { useProductState } from "@/redux/features/business/store/state/product-state";
-import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
+import { usePagination } from "@/hooks/use-pagination";
+import { useProductState } from "@/features/business/store/state/product-state";
+import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import {
   deleteProductService,
   fetchAllProductAdminService,
@@ -21,7 +21,7 @@ import {
   resetAllPromotionsService,
   resetBulkPromotionsService,
   updateProductService,
-} from "@/redux/features/business/store/thunks/product-thunks";
+} from "@/features/business/store/thunks/product-thunks";
 import {
   selectProductStatus,
   setPageNo,
@@ -31,22 +31,22 @@ import {
   resetAllPromotionsOptimistic,
   resetTablePromotionsOptimistic,
   updateProductOptimistic,
-} from "@/redux/features/business/store/slice/product-slice";
+} from "@/features/business/store/slice/product-slice";
 import { useRouter } from "next/navigation";
-import ProductModal from "@/redux/features/business/components/product-modal";
-import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
+import ProductModal from "@/features/business/components/product-modal";
+import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
+import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
-import { productPromotionTableColumns } from "@/redux/features/business/table/product-promotion-table";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
+import { productPromotionTableColumns } from "@/features/business/table/product-promotion-table";
 
 // Sort field options for promotions page
 const SORT_BY_OPTIONS = [

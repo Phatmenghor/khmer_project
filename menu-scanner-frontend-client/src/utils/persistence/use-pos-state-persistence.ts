@@ -5,20 +5,20 @@
  */
 
 import { useEffect, useCallback, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   loadPersistedFilters,
   loadPersistedCart,
   setSearchTerm,
   setPromotionFilter,
-} from "@/redux/features/business/store/slice/pos-page-slice";
+} from "@/features/business/store/slice/pos-page-slice";
 import {
   selectSearchTerm,
   selectPromotionFilter,
   selectCartItems,
-} from "@/redux/features/business/store/selectors/pos-page-selector";
+} from "@/features/business/store/selectors/pos-page-selector";
 import { usePOSPersistence, POSFilterState } from "./use-pos-persistence";
-import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
+import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 
 /**
  * Hook configuration options
@@ -120,7 +120,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
 
       persistence.setInitialized(true);
     } catch (error) {
-      console.error("Error loading persisted state:", error);
       persistence.setInitialized(true);
     }
   }, []); // Empty array - RUN ONLY ONCE on mount
@@ -148,7 +147,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
           hasPromotion: promotionFilter || false,
         });
       } catch (error) {
-        console.error("Error saving filters:", error);
       }
     }, filterSaveDebounceMs);
 
@@ -183,7 +181,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
           persistence.clearCartFromStorage();
         }
       } catch (error) {
-        console.error("Error saving cart:", error);
       }
     }, cartSaveDebounceMs);
 
@@ -202,7 +199,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
     try {
       persistence.clearAll();
     } catch (error) {
-      console.error("Error clearing persistence:", error);
     }
   }, [persistence]);
 
@@ -212,7 +208,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
       dispatch(setSearchTerm(""));
       dispatch(setPromotionFilter(undefined));
     } catch (error) {
-      console.error("Error clearing filters:", error);
     }
   }, [persistence, dispatch]);
 
@@ -220,7 +215,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
     try {
       persistence.clearCartFromStorage();
     } catch (error) {
-      console.error("Error clearing cart:", error);
     }
   }, [persistence]);
 
@@ -233,7 +227,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
         url: typeof window !== "undefined" ? window.location.href : "N/A",
       };
     } catch (error) {
-      console.error("Error exporting state:", error);
       return {
         filters: { search: "", categoryId: null, brandId: null, hasPromotion: false },
         cart: [],
@@ -260,7 +253,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
       dispatch(setSearchTerm(""));
       dispatch(setPromotionFilter(undefined));
     } catch (error) {
-      console.error("Error resetting to default:", error);
     }
   }, [clearAllPersistence, dispatch]);
 

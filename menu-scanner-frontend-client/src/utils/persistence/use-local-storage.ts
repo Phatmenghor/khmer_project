@@ -27,14 +27,12 @@ export function useLocalStorage<T>(
       if (item) {
         const parsed = JSON.parse(item);
         if (validateBeforeLoad && !validateBeforeLoad(parsed)) {
-          console.warn(`Invalid data in localStorage for key: ${key}`);
           setStoredValue(initialValue);
         } else {
           setStoredValue(parsed);
         }
       }
     } catch (error) {
-      console.error(`Error reading from localStorage (${key}):`, error);
       setStoredValue(initialValue);
     } finally {
       setIsLoading(false);
@@ -50,7 +48,6 @@ export function useLocalStorage<T>(
         setStoredValue(valueToStore);
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (error) {
-        console.error(`Error writing to localStorage (${key}):`, error);
       }
     },
     [key, storedValue]
@@ -70,7 +67,6 @@ export function useLocalStorage<T>(
       window.localStorage.removeItem(key);
       setStoredValue(initialValue);
     } catch (error) {
-      console.error(`Error removing from localStorage (${key}):`, error);
     }
   }, [key, initialValue]);
 
@@ -86,7 +82,6 @@ export function useLocalStorage<T>(
             setStoredValue(newValue);
           }
         } catch (error) {
-          console.error(`Error syncing from other tab (${key}):`, error);
         }
       }
     };
@@ -172,7 +167,6 @@ export function useLocalStorageBatch(prefix: string = "") {
         try {
           window.localStorage.setItem(getKey(key), JSON.stringify(value));
         } catch (error) {
-          console.error(`Error setting ${key}:`, error);
         }
       });
     },
@@ -185,7 +179,6 @@ export function useLocalStorageBatch(prefix: string = "") {
         const item = window.localStorage.getItem(getKey(key));
         return item ? JSON.parse(item) : defaultValue;
       } catch (error) {
-        console.error(`Error getting ${key}:`, error);
         return defaultValue;
       }
     },
@@ -202,7 +195,6 @@ export function useLocalStorageBatch(prefix: string = "") {
         try {
           data[cleanKey] = JSON.parse(window.localStorage.getItem(key) || "");
         } catch (error) {
-          console.error(`Error parsing ${key}:`, error);
         }
       }
     }

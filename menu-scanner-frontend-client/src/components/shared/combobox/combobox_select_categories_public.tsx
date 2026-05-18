@@ -20,9 +20,9 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { fetchPublicCategories } from "@/redux/features/main/store/thunks/public-categories-thunks";
+import { useAppDispatch } from "@/store";
+import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
+import { fetchPublicCategories } from "@/features/main/store/thunks/public-categories-thunks";
 import { Package } from "lucide-react";
 
 interface ComboboxSelectCategoriesPublicProps {
@@ -122,7 +122,6 @@ function ComboboxSelectCategoriesPublicComponent({
       setPage(result.pageNo || newPage);
       setLastPage(result.last || false);
     } catch (error) {
-      console.error("Error fetching categories:", error);
     } finally {
       setLoading(false);
     }

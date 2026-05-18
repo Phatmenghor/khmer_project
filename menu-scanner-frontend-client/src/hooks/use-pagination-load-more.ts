@@ -106,7 +106,6 @@ const handleLoadMore = useCallback(() => {
       // before skeletons appear
       onLoadMore();
     } catch (error) {
-      console.error("[Pagination] Error in onLoadMore:", error);
       isProcessingRef.current = false;
     }
 

@@ -1,0 +1,100 @@
+/**
+ * POS Page - State Hook
+ */
+
+import { useAppDispatch, useAppSelector } from "@/store";
+import {
+  selectPOSPageState,
+  selectSelectedDeliveryOption,
+  selectSelectedPaymentOption,
+  selectProducts,
+  selectProductsLoading,
+  selectProductsError,
+  selectSearchTerm,
+  selectSelectedCategory,
+  selectSelectedBrand,
+  selectCategories,
+  selectBrands,
+  selectCategoriesLoading,
+  selectBrandsLoading,
+  selectProductPage,
+  selectHasMoreProducts,
+  selectCartItems,
+  selectCartPricing,
+  selectShowCart,
+  selectCustomerNote,
+  selectIsSubmitting,
+  selectSizePickerProduct,
+  selectEditingCartItemId,
+  selectLastSelectedCustomizations,
+  selectSuccessOrder,
+  selectShowOrderDetailsModal,
+  selectBrandOpen,
+  selectPromotionFilter,
+  selectPromotionOpen,
+} from "../selectors/pos-page-selector";
+
+export const usePOSPageState = () => {
+  const dispatch = useAppDispatch();
+
+  const posPageState = useAppSelector(selectPOSPageState);
+  const selectedDeliveryOption = useAppSelector(selectSelectedDeliveryOption);
+  const selectedPaymentOption = useAppSelector(selectSelectedPaymentOption);
+  const products = useAppSelector(selectProducts);
+  const productsLoading = useAppSelector(selectProductsLoading);
+  const productsError = useAppSelector(selectProductsError);
+  const searchTerm = useAppSelector(selectSearchTerm);
+  const selectedCategory = useAppSelector(selectSelectedCategory);
+  const selectedBrand = useAppSelector(selectSelectedBrand);
+  const categories = useAppSelector(selectCategories);
+  const brands = useAppSelector(selectBrands);
+  const categoriesLoading = useAppSelector(selectCategoriesLoading);
+  const brandsLoading = useAppSelector(selectBrandsLoading);
+  const productPage = useAppSelector(selectProductPage);
+  const hasMoreProducts = useAppSelector(selectHasMoreProducts);
+  const cartItems = useAppSelector(selectCartItems);
+  const cartPricing = useAppSelector(selectCartPricing);
+  const showCart = useAppSelector(selectShowCart);
+  const customerNote = useAppSelector(selectCustomerNote);
+  const isSubmitting = useAppSelector(selectIsSubmitting);
+  const sizePickerProduct = useAppSelector(selectSizePickerProduct);
+  const editingCartItemId = useAppSelector(selectEditingCartItemId);
+  const lastSelectedCustomizations = useAppSelector(selectLastSelectedCustomizations);
+  const successOrder = useAppSelector(selectSuccessOrder);
+  const showOrderDetailsModal = useAppSelector(selectShowOrderDetailsModal);
+  const brandOpen = useAppSelector(selectBrandOpen);
+  const promotionFilter = useAppSelector(selectPromotionFilter);
+  const promotionOpen = useAppSelector(selectPromotionOpen);
+
+  return {
+    dispatch,
+    posPageState,
+    selectedDeliveryOption,
+    selectedPaymentOption,
+    products,
+    productsLoading,
+    productsError,
+    searchTerm,
+    selectedCategory,
+    selectedBrand,
+    categories,
+    brands,
+    categoriesLoading,
+    brandsLoading,
+    productPage,
+    hasMoreProducts,
+    cartItems,
+    cartPricing,
+    showCart,
+    customerNote,
+    isSubmitting,
+    sizePickerProduct,
+    editingCartItemId,
+    lastSelectedCustomizations,
+    successOrder,
+    showOrderDetailsModal,
+    brandOpen,
+    promotionFilter,
+    promotionOpen,
+  };
+};

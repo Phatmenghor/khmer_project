@@ -9,29 +9,29 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/redux/store/use-pagination";
+import { usePagination } from "@/hooks/use-pagination";
 import { ExchangeRateStatus, ModalMode } from "@/constants/status/status";
-import ExchangeRateModal from "@/redux/features/master-data/components/exchange-rate-modal";
-import { ExchangeRateDetailModal } from "@/redux/features/master-data/components/exchange-rate-detail-modal";
-import { useExchangeRateState } from "@/redux/features/master-data/store/state/exchange-rate-state";
-import { ExchangeRateResponseModel } from "@/redux/features/master-data/store/models/response/exchange-rate-response";
+import ExchangeRateModal from "@/features/master-data/components/exchange-rate-modal";
+import { ExchangeRateDetailModal } from "@/features/master-data/components/exchange-rate-detail-modal";
+import { useExchangeRateState } from "@/features/master-data/store/state/exchange-rate-state";
+import { ExchangeRateResponseModel } from "@/features/master-data/store/models/response/exchange-rate-response";
 import {
   deleteExchangeRateService,
   fetchAllMyBusinessExchangeRateService,
-} from "@/redux/features/master-data/store/thunks/exchange-rate-thunks";
+} from "@/features/master-data/store/thunks/exchange-rate-thunks";
 import {
   setExchangeRateStatusFilter,
   resetState,
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/master-data/store/slice/exchange-rate-slice";
-import { exchangeRateTableColumns } from "@/redux/features/master-data/table/exchange-rate-table";
+} from "@/features/master-data/store/slice/exchange-rate-slice";
+import { exchangeRateTableColumns } from "@/features/master-data/table/exchange-rate-table";
 import { EXCHAGE_RATE_FILTER } from "@/constants/status/filter-status";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 
 export default function ExchangeRatePage() {
   // Clean up state when leaving admin area (performance optimization)

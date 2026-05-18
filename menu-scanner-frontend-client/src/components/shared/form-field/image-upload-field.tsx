@@ -56,7 +56,6 @@ export function ImageUploadField({
 
       onChange(base64);
     } catch (error) {
-      console.error("Error reading image:", error);
       alert("Failed to read image. Please try again.");
       setPreview(null);
     }

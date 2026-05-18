@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, ShoppingBag } from "lucide-react";
-import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 
 interface BrandCardProps {
   brand: BrandResponseModel;

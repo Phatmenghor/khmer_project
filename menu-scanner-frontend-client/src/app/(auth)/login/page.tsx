@@ -11,15 +11,15 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { useRouter } from "next/navigation";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { loginService } from "@/redux/features/auth/store/thunks/auth-thunks";
-import { telegramAuthenticateService } from "@/redux/features/auth/store/thunks/social-auth-thunks";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { loginService } from "@/features/auth/store/thunks/auth-thunks";
+import { telegramAuthenticateService } from "@/features/auth/store/thunks/social-auth-thunks";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { TelegramLoginModal } from "@/components/shared/telegram/telegram-login-modal";
-import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
+import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 import { UserGropeType } from "@/constants/status/status";
 
 const formSchema = z.object({
@@ -59,7 +59,6 @@ export default function LoginPage() {
 
       router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: any) {
-      console.error("Login failed:", err);
       showToast.error(err?.message || error || "Login failed");
     }
   }
@@ -83,7 +82,6 @@ export default function LoginPage() {
 
       router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: any) {
-      console.error("✗ Telegram auth failed:", err);
       showToast.error(
         err?.message || err || "Telegram login failed. Please try again.",
       );

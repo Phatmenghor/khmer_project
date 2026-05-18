@@ -23,7 +23,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
       timeZone: "Asia/Phnom_Penh",
     };
   } catch (error) {
-    console.error(`Failed to load messages for locale: ${locale}`, error);
 
     // Fallback to default locale
     const fallbackMessages = (await import(`../messages/${defaultLocale}.json`))

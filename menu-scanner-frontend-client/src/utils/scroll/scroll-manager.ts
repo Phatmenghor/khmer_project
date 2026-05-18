@@ -49,7 +49,6 @@ export class ScrollManager {
           });
       }
     } catch (error) {
-      console.error("Error loading scroll positions:", error);
     }
   }
 
@@ -63,7 +62,6 @@ export class ScrollManager {
       const data = Array.from(this.positions.values());
       localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
-      console.error("Error saving scroll positions:", error);
     }
   }
 

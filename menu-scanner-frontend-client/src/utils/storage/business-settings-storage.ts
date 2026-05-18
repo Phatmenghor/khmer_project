@@ -1,4 +1,4 @@
-import { BusinessSettingsResponse } from "@/redux/features/business/store/services/business-settings-api";
+import { BusinessSettingsResponse } from "@/features/business/store/services/business-settings-api";
 
 const STORAGE_KEY = "business_settings_cache";
 const HASH_KEY = "business_settings_hash";
@@ -21,7 +21,6 @@ export const businessSettingsStorage = {
 
       return JSON.parse(cached) as CachedBusinessSettings;
     } catch (error) {
-      console.error("Error reading business settings from storage:", error);
       return null;
     }
   },
@@ -39,7 +38,6 @@ export const businessSettingsStorage = {
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cached));
     } catch (error) {
-      console.error("Error saving business settings to storage:", error);
     }
   },
 
@@ -52,7 +50,6 @@ export const businessSettingsStorage = {
       const parsed = JSON.parse(cached) as CachedBusinessSettings;
       return parsed.hash;
     } catch (error) {
-      console.error("Error reading stored hash:", error);
       return null;
     }
   },
@@ -66,7 +63,6 @@ export const businessSettingsStorage = {
       const parsed = JSON.parse(cached) as CachedBusinessSettings;
       return parsed.timestamp;
     } catch (error) {
-      console.error("Error reading cache timestamp:", error);
       return 0;
     }
   },
@@ -77,7 +73,6 @@ export const businessSettingsStorage = {
       if (typeof window === "undefined") return;
       localStorage.removeItem(STORAGE_KEY);
     } catch (error) {
-      console.error("Error clearing business settings cache:", error);
     }
   },
 

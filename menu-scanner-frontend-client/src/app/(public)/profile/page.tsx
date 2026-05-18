@@ -13,24 +13,24 @@ import { TextField } from "@/components/shared/form-field/text-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { DisplayField } from "@/components/shared/form-field/display-field";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   getProfileService,
   updateProfileService,
   deleteAccountService,
-} from "@/redux/features/auth/store/thunks/auth-thunks";
+} from "@/features/auth/store/thunks/auth-thunks";
 import {
   selectProfile,
   selectIsProfileLoading,
   selectError,
-} from "@/redux/features/auth/store/selectors/auth-selectors";
+} from "@/features/auth/store/selectors/auth-selectors";
 import { showToast } from "@/components/shared/common/show-toast";
-import { clearError } from "@/redux/features/auth/store/slice/auth-slice";
+import { clearError } from "@/features/auth/store/slice/auth-slice";
 import ChangePasswordModal from "@/components/shared/modal/change-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ProfilePictureModal } from "@/components/shared/modal/profile-picture-modal";
 import { useRouter } from "next/navigation";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { isBase64Image, uploadImage } from "@/utils/common/upload-image";
 import { clearToken } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
@@ -136,7 +136,6 @@ export default function PublicProfilePage() {
         try {
           profileImageUrl = await uploadImage(profileImageUrl);
         } catch (error) {
-          console.error("Failed to upload image:", error);
           showToast.error("Failed to upload profile picture");
           setIsUploadingImage(false);
           return;
@@ -163,7 +162,6 @@ export default function PublicProfilePage() {
       showToast.success("Profile updated successfully");
       setIsEditing(false);
     } catch (error: any) {
-      console.error("Error updating profile:", error);
       showToast.error(error || "Failed to update profile");
     } finally {
       setIsUploadingImage(false);
@@ -195,7 +193,6 @@ export default function PublicProfilePage() {
         try {
           profileImageUrl = await uploadImage(profileImageUrl);
         } catch (error) {
-          console.error("Failed to upload image to CDN:", error);
           showToast.error("Failed to upload image");
           setIsUploadingImage(false);
           return;
@@ -215,7 +212,6 @@ export default function PublicProfilePage() {
 
       showToast.success("Profile picture updated successfully");
     } catch (error: any) {
-      console.error("Error uploading profile picture:", error);
       showToast.error(error || "Failed to update profile picture");
     } finally {
       setIsUploadingImage(false);

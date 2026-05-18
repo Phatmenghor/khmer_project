@@ -10,29 +10,29 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, Status } from "@/constants/status/status";
-import { usePagination } from "@/redux/store/use-pagination";
+import { usePagination } from "@/hooks/use-pagination";
 import { STATUS_FILTER } from "@/constants/status/filter-status";
-import { useBrandState } from "@/redux/features/master-data/store/state/brand-state";
-import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { useBrandState } from "@/features/master-data/store/state/brand-state";
+import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import {
   setPageNo,
   setSearchFilter,
   setStatusFilter,
   resetState,
-} from "@/redux/features/master-data/store/slice/brand-slice";
+} from "@/features/master-data/store/slice/brand-slice";
 import {
   deleteBrandService,
   fetchAllBrandWithProductCountService,
   toggleBrandStatusService,
-} from "@/redux/features/master-data/store/thunks/brand-thunks";
-import { brandTableColumns } from "@/redux/features/master-data/table/brand-table";
-import BrandModal from "@/redux/features/master-data/components/brand-modal";
-import { BrandDetailModal } from "@/redux/features/master-data/components/brand-detail-modal";
+} from "@/features/master-data/store/thunks/brand-thunks";
+import { brandTableColumns } from "@/features/master-data/table/brand-table";
+import BrandModal from "@/features/master-data/components/brand-modal";
+import { BrandDetailModal } from "@/features/master-data/components/brand-detail-modal";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 
 export default function BrandPage() {
   useAdminCleanup(resetState);

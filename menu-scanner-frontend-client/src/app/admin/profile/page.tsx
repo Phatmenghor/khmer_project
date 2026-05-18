@@ -23,26 +23,26 @@ import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   getProfileService,
   updateProfileService,
   deleteAccountService,
-} from "@/redux/features/auth/store/thunks/auth-thunks";
+} from "@/features/auth/store/thunks/auth-thunks";
 import {
   selectProfile,
   selectIsProfileLoading,
   selectError,
-} from "@/redux/features/auth/store/selectors/auth-selectors";
+} from "@/features/auth/store/selectors/auth-selectors";
 import { showToast } from "@/components/shared/common/show-toast";
-import { clearError } from "@/redux/features/auth/store/slice/auth-slice";
+import { clearError } from "@/features/auth/store/slice/auth-slice";
 import ChangePasswordModal from "@/components/shared/modal/change-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ProfilePictureModal } from "@/components/shared/modal/profile-picture-modal";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { clearToken } from "@/utils/local-storage/token";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { isBase64Image, uploadImage } from "@/utils/common/upload-image";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
@@ -66,7 +66,7 @@ import {
 import {
   updateUserSchema,
   UserFormData,
-} from "@/redux/features/auth/store/models/schema/user.schema";
+} from "@/features/auth/store/models/schema/user.schema";
 
 export default function AdminProfilePage() {
   const dispatch = useAppDispatch();
@@ -226,7 +226,6 @@ export default function AdminProfilePage() {
         try {
           profileImageUrl = await uploadImage(profileImageUrl);
         } catch (error) {
-          console.error("Failed to upload profile image:", error);
           showToast.error("Failed to upload profile image");
           setIsUploadingImage(false);
           return;
@@ -241,7 +240,6 @@ export default function AdminProfilePage() {
             try {
               fileUrl = await uploadImage(fileUrl);
             } catch (error) {
-              console.error("Failed to upload document file:", error);
               return null;
             }
           }
@@ -268,7 +266,6 @@ export default function AdminProfilePage() {
             try {
               certificateUrl = await uploadImage(certificateUrl);
             } catch (error) {
-              console.error("Failed to upload certificate:", error);
               return null;
             }
           }
@@ -368,19 +365,14 @@ export default function AdminProfilePage() {
         }));
       }
 
-      console.log("🔄 [UPDATE] Sending payload to backend:", payload);
       const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
-      console.log("✅ [UPDATE] Backend response:", updatedProfile);
 
       // Reload profile data to ensure we have the latest from server
-      console.log("🔄 [FETCH] Reloading profile data...");
       const freshProfile = await dispatch(getProfileService()).unwrap();
-      console.log("✅ [FETCH] Fresh profile loaded:", freshProfile);
 
       showToast.success("Profile updated successfully");
       setIsEditing(false);
     } catch (error: any) {
-      console.error("Error updating profile:", error);
       showToast.error(error || "Failed to update profile");
       setIsUploadingImage(false);
     }
@@ -394,11 +386,8 @@ export default function AdminProfilePage() {
       let profileImageUrl = imageData;
       if (isBase64Image(profileImageUrl)) {
         try {
-          console.log("📤 [UPLOAD CDN] Uploading image to CDN...");
           profileImageUrl = await uploadImage(profileImageUrl);
-          console.log("✅ [UPLOAD CDN] Image URL from CDN:", profileImageUrl);
         } catch (error) {
-          console.error("Failed to upload image to CDN:", error);
           showToast.error("Failed to upload image");
           setIsUploadingImage(false);
           return;
@@ -415,18 +404,13 @@ export default function AdminProfilePage() {
         profileImageUrl,
       };
 
-      console.log("🔄 [UPDATE API] Updating profile with image URL...");
       const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
-      console.log("✅ [UPDATE API] Profile picture updated:", updatedProfile);
 
       // Reload profile to ensure we have the latest from server
-      console.log("🔄 [FETCH] Reloading profile data...");
       const freshProfile = await dispatch(getProfileService()).unwrap();
-      console.log("✅ [FETCH] Fresh profile loaded:", freshProfile);
 
       showToast.success("Profile picture updated successfully");
     } catch (error: any) {
-      console.error("Error uploading profile picture:", error);
       showToast.error(error || "Failed to update profile picture");
       // Reset the form value on error
       if (userProfile?.profileImageUrl) {
@@ -1574,18 +1558,14 @@ export default function AdminProfilePage() {
               profileImageUrl: "",
             };
 
-            console.log("🔄 [REMOVE] Removing profile picture...");
             await dispatch(updateProfileService(payload)).unwrap();
-            console.log("✅ [REMOVE] Profile picture removed");
 
             // Reload profile to ensure we have the latest from server
             const freshProfile = await dispatch(getProfileService()).unwrap();
-            console.log("✅ [FETCH] Fresh profile loaded:", freshProfile);
 
             showToast.success("Profile picture removed successfully");
             setIsProfilePictureModalOpen(false);
           } catch (error: any) {
-            console.error("Error removing profile picture:", error);
             showToast.error(error || "Failed to remove profile picture");
           } finally {
             setIsUploadingImage(false);

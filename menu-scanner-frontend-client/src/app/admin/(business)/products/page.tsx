@@ -9,15 +9,15 @@ import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal"
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
-import { usePagination } from "@/redux/store/use-pagination";
-import { useProductState } from "@/redux/features/business/store/state/product-state";
-import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
+import { usePagination } from "@/hooks/use-pagination";
+import { useProductState } from "@/features/business/store/state/product-state";
+import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import {
   deleteProductService,
   updateProductService,
   fetchAllProductAdminService,
   resetProductPromotionService,
-} from "@/redux/features/business/store/thunks/product-thunks";
+} from "@/features/business/store/thunks/product-thunks";
 import {
   selectProductStatus,
   setPageNo,
@@ -25,20 +25,20 @@ import {
   resetState,
   updateProductOptimistic,
   resetProductPromotionOptimistic,
-} from "@/redux/features/business/store/slice/product-slice";
-import { productTableColumns } from "@/redux/features/business/table/product-table";
-import ProductModal from "@/redux/features/business/components/product-modal";
-import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
+} from "@/features/business/store/slice/product-slice";
+import { productTableColumns } from "@/features/business/table/product-table";
+import ProductModal from "@/features/business/components/product-modal";
+import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
 import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
+import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
-import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
-import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
+import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/features/business/components/filter-types";
 
 // Sort field options for products page
 const SORT_BY_OPTIONS = [

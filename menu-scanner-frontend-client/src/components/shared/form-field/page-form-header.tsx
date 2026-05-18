@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { Plus, Edit } from "lucide-react";
 import { cn } from "@/lib/utils";
 

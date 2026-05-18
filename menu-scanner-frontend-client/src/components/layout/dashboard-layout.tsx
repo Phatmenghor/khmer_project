@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { TopBar } from "./topbar";
 import { AdminFooter } from "./admin-footer";
-import { useIsMobile } from "@/redux/store/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function DashboardLayout({
   children,

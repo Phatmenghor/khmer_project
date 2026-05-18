@@ -19,22 +19,22 @@ import {
 } from "@/components/ui/select";
 import {
   type SocialMedia,
-} from "@/redux/features/business/store/services/business-settings-service";
+} from "@/features/business/store/services/business-settings-service";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import {
   fetchBusinessSettingsThunk,
   updateBusinessSettingsThunk,
-} from "@/redux/features/business/store/thunks/business-settings-thunks";
+} from "@/features/business/store/thunks/business-settings-thunks";
 import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import {
   businessSettingsSchema,
   type BusinessSettingsFormData,
 } from "./schema/business-settings.schema";
-import { BusinessSettingsResponse } from "@/redux/features/business/store/services/business-settings-service";
+import { BusinessSettingsResponse } from "@/features/business/store/services/business-settings-service";
 import {
   getCachedThemeColors,
   cacheThemeColors,

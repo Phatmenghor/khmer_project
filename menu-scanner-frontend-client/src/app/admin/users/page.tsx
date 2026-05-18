@@ -8,18 +8,18 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
-import { userBusinessTableColumns } from "@/redux/features/auth/table/users-business-table";
+import { userBusinessTableColumns } from "@/features/auth/table/users-business-table";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { useUsersState } from "@/redux/features/auth/store/state/users-state";
-import { usePagination } from "@/redux/store/use-pagination";
+import { useUsersState } from "@/features/auth/store/state/users-state";
+import { usePagination } from "@/hooks/use-pagination";
 import {
   deleteUserService,
   fetchAllUsersService,
   toggleUserStatusService,
-} from "@/redux/features/auth/store/thunks/users-thunks";
-import { fetchAllRolesListService } from "@/redux/features/auth/store/thunks/role-thunks";
-import { selectRolesList } from "@/redux/features/auth/store/selectors/role-selectors";
+} from "@/features/auth/store/thunks/users-thunks";
+import { fetchAllRolesListService } from "@/features/auth/store/thunks/role-thunks";
+import { selectRolesList } from "@/features/auth/store/selectors/role-selectors";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   setAccountStatusFilter,
@@ -27,8 +27,8 @@ import {
   setRoleFilter,
   setSearchFilter,
   resetState,
-} from "@/redux/features/auth/store/slice/users-slice";
-import { UserResponseModel } from "@/redux/features/auth/store/models/response/users-response";
+} from "@/features/auth/store/slice/users-slice";
+import { UserResponseModel } from "@/features/auth/store/models/response/users-response";
 import { ACCOUNT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import {
@@ -37,12 +37,12 @@ import {
   UserGropeType,
   UserRole,
 } from "@/constants/status/status";
-import UserBusinessModal from "@/redux/features/auth/components/user-business-modal";
-import { UserBusinessDetailModal } from "@/redux/features/auth/components/user-business-detail-modal";
+import UserBusinessModal from "@/features/auth/components/user-business-modal";
+import { UserBusinessDetailModal } from "@/features/auth/components/user-business-detail-modal";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 
 export default function UserBusinessPage() {
   useAdminCleanup(resetState);

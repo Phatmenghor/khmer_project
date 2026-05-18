@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
-import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thunks/business-settings-thunks";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
+import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
-import { BusinessSettingsResponse } from "@/redux/features/business/store/services/business-settings-service";
+import { BusinessSettingsResponse } from "@/features/business/store/services/business-settings-service";
 import { getCachedThemeColors, cacheThemeColors, hasThemeChanged, getCachedBusinessInfo } from "@/utils/common/theme-cache";
 import { AppDefault } from "@/constants/app-resource/default/default";
 

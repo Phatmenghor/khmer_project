@@ -8,30 +8,30 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/redux/store/use-pagination";
-import { useWorkScheduleState } from "@/redux/features/hr/store/state/work-schedule-state";
+import { usePagination } from "@/hooks/use-pagination";
+import { useWorkScheduleState } from "@/features/hr/store/state/work-schedule-state";
 import { ModalMode } from "@/constants/status/status";
-import WorkScheduleModal from "@/redux/features/hr/components/work-schedule-modal";
-import { WorkScheduleDetailModal } from "@/redux/features/hr/components/work-schedule-detail-modal";
+import WorkScheduleModal from "@/features/hr/components/work-schedule-modal";
+import { WorkScheduleDetailModal } from "@/features/hr/components/work-schedule-detail-modal";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 import {
   resetState,
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/hr/store/slice/attendance-slice";
-import { useAttendanceState } from "@/redux/features/hr/store/state/attendance-state";
-import { AttendanceResponseModel } from "@/redux/features/hr/store/models/response/attendance-response";
+} from "@/features/hr/store/slice/attendance-slice";
+import { useAttendanceState } from "@/features/hr/store/state/attendance-state";
+import { AttendanceResponseModel } from "@/features/hr/store/models/response/attendance-response";
 import {
   deleteAttendanceService,
   fetchAllAttendanceService,
-} from "@/redux/features/hr/store/thunks/attendance-thunks";
-import { attendanceTableColumns } from "@/redux/features/hr/table/attendance-table";
-import AttendanceModal from "@/redux/features/hr/components/attendance-modal";
-import { AttendanceDetailModal } from "@/redux/features/hr/components/attendance-detail-modal";
+} from "@/features/hr/store/thunks/attendance-thunks";
+import { attendanceTableColumns } from "@/features/hr/table/attendance-table";
+import AttendanceModal from "@/features/hr/components/attendance-modal";
+import { AttendanceDetailModal } from "@/features/hr/components/attendance-detail-modal";
 
 export default function AttendancePage() {
   useAdminCleanup(resetState);

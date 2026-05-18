@@ -6,12 +6,12 @@
  */
 
 import { useEffect, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { selectPromotionSizeSelections } from "@/redux/features/business/store/selectors/promotion-size-selection-selector";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectPromotionSizeSelections } from "@/features/business/store/selectors/promotion-size-selection-selector";
 import {
   selectAllSizesForProduct,
   clearAllSizeSelections,
-} from "@/redux/features/business/store/slice/promotion-size-selection-slice";
+} from "@/features/business/store/slice/promotion-size-selection-slice";
 
 interface UseBulkPromotionSizesStorageSyncOptions {
   /**
@@ -180,9 +180,7 @@ export function useBulkPromotionSizesStorageSync(
     try {
       localStorage.removeItem(storageKey);
       dispatch(clearAllSizeSelections());
-      console.log(`🗑️ Selected sizes cleared from localStorage`);
     } catch (error) {
-      console.error("Error clearing size selections:", error);
     }
   };
 
@@ -206,7 +204,6 @@ export function useBulkPromotionSizesStorageSync(
         totalStorageLimit: "~10 MB",
       };
     } catch (error) {
-      console.error("Error getting storage info:", error);
       return null;
     }
   };

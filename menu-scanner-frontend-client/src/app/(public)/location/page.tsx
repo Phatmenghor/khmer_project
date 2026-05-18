@@ -6,15 +6,15 @@ import { MapPin, Plus, CheckCircle2, Loader2 } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
-import { useAppSelector } from "@/redux/store";
-import { selectBusinessColors } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { useAppSelector } from "@/store";
+import { selectBusinessColors } from "@/features/business/store/selectors/business-settings-selector";
 import { PageHeader } from "@/components/shared/common/page-header";
 
-import { useLocationState } from "@/redux/features/location/store/state/location-state";
-import { LocationResponseModel } from "@/redux/features/location/store/models/response/location-response";
-import LocationModal from "@/redux/features/location/components/location-modal";
-import { LocationCard } from "@/redux/features/location/components/location-card";
-import { LocationEmptyState } from "@/redux/features/location/components/location-empty-state";
+import { useLocationState } from "@/features/location/store/state/location-state";
+import { LocationResponseModel } from "@/features/location/store/models/response/location-response";
+import LocationModal from "@/features/location/components/location-modal";
+import { LocationCard } from "@/features/location/components/location-card";
+import { LocationEmptyState } from "@/features/location/components/location-empty-state";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -159,7 +159,6 @@ export default function LocationPage() {
 
   // Handlers
   const handleAddLocation = useCallback(() => {
-    console.log("📍 handleAddLocation called, opening modal...");
     setEditingLocation(null);
     setIsModalOpen(true);
   }, []);

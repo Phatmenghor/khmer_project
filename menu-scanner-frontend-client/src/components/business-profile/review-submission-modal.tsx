@@ -51,7 +51,6 @@ export function ReviewSubmissionModal({
       createdAt: new Date().toISOString(),
     };
 
-    console.log("Submitting review:", review);
 
     // Call parent handler or API
     onSubmit?.(review);

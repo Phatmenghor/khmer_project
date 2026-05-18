@@ -15,7 +15,6 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    console.error("Application Error:", error);
   }, [error]);
 
   const handleCopyError = () => {

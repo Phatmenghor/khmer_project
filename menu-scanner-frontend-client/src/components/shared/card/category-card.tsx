@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, ShoppingBag } from "lucide-react";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 
 interface CategoryCardProps {
   category: CategoriesResponseModel;

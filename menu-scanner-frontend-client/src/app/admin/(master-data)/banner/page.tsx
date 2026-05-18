@@ -9,30 +9,30 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { useBannerState } from "@/redux/features/master-data/store/state/banner-state";
+import { useBannerState } from "@/features/master-data/store/state/banner-state";
 import { ModalMode, Status } from "@/constants/status/status";
-import { BannerResponseModel } from "@/redux/features/master-data/store/models/response/banner-response";
-import { usePagination } from "@/redux/store/use-pagination";
+import { BannerResponseModel } from "@/features/master-data/store/models/response/banner-response";
+import { usePagination } from "@/hooks/use-pagination";
 import {
   setPageNo,
   setSearchFilter,
   setStatusFilter,
   resetState,
-} from "@/redux/features/master-data/store/slice/banner-slice";
+} from "@/features/master-data/store/slice/banner-slice";
 import {
   deleteBannerService,
   fetchAllBannerService,
   toggleBannerStatusService,
-} from "@/redux/features/master-data/store/thunks/banner-thunks";
-import { bannerTableColumns } from "@/redux/features/master-data/table/banner-table";
+} from "@/features/master-data/store/thunks/banner-thunks";
+import { bannerTableColumns } from "@/features/master-data/table/banner-table";
 import { STATUS_FILTER } from "@/constants/status/filter-status";
-import BannerModal from "@/redux/features/master-data/components/banner-modal";
-import { BannerDetailModal } from "@/redux/features/master-data/components/banner-detail-modal";
+import BannerModal from "@/features/master-data/components/banner-modal";
+import { BannerDetailModal } from "@/features/master-data/components/banner-detail-modal";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 
 export default function BannerPage() {
   // Clean up state when leaving admin area (performance optimization)

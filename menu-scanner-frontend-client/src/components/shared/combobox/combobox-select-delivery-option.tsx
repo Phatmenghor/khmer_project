@@ -20,8 +20,8 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
-import { fetchAllDeliveryOptionsService } from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
+import { useAppDispatch } from "@/store";
+import { fetchAllDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
 import { formatCurrency } from "@/utils/common/currency-format";
 
 interface DeliveryOption {
@@ -109,7 +109,6 @@ export function ComboboxSelectDelivery({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (error) {
-      console.error("Error fetching delivery options:", error);
     } finally {
       setLoading(false);
     }

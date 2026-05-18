@@ -7,9 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { CustomButton } from "../button/custom-button";
-import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
-import { selectPOSProductQuantity } from "@/redux/features/business/store/selectors/pos-cart-selectors";
-import { RootState } from "@/redux/store";
+import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
+import { selectPOSProductQuantity } from "@/features/business/store/selectors/pos-cart-selectors";
+import { RootState } from "@/store";
 
 interface POSProductCardProps {
   product: ProductDetailResponseModel;

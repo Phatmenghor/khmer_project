@@ -10,14 +10,14 @@ import {
   ShoppingCart,
   ArrowRight,
 } from "lucide-react";
-import { useCartState } from "@/redux/features/main/store/state/cart-state";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { useCartState } from "@/features/main/store/state/cart-state";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
-import { clearCart, fetchCart } from "@/redux/features/main/store/thunks/cart-thunks";
-import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
+import { clearCart, fetchCart } from "@/features/main/store/thunks/cart-thunks";
+import { updateLocalCartItem } from "@/features/main/store/slice/cart-slice";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";

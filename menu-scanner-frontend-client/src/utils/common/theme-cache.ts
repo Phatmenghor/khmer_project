@@ -25,13 +25,11 @@ function getCookie(name: string): string | null {
       cookie = cookie.trim();
       if (cookie.indexOf(nameEQ) === 0) {
         const value = decodeURIComponent(cookie.substring(nameEQ.length));
-        console.log(`[THEME CACHE] Retrieved cookie ${name}`);
         return value;
       }
     }
     return null;
   } catch (error) {
-    console.error(`[THEME CACHE] Error reading cookie ${name}:`, error);
     return null;
   }
 }
@@ -46,7 +44,6 @@ function setCookie(name: string, value: string, days: number = 30): void {
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
   // Match auth token cookie pattern with SameSite attribute
   document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-  console.log(`[THEME CACHE] Cookie set: ${name}`);
 }
 
 /**
@@ -59,10 +56,8 @@ function getLocalStorageColors(businessId: string): ThemeCacheData | null {
     const key = `theme_colors_${businessId}`;
     const value = localStorage.getItem(key);
     if (!value) return null;
-    console.log(`[THEME CACHE] Retrieved from localStorage: ${key}`);
     return JSON.parse(value) as ThemeCacheData;
   } catch (error) {
-    console.error("[THEME CACHE] Error reading from localStorage:", error);
     return null;
   }
 }
@@ -76,9 +71,7 @@ function setLocalStorageColors(businessId: string, data: ThemeCacheData): void {
   try {
     const key = `theme_colors_${businessId}`;
     localStorage.setItem(key, JSON.stringify(data));
-    console.log(`[THEME CACHE] Saved to localStorage: ${key}`);
   } catch (error) {
-    console.error("[THEME CACHE] Error writing to localStorage:", error);
   }
 }
 
@@ -98,7 +91,6 @@ export function getCachedThemeColors(businessId: string): ThemeCacheData | null 
     if (!cookieValue) return null;
     return JSON.parse(cookieValue) as ThemeCacheData;
   } catch (error) {
-    console.error("[THEME CACHE] Failed to get theme cache:", error);
     return null;
   }
 }
@@ -135,17 +127,7 @@ export function cacheThemeColors(
     const cookieName = `theme_colors_${businessId}`;
     setCookie(cookieName, JSON.stringify(cacheData), 30);
 
-    console.log(
-      `[THEME CACHE] Cached business data for ${businessId} (localStorage + cookie):`,
-      {
-        primaryColor: colors.primaryColor,
-        businessName: colors.businessName,
-        logoUrl: colors.logoBusinessUrl,
-        taxPercentage: colors.taxPercentage,
-      }
-    );
   } catch (error) {
-    console.error("[THEME CACHE] Failed to cache business data:", error);
   }
 }
 

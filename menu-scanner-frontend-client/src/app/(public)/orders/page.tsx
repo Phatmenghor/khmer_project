@@ -11,17 +11,17 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { useMyOrdersState } from "@/redux/features/main/store/state/my-orders-state";
-import { fetchMyOrdersService } from "@/redux/features/main/store/thunks/my-orders-thunks";
-import { setLoadedFilters, clearOrders } from "@/redux/features/main/store/slice/my-orders-slice";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { useMyOrdersState } from "@/features/main/store/state/my-orders-state";
+import { fetchMyOrdersService } from "@/features/main/store/thunks/my-orders-thunks";
+import { setLoadedFilters, clearOrders } from "@/features/main/store/slice/my-orders-slice";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
@@ -34,10 +34,10 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { ORDER_STATUS_ADMIN_FILTER, PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { indexDisplay } from "@/utils/common/common";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector, useAppDispatch } from "@/redux/store";
-import { cancelOrderService } from "@/redux/features/main/store/thunks/my-orders-thunks";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector, useAppDispatch } from "@/store";
+import { cancelOrderService } from "@/features/main/store/thunks/my-orders-thunks";
 
 type Order = OrderResponse;
 

@@ -85,7 +85,6 @@ export function ClickableImageUpload({
       const base64 = await fileToBase64(file);
       onChange(base64);
     } catch (error) {
-      console.error("Error reading image:", error);
       alert("Failed to read image. Please try again.");
     }
   };

@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useCallback, useRef } from "react";
-import { usePublicCategoriesState } from "@/redux/features/main/store/state/public-categories-state";
+import { usePublicCategoriesState } from "@/features/main/store/state/public-categories-state";
 import { LayoutGrid, Loader2 } from "lucide-react";
 import { CategoryCard } from "@/components/shared/card/category-card";
 import { CategoryCardSkeleton } from "@/components/shared/skeletons/category-card-skeleton";

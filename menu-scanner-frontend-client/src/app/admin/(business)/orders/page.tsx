@@ -7,12 +7,12 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/redux/store/use-pagination";
-import { useOrderAdminState } from "@/redux/features/business/store/state/order-admin-state";
+import { usePagination } from "@/hooks/use-pagination";
+import { useOrderAdminState } from "@/features/business/store/state/order-admin-state";
 import {
   deleteOrderAdminService,
   fetchAllOrderAdminService,
-} from "@/redux/features/business/store/thunks/order-admin-thunks";
+} from "@/features/business/store/thunks/order-admin-thunks";
 import {
   setPageNo,
   setSearchFilter,
@@ -21,18 +21,18 @@ import {
   setStartDateFilter,
   setEndDateFilter,
   resetState,
-} from "@/redux/features/business/store/slice/order-admin-slice";
-import { orderAdminTableColumns } from "@/redux/features/business/table/order-admin-table";
-import { OrderDetailModal } from "@/redux/features/business/components/order-detail-modal";
-import { OrderUpdateModal } from "@/redux/features/business/components/order-update-modal";
+} from "@/features/business/store/slice/order-admin-slice";
+import { orderAdminTableColumns } from "@/features/business/table/order-admin-table";
+import { OrderDetailModal } from "@/features/business/components/order-detail-modal";
+import { OrderUpdateModal } from "@/features/business/components/order-update-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
-import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 import { useDebounce } from "@/utils/debounce/debounce";
 import {
   ORDER_STATUS_ADMIN_FILTER,

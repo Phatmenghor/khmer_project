@@ -16,17 +16,17 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import {
   registerCustomerService,
-} from "@/redux/features/auth/store/thunks/auth-thunks";
-import { telegramAuthenticateService } from "@/redux/features/auth/store/thunks/social-auth-thunks";
+} from "@/features/auth/store/thunks/auth-thunks";
+import { telegramAuthenticateService } from "@/features/auth/store/thunks/social-auth-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
 import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
-import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
+import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 import { SocialAuthConfig } from "@/constants/app-resource/default/default";
-import { useAppSelector } from "@/redux/store";
-import { selectBusinessName } from "@/redux/features/business/store/selectors/business-settings-selector";
+import { useAppSelector } from "@/store";
+import { selectBusinessName } from "@/features/business/store/selectors/business-settings-selector";
 
 interface RegisterModalProps {
   open: boolean;

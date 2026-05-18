@@ -30,33 +30,33 @@ import {
 } from "@/components/shared/common/data-table";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { useProductState } from "@/redux/features/business/store/state/product-state";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { useProductState } from "@/features/business/store/state/product-state";
 import {
   fetchAllProductAdminService,
   createBulkPromotionsService,
   resetAllPromotionsService,
   resetProductPromotionService,
   resetSelectedPromotionsService,
-} from "@/redux/features/business/store/thunks/product-thunks";
+} from "@/features/business/store/thunks/product-thunks";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
-import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
+import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
 import {
   setPageNo,
   resetProductPromotionOptimistic,
-} from "@/redux/features/business/store/slice/product-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+} from "@/features/business/store/slice/product-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import {
   bulkPromotionSchema,
   BulkPromotionFormData,
-} from "@/redux/features/business/store/models/schema/bulk-promotion-schema";
-import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
+} from "@/features/business/store/models/schema/bulk-promotion-schema";
+import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import {
   PROMOTION_TYPES,
   PROMOTION_DEFAULT_DURATION_DAYS,
 } from "@/constants/form-options";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { bulkPromotionTableColumns } from "@/redux/features/business/table/bulk-promotion-table";
+import { bulkPromotionTableColumns } from "@/features/business/table/bulk-promotion-table";
 import {
   PRODUCT_SIZE_FILTER,
 } from "@/constants/status/filter-status";
@@ -68,20 +68,20 @@ const PROMOTION_FILTER_OPTIONS = [
 ];
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
+import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { ProductStatus } from "@/constants/status/status";
-import { selectProductStatus } from "@/redux/features/business/store/slice/product-slice";
+import { selectProductStatus } from "@/features/business/store/slice/product-slice";
 import {
   setSelectedProducts,
   toggleSelectedProduct,
   clearSelectedProducts,
-} from "@/redux/features/business/store/slice/bulk-promotion-slice";
+} from "@/features/business/store/slice/bulk-promotion-slice";
 import {
   createBulkPromotionsOptimistic,
   resetSelectedPromotionsOptimistic,
-} from "@/redux/features/business/store/slice/product-slice";
-import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
+} from "@/features/business/store/slice/product-slice";
+import { selectSelectedProductIds } from "@/features/business/store/selectors/bulk-promotion-selector";
 import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
 import { useBulkPromotionSizesStorageSync } from "@/hooks/useBulkPromotionSizesStorageSync";
 import {
@@ -89,8 +89,8 @@ import {
   clearAllSizeSelections,
   selectAllSizesForProduct,
   clearSizesForProduct,
-} from "@/redux/features/business/store/slice/promotion-size-selection-slice";
-import { selectPromotionSizeSelections } from "@/redux/features/business/store/selectors/promotion-size-selection-selector";
+} from "@/features/business/store/slice/promotion-size-selection-slice";
+import { selectPromotionSizeSelections } from "@/features/business/store/selectors/promotion-size-selection-selector";
 
 export default function BulkPromotionPage() {
   const router = useRouter();
@@ -383,7 +383,6 @@ export default function BulkPromotionPage() {
   const handleEditProduct = useCallback(
     (product: ProductDetailResponseModel) => {
       // Navigate to product edit or show modal
-      console.log("Edit product:", product.id);
     },
     [],
   );

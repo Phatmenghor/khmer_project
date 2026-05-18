@@ -35,14 +35,14 @@ import {
   XCircle,
   Eye,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { adminGetSessionsService } from "@/redux/features/auth/store/thunks/session-thunks";
-import { AdminSessionResponse } from "@/redux/features/auth/store/models/response/session-response";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { adminGetSessionsService } from "@/features/auth/store/thunks/session-thunks";
+import { AdminSessionResponse } from "@/features/auth/store/models/response/session-response";
 import {
   SessionFilterRequest,
   DeviceType,
   SessionStatus,
-} from "@/redux/features/auth/store/models/request/session-request";
+} from "@/features/auth/store/models/request/session-request";
 import { formatDistanceToNow, format } from "date-fns";
 import { AdminSessionDetailModal } from "@/components/shared/modal/admin-session-detail-modal";
 import { AppDefault } from "@/constants/app-resource/default/default";

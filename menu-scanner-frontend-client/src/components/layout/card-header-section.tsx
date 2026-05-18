@@ -13,7 +13,7 @@ import Link from "next/link";
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { useIsMobile } from "@/redux/store/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ActionButton } from "../shared/button/action-button";
 
 interface CardHeaderSectionProps {

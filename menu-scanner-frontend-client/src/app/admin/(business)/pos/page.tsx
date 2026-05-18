@@ -45,11 +45,11 @@ import { POSProductCard } from "@/components/shared/card/pos-product-card";
 import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
 import { POSEditCartItemModal } from "@/components/pos-custom/pos-edit-cart-item-modal";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
-import { useAppDispatch } from "@/redux/store";
+import { useAppDispatch } from "@/store";
 import {
   ProductDetailResponseModel,
   ProductSize,
-} from "@/redux/features/business/store/models/response/product-response";
+} from "@/features/business/store/models/response/product-response";
 import { OrderStatus } from "@/enums/order-status.enum";
 import { cn } from "@/lib/utils";
 import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
@@ -60,7 +60,7 @@ import { useLocalStorageSync } from "@/hooks/useLocalStorageSync";
 import { useFilterURLSync } from "@/hooks/useFilterURLSync";
 
 // ─── Redux Imports ───
-import { usePOSPageState } from "@/redux/features/business/store/state/pos-page-state";
+import { usePOSPageState } from "@/features/business/store/state/pos-page-state";
 import {
   setSelectedDeliveryOption,
   setSelectedPaymentOption,
@@ -95,17 +95,17 @@ import {
   setBrandOpen,
   setPromotionFilter,
   setPromotionOpen,
-} from "@/redux/features/business/store/slice/pos-page-slice";
+} from "@/features/business/store/slice/pos-page-slice";
 import {
   fetchPOSPageCategoriesService,
   fetchPOSPageBrandsService,
   fetchPOSPageProductsService,
   createPOSCheckoutOrderService,
-} from "@/redux/features/business/store/thunks/pos-page-thunks";
-import { AppDispatch, RootState } from "@/redux/store";
-import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
-import { fetchBusinessSettingsThunk } from "@/redux/features/business/store/thunks/business-settings-thunks";
-import { selectBusinessSettings } from "@/redux/features/business/store/selectors/business-settings-selector";
+} from "@/features/business/store/thunks/pos-page-thunks";
+import { AppDispatch, RootState } from "@/store";
+import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
+import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
+import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { useSelector } from "react-redux";
 
 // ─── Type Definitions ───

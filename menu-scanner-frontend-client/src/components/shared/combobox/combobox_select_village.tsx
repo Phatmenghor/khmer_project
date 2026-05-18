@@ -20,10 +20,10 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
+import { useAppDispatch } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
-import { VillageResponseModel } from "@/redux/features/location/store/models/response/location-response";
-import { fetchVillagesService } from "@/redux/features/location/store/thunks/public-location-thunks";
+import { VillageResponseModel } from "@/features/location/store/models/response/location-response";
+import { fetchVillagesService } from "@/features/location/store/thunks/public-location-thunks";
 
 interface ComboboxSelectVillageProps {
   dataSelect: VillageResponseModel | null;
@@ -103,7 +103,6 @@ export function ComboboxSelectVillage({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (err) {
-      console.error("Error fetching villages:", err);
     } finally {
       setLoading(false);
     }

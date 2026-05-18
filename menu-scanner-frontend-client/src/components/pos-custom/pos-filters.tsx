@@ -16,8 +16,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
+import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 
 // ─── Brand Filter Component ───
 interface POSFilterBrandProps {

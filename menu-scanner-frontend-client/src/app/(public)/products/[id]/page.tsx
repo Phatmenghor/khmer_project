@@ -6,21 +6,21 @@ import Image from "next/image";
 import {
   fetchPublicProductById,
   fetchPublicProducts,
-} from "@/redux/features/main/store/thunks/public-product-thunks";
-import { clearSelectedProduct } from "@/redux/features/main/store/slice/public-product-slice";
-import { usePublicProductState } from "@/redux/features/main/store/state/public-product-state";
-import { useCartState } from "@/redux/features/main/store/state/cart-state";
-import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+} from "@/features/main/store/thunks/public-product-thunks";
+import { clearSelectedProduct } from "@/features/main/store/slice/public-product-slice";
+import { usePublicProductState } from "@/features/main/store/state/public-product-state";
+import { useCartState } from "@/features/main/store/state/cart-state";
+import { useFavoriteState } from "@/features/main/store/state/favorite-state";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import {
   addLocalCartItem,
   updateLocalCartItem,
-} from "@/redux/features/main/store/slice/cart-slice";
+} from "@/features/main/store/slice/cart-slice";
 import {
   addToCart,
   updateCartItem,
-} from "@/redux/features/main/store/thunks/cart-thunks";
-import { toggleFavorite } from "@/redux/features/main/store/thunks/favorite-thunks";
+} from "@/features/main/store/thunks/cart-thunks";
+import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { QuantitySelector } from "@/components/shared/input/quantity-selector";
@@ -50,7 +50,7 @@ import { appImages } from "@/constants/app-resource/icons/app-images";
 import {
   ProductDetailResponseModel,
   ProductSize,
-} from "@/redux/features/business/store/models/response/product-response";
+} from "@/features/business/store/models/response/product-response";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { cn } from "@/lib/utils";

@@ -19,9 +19,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { adminChangePasswordService } from "@/redux/features/auth/store/thunks/users-thunks";
-import { selectIsResettingPassword } from "@/redux/features/auth/store/selectors/users-selectors";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { adminChangePasswordService } from "@/features/auth/store/thunks/users-thunks";
+import { selectIsResettingPassword } from "@/features/auth/store/selectors/users-selectors";
 import { showToast } from "../common/show-toast";
 import { FormHeader } from "../form-field/form-header";
 import { FormBody } from "../form-field/form-body";
@@ -71,7 +71,6 @@ export default function ResetPasswordModal({
 
       handleClose();
     } catch (error: any) {
-      console.error("Password reset failed:", error);
       toast.error(error || "Reset failed. Please try again.");
     }
   };
@@ -86,7 +85,6 @@ export default function ResetPasswordModal({
       await navigator.clipboard.writeText(defaultPassword);
       toast.success("Password copied to clipboard");
     } catch (error) {
-      console.error("Failed to copy password:", error);
       toast.error("Failed to copy password");
     }
   };

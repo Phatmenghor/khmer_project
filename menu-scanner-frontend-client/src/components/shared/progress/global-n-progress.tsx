@@ -62,7 +62,6 @@ export default function PageProgressBar() {
             }, 10000);
           }
         } catch (error) {
-          console.warn("Invalid URL in progress handler:", anchor.href);
         }
       }
     };

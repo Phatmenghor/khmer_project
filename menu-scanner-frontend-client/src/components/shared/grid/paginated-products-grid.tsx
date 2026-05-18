@@ -12,7 +12,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
-import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
+import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 import { Loader2 } from "lucide-react";
 

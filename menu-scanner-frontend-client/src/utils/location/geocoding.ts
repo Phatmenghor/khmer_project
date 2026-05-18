@@ -78,7 +78,6 @@ export const getAddressFromCoordinates = async (
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
-    console.warn("Google Maps API key not found in environment variables");
     return formatCoordinates(latitude, longitude);
   }
 
@@ -94,7 +93,6 @@ export const getAddressFromCoordinates = async (
     const data: GoogleMapsGeocodeResponse = await response.json();
 
     if (data.status !== "OK") {
-      console.error("Geocoding error:", data.status);
       return formatCoordinates(latitude, longitude);
     }
 
@@ -105,7 +103,6 @@ export const getAddressFromCoordinates = async (
 
     return formatCoordinates(latitude, longitude);
   } catch (error) {
-    console.error("Geocoding error:", error);
     return formatCoordinates(latitude, longitude);
   }
 };
@@ -120,7 +117,6 @@ export const getDetailedAddressFromCoordinates = async (
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
-    console.warn("Google Maps API key not found");
     return null;
   }
 
@@ -139,7 +135,6 @@ export const getDetailedAddressFromCoordinates = async (
 
     return parseGoogleGeocodeResponse(data);
   } catch (error) {
-    console.error("Detailed geocoding error:", error);
     return null;
   }
 };
@@ -246,7 +241,6 @@ export const getAddressesFromCoordinates = async (
       addressMap[id] = address;
     });
   } catch (error) {
-    console.error("Batch geocoding error:", error);
   }
 
   return addressMap;
@@ -276,7 +270,6 @@ export const getDetailedAddressesFromCoordinates = async (
       }
     });
   } catch (error) {
-    console.error("Batch detailed geocoding error:", error);
   }
 
   return detailedMap;
@@ -325,7 +318,6 @@ export const getNearbyPlaces = async (
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
-    console.warn("Google Maps API key not found");
     return null;
   }
 
@@ -344,7 +336,6 @@ export const getNearbyPlaces = async (
 
     return null;
   } catch (error) {
-    console.error("Nearby places error:", error);
     return null;
   }
 };
@@ -360,7 +351,6 @@ export const getTimeZoneFromCoordinates = async (
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
-    console.warn("Google Maps API key not found");
     return null;
   }
 
@@ -381,7 +371,6 @@ export const getTimeZoneFromCoordinates = async (
 
     return null;
   } catch (error) {
-    console.error("Timezone error:", error);
     return null;
   }
 };

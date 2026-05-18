@@ -67,7 +67,6 @@ export function ScrollReset() {
           isRestoringRef.current = false;
         }
       } catch (error) {
-        console.error("Error restoring scroll:", error);
         window.scrollTo(0, 0);
         isRestoringRef.current = false;
       }
@@ -126,7 +125,6 @@ export function ScrollReset() {
           );
         }
       } catch (error) {
-        console.error("Error saving scroll:", error);
       }
     };
 

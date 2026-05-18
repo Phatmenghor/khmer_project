@@ -4,15 +4,15 @@ import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
-import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
+import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/features/business/components/filter-types";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
-import { usePagination } from "@/redux/store/use-pagination";
-import { useStockState } from "@/redux/features/business/store/state/stock-state";
-import { ProductDetailResponseModel } from "@/redux/features/business/store/models/response/product-response";
-import { fetchAllProductStockAdminService } from "@/redux/features/business/store/thunks/stock-thunks";
+import { usePagination } from "@/hooks/use-pagination";
+import { useStockState } from "@/features/business/store/state/stock-state";
+import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
+import { fetchAllProductStockAdminService } from "@/features/business/store/thunks/stock-thunks";
 import {
   selectProductStatus,
   setPageNo,
@@ -20,22 +20,22 @@ import {
   resetState,
   updateStockStatusOptimistic,
   revertStockStatusOptimistic,
-} from "@/redux/features/business/store/slice/stock-slice";
-import { stockTableColumns } from "@/redux/features/business/table/product-stock-table";
-import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
-import { StockManagementModal } from "@/redux/features/business/components/product-stock-management-modal";
-import { updateStockStatusService } from "@/redux/features/business/store/thunks/stock-thunks";
+} from "@/features/business/store/slice/stock-slice";
+import { stockTableColumns } from "@/features/business/table/product-stock-table";
+import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
+import { StockManagementModal } from "@/features/business/components/product-stock-management-modal";
+import { updateStockStatusService } from "@/features/business/store/thunks/stock-thunks";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
-import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
+import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
+import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 
 // Filter options for stock status
 const STOCK_STATUS_FILTER = [

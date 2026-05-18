@@ -19,17 +19,17 @@ import {
   Check,
   Truck,
 } from "lucide-react";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { useCartState } from "@/redux/features/main/store/state/cart-state";
-import { useLocationState } from "@/redux/features/location/store/state/location-state";
-import { usePaymentOptionsState } from "@/redux/features/master-data/store/state/payment-options-state";
-import { useDeliveryOptionsState } from "@/redux/features/master-data/store/state/delivery-options-state";
-import { useAppDispatch } from "@/redux/store";
-import { fetchDefaultAddressService } from "@/redux/features/location/store/thunks/location-thunks";
-import { fetchPublicPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
-import { createOrderService, CheckoutPayload } from "@/redux/features/main/store/thunks/order-thunks";
-import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
-import { updateLocalCartItem } from "@/redux/features/main/store/slice/cart-slice";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { useCartState } from "@/features/main/store/state/cart-state";
+import { useLocationState } from "@/features/location/store/state/location-state";
+import { usePaymentOptionsState } from "@/features/master-data/store/state/payment-options-state";
+import { useDeliveryOptionsState } from "@/features/master-data/store/state/delivery-options-state";
+import { useAppDispatch } from "@/store";
+import { fetchDefaultAddressService } from "@/features/location/store/thunks/location-thunks";
+import { fetchPublicPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
+import { createOrderService, CheckoutPayload } from "@/features/main/store/thunks/order-thunks";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
+import { updateLocalCartItem } from "@/features/main/store/slice/cart-slice";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -123,7 +123,6 @@ export default function CheckoutPage() {
           (typeof error === "string" && error.includes("not found"));
 
         if (!isExpectedError) {
-          console.error("Failed to fetch default address:", error);
         }
       }
 
@@ -155,7 +154,6 @@ export default function CheckoutPage() {
           pageSize: 100,
         })).unwrap();
       } catch (error) {
-        console.error("Failed to fetch payment options:", error);
       }
     };
 
@@ -316,21 +314,9 @@ export default function CheckoutPage() {
         orderFrom: OrderFromEnum.CUSTOMER,
       };
 
-      console.log("🛒 Checkout Payload:", checkoutPayload);
 
       // Call API endpoint to create order
       const orderResult: OrderResponse = await dispatch(createOrderService(checkoutPayload)).unwrap();
-
-      // Log successful order creation with details
-      if (orderResult?.orderNumber) {
-        console.log("✅ Order created:", {
-          orderNumber: orderResult.orderNumber,
-          total: orderResult.pricing?.finalTotal,
-          paymentStatus: orderResult.payment?.paymentStatus,
-          orderStatus: orderResult.orderStatus?.name,
-          statusHistory: orderResult.statusHistory?.length || 0,
-        });
-      }
 
       showToast.success("✅ Order placed successfully! Redirecting...");
 
@@ -339,13 +325,6 @@ export default function CheckoutPage() {
         router.push("/orders");
       }, 1500);
     } catch (error: any) {
-      // Log detailed error information
-      console.error("Checkout error details:", {
-        message: error?.message,
-        status: error?.response?.status,
-        data: error?.response?.data,
-        error: error,
-      });
 
       // Show user-friendly error message
       const errorMessage =

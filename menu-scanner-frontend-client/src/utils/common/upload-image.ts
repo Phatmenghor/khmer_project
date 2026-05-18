@@ -82,7 +82,6 @@ export async function uploadImage(imageData: string): Promise<string> {
 
     return uploadResult.imageUrl;
   } catch (error) {
-    console.error("Image upload error:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to upload image"
     );

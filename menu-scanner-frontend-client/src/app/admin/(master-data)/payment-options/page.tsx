@@ -9,30 +9,30 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/redux/store/use-pagination";
+import { usePagination } from "@/hooks/use-pagination";
 import { ModalMode, Status } from "@/constants/status/status";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import PaymentOptionsModal from "@/redux/features/master-data/components/payment-options-modal";
-import { PaymentOptionDetailModal } from "@/redux/features/master-data/components/payment-options-detail-modal";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppDispatch, useAppSelector } from "@/store";
+import PaymentOptionsModal from "@/features/master-data/components/payment-options-modal";
+import { PaymentOptionDetailModal } from "@/features/master-data/components/payment-options-detail-modal";
 import { STATUS_FILTER } from "@/constants/status/filter-status";
-import { usePaymentOptionsState } from "@/redux/features/master-data/store/state/payment-options-state";
+import { usePaymentOptionsState } from "@/features/master-data/store/state/payment-options-state";
 import {
   setPageNo,
   setSearchFilter,
   setStatusFilter,
   resetState,
-} from "@/redux/features/master-data/store/slice/payment-options-slice";
+} from "@/features/master-data/store/slice/payment-options-slice";
 import {
   deletePaymentOptionService,
   fetchMyBusinessPaymentOptionsService,
   updatePaymentOptionService,
-} from "@/redux/features/master-data/store/thunks/payment-options-thunks";
-import { paymentOptionsTableColumns } from "@/redux/features/master-data/table/payment-options-table";
-import { PaymentOptionResponse } from "@/redux/features/master-data/store/models/response/payment-option-response";
+} from "@/features/master-data/store/thunks/payment-options-thunks";
+import { paymentOptionsTableColumns } from "@/features/master-data/table/payment-options-table";
+import { PaymentOptionResponse } from "@/features/master-data/store/models/response/payment-option-response";
 
 export default function PaymentOptionsPage() {
   // Clean up state when leaving admin area

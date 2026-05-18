@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { TelegramIcon, TelegramLoginButton } from "./telegram-login-widget";
-import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
+import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 
 interface TelegramLoginModalProps {

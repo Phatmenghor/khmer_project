@@ -18,8 +18,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import { useAppDispatch } from "@/redux/store";
-import { fetchAllLeaveTypesService } from "@/redux/features/hr/store/thunks/leave-type-thunks";
+import { useAppDispatch } from "@/store";
+import { fetchAllLeaveTypesService } from "@/features/hr/store/thunks/leave-type-thunks";
 
 interface LeaveType {
   enumName: string;
@@ -67,7 +67,6 @@ export function ComboboxSelectLeaveType({
           setLeaveTypes(result.content);
         }
       } catch (error) {
-        console.error("Error fetching leave types:", error);
       } finally {
         setLoading(false);
       }

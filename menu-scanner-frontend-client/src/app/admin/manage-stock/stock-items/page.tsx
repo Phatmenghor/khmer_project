@@ -5,10 +5,10 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
-import { usePagination } from "@/redux/store/use-pagination";
-import { useStockItemsState } from "@/redux/features/business/store/state/stock-items-state";
-import { ProductStockItemDto } from "@/redux/features/business/store/models/response/stock-response";
-import { getProductStockItemsService } from "@/redux/features/business/store/thunks/stock-management-thunks";
+import { usePagination } from "@/hooks/use-pagination";
+import { useStockItemsState } from "@/features/business/store/state/stock-items-state";
+import { ProductStockItemDto } from "@/features/business/store/models/response/stock-response";
+import { getProductStockItemsService } from "@/features/business/store/thunks/stock-management-thunks";
 import {
   setPageNo,
   setPageSize,
@@ -20,19 +20,19 @@ import {
   setLowStockThreshold,
   setHasSizesFilter,
   resetState,
-} from "@/redux/features/business/store/slice/stock-items-slice";
-import { stockItemsTableColumns } from "@/redux/features/business/table/product-stock-items-table";
-import { ProductDetailModal } from "@/redux/features/business/components/product-detail-modal";
-import { StockItemManagementModal } from "@/redux/features/business/components/stock-item-management-modal";
-import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+} from "@/features/business/store/slice/stock-items-slice";
+import { stockItemsTableColumns } from "@/features/business/table/product-stock-items-table";
+import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
+import { StockItemManagementModal } from "@/features/business/components/stock-item-management-modal";
+import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
+import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
-import { CollapsibleFilterPanel } from "@/redux/features/business/components/collapsible-filter-panel";
-import { FilterPanelConfig } from "@/redux/features/business/components/filter-types";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
+import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/features/business/components/filter-types";
 
 // Filter options for stock status
 const STOCK_STATUS_FILTER = [

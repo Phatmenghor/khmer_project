@@ -4,15 +4,15 @@ import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Trash2, LogIn, CheckCircle2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/common/page-header";
-import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
-import { useCartState } from "@/redux/features/main/store/state/cart-state";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { useFavoriteState } from "@/features/main/store/state/favorite-state";
+import { useCartState } from "@/features/main/store/state/cart-state";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import {
   fetchFavoritePaginated,
   toggleFavorite,
   clearAllFavorites,
-} from "@/redux/features/main/store/thunks/favorite-thunks";
-import { addToCart } from "@/redux/features/main/store/thunks/cart-thunks";
+} from "@/features/main/store/thunks/favorite-thunks";
+import { addToCart } from "@/features/main/store/thunks/cart-thunks";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { CustomButton } from "@/components/shared/button/custom-button";

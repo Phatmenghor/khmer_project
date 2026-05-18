@@ -5,7 +5,7 @@
  * @example
  * ```tsx
  * import { useCleanupOnUnmount } from '@/hooks/use-cleanup-on-unmount';
- * import { resetState } from '@/redux/features/brand/slice/brand-slice';
+ * import { resetState } from '@/features/brand/slice/brand-slice';
  *
  * function BrandPage() {
  *   // Clear brand state when leaving page
@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef } from "react";
-import { useAppDispatch } from "@/redux/store";
+import { useAppDispatch } from "@/store";
 import { ActionCreatorWithoutPayload } from "@reduxjs/toolkit";
 
 /**

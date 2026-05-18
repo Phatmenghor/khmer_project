@@ -20,9 +20,9 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
-import { ProvinceResponseModel } from "@/redux/features/location/store/models/response/location-response";
-import { fetchProvincesService } from "@/redux/features/location/store/thunks/public-location-thunks";
+import { useAppDispatch } from "@/store";
+import { ProvinceResponseModel } from "@/features/location/store/models/response/location-response";
+import { fetchProvincesService } from "@/features/location/store/thunks/public-location-thunks";
 
 interface ComboboxSelectProvinceProps {
   dataSelect: ProvinceResponseModel | null;
@@ -94,7 +94,6 @@ export function ComboboxSelectProvince({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (err) {
-      console.error("Error fetching provinces:", err);
     } finally {
       setLoading(false);
     }

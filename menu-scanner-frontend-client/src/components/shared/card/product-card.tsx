@@ -11,29 +11,29 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { sanitizeImageUrl } from "@/utils/common/common";
 import { CustomButton } from "../button/custom-button";
-import { ProductDetailResponseModel, ProductSize } from "@/redux/features/business/store/models/response/product-response";
-import { useCartState } from "@/redux/features/main/store/state/cart-state";
-import { toggleFavorite } from "@/redux/features/main/store/thunks/favorite-thunks";
+import { ProductDetailResponseModel, ProductSize } from "@/features/business/store/models/response/product-response";
+import { useCartState } from "@/features/main/store/state/cart-state";
+import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
 import { showToast } from "../common/show-toast";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { LoginModal } from "../modal/login-modal";
-import { useFavoriteState } from "@/redux/features/main/store/state/favorite-state";
-import { addToCart } from "@/redux/features/main/store/thunks/cart-thunks";
+import { useFavoriteState } from "@/features/main/store/state/favorite-state";
+import { addToCart } from "@/features/main/store/thunks/cart-thunks";
 import {
   addLocalCartItem,
   updateLocalCartItem,
-} from "@/redux/features/main/store/slice/cart-slice";
+} from "@/features/main/store/slice/cart-slice";
 import { SizePickerModal } from "../modal/size-picker-modal";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { getProductQuantity } from "@/utils/common/quantity-utils";
 import {
   selectProductQuantityInCart,
   selectProductTotalQuantity,
-} from "@/redux/features/main/store/selectors/optimized-cart-selectors";
-import { RootState } from "@/redux/store";
+} from "@/features/main/store/selectors/optimized-cart-selectors";
+import { RootState } from "@/store";
 import { buildQuantityMap } from "@/utils/common/customization-utils";
-import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
+import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 
 interface ProductCardProps {
   product: ProductDetailResponseModel;
@@ -88,17 +88,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   // This is used to determine if we show Add to Cart or +/- buttons
   const isInCart = totalQuantity > 0;
 
-  // DEBUG: Log cart state changes (optional - can remove in production)
-  useEffect(() => {
-    if (quantity > 0) {
-      console.log(`%c## CART QUANTITY (${product.name})`, "background:#28a745;color:white;padding:5px;border-radius:3px;font-weight:bold", {
-        productId: product.id,
-        quantity: quantity,
-        totalQuantity: totalQuantity,
-        timestamp: Date.now(),
-      });
-    }
-  }, [quantity, product.id, product.name, totalQuantity]);
+
 
   const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.NoImage);
 
@@ -168,12 +158,6 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
 
     // Dispatch optimistic update FIRST for instant UI feedback
     // This updates Redux immediately while API call happens in background
-    console.log("%c## OPTIMISTIC UPDATE (ADD TO CART)", "background:#17a2b8;color:white;padding:5px;border-radius:3px;font-weight:bold", {
-      productId: product.id,
-      quantity: 1,
-      timestamp: timestamp,
-      time: new Date().toLocaleTimeString()
-    });
 
     cartDispatch(
       addLocalCartItem({
@@ -197,12 +181,6 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     // Queue API call with debounce (500ms delay)
     // If user clicks +/- in next 500ms, debounce resets
     // After delay, exactly 1 API call fires with latest quantity
-    console.log("%c## DEBOUNCE QUEUED", "background:#ff9800;color:white;padding:5px;border-radius:3px;font-weight:bold", {
-      key: key,
-      quantity: newQty,
-      delayMs: 500,
-      time: new Date().toLocaleTimeString()
-    });
 
     debouncedUpdate(key, product.id, null, newQty, timestamp);
   };
@@ -245,21 +223,9 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    console.log(`%c[CLICK +] ${clickTime.toFixed(2)}ms`, "background:#4CAF50;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
-      product: product.name,
-      currentQty: displayQuantityValue,
-      newQty: newQty,
-      key: key,
-      time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
-    });
-
     // UPDATE UI FIRST - instant display update
     const uiUpdateTime = performance.now();
     setLocalQuantity(newQty);
-    console.log(`%c[UI UPDATE] ${(uiUpdateTime - clickTime).toFixed(2)}ms after click`, "background:#2196F3;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
-      displayedQuantity: newQty,
-      localQuantity: newQty
-    });
 
     // Then dispatch to Redux in background
     const reduxTime = performance.now();
@@ -271,18 +237,10 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
         optimisticTimestamp: ts,
       })
     );
-    console.log(`%c[REDUX DISPATCH] ${(reduxTime - clickTime).toFixed(2)}ms after click`, "background:#FF9800;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
-      action: 'updateLocalCartItem',
-      quantity: newQty
-    });
 
     // Queue API call with debounce (500ms)
     const debounceTime = performance.now();
     debouncedUpdate(key, product.id, null, newQty, ts);
-    console.log(`%c[DEBOUNCE QUEUED] ${(debounceTime - clickTime).toFixed(2)}ms after click`, "background:#9C27B0;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
-      willCallAPI: 'in ~500ms',
-      batchedWith: 'other clicks in 500ms window'
-    });
   }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
   /**
@@ -313,21 +271,9 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    console.log(`%c[CLICK -] ${clickTime.toFixed(2)}ms`, "background:#F44336;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
-      product: product.name,
-      currentQty: displayQuantityValue,
-      newQty: newQty,
-      key: key,
-      time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
-    });
-
     // UPDATE UI FIRST - instant display update
     const uiUpdateTime = performance.now();
     setLocalQuantity(newQty);
-    console.log(`%c[UI UPDATE] ${(uiUpdateTime - clickTime).toFixed(2)}ms after click`, "background:#2196F3;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
-      displayedQuantity: newQty,
-      localQuantity: newQty
-    });
 
     // Then dispatch to Redux in background
     const reduxTime = performance.now();
@@ -339,11 +285,6 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
         optimisticTimestamp: ts,
       })
     );
-    console.log(`%c[REDUX DISPATCH] ${(reduxTime - clickTime).toFixed(2)}ms after click`, "background:#FF9800;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
-      action: 'updateLocalCartItem',
-      quantity: newQty,
-      willRemove: newQty === 0
-    });
 
     // Show removal message when reaching 0
     if (newQty === 0) {
@@ -353,10 +294,6 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     // Queue API call with debounce
     const debounceTime = performance.now();
     debouncedUpdate(key, product.id, null, newQty, ts);
-    console.log(`%c[DEBOUNCE QUEUED] ${(debounceTime - clickTime).toFixed(2)}ms after click`, "background:#9C27B0;color:white;font-weight:bold;padding:3px 6px;border-radius:3px", {
-      willCallAPI: 'in ~500ms',
-      batchedWith: 'other clicks in 500ms window'
-    });
   }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
   // Favorite toggle with optimistic UI update (like Facebook)
@@ -416,25 +353,9 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       const quantity = qty ?? 1;
       const customizations = customizationIds || [];
 
-      // DEBUG: Log customizations received from modal
-      console.log("%c## PRODUCT CARD - RECEIVED CUSTOMIZATIONS FROM MODAL", "background:#f59e0b;color:white;padding:5px;border-radius:3px;font-weight:bold", {
-        customizationCount: customizations.length,
-        customizationIds: customizations,
-        productId: selectedProduct.id,
-        sizeId: sizeId,
-        quantity: quantity,
-        isEditing: isEditingProduct,
-        timestamp: new Date().toLocaleTimeString()
-      });
-
       // Optimistic update FIRST for instant UI feedback
       if (isEditingProduct) {
         // Update existing item (handles removal when qty=0)
-        console.log("%c## OPTIMISTIC UPDATE (editing)", "background:#3b82f6;color:white;padding:5px", {
-          action: quantity === 0 ? "REMOVE" : "UPDATE",
-          quantity,
-          timestamp: new Date().toLocaleTimeString()
-        });
         cartDispatch(
           updateLocalCartItem({
             productId: selectedProduct.id,
@@ -445,10 +366,6 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
         );
       } else if (quantity > 0) {
         // Add new item only if quantity > 0
-        console.log("%c## OPTIMISTIC ADD (new)", "background:#3b82f6;color:white;padding:5px", {
-          quantity,
-          timestamp: new Date().toLocaleTimeString()
-        });
         cartDispatch(
           addLocalCartItem({
             productId: selectedProduct.id,
@@ -469,19 +386,12 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
         );
       } else {
         // qty=0 for new item - do nothing
-        console.log("%c## SKIPPED (qty=0 on new item)", "background:#6b7280;color:white;padding:5px", {
-          timestamp: new Date().toLocaleTimeString()
-        });
       }
 
       // Close modal immediately for instant feedback
       setSizePickerProduct(null);
 
       // Call API in background
-      console.log("%c## API CALL IN BACKGROUND", "background:#9333ea;color:white;padding:5px", {
-        action: "addToCart (async)",
-        timestamp: new Date().toLocaleTimeString()
-      });
       cartDispatch(
         addToCart({
           productId: selectedProduct.id,

@@ -10,33 +10,33 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, Status } from "@/constants/status/status";
-import { usePagination } from "@/redux/store/use-pagination";
+import { usePagination } from "@/hooks/use-pagination";
 import { STATUS_FILTER } from "@/constants/status/filter-status";
-import { useCategoriesState } from "@/redux/features/master-data/store/state/categories-state";
-import { CategoriesResponseModel } from "@/redux/features/master-data/store/models/response/categories-response";
+import { useCategoriesState } from "@/features/master-data/store/state/categories-state";
+import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import {
   setPageNo,
   setSearchFilter,
   setStatusFilter,
   resetState,
-} from "@/redux/features/master-data/store/slice/categories-slice";
+} from "@/features/master-data/store/slice/categories-slice";
 import {
   deleteCategoriesService,
   toggleCategoriesStatusService,
   fetchAllCategoriesWithProductCountService,
-} from "@/redux/features/master-data/store/thunks/categories-thunks";
+} from "@/features/master-data/store/thunks/categories-thunks";
 import {
   selectCategoriesWithProductCountContent,
   selectPaginationWithProductCount,
-} from "@/redux/features/master-data/store/selectors/categories-selector";
-import { categoriesTableColumns } from "@/redux/features/master-data/table/categories-table";
-import CategoriesModal from "@/redux/features/master-data/components/categories-modal";
-import { CategoriesDetailModal } from "@/redux/features/master-data/components/categories-detail-modal";
+} from "@/features/master-data/store/selectors/categories-selector";
+import { categoriesTableColumns } from "@/features/master-data/table/categories-table";
+import CategoriesModal from "@/features/master-data/components/categories-modal";
+import { CategoriesDetailModal } from "@/features/master-data/components/categories-detail-modal";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 
 export default function CategoriesPage() {
   // Clean up state when leaving admin area (performance optimization)

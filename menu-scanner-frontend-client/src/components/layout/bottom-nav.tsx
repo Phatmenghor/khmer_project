@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useCartState } from "@/redux/features/main/store/state/cart-state";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
+import { useCartState } from "@/features/main/store/state/cart-state";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useState } from "react";
 import { LoginModal } from "../shared/modal/login-modal";
 

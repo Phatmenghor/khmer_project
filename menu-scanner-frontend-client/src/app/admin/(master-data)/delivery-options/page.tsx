@@ -9,30 +9,30 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
-import { usePagination } from "@/redux/store/use-pagination";
+import { usePagination } from "@/hooks/use-pagination";
 import { DELIVERY_OPTIONS_FILTER } from "@/constants/status/filter-status";
 import { ModalMode, Status } from "@/constants/status/status";
-import { useDeliveryOptionsState } from "@/redux/features/master-data/store/state/delivery-options-state";
-import { DeliveryOptionsResponseModel } from "@/redux/features/master-data/store/models/response/delivery-options-response";
+import { useDeliveryOptionsState } from "@/features/master-data/store/state/delivery-options-state";
+import { DeliveryOptionsResponseModel } from "@/features/master-data/store/models/response/delivery-options-response";
 import {
   setPageNo,
   setSearchFilter,
   setStatusFilter,
   resetState,
-} from "@/redux/features/master-data/store/slice/delivery-options-slice";
+} from "@/features/master-data/store/slice/delivery-options-slice";
 import {
   deleteDeliveryOptionsService,
   fetchMyBusinessDeliveryOptionsService,
   toggleDeliveryOptionsStatusService,
-} from "@/redux/features/master-data/store/thunks/delivery-options-thunks";
-import { deliveryOptionsTableColumns } from "@/redux/features/master-data/table/delivery-options-table";
-import DeliveryOptionsModal from "@/redux/features/master-data/components/delivery-options-modal";
-import { DeliveryOptionsDetailModal } from "@/redux/features/master-data/components/delivery-options-detail-modal";
+} from "@/features/master-data/store/thunks/delivery-options-thunks";
+import { deliveryOptionsTableColumns } from "@/features/master-data/table/delivery-options-table";
+import DeliveryOptionsModal from "@/features/master-data/components/delivery-options-modal";
+import { DeliveryOptionsDetailModal } from "@/features/master-data/components/delivery-options-detail-modal";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 
 export default function DeliveryOptionsPage() {
   // Clean up state when leaving admin area (performance optimization)

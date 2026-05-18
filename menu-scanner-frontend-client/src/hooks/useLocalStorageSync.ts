@@ -5,10 +5,10 @@
  */
 
 import { useEffect, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { loadPersistedCart } from "@/redux/features/business/store/slice/pos-page-slice";
-import { selectCartItems } from "@/redux/features/business/store/selectors/pos-page-selector";
-import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { loadPersistedCart } from "@/features/business/store/slice/pos-page-slice";
+import { selectCartItems } from "@/features/business/store/selectors/pos-page-selector";
+import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 
 interface UseLocalStorageSyncOptions {
   /**
@@ -96,28 +96,16 @@ export function useLocalStorageSync(
 
           if (isValid) {
             dispatch(loadPersistedCart(parsedCart));
-            console.log(
-              `✅ Loaded ${parsedCart.length} items from localStorage (${storageKey})`
-            );
 
             if (onCartLoaded) {
               onCartLoaded(parsedCart);
             }
           } else {
-            console.warn(
-              `⚠️ Invalid cart data in localStorage, ignoring (${storageKey})`
-            );
             localStorage.removeItem(storageKey);
           }
         }
-      } else {
-        console.log(`ℹ️ No saved cart found in localStorage (${storageKey})`);
       }
     } catch (error) {
-      console.error(
-        `❌ Error loading cart from localStorage (${storageKey}):`,
-        error
-      );
       // Don't crash, just skip loading
     }
   }, [enabled, storageKey, dispatch, onCartLoaded]);
@@ -140,9 +128,6 @@ export function useLocalStorageSync(
         if (cartItems.length > 0) {
           localStorage.setItem(storageKey, JSON.stringify(cartItems));
           const sizeKB = (JSON.stringify(cartItems).length / 1024).toFixed(2);
-          console.log(
-            `💾 Saved ${cartItems.length} items to localStorage (${sizeKB}KB)`
-          );
 
           if (onCartSaved) {
             onCartSaved(cartItems);
@@ -150,18 +135,9 @@ export function useLocalStorageSync(
         } else {
           // Clear if cart is empty
           localStorage.removeItem(storageKey);
-          console.log(`🗑️ Cleared empty cart from localStorage`);
         }
       } catch (error) {
-        if (error instanceof Error) {
-          if (error.name === "QuotaExceededError") {
-            console.error(
-              "❌ localStorage quota exceeded! Cart too large to save."
-            );
-          } else {
-            console.error(`❌ Error saving cart to localStorage:`, error);
-          }
-        }
+        // QuotaExceededError - storage full, skip silently
       }
     }, debounceMs);
 
@@ -183,9 +159,7 @@ export function useLocalStorageSync(
   const clearCart = () => {
     try {
       localStorage.removeItem(storageKey);
-      console.log(`🗑️ Cart cleared from localStorage`);
     } catch (error) {
-      console.error("Error clearing cart:", error);
     }
   };
 
@@ -196,10 +170,8 @@ export function useLocalStorageSync(
     try {
       if (cartItems.length > 0) {
         localStorage.setItem(storageKey, JSON.stringify(cartItems));
-        console.log(`💾 Cart saved immediately (${cartItems.length} items)`);
       }
     } catch (error) {
-      console.error("Error saving cart immediately:", error);
     }
   };
 
@@ -221,7 +193,6 @@ export function useLocalStorageSync(
         totalStorageLimit: "~10 MB",
       };
     } catch (error) {
-      console.error("Error getting storage info:", error);
       return null;
     }
   };

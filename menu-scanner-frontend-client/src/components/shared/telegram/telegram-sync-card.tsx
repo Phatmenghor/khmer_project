@@ -12,15 +12,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2, Link2, Unlink, Check, Hash } from "lucide-react";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { TelegramIcon, TelegramLoginButton } from "./telegram-login-widget";
-import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
-import { SocialSyncResponse } from "@/redux/features/auth/store/models/response/social-auth-response";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
+import { SocialSyncResponse } from "@/features/auth/store/models/response/social-auth-response";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   syncTelegramAccountService,
   unsyncSocialAccountService,
-} from "@/redux/features/auth/store/thunks/social-auth-thunks";
+} from "@/features/auth/store/thunks/social-auth-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
 import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { formatDistanceToNow } from "date-fns";
@@ -61,15 +61,6 @@ export function TelegramSyncCard({
 
   // Handle Telegram sync
   const handleTelegramSync = async (telegramData: TelegramAuthData) => {
-    console.log("## [TELEGRAM SYNC] ▶ Starting sync...", {
-      telegramId: telegramData.id,
-      username: telegramData.username,
-      firstName: telegramData.first_name,
-      lastName: telegramData.last_name,
-      hasPhoto: !!telegramData.photo_url,
-      authDate: telegramData.auth_date,
-      userType,
-    });
     setIsConnecting(true);
     try {
       const result = await dispatch(
@@ -78,19 +69,9 @@ export function TelegramSyncCard({
           userType,
         })
       ).unwrap();
-
-      console.log("## [TELEGRAM SYNC] ✓ Sync successful:", {
-        telegramId: result.telegramId,
-        username: result.telegramUsername,
-        firstName: result.telegramFirstName,
-        lastName: result.telegramLastName,
-        hasPhoto: !!result.telegramPhotoUrl,
-        syncedAt: result.syncedAt,
-      });
       showToast.success("Telegram account connected successfully!");
       onSyncSuccess?.(result);
     } catch (err: any) {
-      console.error("## [TELEGRAM SYNC] ✗ Sync failed:", err);
       showToast.error(err || "Failed to connect Telegram account.");
     } finally {
       setIsConnecting(false);
@@ -98,14 +79,11 @@ export function TelegramSyncCard({
   };
 
   const handleTelegramUnsync = async () => {
-    console.log("## [TELEGRAM UNSYNC] ▶ Starting unsync...");
     try {
       const result = await dispatch(unsyncSocialAccountService("TELEGRAM")).unwrap();
-      console.log("## [TELEGRAM UNSYNC] ✓ Unsync successful:", result);
       showToast.success("Telegram account disconnected successfully.");
       onUnsyncSuccess?.(result);
     } catch (err: any) {
-      console.error("## [TELEGRAM UNSYNC] ✗ Unsync failed:", err);
       showToast.error(err || "Failed to disconnect Telegram account.");
     } finally {
       setIsConfirmDialogOpen(false);

@@ -7,13 +7,11 @@ function setNativeCookie(name: string, value: string, maxAge: number): void {
   const expires = new Date();
   expires.setSeconds(expires.getSeconds() + maxAge);
   document.cookie = `${name}=${encodeURIComponent(value)}; path=/; expires=${expires.toUTCString()}`;
-  console.log(`## [COOKIE] Set ${name} with maxAge ${maxAge}s`);
 }
 
 function deleteNativeCookie(name: string): void {
   if (typeof window === "undefined") return;
   document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
-  console.log(`## [COOKIE] Deleted ${name}`);
 }
 
 // Cookie names - use centralized constants

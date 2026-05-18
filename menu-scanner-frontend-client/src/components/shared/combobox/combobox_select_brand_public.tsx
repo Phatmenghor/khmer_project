@@ -20,9 +20,9 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
-import { BrandResponseModel } from "@/redux/features/master-data/store/models/response/brand-response";
-import { fetchPublicBrands } from "@/redux/features/main/store/thunks/public-brands-thunks";
+import { useAppDispatch } from "@/store";
+import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
+import { fetchPublicBrands } from "@/features/main/store/thunks/public-brands-thunks";
 import { Tag } from "lucide-react";
 
 interface ComboboxSelectBrandPublicProps {
@@ -122,7 +122,6 @@ function ComboboxSelectBrandPublicComponent({
       setPage(result.pageNo || newPage);
       setLastPage(result.last || false);
     } catch (error) {
-      console.error("Error fetching brands:", error);
     } finally {
       setLoading(false);
     }

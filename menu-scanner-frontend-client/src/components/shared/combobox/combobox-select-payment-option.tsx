@@ -20,8 +20,8 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
-import { fetchAllPaymentOptionsService } from "@/redux/features/master-data/store/thunks/payment-options-thunks";
+import { useAppDispatch } from "@/store";
+import { fetchAllPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
 
 interface PaymentOption {
   id: string;
@@ -104,7 +104,6 @@ export function ComboboxSelectPayment({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (error) {
-      console.error("Error fetching payment options:", error);
     } finally {
       setLoading(false);
     }

@@ -6,14 +6,14 @@
  */
 
 import { useCallback, useState } from 'react';
-import { useAppDispatch } from '@/redux/store';
-import { createPOSCheckoutOrderService } from '@/redux/features/business/store/thunks/pos-page-thunks';
+import { useAppDispatch } from '@/store';
+import { createPOSCheckoutOrderService } from '@/features/business/store/thunks/pos-page-thunks';
 import {
   POSCheckoutRequest,
   POSCheckoutResponse,
   POSCheckoutItemRequest,
   POSCheckoutAddressRequest,
-} from '@/redux/features/business/store/models/request/pos-checkout-request';
+} from '@/features/business/store/models/request/pos-checkout-request';
 import { showToast } from '@/components/shared/common/show-toast';
 
 interface UsePOSCheckoutState {

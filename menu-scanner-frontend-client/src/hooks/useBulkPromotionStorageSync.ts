@@ -6,9 +6,9 @@
  */
 
 import { useEffect, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { setSelectedProducts } from "@/redux/features/business/store/slice/bulk-promotion-slice";
-import { selectSelectedProductIds } from "@/redux/features/business/store/selectors/bulk-promotion-selector";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { setSelectedProducts } from "@/features/business/store/slice/bulk-promotion-slice";
+import { selectSelectedProductIds } from "@/features/business/store/selectors/bulk-promotion-selector";
 
 interface UseBulkPromotionStorageSyncOptions {
   /**
@@ -164,9 +164,7 @@ export function useBulkPromotionStorageSync(
   const clearSelections = () => {
     try {
       localStorage.removeItem(storageKey);
-      console.log(`🗑️ Selected products cleared from localStorage`);
     } catch (error) {
-      console.error("Error clearing selections:", error);
     }
   };
 
@@ -186,7 +184,6 @@ export function useBulkPromotionStorageSync(
         totalStorageLimit: "~10 MB",
       };
     } catch (error) {
-      console.error("Error getting storage info:", error);
       return null;
     }
   };

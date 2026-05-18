@@ -56,7 +56,6 @@ export class CacheManager {
       try {
         localStorage.setItem(`cache_${key}`, JSON.stringify(entry));
       } catch (e) {
-        console.warn(`Failed to cache ${key} to localStorage:`, e);
       }
     }
   }
@@ -78,7 +77,6 @@ export class CacheManager {
           this.memoryCache.set(key, entry);
         }
       } catch (e) {
-        console.warn(`Failed to load ${key} from localStorage:`, e);
       }
     }
 

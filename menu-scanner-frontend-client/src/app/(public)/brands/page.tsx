@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { usePublicBrandsState } from "@/redux/features/main/store/state/public-brands-state";
+import { usePublicBrandsState } from "@/features/main/store/state/public-brands-state";
 import { Store, Loader2 } from "lucide-react";
 import { BrandCard } from "@/components/shared/card/brand-card";
 import { BrandCardSkeleton } from "@/components/shared/skeletons/brand-card-skeleton";

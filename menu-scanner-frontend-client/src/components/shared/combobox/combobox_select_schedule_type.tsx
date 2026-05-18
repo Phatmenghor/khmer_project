@@ -18,8 +18,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import { useAppDispatch } from "@/redux/store";
-import { fetchAllWorkSchedulesTypeService } from "@/redux/features/hr/store/thunks/work-schedule-type-thunks";
+import { useAppDispatch } from "@/store";
+import { fetchAllWorkSchedulesTypeService } from "@/features/hr/store/thunks/work-schedule-type-thunks";
 
 interface ScheduleType {
   enumName: string;
@@ -67,7 +67,6 @@ export function ComboboxSelectScheduleType({
           setScheduleTypes(result.content);
         }
       } catch (error) {
-        console.error("Error fetching schedule types:", error);
       } finally {
         setLoading(false);
       }

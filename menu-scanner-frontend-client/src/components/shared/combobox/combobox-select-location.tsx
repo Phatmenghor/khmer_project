@@ -20,8 +20,8 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2, Plus } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
-import { fetchAllLocationsService } from "@/redux/features/location/store/thunks/location-thunks";
+import { useAppDispatch } from "@/store";
+import { fetchAllLocationsService } from "@/features/location/store/thunks/location-thunks";
 import { useRouter } from "next/navigation";
 
 interface Location {
@@ -113,7 +113,6 @@ export function ComboboxSelectLocation({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (error) {
-      console.error("Error fetching locations:", error);
     } finally {
       setLoading(false);
     }

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { ClientProviders } from "@/context/client-provider";
+import { ClientProviders } from "@/providers/client-provider";
 import { getMessages } from "next-intl/server";
 import localFont from "next/font/local";
 import "../styles/globals.css";
 import PageProgressBar from "@/components/shared/progress/global-n-progress";
-import { LocaleProvider } from "@/context/locale-provider";
+import { LocaleProvider } from "@/providers/locale-provider";
 import { ScrollToTop } from "@/components/shared/common/scroll-to-top";
-import { AuthProvider } from "@/context/auth-provider";
+import { AuthProvider } from "@/providers/auth-provider";
 import { ThemeInitializer } from "@/components/shared/theme/theme-initializer";
 import { defaultLocale, type Locale } from "@/i18n/request";
 import { buildMetadata } from "@/utils/metadata/metadata-builder";

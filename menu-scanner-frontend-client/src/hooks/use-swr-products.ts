@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/redux/store';
-import { fetchPublicProducts } from '@/redux/features/main/store/thunks/public-product-thunks';
-import { selectProductListLoadingState } from '@/redux/features/main/store/selectors/optimized-public-product-selectors';
+import { AppDispatch, RootState } from '@/store';
+import { fetchPublicProducts } from '@/features/main/store/thunks/public-product-thunks';
+import { selectProductListLoadingState } from '@/features/main/store/selectors/optimized-public-product-selectors';
 
 // Cache key configuration
 const CACHE_PREFIX = 'swr:products';
@@ -72,7 +72,6 @@ class SwrCacheManager {
       const data = Array.from(this.cache.entries());
       localStorage.setItem(this.getStorageKey(), JSON.stringify(data));
     } catch (error) {
-      console.warn('Failed to save SWR cache to storage', error);
     }
   }
 
@@ -84,7 +83,6 @@ class SwrCacheManager {
         this.cache = new Map(entries);
       }
     } catch (error) {
-      console.warn('Failed to load SWR cache from storage', error);
     }
   }
 
@@ -195,7 +193,6 @@ export function useSWRProducts(filters: any = {}, cacheTTL: number = DEFAULT_CAC
 
     if (isStale) {
       fetchFresh().catch((error) => {
-        console.warn('Failed to fetch fresh products:', error);
       });
     }
   }, [hasInitialized, isStale, loadingState.isListLoading, fetchFresh]);

@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
 import {
   useScrollState,
   useScrollPosition,
-} from "@/redux/features/main/store/state/scroll-state";
+} from "@/features/main/store/state/scroll-state";
 
 export interface UseScrollRestorationOptions {
   /**

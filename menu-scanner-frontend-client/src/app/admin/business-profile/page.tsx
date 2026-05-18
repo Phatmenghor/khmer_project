@@ -57,7 +57,6 @@ export default function BusinessProfileEditorPage() {
   });
 
   const onSubmit = (data: any) => {
-    console.log("Saving profile:", data);
     showToast.success("Business profile updated successfully!");
     // TODO: API call to save profile
   };

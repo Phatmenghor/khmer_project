@@ -13,16 +13,16 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { changePasswordService } from "@/redux/features/auth/store/thunks/auth-thunks";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { changePasswordService } from "@/features/auth/store/thunks/auth-thunks";
 import {
   selectIsProfileLoading,
   selectError,
-} from "@/redux/features/auth/store/selectors/auth-selectors";
-import { clearError } from "@/redux/features/auth/store/slice/auth-slice";
+} from "@/features/auth/store/selectors/auth-selectors";
+import { clearError } from "@/features/auth/store/slice/auth-slice";
 import { showToast } from "@/components/shared/common/show-toast";
 import { getFieldError } from "@/utils/common/get-field-error";
-import { changePasswordSchema } from "@/redux/features/auth/store/models/schema/user.schema";
+import { changePasswordSchema } from "@/features/auth/store/models/schema/user.schema";
 
 type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 
@@ -80,7 +80,6 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
       showToast.success("Password changed successfully");
       handleClose();
     } catch (error: any) {
-      console.error("Error changing password:", error);
       showToast.error(error || "Failed to change password");
     }
   };

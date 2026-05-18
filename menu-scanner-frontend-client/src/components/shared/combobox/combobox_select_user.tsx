@@ -20,9 +20,9 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/redux/store";
-import { UserResponseModel } from "@/redux/features/auth/store/models/response/users-response";
-import { fetchAllUsersService } from "@/redux/features/auth/store/thunks/users-thunks";
+import { useAppDispatch } from "@/store";
+import { UserResponseModel } from "@/features/auth/store/models/response/users-response";
+import { fetchAllUsersService } from "@/features/auth/store/thunks/users-thunks";
 
 interface ComboboxSelectUserProps {
   dataSelect: UserResponseModel | null;
@@ -112,7 +112,6 @@ export function ComboboxSelectUser({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (error) {
-      console.error("Error fetching users:", error);
     } finally {
       setLoading(false);
     }

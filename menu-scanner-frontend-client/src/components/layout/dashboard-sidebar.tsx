@@ -21,16 +21,16 @@ declare global {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ROUTES, SIDEBAR_MENU } from "@/constants/app-routes/routes";
 import Image from "next/image";
-import { UserAvatarCard } from "../shared/avator/user-avatar-card";
-import { useIsMobile } from "@/redux/store/use-mobile";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { getProfileService } from "@/redux/features/auth/store/thunks/auth-thunks";
-import { useAppSelector } from "@/redux/store";
+import { UserAvatarCard } from "../shared/avatar/user-avatar-card";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { getProfileService } from "@/features/auth/store/thunks/auth-thunks";
+import { useAppSelector } from "@/store";
 import {
   selectBusinessSettings,
   selectBusinessName,
   selectBusinessLogo,
-} from "@/redux/features/business/store/selectors/business-settings-selector";
+} from "@/features/business/store/selectors/business-settings-selector";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 interface SidebarProps {

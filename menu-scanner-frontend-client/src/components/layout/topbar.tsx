@@ -21,9 +21,9 @@ import {
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
-import { useLogout } from "@/redux/store/use-logout";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
+import { useLogout } from "@/hooks/use-logout";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { CustomDropdownMenu } from "@/components/shared/common/custom-dropdown-menu";
 
 interface TopBarProps {

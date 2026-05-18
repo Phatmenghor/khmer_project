@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useRef } from "react";
 import { useUrlParams } from "./use-url-params";
 import { useLocalStorage } from "./use-local-storage";
-import { PosPageCartItem } from "@/redux/features/business/store/models/type/pos-page-type";
+import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 
 /**
  * POS Page Filter State

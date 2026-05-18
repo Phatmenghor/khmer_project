@@ -1,7 +1,7 @@
 "use client";
 
 import { Flame } from "lucide-react";
-import { ProductListPage } from "@/redux/features/main/components/product/product-list-page";
+import { ProductListPage } from "@/features/main/components/product/product-list-page";
 
 function PromotionsHero() {
   return (

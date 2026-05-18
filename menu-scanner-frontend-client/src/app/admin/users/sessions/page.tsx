@@ -9,28 +9,28 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
-import { usePagination } from "@/redux/store/use-pagination";
+import { usePagination } from "@/hooks/use-pagination";
 
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { PRODUCT_STATUS_FILTER } from "@/constants/status/filter-status";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
-import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
 import {
   resetState,
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/sessions/store/slice/session-slice";
-import { useSessionState } from "@/redux/features/sessions/store/state/session-state";
-import { SessionResponseModel } from "@/redux/features/sessions/store/models/response/session-response";
+} from "@/features/sessions/store/slice/session-slice";
+import { useSessionState } from "@/features/sessions/store/state/session-state";
+import { SessionResponseModel } from "@/features/sessions/store/models/response/session-response";
 import {
   deleteSessionByIDService,
   fetchAllSessionsService,
-} from "@/redux/features/sessions/store/thunks/session-thunks";
-import { sessionTableColumns } from "@/redux/features/sessions/table/session-table";
-import { SessionsDetailModal } from "@/redux/features/sessions/components/session-detail-modal";
+} from "@/features/sessions/store/thunks/session-thunks";
+import { sessionTableColumns } from "@/features/sessions/table/session-table";
+import { SessionsDetailModal } from "@/features/sessions/components/session-detail-modal";
 
 export default function SessionPage() {
   // Clean up state when leaving admin area (performance optimization)
@@ -160,7 +160,6 @@ export default function SessionPage() {
     });
   };
 
-  console.log("### Session Page Rendered with sessions:", sessionsContent); // Debug log
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">

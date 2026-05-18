@@ -25,11 +25,11 @@ import {
   Check,
   Zap,
 } from "lucide-react";
-import { useAppDispatch } from "@/redux/store";
+import { useAppDispatch } from "@/store";
 import {
   fetchOrderDetailsService,
   cancelOrderService,
-} from "@/redux/features/main/store/thunks/my-orders-thunks";
+} from "@/features/main/store/thunks/my-orders-thunks";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -37,7 +37,7 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
-import { OrderResponse } from "@/redux/features/main/store/models/response/order-response";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { cn } from "@/lib/utils";
 
 const STATUS_COLORS: Record<
@@ -145,7 +145,6 @@ export default function OrderDetailPage() {
           loading: false,
         }));
       } catch (error: any) {
-        console.error("Failed to fetch order details:", error);
         setState((prev) => ({
           ...prev,
           error: error?.message || "Failed to load order details",
@@ -184,7 +183,6 @@ export default function OrderDetailPage() {
           url: shareUrl,
         });
       } catch (error) {
-        console.log("Share cancelled");
       }
     } else {
       navigator.clipboard.writeText(shareUrl);

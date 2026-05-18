@@ -5,17 +5,17 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   setSearchTerm,
   setPromotionFilter,
-} from "@/redux/features/business/store/slice/pos-page-slice";
+} from "@/features/business/store/slice/pos-page-slice";
 import {
   selectSearchTerm,
   selectPromotionFilter,
   selectSelectedCategory,
   selectSelectedBrand,
-} from "@/redux/features/business/store/selectors/pos-page-selector";
+} from "@/features/business/store/selectors/pos-page-selector";
 
 export interface FilterState {
   search: string;
@@ -64,9 +64,6 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
       const search = searchParams.get("search") || "";
       const promotion = searchParams.get("promotion") === "true";
 
-      console.log(`📍 useFilterURLSync: Loading from URL`);
-      console.log(`  - search: ${search}`);
-      console.log(`  - promotion: ${promotion}`);
 
       // Update Redux with URL values
       if (search) {
@@ -84,13 +81,11 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
         hasPromotion: promotion,
       };
 
-      console.log(`✅ Loaded filters:`, JSON.stringify(filters));
 
       if (onFiltersLoaded) {
         onFiltersLoaded(filters);
       }
     } catch (error) {
-      console.error("❌ Error loading filters from URL:", error);
     }
   }, []);
 
@@ -134,7 +129,6 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
         // Check if URL actually changed
         const currentUrl = window.location.search;
         if (newUrl !== currentUrl) {
-          console.log(`📍 Updating URL: ${newUrl || "(no filters)"}`);
 
           // Use window.history for more reliable navigation
           window.history.pushState(
@@ -150,14 +144,12 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
             hasPromotion: promotionFilter || false,
           };
 
-          console.log(`✅ Filters synced:`, JSON.stringify(filters));
 
           if (onFiltersChanged) {
             onFiltersChanged(filters);
           }
         }
       } catch (error) {
-        console.error("❌ Error updating URL:", error);
       }
     }, debounceMs);
 
@@ -194,9 +186,7 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
       window.history.pushState(null, "", "/admin/pos");
       dispatch(setSearchTerm(""));
       dispatch(setPromotionFilter(undefined));
-      console.log(`🗑️ Filters cleared`);
     } catch (error) {
-      console.error("Error clearing filters:", error);
     }
   }, [dispatch]);
 
